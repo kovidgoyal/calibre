@@ -392,8 +392,8 @@ class MetadataField(object):
     def __set__(self, obj, val):
         elem = obj.get_metadata_element(self.name)
         if elem is None:
-            elem = obj.create_metadata_element(self.name, ns='dc' if self.is_dc else 'opf')
-        elem.text = unicode(val)
+            elem = obj.create_metadata_element(self.name, is_dc=self.is_dc)
+        obj.set_text(elem, unicode(val))
 
 class OPF(object):
     MIMETYPE         = 'application/oebps-package+xml'
@@ -403,16 +403,18 @@ class OPF(object):
                         'dc'  : "http://purl.org/dc/elements/1.1/",
                         'opf' : "http://www.idpf.org/2007/opf",
                        }
+    META             = '{%s}meta' % NAMESPACES['opf']
     xpn = NAMESPACES.copy()
     xpn.pop(None)
     xpn['re'] = 'http://exslt.org/regular-expressions'
     XPath = functools.partial(etree.XPath, namespaces=xpn)
+    CONTENT          = XPath('self::*[re:match(name(), "meta$", "i")]/@content')
     TEXT             = XPath('string()')
     
     
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
-    metadata_elem_path = XPath('descendant::*[re:match(name(), $name, "i")]')
-    series_path     = XPath('descendant::*[re:match(name(), "series$", "i")]')
+    metadata_elem_path = XPath('descendant::*[re:match(name(), $name, "i") or (re:match(name(), "^meta$", "i") and re:match(@name, $name, "i"))]')
+    series_path     = XPath('descendant::*[re:match(name(), "series$", "i") or (re:match(name(), "^meta$", "i") and re:match(@name, "series$", "i"))]')
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut" or (not(@role) and not(@opf:role)))]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
@@ -497,7 +499,13 @@ class OPF(object):
     
         
     def get_text(self, elem):
-        return u''.join(self.TEXT(elem))
+        return u''.join(self.CONTENT(elem) or self.TEXT(elem))
+
+    def set_text(self, elem, content):
+        if elem.tag == self.META:
+            elem.attib['content'] = content
+        else:
+            elem.text = content
     
     def itermanifest(self):
         return self.manifest_path(self.root)
@@ -611,9 +619,9 @@ class OPF(object):
             for elem in remove:
                 self.metadata.remove(elem)
             for author in val:
-                elem = self.create_metadata_element('creator', ns='dc',
-                                                    attrib={'{%s}role'%self.NAMESPACES['opf']:'aut'})
-                elem.text = author
+                attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
+                elem = self.create_metadata_element('creator', attrib=attrib)
+                self.set_text(elem, author)
         
         return property(fget=fget, fset=fset)
     
@@ -650,8 +658,8 @@ class OPF(object):
             for tag in list(self.tags_path(self.metadata)):
                 self.metadata.remove(tag)
             for tag in val:
-                elem = self.create_metadata_element('subject', ns='dc')
-                elem.text = unicode(tag)
+                elem = self.create_metadata_element('subject')
+                self.set_text(elem, unicode(tag))
         
         return property(fget=fget, fset=fset)
     
@@ -660,14 +668,15 @@ class OPF(object):
         
         def fget(self):
             for match in self.isbn_path(self.metadata):
-                return match.text if match.text else None
+                return self.get_text(match) or None
             
         def fset(self, val):
             matches = self.isbn_path(self.metadata)
             if not matches:
-                matches = [self.create_metadata_element('identifier', ns='dc',
-                                                attrib={'{%s}scheme'%self.NAMESPACES['opf']:'ISBN'})]
-            matches[0].text = unicode(val)
+                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
+                matches = [self.create_metadata_element('identifier',
+                                                        attrib=attrib)]
+            self.set_text(matches[0], unicode(val))
 
         return property(fget=fget, fset=fset)
 
@@ -676,14 +685,15 @@ class OPF(object):
         
         def fget(self):
             for match in self.application_id_path(self.metadata):
-                return match.text if match.text else None
+                return self.get_text(match) or None
             
         def fset(self, val):
             matches = self.application_id_path(self.metadata)
             if not matches:
-                matches = [self.create_metadata_element('identifier', ns='dc',
-                                                attrib={'{%s}scheme'%self.NAMESPACES['opf']:'calibre'})]
-            matches[0].text = unicode(val)
+                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'calibre'}
+                matches = [self.create_metadata_element('identifier',
+                                                        attrib=attrib)]
+            self.set_text(matches[0], unicode(val))
 
         return property(fget=fget, fset=fset)
 
@@ -693,13 +703,13 @@ class OPF(object):
         
         def fget(self):
             for match in self.series_path(self.metadata):
-                return match.text if match.text else None
+                return self.get_text(match) or None
         
         def fset(self, val):
             matches = self.series_path(self.metadata)
             if not matches:
-                matches = [self.create_metadata_element('series')]
-            matches[0].text = unicode(val)
+                matches = [self.create_metadata_element('series', is_dc=False)]
+            self.set_text(matches[0], unicode(val))
         
         return property(fget=fget, fset=fset)
     
@@ -710,14 +720,15 @@ class OPF(object):
         
         def fget(self):
             for match in self.bkp_path(self.metadata):
-                return match.text if match.text else None
+                return self.get_text(match) or None
             
         def fset(self, val):
             matches = self.bkp_path(self.metadata)
             if not matches:
-                matches = [self.create_metadata_element('contributor', ns='dc',
-                                                attrib={'{%s}role'%self.NAMESPACES['opf']:'bkp'})]
-            matches[0].text = unicode(val)
+                attrib = {'{%s}role'%self.NAMESPACES['opf']: 'bkp'}
+                matches = [self.create_metadata_element('contributor',
+                                                        attrib=attrib)]
+            self.set_text(matches[0], unicode(val))
         return property(fget=fget, fset=fset)
     
     
@@ -783,9 +794,15 @@ class OPF(object):
         if matches:
             return matches[-1]
         
-    def create_metadata_element(self, name, attrib=None, ns='opf'):
-        elem = etree.SubElement(self.metadata, '{%s}%s'%(self.NAMESPACES[ns], name), 
-                                attrib=attrib, nsmap=self.NAMESPACES)
+    def create_metadata_element(self, name, attrib=None, is_dc=True):
+        if is_dc:
+            name = '{%s}%s' % (self.NAMESPACES['dc'], name)
+        else:
+            attrib = attrib or {}
+            attrib['name'] = name
+            name = '{%s}%s' % (self.NAMESPACES['opf'], 'meta')
+        elem = etree.SubElement(self.metadata, name, attrib=attrib,
+                                nsmap=self.NAMESPACES)
         elem.tail = '\n'
         return elem
         
