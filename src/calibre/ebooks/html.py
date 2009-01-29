@@ -558,31 +558,22 @@ class Processor(Parser):
     
     def detect_chapters(self):
         self.detected_chapters = self.opts.chapter(self.root)
+        chapter_mark = self.opts.chapter_mark
+        page_break_before = 'display: block; page-break-before: always'
+        page_break_after = 'display: block; page-break-after: always'
         for elem in self.detected_chapters:
             text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
             self.log_info('\tDetected chapter: %s', text[:50])
-            if self.opts.chapter_mark != 'none':
-                hr = etree.Element('hr')
-                if elem.getprevious() is None:
-                    elem.getparent()[:0] = [hr]
-                elif elem.getparent() is not None:
-                    insert = None
-                    for i, c in enumerate(elem.getparent()):
-                        if c is elem:
-                            insert = i
-                            break
-                    elem.getparent()[insert:insert] = [hr]
-                if self.opts.chapter_mark != 'rule':
-                    hr.set('style', 'width:0pt;page-break-before:always')
-                    if self.opts.chapter_mark == 'both':
-                        hr2 = etree.Element('hr')
-                        hr2.tail = u'\u00a0'
-                        p = hr.getparent()
-                        i = p.index(hr)
-                        p[i:i] = [hr2]
-                
-                    
-        
+            if chapter_mark == 'none':
+                continue
+            elif chapter_mark == 'rule':
+                mark = etree.Element('hr')
+            elif chapter_mark == 'pagebreak':
+                mark = etree.Element('div', style=page_break_after)
+            else: # chapter_mark == 'both':
+                mark = etree.Element('hr', style=page_break_before)
+            elem.addprevious(mark)
+    
     def save(self):
         style_path = os.path.splitext(os.path.basename(self.save_path()))[0]
         for i, sheet in enumerate([self.stylesheet, self.font_css, self.override_css]):
