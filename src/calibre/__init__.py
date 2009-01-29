@@ -431,7 +431,12 @@ if isosx:
         for font in fonts:
             l = {}
             exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data' in l
-            open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
+            try:
+                open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
+            except:
+                import traceback
+                traceback.print_exc()
+                break
             
 # Migrate from QSettings based config system
 from calibre.utils.config import migrate
