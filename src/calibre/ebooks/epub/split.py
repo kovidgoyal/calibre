@@ -307,7 +307,11 @@ class Splitter(LoggingInterface):
         Search order is:
             * Heading tags
             * <div> tags
+            * <pre> tags
+            * <hr> tags
             * <p> tags
+            * <br> tags
+            * <li> tags
             
         We try to split in the "middle" of the file (as defined by tag counts.
         '''
@@ -327,6 +331,7 @@ class Splitter(LoggingInterface):
                      '//hr', 
                      '//p',
                      '//br',
+                     '//li',
                      ):
             elems = root.xpath(path, namespaces={'re':'http://exslt.org/regular-expressions'})
             elem = pick_elem(elems)

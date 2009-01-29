@@ -93,7 +93,7 @@
        <item>
         <widget class="QStackedWidget" name="stack" >
          <property name="currentIndex" >
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="metadata_page" >
           <layout class="QGridLayout" name="gridLayout_4" >
@@ -105,36 +105,6 @@
                 <string>Book Cover</string>
                </property>
                <layout class="QGridLayout" name="_2" >
-                <item row="0" column="0" >
-                 <layout class="QHBoxLayout" name="_3" >
-                  <item>
-                   <widget class="ImageView" name="cover" >
-                    <property name="text" >
-                     <string/>
-                    </property>
-                    <property name="pixmap" >
-                     <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
-                    </property>
-                    <property name="scaledContents" >
-                     <bool>true</bool>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="2" column="0" >
-                 <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
-                  <property name="text" >
-                   <string>Use cover from &amp;source file</string>
-                  </property>
-                  <property name="checked" >
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="0" >
                  <layout class="QVBoxLayout" name="_4" >
                   <property name="spacing" >
@@ -183,6 +153,36 @@
                      </widget>
                     </item>
                    </layout>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0" >
+                 <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
+                  <property name="text" >
+                   <string>Use cover from &amp;source file</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <layout class="QHBoxLayout" name="_3" >
+                  <item>
+                   <widget class="ImageView" name="cover" >
+                    <property name="text" >
+                     <string/>
+                    </property>
+                    <property name="pixmap" >
+                     <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
+                    </property>
+                    <property name="scaledContents" >
+                     <bool>true</bool>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -777,16 +777,29 @@ p, li { white-space: pre-wrap; }
               <item row="5" column="1" >
                <widget class="QLineEdit" name="opt_level2_toc" />
               </item>
-              <item row="6" column="1" >
+              <item row="7" column="1" >
                <widget class="QLineEdit" name="opt_toc_title" />
               </item>
-              <item row="6" column="0" >
+              <item row="7" column="0" >
                <widget class="QLabel" name="toc_title_label" >
                 <property name="text" >
                  <string>&amp;Title for generated TOC</string>
                 </property>
                 <property name="buddy" >
                  <cstring>opt_toc_title</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1" >
+               <widget class="QLineEdit" name="opt_level3_toc" />
+              </item>
+              <item row="6" column="0" >
+               <widget class="QLabel" name="label_11" >
+                <property name="text" >
+                 <string>Level &amp;3 TOC</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_level3_toc</cstring>
                 </property>
                </widget>
               </item>

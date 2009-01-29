@@ -8,7 +8,7 @@ Scheduler for automated recipe downloads
 '''
 
 import sys, copy, time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from PyQt4.Qt import QDialog, QApplication, QLineEdit, QPalette, SIGNAL, QBrush, \
                      QColor, QAbstractListModel, Qt, QVariant, QFont, QIcon, \
                      QFile, QObject, QTimer, QMutex, QMenu, QAction, QTime
@@ -289,7 +289,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 recipe.last_downloaded = datetime.fromordinal(1)
                 recipes.append(recipe)
             if recipe.needs_subscription and not config['recipe_account_info_%s'%recipe.id]:
-                error_dialog(self, _('Must set account information'), _('This recipe requires a username and password')).exec_()
+                error_dialog(self, _('Must set account information'), 
+                             _('This recipe requires a username and password')).exec_()
                 self.schedule.setCheckState(Qt.Unchecked)
                 return
             if self.interval_button.isChecked():
@@ -350,9 +351,11 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.username.blockSignals(False)
             self.password.blockSignals(False)
         d = datetime.utcnow() - recipe.last_downloaded
-        ld = '%.2f'%(d.days + d.seconds/(24.*3600))
+        def hm(x): return (x-x%3600)//3600, (x%3600 - (x%3600)%60)//60
+        hours, minutes = hm(d.seconds)
+        tm = _('%d days, %d hours and %d minutes ago')%(d.days, hours, minutes)
         if d < timedelta(days=366):
-            self.last_downloaded.setText(_('Last downloaded: %s days ago')%ld)
+            self.last_downloaded.setText(_('Last downloaded')+': '+tm)
         else:
             self.last_downloaded.setText(_('Last downloaded: never'))
             
@@ -431,7 +434,7 @@ class Scheduler(QObject):
                     day_matches = day > 6 or day == now.tm_wday
                     tnow = now.tm_hour*60 + now.tm_min
                     matches = day_matches and (hour*60+minute) < tnow
-                    if matches and delta >= timedelta(days=1):
+                    if matches and nowt.toordinal() < date.today().toordinal():
                         needs_downloading.add(recipe)
                 
             self.debug('Needs downloading:', needs_downloading)

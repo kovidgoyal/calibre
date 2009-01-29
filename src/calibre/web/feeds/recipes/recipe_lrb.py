@@ -32,3 +32,8 @@ class LondonReviewOfBooks(BasicNewsRecipe):
     def print_version(self, url):
         main, split, rest = url.rpartition('/')
         return main + '/print/' + rest
+    
+    def postprocess_html(self, soup, first_fetch):
+        for t in soup.findAll(['table', 'tr', 'td']):
+            t.name = 'div'
+        return soup
