@@ -552,7 +552,7 @@ class Manifest(object):
             elif media_type in OEB_STYLES:
                 media_type = CSS_MIME
             attrib = {'id': item.id, 'href': item.href,
-                      'media-type': item.media_type}
+                      'media-type': media_type}
             if item.fallback:
                 attrib['fallback'] = item.fallback
             element(elem, OPF('item'), attrib=attrib)
@@ -937,7 +937,7 @@ class OEBBook(object):
             spine.add(item, elem.get('linear'))
         extras = []
         for item in self.manifest.values():
-            if item.media_type == XHTML_MIME \
+            if item.media_type in OEB_DOCS \
                and item not in spine:
                 extras.append(item)
         extras.sort()

@@ -148,10 +148,6 @@ class MobiMLizer(object):
             if bstate.pbreak:
                 etree.SubElement(body, MBP('pagebreak'))
                 bstate.pbreak = False
-            if istate.ids:
-                for id in istate.ids:
-                    etree.SubElement(body, XHTML('a'), attrib={'id': id})
-                istate.ids.clear()
             bstate.istate = None
             bstate.anchor = None
             parent = bstate.nested[-1] if bstate.nested else bstate.body
@@ -186,14 +182,17 @@ class MobiMLizer(object):
                 wrapper.attrib['height'] = self.mobimlize_measure(vspace)
                 para.attrib['width'] = self.mobimlize_measure(indent)
             elif tag == 'table' and vspace > 0:
-                body = bstate.body
                 vspace = int(round(vspace / self.profile.fbase))
-                index = max((0, len(body) - 1))
                 while vspace > 0:
-                    body.insert(index, etree.Element(XHTML('br')))
+                    wrapper.addprevious(etree.Element(XHTML('br')))
                     vspace -= 1
             if istate.halign != 'auto':
                 para.attrib['align'] = istate.halign
+        if istate.ids:
+            last = bstate.body[-1]
+            for id in istate.ids:
+                last.addprevious(etree.Element(XHTML('a'), attrib={'id': id}))
+            istate.ids.clear()
         pstate = bstate.istate
         if tag in CONTENT_TAGS:
             bstate.inline = para
