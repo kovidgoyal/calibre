@@ -413,8 +413,7 @@ class OPF(object):
     
     
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
-    metadata_elem_path = XPath('descendant::*[re:match(name(), $name, "i") or (re:match(name(), "^meta$", "i") and re:match(@name, $name, "i"))]')
-    series_path     = XPath('descendant::*[re:match(name(), "series$", "i") or (re:match(name(), "^meta$", "i") and re:match(@name, "series$", "i"))]')
+    metadata_elem_path = XPath('descendant::*[re:match(name(), concat($name, "$"), "i") or (re:match(name(), "meta$", "i") and re:match(@name, concat("^calibre:", $name, "$"), "i"))]')
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut" or (not(@role) and not(@opf:role)))]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
@@ -433,6 +432,7 @@ class OPF(object):
     language        = MetadataField('language')
     comments        = MetadataField('description')
     category        = MetadataField('category')
+    series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=int, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
     
@@ -696,24 +696,6 @@ class OPF(object):
             self.set_text(matches[0], unicode(val))
 
         return property(fget=fget, fset=fset)
-
-    
-    @apply
-    def series():
-        
-        def fget(self):
-            for match in self.series_path(self.metadata):
-                return self.get_text(match) or None
-        
-        def fset(self, val):
-            matches = self.series_path(self.metadata)
-            if not matches:
-                matches = [self.create_metadata_element('series', is_dc=False)]
-            self.set_text(matches[0], unicode(val))
-        
-        return property(fget=fget, fset=fset)
-    
-    
     
     @apply
     def book_producer():
@@ -799,7 +781,7 @@ class OPF(object):
             name = '{%s}%s' % (self.NAMESPACES['dc'], name)
         else:
             attrib = attrib or {}
-            attrib['name'] = name
+            attrib['name'] = 'calibre:' + name
             name = '{%s}%s' % (self.NAMESPACES['opf'], 'meta')
         elem = etree.SubElement(self.metadata, name, attrib=attrib,
                                 nsmap=self.NAMESPACES)
