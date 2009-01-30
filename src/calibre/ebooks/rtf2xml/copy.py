@@ -15,7 +15,8 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os
+import sys, os, shutil
+
 class Copy:
     """Copy each changed file to a directory for debugging purposes"""
     __dir = ""
@@ -64,25 +65,7 @@ class Copy:
         of cp. Otherwise, use a safe python method.
         """
         write_file = os.path.join(Copy.__dir,new_file)
-        platform = sys.platform
-        if platform[:5] == 'linux':
-            command = 'cp %(file)s %(write_file)s' % vars()
-            os.system(command)
-        else:
-            read_obj = open(file,'r')
-            write_obj = open(write_file, 'w')
-            line = "dummy"
-            while line:
-                    line = read_obj.read(1000)
-                    write_obj.write(line )
-            read_obj.close()
-            write_obj.close()
+        shutil.copyfile(file, write_file)
+    
     def rename(self, source, dest):
-        read_obj = open(source, 'r')
-        write_obj = open(dest, 'w')
-        line = 1
-        while line:
-            line = read_obj.readline()
-            write_obj.write(line)
-        read_obj.close()
-        write_obj.close()
+        shutil.copyfile(source, dest)

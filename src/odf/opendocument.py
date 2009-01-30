@@ -64,6 +64,12 @@ odmimetypes = {
  'application/vnd.oasis.opendocument.text-web':              '.oth',
 }
 
+class OpaqueObject:
+    def __init__(self, filename, mediatype, content=None):
+       self.mediatype = mediatype
+       self.filename = filename
+       self.content = content
+
 class OpenDocument:
     """ A class to hold the content of an OpenDocument document
         Use the xml method to write the XML
@@ -76,6 +82,7 @@ class OpenDocument:
     def __init__(self, mimetype, add_generator=True):
         self.mimetype = mimetype
         self.childobjects = []
+        self._extra = []
         self.folder = "" # Always empty for toplevel documents
         self.topnode = Document(mimetype=self.mimetype)
         self.topnode.ownerDocument = self
@@ -303,12 +310,15 @@ class OpenDocument:
         else:
             self.thumbnail = filecontent
 
-    def addObject(self, document):
+    def addObject(self, document, objectname=None):
         """ Add an object. The object must be an OpenDocument class
             The return value will be the folder in the zipfile the object is stored in
         """
         self.childobjects.append(document)
-        document.folder = "%s/Object %d" % (self.folder, len(self.childobjects))
+        if objectname is None:
+            document.folder = "%s/Object %d" % (self.folder, len(self.childobjects))
+        else:
+            document.folder = objectname
         return ".%s" % document.folder
 
     def _savePictures(self, object, folder):
@@ -348,7 +358,7 @@ class OpenDocument:
         else:
             if addsuffix:
                 outputfile = outputfile + odmimetypes.get(self.mimetype,'.xxx')
-            outputfp = zipfile.ZipFile(outputfile,"w")
+            outputfp = zipfile.ZipFile(outputfile, "w")
         self._zipwrite(outputfp)
         outputfp.close()
 
@@ -382,6 +392,14 @@ class OpenDocument:
             zi.external_attr = UNIXPERMS
             self._z.writestr(zi, self.thumbnail)
 
+        # Write any extra files
+        for op in self._extra:
+            self.manifest.addElement(manifest.FileEntry(fullpath=op.filename, mediatype=op.mediatype))
+            zi = zipfile.ZipInfo(op.filename.encode('utf-8'), self._now)
+            zi.compress_type = zipfile.ZIP_DEFLATED
+            zi.external_attr = UNIXPERMS
+            if op.content is not None:
+                self._z.writestr(zi, op.content)
         # Write manifest
         zi = zipfile.ZipInfo("META-INF/manifest.xml", self._now)
         zi.compress_type = zipfile.ZIP_DEFLATED
@@ -528,15 +546,20 @@ def load(odffile):
             parser.parse(inpsrc)
             del doc._parsing
         except KeyError, v: pass
-    # Add the thumbnail here
-    # Add the images here
+    # FIXME: Add subobjects correctly here
     for mentry,mvalue in manifest.items():
         if mentry[:9] == "Pictures/" and len(mentry) > 9:
             doc.addPicture(mvalue['full-path'], mvalue['media-type'], z.read(mentry))
         elif mentry == "Thumbnails/thumbnail.png":
             doc.addThumbnail(z.read(mentry))
+        elif mentry in ('settings.xml', 'meta.xml', 'content.xml', 'styles.xml'):
+            pass
         else:
-            pass  # Add the SUN junk here to the struct somewhere
+            if mvalue['full-path'][-1] == '/':
+                doc._extra.append(OpaqueObject(mvalue['full-path'], mvalue['media-type'], None))
+            else:
+                doc._extra.append(OpaqueObject(mvalue['full-path'], mvalue['media-type'], z.read(mentry)))
+            # Add the SUN junk here to the struct somewhere
             # It is cached data, so it can be out-of-date
     z.close()
     b = doc.getElementsByType(Body)
