@@ -1003,7 +1003,10 @@ def merge_metadata(htmlfile, opf, opts):
         mi.cover = os.path.abspath(cover)
         
     if not mi.title:
-        mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
+        if htmlfile:
+            mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
+        else:
+            mi.title = _('Unknown')
     if not mi.authors:
         mi.authors = [_('Unknown')]
     return mi
