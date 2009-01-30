@@ -39,15 +39,3 @@ def Algorithm(**args):
 def KeyDerivation(**args):
     return Element(qname = (MANIFESTNS,'key-derivation'), **args)
 
-
-
-if __name__ == "__main__":
-    import cStringIO
-    xml=cStringIO.StringIO()
-    m = Manifest()
-    f = FileEntry(mediatype="text/xml", fullpath="content.xml")
-    m.addElement(f)
-
-    m.toXml(0,xml)
-    print xml.getvalue()
-

@@ -898,7 +898,7 @@ def config(defaults=None, config_name='html',
     metadata('title', ['-t', '--title'], default=None,
              help=_('Set the title. Default is to autodetect.'))
     metadata('authors', ['-a', '--authors'], default=None,
-             help=_('The author(s) of the ebook, as a comma separated list.'))
+             help=_('The author(s) of the ebook, as a & separated list.'))
     metadata('tags', ['--subjects'], default=None,
              help=_('The subject(s) of this book, as a comma separated list.'))
     metadata('publisher', ['--publisher'], default=None,
@@ -994,7 +994,9 @@ def merge_metadata(htmlfile, opf, opts):
         val = getattr(opts, attr, None)
         if val is None or val == _('Unknown') or val == [_('Unknown')]:
             continue
-        if attr in ('authors', 'tags'):
+        if attr =='authors':
+            val = [i.strip() for i in val.split('&') if i.strip()]
+        elif attr == 'tags':
             val = [i.strip() for i in val.split(',') if i.strip()]
         setattr(mi, attr, val)
         
