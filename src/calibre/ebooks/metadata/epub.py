@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
 
-import sys, os, time
+import os, time
 from cStringIO import StringIO
 from contextlib import closing
 
@@ -15,10 +15,10 @@ from PyQt4.QtWebKit import QWebPage
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
-from calibre.ebooks.metadata import get_parser, MetaInformation
+from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
-from calibre import CurrentDir, fit_image
+from calibre import CurrentDir
 
 class EPubException(Exception):
     pass
@@ -188,67 +188,10 @@ def get_metadata(stream, extract_cover=True):
 def set_metadata(stream, mi):
     stream.seek(0)
     reader = OCFZipReader(stream, root=os.getcwdu())
+    mi = MetaInformation(mi)
+    for x in ('guide', 'toc', 'manifest', 'spine'):
+        setattr(mi, x, None)
     reader.opf.smart_update(mi)
     newopf = StringIO(reader.opf.render())
     safe_replace(stream, reader.container[OPF.MIMETYPE], newopf)
     
-def option_parser():
-    parser = get_parser('epub')
-    parser.remove_option('--category')
-    parser.add_option('--tags', default=None, 
-                      help=_('A comma separated list of tags to set'))
-    parser.add_option('--series', default=None,
-                      help=_('The series to which this book belongs'))
-    parser.add_option('--series-index', default=None,
-                      help=_('The series index'))
-    parser.add_option('--language', default=None,
-                      help=_('The book language'))
-    parser.add_option('--get-cover', default=False, action='store_true',
-                      help=_('Extract the cover'))
-    return parser
-
-def main(args=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        return 1
-    with open(args[1], 'r+b') as stream:
-        mi = get_metadata(stream, extract_cover=opts.get_cover)
-        changed = False
-        if opts.title:
-            mi.title = opts.title
-            changed = True
-        if opts.authors:
-            mi.authors = opts.authors.split(',')
-            changed = True
-        if opts.tags:
-            mi.tags = opts.tags.split(',')
-            changed = True
-        if opts.comment:
-            mi.comments = opts.comment
-            changed = True
-        if opts.series:
-            mi.series = opts.series
-            changed = True
-        if opts.series_index:
-            mi.series_index = opts.series_index
-            changed = True
-        if opts.language is not None:
-            mi.language = opts.language
-            changed = True
-        
-        if changed:
-            set_metadata(stream, mi)
-        print unicode(get_metadata(stream, extract_cover=False)).encode('utf-8')
-        
-    if mi.cover_data[1] is not None:
-        cpath = os.path.splitext(os.path.basename(args[1]))[0] + '_cover.jpg'
-        with open(cpath, 'wb') as f:
-            f.write(mi.cover_data[1])
-            print 'Cover saved to', f.name
-    
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

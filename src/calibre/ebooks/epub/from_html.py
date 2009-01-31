@@ -153,11 +153,30 @@ class HTMLProcessor(Processor, Rationalizer):
         Perform various markup transforms to get the output to render correctly 
         in the quirky ADE.
         '''
-        # Replace <br> that are children of <body> with <p>&nbsp;</p>
+        # Replace <br> that are children of <body> as ADE doesn't handle them
         if hasattr(self.body, 'xpath'):
             for br in self.body.xpath('./br'):
+                if br.getparent() is None:
+                    continue
+                try:
+                    sibling = br.itersiblings().next()
+                except:
+                    sibling = None
                 br.tag = 'p'
                 br.text = u'\u00a0'
+                if (br.tail and br.tail.strip()) or sibling is None or \
+                   getattr(sibling, 'tag', '') != 'br':
+                    style = br.get('style', '').split(';')
+                    style = filter(None, map(lambda x: x.strip(), style))
+                    style.append('margin: 0pt; border:0pt; height:0pt')
+                    br.set('style', '; '.join(style))
+                else:
+                    sibling.getparent().remove(sibling)
+                    if sibling.tail:
+                        if not br.tail:
+                            br.tail = ''
+                        br.tail += sibling.tail
+                
                 
         if self.opts.profile.remove_object_tags:
             for tag in self.root.xpath('//embed'):
@@ -166,6 +185,16 @@ class HTMLProcessor(Processor, Rationalizer):
                 if tag.get('type', '').lower().strip() in ('image/svg+xml',):
                     continue
                 tag.getparent().remove(tag)
+                
+        
+        for tag in self.root.xpath('//title|//style'):
+            if not tag.text:
+                tag.getparent().remove(tag)
+        for tag in self.root.xpath('//script'):
+            if not tag.text and not tag.get('src', False):
+                tag.getparent().remove(tag)
+                
+        
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):

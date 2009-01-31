@@ -10,7 +10,7 @@ import os
 import sys
 from collections import defaultdict
 from types import StringTypes
-from itertools import izip, count
+from itertools import izip, count, chain
 from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
 import logging
@@ -21,15 +21,18 @@ from lxml import etree
 from lxml import html
 from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
+from calibre.startup import get_lang
+from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 
-XML_PARSER = etree.XMLParser(recover=True)
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS = 'http://www.w3.org/1999/xhtml'
+OEB_DOC_NS = 'http://openebook.org/namespaces/oeb-document/1.0/'
 OPF1_NS = 'http://openebook.org/namespaces/oeb-package/1.0/'
 OPF2_NS = 'http://www.idpf.org/2007/opf'
 DC09_NS = 'http://purl.org/metadata/dublin_core'
 DC10_NS = 'http://purl.org/dc/elements/1.0/'
 DC11_NS = 'http://purl.org/dc/elements/1.1/'
+DC_NSES = set([DC09_NS, DC10_NS, DC11_NS])
 XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
 DCTERMS_NS = 'http://purl.org/dc/terms/'
 NCX_NS = 'http://www.daisy.org/z3986/2005/ncx/'
@@ -39,6 +42,7 @@ XPNSMAP = {'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS,
            'd09': DC09_NS, 'd10': DC10_NS, 'd11': DC11_NS,
            'xsi': XSI_NS, 'dt': DCTERMS_NS, 'ncx': NCX_NS,
            'svg': SVG_NS, 'xl': XLINK_NS}
+DC_PREFIXES = ('d11', 'd10', 'd09')
 
 def XML(name): return '{%s}%s' % (XML_NS, name)
 def XHTML(name): return '{%s}%s' % (XHTML_NS, name)
@@ -60,6 +64,7 @@ GIF_MIME = 'image/gif'
 JPEG_MIME = 'image/jpeg'
 PNG_MIME = 'image/png'
 SVG_MIME = 'image/svg+xml'
+BINARY_MIME = 'application/octet-stream'
 
 OEB_STYLES = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
 OEB_DOCS = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
@@ -68,6 +73,8 @@ OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
 
+ENTITY_RE = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
+COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
 def element(parent, *args, **kwargs):
     if parent is not None:
@@ -138,8 +145,7 @@ class Logger(LoggingInterface, object):
 class AbstractContainer(object):
     def read_xml(self, path):
         return etree.fromstring(
-            self.read(path), parser=XML_PARSER,
-            base_url=os.path.dirname(path))
+            self.read(path), base_url=os.path.dirname(path))
 
 class DirContainer(AbstractContainer):
     def __init__(self, rootdir):
@@ -191,18 +197,19 @@ class Metadata(object):
         def __init__(self, term, value, fq_attrib={}, **kwargs):
             self.fq_attrib = fq_attrib = dict(fq_attrib)
             fq_attrib.update(kwargs)
-            if term == OPF('meta') and not value:
-                term = self.fq_attrib.pop('name')
-                value = self.fq_attrib.pop('content')
-            elif term in Metadata.TERMS and not namespace(term):
-                term = DC(term)
+            if barename(term).lower() in Metadata.TERMS and \
+               (not namespace(term) or namespace(term) in DC_NSES):
+                # Anything looking like Dublin Core is coerced
+                term = DC(barename(term).lower())
+            elif namespace(term) == OPF2_NS:
+                term = barename(term)
             self.term = term
             self.value = value
             self.attrib = attrib = {}
             for fq_attr in fq_attrib:
                 if fq_attr in Metadata.ATTRS:
                     attr = fq_attr
-                    fq_attr = OPF2(fq_attr)
+                    fq_attr = OPF(fq_attr)
                     fq_attrib[fq_attr] = fq_attrib.pop(attr)
                 else:
                     attr = barename(fq_attr)
@@ -216,7 +223,16 @@ class Metadata(object):
                 raise AttributeError(
                     '%r object has no attribute %r' \
                         % (self.__class__.__name__, name))
-
+        
+        def __getitem__(self, key):
+            return self.attrib[key]
+        
+        def __contains__(self, key):
+            return key in self.attrib
+        
+        def get(self, key, default=None):
+            return self.attrib.get(key, default)
+        
         def __repr__(self):
             return 'Item(term=%r, value=%r, attrib=%r)' \
                 % (barename(self.term), self.value, self.attrib)
@@ -316,20 +332,74 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _force_xhtml(self, data):
+            # Possibly decode in user-specified encoding
             if self.oeb.encoding is not None:
                 data = data.decode(self.oeb.encoding, 'replace')
+            # Handle broken XHTML w/ SVG (ugh)
+            if 'svg:' in data and SVG_NS not in data:
+                data = data.replace(
+                    '<html', '<html xmlns:svg="%s"' % SVG_NS, 1)
+            if 'xlink:' in data and XLINK_NS not in data:
+                data = data.replace(
+                    '<html', '<html xmlns:xlink="%s"' % XLINK_NS, 1)
+            # Try with more & more drastic measures to parse
             try:
-                data = etree.fromstring(data, parser=XML_PARSER)
+                data = etree.fromstring(data)
             except etree.XMLSyntaxError:
-                data = html.fromstring(data)
-                data = etree.tostring(data, encoding=unicode)
-                data = etree.fromstring(data, parser=XML_PARSER)
-            if namespace(data.tag) != XHTML_NS:
+                repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
+                data = ENTITY_RE.sub(repl, data)
+                try:
+                    data = etree.fromstring(data)
+                except etree.XMLSyntaxError:
+                    self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
+                    data = html.fromstring(data)
+                    data.attrib.pop('xmlns', None)
+                    data = etree.tostring(data, encoding=unicode)
+                    data = etree.fromstring(data)
+            # Force into the XHTML namespace
+            if barename(data.tag) != 'html':
+                raise OEBError(
+                    'File %r does not appear to be (X)HTML' % self.href)
+            elif not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
-                data = etree.fromstring(data, parser=XML_PARSER)
+                data = etree.fromstring(data)
+            elif namespace(data.tag) != XHTML_NS:
+                # OEB_DOC_NS, but possibly others
+                ns = namespace(data.tag)
+                attrib = dict(data.attrib)
+                nroot = etree.Element(XHTML('html'),
+                    nsmap={None: XHTML_NS}, attrib=attrib)
+                for elem in data.iterdescendants():
+                    if isinstance(elem.tag, basestring) and \
+                       namespace(elem.tag) == ns:
+                        elem.tag = XHTML(barename(elem.tag))
+                for elem in data:
+                    nroot.append(elem)
+                data = nroot
+            # Remove any encoding-specifying <meta/> elements
             for meta in self.META_XP(data):
                 meta.getparent().remove(meta)
+            # Ensure has a <head/>
+            head = xpath(data, '/h:html/h:head')
+            head = head[0] if head else None
+            if head is None:
+                self.oeb.logger.warn(
+                    'File %r missing <head/> element' % self.href)
+                head = etree.Element(XHTML('head'))
+                data.insert(0, head)
+                title = etree.SubElement(head, XHTML('title'))
+                title.text = self.oeb.translate(__('Unknown'))
+            elif not xpath(data, '/h:html/h:head/h:title'):
+                self.oeb.logger.warn(
+                    'File %r missing <title/> element' % self.href)
+                title = etree.SubElement(head, XHTML('title'))
+                title.text = self.oeb.translate(__('Unknown'))
+            # Ensure has a <body/>
+            if not xpath(data, '/h:html/h:body'):
+                self.oeb.logger.warn(
+                    'File %r missing <body/> element' % self.href)
+                etree.SubElement(data, XHTML('body'))
             return data
         
         def data():
@@ -340,7 +410,7 @@ class Manifest(object):
                 if self.media_type in OEB_DOCS:
                     data = self._force_xhtml(data)
                 elif self.media_type[-4:] in ('+xml', '/xml'):
-                    data = etree.fromstring(data, parser=XML_PARSER)
+                    data = etree.fromstring(data)
                 self._data = data
                 return data
             def fset(self, value):
@@ -456,9 +526,9 @@ class Manifest(object):
         elem = element(parent, 'manifest')
         for item in self.ids.values():
             media_type = item.media_type
-            if media_type == XHTML_MIME:
+            if media_type in OEB_DOCS:
                 media_type = OEB_DOC_MIME
-            elif media_type == CSS_MIME:
+            elif media_type in OEB_STYLES:
                 media_type = OEB_CSS_MIME
             attrib = {'id': item.id, 'href': item.href,
                       'media-type': media_type}
@@ -470,6 +540,11 @@ class Manifest(object):
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
         for item in self.ids.values():
+            media_type = item.media_type
+            if media_type in OEB_DOCS:
+                media_type = XHTML_MIME
+            elif media_type in OEB_STYLES:
+                media_type = CSS_MIME
             attrib = {'id': item.id, 'href': item.href,
                       'media-type': item.media_type}
             if item.fallback:
@@ -733,25 +808,19 @@ class OEBBook(object):
             opf = self._read_opf(opfpath)
             self._all_from_opf(opf)
     
-    def _convert_opf1(self, opf):
-        # Seriously, seriously wrong
-        if namespace(opf.tag) == OPF1_NS:
-            opf.tag = barename(opf.tag)
-            for elem in opf.iterdescendants():
-                if isinstance(elem.tag, basestring) \
-                   and namespace(elem.tag) == OPF1_NS:
-                    elem.tag = barename(elem.tag)
+    def _clean_opf(self, opf):
+        for elem in opf.iter():
+            if isinstance(elem.tag, basestring) \
+               and namespace(elem.tag) in ('', OPF1_NS):
+                elem.tag = OPF(barename(elem.tag))
         attrib = dict(opf.attrib)
-        attrib['version'] = '2.0'
         nroot = etree.Element(OPF('package'),
             nsmap={None: OPF2_NS}, attrib=attrib)
         metadata = etree.SubElement(nroot, OPF('metadata'),
             nsmap={'opf': OPF2_NS, 'dc': DC11_NS,
                    'xsi': XSI_NS, 'dcterms': DCTERMS_NS})
-        for prefix in ('d11', 'd10', 'd09'):
-            elements = xpath(opf, 'metadata//%s:*' % prefix)
-            if elements: break
-        for element in elements:
+        dc = lambda prefix: xpath(opf, 'o2:metadata//%s:*' % prefix)
+        for element in chain(*(dc(prefix) for prefix in DC_PREFIXES)):
             if not element.text: continue
             tag = barename(element.tag).lower()
             element.tag = '{%s}%s' % (DC11_NS, tag)
@@ -761,28 +830,26 @@ class OEBBook(object):
                     element.attrib[nsname] = element.attrib[name]
                     del element.attrib[name]
             metadata.append(element)
-        for element in opf.xpath('metadata//meta'):
+        for element in xpath(opf, 'o2:metadata//o2:meta'):
             metadata.append(element)
-        for item in opf.xpath('manifest/item'):
-            media_type = item.attrib['media-type'].lower()
-            if media_type in OEB_DOCS:
-                media_type = XHTML_MIME
-            elif media_type in OEB_STYLES:
-                media_type = CSS_MIME
-            item.attrib['media-type'] = media_type
-        for tag in ('manifest', 'spine', 'tours', 'guide'):
-            for element in opf.xpath(tag):
+        for tag in ('o2:manifest', 'o2:spine', 'o2:tours', 'o2:guide'):
+            for element in xpath(opf, tag):
                 nroot.append(element)
-        return etree.fromstring(etree.tostring(nroot), parser=XML_PARSER)
+        return nroot
     
     def _read_opf(self, opfpath):
-        opf = self.container.read_xml(opfpath)
-        version = float(opf.get('version', 1.0))
+        opf = self.container.read(opfpath)
+        try:
+            opf = etree.fromstring(opf)
+        except etree.XMLSyntaxError:
+            repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
+            opf = ENTITY_RE.sub(repl, opf)
+            opf = etree.fromstring(opf)
+            self.logger.warn('OPF contains invalid HTML named entities')
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
             raise OEBError('Invalid namespace %r for OPF document' % ns)
-        if ns != OPF2_NS or version < 2.0:
-            opf = self._convert_opf1(opf)
+        opf = self._clean_opf(opf)
         return opf
     
     def _metadata_from_opf(self, opf):
@@ -791,8 +858,16 @@ class OEBBook(object):
         self.metadata = metadata = Metadata(self)
         ignored = (OPF('dc-metadata'), OPF('x-metadata'))
         for elem in xpath(opf, '/o2:package/o2:metadata//*'):
-            if elem.tag not in ignored and (elem.text or elem.attrib):
-                metadata.add(elem.tag, elem.text, elem.attrib)
+            if elem.tag in ignored: continue
+            term = elem.tag
+            value = elem.text
+            if term == OPF('meta'):
+                term = elem.attrib.pop('name', None)
+                value = elem.attrib.pop('content', None)
+            if value:
+                value = COLLAPSE_RE.sub(' ', value.strip())
+            if term and (value or elem.attrib):
+                metadata.add(term, value, elem.attrib)
         haveuuid = haveid = False
         for ident in metadata.identifier:
             if unicode(ident).startswith('urn:uuid:'):
@@ -807,36 +882,38 @@ class OEBBook(object):
                 self.uid = item
                 break
         else:
-            self.logger.warn(u'Unique-identifier %r not found.' % uid)
+            self.logger.warn(u'Unique-identifier %r not found' % uid)
             for ident in metadata.identifier:
                 if 'id' in ident.attrib:
                     self.uid = metadata.identifier[0]
                     break
         if not metadata.language:
-            self.logger.warn(u'Language not specified.')
-            metadata.add('language', 'en')
+            self.logger.warn(u'Language not specified')
+            metadata.add('language', get_lang())
         if not metadata.creator:
-            self.logger.warn(u'Creator not specified.')
-            metadata.add('creator', 'Unknown')
+            self.logger.warn('Creator not specified')
+            metadata.add('creator', self.translate(__('Unknown')))
         if not metadata.title:
-            self.logger.warn(u'Title not specified.')
-            metadata.add('title', 'Unknown')
+            self.logger.warn('Title not specified')
+            metadata.add('title', self.translate(__('Unknown')))
     
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
             id = elem.get('id')
             href = elem.get('href')
-            media_type = elem.get('media-type')
+            media_type = elem.get('media-type', None)
+            if media_type is None:
+                media_type = elem.get('mediatype', BINARY_MIME)
             fallback = elem.get('fallback')
             if href in manifest.hrefs:
-                self.logger.warn(u'Duplicate manifest entry for %r.' % href)
+                self.logger.warn(u'Duplicate manifest entry for %r' % href)
                 continue
             if not self.container.exists(href):
-                self.logger.warn(u'Manifest item %r not found.' % href)
+                self.logger.warn(u'Manifest item %r not found' % href)
                 continue
             if id in manifest.ids:
-                self.logger.warn(u'Duplicate manifest id %r.' % id)
+                self.logger.warn(u'Duplicate manifest id %r' % id)
                 id, href = manifest.generate(id, href)
             manifest.add(id, href, media_type, fallback)
     
@@ -845,7 +922,7 @@ class OEBBook(object):
         for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
             idref = elem.get('idref')
             if idref not in self.manifest:
-                self.logger.warn(u'Spine item %r not found.' % idref)
+                self.logger.warn(u'Spine item %r not found' % idref)
                 continue
             item = self.manifest[idref]
             spine.add(item, elem.get('linear'))
@@ -857,6 +934,8 @@ class OEBBook(object):
         extras.sort()
         for item in extras:
             spine.add(item, False)
+        if len(spine) == 0:
+            raise OEBError("Spine is empty")
 
     def _guide_from_opf(self, opf):
         self.guide = guide = Guide(self)
@@ -886,9 +965,13 @@ class OEBBook(object):
             if len(result) != 1:
                 return False
         id = result[0]
-        ncx = self.manifest[id].data
-        self.manifest.remove(id)
-        title = xpath(ncx, 'ncx:docTitle/ncx:text/text()')[0]
+        if id not in self.manifest.ids:
+            return False
+        item = self.manifest.ids[id]
+        ncx = item.data
+        self.manifest.remove(item)
+        title = xpath(ncx, 'ncx:docTitle/ncx:text/text()')
+        title = title[0].strip() if title else unicode(self.metadata.title)
         self.toc = toc = TOC(title)
         navmaps = xpath(ncx, 'ncx:navMap')
         for navmap in navmaps:
@@ -945,7 +1028,8 @@ class OEBBook(object):
             if not item.linear: continue
             html = item.data
             title = xpath(html, '/h:html/h:head/h:title/text()')
-            if title: titles.append(title[0])
+            title = title[0].strip() if title else None
+            if title: titles.append(title)
             headers.append('(unlabled)')
             for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
                 expr = '/h:html/h:body//h:%s[position()=1]/text()' % (tag,)
@@ -969,9 +1053,19 @@ class OEBBook(object):
 
     def _ensure_cover_image(self):
         cover = None
-        spine0 = self.spine[0]
-        html = spine0.data
-        if self.metadata.cover:
+        hcover = self.spine[0]
+        if 'cover' in self.guide:
+            href = self.guide['cover'].href
+            item = self.manifest.hrefs[href]
+            media_type = item.media_type
+            if media_type in OEB_RASTER_IMAGES:
+                cover = item
+            elif media_type in OEB_DOCS:
+                hcover = item
+        html = hcover.data
+        if cover is not None:
+            pass
+        elif self.metadata.cover:
             id = str(self.metadata.cover[0])
             cover = self.manifest.ids[id]
         elif MS_COVER_TYPE in self.guide:
@@ -979,16 +1073,16 @@ class OEBBook(object):
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//h:img[position()=1]'):
             img = xpath(html, '//h:img[position()=1]')[0]
-            href = spine0.abshref(img.get('src'))
+            href = hcover.abshref(img.get('src'))
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//h:object[position()=1]'):
             object = xpath(html, '//h:object[position()=1]')[0]
-            href = spine0.abshref(object.get('data'))
+            href = hcover.abshref(object.get('data'))
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//svg:svg[position()=1]'):
             svg = copy.deepcopy(xpath(html, '//svg:svg[position()=1]')[0])
-            href = os.path.splitext(spine0.href)[0] + '.svg'
-            id, href = self.manifest.generate(spine0.id, href)
+            href = os.path.splitext(hcover.href)[0] + '.svg'
+            id, href = self.manifest.generate(hcover.id, href)
             cover = self.manifest.add(id, href, SVG_MIME, data=svg)
         if cover and not self.metadata.cover:
             self.metadata.add('cover', cover.id)

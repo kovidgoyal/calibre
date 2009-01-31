@@ -110,7 +110,8 @@ class Stylizer(object):
     
     def __init__(self, tree, path, oeb, profile=PROFILES['PRS505']):
         self.profile = profile
-        base = os.path.dirname(path)
+        self.logger = oeb.logger
+        item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [HTML_CSS_STYLESHEET]
@@ -128,8 +129,12 @@ class Stylizer(object):
                  and elem.get('rel', 'stylesheet') == 'stylesheet' \
                  and elem.get('type', CSS_MIME) in OEB_STYLES:
                 href = urlnormalize(elem.attrib['href'])
-                path = os.path.join(base, href)
-                path = os.path.normpath(path).replace('\\', '/')
+                path = item.abshref(href)
+                if path not in oeb.manifest.hrefs:
+                    self.logger.warn(
+                        'Stylesheet %r referenced by file %r not in manifest' %
+                        (path, item.href))
+                    continue
                 if path in self.STYLESHEETS:
                     stylesheet = self.STYLESHEETS[path]
                 else:
@@ -277,7 +282,9 @@ class Style(object):
     def _apply_style_attr(self):
         attrib = self._element.attrib
         if 'style' in attrib:
-            style = CSSStyleDeclaration(attrib['style'])
+            css = attrib['style'].split(';')
+            css = filter(None, map(lambda x: x.strip(), css))
+            style = CSSStyleDeclaration('; '.join(css))
             self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):

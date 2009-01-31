@@ -83,6 +83,29 @@
        </widget>
       </item>
       <item>
+       <widget class="QToolButton" name="donate_button" >
+        <property name="cursor" >
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text" >
+         <string>...</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="images.qrc" >
+          <normaloff>:/images/donate.svg</normaloff>:/images/donate.svg</iconset>
+        </property>
+        <property name="iconSize" >
+         <size>
+          <width>64</width>
+          <height>64</height>
+         </size>
+        </property>
+        <property name="autoRaise" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QVBoxLayout" name="verticalLayout_3" >
         <item>
          <widget class="QLabel" name="vanity" >
@@ -119,7 +142,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="output_format" />
+           <widget class="QComboBox" name="output_format" >
+            <property name="toolTip" >
+             <string>Set the output format that is used when converting ebooks and downloading news</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

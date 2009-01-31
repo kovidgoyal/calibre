@@ -11,7 +11,7 @@ class FazNet(BasicNewsRecipe):
 
     title = 'FAZ NET'
     __author__ = 'Kovid Goyal'
-    description = 'News from Germany'
+    description = '"Frankfurter Allgemeine Zeitung'
     use_embedded_content   = False 
     max_articles_per_feed = 30 
 

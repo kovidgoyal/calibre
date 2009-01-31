@@ -11,7 +11,7 @@ from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 from calibre.ebooks.lrf import entity_to_unicode
-from calibre.ebooks.metadata import get_parser, Resource, ResourceCollection
+from calibre.ebooks.metadata import Resource, ResourceCollection
 from calibre.ebooks.metadata.toc import TOC
 
 class OPFSoup(BeautifulStoneSoup):
@@ -541,45 +541,3 @@ class OPFCreator(MetaInformation):
             toc.render(ncx_stream, self.application_id)
             ncx_stream.flush()
     
-def option_parser():
-    return get_parser('opf')
-
-def main(args=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        return 1
-    mi = MetaInformation(OPFReader(open(args[1], 'rb'), os.path.abspath(os.path.dirname(args[1]))))
-    write = False
-    if opts.title is not None:
-        mi.title = opts.title.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-        write = True
-    if opts.authors is not None:
-        aus = [i.strip().replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') for i in opts.authors.split(',')]
-        mi.authors = aus
-        write = True
-    if opts.category is not None:
-        mi.category = opts.category.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-        write = True
-    if opts.comment is not None:
-        mi.comments = opts.comment.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-        write = True
-    if write:
-        mo = OPFCreator(os.path.dirname(args[1]), mi)
-        ncx = cStringIO.StringIO()
-        mo.render(open(args[1], 'wb'), ncx)
-        ncx = ncx.getvalue()
-        if ncx:
-            f = glob.glob(os.path.join(os.path.dirname(args[1]), '*.ncx'))
-            if f:
-                f = open(f[0], 'wb')
-            else:
-                f = open(os.path.splitext(args[1])[0]+'.ncx', 'wb')
-            f.write(ncx)
-            f.close()
-    print MetaInformation(OPFReader(open(args[1], 'rb'), os.path.abspath(os.path.dirname(args[1]))))
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

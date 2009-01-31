@@ -15,7 +15,7 @@ from PyQt4.QtCore import QCoreApplication, QThread, QReadWriteLock
 from PyQt4.QtGui import QApplication, QPixmap, QImage
 __app = None
 
-from calibre.library import title_sort
+from calibre.ebooks.metadata import title_sort
 from calibre.library.database import LibraryDatabase
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser

@@ -48,15 +48,3 @@ def get_metadata(stream):
     if cdata:
         mi.cover_data = cdata
     return mi
-
-def main(args=sys.argv):
-    if len(args) != 2 or '--help' in args or '-h' in args:
-        print >>sys.stderr, _('Usage:'), args[0], 'mybook.fb2'
-        return 1
-    
-    path = os.path.abspath(os.path.expanduser(args[1]))
-    print unicode(get_metadata(open(path, 'rb')))
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

@@ -114,7 +114,19 @@ def reread_metadata_plugins():
                     _metadata_writers[ft] = []
                 _metadata_writers[ft].append(plugin) 
                 
-    
+def metadata_readers():
+    ans = set([])
+    for plugins in _metadata_readers.values():
+        for plugin in plugins:
+            ans.add(plugin)
+    return ans
+
+def metadata_writers():
+    ans = set([])
+    for plugins in _metadata_writers.values():
+        for plugin in plugins:
+            ans.add(plugin)
+    return ans    
                 
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)

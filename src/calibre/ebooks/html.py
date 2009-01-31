@@ -417,39 +417,44 @@ class Parser(PreProcessor, LoggingInterface):
         self.level = self.htmlfile.level
         for f in self.htmlfiles:
             name = os.path.basename(f.path)
+            name = os.path.splitext(name)[0] + '.xhtml'
             if name in self.htmlfile_map.values():
                 name = os.path.splitext(name)[0] + '_cr_%d'%save_counter + os.path.splitext(name)[1]
                 save_counter += 1
             self.htmlfile_map[f.path] = name
         
         self.parse_html()
+        # Handle <image> tags inside embedded <svg>
+        # At least one source of EPUB files (Penguin) uses xlink:href
+        # without declaring the xlink namespace
+        for image in self.root.xpath('//image'): 
+            for attr in image.attrib.keys():
+                if attr.endswith(':href'):
+                    nhref = self.rewrite_links(image.get(attr))
+                    image.set(attr, nhref)
+        
         self.root.rewrite_links(self.rewrite_links, resolve_base_href=False)
         for bad in ('xmlns', 'lang', 'xml:lang'): # lxml also adds these attributes for XHTML documents, leading to duplicates
             if self.root.get(bad, None) is not None:
                 self.root.attrib.pop(bad)
         
+        
+        
     def save_path(self):
         return os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path])
-    
-    def declare_xhtml_namespace(self, match):
-        if not match.group('raw'):
-            return '<html xmlns="http://www.w3.org/1999/xhtml">'
-        raw = match.group('raw')
-        m = re.search(r'(?i)xmlns\s*=\s*[\'"](?P<uri>[^"\']*)[\'"]', raw)
-        if not m:
-            return '<html xmlns="http://www.w3.org/1999/xhtml" %s>'%raw
-        else:
-            return  match.group().replace(m.group('uri'), "http://www.w3.org/1999/xhtml")
     
     def save(self):
         '''
         Save processed HTML into the content directory.
         Should be called after all HTML processing is finished.
         '''
+        self.root.set('xmlns', 'http://www.w3.org/1999/xhtml')
+        self.root.set('xmlns:xlink', 'http://www.w3.org/1999/xlink')
+        for svg in self.root.xpath('//svg'):
+            svg.set('xmlns', 'http://www.w3.org/2000/svg')
+        
         ans = tostring(self.root, pretty_print=self.opts.pretty_print)
-        ans = re.sub(r'(?i)<\s*html(?P<raw>\s+[^>]*){0,1}>', self.declare_xhtml_namespace, ans[:1000]) + ans[1000:]
         ans = re.compile(r'<head>', re.IGNORECASE).sub('<head>\n\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n', ans[:1000])+ans[1000:]
-            
         with open(self.save_path(), 'wb') as f:
             f.write(ans)
             return f.name
@@ -823,21 +828,28 @@ class Processor(Parser):
             font.set('class', cn)
             font.tag = 'span'
             
+        id_css, id_css_counter = {}, 0
         for elem in self.root.xpath('//*[@style]'):
             setting = elem.get('style')
-            classname = cache.get(setting, None)
-            if classname is None:
-                classname = 'calibre_class_%d'%class_counter
-                class_counter += 1
-                cache[setting] = classname
-            cn = elem.get('class', '')
-            if cn: cn += ' '
-            cn += classname
-            elem.set('class', cn)
+            if elem.get('id', False) or elem.get('class', False):
+                elem.set('id', elem.get('id', 'calibre_css_id_%d'%id_css_counter))
+                id_css_counter += 1
+                id_css[elem.tag+'#'+elem.get('id')] = setting
+            else:
+                classname = cache.get(setting, None)
+                if classname is None:
+                    classname = 'calibre_class_%d'%class_counter
+                    class_counter += 1
+                    cache[setting] = classname
+                cn = elem.get('class', classname)
+                elem.set('class', cn)
             elem.attrib.pop('style')
         
         css = '\n'.join(['.%s {%s;}'%(cn, setting) for \
                          setting, cn in cache.items()])
+        css += '\n\n'
+        css += '\n'.join(['%s {%s;}'%(selector, setting) for \
+                         selector, setting in id_css.items()])
         sheet = self.css_parser.parseString(self.preprocess_css(css.replace(';;}', ';}')))
         for rule in sheet:
             self.stylesheet.add(rule)

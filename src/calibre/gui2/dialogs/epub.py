@@ -14,7 +14,7 @@ from lxml.etree import XPath
 
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.epub_ui import Ui_Dialog 
-from calibre.gui2 import error_dialog, choose_images, pixmap_to_data
+from calibre.gui2 import error_dialog, choose_images, pixmap_to_data, ResizableDialog
 from calibre.ebooks.epub.from_any import SOURCE_FORMATS, config as epubconfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
@@ -22,13 +22,12 @@ from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 
 
-class Config(QDialog, Ui_Dialog):
+class Config(ResizableDialog, Ui_Dialog):
     
     OUTPUT = 'EPUB'
         
     def __init__(self, parent, db, row=None, config=epubconfig):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
+        ResizableDialog.__init__(self, parent)
         self.hide_controls()
         self.connect(self.category_list, SIGNAL('itemEntered(QListWidgetItem *)'),
                         self.show_category_help)
@@ -62,17 +61,18 @@ class Config(QDialog, Ui_Dialog):
         self.opt_toc_title.setVisible(False)
         self.toc_title_label.setVisible(False)
         self.opt_rescale_images.setVisible(False)
+        self.opt_ignore_tables.setVisible(False)
         
     def initialize(self):
         self.__w = []
         self.__w.append(QIcon(':/images/dialog_information.svg'))
         self.item1 = QListWidgetItem(self.__w[-1], _('Metadata'), self.category_list)
         self.__w.append(QIcon(':/images/lookfeel.svg'))
-        self.item2 = QListWidgetItem(self.__w[-1], _('Look & Feel'), self.category_list)
+        self.item2 = QListWidgetItem(self.__w[-1], _('Look & Feel').replace(' ','\n'), self.category_list)
         self.__w.append(QIcon(':/images/page.svg'))
-        self.item3 = QListWidgetItem(self.__w[-1], _('Page Setup'), self.category_list)
+        self.item3 = QListWidgetItem(self.__w[-1], _('Page Setup').replace(' ','\n'), self.category_list)
         self.__w.append(QIcon(':/images/chapters.svg'))
-        self.item4 = QListWidgetItem(self.__w[-1], _('Chapter Detection'), self.category_list)
+        self.item4 = QListWidgetItem(self.__w[-1], _('Chapter Detection').replace(' ','\n'), self.category_list)
         self.setup_tooltips()
         self.initialize_options()
     
@@ -98,7 +98,7 @@ class Config(QDialog, Ui_Dialog):
                 _('Page Setup')        : _('Specify the page layout settings like margins.'),
                 _('Chapter Detection') : _('Fine tune the detection of chapter and section headings.'),                  
                 }
-        self.set_help(help[text])
+        self.set_help(help[text.replace('\n', ' ')])
     
     def select_cover(self):
         files = choose_images(self, 'change cover dialog', 

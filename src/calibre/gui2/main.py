@@ -63,7 +63,8 @@ class Main(MainWindow, Ui_MainWindow):
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(), pixmap_to_data(pixmap))
 
-    def __init__(self, single_instance, opts, parent=None):
+    def __init__(self, single_instance, opts, actions, parent=None):
+        self.preferences_action, self.quit_action = actions
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
@@ -99,8 +100,8 @@ class Main(MainWindow, Ui_MainWindow):
             self.system_tray_icon.show()
         self.system_tray_menu = QMenu()
         self.restore_action = self.system_tray_menu.addAction(QIcon(':/images/page.svg'), _('&Restore'))
-        self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate'))
-        self.quit_action    = QAction(QIcon(':/images/window-close.svg'), _('&Quit'), self)
+        self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate to support calibre'))
+        self.donate_button.setDefaultAction(self.donate_action)
         self.addAction(self.quit_action)
         self.action_restart = QAction(_('&Restart'), self)
         self.addAction(self.action_restart)
@@ -134,16 +135,8 @@ class Main(MainWindow, Ui_MainWindow):
         for f in self.output_formats:
             self.output_format.addItem(f)
         self.output_format.setCurrentIndex(self.output_formats.index(prefs['output_format']))
-        def change_output_format(x):
-            of = unicode(x).strip()
-            if of != prefs['output_format']:
-                if of not in ('LRF',):
-                    warning_dialog(self, 'Warning', 
-                                   '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
-                prefs.set('output_format', of)
-        
         self.connect(self.output_format, SIGNAL('currentIndexChanged(QString)'), 
-                     change_output_format)
+                     self.change_output_format, Qt.QueuedConnection)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.kovidgoyal.net/user_manual">%s.kovidgoyal.net</a><br>')%(__appname__, __appname__)
@@ -250,6 +243,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
 
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
+        self.connect(self.preferences_action, SIGNAL('triggered(bool)'), self.do_config)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
         
         ####################### Library view ########################
@@ -376,6 +370,15 @@ class Main(MainWindow, Ui_MainWindow):
         self.action_news.setMenu(self.scheduler.news_menu)
         self.connect(self.action_news, SIGNAL('triggered(bool)'), self.scheduler.show_dialog)
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
+    
+    def change_output_format(self, x):
+        of = unicode(x).strip()
+        if of != prefs['output_format']:
+            if of not in ('LRF',):
+                warning_dialog(self, 'Warning', 
+                               '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
+            prefs.set('output_format', of)
+        
         
     def test_server(self, *args):
         if self.content_server.exception is not None:
@@ -911,13 +914,14 @@ class Main(MainWindow, Ui_MainWindow):
         _files   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, paths=True)
         files = [getattr(f, 'name', None) for f in _files]
-        bad, good, gf, names = [], [], [], []
+        bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
             mi = metadata.next()
             id = ids.next()
             if f is None:
                 bad.append(mi['title'])
             else:
+                remove_ids.append(id)
                 aus = mi['authors'].split(',')
                 aus2 = []
                 for a in aus:
@@ -944,7 +948,7 @@ class Main(MainWindow, Ui_MainWindow):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
-        remove = [self.library_view.model().id(r) for r in rows] if delete_from_library else []
+        remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
@@ -1419,7 +1423,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.restart_after_quit = restart
         QApplication.instance().quit()
             
-    def donate(self):
+    def donate(self, *args):
         BUTTON = '''
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
             <input type="hidden" name="cmd" value="_s-xclick">
@@ -1545,6 +1549,7 @@ def main(args=sys.argv):
             prefs.set('library_path', opts.with_library)
             print 'Using library at', prefs['library_path']
         app = Application(args)
+        actions = tuple(Main.create_application_menubar())
         app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
@@ -1559,7 +1564,7 @@ def main(args=sys.argv):
                                  '<p>%s is already running. %s</p>'%(__appname__, extra))
             return 1
         initialize_file_icon_provider()
-        main = Main(single_instance, opts)
+        main = Main(single_instance, opts, actions)
         sys.excepthook = main.unhandled_exception
         if len(args) > 1:
             main.add_filesystem_book(args[1])

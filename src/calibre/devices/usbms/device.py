@@ -120,7 +120,6 @@ class Device(_Device):
 
     def total_space(self, end_session=True):
         msz = csz = 0
-        print self._main_prefix
         if not iswindows:
             if self._main_prefix is not None:
                 stats = os.statvfs(self._main_prefix)
@@ -185,11 +184,11 @@ class Device(_Device):
             if 'main' and 'card' in drives.keys():
                 break
 
-        if not drives:
-            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.') % self.__class__.__name__)
-
         self._main_prefix = drives.get('main', None)
         self._card_prefix = drives.get('card', None)
+        
+        if not self._main_prefix:
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.') % self.__class__.__name__)
 
     def get_osx_mountpoints(self, raw=None):
         if raw is None:

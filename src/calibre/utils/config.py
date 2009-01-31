@@ -97,7 +97,7 @@ class OptionParser(_OptionParser):
         
     def merge(self, parser):
         '''
-        Add options from parser to self. In case of conflicts, confilicting options from
+        Add options from parser to self. In case of conflicts, conflicting options from
         parser are skipped.
         '''
         opts   = list(parser.option_list)
@@ -224,6 +224,8 @@ class OptionSet(object):
     def update(self, other):
         for name in other.groups.keys():
             self.groups[name] = other.groups[name]
+            if name not in self.group_list:
+                self.group_list.append(name)
         for pref in other.preferences:
             if pref in self.preferences:
                 self.preferences.remove(pref)

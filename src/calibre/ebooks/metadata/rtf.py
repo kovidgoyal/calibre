@@ -5,7 +5,7 @@ Edit metadata in RTF files.
 """
 import re, cStringIO, sys
 
-from calibre.ebooks.metadata import MetaInformation, get_parser
+from calibre.ebooks.metadata import MetaInformation
 
 title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
@@ -166,22 +166,3 @@ def set_metadata(stream, options):
         stream.write(src)
         stream.write(after)
     
-def option_parser():
-    return get_parser('rtf')
-
-def main(args=sys.argv):
-    parser = option_parser()
-    options, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        sys.exit(1)
-    stream = open(args[1], 'r+b')
-    if options.authors:
-        options.authors = options.authors.split(',')
-    options.comments = options.comment 
-    set_metadata(stream, options)
-    mi = get_metadata(stream)
-    return mi
-
-if __name__ == '__main__':
-    main()

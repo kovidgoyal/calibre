@@ -13,7 +13,7 @@ from threading import Thread
 from Queue import Queue
 from threading import RLock
 
-from calibre.library import title_sort
+from calibre.ebooks.metadata import title_sort
 
 global_lock = RLock()
 

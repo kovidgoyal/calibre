@@ -80,10 +80,3 @@ def get_metadata(f):
     else:
         raise ValueError('Not a LRX file')
     
-
-def main(args=sys.argv):
-    print get_metadata(open(args[1], 'rb'))
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

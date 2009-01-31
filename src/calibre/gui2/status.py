@@ -6,7 +6,7 @@ from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QWidget, QHBoxLayout, QPixma
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon, QScrollArea, QFrame
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
 from calibre import fit_image, preferred_encoding, isosx
-from calibre.gui2 import qstring_to_unicode
+from calibre.gui2 import qstring_to_unicode, config
 
 class BookInfoDisplay(QWidget):
     class BookCoverDisplay(QLabel):
@@ -148,6 +148,7 @@ class CoverFlowButton(QToolButton):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
         self.connect(self, SIGNAL('toggled(bool)'), self.adjust_tooltip)
         self.adjust_tooltip(False)
+        self.setCursor(Qt.PointingHandCursor)
         
     def adjust_tooltip(self, on):
         tt = _('Click to turn off Cover Browsing') if on else _('Click to browse books by their covers')
@@ -165,6 +166,7 @@ class TagViewButton(QToolButton):
         self.setIcon(QIcon(':/images/tags.svg'))
         self.setToolTip(_('Click to browse books by tags'))
         self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
+        self.setCursor(Qt.PointingHandCursor)
         self.setCheckable(True)
         self.setChecked(False)
         self.setAutoRaise(True)
@@ -197,7 +199,7 @@ class StatusBar(QStatusBar):
         
     def showMessage(self, msg, timeout=0):
         ret = QStatusBar.showMessage(self, msg, timeout)
-        if self.systray is not None:
+        if self.systray is not None and not config['disable_tray_notification']:
             if isosx and isinstance(msg, unicode):
                 try:
                     msg = msg.encode(preferred_encoding)

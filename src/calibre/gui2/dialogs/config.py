@@ -186,6 +186,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         single_format = config['save_to_disk_single_format']
         self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
         self.cover_browse.setValue(config['cover_flow_queue_length'])
+        self.systray_notifications.setChecked(not config['disable_tray_notification'])
         from calibre.translations.compiled import translations
         from calibre.translations import language_codes
         from calibre.startup import get_lang
@@ -394,6 +395,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['separate_cover_flow'] = bool(self.separate_cover_flow.isChecked())
+        config['disable_tray_notification'] = not self.systray_notifications.isChecked()
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]

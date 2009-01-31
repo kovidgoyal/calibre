@@ -16,65 +16,55 @@ if os.environ.has_key('DESTDIR'):
 
 entry_points = {
         'console_scripts': [ \
-                             'prs500    = calibre.devices.prs500.cli.main:main',
-                             'lrf-meta  = calibre.ebooks.lrf.meta:main',
-                             'rtf-meta  = calibre.ebooks.metadata.rtf:main',
-                             'pdf-meta  = calibre.ebooks.metadata.pdf:main',
-                             'lit-meta  = calibre.ebooks.metadata.lit:main',
-                             'imp-meta  = calibre.ebooks.metadata.imp:main',
-                             'rb-meta   = calibre.ebooks.metadata.rb:main',
-                             'opf-meta  = calibre.ebooks.metadata.opf2:main',
-                             'odt-meta  = calibre.ebooks.metadata.odt:main',
-                             'epub-meta = calibre.ebooks.metadata.epub:main',
-                             'mobi-meta = calibre.ebooks.metadata.mobi:main',
-                             'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
-                             'html2lrf  = calibre.ebooks.lrf.html.convert_from:main',
-                             'html2oeb  = calibre.ebooks.html:main',
-                             'html2epub = calibre.ebooks.epub.from_html:main',
-                             'odt2oeb   = calibre.ebooks.odt.to_oeb:main',
-                             'markdown-calibre  = calibre.ebooks.markdown.markdown:main',
-                             'lit2lrf   = calibre.ebooks.lrf.lit.convert_from:main',
-                             'epub2lrf  = calibre.ebooks.lrf.epub.convert_from:main',
-                             'rtf2lrf   = calibre.ebooks.lrf.rtf.convert_from:main',
-                             'web2disk  = calibre.web.fetch.simple:main',
-                             'feeds2disk = calibre.web.feeds.main:main',
-                             'calibre-server = calibre.library.server:main',
-                             'feeds2lrf  = calibre.ebooks.lrf.feeds.convert_from:main',
-                             'feeds2epub = calibre.ebooks.epub.from_feeds:main',
-                             'feeds2mobi = calibre.ebooks.mobi.from_feeds:main',
-                             'web2lrf   = calibre.ebooks.lrf.web.convert_from:main',
-                             'pdf2lrf   = calibre.ebooks.lrf.pdf.convert_from:main',
-                             'mobi2lrf  = calibre.ebooks.lrf.mobi.convert_from:main',
-                             'fb22lrf   = calibre.ebooks.lrf.fb2.convert_from:main',
-                             'fb2-meta  = calibre.ebooks.metadata.fb2:main',
-                             'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
-                             'any2epub  = calibre.ebooks.epub.from_any:main',
-                             'any2lit   = calibre.ebooks.lit.from_any:main',
-                             'any2mobi  = calibre.ebooks.mobi.from_any:main',
-                             'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
-                             'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
-                             'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',
-                             'isbndb    = calibre.ebooks.metadata.isbndb:main',
-                             'librarything = calibre.ebooks.metadata.library_thing:main',
-                             'mobi2oeb  = calibre.ebooks.mobi.reader:main',
-                             'oeb2mobi  = calibre.ebooks.mobi.writer:main',
-                             'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
-                             'lit2oeb   = calibre.ebooks.lit.reader:main',
-                             'oeb2lit   = calibre.ebooks.lit.writer:main',
-                             'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
-                             'comic2epub = calibre.ebooks.epub.from_comic:main',
-			     'comic2pdf  = calibre.ebooks.pdf.from_comic:main',
-                             'calibre-debug      = calibre.debug:main',
-                             'calibredb          = calibre.library.cli:main',
-                             'calibre-fontconfig = calibre.utils.fontconfig:main',
-                             'calibre-parallel   = calibre.parallel:main',
-                             'calibre-customize  = calibre.customize.ui:main',                             
-			     'pdftrim = calibre.ebooks.pdf.pdftrim:main' ,
+             'ebook-device       = calibre.devices.prs500.cli.main:main',
+             'ebook-meta         = calibre.ebooks.metadata.cli:main',
+             'txt2lrf            = calibre.ebooks.lrf.txt.convert_from:main',
+             'html2lrf           = calibre.ebooks.lrf.html.convert_from:main',
+             'html2oeb           = calibre.ebooks.html:main',
+             'html2epub          = calibre.ebooks.epub.from_html:main',
+             'odt2oeb            = calibre.ebooks.odt.to_oeb:main',
+             'markdown-calibre   = calibre.ebooks.markdown.markdown:main',
+             'lit2lrf            = calibre.ebooks.lrf.lit.convert_from:main',
+             'epub2lrf           = calibre.ebooks.lrf.epub.convert_from:main',
+             'rtf2lrf            = calibre.ebooks.lrf.rtf.convert_from:main',
+             'web2disk           = calibre.web.fetch.simple:main',
+             'feeds2disk         = calibre.web.feeds.main:main',
+             'calibre-server     = calibre.library.server:main',
+             'feeds2lrf          = calibre.ebooks.lrf.feeds.convert_from:main',
+             'feeds2epub         = calibre.ebooks.epub.from_feeds:main',
+             'feeds2mobi         = calibre.ebooks.mobi.from_feeds:main',
+             'web2lrf            = calibre.ebooks.lrf.web.convert_from:main',
+             'pdf2lrf            = calibre.ebooks.lrf.pdf.convert_from:main',
+             'mobi2lrf           = calibre.ebooks.lrf.mobi.convert_from:main',
+             'fb22lrf            = calibre.ebooks.lrf.fb2.convert_from:main',
+             'any2lrf            = calibre.ebooks.lrf.any.convert_from:main',
+             'any2epub           = calibre.ebooks.epub.from_any:main',
+             'any2lit            = calibre.ebooks.lit.from_any:main',
+             'any2mobi           = calibre.ebooks.mobi.from_any:main',
+             'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
+             'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',
+             'pdfreflow          = calibre.ebooks.lrf.pdf.reflow:main',
+             'isbndb             = calibre.ebooks.metadata.isbndb:main',
+             'librarything       = calibre.ebooks.metadata.library_thing:main',
+             'mobi2oeb           = calibre.ebooks.mobi.reader:main',
+             'oeb2mobi           = calibre.ebooks.mobi.writer:main',
+             'lit2oeb            = calibre.ebooks.lit.reader:main',
+             'oeb2lit            = calibre.ebooks.lit.writer:main',
+             'comic2lrf          = calibre.ebooks.lrf.comic.convert_from:main',
+             'comic2epub         = calibre.ebooks.epub.from_comic:main',
+             'comic2mobi         = calibre.ebooks.mobi.from_comic:main',
+             'comic2pdf          = calibre.ebooks.pdf.from_comic:main',
+             'calibre-debug      = calibre.debug:main',
+             'calibredb          = calibre.library.cli:main',
+             'calibre-fontconfig = calibre.utils.fontconfig:main',
+             'calibre-parallel   = calibre.parallel:main',
+             'calibre-customize  = calibre.customize.ui:main',                             
+		     'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
                            ],
         'gui_scripts'    : [
-                            __appname__+' = calibre.gui2.main:main',
-                            'lrfviewer = calibre.gui2.lrf_renderer.main:main',
-                            'ebook-viewer       = calibre.gui2.viewer.main:main',
+            __appname__+' = calibre.gui2.main:main',
+            'lrfviewer    = calibre.gui2.lrf_renderer.main:main',
+            'ebook-viewer = calibre.gui2.viewer.main:main',
                             ],
       }
 
@@ -176,7 +166,7 @@ def setup_completion(fatal_errors):
         sys.stdout.flush()
         from calibre.ebooks.lrf.html.convert_from import option_parser as htmlop
         from calibre.ebooks.lrf.txt.convert_from import option_parser as txtop
-        from calibre.ebooks.lrf.meta import option_parser as metaop
+        from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
         from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
         from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
         from calibre.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
@@ -185,7 +175,6 @@ def setup_completion(fatal_errors):
         from calibre.web.feeds.main import option_parser as feeds2disk
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
-        from calibre.ebooks.metadata.epub import option_parser as epub_meta
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
         from calibre.ebooks.epub.from_html import option_parser as html2epub
         from calibre.ebooks.html import option_parser as html2oeb
@@ -224,21 +213,14 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('any2mobi', any2mobi, any_formats))
         f.write(opts_and_exts('oeb2mobi', oeb2mobi, ['opf']))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
-        f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
-        f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
-        f.write(opts_and_exts('pdf-meta', metaop, ['pdf']))
-        f.write(opts_and_exts('lit-meta', metaop, ['lit']))
-        f.write(opts_and_exts('imp-meta', metaop, ['imp']))
-        f.write(opts_and_exts('rb-meta',  metaop, ['rb']))
-        f.write(opts_and_exts('opf-meta', metaop, ['opf']))
-        f.write(opts_and_exts('odt-meta', metaop, ['odt', 'ods', 'odf', 'odg', 'odp']))
-        f.write(opts_and_exts('epub-meta', epub_meta, ['epub']))
+        f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
         f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
         f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2epub', comic2epub, ['cbz', 'cbr']))
+        f.write(opts_and_exts('comic2mobi', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2pdf', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
@@ -421,10 +403,8 @@ def install_man_pages(fatal_errors):
     os.environ['PATH'] += ':'+os.path.expanduser('~/bin')
     for src in entry_points['console_scripts']:
         prog = src[:src.index('=')].strip()
-        if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta',
-                    'markdown-calibre', 'calibre-debug', 'fb2-meta',
-                    'calibre-fontconfig', 'calibre-parallel', 'odt-meta',
-                    'rb-meta', 'imp-meta', 'mobi-meta'):
+        if prog in ('ebook-device', 'markdown-calibre', 
+                    'calibre-fontconfig', 'calibre-parallel'):
             continue
 
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
@@ -484,14 +464,14 @@ def post_install():
                 os.unlink(f)
 
 def binary_install():
-    manifest = os.path.join(sys.frozen_path, 'manifest')
+    manifest = os.path.join(getattr(sys, 'frozen_path'), 'manifest')
     exes = [x.strip() for x in open(manifest).readlines()]
     print 'Creating symlinks...'
     for exe in exes:
         dest = os.path.join('/usr', 'bin', exe)
         if os.path.exists(dest):
             os.remove(dest)
-        os.symlink(os.path.join(sys.frozen_path, exe), dest)
+        os.symlink(os.path.join(getattr(sys, 'frozen_path'), exe), dest)
     post_install()
     return 0
 

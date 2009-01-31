@@ -23,7 +23,8 @@ recipe_modules = ['recipe_' + r for r in (
            'spiegel_int', 'themarketticker', 'tomshardware', 'xkcd', 'ftd', 'zdnet',
            'joelonsoftware', 'telepolis', 'common_dreams', 'nin', 'tomshardware_de',
            'pagina12', 'infobae', 'ambito', 'elargentino', 'sueddeutsche', 'the_age',
-           'laprensa',
+           'laprensa', 'amspec', 'freakonomics', 'criticadigital', 'elcronista',
+           'shacknews', 'teleread',
           )]
 
 import re, imp, inspect, time, os

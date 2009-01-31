@@ -65,6 +65,23 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     return one
 
 
+def prints(*args, **kwargs):
+    '''
+    Print unicode arguments safely by encoding them to preferred_encoding
+    Has the same signature as the print function from Python 3.
+    '''
+    file = kwargs.get('file', sys.stdout)
+    sep  = kwargs.get('sep', ' ')
+    end  = kwargs.get('end', '\n')
+    for i, arg in enumerate(args):
+        if isinstance(arg, unicode):
+            arg = arg.encode(preferred_encoding)
+        file.write(arg)
+        if i != len(args)-1:
+            file.write(sep)
+    file.write(end)
+    file.flush()
+
 class CommandLineError(Exception):
     pass
 
