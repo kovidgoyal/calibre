@@ -31,6 +31,7 @@ XHTML_NS = 'http://www.w3.org/1999/xhtml'
 OEB_DOC_NS = 'http://openebook.org/namespaces/oeb-document/1.0/'
 OPF1_NS = 'http://openebook.org/namespaces/oeb-package/1.0/'
 OPF2_NS = 'http://www.idpf.org/2007/opf'
+OPF_NSES = set([OPF1_NS, OPF2_NS])
 DC09_NS = 'http://purl.org/metadata/dublin_core'
 DC10_NS = 'http://purl.org/dc/elements/1.0/'
 DC11_NS = 'http://purl.org/dc/elements/1.1/'
@@ -40,6 +41,7 @@ DCTERMS_NS = 'http://purl.org/dc/terms/'
 NCX_NS = 'http://www.daisy.org/z3986/2005/ncx/'
 SVG_NS = 'http://www.w3.org/2000/svg'
 XLINK_NS = 'http://www.w3.org/1999/xlink'
+CALIBRE_NS = 'http://calibre.kovidgoyal.net/2009/metadata'
 XPNSMAP = {'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS,
            'd09': DC09_NS, 'd10': DC10_NS, 'd11': DC11_NS,
            'xsi': XSI_NS, 'dt': DCTERMS_NS, 'ncx': NCX_NS,
@@ -53,6 +55,7 @@ def DC(name): return '{%s}%s' % (DC11_NS, name)
 def NCX(name): return '{%s}%s' % (NCX_NS, name)
 def SVG(name): return '{%s}%s' % (SVG_NS, name)
 def XLINK(name): return '{%s}%s' % (XLINK_NS, name)
+def CALIBRE(name): return '{%s}%s' % (CALIBRE_NS, name)
 
 EPUB_MIME = 'application/epub+zip'
 XHTML_MIME = 'application/xhtml+xml'
@@ -77,6 +80,8 @@ MS_COVER_TYPE = 'other.ms-coverimage-standard'
 
 ENTITY_RE = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
 COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
+QNAME_RE = re.compile(r'^[{][^{}]+[}][^{}]+$')
+PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
 
 def element(parent, *args, **kwargs):
     if parent is not None:
@@ -94,10 +99,29 @@ def barename(name):
     return name
 
 def prefixname(name, nsrmap):
-    prefix = nsrmap[namespace(name)]
+    if not isqname(name):
+        return name
+    ns = namespace(name)
+    if ns not in nsrmap:
+        return name
+    prefix = nsrmap[ns]
     if not prefix:
         return barename(name)
     return ':'.join((prefix, barename(name)))
+
+def isprefixname(name):
+    return name and PREFIXNAME_RE.match(name) is not None
+
+def qname(name, nsmap):
+    if not isprefixname(name):
+        return name
+    prefix, local = name.split(':', 1)
+    if prefix not in nsmap:
+        return name
+    return '{%s}%s' % (nsmap[prefix], local)
+
+def isqname(name):
+    return name and QNAME_RE.match(name) is not None
 
 def XPath(expr):
     return etree.XPath(expr, namespaces=XPNSMAP)
@@ -187,47 +211,64 @@ class DirWriter(object):
 
 
 class Metadata(object):
-    TERMS = set(['contributor', 'coverage', 'creator', 'date', 'description',
-                 'format', 'identifier', 'language', 'publisher', 'relation',
-                 'rights', 'source', 'subject', 'title', 'type'])
-    ATTRS = set(['role', 'file-as', 'scheme'])
+    DC_TERMS = set(['contributor', 'coverage', 'creator', 'date', 'description',
+                    'format', 'identifier', 'language', 'publisher', 'relation',
+                    'rights', 'source', 'subject', 'title', 'type'])
+    CALIBRE_TERMS = set(['series', 'series_index', 'rating'])
+    OPF_ATTRS = set(['role', 'file-as', 'scheme', 'event'])
     OPF1_NSMAP = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
     OPF2_NSMAP = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
-                  'xsi': XSI_NS}
+                  'xsi': XSI_NS, 'calibre': CALIBRE_NS}
     
     class Item(object):
-        def __init__(self, term, value, fq_attrib={}, **kwargs):
-            self.fq_attrib = fq_attrib = dict(fq_attrib)
-            fq_attrib.update(kwargs)
-            if barename(term).lower() in Metadata.TERMS and \
-               (not namespace(term) or namespace(term) in DC_NSES):
-                # Anything looking like Dublin Core is coerced
-                term = DC(barename(term).lower())
-            elif namespace(term) == OPF2_NS:
+        def __init__(self, term, value, attrib={}, nsmap={}, **kwargs):
+            self.attrib = attrib = dict(attrib)
+            self.nsmap = nsmap = dict(nsmap)
+            attrib.update(kwargs)
+            if namespace(term) == OPF2_NS:
                 term = barename(term)
+            ns = namespace(term)
+            local = barename(term).lower()
+            if local in Metadata.DC_TERMS and (not ns or ns in DC_NSES):
+                # Anything looking like Dublin Core is coerced
+                term = DC(local)
+            elif local in Metadata.CALIBRE_TERMS and ns in (CALIBRE_NS, ''):
+                # Ditto for Calibre-specific metadata
+                term = CALIBRE(local)
             self.term = term
             self.value = value
-            self.attrib = attrib = {}
-            for fq_attr in fq_attrib:
-                if fq_attr in Metadata.ATTRS:
-                    attr = fq_attr
-                    fq_attr = OPF(fq_attr)
-                    fq_attrib[fq_attr] = fq_attrib.pop(attr)
-                else:
-                    attr = barename(fq_attr)
-                attrib[attr] = fq_attrib[fq_attr]
+            for attr, value in attrib.items():
+                if isprefixname(value):
+                    attrib[attr] = qname(value, nsmap)
+                if attr in Metadata.OPF_ATTRS:
+                    attrib[OPF(attr)] = attrib.pop(attr)
+            self.__setattr__ = self._setattr
         
         def __getattr__(self, name):
-            name = name.replace('_', '-')
+            attr = name.replace('_', '-')
+            if attr in Metadata.OPF_ATTRS:
+                attr = OPF(attr)
             try:
-                return self.attrib[name]
+                return self.attrib[attr]
             except KeyError:
                 raise AttributeError(
                     '%r object has no attribute %r' \
                         % (self.__class__.__name__, name))
-        
+            
+        def _setattr(self, name, value):
+            attr = name.replace('_', '-')
+            if attr in Metadata.OPF_ATTRS:
+                attr = OPF(attr)
+            if attr in self.attrib:
+                self.attrib[attr] = value
+                return
+            super(Item, self).__setattr__(self, name, value)
+            
         def __getitem__(self, key):
             return self.attrib[key]
+        
+        def __setitem__(self, key, value):
+            self.attrib[key] = value
         
         def __contains__(self, key):
             return key in self.attrib
@@ -245,33 +286,41 @@ class Metadata(object):
         def __unicode__(self):
             return unicode(self.value)
 
-        def to_opf1(self, dcmeta=None, xmeta=None):
+        def to_opf1(self, dcmeta=None, xmeta=None, nsrmap={}):
+            attrib = {}
+            for key, value in self.attrib.items():
+                if namespace(key) == OPF2_NS:
+                    key = barename(key)
+                attrib[key] = prefixname(value, nsrmap)
             if namespace(self.term) == DC11_NS:
                 name = DC(barename(self.term).title())
-                elem = element(dcmeta, name, attrib=self.attrib)
+                elem = element(dcmeta, name, attrib=attrib)
                 elem.text = self.value
             else:
-                elem = element(xmeta, 'meta', attrib=self.attrib)
-                elem.attrib['name'] = self.term
-                elem.attrib['content'] = self.value
+                elem = element(xmeta, 'meta', attrib=attrib)
+                elem.attrib['name'] = prefixname(self.term, nsrmap)
+                elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
         
-        def to_opf2(self, parent=None):
+        def to_opf2(self, parent=None, nsrmap={}):
+            attrib = {}
+            for key, value in self.attrib.items():
+                attrib[key] = prefixname(value, nsrmap)
             if namespace(self.term) == DC11_NS:
-                elem = element(parent, self.term, attrib=self.fq_attrib)
+                elem = element(parent, self.term, attrib=attrib)
                 elem.text = self.value
             else:
-                elem = element(parent, OPF('meta'), attrib=self.fq_attrib)
-                elem.attrib['name'] = self.term
-                elem.attrib['content'] = self.value
+                elem = element(parent, OPF('meta'), attrib=attrib)
+                elem.attrib['name'] = prefixname(self.term, nsrmap)
+                elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
     
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = defaultdict(list)
 
-    def add(self, term, value, attrib={}, **kwargs):
-        item = self.Item(term, value, attrib, **kwargs)
+    def add(self, term, value, attrib={}, nsmap={}, **kwargs):
+        item = self.Item(term, value, attrib, nsmap, **kwargs)
         items = self.items[barename(item.term)]
         items.append(item)
         return item
@@ -290,23 +339,55 @@ class Metadata(object):
     def __getattr__(self, term):
         return self.items[term]
 
+    def _nsmap():
+        def fget(self):
+            nsmap = {}
+            for term in self.items:
+                for item in self.items[term]:
+                    nsmap.update(item.nsmap)
+            return nsmap
+        return property(fget=fget)
+    _nsmap = _nsmap()        
+    
+    def _opf1_nsmap():
+        def fget(self):
+            nsmap = self._nsmap
+            for key, value in nsmap.items():
+                if value in OPF_NSES or value in DC_NSES:
+                    del nsmap[key]
+            return nsmap
+        return property(fget=fget)
+    _opf1_nsmap = _opf1_nsmap()
+    
+    def _opf2_nsmap():
+        def fget(self):
+            nsmap = self._nsmap
+            nsmap.update(self.OPF2_NSMAP)
+            return nsmap
+        return property(fget=fget)
+    _opf2_nsmap = _opf2_nsmap()
+    
     def to_opf1(self, parent=None):
-        elem = element(parent, 'metadata')
+        nsmap = self._opf1_nsmap
+        nsrmap = dict((value, key) for key, value in nsmap.items())
+        elem = element(parent, 'metadata', nsmap=nsmap)
         dcmeta = element(elem, 'dc-metadata', nsmap=self.OPF1_NSMAP)
         xmeta = element(elem, 'x-metadata')
         for term in self.items:
             for item in self.items[term]:
-                item.to_opf1(dcmeta, xmeta)
+                item.to_opf1(dcmeta, xmeta, nsrmap=nsrmap)
         if 'ms-chaptertour' not in self.items:
             chaptertour = self.Item('ms-chaptertour', 'chaptertour')
-            chaptertour.to_opf1(dcmeta, xmeta)
+            chaptertour.to_opf1(dcmeta, xmeta, nsrmap=nsrmap)
         return elem
         
     def to_opf2(self, parent=None):
-        elem = element(parent, OPF('metadata'), nsmap=self.OPF2_NSMAP)
+        nsmap = self._opf2_nsmap
+        nsrmap = dict((value, key) for key, value in nsmap.items())
+        elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
-                item.to_opf2(elem)
+                item.to_opf2(elem, nsrmap=nsrmap)
         return elem
 
 
@@ -818,27 +899,27 @@ class OEBBook(object):
             self._all_from_opf(opf)
     
     def _clean_opf(self, opf):
-        for elem in opf.iter():
-            if isinstance(elem.tag, basestring) \
-               and namespace(elem.tag) in ('', OPF1_NS):
+        nsmap = {}
+        for elem in opf.iter(tag=etree.Element):
+            nsmap.update(elem.nsmap)
+        for elem in opf.iter(tag=etree.Element):
+            if namespace(elem.tag) in ('', OPF1_NS):
                 elem.tag = OPF(barename(elem.tag))
+        nsmap.update(Metadata.OPF2_NSMAP)
         attrib = dict(opf.attrib)
         nroot = etree.Element(OPF('package'),
             nsmap={None: OPF2_NS}, attrib=attrib)
-        metadata = etree.SubElement(nroot, OPF('metadata'),
-            nsmap={'opf': OPF2_NS, 'dc': DC11_NS,
-                   'xsi': XSI_NS, 'dcterms': DCTERMS_NS})
-        dc = lambda prefix: xpath(opf, 'o2:metadata//%s:*' % prefix)
-        for element in chain(*(dc(prefix) for prefix in DC_PREFIXES)):
-            if not element.text: continue
-            tag = barename(element.tag).lower()
-            element.tag = '{%s}%s' % (DC11_NS, tag)
-            for name in element.attrib:
-                if name in ('role', 'file-as', 'scheme'):
+        metadata = etree.SubElement(nroot, OPF('metadata'), nsmap=nsmap)
+        ignored = (OPF('dc-metadata'), OPF('x-metadata'))
+        for elem in xpath(opf, 'o2:metadata//*'):
+            if namespace(elem.tag) in DC_NSES:
+                tag = barename(elem.tag).lower()
+                elem.tag = '{%s}%s' % (DC11_NS, tag)
+            for name in elem.attrib:
+                if name in ('role', 'file-as', 'scheme', 'event'):
                     nsname = '{%s}%s' % (OPF2_NS, name)
-                    element.attrib[nsname] = element.attrib[name]
-                    del element.attrib[name]
-            metadata.append(element)
+                    elem.attrib[nsname] = elem.attrib.pop(name)
+            metadata.append(elem)
         for element in xpath(opf, 'o2:metadata//o2:meta'):
             metadata.append(element)
         for tag in ('o2:manifest', 'o2:spine', 'o2:tours', 'o2:guide'):
@@ -865,18 +946,18 @@ class OEBBook(object):
         uid = opf.get('unique-identifier', 'calibre-uuid')
         self.uid = None
         self.metadata = metadata = Metadata(self)
-        ignored = (OPF('dc-metadata'), OPF('x-metadata'))
         for elem in xpath(opf, '/o2:package/o2:metadata//*'):
-            if elem.tag in ignored: continue
             term = elem.tag
             value = elem.text
+            attrib = dict(elem.attrib)
+            nsmap = elem.nsmap
             if term == OPF('meta'):
-                term = elem.attrib.pop('name', None)
-                value = elem.attrib.pop('content', None)
+                term = qname(attrib.pop('name', None), nsmap)
+                value = attrib.pop('content', None)
             if value:
                 value = COLLAPSE_RE.sub(' ', value.strip())
-            if term and (value or elem.attrib):
-                metadata.add(term, value, elem.attrib)
+            if term and (value or attrib):
+                metadata.add(term, value, attrib, nsmap=nsmap)
         haveuuid = haveid = False
         for ident in metadata.identifier:
             if unicode(ident).startswith('urn:uuid:'):
