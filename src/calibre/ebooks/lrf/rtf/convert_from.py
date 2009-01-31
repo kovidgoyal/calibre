@@ -170,7 +170,7 @@ def generate_html(rtfpath, tdir):
         f.write(res)
         f.close()
         try:
-            mi = get_metadata(open(rtfpath, 'rb'))
+            mi = get_metadata(open(rtfpath, 'rb'), 'rtf')
         except:
             mi = MetaInformation(None, None)
         if not mi.title:

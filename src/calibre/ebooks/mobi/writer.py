@@ -23,6 +23,7 @@ from PIL import Image
 from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
     OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
+from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.base import Logger, OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
@@ -178,7 +179,7 @@ class Serializer(object):
 
     def serialize_href(self, href, base=None):
         hrefs = self.oeb.manifest.hrefs
-        path, frag = urldefrag(href)
+        path, frag = urldefrag(urlnormalize(href))
         if path and base:
             path = base.abshref(path)
         if path and path not in hrefs:
@@ -196,6 +197,7 @@ class Serializer(object):
         
     def serialize_body(self):
         buffer = self.buffer
+        self.anchor_offset = buffer.tell()
         buffer.write('<body>')
         # CybookG3 'Start Reading' link
         if 'text' in self.oeb.guide:
@@ -224,14 +226,17 @@ class Serializer(object):
            or namespace(elem.tag) not in nsrmap:
             return
         tag = prefixname(elem.tag, nsrmap)
-        for attr in ('name', 'id'):
-            if attr in elem.attrib:
-                href = '#'.join((item.href, elem.attrib[attr]))
-                self.id_offsets[href] = buffer.tell()
-                del elem.attrib[attr]
-        if tag == 'a' and not elem.attrib \
-           and not len(elem) and not elem.text:
+        # Previous layers take care of @name
+        id = elem.attrib.pop('id', None)
+        if id is not None:
+            href = '#'.join((item.href, id))
+            offset = self.anchor_offset or buffer.tell()
+            self.id_offsets[href] = offset
+        if self.anchor_offset is not None and \
+           tag == 'a' and not elem.attrib and \
+           not len(elem) and not elem.text:
             return
+        self.anchor_offset = buffer.tell()
         buffer.write('<')
         buffer.write(tag)
         if elem.attrib:
@@ -256,10 +261,12 @@ class Serializer(object):
         if elem.text or len(elem) > 0:
             buffer.write('>')
             if elem.text:
+                self.anchor_offset = None
                 self.serialize_text(elem.text)
             for child in elem:
                 self.serialize_elem(child, item)
                 if child.tail:
+                    self.anchor_offset = None
                     self.serialize_text(child.tail)
             buffer.write('</%s>' % tag)
         else:

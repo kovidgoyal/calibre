@@ -231,6 +231,19 @@ class ODFContentParser(xml.sax.saxutils.XMLGenerator):
         self._callback_func = callback_func
         xml.sax.saxutils.XMLGenerator.__init__(self, out, encoding)
 
+    def _qname(self, name):
+        """Builds a qualified name from a (ns_url, localname) pair"""
+        if name[0]:
+            if name[0] == u'http://www.w3.org/XML/1998/namespace':
+                return u'xml' + ":" + name[1]
+            # The name is in a non-empty namespace
+            prefix = self._current_context[name[0]]
+            if prefix:
+                # If it is not the default namespace, prepend the prefix
+                return prefix + ":" + name[1]
+        # Return the unqualified name
+        return name[1]
+
     def startElementNS(self, name, qname, attrs):
         if name == (TEXTNS, u'user-field-decl'):
             field_name = attrs.get((TEXTNS, u'name'))

@@ -23,6 +23,12 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
 
+def asfloat(value, default):
+    if not isinstance(value, (int, long, float)):
+        value = default
+    return float(value)
+
+
 class KeyMapper(object):
     def __init__(self, sbase, dbase, dkey):
         self.sbase = float(sbase)
@@ -179,12 +185,13 @@ class CSSFlattener(object):
         if cssdict:
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)
-            margin = style['margin-left']
-            left += margin if isinstance(margin, float) else 0
-            if (left + style['text-indent']) < 0:
-                percent = (margin - style['text-indent']) / style['width']
+            margin = asfloat(style['margin-left'], 0)
+            indent = asfloat(style['text-indent'], 0)
+            left += margin
+            if (left + indent) < 0:
+                percent = (margin - indent) / style['width']
                 cssdict['margin-left'] = "%d%%" % (percent * 100)
-                left -= style['text-indent']
+                left -= indent
             if 'display' in cssdict and cssdict['display'] == 'in-line':
                 cssdict['display'] = 'inline'
             if self.unfloat and 'float' in cssdict \

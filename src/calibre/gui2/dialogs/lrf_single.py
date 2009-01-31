@@ -253,6 +253,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 state = Qt.Checked if default else Qt.Unchecked
                 obj.setCheckState(state)
         self.gui_headerformat.setDisabled(True)
+        self.gui_header_separation.setDisabled(True)
         self.gui_use_metadata_cover.setCheckState(Qt.Checked)
         self.preprocess.addItem('No preprocessing')
         for opt in self.PREPROCESS_OPTIONS:

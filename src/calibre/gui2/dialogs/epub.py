@@ -252,7 +252,7 @@ class Config(ResizableDialog, Ui_Dialog):
                     self.source_format = d.format()
                 
     def accept(self):
-        for opt in ('chapter', 'level1_toc', 'level2_toc'):
+        for opt in ('chapter', 'level1_toc', 'level2_toc', 'level3_toc'):
             text = unicode(getattr(self, 'opt_'+opt).text())
             if text:
                 try:

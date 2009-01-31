@@ -558,31 +558,22 @@ class Processor(Parser):
     
     def detect_chapters(self):
         self.detected_chapters = self.opts.chapter(self.root)
+        chapter_mark = self.opts.chapter_mark
+        page_break_before = 'display: block; page-break-before: always'
+        page_break_after = 'display: block; page-break-after: always'
         for elem in self.detected_chapters:
             text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
             self.log_info('\tDetected chapter: %s', text[:50])
-            if self.opts.chapter_mark != 'none':
-                hr = etree.Element('hr')
-                if elem.getprevious() is None:
-                    elem.getparent()[:0] = [hr]
-                elif elem.getparent() is not None:
-                    insert = None
-                    for i, c in enumerate(elem.getparent()):
-                        if c is elem:
-                            insert = i
-                            break
-                    elem.getparent()[insert:insert] = [hr]
-                if self.opts.chapter_mark != 'rule':
-                    hr.set('style', 'width:0pt;page-break-before:always')
-                    if self.opts.chapter_mark == 'both':
-                        hr2 = etree.Element('hr')
-                        hr2.tail = u'\u00a0'
-                        p = hr.getparent()
-                        i = p.index(hr)
-                        p[i:i] = [hr2]
-                
-                    
-        
+            if chapter_mark == 'none':
+                continue
+            elif chapter_mark == 'rule':
+                mark = etree.Element('hr')
+            elif chapter_mark == 'pagebreak':
+                mark = etree.Element('div', style=page_break_after)
+            else: # chapter_mark == 'both':
+                mark = etree.Element('hr', style=page_break_before)
+            elem.addprevious(mark)
+    
     def save(self):
         style_path = os.path.splitext(os.path.basename(self.save_path()))[0]
         for i, sheet in enumerate([self.stylesheet, self.font_css, self.override_css]):
@@ -647,6 +638,7 @@ class Processor(Parser):
                         added[elem] = add_item(_href, frag, text, toc, type='chapter')
                         add_item(_href, frag, 'Top', added[elem], type='chapter')
                 if self.opts.level2_toc is not None:
+                    added2 = {}
                     level2 = list(self.opts.level2_toc(self.root))
                     for elem in level2:
                         level1 = None
@@ -657,7 +649,21 @@ class Processor(Parser):
                                 text, _href, frag = elem_to_link(elem, href, counter)
                                 counter += 1
                                 if text:
+                                    added2[elem] = \
                                     add_item(_href, frag, text, level1, type='chapter')
+                    if self.opts.level3_toc is not None:
+                        level3 = list(self.opts.level3_toc(self.root))
+                        for elem in level3:
+                            level2 = None
+                            for item in self.root.iterdescendants():
+                                if item in added2.keys():
+                                    level2 = added2[item]
+                                elif item == elem and level2 is not None:
+                                    text, _href, frag = elem_to_link(elem, href, counter)
+                                    counter += 1
+                                    if text:
+                                        add_item(_href, frag, text, level2, type='chapter')
+                
                     
             if len(toc) > 0:
                 return
@@ -892,7 +898,7 @@ def config(defaults=None, config_name='html',
     metadata('title', ['-t', '--title'], default=None,
              help=_('Set the title. Default is to autodetect.'))
     metadata('authors', ['-a', '--authors'], default=None,
-             help=_('The author(s) of the ebook, as a comma separated list.'))
+             help=_('The author(s) of the ebook, as a & separated list.'))
     metadata('tags', ['--subjects'], default=None,
              help=_('The subject(s) of this book, as a comma separated list.'))
     metadata('publisher', ['--publisher'], default=None,
@@ -988,7 +994,9 @@ def merge_metadata(htmlfile, opf, opts):
         val = getattr(opts, attr, None)
         if val is None or val == _('Unknown') or val == [_('Unknown')]:
             continue
-        if attr in ('authors', 'tags'):
+        if attr =='authors':
+            val = [i.strip() for i in val.split('&') if i.strip()]
+        elif attr == 'tags':
             val = [i.strip() for i in val.split(',') if i.strip()]
         setattr(mi, attr, val)
         
@@ -997,7 +1005,10 @@ def merge_metadata(htmlfile, opf, opts):
         mi.cover = os.path.abspath(cover)
         
     if not mi.title:
-        mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
+        if htmlfile:
+            mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
+        else:
+            mi.title = _('Unknown')
     if not mi.authors:
         mi.authors = [_('Unknown')]
     return mi

@@ -1055,5 +1055,37 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>gui_header</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_header_separation</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>235</x>
+     <y>298</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>361</x>
+     <y>321</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gui_header</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_headerformat</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>307</x>
+     <y>300</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>363</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

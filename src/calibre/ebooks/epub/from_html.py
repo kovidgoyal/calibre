@@ -377,16 +377,13 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
         mi = merge_metadata(htmlfile, opf, opts)
     opts.chapter = XPath(opts.chapter, 
                     namespaces={'re':'http://exslt.org/regular-expressions'})
-    if opts.level1_toc:
-        opts.level1_toc = XPath(opts.level1_toc, 
-                            namespaces={'re':'http://exslt.org/regular-expressions'})
-    else:
-        opts.level1_toc = None
-    if opts.level2_toc:
-        opts.level2_toc = XPath(opts.level2_toc, 
-                            namespaces={'re':'http://exslt.org/regular-expressions'})
-    else:
-        opts.level2_toc = None 
+    for x in (1, 2, 3):
+        attr = 'level%d_toc'%x
+        if getattr(opts, attr):
+            setattr(opts, attr, XPath(getattr(opts, attr), 
+                      namespaces={'re':'http://exslt.org/regular-expressions'}))
+        else:
+            setattr(opts, attr, None) 
     
     with TemporaryDirectory(suffix='_html2epub', keep=opts.keep_intermediate) as tdir:
         if opts.keep_intermediate:

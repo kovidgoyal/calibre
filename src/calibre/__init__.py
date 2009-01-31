@@ -441,15 +441,19 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
 
 if isosx:
     fdir = os.path.expanduser('~/.fonts')
-    if not os.path.exists(fdir):
-        os.makedirs(fdir)
-    if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
-        from calibre.ebooks.lrf.fonts.liberation import __all__ as fonts
-        for font in fonts:
-            l = {}
-            exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data' in l
-            open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
-            
+    try:
+        if not os.path.exists(fdir):
+            os.makedirs(fdir)
+        if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
+            from calibre.ebooks.lrf.fonts.liberation import __all__ as fonts
+            for font in fonts:
+                l = {}
+                exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data' in l
+                open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
+    except:
+        import traceback
+        traceback.print_exc()
+                
 # Migrate from QSettings based config system
 from calibre.utils.config import migrate
 migrate()

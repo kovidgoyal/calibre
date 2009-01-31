@@ -5,7 +5,7 @@
          unique-identifier="${__appname__}_id"
          
 >
-    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata">
         <dc:title py:with="attrs={'opf:files-as':mi.title_sort}" py:attrs="attrs">${mi.title}</dc:title>
         <dc:creator opf:role="aut" py:for="i, author in enumerate(mi.authors)" py:attrs="{'opf:file-as':mi.author_sort} if mi.author_sort and i == 0 else {}">${author}</dc:creator>
         <dc:contributor opf:role="bkp" py:with="attrs={'opf:files-as':__appname__}" py:attrs="attrs">${'%s (%s)'%(__appname__, __version__)} [http://${__appname__}.kovidgoyal.net]</dc:contributor> 
@@ -16,9 +16,9 @@
         <dc:description py:if="mi.comments">${mi.comments}</dc:description>
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
         <dc:identifier opf:scheme="ISBN" py:if="mi.isbn">${mi.isbn}</dc:identifier>
-        <series py:if="mi.series">${mi.series}</series>
-        <series_index py:if="mi.series_index is not None">${mi.series_index}</series_index>
-        <rating py:if="mi.rating is not None">${mi.rating}</rating>
+        <meta py:if="mi.series is not None" name="calibre:series" content="${mi.series}"/>
+        <meta py:if="mi.series_index is not None" name="calibre:series_index" content="${mi.series_index}"/>
+        <meta py:if="mi.rating is not None" name="calibre:rating" content="${mi.rating}"/>
         <py:for each="tag in mi.tags">
         <dc:subject py:if="mi.tags is not None">${tag}</dc:subject>
         </py:for>

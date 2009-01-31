@@ -142,6 +142,8 @@ to auto-generate a Table of Contents.
         help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level one. If this is specified, it takes precedence over other forms of auto-detection.'))
     toc('level2_toc', ['--level2-toc'], default=None,
         help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level two. Each entry is added under the previous level one entry.'))
+    toc('level3_toc', ['--level3-toc'], default=None,
+        help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level three. Each entry is added under the previous level two entry.'))
     toc('from_ncx', ['--from-ncx'], default=None,
         help=_('Path to a .ncx file that contains the table of contents to use for this ebook. The NCX file should contain links relative to the directory it is placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for an overview of the NCX format.'))
     toc('use_auto_toc', ['--use-auto-toc'], default=False,

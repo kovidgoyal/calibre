@@ -54,7 +54,7 @@ class ManifestTrimmer(object):
                                 new.add(found)
                 elif item.media_type == CSS_MIME:
                     def replacer(uri):
-                        absuri = item.abshref(uri)
+                        absuri = item.abshref(urlnormalize(uri))
                         if absuri in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]
                             if found not in used:
