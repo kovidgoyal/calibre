@@ -181,11 +181,11 @@ class Device(_Device):
             elif self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_CARD_MEM):
                 drives['card'] = self.windows_get_drive_prefix(drive)
 
-            if 'main' and 'card' in drives.keys():
+            if 'main' in drives.keys() and 'card' in drives.keys():
                 break
 
-        self._main_prefix = drives.get('main', None)
-        self._card_prefix = drives.get('card', None)
+        self._main_prefix = drives.get('main')
+        self._card_prefix = drives.get('card')
         
         if not self._main_prefix:
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.') % self.__class__.__name__)
