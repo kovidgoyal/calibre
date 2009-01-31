@@ -35,7 +35,9 @@ class DebugWindow(ConversionErrorDialog):
 
 class MainWindow(QMainWindow):
 
-    _menu_bar = None
+    ___menu_bar = None
+    ___menu     = None
+    __actions   = [] 
     
     @classmethod
     def create_application_menubar(cls):
@@ -43,9 +45,11 @@ class MainWindow(QMainWindow):
         menu = QMenu()
         for action in cls.get_menubar_actions():
             menu.addAction(action)
+            cls.__actions.append(action)
             yield action
         mb.addMenu(menu)
-        cls._menu_bar = mb
+        cls.___menu_bar = mb
+        cls.___menu = menu
         
     
     @classmethod
