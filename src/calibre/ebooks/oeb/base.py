@@ -220,12 +220,37 @@ class Metadata(object):
     CALIBRE_TERMS = set(['series', 'series_index', 'rating'])
     OPF_ATTRS = {'role': OPF('role'), 'file-as': OPF('file-as'),
                  'scheme': OPF('scheme'), 'event': OPF('event'),
-                 'type': XSI('type'), 'id': 'id'}
+                 'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}
     OPF1_NSMAP = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
     OPF2_NSMAP = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                   'xsi': XSI_NS, 'calibre': CALIBRE_NS}
     
     class Item(object):
+        class Attribute(object):
+            def __init__(self, attr, allowed=None):
+                if not callable(attr):
+                    attr_, attr = attr, lambda term: attr_
+                self.attr = attr
+                self.allowed = allowed
+            
+            def term_attr(self, obj):
+                term = obj.term
+                if namespace(term) != DC11_NS:
+                    term = OPF('meta')
+                allowed = self.allowed
+                if allowed is not None and term not in allowed:
+                    raise AttributeError(
+                        'attribute %r not valid for metadata term %r' \
+                            % (self.attr(term), barename(obj.term)))
+                return self.attr(term)
+            
+            def __get__(self, obj, cls):
+                if obj is None: return None
+                return obj.attrib.get(self.term_attr(obj), '')
+            
+            def __set__(self, obj, value):
+                obj.attrib[self.term_attr(obj)] = value
+        
         def __init__(self, term, value, attrib={}, nsmap={}, **kwargs):
             self.attrib = attrib = dict(attrib)
             self.nsmap = nsmap = dict(nsmap)
@@ -246,26 +271,27 @@ class Metadata(object):
                 if isprefixname(value):
                     attrib[attr] = qname(value, nsmap)
                 nsattr = Metadata.OPF_ATTRS.get(attr, attr)
+                if nsattr == OPF('scheme') and namespace(term) != DC11_NS:
+                    # The opf:meta element takes @scheme, not @opf:scheme
+                    nsattr = 'scheme'
                 if attr != nsattr:
                     attrib[nsattr] = attrib.pop(attr)
-            self.__setattr__ = self._setattr
         
-        def __getattr__(self, name):
-            attr = name.replace('_', '-')
-            if attr in Metadata.OPF_ATTRS:
-                attr = Metadata.OPF_ATTRS[attr]
-                return self.attrib.get(attr, None)
-            raise AttributeError(
-                '%r object has no attribute %r' \
-                    % (self.__class__.__name__, name))
-        
-        def _setattr(self, name, value):
-            attr = name.replace('_', '-')
-            if attr in Metadata.OPF_ATTRS:
-                attr = Metadata.OPF_ATTRS[attr]
-                self.attrib[attr] = value
-                return
-            super(Item, self).__setattr__(self, name, value)
+        def scheme(term):
+            if term == OPF('meta'):
+                return 'scheme'
+            return OPF('scheme')
+        scheme = Attribute(scheme, [DC('identifier'), OPF('meta')])
+        file_as = Attribute(OPF('file-as'), [DC('creator'), DC('contributor')])
+        role = Attribute(OPF('role'), [DC('creator'), DC('contributor')])
+        event = Attribute(OPF('event'), [DC('date')])
+        id = Attribute('id')
+        type = Attribute(XSI('type'), [DC('date'), DC('format'), DC('type')])
+        lang = Attribute(XML('lang'), [DC('contributor'), DC('coverage'),
+                                       DC('creator'), DC('publisher'),
+                                       DC('relation'), DC('rights'),
+                                       DC('source'), DC('subject'),
+                                       OPF('meta')])
         
         def __getitem__(self, key):
             return self.attrib[key]

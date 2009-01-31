@@ -471,7 +471,7 @@ class MobiWriter(object):
                 if term == 'identifier':
                     if data.lower().startswith('urn:isbn:'):
                         data = data[9:]
-                    elif item.get('scheme', '').lower() == 'isbn':
+                    elif item.scheme.lower() == 'isbn':
                         pass
                     else:
                         continue
