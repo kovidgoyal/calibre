@@ -24,7 +24,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout" >
       <item>
-       <widget class="QListView" name="recipes" >
+       <widget class="RecipeListView" name="recipes" >
         <property name="alternatingRowColors" >
          <bool>true</bool>
         </property>
@@ -321,6 +321,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>RecipeListView</class>
+   <extends>QListView</extends>
+   <header>recipelistview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../images.qrc" />
  </resources>

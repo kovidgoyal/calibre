@@ -241,8 +241,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self._model = RecipeModel(db)
         self.current_recipe = None
         self.recipes.setModel(self._model)
-        self.connect(self.recipes, SIGNAL('activated(QModelIndex)'), self.show_recipe)
-        self.connect(self.recipes, SIGNAL('clicked(QModelIndex)'), self.show_recipe)
+        self.connect(self.recipes, SIGNAL('itemChanged(QModelIndex)'), self.show_recipe)
         self.connect(self.username, SIGNAL('textEdited(QString)'), self.set_account_info)
         self.connect(self.password, SIGNAL('textEdited(QString)'), self.set_account_info)
         self.connect(self.schedule, SIGNAL('stateChanged(int)'), self.do_schedule)
@@ -358,7 +357,6 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.last_downloaded.setText(_('Last downloaded')+': '+tm)
         else:
             self.last_downloaded.setText(_('Last downloaded: never'))
-            
             
 class Scheduler(QObject):
     
