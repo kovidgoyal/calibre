@@ -40,7 +40,7 @@ class Device(_Device):
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                 %(BCD_start)s
-                  <match key="volume.is_partition" bool="false">
+                  <match key="@info.parent:storage.lun" int="0">
                           <merge key="volume.label" type="string">%(main_memory)s</merge>
                           <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
                   </match>
@@ -54,7 +54,7 @@ class Device(_Device):
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                 %(BCD_start)s
-                  <match key="volume.is_partition" bool="true">
+                  <match key="@info.parent:storage.lun" int="1">
                           <merge key="volume.label" type="string">%(storage_card)s</merge>
                           <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
                   </match>
