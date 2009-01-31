@@ -52,6 +52,8 @@ def XML(name): return '{%s}%s' % (XML_NS, name)
 def XHTML(name): return '{%s}%s' % (XHTML_NS, name)
 def OPF(name): return '{%s}%s' % (OPF2_NS, name)
 def DC(name): return '{%s}%s' % (DC11_NS, name)
+def XSI(name): return '{%s}%s' % (XSI_NS, name)
+def DCTERMS(name): return '{%s}%s' % (DCTERMS_NS, name)
 def NCX(name): return '{%s}%s' % (NCX_NS, name)
 def SVG(name): return '{%s}%s' % (SVG_NS, name)
 def XLINK(name): return '{%s}%s' % (XLINK_NS, name)
@@ -211,11 +213,14 @@ class DirWriter(object):
 
 
 class Metadata(object):
-    DC_TERMS = set(['contributor', 'coverage', 'creator', 'date', 'description',
-                    'format', 'identifier', 'language', 'publisher', 'relation',
-                    'rights', 'source', 'subject', 'title', 'type'])
+    DC_TERMS = set(['contributor', 'coverage', 'creator', 'date',
+                    'description', 'format', 'identifier', 'language',
+                    'publisher', 'relation', 'rights', 'source', 'subject',
+                    'title', 'type'])
     CALIBRE_TERMS = set(['series', 'series_index', 'rating'])
-    OPF_ATTRS = set(['role', 'file-as', 'scheme', 'event'])
+    OPF_ATTRS = {'role': OPF('role'), 'file-as': OPF('file-as'),
+                 'scheme': OPF('scheme'), 'event': OPF('event'),
+                 'type': XSI('type'), 'id': 'id'}
     OPF1_NSMAP = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
     OPF2_NSMAP = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                   'xsi': XSI_NS, 'calibre': CALIBRE_NS}
@@ -240,30 +245,28 @@ class Metadata(object):
             for attr, value in attrib.items():
                 if isprefixname(value):
                     attrib[attr] = qname(value, nsmap)
-                if attr in Metadata.OPF_ATTRS:
-                    attrib[OPF(attr)] = attrib.pop(attr)
+                nsattr = Metadata.OPF_ATTRS.get(attr, attr)
+                if attr != nsattr:
+                    attrib[nsattr] = attrib.pop(attr)
             self.__setattr__ = self._setattr
         
         def __getattr__(self, name):
             attr = name.replace('_', '-')
             if attr in Metadata.OPF_ATTRS:
-                attr = OPF(attr)
-            try:
-                return self.attrib[attr]
-            except KeyError:
-                raise AttributeError(
-                    '%r object has no attribute %r' \
-                        % (self.__class__.__name__, name))
-            
+                attr = Metadata.OPF_ATTRS[attr]
+                return self.attrib.get(attr, None)
+            raise AttributeError(
+                '%r object has no attribute %r' \
+                    % (self.__class__.__name__, name))
+        
         def _setattr(self, name, value):
             attr = name.replace('_', '-')
             if attr in Metadata.OPF_ATTRS:
-                attr = OPF(attr)
-            if attr in self.attrib:
+                attr = Metadata.OPF_ATTRS[attr]
                 self.attrib[attr] = value
                 return
             super(Item, self).__setattr__(self, name, value)
-            
+        
         def __getitem__(self, key):
             return self.attrib[key]
         
