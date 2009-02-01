@@ -296,9 +296,11 @@ class Serializer(object):
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
     
-    def __init__(self, compression=None, imagemax=None):
+    def __init__(self, compression=None, imagemax=None,
+                 prefer_author_sort=False):
         self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
+        self._prefer_author_sort = prefer_author_sort
 
     def dump(self, oeb, path):
         if hasattr(path, 'write'):
@@ -457,12 +459,19 @@ class MobiWriter(object):
         for term in oeb.metadata:
             if term not in EXTH_CODES: continue
             code = EXTH_CODES[term]
-            for item in oeb.metadata[term]:
+            items = oeb.metadata[term]
+            if term == 'creator':
+                if self._prefer_author_sort:
+                    creators = [unicode(c.file_as or c) for c in items]
+                else:
+                    creators = [unicode(c) for c in items]
+                items = ['; '.join(creators)]
+            for item in items:
                 data = self.COLLAPSE_RE.sub(' ', unicode(item))
                 if term == 'identifier':
                     if data.lower().startswith('urn:isbn:'):
                         data = data[9:]
-                    elif item.get('scheme', '').lower() == 'isbn':
+                    elif item.scheme.lower() == 'isbn':
                         pass
                     else:
                         continue
@@ -535,6 +544,9 @@ def config(defaults=None):
          help=_('Render HTML tables as blocks of text instead of actual '
                 'tables. This is neccessary if the HTML contains very large '
                 'or complex tables.'))
+    mobi('prefer_author_sort', ['--prefer-author-sort'], default=False,
+         help=_('When present, use the author sorting information for '
+                'generating the Mobipocket author metadata.'))
     profiles = c.add_group('profiles', _('Device renderer profiles. '
         'Affects conversion of font sizes, image rescaling and rasterization '
         'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
@@ -594,7 +606,8 @@ def oeb2mobi(opts, inpath):
     trimmer.transform(oeb, context)
     mobimlizer = MobiMLizer(ignore_tables=opts.ignore_tables)
     mobimlizer.transform(oeb, context)
-    writer = MobiWriter(compression=compression, imagemax=imagemax)
+    writer = MobiWriter(compression=compression, imagemax=imagemax,
+                        prefer_author_sort=opts.prefer_author_sort)
     writer.dump(oeb, outpath)
     run_plugins_on_postprocess(outpath, 'mobi')
     logger.info(_('Output written to ') + outpath)

@@ -575,6 +575,7 @@ class BooksModel(QAbstractTableModel):
             if column == 'rating':
                 val = 0 if val < 0 else 5 if val > 5 else val
                 val *= 2
+                self.db.set_rating(id, val)
             elif column == 'series':
                 pat = re.compile(r'\[(\d+)\]')
                 match = pat.search(val)

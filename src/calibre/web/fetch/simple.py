@@ -139,6 +139,8 @@ class RecursiveFetcher(object, LoggingInterface):
         if self.keep_only_tags:
             body = Tag(soup, 'body')
             try:
+                if isinstance(self.keep_only_tags, dict):
+                    self.keep_only_tags = [self.keep_only_tags]
                 for spec in self.keep_only_tags:
                     for tag in soup.find('body').findAll(**spec):
                         body.insert(len(body.contents), tag)
