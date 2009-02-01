@@ -27,6 +27,7 @@ class KINDLE(USBMS):
     STORAGE_CARD_VOLUME_LABEL = 'Kindle Storage Card'
     
     EBOOK_DIR_MAIN = "documents"
+    EBOOK_DIR_CARD = "documents"
     SUPPORTS_SUB_DIRS = True
 
     def delete_books(self, paths, end_session=True):
