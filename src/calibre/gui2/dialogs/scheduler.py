@@ -432,7 +432,7 @@ class Scheduler(QObject):
                     day_matches = day > 6 or day == now.tm_wday
                     tnow = now.tm_hour*60 + now.tm_min
                     matches = day_matches and (hour*60+minute) < tnow
-                    if matches and nowt.toordinal() < date.today().toordinal():
+                    if matches and recipe.last_downloaded.toordinal() < date.today().toordinal():
                         needs_downloading.add(recipe)
                 
             self.debug('Needs downloading:', needs_downloading)
