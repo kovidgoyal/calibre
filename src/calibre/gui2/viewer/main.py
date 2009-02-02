@@ -248,6 +248,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         self.connect(self.action_bookmark, SIGNAL('triggered(bool)'), self.bookmark)
         self.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
+        self.connect(self.action_print_preview, SIGNAL('triggered()'), self.view.print_preview)
+        self.connect(self.action_print, SIGNAL('triggered()'), self.view.print_book)
         self.connect(self.action_preferences, SIGNAL('triggered(bool)'), lambda x: self.view.config(self))
         self.connect(self.pos, SIGNAL('valueChanged(double)'), self.goto_page)
         self.connect(self.vertical_scrollbar, SIGNAL('valueChanged(int)'), 

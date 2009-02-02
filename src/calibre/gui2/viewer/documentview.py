@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os, math, re
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, QFont
+                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, \
+                     QFont, QPrinter, QPrintPreviewDialog, QPrintDialog 
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -305,6 +306,27 @@ class DocumentView(QWebView):
         
     def goto_bookmark(self, bm):
         self.document.goto_bookmark(bm)
+
+    def print_preview(self):
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
+        
+        previewDialog = QPrintPreviewDialog(printer, self)
+        
+        self.connect(previewDialog, SIGNAL('paintRequested(QPrinter *)'), self.print_)
+        previewDialog.exec_()
+        self.disconnect(previewDialog, SIGNAL('paintRequested(QPrinter *)'), self.print_)
+
+    def print_book(self):
+        printer = QPrinter(QPrinter.HighResolution)
+        printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
+        
+        printDialog = QPrintDialog(printer, self)
+        printDialog.setWindowTitle(_("Print eBook"))
+        
+        printDialog.exec_()
+        if printDialog.result() == QDialog.Accepted:
+            self.print_(printer)
     
     def config(self, parent=None):
         self.document.do_config(parent)
