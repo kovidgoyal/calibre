@@ -464,7 +464,7 @@ class Scheduler(QObject):
                 recipe = self.recipes[self.recipes.index(recipe)]
             now = datetime.utcnow()
             d = now - recipe.last_downloaded
-            if recipe.schedule is not None:
+            if recipe.schedule is not None and recipe.schedule < 1e4:
                 interval = timedelta(days=recipe.schedule)
                 if abs(d - interval) < timedelta(hours=1):
                     recipe.last_downloaded += interval
@@ -487,7 +487,7 @@ class Scheduler(QObject):
             if recipe not in self.queue:
                 self.do_download(recipe)
         finally:
-            self.lock.unlock()    
+            self.lock.unlock()
     
     def refresh_schedule(self, recipes):
         self.recipes = recipes
