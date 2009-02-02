@@ -900,9 +900,9 @@ class TOC(object):
     
     def to_ncx(self, parent, depth=1):
         for node in self.nodes:
-            id = self.id or unicode(uuid.uuid4())
+            id = node.id or unicode(uuid.uuid4())
             attrib = {'id': id, 'playOrder': '0'}
-            if self.klass:
+            if node.klass:
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
