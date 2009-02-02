@@ -24,6 +24,7 @@ import calibre
 from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
 from calibre.startup import get_lang
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.metadata.epub import CoverRenderer
 from calibre.ptempfile import TemporaryDirectory
@@ -87,6 +88,7 @@ ENTITY_RE = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
 COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 QNAME_RE = re.compile(r'^[{][^{}]+[}][^{}]+$')
 PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
+XMLDECL_RE = re.compile(r'^\s*<[?]xml.*?[?]>')
 
 def element(parent, *args, **kwargs):
     if parent is not None:
@@ -447,9 +449,10 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _force_xhtml(self, data):
-            # Possibly decode in user-specified encoding
-            if self.oeb.encoding is not None:
-                data = data.decode(self.oeb.encoding, 'replace')
+            # Convert to Unicode and normalize line endings
+            data = self.oeb.decode(data)
+            data = XMLDECL_RE.sub('', data)
+            data = data.replace('\r\n', '\n').replace('\r', '\n')
             # Handle broken XHTML w/ SVG (ugh)
             if 'svg:' in data and SVG_NS not in data:
                 data = data.replace(
@@ -1380,6 +1383,20 @@ class OEBBook(object):
         lang = str(self.metadata.language[0])
         lang = lang.split('-', 1)[0].lower()
         return translate(lang, text)
+    
+    def decode(self, data):
+        if isinstance(data, unicode):
+            return data
+        encodings = ['utf-8', 'utf-16']
+        if self.encoding is not None:
+            encodings.append(self.encoding)
+        for encoding in encodings:
+            try:
+                return data.decode(encoding)
+            except UnicodeDecodeError:
+                pass
+        data, _ = xml_to_unicode(data)
+        return data
     
     def to_opf1(self):
         package = etree.Element('package',
