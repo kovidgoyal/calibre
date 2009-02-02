@@ -1387,12 +1387,18 @@ class OEBBook(object):
     def decode(self, data):
         if isinstance(data, unicode):
             return data
-        encodings = ['utf-8', 'utf-16']
-        if self.encoding is not None:
-            encodings.append(self.encoding)
-        for encoding in encodings:
+        if data[:2] in ('\xff\xfe', '\xfe\xff'):
             try:
-                return data.decode(encoding)
+                return data.decode('utf-16')
+            except UnicodeDecodeError:
+                pass
+        try:
+            return data.decode('utf-8')
+        except UnicodeDecodeError:
+            pass
+        if self.encoding is not None:
+            try:
+                return data.decode(self.encoding)
             except UnicodeDecodeError:
                 pass
         data, _ = xml_to_unicode(data)
