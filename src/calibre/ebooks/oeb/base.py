@@ -1009,13 +1009,16 @@ class OEBBook(object):
         return nroot
     
     def _read_opf(self, opfpath):
-        opf = self.container.read(opfpath)
+        data = self.container.read(opfpath)
+        data = self.decode(data)
+        data = XMLDECL_RE.sub('', data)
+        data = data.replace('\r\n', '\n').replace('\r', '\n')
         try:
-            opf = etree.fromstring(opf)
+            opf = etree.fromstring(data)
         except etree.XMLSyntaxError:
             repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-            opf = ENTITY_RE.sub(repl, opf)
-            opf = etree.fromstring(opf)
+            data = ENTITY_RE.sub(repl, data)
+            opf = etree.fromstring(data)
             self.logger.warn('OPF contains invalid HTML named entities')
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
