@@ -154,6 +154,9 @@ def urlquote(href):
 
 def urlnormalize(href):
     parts = urlparse(href)
+    if not parts.scheme:
+        path, frag = urldefrag(href)
+        parts = ('', '', path, '', '', frag)
     parts = (part.replace('\\', '/') for part in parts)
     parts = (urlunquote(part) for part in parts)
     parts = (urlquote(part) for part in parts)
@@ -1323,7 +1326,7 @@ class OEBBook(object):
         with TemporaryDirectory('_html_cover') as tdir:
             writer = DirWriter()
             writer.dump(self, tdir)
-            path = os.path.join(tdir, hcover.href)
+            path = os.path.join(tdir, urlunquote(hcover.href))
             renderer = CoverRenderer(path)
             data = renderer.image_data
         id, href = self.manifest.generate('cover', 'cover.jpeg')

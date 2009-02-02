@@ -9,7 +9,7 @@ directory or zip file. All the action starts in :function:`create_dir`.
 '''
 
 import sys, re, os, shutil, logging, tempfile, cStringIO, operator, functools
-from urlparse import urlparse
+from urlparse import urlparse, urlunparse
 from urllib import unquote
 
 from lxml import etree
@@ -98,7 +98,8 @@ class Link(object):
     
     @classmethod
     def url_to_local_path(cls, url, base):
-        path = url.path
+        path = urlunparse(('', '', url.path, url.params, url.query, ''))
+        path = unquote(path)
         if os.path.isabs(path):
             return path
         return os.path.abspath(os.path.join(base, path))
@@ -111,11 +112,11 @@ class Link(object):
         '''
         assert isinstance(url, unicode) and isinstance(base, unicode)
         self.url         = url
-        self.parsed_url  = urlparse(unquote(self.url))
+        self.parsed_url  = urlparse(self.url)
         self.is_local    = self.parsed_url.scheme in ('', 'file')
         self.is_internal = self.is_local and not bool(self.parsed_url.path)
         self.path        = None
-        self.fragment    = self.parsed_url.fragment 
+        self.fragment    = unquote(self.parsed_url.fragment)
         if self.is_local and not self.is_internal:
             self.path = self.url_to_local_path(self.parsed_url, base)
 
