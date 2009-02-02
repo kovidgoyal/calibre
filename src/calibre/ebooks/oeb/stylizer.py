@@ -109,6 +109,7 @@ class Stylizer(object):
     STYLESHEETS = {}
     
     def __init__(self, tree, path, oeb, profile=PROFILES['PRS505']):
+        self.oeb = oeb
         self.profile = profile
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
@@ -117,7 +118,7 @@ class Stylizer(object):
         stylesheets = [HTML_CSS_STYLESHEET]
         head = xpath(tree, '/h:html/h:head')[0]
         parser = cssutils.CSSParser()
-        parser.setFetcher(lambda path: ('utf-8', oeb.container.read(path)))
+        parser.setFetcher(self._fetch_css_file)
         for elem in head:
             if elem.tag == XHTML('style') and elem.text \
                and elem.get('type', CSS_MIME) in OEB_STYLES:
@@ -138,8 +139,7 @@ class Stylizer(object):
                 if path in self.STYLESHEETS:
                     stylesheet = self.STYLESHEETS[path]
                 else:
-                    data = XHTML_CSS_NAMESPACE
-                    data += oeb.manifest.hrefs[path].data
+                    data = self._fetch_css_file(path)[1]
                     stylesheet = parser.parseString(data, href=path)
                     stylesheet.namespaces['h'] = XHTML_NS
                     self.STYLESHEETS[path] = stylesheet
@@ -166,6 +166,15 @@ class Stylizer(object):
                 self.style(elem)._update_cssdict(cssdict)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr()
+    
+    def _fetch_css_file(self, path):
+        hrefs = self.oeb.manifest.hrefs
+        if path not in hrefs:
+            return (None, None)
+        data = hrefs[path].data
+        data = self.oeb.decode(data)
+        data = XHTML_CSS_NAMESPACE + data
+        return (None, data)
     
     def flatten_rule(self, rule, href, index):
         results = []
