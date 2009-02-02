@@ -1048,7 +1048,7 @@ class OEBBook(object):
                 haveuuid = True
             if 'id' in ident.attrib:
                 haveid = True
-        if not haveuuid and haveid:
+        if not (haveuuid and haveid):
             bookid = "urn:uuid:%s" % str(uuid.uuid4())
             metadata.add('identifier', bookid, id='calibre-uuid')
         if uid is None:
@@ -1235,13 +1235,13 @@ class OEBBook(object):
             if not item.linear: continue
             html = item.data
             title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
-            title = COLLAPSE_RE(' ', title.strip())
+            title = COLLAPSE_RE.sub(' ', title.strip())
             if title:
                 titles.append(title)
             headers.append('(unlabled)')
             for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
                 expr = '/h:html/h:body//h:%s[position()=1]/text()'
-                header = ''.join(xpath(html % tag, expr))
+                header = ''.join(xpath(html, expr % tag))
                 header = COLLAPSE_RE.sub(' ', header.strip())
                 if header:
                     headers[-1] = header
