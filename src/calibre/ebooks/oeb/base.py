@@ -17,8 +17,10 @@ import logging
 import re
 import uuid
 import copy
+import mimetypes
 from lxml import etree
 from lxml import html
+import calibre
 from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
 from calibre.startup import get_lang
@@ -64,6 +66,7 @@ XHTML_MIME = 'application/xhtml+xml'
 CSS_MIME = 'text/css'
 NCX_MIME = 'application/x-dtbncx+xml'
 OPF_MIME = 'application/oebps-package+xml'
+PAGE_MAP_MIME = 'application/oebps-page-map+xml'
 OEB_DOC_MIME = 'text/x-oeb1-document'
 OEB_CSS_MIME = 'text/x-oeb1-css'
 OPENTYPE_MIME = 'font/opentype'
@@ -892,25 +895,71 @@ class TOC(object):
             node.to_opf1(tour)
         return tour
     
-    def to_ncx(self, parent, order=None, depth=1):
-        if not order: order = [0]
+    def to_ncx(self, parent, depth=1):
         for node in self.nodes:
-            order[0] += 1
-            playOrder = str(order[0])
-            id = self.id or 'np' + playOrder
-            point = etree.SubElement(parent,
-                NCX('navPoint'), id=id, playOrder=playOrder)
+            id = self.id or unicode(uuid.uuid4())
+            attrib = {'id': id, 'playOrder': '0'}
             if self.klass:
-                point.attrib['class'] = node.klass
+                attrib['class'] = node.klass
+            point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
-            etree.SubElement(label, NCX('text')).text = node.title
+            element(label, NCX('text')).text = node.title
             href = node.href if depth > 1 else urldefrag(node.href)[0]
-            child = etree.SubElement(point,
-                NCX('content'), attrib={'src': href})
-            node.to_ncx(point, order, depth+1)
+            element(point, NCX('content'), src=href)
+            node.to_ncx(point, depth+1)
         return parent
 
+
+class PageList(object):
+    class Page(object):
+        def __init__(self, name, href, type='normal', klass=None, id=None):
+            self.name = name
+            self.href = urlnormalize(href)
+            self.type = type
+            self.id = id
+            self.klass = klass
     
+    def __init__(self):
+        self.pages = []
+    
+    def add(self, name, href, type='normal', klass=None, id=None):
+        page = self.Page(name, href, type, klass, id)
+        self.pages.append(page)
+        return page
+
+    def __len__(self):
+        return len(self.pages)
+    
+    def __iter__(self):
+        for page in self.pages:
+            yield node
+    
+    def __getitem__(self, index):
+        return self.pages[index]
+    
+    def to_ncx(self, parent=None):
+        plist = element(parent, NCX('pageList'), id=str(uuid.uuid4()))
+        values = dict((t, count(1)) for t in ('front', 'normal', 'special'))
+        for page in self.pages:
+            id = page.id or unicode(uuid.uuid4())
+            type = page.type
+            value = str(values[type].next())
+            attrib = {'id': id, 'value': value, 'type': type, 'playOrder': '0'}
+            if page.klass:
+                attrib['class'] = page.klass
+            ptarget = element(plist, NCX('pageTarget'), attrib=attrib)
+            label = element(ptarget, NCX('navLabel'))
+            element(label, NCX('text')).text = page.name
+            element(ptarget, NCX('content'), src=page.href)
+        return plist
+    
+    def to_page_map(self):
+        pmap = etree.Element(OPF('page-map'), nsmap={None: OPF2_NS})
+        for page in self.pages:
+            element(pmap, OPF('page'), name=page.name, href=page.href)
+        return pmap
+
+
 class OEBBook(object):
     COVER_SVG_XP = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
@@ -972,7 +1021,7 @@ class OEBBook(object):
         return opf
     
     def _metadata_from_opf(self, opf):
-        uid = opf.get('unique-identifier', 'calibre-uuid')
+        uid = opf.get('unique-identifier', None)
         self.uid = None
         self.metadata = metadata = Metadata(self)
         for elem in xpath(opf, '/o2:package/o2:metadata//*'):
@@ -996,8 +1045,12 @@ class OEBBook(object):
         if not haveuuid and haveid:
             bookid = "urn:uuid:%s" % str(uuid.uuid4())
             metadata.add('identifier', bookid, id='calibre-uuid')
+        if uid is None:
+            self.logger.warn(u'Unique-identifier not specified')
         for item in metadata.identifier:
-            if item.id == uid:
+            if not item.id:
+                continue
+            if uid is None or item.id == uid:
                 self.uid = item
                 break
         else:
@@ -1023,7 +1076,10 @@ class OEBBook(object):
             href = elem.get('href')
             media_type = elem.get('media-type', None)
             if media_type is None:
-                media_type = elem.get('mediatype', BINARY_MIME)
+                media_type = elem.get('mediatype', None)
+            if media_type is None or media_type == 'text/xml':
+                guessed = mimetypes.guess_type(href)[0]
+                media_type = guessed or media_type or BINARY_MIME
             fallback = elem.get('fallback')
             if href in manifest.hrefs:
                 self.logger.warn(u'Duplicate manifest entry for %r' % href)
@@ -1055,7 +1111,7 @@ class OEBBook(object):
             spine.add(item, False)
         if len(spine) == 0:
             raise OEBError("Spine is empty")
-
+    
     def _guide_from_opf(self, opf):
         self.guide = guide = Guide(self)
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
@@ -1065,49 +1121,74 @@ class OEBBook(object):
                 self.logger.warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
-
-    def _toc_from_navpoint(self, toc, navpoint):
+    
+    def _find_ncx(self, opf):
+        result = xpath(opf, '/o2:package/o2:spine/@toc')
+        if result:
+            id = result[0]
+            if id not in self.manifest.ids:
+                return None
+            item = self.manifest.ids[id]
+            self.manifest.remove(item)
+            return item
+        for item in self.manifest.values():
+            if item.media_type == NCX_MIME:
+                self.manifest.remove(item)
+                return item                
+        return None
+    
+    def _toc_from_navpoint(self, item, toc, navpoint):
         children = xpath(navpoint, 'ncx:navPoint')
         for child in children:
             title = ''.join(xpath(child, 'ncx:navLabel/ncx:text/text()'))
-            href = xpath(child, 'ncx:content/@src')[0]
+            title = COLLAPSE_RE.sub(' ', title.strip())
+            href = xpath(child, 'ncx:content/@src')
+            if not title or not href:
+                continue
+            href = item.abshref(urlnormalize(href[0]))
+            path, _ = urldefrag(href)
+            if path not in self.manifest.hrefs:
+                self.logger.warn('TOC reference %r not found' % href)
+                continue
             id = child.get('id')
             klass = child.get('class')
             node = toc.add(title, href, id=id, klass=klass)
-            self._toc_from_navpoint(node, child)
-            
-    def _toc_from_ncx(self, opf):
-        result = xpath(opf, '/o2:package/o2:spine/@toc')
-        if not result:
-            expr = '/o2:package/o2:manifest/o2:item[@media-type="%s"]/@id'
-            result = xpath(opf, expr % NCX_MIME)
-            if len(result) != 1:
-                return False
-        id = result[0]
-        if id not in self.manifest.ids:
+            self._toc_from_navpoint(item, node, child)
+    
+    def _toc_from_ncx(self, item):
+        if item is None:
             return False
-        item = self.manifest.ids[id]
         ncx = item.data
-        self.manifest.remove(item)
-        title = xpath(ncx, 'ncx:docTitle/ncx:text/text()')
-        title = title[0].strip() if title else unicode(self.metadata.title[0])
+        title = ''.join(xpath(ncx, 'ncx:docTitle/ncx:text/text()'))
+        title = COLLAPSE_RE.sub(' ', title.strip())
+        title = title or unicode(self.metadata.title[0])
         self.toc = toc = TOC(title)
         navmaps = xpath(ncx, 'ncx:navMap')
         for navmap in navmaps:
-            self._toc_from_navpoint(toc, navmap)
+            self._toc_from_navpoint(item, toc, navmap)
         return True
-
+    
     def _toc_from_tour(self, opf):
-        result = xpath(opf, '/o2:package/o2:tours/o2:tour')
+        result = xpath(opf, 'o2:tours/o2:tour')
         if not result:
             return False
         tour = result[0]
         self.toc = toc = TOC(tour.get('title'))
         sites = xpath(tour, 'o2:site')
         for site in sites:
-            toc.add(site.get('title'), site.get('href'))
+            title = site.get('title')
+            href = site.get('href')
+            if not title or not href:
+                continue
+            href = item.abshref(urlnormalize(href))
+            path, _ = urldefrag(href)
+            if path not in self.manifest.hrefs:
+                self.logger.warn('TOC reference %r not found' % href)
+                continue            
+            id = child.get('id')
+            toc.add(title, href, id=id)
         return True
-
+    
     def _toc_from_html(self, opf):
         if 'toc' not in self.guide:
             return False
@@ -1131,6 +1212,7 @@ class OEBBook(object):
             if not path:
                 href = '#'.join((itempath, frag))
             title = ' '.join(xpath(anchor, './/text()'))
+            title = COLLAPSE_RE.sub(' ', title.strip())
             href = urlnormalize(href)
             if href not in titles:
                 order.append(href)
@@ -1146,15 +1228,17 @@ class OEBBook(object):
         for item in self.spine:
             if not item.linear: continue
             html = item.data
-            title = xpath(html, '/h:html/h:head/h:title/text()')
-            title = title[0].strip() if title else None
-            if title: titles.append(title)
+            title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
+            title = COLLAPSE_RE(' ', title.strip())
+            if title:
+                titles.append(title)
             headers.append('(unlabled)')
             for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
-                expr = '/h:html/h:body//h:%s[position()=1]/text()' % (tag,)
-                header = xpath(html, expr)
+                expr = '/h:html/h:body//h:%s[position()=1]/text()'
+                header = ''.join(xpath(html % tag, expr))
+                header = COLLAPSE_RE.sub(' ', header.strip())
                 if header:
-                    headers[-1] = header[0]
+                    headers[-1] = header
                     break
         use = titles
         if len(titles) > len(set(titles)):
@@ -1164,12 +1248,71 @@ class OEBBook(object):
             toc.add(title, item.href)
         return True
     
-    def _toc_from_opf(self, opf):
-        if self._toc_from_ncx(opf): return
+    def _toc_from_opf(self, opf, item):
+        if self._toc_from_ncx(item): return
         if self._toc_from_tour(opf): return
+        self.logger.warn('No metadata table of contents found')
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
-
+    
+    def _pages_from_ncx(self, opf, item):
+        if item is None:
+            return False
+        ncx = item.data
+        ptargets = xpath(ncx, 'ncx:pageList/ncx:pageTarget')
+        if not ptargets:
+            return False
+        pages = self.pages = PageList()
+        for ptarget in ptargets:
+            name = ''.join(xpath(ptarget, 'ncx:navLabel/ncx:text/text()'))
+            name = COLLAPSE_RE.sub(' ', name.strip())
+            href = xpath(ptarget, 'ncx:content/@src')
+            if not href:
+                continue
+            href = item.abshref(urlnormalize(href[0]))
+            id = ptarget.get('id')
+            type = ptarget.get('type', 'normal')
+            klass = ptarget.get('class')
+            pages.add(name, href, type=type, id=id, klass=klass)
+        return True
+    
+    def _find_page_map(self, opf):
+        result = xpath(opf, '/o2:package/o2:spine/@page-map')
+        if result:
+            id = result[0]
+            if id not in self.manifest.ids:
+                return None
+            item = self.manifest.ids[id]
+            self.manifest.remove(item)
+            return item
+        for item in self.manifest.values():
+            if item.media_type == PAGE_MAP_MIME:
+                self.manifest.remove(item)
+                return item
+        return None
+    
+    def _pages_from_page_map(self, opf):
+        item = self._find_page_map(opf)
+        if item is None:
+            return False
+        pmap = item.data
+        pages = self.pages = PageList()
+        for page in xpath(pmap, 'o2:page'):
+            name = page.get('name', '')
+            href = page.get('href')
+            if not href:
+                continue
+            name = COLLAPSE_RE.sub(' ', name.strip())
+            href = item.abshref(urlnormalize(href))
+            pages.add(name, href)
+        return True
+    
+    def _pages_from_opf(self, opf, item):
+        if self._pages_from_ncx(opf, item): return
+        if self._pages_from_page_map(opf): return
+        self.pages = PageList()
+        return
+    
     def _cover_from_html(self, hcover):
         with TemporaryDirectory('_html_cover') as tdir:
             writer = DirWriter()
@@ -1228,7 +1371,9 @@ class OEBBook(object):
         self._manifest_from_opf(opf)
         self._spine_from_opf(opf)
         self._guide_from_opf(opf)
-        self._toc_from_opf(opf)
+        item = self._find_ncx(opf)
+        self._toc_from_opf(opf, item)
+        self._pages_from_opf(opf, item)
         self._ensure_cover_image()
 
     def translate(self, text):
@@ -1249,6 +1394,34 @@ class OEBBook(object):
         guide = self.guide.to_opf1(package)
         return {OPF_MIME: ('content.opf', package)}
 
+    def _update_playorder(self, ncx):
+        hrefs = set(xpath(ncx, '//ncx:content/@src'))
+        playorder = {}
+        next = 1
+        selector = XPath('h:body//*[@id or @name]')
+        for item in self.spine:
+            base = item.href
+            if base in hrefs:
+                playorder[base] = next
+                next += 1
+            for elem in selector(item.data):
+                added = False
+                for attr in ('id', 'name'):
+                    id = elem.get(attr)
+                    if not id:
+                        continue
+                    href = '#'.join([base, id])
+                    if href in hrefs:
+                        playorder[href] = next
+                        added = True
+                if added:
+                    next += 1
+        selector = XPath('ncx:content/@src')
+        for elem in xpath(ncx, '//*[@playOrder and ./ncx:content[@src]]'):
+            order = playorder[selector(elem)[0]]
+            elem.attrib['playOrder'] = str(order)
+        return
+    
     def _to_ncx(self):
         lang = unicode(self.metadata.language[0])
         ncx = etree.Element(NCX('ncx'),
@@ -1256,35 +1429,50 @@ class OEBBook(object):
             nsmap={None: NCX_NS})
         head = etree.SubElement(ncx, NCX('head'))
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:uid', 'content': unicode(self.uid)})
+            name='dtb:uid', content=unicode(self.uid))
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:depth', 'content': str(self.toc.depth())})
+            name='dtb:depth', content=str(self.toc.depth()))
+        generator = ''.join(['calibre (', calibre.__version__, ')'])
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:totalPageCount', 'content': '0'})
+            name='dtb:generator', content=generator)
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:maxPageNumber', 'content': '0'})
+            name='dtb:totalPageCount', content=str(len(self.pages)))
+        maxpnum = etree.SubElement(head, NCX('meta'),
+            name='dtb:maxPageNumber', content='0')
         title = etree.SubElement(ncx, NCX('docTitle'))
         text = etree.SubElement(title, NCX('text'))
         text.text = unicode(self.metadata.title[0])
         navmap = etree.SubElement(ncx, NCX('navMap'))
         self.toc.to_ncx(navmap)
+        if len(self.pages) > 0:
+            plist = self.pages.to_ncx(ncx)
+            value = max(int(x) for x in xpath(plist, '//@value'))
+            maxpnum.attrib['content'] = str(value)
+        self._update_playorder(ncx)
         return ncx
     
-    def to_opf2(self):
+    def to_opf2(self, page_map=False):
+        results = {}
         package = etree.Element(OPF('package'),
             attrib={'version': '2.0', 'unique-identifier': self.uid.id},
             nsmap={None: OPF2_NS})
         metadata = self.metadata.to_opf2(package)
         manifest = self.manifest.to_opf2(package)
-        id, href = self.manifest.generate('ncx', 'toc.ncx')
-        etree.SubElement(manifest, OPF('item'),
-            attrib={'id': id, 'href': href, 'media-type': NCX_MIME})
         spine = self.spine.to_opf2(package)
-        spine.attrib['toc'] = id
         guide = self.guide.to_opf2(package)
-        ncx = self._to_ncx()
-        return {OPF_MIME: ('content.opf', package),
-                NCX_MIME: (href, ncx)}
+        results[OPF_MIME] = ('content.opf', package)
+        id, href = self.manifest.generate('ncx', 'toc.ncx')
+        etree.SubElement(manifest, OPF('item'), id=id, href=href,
+                         attrib={'media-type': NCX_MIME})
+        spine.attrib['toc'] = id
+        results[NCX_MIME] = (href, self._to_ncx())
+        if page_map and len(self.pages) > 0:
+            id, href = self.manifest.generate('page-map', 'page-map.xml')
+            etree.SubElement(manifest, OPF('item'), id=id, href=href,
+                             attrib={'media-type': PAGE_MAP_MIME})
+            spine.attrib['page-map'] = id
+            results[PAGE_MAP_MIME] = (href, self.pages.to_page_map())
+        return results
 
 
 def main(argv=sys.argv):
@@ -1292,7 +1480,7 @@ def main(argv=sys.argv):
         oeb = OEBBook(arg)
         for name, doc in oeb.to_opf1().values():
             print etree.tostring(doc, pretty_print=True)
-        for name, doc in oeb.to_opf2().values():
+        for name, doc in oeb.to_opf2(page_map=True).values():
             print etree.tostring(doc, pretty_print=True)
     return 0
 
