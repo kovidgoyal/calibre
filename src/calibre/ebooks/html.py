@@ -594,15 +594,21 @@ class Processor(Parser):
         '''
         Populate the Table of Contents from detected chapters and links.
         '''
-        
-        def add_item(href, fragment, text, target, type='link'):
-            for entry in toc.flat():
-                if entry.href == href and entry.fragment == fragment:
-                    return entry
-            if len(text) > 50:
-                text = text[:50] + u'\u2026'
-            return target.add_item(href, fragment, text, type=type)
-        
+        class Adder(object):
+            
+            def __init__(self, toc):
+                self.next_play_order = max([x.play_order for x in toc.flat()])
+                
+            def __call__(self, href, fragment, text, target, type='link'):
+                for entry in toc.flat():
+                    if entry.href == href and entry.fragment == fragment:
+                        return entry
+                if len(text) > 50:
+                    text = text[:50] + u'\u2026'
+                self.next_play_order += 1
+                return target.add_item(href, fragment, text, type=type, 
+                                       play_order=self.next_play_order)
+        add_item = Adder(toc)
         name = self.htmlfile_map[self.htmlfile.path]
         href = 'content/'+name
         
@@ -629,13 +635,15 @@ class Processor(Parser):
         
         if self.opts.level1_toc is not None:
             level1 = self.opts.level1_toc(self.root)
+            level1_order = []
             if level1:
                 added = {}
                 for elem in level1:
                     text, _href, frag = elem_to_link(elem, href, counter)
                     counter += 1
                     if text:
-                        added[elem] = add_item(_href, frag, text, toc, type='chapter')
+                        level1_order.append(add_item(_href, frag, text, toc, type='chapter'))
+                        added[elem] = level1_order[-1]
                         add_item(_href, frag, 'Top', added[elem], type='chapter')
                 if self.opts.level2_toc is not None:
                     added2 = {}
@@ -664,6 +672,15 @@ class Processor(Parser):
                                     if text:
                                         add_item(_href, frag, text, level2, type='chapter')
                 
+            
+            if level1_order: # Fix play order
+                next_play_order = level1_order[0].play_order
+                for x in level1_order:
+                    for y in x.flat():
+                        y.play_order = next_play_order
+                        next_play_order += 1
+                    
+                        
                     
             if len(toc) > 0:
                 return
