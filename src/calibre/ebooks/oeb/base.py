@@ -62,6 +62,16 @@ def SVG(name): return '{%s}%s' % (SVG_NS, name)
 def XLINK(name): return '{%s}%s' % (XLINK_NS, name)
 def CALIBRE(name): return '{%s}%s' % (CALIBRE_NS, name)
 
+def LINK_SELECTORS():
+    results = []
+    for expr in ('h:head/h:link/@href', 'h:body//h:a/@href',
+                 'h:body//h:img/@src', 'h:body//h:object/@data',
+                 'h:body//*/@xl:href', '//ncx:content/@src',
+                 'o2:page/@href'):
+        results.append(etree.XPath(expr, namespaces=XPNSMAP))
+    return results
+LINK_SELECTORS = LINK_SELECTORS()
+
 EPUB_MIME = 'application/epub+zip'
 XHTML_MIME = 'application/xhtml+xml'
 CSS_MIME = 'text/css'
@@ -89,6 +99,10 @@ COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 QNAME_RE = re.compile(r'^[{][^{}]+[}][^{}]+$')
 PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
 XMLDECL_RE = re.compile(r'^\s*<[?]xml.*?[?]>')
+CSSURL_RE = re.compile(r'''url[(](?P<q>["']?)(?P<url>[^)]+)(?P=q)[)]''')
+
+RECOVER_PARSER = etree.XMLParser(recover=True)
+
 
 def element(parent, *args, **kwargs):
     if parent is not None:
@@ -140,14 +154,17 @@ def xml2str(root):
     return etree.tostring(root, encoding='utf-8', xml_declaration=True)
 
 ASCII_CHARS = set(chr(x) for x in xrange(128))
-URL_SAFE = set(u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-               u'abcdefghijklmnopqrstuvwxyz'
-               u'0123456789' u'_.-/~')
-URL_UNSAFE = ASCII_CHARS - URL_SAFE
+UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
+URL_SAFE = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+               'abcdefghijklmnopqrstuvwxyz'
+               '0123456789' '_.-/~')
+URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE]
 def urlquote(href):
     result = []
+    unsafe = 0 if isinstance(href, unicode) else 1
+    unsafe = URL_UNSAFE[unsafe]
     for char in href:
-        if char in URL_UNSAFE:
+        if char in unsafe:
             char = "%%%02x" % ord(char)
         result.append(char)
     return ''.join(result)
@@ -185,7 +202,7 @@ class AbstractContainer(object):
 
 class DirContainer(AbstractContainer):
     def __init__(self, rootdir):
-        self.rootdir = rootdir
+        self.rootdir = unicode(rootdir)
 
     def read(self, path):
         path = os.path.join(self.rootdir, path)
@@ -205,16 +222,23 @@ class DirContainer(AbstractContainer):
         return os.path.isfile(urlunquote(path))
 
 class DirWriter(object):
-    def __init__(self, version=2.0):
+    def __init__(self, version='2.0', page_map=False):
         self.version = version
+        self.page_map = page_map
 
     def dump(self, oeb, path):
+        version = int(self.version[0])
         if not os.path.isdir(path):
             os.mkdir(path)
         output = DirContainer(path)
         for item in oeb.manifest.values():
             output.write(item.href, str(item))
-        metadata = oeb.to_opf2() if self.version == 2 else oeb.to_opf1()
+        if version == 1:
+            metadata = oeb.to_opf1()
+        elif version == 2:
+            metadata = oeb.to_opf2(page_map=self.page_map)
+        else:
+            raise OEBError("Unrecognized OPF version %r" % self.version)
         for href, data in metadata.values():
             output.write(href, xml2str(data))
         return
@@ -455,7 +479,6 @@ class Manifest(object):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = XMLDECL_RE.sub('', data)
-            data = data.replace('\r\n', '\n').replace('\r', '\n')
             # Handle broken XHTML w/ SVG (ugh)
             if 'svg:' in data and SVG_NS not in data:
                 data = data.replace(
@@ -480,7 +503,10 @@ class Manifest(object):
                         if elem.text:
                             elem.text = elem.text.strip('-')
                     data = etree.tostring(data, encoding=unicode)
-                    data = etree.fromstring(data)
+                    try:
+                        data = etree.fromstring(data)
+                    except etree.XMLSyntaxError:
+                        data = etree.fromstring(data, parser=RECOVER_PARSER)
             # Force into the XHTML namespace
             if barename(data.tag) != 'html':
                 raise OEBError(
@@ -536,6 +562,8 @@ class Manifest(object):
                     data = self._force_xhtml(data)
                 elif self.media_type[-4:] in ('+xml', '/xml'):
                     data = etree.fromstring(data)
+                elif self.media_type in OEB_STYLES:
+                    data = self.oeb.decode(data)
                 self._data = data
                 return data
             def fset(self, value):
@@ -549,6 +577,8 @@ class Manifest(object):
             data = self.data
             if isinstance(data, etree._Element):
                 return xml2str(data)
+            if isinstance(data, unicode):
+                return data.encode('utf-8')
             return str(data)
         
         def __eq__(self, other):
@@ -572,7 +602,9 @@ class Manifest(object):
             return cmp(skey, okey)
         
         def relhref(self, href):
-            if '/' not in self.href or ':' in href:
+            if urlparse(href).scheme:
+                return href
+            if '/' not in self.href:
                 return href
             base = os.path.dirname(self.href).split('/')
             target, frag = urldefrag(href)
@@ -588,7 +620,12 @@ class Manifest(object):
             return relhref
 
         def abshref(self, href):
-            if '/' not in self.href or ':' in href:
+            if urlparse(href).scheme:
+                return href
+            path, frag = urldefrag(href)
+            if not path:
+                return '#'.join((self.href, frag))
+            if '/' not in self.href:
                 return href
             dirname = os.path.dirname(self.href)
             href = os.path.join(dirname, href)
@@ -615,18 +652,20 @@ class Manifest(object):
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
 
-    def generate(self, id, href):
-        href = urlnormalize(href)
-        base = id
-        index = 1
-        while id in self.ids:
-            id = base + str(index)
-            index += 1
-        base, ext = os.path.splitext(href)
-        index = 1
-        while href in self.hrefs:
-            href = base + str(index) + ext
-            index += 1
+    def generate(self, id=None, href=None):
+        if id is not None:
+            base = id
+            index = 1
+            while id in self.ids:
+                id = base + str(index)
+                index += 1
+        if href is not None:
+            href = urlnormalize(href)
+            base, ext = os.path.splitext(href)
+            index = 1
+            while href in self.hrefs:
+                href = base + str(index) + ext
+                index += 1
         return id, href
 
     def __iter__(self):
@@ -996,13 +1035,11 @@ class OEBBook(object):
         metadata = etree.SubElement(nroot, OPF('metadata'), nsmap=nsmap)
         ignored = (OPF('dc-metadata'), OPF('x-metadata'))
         for elem in xpath(opf, 'o2:metadata//*'):
+            if elem.tag in ignored:
+                continue
             if namespace(elem.tag) in DC_NSES:
                 tag = barename(elem.tag).lower()
                 elem.tag = '{%s}%s' % (DC11_NS, tag)
-            for name in elem.attrib:
-                if name in ('role', 'file-as', 'scheme', 'event'):
-                    nsname = '{%s}%s' % (OPF2_NS, name)
-                    elem.attrib[nsname] = elem.attrib.pop(name)
             metadata.append(elem)
         for element in xpath(opf, 'o2:metadata//o2:meta'):
             metadata.append(element)
@@ -1015,7 +1052,6 @@ class OEBBook(object):
         data = self.container.read(opfpath)
         data = self.decode(data)
         data = XMLDECL_RE.sub('', data)
-        data = data.replace('\r\n', '\n').replace('\r', '\n')
         try:
             opf = etree.fromstring(data)
         except etree.XMLSyntaxError:
@@ -1077,6 +1113,43 @@ class OEBBook(object):
         if not metadata.title:
             self.logger.warn('Title not specified')
             metadata.add('title', self.translate(__('Unknown')))
+
+    def _manifest_add_missing(self):
+        manifest = self.manifest
+        unchecked = set(manifest.values())
+        while unchecked:
+            new = set()
+            for item in unchecked:
+                if (item.media_type in OEB_DOCS or
+                    item.media_type[-4:] in ('/xml', '+xml')) and \
+                   item.data is not None:
+                    hrefs = [sel(item.data) for sel in LINK_SELECTORS]
+                    for href in chain(*hrefs):
+                        href, _ = urldefrag(href)
+                        if not href:
+                            continue
+                        href = item.abshref(urlnormalize(href))
+                        scheme = urlparse(href).scheme
+                        if not scheme and href not in manifest.hrefs:
+                            new.add(href)
+                elif item.media_type == CSS_MIME:
+                    for match in CSSURL_RE.finditer(item.data):
+                        href = match.group('url')
+                        href = item.abshref(urlnormalize(href))
+                        scheme = urlparse(href).scheme
+                        if not scheme and href not in manifest.hrefs:
+                            new.add(href)
+            unchecked.clear()
+            for href in new:
+                if not self.container.exists(href):
+                    self.logger.warn('Referenced file %r not found' % href)
+                    continue
+                self.logger.warn('Referenced file %r not in manifest' % href)
+                id, _ = manifest.generate(id='added')
+                guessed = mimetypes.guess_type(href)[0]
+                media_type = guessed or BINARY_MIME
+                added = manifest.add(id, href, media_type)
+                unchecked.add(added)
     
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
@@ -1100,6 +1173,40 @@ class OEBBook(object):
                 self.logger.warn(u'Duplicate manifest id %r' % id)
                 id, href = manifest.generate(id, href)
             manifest.add(id, href, media_type, fallback)
+        self._manifest_add_missing()
+    
+    def _spine_add_extra(self):
+        manifest = self.manifest
+        spine = self.spine
+        unchecked = set(spine)
+        selector = XPath('h:body//h:a/@href')
+        extras = set()
+        while unchecked:
+            new = set()
+            for item in unchecked:
+                if item.media_type not in OEB_DOCS:
+                    # TODO: handle fallback chains
+                    continue
+                for href in selector(item.data):
+                    href, _ = urldefrag(href)
+                    if not href:
+                        continue
+                    href = item.abshref(urlnormalize(href))
+                    if href not in manifest.hrefs:
+                        continue
+                    found = manifest.hrefs[href]
+                    if found.media_type not in OEB_DOCS or \
+                       found in spine or found in extras:
+                        continue
+                    new.add(found)
+            extras.update(new)
+            unchecked = new
+        version = int(self.version[0])
+        for item in sorted(extras):
+            if version >= 2:
+                self.logger.warn(
+                    'Spine-referenced file %r not in spine' % item.href)
+            spine.add(item, linear=False)
     
     def _spine_from_opf(self, opf):
         self.spine = spine = Spine(self)
@@ -1110,16 +1217,9 @@ class OEBBook(object):
                 continue
             item = self.manifest[idref]
             spine.add(item, elem.get('linear'))
-        extras = []
-        for item in self.manifest.values():
-            if item.media_type in OEB_DOCS \
-               and item not in spine:
-                extras.append(item)
-        extras.sort()
-        for item in extras:
-            spine.add(item, False)
         if len(spine) == 0:
             raise OEBError("Spine is empty")
+        self._spine_add_extra()
     
     def _guide_from_opf(self, opf):
         self.guide = guide = Guide(self)
@@ -1189,12 +1289,11 @@ class OEBBook(object):
             href = site.get('href')
             if not title or not href:
                 continue
-            href = item.abshref(urlnormalize(href))
-            path, _ = urldefrag(href)
+            path, _ = urldefrag(urlnormalize(href))
             if path not in self.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
                 continue            
-            id = child.get('id')
+            id = site.get('id')
             toc.add(title, href, id=id)
         return True
     
@@ -1217,12 +1316,12 @@ class OEBBook(object):
         order = []
         for anchor in xpath(html, './/h:a[@href]'):
             href = anchor.attrib['href']
+            href = item.abshref(urlnormalize(href))
             path, frag = urldefrag(href)
-            if not path:
-                href = '#'.join((itempath, frag))
+            if path not in self.manifest.hrefs:
+                continue
             title = ' '.join(xpath(anchor, './/text()'))
             title = COLLAPSE_RE.sub(' ', title.strip())
-            href = urlnormalize(href)
             if href not in titles:
                 order.append(href)
             titles[href].append(title)
@@ -1313,7 +1412,12 @@ class OEBBook(object):
                 continue
             name = COLLAPSE_RE.sub(' ', name.strip())
             href = item.abshref(urlnormalize(href))
-            pages.add(name, href)
+            type = 'normal'
+            if not name:
+                type = 'special'
+            elif name.lower().strip('ivxlcdm') == '':
+                type = 'front'
+            pages.add(name, href, type=type)
         return True
     
     def _pages_from_opf(self, opf, item):
@@ -1376,6 +1480,7 @@ class OEBBook(object):
         self.metadata.add('cover', cover.id)
     
     def _all_from_opf(self, opf):
+        self.version = opf.get('version', '1.2')
         self._metadata_from_opf(opf)
         self._manifest_from_opf(opf)
         self._spine_from_opf(opf)
@@ -1384,7 +1489,7 @@ class OEBBook(object):
         self._toc_from_opf(opf, item)
         self._pages_from_opf(opf, item)
         self._ensure_cover_image()
-
+    
     def translate(self, text):
         lang = str(self.metadata.language[0])
         lang = lang.split('-', 1)[0].lower()
@@ -1408,6 +1513,8 @@ class OEBBook(object):
             except UnicodeDecodeError:
                 pass
         data, _ = xml_to_unicode(data)
+        data = data.replace('\r\n', '\n')
+        data = data.replace('\r', '\n')
         return data
     
     def to_opf1(self):
@@ -1447,7 +1554,8 @@ class OEBBook(object):
                     next += 1
         selector = XPath('ncx:content/@src')
         for elem in xpath(ncx, '//*[@playOrder and ./ncx:content[@src]]'):
-            order = playorder[selector(elem)[0]]
+            href = selector(elem)[0]
+            order = playorder.get(href, 0)
             elem.attrib['playOrder'] = str(order)
         return
     

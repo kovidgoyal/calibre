@@ -172,7 +172,6 @@ class Stylizer(object):
         if path not in hrefs:
             return (None, None)
         data = hrefs[path].data
-        data = self.oeb.decode(data)
         data = XHTML_CSS_NAMESPACE + data
         return (None, data)
     

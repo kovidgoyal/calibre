@@ -13,12 +13,8 @@ from urlparse import urldefrag
 from lxml import etree
 import cssutils
 from calibre.ebooks.oeb.base import XPNSMAP, CSS_MIME, OEB_DOCS
+from calibre.ebooks.oeb.base import LINK_SELECTORS, CSSURL_RE
 from calibre.ebooks.oeb.base import urlnormalize
-
-LINK_SELECTORS = []
-for expr in ('//h:link/@href', '//h:img/@src', '//h:object/@data',
-             '//*/@xl:href'):
-    LINK_SELECTORS.append(etree.XPath(expr, namespaces=XPNSMAP))
 
 class ManifestTrimmer(object):
     def transform(self, oeb, context):
@@ -53,15 +49,13 @@ class ManifestTrimmer(object):
                             if found not in used:
                                 new.add(found)
                 elif item.media_type == CSS_MIME:
-                    def replacer(uri):
-                        absuri = item.abshref(urlnormalize(uri))
-                        if absuri in oeb.manifest.hrefs:
+                    for match in CSSURL_RE.finditer(item.data):
+                        href = match.group('url')
+                        href = item.abshref(urlnormalize(href))
+                        if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]
                             if found not in used:
                                 new.add(found)
-                        return uri
-                    sheet = cssutils.parseString(item.data, href=item.href)
-                    cssutils.replaceUrls(sheet, replacer)
             used.update(new)
             unchecked = new
         for item in oeb.manifest.values():
