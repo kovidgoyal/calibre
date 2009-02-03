@@ -23,7 +23,7 @@ from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, OEB_STYLES, \
     CSS_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.oeb.base import namespace, barename, prefixname, \
     urlnormalize, xpath
@@ -495,7 +495,7 @@ class LitWriter(object):
             if item.spine_position is not None:
                 key = 'linear' if item.linear else 'nonlinear'
                 manifest[key].append(item)
-            elif item.media_type == CSS_MIME:
+            elif item.media_type in OEB_STYLES:
                 manifest['css'].append(item)
             elif item.media_type in LIT_IMAGES:
                 manifest['images'].append(item)
@@ -508,6 +508,11 @@ class LitWriter(object):
             data.write(pack('<I', len(items)))
             for item in items:
                 id, media_type = item.id, item.media_type
+                if media_type in OEB_DOCS:
+                    # Needs to have 'html' in media-type
+                    media_type = XHTML_MIME
+                elif media_type in OEB_STYLES:
+                    media_type = CSS_MIME
                 href = urlunquote(item.href)
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
@@ -527,7 +532,12 @@ class LitWriter(object):
         pb3 = StringIO()
         pb3cur = 0
         bits = 0
+        linear = []
+        nonlinear = []
         for item in self._oeb.spine:
+            dest = linear if item.linear else nonlinear
+            dest.append(item)
+        for item in chain(linear, nonlinear):
             page_breaks = copy.copy(item.page_breaks)
             if not item.linear:
                 page_breaks.insert(0, (0, []))
