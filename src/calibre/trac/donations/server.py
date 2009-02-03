@@ -196,7 +196,7 @@ class Server(object):
     
     def calculate_month_trend(self, days=31):
         stats = self.get_slice(date.today()-timedelta(days=days-1), date.today())
-        fig = plt.figure(2, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        fig = plt.figure(2, (12, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
         ax = fig.add_subplot(111)
         x = list(range(days-1, -1, -1))
         y = stats.daily_totals
@@ -205,6 +205,18 @@ class Server(object):
         ax.set_ylabel('Income ($)')
         ax.hlines([stats.daily_average], 0, days-1)
         ax.set_xlim([0, days-1])
+        text = u'''\
+Total: $%(total).2f
+Daily average: $%(da).2f \u00b1 %(dd).2f
+Average contribution: $%(ac).2f \u00b1 %(ad).2f
+Donors per day: %(dpd).2f
+        '''%dict(total=stats.total, da=stats.daily_average, 
+                 dd=stats.daily_deviation, ac=stats.average,
+                 ad=stats.average_deviation,
+                 dpd=len(stats.totals)/float(stats.period.days),
+             )
+        text = ax.annotate(text, (0.6, 0.65), textcoords='axes fraction')
+        text.update_bbox_position_size(fig)
         fig.savefig(self.MONTH_TRENDS)
     
     def calculate_trend(self):
@@ -223,7 +235,7 @@ class Server(object):
         x = [m.min for m in _months]
         y = [m.total for m in _months]
         ml   = mdates.MonthLocator() # every month
-        fig = plt.figure(1, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        fig = plt.figure(1, (8, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
         ax = fig.add_subplot(111)
         ax.bar(x, y, align='center', width=20, color='g')
         ax.xaxis.set_major_locator(ml)
