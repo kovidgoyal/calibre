@@ -474,7 +474,7 @@ class LitWriter(object):
             name = '/data/' + item.id
             data = item.data
             secnum = 0
-            if not isinstance(data, basestring):
+            if isinstance(data, etree._Element):
                 self._add_folder(name)
                 rebin = ReBinary(data, item, self._oeb, map=HTML_MAP)
                 self._add_file(name + '/ahc', rebin.ahc, 0)
@@ -483,6 +483,8 @@ class LitWriter(object):
                 data = rebin.content
                 name = name + '/content'
                 secnum = 1
+            elif isinstance(data, unicode):
+                data = data.encode('utf-8')
             self._add_file(name, data, secnum)
             item.size = len(data)
 

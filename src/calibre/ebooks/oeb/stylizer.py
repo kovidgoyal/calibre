@@ -173,7 +173,7 @@ class Stylizer(object):
             return (None, None)
         data = hrefs[path].data
         data = XHTML_CSS_NAMESPACE + data
-        return (None, data)
+        return ('utf-8', data)
     
     def flatten_rule(self, rule, href, index):
         results = []
