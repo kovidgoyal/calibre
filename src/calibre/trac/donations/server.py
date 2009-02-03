@@ -216,7 +216,6 @@ Donors per day: %(dpd).2f
                  dpd=len(stats.totals)/float(stats.period.days),
              )
         text = ax.annotate(text, (0.6, 0.65), textcoords='axes fraction')
-        text.update_bbox_position_size(fig)
         fig.savefig(self.MONTH_TRENDS)
     
     def calculate_trend(self):
