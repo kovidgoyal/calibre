@@ -1116,6 +1116,7 @@ class OEBBook(object):
 
     def _manifest_add_missing(self):
         manifest = self.manifest
+        known = set(manifest.hrefs)
         unchecked = set(manifest.values())
         while unchecked:
             new = set()
@@ -1130,17 +1131,18 @@ class OEBBook(object):
                             continue
                         href = item.abshref(urlnormalize(href))
                         scheme = urlparse(href).scheme
-                        if not scheme and href not in manifest.hrefs:
+                        if not scheme and href not in known:
                             new.add(href)
-                elif item.media_type == CSS_MIME:
+                elif item.media_type in OEB_STYLES:
                     for match in CSSURL_RE.finditer(item.data):
-                        href = match.group('url')
+                        href, _ = urldefrag(match.group('url'))
                         href = item.abshref(urlnormalize(href))
                         scheme = urlparse(href).scheme
-                        if not scheme and href not in manifest.hrefs:
+                        if not scheme and href not in known:
                             new.add(href)
             unchecked.clear()
             for href in new:
+                known.add(href)
                 if not self.container.exists(href):
                     self.logger.warn('Referenced file %r not found' % href)
                     continue
@@ -1441,8 +1443,10 @@ class OEBBook(object):
         if self.metadata.cover:
             id = str(self.metadata.cover[0])
             item = self.manifest.ids.get(id, None)
-            if item is not None:
+            if item is not None and item.media_type in OEB_IMAGES:
                 return item
+            else:
+                self.logger.warn('Invalid cover image @id %r' % id)
         hcover = self.spine[0]
         if 'cover' in self.guide:
             href = self.guide['cover'].href
