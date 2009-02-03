@@ -154,6 +154,9 @@ def urlquote(href):
 
 def urlnormalize(href):
     parts = urlparse(href)
+    if not parts.scheme:
+        path, frag = urldefrag(href)
+        parts = ('', '', path, '', '', frag)
     parts = (part.replace('\\', '/') for part in parts)
     parts = (urlunquote(part) for part in parts)
     parts = (urlquote(part) for part in parts)
@@ -900,9 +903,9 @@ class TOC(object):
     
     def to_ncx(self, parent, depth=1):
         for node in self.nodes:
-            id = self.id or unicode(uuid.uuid4())
+            id = node.id or unicode(uuid.uuid4())
             attrib = {'id': id, 'playOrder': '0'}
-            if self.klass:
+            if node.klass:
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
@@ -1009,13 +1012,16 @@ class OEBBook(object):
         return nroot
     
     def _read_opf(self, opfpath):
-        opf = self.container.read(opfpath)
+        data = self.container.read(opfpath)
+        data = self.decode(data)
+        data = XMLDECL_RE.sub('', data)
+        data = data.replace('\r\n', '\n').replace('\r', '\n')
         try:
-            opf = etree.fromstring(opf)
+            opf = etree.fromstring(data)
         except etree.XMLSyntaxError:
             repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-            opf = ENTITY_RE.sub(repl, opf)
-            opf = etree.fromstring(opf)
+            data = ENTITY_RE.sub(repl, data)
+            opf = etree.fromstring(data)
             self.logger.warn('OPF contains invalid HTML named entities')
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
@@ -1045,7 +1051,7 @@ class OEBBook(object):
                 haveuuid = True
             if 'id' in ident.attrib:
                 haveid = True
-        if not haveuuid and haveid:
+        if not (haveuuid and haveid):
             bookid = "urn:uuid:%s" % str(uuid.uuid4())
             metadata.add('identifier', bookid, id='calibre-uuid')
         if uid is None:
@@ -1232,13 +1238,13 @@ class OEBBook(object):
             if not item.linear: continue
             html = item.data
             title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
-            title = COLLAPSE_RE(' ', title.strip())
+            title = COLLAPSE_RE.sub(' ', title.strip())
             if title:
                 titles.append(title)
             headers.append('(unlabled)')
             for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
                 expr = '/h:html/h:body//h:%s[position()=1]/text()'
-                header = ''.join(xpath(html % tag, expr))
+                header = ''.join(xpath(html, expr % tag))
                 header = COLLAPSE_RE.sub(' ', header.strip())
                 if header:
                     headers[-1] = header
@@ -1320,7 +1326,7 @@ class OEBBook(object):
         with TemporaryDirectory('_html_cover') as tdir:
             writer = DirWriter()
             writer.dump(self, tdir)
-            path = os.path.join(tdir, hcover.href)
+            path = os.path.join(tdir, urlunquote(hcover.href))
             renderer = CoverRenderer(path)
             data = renderer.image_data
         id, href = self.manifest.generate('cover', 'cover.jpeg')
