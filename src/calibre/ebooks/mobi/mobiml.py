@@ -138,7 +138,8 @@ class MobiMLizer(object):
         return result
     
     def mobimlize_content(self, tag, text, bstate, istates):
-        bstate.content = True
+        if text or tag != 'br':
+            bstate.content = True
         istate = istates[-1]
         para = bstate.para
         if tag in SPECIAL_TAGS and not text:
@@ -188,11 +189,6 @@ class MobiMLizer(object):
                     vspace -= 1
             if istate.halign != 'auto':
                 para.attrib['align'] = istate.halign
-        if istate.ids:
-            last = bstate.body[-1]
-            for id in istate.ids:
-                last.addprevious(etree.Element(XHTML('a'), attrib={'id': id}))
-            istate.ids.clear()
         pstate = bstate.istate
         if tag in CONTENT_TAGS:
             bstate.inline = para
@@ -200,6 +196,11 @@ class MobiMLizer(object):
             etree.SubElement(para, XHTML(tag), attrib=istate.attrib)
         elif tag in TABLE_TAGS:
             para.attrib['valign'] = 'top'
+        if istate.ids:
+            last = bstate.body[-1]
+            for id in istate.ids:
+                last.addprevious(etree.Element(XHTML('a'), attrib={'id': id}))
+            istate.ids.clear()
         if not text:
             return
         if not pstate or istate != pstate:
