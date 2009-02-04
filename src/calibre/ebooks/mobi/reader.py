@@ -423,11 +423,13 @@ class MobiReader(object):
         if self.verbose:
             print 'Adding anchors...'
         positions = set([])
-        link_pattern = re.compile(r'<[^<>]+filepos=[\'"]{0,1}(\d+)[^<>]*>', re.IGNORECASE)
+        link_pattern = re.compile(r'''<[^<>]+filepos=['"]{0,1}(\d+)[^<>]*>''',
+                                  re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
         self.processed_html = ''
+        end_tag_re = re.compile(r'<\s*/')
         for end in sorted(positions):
             if end == 0:
                 continue
@@ -437,7 +439,8 @@ class MobiReader(object):
             anchor = '<a id="filepos%d"></a>'
             if r > -1 and (r < l or l == end or l == -1):
                 p = self.mobi_html.rfind('<', 0, end + 1)
-                if p > -1 and self.mobi_html[p + 1] != '/':
+                if pos < end and p > -1 and \
+                   not end_tag_re.match(self.mobi_html[p:r]):
                     anchor = ' filepos-id="filepos%d"'
                     end = r
                 else:
