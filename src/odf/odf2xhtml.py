@@ -77,6 +77,8 @@ class StyleToCSS:
             (FONS,u"border-left"): self.c_fo,
             (FONS,u"border-right"): self.c_fo,
             (FONS,u"border-top"): self.c_fo,
+            (FONS,u"break-after"): self.c_break,
+            (FONS,u"break-before"): self.c_break,
             (FONS,u"color"): self.c_fo,
             (FONS,u"font-family"): self.c_fo,
             (FONS,u"font-size"): self.c_fo,
@@ -138,6 +140,13 @@ class StyleToCSS:
         """ XSL formatting attributes """
         selector = rule[1]
         sdict[selector] = val
+
+    def c_break(self, ruleset, sdict, rule, val):
+        property = 'page-' + rule[1]
+        values = {'auto': 'auto', 'column': 'always', 'page': 'always',
+                  'even-page': 'left', 'odd-page': 'right',
+                  'inherit': 'inherit'}
+        sdict[property] = values.get(val, 'auto')
 
     def c_border_model(self, ruleset, sdict, rule, val):
         """ Convert to CSS2 border model """
@@ -1169,6 +1178,9 @@ class ODF2XHTML(handler.ContentHandler):
             if specialtag is None:
                 specialtag = 'p'
         self.writedata()
+        if not self.data:
+            # Give substance to empty paragraphs, as rendered by OOo
+            self.writeout('&#160;')
         self.closetag(specialtag)
         self.purgedata()
 
