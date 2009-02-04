@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-27 01:54+0000\n"
-"PO-Revision-Date: 2009-01-23 21:22+0000\n"
-"Last-Translator: Molnár Gábor <csirkus@gmail.com>\n"
+"PO-Revision-Date: 2009-02-04 20:39+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-30 19:20+0000\n"
+"X-Launchpad-Export-Date: 2009-02-04 21:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -142,7 +142,7 @@ msgstr "Tömörített könyvek metaadatait is olvassa be"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:196
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Metaadatok olvasása a RAR-ral tömörített könyvekből is"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:207
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:217
@@ -274,7 +274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:110
 msgid "Control auto-detection of document structure."
-msgstr ""
+msgstr "Dokumentum-struktúra automatikus felismerése."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:112
 msgid ""
@@ -832,6 +832,9 @@ msgid ""
 "FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
 "font size is decreased."
 msgstr ""
+"A betűméret nővelése 2*FONT_DELTA ponttal, és a sortávolság növelése "
+"FONT_DELTA ponttal. A FONT_DELTA érték törtszám is lehet, valamint ha "
+"negatív az értéke, a betűméret csökkenni fog."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:125
 msgid ""
@@ -1086,6 +1089,8 @@ msgstr "Szerző a fájl metaadataiban. Alapértelmezés: %default"
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
+"A kimeneti fájl útvonala. Alapértelmezés szerint az aktuális könyvtárba "
+"kerül a fájl."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:299
 msgid "Number of colors for grayscale image conversion. Default: %default"
@@ -1134,6 +1139,8 @@ msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
+"A képregény csomagban talált fájlokat a képregényhez való hozzáadás "
+"sorrendje alapján rendezze a névsorrend helyett."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:317
 msgid ""
@@ -1185,6 +1192,10 @@ msgid ""
 "        \n"
 "%prog converts mybook.epub to mybook.lrf"
 msgstr ""
+"Használat: %prog [beállítások] konyv.epub\n"
+"        \n"
+"        \n"
+"A %prog a konyv.epub fájlt lrf formátumba konvertálja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:23
 msgid ""
@@ -1205,7 +1216,7 @@ msgstr "A létrehozott HTML kiírása a kimenetre, majd kilépés."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:30
 msgid "Keep generated HTML files after completing conversion to LRF."
-msgstr ""
+msgstr "Ne törölje a konvertálásnál keletkező átmeneti HTML fájlokat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:20
 msgid "Options to control the behavior of feeds2disk"
@@ -1225,7 +1236,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:319
 msgid "\tParsing HTML..."
-msgstr ""
+msgstr "\tHTML beolvasása..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:342
 msgid "\tBaen file detected. Re-parsing..."
@@ -1241,71 +1252,79 @@ msgstr "Feldolgozás: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:390
 msgid "\tConverting to BBeB..."
-msgstr ""
+msgstr "\tKonvertálás BBeB formátumba..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:536
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:549
 msgid "Could not parse file: %s"
-msgstr ""
+msgstr "Nem tudtam feldolgozni a fájlt: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:541
 msgid "%s is an empty file"
-msgstr ""
+msgstr "A %s fájl üres!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:561
 msgid "Failed to parse link %s %s"
-msgstr ""
+msgstr "A link feldolgozása nem sikerült: %s %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:605
 msgid "Cannot add link %s to TOC"
-msgstr ""
+msgstr "Nem tudtam a linket hozzáadni a tartalomjegyzékhez: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
-msgstr ""
+msgstr "Hiba a \"%s\" kép feldolgozása közben: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:995
 msgid "Unable to process interlaced PNG %s"
-msgstr ""
+msgstr "Nem tudtam feldolgozni a PNG képet: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1010
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
+"Nem tudtam feldolgozni a képet: %s\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1763
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
+"Hiba történt a táblázat feldolgozása közben: %s. A táblázat formázást "
+"figyelmen kívül hagyom."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1765
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
+"Hibás táblázat:\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1787
 msgid "Table has cell that is too large"
-msgstr ""
+msgstr "A táblázatban olyan cellák vannak, amelyek túl nagyok."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1817
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
 msgstr ""
+"Mentsd le a %s weboldalt egy mappába, majd a html fájlon futtasd a html2lrf "
+"konvertáló programot."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1860
 msgid "Could not read cover image: %s"
-msgstr ""
+msgstr "Nem tudtam a borító képet olvasni: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1863
 msgid "Cannot read from: %s"
-msgstr ""
+msgstr "Hiba olvasás közben: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1988
 msgid "Failed to process opf file"
-msgstr ""
+msgstr "Hiba az opf fájl feldolgozása közben"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1994
 msgid ""
@@ -1317,6 +1336,13 @@ msgid ""
 "to local files recursively. Thus, you can use it to \n"
 "convert a whole tree of HTML files."
 msgstr ""
+"Használat: %prog [beállítások] konyv.html\n"
+"\n"
+"\n"
+"A %prog a konyv.html fájlt LRF formátumba konvertálja. \n"
+"A %prog minden linket rekurzívan követ ami helyi \n"
+"html fájlokra hivatkozik, tehát lehetséges sok összefüggő \n"
+"html fájl konvertálása is."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lit/convert_from.py:15
 msgid ""
@@ -1325,16 +1351,22 @@ msgid ""
 "\n"
 "%prog converts mybook.lit to mybook.lrf"
 msgstr ""
+"Használat: %prog [beállítások] konyv.lit\n"
+"\n"
+"\n"
+"A %prog a konyv.lit fájlt LRF formátumba konvertálja"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
 msgid ""
 "%prog book.lrf\n"
 "Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 msgstr ""
+"%prog konyv.lrf\n"
+"A prog a konyv.lrf fájlt LRS formátumba (UTF-8 kódolású XML) konvertálja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
-msgstr ""
+msgstr "Kimeneti LRS fájl"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
@@ -1342,42 +1374,44 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
-msgstr ""
+msgstr "LRF fájl beolvasása..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
 msgid "Creating XML..."
-msgstr ""
+msgstr "XML létrehozása..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
 msgid "LRS written to "
-msgstr ""
+msgstr "Az LRS fájl helye: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:249
 msgid "Could not read from thumbnail file:"
-msgstr ""
+msgstr "Nem tudtam az ikon fájlt olvasni:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:269
 msgid ""
 "%prog [options] file.lrs\n"
 "Compile an LRS file into an LRF file."
 msgstr ""
+"%prog [beállítások] konyv.lrf\n"
+"LRS fájlt lefordítása LRF formátumba."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:270
 msgid "Path to output file"
-msgstr ""
+msgstr "A célfájl elérési útja"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:272
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:115
 msgid "Verbose processing"
-msgstr ""
+msgstr "Informatívabb üzenetek feldolgozásnál"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:274
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr ""
+msgstr "LRS fájl konvertálása LRS formátumba (hibakeresésnél hasznos)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:455
 msgid "Invalid LRF file. Could not set metadata."
-msgstr ""
+msgstr "Érvénytelen LRF fájl. Nem tudtam a metadatokat beállítani."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:580
 msgid ""
@@ -1391,42 +1425,44 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:587
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:43
 msgid "Set the book title"
-msgstr ""
+msgstr "A könyv címe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set sort key for the title"
-msgstr ""
+msgstr "Rendezési kulcs a címhez"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set the author"
-msgstr ""
+msgstr "Szerző"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set sort key for the author"
-msgstr ""
+msgstr "Rendezési kulcs a szerzőhöz"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:47
 msgid "The category this book belongs to. E.g.: History"
-msgstr ""
+msgstr "A kategória, amibe a könyv tartozik. Pl.: történelem"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:598
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr ""
+msgstr "A fájlhoz használandó ikon elérési útja"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:601
 msgid ""
 "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
+"A txt fájl útvonala, amelynek tartalma az lrf fájlhoz lesz csatolva "
+"megjegyzésként."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:605
 msgid "Extract thumbnail from LRF file"
-msgstr ""
+msgstr "Ikon kinyerése az LRF fájlból"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:606
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:182
 msgid "Set the publisher"
-msgstr ""
+msgstr "Kiadó"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Set the book classification"
