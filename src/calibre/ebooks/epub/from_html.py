@@ -194,7 +194,10 @@ class HTMLProcessor(Processor, Rationalizer):
             if not tag.text and not tag.get('src', False):
                 tag.getparent().remove(tag)
                 
-        
+        if self.opts.linearize_tables:
+            for tag in self.root.xpath('//table | //tr | //th | //td'):
+                tag.tag = 'div'
+            
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):
