@@ -7,7 +7,7 @@ class JerusalemPost(BasicNewsRecipe):
     use_embedded_content   = False
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 10
-    
+    no_stylesheets = True
     remove_tags_before = {'class':'byline'}
     remove_tags    = [
                       {'class':['artAdBlock clearboth', 'tbartop', 'divdot_vrttbox',
