@@ -15,11 +15,12 @@ class WallStreetJournal(BasicNewsRecipe):
         needs_subscription = True
         max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]' 
-        html2lrf_options = ['--ignore-tables']
+        no_stylesheets = True
         remove_tags_before = dict(name='h1')
         remove_tags = [
                        dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive"]),
                        {'class':['more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
+                       dict(rel='shortcut icon'),
                       ]
         remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 
@@ -34,6 +35,11 @@ class WallStreetJournal(BasicNewsRecipe):
                 br.submit() 
             return br
         
+        def postprocess_html(self, soup, first):
+            for tag in soup.findAll(name=['table', 'tr', 'td']):
+                tag.name = 'div'
+            return soup
+        
         def get_article_url(self, article):
             try:
                 return article.feedburner_origlink.split('?')[0]
@@ -43,8 +49,7 @@ class WallStreetJournal(BasicNewsRecipe):
         def cleanup(self): 
             self.browser.open('http://online.wsj.com/logout?url=http://online.wsj.com') 
  
-        def get_feeds(self):
-            return  [ 
+        feeds =  [ 
                 #('Most Emailed - Day', 'http://online.wsj.com/xml/rss/3_7030.xml'), 
                 #('Most Emailed - Week', 'http://online.wsj.com/xml/rss/3_7253.xml'), 
                 #('Most Emailed - Month', 'http://online.wsj.com/xml/rss/3_7254.xml'), 
