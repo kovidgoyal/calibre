@@ -121,6 +121,7 @@ class BookHeader(object):
             sublangid = (langcode >> 10) & 0xFF
             self.language = main_language.get(langid, 'ENGLISH')
             self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+            self.mobi_version = struct.unpack('>I', raw[0x68:0x6c])[0]
             self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c+4])[0]
             
             self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
@@ -132,11 +133,8 @@ class BookHeader(object):
             
 
 class MobiReader(object):
-    
     PAGE_BREAK_PAT = re.compile(r'(<[/]{0,1}mbp:pagebreak\s*[/]{0,1}>)+', re.IGNORECASE)
-    IMAGE_PATS     = map(re.compile, (r'\shirecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
-                        r'\srecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
-                        r'\slorecindex=[\'"]{0,1}(\d+)[\'"]{0,1}'))
+    IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
     
     def __init__(self, filename_or_stream, verbose=False):
         self.verbose = verbose
@@ -247,6 +245,7 @@ class MobiReader(object):
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
+        self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         for t, c in [('b', 'bold'), ('i', 'italic')]:
             self.processed_html = re.sub(r'(?i)<%s>'%t, r'<span class="%s">'%c, self.processed_html)
@@ -264,6 +263,7 @@ class MobiReader(object):
                     'x-large'  : '5',
                     'xx-large' : '6',
                     }
+        mobi_version = self.book_header.mobi_version
         for tag in root.iter(etree.Element):
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
                            'state', 'city'):
@@ -290,6 +290,11 @@ class MobiReader(object):
                 align = attrib.pop('align').strip()
                 if align:
                     styles.append('text-align: %s' % align)
+            if mobi_version == 1 and tag.tag == 'hr':
+                tag.tag = 'div'
+                styles.append('page-break-before: always')
+                styles.append('display: block')
+                styles.append('margin: 0')
             if styles:
                 attrib['style'] = '; '.join(styles)
                 
@@ -300,6 +305,17 @@ class MobiReader(object):
                 except ValueError:
                     if sz in size_map.keys():
                         attrib['size'] = size_map[sz]
+            if 'filepos-id' in attrib:
+                attrib['id'] = attrib.pop('filepos-id')
+            if 'filepos' in attrib:
+                filepos = int(attrib.pop('filepos'))
+                attrib['href'] = "#filepos%d" % filepos
+            if tag.tag == 'img':
+                recindex = None
+                for attr in self.IMAGE_ATTRS:
+                    recindex = attrib.pop(attr, None) or recindex
+                if recindex is not None:
+                    attrib['src'] = 'images/%s.jpg' % recindex
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
@@ -399,8 +415,9 @@ class MobiReader(object):
             
     
     def replace_page_breaks(self):
-        self.processed_html = self.PAGE_BREAK_PAT.sub('<br style="page-break-after:always" />',
-                                                      self.processed_html)
+        self.processed_html = self.PAGE_BREAK_PAT.sub(
+            '<div style="page-break-after: always; margin: 0; display: block" />',
+            self.processed_html)
     
     def add_anchors(self):
         if self.verbose:
@@ -409,28 +426,27 @@ class MobiReader(object):
         link_pattern = re.compile(r'<[^<>]+filepos=[\'"]{0,1}(\d+)[^<>]*>', re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
-        positions = list(positions)
-        positions.sort()
         pos = 0
         self.processed_html = ''
-        for end in positions:
+        for end in sorted(positions):
             if end == 0:
                 continue
             oend = end
             l = self.mobi_html.find('<', end)
             r = self.mobi_html.find('>', end)
-            if r > -1 and r < l: # Move out of tag
-                end = r+1
-            self.processed_html += self.mobi_html[pos:end] + '<a id="filepos%d" name="filepos%d"></a>'%(oend, oend) 
+            p = self.mobi_html.rfind('>', end)
+            if r > -1 and (r < l or l == end or l == -1):
+                end = r
+                anchor = ' filepos-id="filepos%d"' % oend
+            elif p > pos:
+                end = p
+                anchor = ' filepos-id="filepos%d"' % oend
+            else:
+                anchor = '<a id="filepos%d"></a>' % oend
+            self.processed_html += self.mobi_html[pos:end] + anchor
             pos = end
-            
         self.processed_html += self.mobi_html[pos:]
-        fpat = re.compile(r'filepos=[\'"]{0,1}(\d+)[\'"]{0,1}', re.IGNORECASE)
-        def fpos_to_href(match):
-            return fpat.sub('href="#filepos%d"'%int(match.group(1)), match.group())
-        self.processed_html = link_pattern.sub(fpos_to_href, 
-                                               self.processed_html)
-        
+    
     def extract_images(self, processed_records, output_dir):
         if self.verbose:
             print 'Extracting images...'
@@ -454,19 +470,6 @@ class MobiReader(object):
             path = os.path.join(output_dir, '%05d.jpg'%image_index)
             self.image_names.append(os.path.basename(path))
             im.convert('RGB').save(open(path, 'wb'), format='JPEG')
-            
-        def fix_images(match):
-            tag = match.group()
-            for pat in self.IMAGE_PATS:
-                m = pat.search(tag)
-                if m:
-                    return pat.sub(' src="images/%s.jpg"'%m.group(1), tag)
-                    
-        
-        if hasattr(self, 'processed_html'):
-            self.processed_html = \
-            re.compile(r'<img (.*?)>', re.IGNORECASE|re.DOTALL)\
-                .sub(fix_images, self.processed_html)
 
 def get_metadata(stream):
     mr = MobiReader(stream)
