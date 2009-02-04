@@ -434,16 +434,15 @@ class MobiReader(object):
             oend = end
             l = self.mobi_html.find('<', end)
             r = self.mobi_html.find('>', end)
-            p = self.mobi_html.rfind('>', end)
+            anchor = '<a id="filepos%d"></a>'
             if r > -1 and (r < l or l == end or l == -1):
-                end = r
-                anchor = ' filepos-id="filepos%d"' % oend
-            elif p > pos:
-                end = p
-                anchor = ' filepos-id="filepos%d"' % oend
-            else:
-                anchor = '<a id="filepos%d"></a>' % oend
-            self.processed_html += self.mobi_html[pos:end] + anchor
+                p = self.mobi_html.rfind('<', 0, end + 1)
+                if p > -1 and self.mobi_html[p + 1] != '/':
+                    anchor = ' filepos-id="filepos%d"'
+                    end = r
+                else:
+                    end = r + 1
+            self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
             pos = end
         self.processed_html += self.mobi_html[pos:]
     
