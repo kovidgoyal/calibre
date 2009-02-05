@@ -97,7 +97,7 @@ OPF_MIME       = types_map['.opf']
 PAGE_MAP_MIME  = 'application/oebps-page-map+xml'
 OEB_DOC_MIME   = 'text/x-oeb1-document'
 OEB_CSS_MIME   = 'text/x-oeb1-css'
-OPENTYPE_MIME  = 'font/opentype' # Shouldn't this be 'application/x-font-opentype' as opentype/font doesn't actually exist in the IETF?
+OPENTYPE_MIME  = 'application/x-font-opentype'
 GIF_MIME       = types_map['.gif']
 JPEG_MIME      = types_map['.jpeg']
 PNG_MIME       = types_map['.png']
@@ -177,7 +177,7 @@ URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                     '0123456789' '_.-/~')
 URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE]
 
-def urlquote(href): # Why do you have a private implementation of urlquote?
+def urlquote(href):
     result = []
     unsafe = 0 if isinstance(href, unicode) else 1
     unsafe = URL_UNSAFE[unsafe]
@@ -282,7 +282,9 @@ class Metadata(object):
         class Attribute(object):
             
             def __init__(self, attr, allowed=None):
-                self.attr = attr if callable(attr) else lambda x: attr
+                if not callable(attr):
+                    attr_, attr = attr, lambda term: attr_
+                self.attr = attr
                 self.allowed = allowed
             
             def term_attr(self, obj):
