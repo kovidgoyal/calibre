@@ -105,6 +105,36 @@
                 <string>Book Cover</string>
                </property>
                <layout class="QGridLayout" name="_2" >
+                <item row="0" column="0" >
+                 <layout class="QHBoxLayout" name="_3" >
+                  <item>
+                   <widget class="ImageView" name="cover" >
+                    <property name="text" >
+                     <string/>
+                    </property>
+                    <property name="pixmap" >
+                     <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
+                    </property>
+                    <property name="scaledContents" >
+                     <bool>true</bool>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0" >
+                 <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
+                  <property name="text" >
+                   <string>Use cover from &amp;source file</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
                 <item row="1" column="0" >
                  <layout class="QVBoxLayout" name="_4" >
                   <property name="spacing" >
@@ -153,36 +183,6 @@
                      </widget>
                     </item>
                    </layout>
-                  </item>
-                 </layout>
-                </item>
-                <item row="2" column="0" >
-                 <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
-                  <property name="text" >
-                   <string>Use cover from &amp;source file</string>
-                  </property>
-                  <property name="checked" >
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" >
-                 <layout class="QHBoxLayout" name="_3" >
-                  <item>
-                   <widget class="ImageView" name="cover" >
-                    <property name="text" >
-                     <string/>
-                    </property>
-                    <property name="pixmap" >
-                     <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
-                    </property>
-                    <property name="scaledContents" >
-                     <bool>true</bool>
-                    </property>
-                    <property name="alignment" >
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -486,6 +486,27 @@
                </property>
               </widget>
              </item>
+             <item row="6" column="0" >
+              <widget class="QCheckBox" name="opt_prefer_author_sort" >
+               <property name="text" >
+                <string>&amp;Use author sort to set author field in output</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0" >
+              <widget class="QCheckBox" name="opt_no_justification" >
+               <property name="text" >
+                <string>No text &amp;justification</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0" >
+              <widget class="QCheckBox" name="opt_linearize_tables" >
+               <property name="text" >
+                <string>&amp;Linearize tables</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>
@@ -675,16 +696,15 @@
               <item row="0" column="0" colspan="2" >
                <widget class="QLabel" name="label_8" >
                 <property name="text" >
-                 <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
-&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
-p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">You can control how calibre detects chapters using a XPath expression. To learn how to use XPath expressions see the &lt;a href="https://calibre.kovidgoyal.net/user_manual/xpath.html">&lt;span style=" text-decoration: underline; color:#0000ff;">XPath tutorial&lt;/span>&lt;/a>&lt;/p>&lt;/body>&lt;/html></string>
+                 <string>&lt;p>You can control how calibre detects chapters using a XPath expression. To learn how to use XPath expressions see the &lt;a href="http://calibre.kovidgoyal.net/user_manual/xpath.html">XPath tutorial&lt;/a>&lt;/p></string>
                 </property>
                 <property name="textFormat" >
                  <enum>Qt::RichText</enum>
                 </property>
                 <property name="wordWrap" >
+                 <bool>true</bool>
+                </property>
+                <property name="openExternalLinks" >
                  <bool>true</bool>
                 </property>
                </widget>

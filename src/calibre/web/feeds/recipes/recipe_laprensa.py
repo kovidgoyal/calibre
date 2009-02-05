@@ -14,6 +14,7 @@ class LaPrensa(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Informacion Libre las 24 horas'    
     oldest_article        = 7
+    language = _('Spanish')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

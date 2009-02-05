@@ -19,6 +19,7 @@ class NewScientist(BasicNewsRecipe):
     title                 = u'New Scientist - Online News'
     __author__            = 'Darko Miletic'
     description           = 'News from Science'
+    language = _('English')
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

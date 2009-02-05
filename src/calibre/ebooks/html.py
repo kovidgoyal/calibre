@@ -9,7 +9,7 @@ directory or zip file. All the action starts in :function:`create_dir`.
 '''
 
 import sys, re, os, shutil, logging, tempfile, cStringIO, operator, functools
-from urlparse import urlparse
+from urlparse import urlparse, urlunparse
 from urllib import unquote
 
 from lxml import etree
@@ -98,7 +98,8 @@ class Link(object):
     
     @classmethod
     def url_to_local_path(cls, url, base):
-        path = url.path
+        path = urlunparse(('', '', url.path, url.params, url.query, ''))
+        path = unquote(path)
         if os.path.isabs(path):
             return path
         return os.path.abspath(os.path.join(base, path))
@@ -111,11 +112,11 @@ class Link(object):
         '''
         assert isinstance(url, unicode) and isinstance(base, unicode)
         self.url         = url
-        self.parsed_url  = urlparse(unquote(self.url))
+        self.parsed_url  = urlparse(self.url)
         self.is_local    = self.parsed_url.scheme in ('', 'file')
         self.is_internal = self.is_local and not bool(self.parsed_url.path)
         self.path        = None
-        self.fragment    = self.parsed_url.fragment 
+        self.fragment    = unquote(self.parsed_url.fragment)
         if self.is_local and not self.is_internal:
             self.path = self.url_to_local_path(self.parsed_url, base)
 
@@ -594,15 +595,21 @@ class Processor(Parser):
         '''
         Populate the Table of Contents from detected chapters and links.
         '''
-        
-        def add_item(href, fragment, text, target, type='link'):
-            for entry in toc.flat():
-                if entry.href == href and entry.fragment == fragment:
-                    return entry
-            if len(text) > 50:
-                text = text[:50] + u'\u2026'
-            return target.add_item(href, fragment, text, type=type)
-        
+        class Adder(object):
+            
+            def __init__(self, toc):
+                self.next_play_order = max([x.play_order for x in toc.flat()])
+                
+            def __call__(self, href, fragment, text, target, type='link'):
+                for entry in toc.flat():
+                    if entry.href == href and entry.fragment == fragment:
+                        return entry
+                if len(text) > 50:
+                    text = text[:50] + u'\u2026'
+                self.next_play_order += 1
+                return target.add_item(href, fragment, text, type=type, 
+                                       play_order=self.next_play_order)
+        add_item = Adder(toc)
         name = self.htmlfile_map[self.htmlfile.path]
         href = 'content/'+name
         
@@ -629,13 +636,15 @@ class Processor(Parser):
         
         if self.opts.level1_toc is not None:
             level1 = self.opts.level1_toc(self.root)
+            level1_order = []
             if level1:
                 added = {}
                 for elem in level1:
                     text, _href, frag = elem_to_link(elem, href, counter)
                     counter += 1
                     if text:
-                        added[elem] = add_item(_href, frag, text, toc, type='chapter')
+                        level1_order.append(add_item(_href, frag, text, toc, type='chapter'))
+                        added[elem] = level1_order[-1]
                         add_item(_href, frag, 'Top', added[elem], type='chapter')
                 if self.opts.level2_toc is not None:
                     added2 = {}
@@ -664,6 +673,15 @@ class Processor(Parser):
                                     if text:
                                         add_item(_href, frag, text, level2, type='chapter')
                 
+            
+            if level1_order: # Fix play order
+                next_play_order = level1_order[0].play_order
+                for x in level1_order:
+                    for y in x.flat():
+                        y.play_order = next_play_order
+                        next_play_order += 1
+                    
+                        
                     
             if len(toc) > 0:
                 return
@@ -867,6 +885,8 @@ class Processor(Parser):
         css += '\n\na { color: inherit; text-decoration: inherit; cursor: default; }\na[href] { color: blue; text-decoration: underline; cursor:pointer; }'
         if self.opts.remove_paragraph_spacing:
             css += '\n\np {text-indent: 1.5em; margin-top:0pt; margin-bottom:0pt; padding:0pt; border:0pt;}'
+        if not self.opts.no_justification:
+            css += '\n\nbody {text-align: justify}'
         if self.opts.override_css:
             css += '\n\n' + self.opts.override_css
         self.override_css = self.css_parser.parseString(self.preprocess_css(css))
@@ -987,7 +1007,6 @@ def merge_metadata(htmlfile, opf, opts):
             mi =  get_metadata(open(htmlfile, 'rb'), 'html')
         except:
             mi = MetaInformation(None, None)
-    
     if opts.from_opf is not None and os.access(opts.from_opf, os.R_OK):
         mi.smart_update(OPF(open(opts.from_opf, 'rb'), os.path.abspath(os.path.dirname(opts.from_opf))))
     for attr in ('title', 'authors', 'publisher', 'tags', 'comments'):

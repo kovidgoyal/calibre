@@ -15,6 +15,7 @@ class Clarin(BasicNewsRecipe):
     description           = 'Noticias de Argentina y mundo'
     oldest_article        = 2
     max_articles_per_feed = 100
+    language = _('Spanish')
     use_embedded_content  = False
     no_stylesheets        = True
     cover_url             = strftime('http://www.clarin.com/diario/%Y/%m/%d/portada.jpg')

@@ -11,6 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElPais(BasicNewsRecipe):
     title          = u'EL PAIS'
+    language = _('Spanish')
     oldest_article = 7
     max_articles_per_feed = 100
 

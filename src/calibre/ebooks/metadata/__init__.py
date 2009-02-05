@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 """
-Provides abstraction for metadata reading.writing from a variety of ebook formats. 
+Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
 import os, mimetypes, sys, re
 from urllib import unquote, quote
@@ -47,17 +47,17 @@ def title_sort(title):
 
 class Resource(object):
     '''
-    Represents a resource (usually a file on the filesystem or a URL pointing 
+    Represents a resource (usually a file on the filesystem or a URL pointing
     to the web. Such resources are commonly referred to in OPF files.
-    
+
     They have the interface:
-    
+
     :member:`path`
     :member:`mime_type`
     :method:`href`
-    
+
     '''
-    
+
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
         self._href = None
         self._basedir = basedir
@@ -87,13 +87,13 @@ class Resource(object):
                 pc = unquote(pc).decode('utf-8')
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
                 self.fragment = unquote(url[-1])
-        
-    
+
+
     def href(self, basedir=None):
         '''
         Return a URL pointing to this resource. If it is a file on the filesystem
         the URL is relative to `basedir`.
-        
+
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
         '''
@@ -115,54 +115,54 @@ class Resource(object):
         if isinstance(rpath, unicode):
             rpath = rpath.encode('utf-8')
         return quote(rpath.replace(os.sep, '/'))+frag
-    
+
     def set_basedir(self, path):
         self._basedir = path
-        
+
     def basedir(self):
         return self._basedir
-    
+
     def __repr__(self):
         return 'Resource(%s, %s)'%(repr(self.path), repr(self.href()))
-        
-        
+
+
 class ResourceCollection(object):
-    
+
     def __init__(self):
         self._resources = []
-        
+
     def __iter__(self):
         for r in self._resources:
             yield r
-            
+
     def __len__(self):
         return len(self._resources)
-    
+
     def __getitem__(self, index):
         return self._resources[index]
-    
+
     def __bool__(self):
         return len(self._resources) > 0
-    
+
     def __str__(self):
         resources = map(repr, self)
         return '[%s]'%', '.join(resources)
-    
+
     def __repr__(self):
         return str(self)
-    
+
     def append(self, resource):
         if not isinstance(resource, Resource):
             raise ValueError('Can only append objects of type Resource')
         self._resources.append(resource)
-        
+
     def remove(self, resource):
         self._resources.remove(resource)
-    
+
     def replace(self, start, end, items):
         'Same as list[start:end] = items'
         self._resources[start:end] = items
-        
+
     @staticmethod
     def from_directory_contents(top, topdown=True):
         collection = ResourceCollection()
@@ -172,16 +172,16 @@ class ResourceCollection(object):
             res.set_basedir(top)
             collection.append(res)
         return collection
-    
+
     def set_basedir(self, path):
         for res in self:
             res.set_basedir(path)
-        
+
 
 
 class MetaInformation(object):
     '''Convenient encapsulation of book metadata'''
-    
+
     @staticmethod
     def copy(mi):
         ans = MetaInformation(mi.title, mi.authors)
@@ -191,7 +191,7 @@ class MetaInformation(object):
                      'manifest', 'spine', 'toc', 'cover', 'language', 'book_producer'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
-        
+
     def __init__(self, title, authors=[_('Unknown')]):
         '''
         @param title: title or ``_('Unknown')`` or a MetaInformation object
@@ -209,14 +209,14 @@ class MetaInformation(object):
         self.tags = getattr(mi, 'tags', [])
         #: mi.cover_data = (ext, data)
         self.cover_data   = getattr(mi, 'cover_data', (None, None))
-        
-        for x in ('author_sort', 'title_sort', 'comments', 'publisher', 
+
+        for x in ('author_sort', 'title_sort', 'comments', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer',
                   ):
             setattr(self, x, getattr(mi, x, None))
-    
+
     def smart_update(self, mi):
         '''
         Merge the information in C{mi} into self. In case of conflicts, the information
@@ -224,31 +224,37 @@ class MetaInformation(object):
         '''
         if mi.title and mi.title != _('Unknown'):
             self.title = mi.title
-            
+
         if mi.authors and mi.authors[0] != _('Unknown'):
             self.authors = mi.authors
-            
-        for attr in ('author_sort', 'title_sort', 'comments', 
+
+        for attr in ('author_sort', 'title_sort', 'comments',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'application_id', 'manifest', 'spine', 'toc', 
+                     'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer'):
             val = getattr(mi, attr, None)
             if val is not None:
                 setattr(self, attr, val)
-                    
+
         if mi.tags:
             self.tags += mi.tags
         self.tags = list(set(self.tags))
-        
+
         if getattr(mi, 'cover_data', None) and mi.cover_data[0] is not None:
             self.cover_data = mi.cover_data
-            
-            
+
+    def format_series_index(self):
+        try:
+            x = float(self.series_index)
+        except ValueError:
+            x = 1.0
+        return '%d'%x if int(x) == x else '%.2f'%x
+
     def __unicode__(self):
         ans = [ fmt('Title', self.title) ]
         def fmt(x, y):
             ans.append(u'%-20s: %s'%(unicode(x), unicode(y)))
-        
+
         if self.title_sort:
             fmt('Title sort', self.title_sort)
         if self.authors:
@@ -265,13 +271,13 @@ class MetaInformation(object):
         if self.tags:
             fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
         if self.series:
-            fmt('Series', self.series + '#%s'%self.series_index)  
+            fmt('Series', self.series + ' #%s'%self.format_series_index())
         if self.language:
             fmt('Language', self.language)
         if self.rating is not None:
             fmt('Rating', self.rating)
         return u'\n'.join(ans)
-    
+
     def to_html(self):
         ans = [(_('Title'), unicode(self.title))]
         ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
@@ -280,16 +286,17 @@ class MetaInformation(object):
         ans += [(_('Comments'), unicode(self.comments))]
         ans += [('ISBN', unicode(self.isbn))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
-        ans += [(_('Series'), unicode(self.series))]
+        if self.series:
+            ans += [(_('Series'), unicode(self.series))+ ' #%s'%self.format_series_index()]
         ans += [(_('Language'), unicode(self.language))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)
-        
-        
-    
+
+
+
     def __str__(self):
         return self.__unicode__().encode('utf-8')
-    
+
     def __nonzero__(self):
         return bool(self.title or self.author or self.comments or self.tags)

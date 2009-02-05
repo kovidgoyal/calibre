@@ -14,6 +14,7 @@ class Telepolis(BasicNewsRecipe):
     description           = 'News from Germany in German'
     oldest_article        = 2
     max_articles_per_feed = 100
+    language = _('German')
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'

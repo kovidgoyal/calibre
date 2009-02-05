@@ -13,6 +13,7 @@ class ArsTechnica(BasicNewsRecipe):
     title          = 'Ars Technica'
     description    = 'The art of technology'
     oldest_article = 7
+    language = _('English')
     no_stylesheets = True
     __author__     = 'Michael Warner'
     max_articles_per_feed = 100

@@ -294,7 +294,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.stack.setCurrentIndex(0)
         try:
             db = LibraryDatabase2(self.library_path)
-        except OSError, err:
+        except Exception, err:
             error_dialog(self, _('Bad database location'), unicode(err)).exec_()
             dir = unicode(QFileDialog.getExistingDirectory(self,
                             _('Choose a location for your ebook library.'), os.path.expanduser('~')))
@@ -1426,10 +1426,10 @@ class Main(MainWindow, Ui_MainWindow):
     def donate(self, *args):
         BUTTON = '''
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-            <input type="hidden" name="cmd" value="_s-xclick">
-            <input type="hidden" name="hosted_button_id" value="1335186">
-            <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="">
-            <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+            <input type="hidden" name="cmd" value="_s-xclick" />
+            <input type="hidden" name="hosted_button_id" value="3029467" />
+            <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="Donate to support calibre development" />
+            <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
         </form>
         '''
         MSG = _('is the result of the efforts of many volunteers from all over the world. If you find it useful, please consider donating to support its development.')

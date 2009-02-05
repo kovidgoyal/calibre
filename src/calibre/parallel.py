@@ -161,7 +161,7 @@ class WorkerMother(object):
             self.executable = self.gui_executable = sys.executable
             self.prefix = ''
             if isfrozen:
-                fd = getattr(sys, 'frameworks_dir')
+                fd = os.path.realpath(getattr(sys, 'frameworks_dir'))
                 contents = os.path.dirname(fd)
                 self.gui_executable = os.path.join(contents, 'MacOS',
                                                os.path.basename(sys.executable))

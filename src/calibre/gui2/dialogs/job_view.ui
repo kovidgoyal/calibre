@@ -16,7 +16,7 @@
    <iconset resource="../images.qrc" >
     <normaloff>:/images/view.svg</normaloff>:/images/view.svg</iconset>
   </property>
-  <layout class="QGridLayout" >
+  <layout class="QGridLayout" name="gridLayout" >
    <item row="0" column="0" >
     <widget class="QPlainTextEdit" name="log" >
      <property name="undoRedoEnabled" >
@@ -30,10 +30,34 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="0" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources>
   <include location="../images.qrc" />
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>617</x>
+     <y>442</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>206</x>
+     <y>-5</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

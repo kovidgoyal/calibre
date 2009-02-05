@@ -10,6 +10,7 @@ class Freakonomics(BasicNewsRecipe):
     title = 'Freakonomics Blog'
     description = 'The Hidden side of everything'
     __author__ = 'Kovid Goyal'
+    language = _('English')
     
     feeds = [('Blog', 'http://freakonomics.blogs.nytimes.com/feed/atom/')]
     

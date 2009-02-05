@@ -9,6 +9,7 @@ class WashingtonPost(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     use_embedded_content   = False
     max_articles_per_feed = 20
+    language = _('English')
 
     
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 

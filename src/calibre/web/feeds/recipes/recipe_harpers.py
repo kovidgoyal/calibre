@@ -10,6 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Harpers(BasicNewsRecipe):
     title                 = u"Harper's Magazine"
     __author__            = u'Darko Miletic'
+    language = _('English')
     description           = u"Harper's Magazine: Founded June 1850."
     oldest_article        = 30
     max_articles_per_feed = 100
