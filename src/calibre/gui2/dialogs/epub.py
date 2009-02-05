@@ -18,7 +18,7 @@ from calibre.gui2 import error_dialog, choose_images, pixmap_to_data, ResizableD
 from calibre.ebooks.epub.from_any import SOURCE_FORMATS, config as epubconfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 
 

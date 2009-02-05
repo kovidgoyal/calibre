@@ -789,7 +789,10 @@ class OPF(object):
         return elem
         
     def render(self, encoding='utf-8'):
-        return etree.tostring(self.root, encoding='utf-8', pretty_print=True)
+        raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
+        if not raw.lstrip().startswith('<?xml '):
+            raw = '<?xml version="1.0"  encoding="%s"?>\n'%encoding.upper()+raw
+        return raw
     
     def smart_update(self, mi):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
@@ -877,7 +880,8 @@ class OPFCreator(MetaInformation):
         self.guide = Guide.from_opf_guide(guide_element, self.base_path)
         self.guide.set_basedir(self.base_path)
             
-    def render(self, opf_stream, ncx_stream=None, ncx_manifest_entry=None):
+    def render(self, opf_stream=sys.stdout, ncx_stream=None, 
+               ncx_manifest_entry=None):
         from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
         template = MarkupTemplate(opf_template)

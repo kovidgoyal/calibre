@@ -454,12 +454,9 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
         
         cpath = os.path.join(tdir, 'content', 'resources', '_cover_.jpg')
         if os.path.exists(cpath):
-            opf.add_path_to_manifest(cpath, 'image/jpeg')    
+            opf.add_path_to_manifest(cpath, 'image/jpeg')
         with open(opf_path, 'wb') as f:
-            raw = opf.render()
-            if not raw.startswith('<?xml '):
-                raw = '<?xml version="1.0"  encoding="UTF-8"?>\n'+raw
-            f.write(raw)
+            f.write(opf.render())
         ncx_path = os.path.join(os.path.dirname(opf_path), 'toc.ncx')
         if os.path.exists(ncx_path) and os.stat(ncx_path).st_size > opts.profile.flow_size:
             logger.info('Condensing NCX from %d bytes...'%os.stat(ncx_path).st_size)
@@ -475,7 +472,7 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             logger.info(_('Output written to ')+opts.output)
         
         if opts.show_opf:
-            print open(os.path.join(tdir, 'metadata.opf')).read()
+            print open(opf_path, 'rb').read()
         
         if opts.extract_to is not None:
             if os.path.exists(opts.extract_to):

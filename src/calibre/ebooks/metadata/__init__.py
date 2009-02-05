@@ -247,6 +247,12 @@ class MetaInformation(object):
         if getattr(mi, 'cover_data', None) and mi.cover_data[0] is not None:
             self.cover_data = mi.cover_data
             
+    def format_series_index(self):
+        try:
+            x = float(self.series_index)
+        except ValueError:
+            x = 1.0
+        return '%d'%x if int(x) == x else '%.2f'%x
             
     def __unicode__(self):
         ans = u''
@@ -267,7 +273,7 @@ class MetaInformation(object):
         if self.tags:
             ans += u'Tags     : ' + u', '.join([unicode(t) for t in self.tags]) + '\n'
         if self.series:
-            ans += u'Series   : '+unicode(self.series) + ' #%d\n'%self.series_index  
+            ans += u'Series   : '+unicode(self.series) + ' #%s\n'%self.format_series_index()  
         if self.language:
             ans += u'Language : '     + unicode(self.language) + u'\n'
         return ans.strip()
@@ -277,11 +283,11 @@ class MetaInformation(object):
         ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
         ans += [(_('Publisher'), unicode(self.publisher))]
         ans += [(_('Producer'), unicode(self.book_producer))]
-        ans += [(_('Category'), unicode(self.category))]
         ans += [(_('Comments'), unicode(self.comments))]
         ans += [('ISBN', unicode(self.isbn))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
-        ans += [(_('Series'), unicode(self.series))]
+        if self.series:
+            ans += [(_('Series'), unicode(self.series))+ ' #%s'%self.format_series_index()]
         ans += [(_('Language'), unicode(self.language))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x

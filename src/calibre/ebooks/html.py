@@ -1007,7 +1007,6 @@ def merge_metadata(htmlfile, opf, opts):
             mi =  get_metadata(open(htmlfile, 'rb'), 'html')
         except:
             mi = MetaInformation(None, None)
-    
     if opts.from_opf is not None and os.access(opts.from_opf, os.R_OK):
         mi.smart_update(OPF(open(opts.from_opf, 'rb'), os.path.abspath(os.path.dirname(opts.from_opf))))
     for attr in ('title', 'authors', 'publisher', 'tags', 'comments'):
