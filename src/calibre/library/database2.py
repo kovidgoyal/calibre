@@ -355,6 +355,7 @@ class LibraryDatabase2(LibraryDatabase):
         if isinstance(self.dbpath, unicode):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
         self.connect()
+        self.is_case_sensitive = not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         # Upgrade database 
         while True:
             meth = getattr(self, 'upgrade_version_%d'%self.user_version, None)
