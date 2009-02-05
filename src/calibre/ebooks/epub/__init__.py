@@ -141,6 +141,10 @@ help on using this feature.
               action='store_true',
               help=_('Use the cover detected from the source file in preference '
                      'to the specified cover.'))
+    structure('remove_first_image', ['--remove-first-image'], default=False,
+              help=_('Remove the first image from the input ebook. Useful if '
+                     'the first image in the source file is a cover and you '
+                     'are specifying an external cover.'))
     structure('dont_split_on_page_breaks', ['--dont-split-on-page-breaks'], default=False,
               help=_('Turn off splitting at page breaks. Normally, input files '
                      'are automatically split at every page break into '

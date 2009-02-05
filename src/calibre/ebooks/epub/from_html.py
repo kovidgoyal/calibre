@@ -141,7 +141,7 @@ class HTMLProcessor(Processor, Rationalizer):
             p = QPixmap()
             p.load(path)
             if not p.isNull():
-                p.save(path+'_calibre_converted.jpg')
+                p.save(path + '_calibre_converted.jpg')
                 os.remove(path)
                 for key, val in self.resource_map.items():
                     if val == rpath:
@@ -206,6 +206,13 @@ class HTMLProcessor(Processor, Rationalizer):
         #    self.convert_image(img)
         Processor.save(self)
         
+    def remove_first_image(self):
+        images = self.root.xpath('//img')
+        if images:
+            images[0].getparent().remove(images[0])
+            return True
+        return False
+        
     
             
 
@@ -227,10 +234,13 @@ def parse_content(filelist, opts, tdir):
     resource_map, stylesheets = {}, {}
     toc = TOC(base_path=tdir, type='root')
     stylesheet_map = {}
+    first_image_removed = False
     for htmlfile in filelist:
         logging.getLogger('html2epub').debug('Processing %s...'%htmlfile)
         hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
                            resource_map, filelist, stylesheets)
+        if not first_image_removed and opts.remove_first_image:
+            first_image_removed = hp.remove_first_image()
         hp.populate_toc(toc)
         hp.save()
         stylesheet_map[os.path.basename(hp.save_path())] = \
