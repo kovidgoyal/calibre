@@ -16,6 +16,7 @@ class SMH(BasicNewsRecipe):
     title = 'Sydney Morning Herald'
     description = 'Business News, World News and Breaking News in Australia'
     __author__ = 'Kovid Goyal'
+    language = _('English')
     
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()

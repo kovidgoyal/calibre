@@ -13,6 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Granma(BasicNewsRecipe):
     title                 = 'Diario Granma'
     __author__            = 'Darko Miletic'
+    language = _('Spanish')
     description           = 'Organo oficial del Comite Central del Partido Comunista de Cuba'    
     oldest_article        = 2
     max_articles_per_feed = 100

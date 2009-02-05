@@ -14,6 +14,7 @@ class Spiegel_int(BasicNewsRecipe):
     description           = "News and POV from Europe's largest newsmagazine"
     oldest_article        = 7
     max_articles_per_feed = 100
+    language = _('English')
     no_stylesheets        = True
     use_embedded_content  = False
     cover_url = 'http://www.spiegel.de/static/sys/v8/headlines/spiegelonline.gif'

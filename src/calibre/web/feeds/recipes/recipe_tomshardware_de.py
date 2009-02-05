@@ -6,7 +6,6 @@ Fetch tomshardware.
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 
 class TomsHardwareDe(BasicNewsRecipe):
@@ -17,6 +16,7 @@ class TomsHardwareDe(BasicNewsRecipe):
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 50
+    language = _('German')
     no_stylesheets = True
     encoding = 'utf-8'
 

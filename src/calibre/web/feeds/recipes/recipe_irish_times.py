@@ -9,6 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class IrishTimes(BasicNewsRecipe):
     title          = u'The Irish Times'
     __author__     = 'Derry FitzGerald'
+    language = _('English')
     no_stylesheets = True
 
     remove_tags    = [dict(name='div', attrs={'class':'footer'})]

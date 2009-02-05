@@ -14,6 +14,7 @@ class ScientificAmerican(BasicNewsRecipe):
     title = u'Scientific American'
     description = u'Popular science. Monthly magazine.' 
     __author__ = 'Kovid Goyal'
+    language = _('English')
     oldest_article = 30 
     max_articles_per_feed = 100
     no_stylesheets = True

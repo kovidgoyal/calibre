@@ -14,6 +14,7 @@ class Teleread(BasicNewsRecipe):
     title = 'Teleread Blog'
     description = 'News & views on e-books, libraries, publishing and related topics'
     __author__  = 'Kovid Goyal'
+    language = _('English')
     
     feeds = [('Entries', 'http://www.teleread.org/feed/')]
     

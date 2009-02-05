@@ -9,6 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElMercurio(BasicNewsRecipe):
     title                 = 'El Mercurio online'
+    language = _('Spanish')
     __author__            = 'Darko Miletic'
     description           = 'El sitio de noticias online de Chile'    
     oldest_article        = 2

@@ -12,6 +12,7 @@ class ElMundo(BasicNewsRecipe):
     title                 = 'El Mundo'
     __author__            = 'Darko Miletic'
     description           = 'News from Spain'
+    language = _('Spanish')
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True

@@ -8,6 +8,7 @@ class ChristianScienceMonitor(BasicNewsRecipe):
     description = 'Providing context and clarity on national and international news, peoples and cultures'
     max_articles_per_feed = 20
     __author__ = 'Kovid Goyal'
+    language = _('English')
     no_stylesheets = True
     use_embedded_content   = False
   

@@ -10,8 +10,8 @@ Scheduler for automated recipe downloads
 import sys, copy, time
 from datetime import datetime, timedelta, date
 from PyQt4.Qt import QDialog, QApplication, QLineEdit, QPalette, SIGNAL, QBrush, \
-                     QColor, QAbstractListModel, Qt, QVariant, QFont, QIcon, \
-                     QFile, QObject, QTimer, QMutex, QMenu, QAction, QTime
+                     QColor, QAbstractItemModel, Qt, QVariant, QFont, QIcon, \
+                     QFile, QObject, QTimer, QMutex, QMenu, QAction, QTime, QModelIndex
 
 from calibre import english_sort
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
@@ -30,6 +30,7 @@ class Recipe(object):
         self.id                 = id
         self.title              = getattr(recipe_class, 'title', None)
         self.description        = getattr(recipe_class, 'description', None)
+        self.language           = getattr(recipe_class, 'language', _('Unknown'))
         self.last_downloaded    = datetime.fromordinal(1)
         self.downloading        = False
         self.builtin            = builtin
@@ -86,12 +87,12 @@ def load_recipes():
         recipes.append(r)
     return recipes
 
-class RecipeModel(QAbstractListModel, SearchQueryParser):
+class RecipeModel(QAbstractItemModel, SearchQueryParser):
     
     LOCATIONS = ['all']
     
     def __init__(self, db, *args):
-        QAbstractListModel.__init__(self, *args)
+        QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self)
         self.default_icon = QIcon(':/images/news.svg')
         self.custom_icon = QIcon(':/images/user_profile.svg')
@@ -99,8 +100,11 @@ class RecipeModel(QAbstractListModel, SearchQueryParser):
         for x in db.get_recipes():
             recipe = compile_recipe(x[1])
             self.recipes.append(Recipe(x[0], recipe, False))
-        self.refresh()    
-        self._map = list(range(len(self.recipes)))
+        self.refresh()
+        self.bold_font = QFont()
+        self.bold_font.setBold(True)
+        self.bold_font = QVariant(self.bold_font)
+        
     
     def refresh(self):
         sr = load_recipes()
@@ -110,7 +114,35 @@ class RecipeModel(QAbstractListModel, SearchQueryParser):
                 recipe.last_downloaded = sr[sr.index(recipe)].last_downloaded
         
         self.recipes.sort()
+        self.num_of_recipes = len(self.recipes)
         
+        self.category_map = {}
+        for r in self.recipes:
+            category = getattr(r, 'language', _('Unknown'))
+            if not r.builtin:
+                category = _('Custom')
+            if r.schedule is not None:
+                category = _('Scheduled')
+            if category not in self.category_map.keys():
+                self.category_map[category] = []
+            self.category_map[category].append(r)
+            
+        self.categories = sorted(self.category_map.keys(), cmp=self.sort_categories)
+        self._map = dict(self.category_map)
+        
+    def sort_categories(self, x, y):
+        
+        def decorate(x):
+            if x == _('Scheduled'):
+                x = '0' + x
+            elif x == _('Custom'):
+                x = '1' + x
+            else:
+                x = '2' + x
+            return x
+        
+        return cmp(decorate(x), decorate(y))
+                
     
     def universal_set(self):
         return set(self.recipes)
@@ -129,48 +161,64 @@ class RecipeModel(QAbstractListModel, SearchQueryParser):
         try:
             results = self.parse(unicode(query))
         except ParseException:
-            self._map = list(range(len(self.recipes)))
+            self._map = dict(self.category_map)
         else:
-            self._map = []
-            for i, recipe in enumerate(self.recipes):
-                if recipe in results:
-                    self._map.append(i)
+            self._map = {}
+            for category in self.categories:
+                self._map[category] = []
+                for recipe in self.category_map[category]:
+                    if recipe in results:
+                        self._map[category].append(recipe)
         self.reset()
     
     def resort(self):
         self.recipes.sort()
         self.reset()
+    
+    def index(self, row, column, parent):
+        return self.createIndex(row, column, parent.row() if parent.isValid() else -1)
+    
+    def parent(self, index):
+        if index.internalId() == -1:
+            return QModelIndex()
+        return self.createIndex(index.internalId(), 0, -1)
+    
+    def columnCount(self, parent):
+        if not parent.isValid() or not parent.parent().isValid():
+            return 1
+        return 0
+    
+    def rowCount(self, parent):
+        if not parent.isValid():
+            return len(self.categories)
+        if not parent.parent().isValid():
+            category = self.categories[parent.row()]
+            return len(self._map[category])
+        return 0
         
-    def columnCount(self, *args):
-        return 1
-    
-    def rowCount(self, *args):
-        return len(self._map)
-    
     def data(self, index, role):
-        recipe = self.recipes[self._map[index.row()]]
-        if role == Qt.FontRole:
-            if recipe.schedule is not None:
-                font = QFont()
-                font.setBold(True)
-                return QVariant(font)
-            if not recipe.builtin:
-                font = QFont()
-                font.setItalic(True)
-                return QVariant(font)
-        elif role == Qt.DisplayRole:
-            return QVariant(recipe.title)
-        elif role == Qt.UserRole:
-            return recipe
-        elif role == Qt.DecorationRole:
-            icon = self.default_icon
-            icon_path = (':/images/news/%s.png'%recipe.id).replace('recipe_', '') 
-            if not recipe.builtin:
-                icon = self.custom_icon
-            elif QFile().exists(icon_path):
-                icon = QIcon(icon_path)
-            return QVariant(icon)
-        
+        if index.parent().isValid():
+            category = self.categories[index.parent().row()]
+            recipe   = self._map[category][index.row()]
+            if role == Qt.DisplayRole:
+                return QVariant(recipe.title)
+            elif role == Qt.UserRole:
+                return recipe
+            elif role == Qt.DecorationRole:
+                icon = self.default_icon
+                icon_path = (':/images/news/%s.png'%recipe.id).replace('recipe_', '') 
+                if not recipe.builtin:
+                    icon = self.custom_icon
+                elif QFile().exists(icon_path):
+                    icon = QIcon(icon_path)
+                return QVariant(icon)
+        else:
+            category = self.categories[index.row()]
+            if role == Qt.DisplayRole:
+                num = len(self._map[category])
+                return QVariant(category + ' [%d]'%num)
+            elif role == Qt.FontRole:
+                return self.bold_font
         return NONE
     
     def update_recipe_schedule(self, recipe):
@@ -241,7 +289,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self._model = RecipeModel(db)
         self.current_recipe = None
         self.recipes.setModel(self._model)
-        self.connect(self.recipes, SIGNAL('itemChanged(QModelIndex)'), self.show_recipe)
+        self.recipes.currentChanged = self.currentChanged
         self.connect(self.username, SIGNAL('textEdited(QString)'), self.set_account_info)
         self.connect(self.password, SIGNAL('textEdited(QString)'), self.set_account_info)
         self.connect(self.schedule, SIGNAL('stateChanged(int)'), self.do_schedule)
@@ -257,10 +305,14 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.connect(self.download, SIGNAL('clicked()'), self.download_now)
         self.search.setFocus(Qt.OtherFocusReason)
         self.old_news.setValue(gconf['oldest_news'])
-        self.rnumber.setText(_('%d recipes')%self._model.rowCount(None))
+        self.rnumber.setText(_('%d recipes')%self._model.num_of_recipes)
         for day in (_('day'), _('Monday'), _('Tuesday'), _('Wednesday'), 
                     _('Thursday'), _('Friday'), _('Saturday'), _('Sunday')):
             self.day.addItem(day)
+    
+    def currentChanged(self, current, previous):
+        if current.parent().isValid():
+            self.show_recipe(current)
         
     def download_now(self):
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)
@@ -304,6 +356,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 hour, minute = t.hour(), t.minute()
                 recipe.schedule = encode_schedule(day_of_week, hour, minute)
         else:
+            recipe.schedule = None
             if recipe in recipes:
                 recipes.remove(recipe)
         save_recipes(recipes)

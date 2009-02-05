@@ -12,7 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Estadao(BasicNewsRecipe):
     title                 = 'O Estado de S. Paulo'
     __author__            = 'Darko Miletic'
-    description           = 'News from Brasil'    
+    description           = 'News from Brasil'
+    language = _('Spanish')    
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True

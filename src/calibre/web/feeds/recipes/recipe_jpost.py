@@ -5,6 +5,7 @@ class JerusalemPost(BasicNewsRecipe):
     title       = 'Jerusalem Post'
     description = 'News from Israel and the Middle East'
     use_embedded_content   = False
+    language = _('English')
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 10
     no_stylesheets = True

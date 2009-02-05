@@ -15,6 +15,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
     
     title = u'New York Review of Books'
     description = u'Book reviews'
+    language = _('English')
     __author__ = 'Kovid Goyal' 
     
     remove_tags_before = {'id':'container'}

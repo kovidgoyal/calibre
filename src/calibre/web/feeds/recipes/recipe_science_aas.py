@@ -10,6 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class ScienceAAS(BasicNewsRecipe):
     title                 = u'Science AAAS'
     __author__            = u'Darko Miletic'
+    language = _('English')
     description           = u'The best in science news, commentary, and research'
     oldest_article        = 7
     max_articles_per_feed = 100

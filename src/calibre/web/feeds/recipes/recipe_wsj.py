@@ -13,6 +13,7 @@ class WallStreetJournal(BasicNewsRecipe):
         __author__ = 'Kovid Goyal'
         description = 'News and current affairs.'
         needs_subscription = True
+        language = _('English')
         max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]' 
         no_stylesheets = True

@@ -11,7 +11,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class SanFranciscoChronicle(BasicNewsRecipe):
     title                 = u'San Francisco Chronicle'
     __author__            = u'Darko Miletic'
-    description           = u'San Francisco news'    
+    description           = u'San Francisco news'
+    language = _('English')    
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

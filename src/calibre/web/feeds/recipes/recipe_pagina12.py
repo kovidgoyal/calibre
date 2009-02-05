@@ -12,7 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Pagina12(BasicNewsRecipe):
     title                 = u'Pagina/12'
     __author__            = 'Darko Miletic'
-    description           = 'Noticias de Argentina y el resto del mundo'    
+    description           = 'Noticias de Argentina y el resto del mundo'
+    language = _('Spanish')    
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True

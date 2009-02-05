@@ -12,7 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Juventudrebelde_english(BasicNewsRecipe):
     title                 = 'Juventud Rebelde in english'
     __author__            = 'Darko Miletic'
-    description           = 'The newspaper of Cuban Youth'    
+    description           = 'The newspaper of Cuban Youth'
+    language = _('English')    
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True

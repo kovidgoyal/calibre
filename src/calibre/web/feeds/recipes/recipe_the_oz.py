@@ -13,6 +13,7 @@ class DailyTelegraph(BasicNewsRecipe):
     title          = u'The Australian'
     __author__     = u'Matthew Briggs'
     description    = u'National broadsheet newspaper from down under - colloquially known as The Oz'
+    language = _('English')
     oldest_article = 2
     max_articles_per_feed = 10
     remove_javascript      = True

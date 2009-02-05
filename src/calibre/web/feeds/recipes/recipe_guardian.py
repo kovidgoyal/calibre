@@ -13,6 +13,7 @@ class Guardian(BasicNewsRecipe):
 
     title = u'The Guardian'
     __author__ = 'Seabound'
+    language = _('English')
     oldest_article = 7
     max_articles_per_feed = 20
 

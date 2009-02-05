@@ -14,6 +14,7 @@ class OGlobo(BasicNewsRecipe):
     description           = 'News from Brasil'    
     oldest_article        = 2
     max_articles_per_feed = 100
+    language = _('Spanish')
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'

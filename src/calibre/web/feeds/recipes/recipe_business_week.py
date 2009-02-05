@@ -13,6 +13,7 @@ class BusinessWeek(BasicNewsRecipe):
     title          = 'Business Week'
     description    = 'Business News, Stock Market and Financial Advice'
     __author__     = 'ChuckEggDotCom'
+    language = _('English')
     oldest_article = 7
     max_articles_per_feed = 10
 

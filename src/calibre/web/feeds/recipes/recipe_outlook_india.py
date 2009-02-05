@@ -14,6 +14,7 @@ class OutlookIndia(BasicNewsRecipe):
     title = 'Outlook India'
     __author__  = 'Kovid Goyal'
     description = 'Weekly news magazine focussed on India.'
+    language = _('English')
     recursions = 1
     match_regexp = r'full.asp.*&pn=\d+'
     html2lrf_options = ['--ignore-tables']

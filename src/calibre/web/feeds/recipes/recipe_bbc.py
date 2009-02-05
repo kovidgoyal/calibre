@@ -13,6 +13,7 @@ class BBC(BasicNewsRecipe):
     __author__     = 'Kovid Goyal'
     description    = 'Global news and current affairs from the British Broadcasting Corporation'
     no_stylesheets = True
+    language = _('English')
 
     remove_tags    = [dict(name='div', attrs={'class':'footer'})]
     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }' 

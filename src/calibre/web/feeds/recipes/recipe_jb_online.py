@@ -13,6 +13,7 @@ class JBOnline(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'News from Brasil'    
     oldest_article        = 2
+    language = _('Spanish')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

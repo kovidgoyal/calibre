@@ -15,6 +15,7 @@ class Time(BasicNewsRecipe):
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
+    language = _('English')
     use_embedded_content  = False
     
     keep_only_tags = [dict(name='div', attrs={'class':'tout1'})]

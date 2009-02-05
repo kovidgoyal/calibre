@@ -14,6 +14,7 @@ class LATimes(BasicNewsRecipe):
     description           = u'News from Los Angeles'    
     oldest_article        = 7
     max_articles_per_feed = 100
+    language = _('English')
     no_stylesheets        = True
     use_embedded_content  = False
 

@@ -13,6 +13,7 @@ class Newsweek(BasicNewsRecipe):
     __author__     = 'Kovid Goyal'
     description    = 'Weekly news and current affairs in the US'
     no_stylesheets = True
+    language = _('English')
     
     extra_css = '#content { font:serif 12pt; }\n.story {font:12pt}\n.HorizontalHeader {font:18pt}\n.deck {font:16pt}'
     keep_only_tags = [dict(name='div', id='content')]

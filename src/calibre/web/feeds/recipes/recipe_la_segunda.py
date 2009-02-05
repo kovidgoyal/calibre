@@ -11,7 +11,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaSegunda(BasicNewsRecipe):
     title                 = 'La Segunda'
     __author__            = 'Darko Miletic'
-    description           = 'El sitio de noticias online de Chile'    
+    description           = 'El sitio de noticias online de Chile'
+    language = _('Spanish')    
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True

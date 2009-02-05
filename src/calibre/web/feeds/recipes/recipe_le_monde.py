@@ -16,6 +16,7 @@ class LeMonde(BasicNewsRecipe):
     __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
     description = 'Global news in french'
     oldest_article = 7
+    language = _('French')
     max_articles_per_feed = 20
     no_stylesheets = True
 
