@@ -642,6 +642,9 @@ class OPF(object):
         def fset(self, val):
             matches = self.authors_path(self.metadata)
             if matches:
+                for key in matches[0].attrib:
+                    if key.endswith('file-as'):
+                        matches[0].attrib.pop(key)
                 matches[0].set('file-as', unicode(val))
 
         return property(fget=fget, fset=fset)
@@ -662,6 +665,9 @@ class OPF(object):
         def fset(self, val):
             matches = self.title_path(self.metadata)
             if matches:
+                for key in matches[0].attrib:
+                    if key.endswith('file-as'):
+                        matches[0].attrib.pop(key)
                 matches[0].set('file-as', unicode(val))
 
         return property(fget=fget, fset=fset)
@@ -822,7 +828,6 @@ class OPF(object):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
-        print self.render()
 
 
 class OPFCreator(MetaInformation):
@@ -969,7 +974,7 @@ class OPFTest(unittest.TestCase):
         self.assertEqual(opf.tags, ['One', 'Two'])
         self.assertEqual(opf.isbn, '123456789')
         self.assertEqual(opf.series, 'A one book series')
-        self.assertEqual(opf.series_index, None)
+        self.assertEqual(opf.series_index, 1)
         self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
 
     def testWriting(self):
@@ -978,7 +983,8 @@ class OPFTest(unittest.TestCase):
                      ('isbn', 'a'), ('rating', 3), ('series_index', 1),
                      ('title_sort', 'ts')]:
             setattr(self.opf, *test)
-            self.assertEqual(getattr(self.opf, test[0]), test[1])
+            attr, val = test
+            self.assertEqual(getattr(self.opf, attr), val)
 
         self.opf.render()
 
@@ -990,7 +996,7 @@ class OPFTest(unittest.TestCase):
         self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwd()))
 
     def testSmartUpdate(self):
-        self.opf.smart_update(self.opf)
+        self.opf.smart_update(MetaInformation(self.opf))
         self.testReading()
 
 def suite():
@@ -1001,6 +1007,7 @@ def test():
 
 
 def option_parser():
+    from calibre.ebooks.metadata import get_parser
     parser = get_parser('opf')
     parser.add_option('--language', default=None, help=_('Set the dc:language field'))
     return parser
