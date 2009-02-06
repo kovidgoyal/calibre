@@ -26,6 +26,7 @@ from calibre.customize.ui import metadata_readers, metadata_writers
 from calibre.ebooks.metadata.meta import get_metadata, set_metadata
 from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
                     title_sort, MetaInformation
+from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre import prints
 
 def config():
@@ -50,6 +51,8 @@ def config():
               help=_('Set the ebook description.'))
     c.add_opt('publisher', ['-p', '--publisher'],
               help=_('Set the ebook publisher.'))
+    c.add_opt('category', ['--category'],
+              help=_('Set the book category.'))
     c.add_opt('series', ['-s', '--series'],
               help=_('Set the series this ebook belongs to.'))
     c.add_opt('series_index', ['-i', '--index'],
@@ -75,6 +78,9 @@ def config():
               help=_('Read metadata from the specified OPF file and use it to '
                      'set metadata in the ebook. Metadata specified on the'
                      'command line will override metadata read from the OPF file'))
+    
+    c.add_opt('lrf_bookid', ['--lrf-bookid'],
+              help=_('Set the BookID in LRF files'))
     return c
 
 def filetypes():
@@ -102,12 +108,12 @@ def do_set_metadata(opts, mi, stream, stream_type):
         
     for pref in config().option_set.preferences:
         if pref.name in ('to_opf', 'from_opf', 'authors', 'title_sort', 
-                         'author_sort', 'get_cover', 'cover', 'tags'):
+                         'author_sort', 'get_cover', 'cover', 'tags', 
+                         'lrf_bookid'):
             continue
         val = getattr(opts, pref.name, None)
         if val is not None:
-            setattr(mi, pref.name, getattr())
-    
+            setattr(mi, pref.name, val)
     if getattr(opts, 'authors', None) is not None:
         mi.authors = string_to_authors(opts.authors)
         mi.author_sort = authors_to_sort_string(mi.authors)
@@ -158,11 +164,18 @@ def main(args=sys.argv):
         do_set_metadata(opts, mi, stream, stream_type)
         stream.seek(0)
         stream.flush()
+        lrf = None
+        if stream_type == 'lrf':
+            if opts.lrf_bookid is not None:
+                lrf = LRFMetaFile(stream)
+                lrf.book_id = opts.lrf_bookid
         mi = get_metadata(stream, stream_type)
-        prints(_('Changed metadata')+'::')
+        prints('\n' + _('Changed metadata') + '::')
         metadata = unicode(mi)
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))
         prints(metadata)
+        if lrf is not None:
+            prints('\tBookID:', lrf.book_id)
         
     if opts.to_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPFCreator

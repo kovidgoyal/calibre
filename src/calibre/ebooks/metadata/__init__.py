@@ -185,7 +185,7 @@ class MetaInformation(object):
     @staticmethod
     def copy(mi):
         ans = MetaInformation(mi.title, mi.authors)
-        for attr in ('author_sort', 'title_sort', 'comments',
+        for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language', 'book_producer'):
@@ -210,7 +210,7 @@ class MetaInformation(object):
         #: mi.cover_data = (ext, data)
         self.cover_data   = getattr(mi, 'cover_data', (None, None))
 
-        for x in ('author_sort', 'title_sort', 'comments', 'publisher',
+        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer',
@@ -228,7 +228,7 @@ class MetaInformation(object):
         if mi.authors and mi.authors[0] != _('Unknown'):
             self.authors = mi.authors
 
-        for attr in ('author_sort', 'title_sort', 'comments',
+        for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer'):
@@ -251,10 +251,11 @@ class MetaInformation(object):
         return '%d'%x if int(x) == x else '%.2f'%x
 
     def __unicode__(self):
-        ans = [ fmt('Title', self.title) ]
+        ans = []
         def fmt(x, y):
             ans.append(u'%-20s: %s'%(unicode(x), unicode(y)))
-
+        
+        fmt('Title', self.title)
         if self.title_sort:
             fmt('Title sort', self.title_sort)
         if self.authors:
@@ -264,6 +265,8 @@ class MetaInformation(object):
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
             fmt('Book Producer', self.book_producer)
+        if self.category:
+            ans += u'Category : ' + unicode(self.category) + u'\n'
         if self.comments:
             fmt('Comments', self.comments)
         if self.isbn:

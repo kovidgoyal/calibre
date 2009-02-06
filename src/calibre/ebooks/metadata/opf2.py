@@ -414,6 +414,7 @@ class OPF(object):
     
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
     metadata_elem_path = XPath('descendant::*[re:match(name(), concat($name, "$"), "i") or (re:match(name(), "meta$", "i") and re:match(@name, concat("^calibre:", $name, "$"), "i"))]')
+    title_path      = XPath('descendant::*[re:match(name(), "title", "i")]')
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut" or (not(@role) and not(@opf:role)))]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
@@ -503,7 +504,7 @@ class OPF(object):
 
     def set_text(self, elem, content):
         if elem.tag == self.META:
-            elem.attib['content'] = content
+            elem.attrib['content'] = content
         else:
             elem.text = content
     
@@ -640,6 +641,26 @@ class OPF(object):
             
         def fset(self, val):
             matches = self.authors_path(self.metadata)
+            if matches:
+                matches[0].set('file-as', unicode(val))
+            
+        return property(fget=fget, fset=fset)
+    
+    @apply
+    def title_sort():
+        
+        def fget(self):
+            matches = self.title_path(self.metadata)
+            if matches:
+                for match in matches:
+                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
+                    if not ans:
+                        ans = match.get('file-as', None)
+                    if ans:
+                        return ans
+            
+        def fset(self, val):
+            matches = self.title_path(self.metadata)
             if matches:
                 matches[0].set('file-as', unicode(val))
             
