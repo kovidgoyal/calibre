@@ -17,21 +17,21 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre import relpath
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import MetaInformation, get_parser
+from calibre.ebooks.metadata import MetaInformation
 
 
 class Resource(object):
     '''
-    Represents a resource (usually a file on the filesystem or a URL pointing 
+    Represents a resource (usually a file on the filesystem or a URL pointing
     to the web. Such resources are commonly referred to in OPF files.
-    
+
     They have the interface:
-    
+
     :member:`path`
     :member:`mime_type`
     :method:`href`
     '''
-    
+
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
         self.orig = href_or_path
         self._href = None
@@ -63,13 +63,13 @@ class Resource(object):
                 pc = pc.decode('utf-8')
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
                 self.fragment = url[-1]
-        
-    
+
+
     def href(self, basedir=None):
         '''
         Return a URL pointing to this resource. If it is a file on the filesystem
         the URL is relative to `basedir`.
-        
+
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
         '''
@@ -91,54 +91,54 @@ class Resource(object):
         if isinstance(rpath, unicode):
             rpath = rpath.encode('utf-8')
         return rpath.replace(os.sep, '/')+frag
-    
+
     def set_basedir(self, path):
         self._basedir = path
-        
+
     def basedir(self):
         return self._basedir
-    
+
     def __repr__(self):
         return 'Resource(%s, %s)'%(repr(self.path), repr(self.href()))
-        
-        
+
+
 class ResourceCollection(object):
-    
+
     def __init__(self):
         self._resources = []
-        
+
     def __iter__(self):
         for r in self._resources:
             yield r
-            
+
     def __len__(self):
         return len(self._resources)
-    
+
     def __getitem__(self, index):
         return self._resources[index]
-    
+
     def __bool__(self):
         return len(self._resources) > 0
-    
+
     def __str__(self):
         resources = map(repr, self)
         return '[%s]'%', '.join(resources)
-    
+
     def __repr__(self):
         return str(self)
-    
+
     def append(self, resource):
         if not isinstance(resource, Resource):
             raise ValueError('Can only append objects of type Resource')
         self._resources.append(resource)
-        
+
     def remove(self, resource):
         self._resources.remove(resource)
-    
+
     def replace(self, start, end, items):
         'Same as list[start:end] = items'
         self._resources[start:end] = items
-        
+
     @staticmethod
     def from_directory_contents(top, topdown=True):
         collection = ResourceCollection()
@@ -148,16 +148,16 @@ class ResourceCollection(object):
             res.set_basedir(top)
             collection.append(res)
         return collection
-    
+
     def set_basedir(self, path):
         for res in self:
             res.set_basedir(path)
-        
+
 
 
 
 class ManifestItem(Resource):
-    
+
     @staticmethod
     def from_opf_manifest_item(item, basedir):
         href = item.get('href', None)
@@ -167,7 +167,7 @@ class ManifestItem(Resource):
             if mt:
                 res.mime_type = mt
             return res
-    
+
     @apply
     def media_type():
         def fget(self):
@@ -175,18 +175,18 @@ class ManifestItem(Resource):
         def fset(self, val):
             self.mime_type = val
         return property(fget=fget, fset=fset)
-    
-        
+
+
     def __unicode__(self):
         return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
-    
+
     def __str__(self):
         return unicode(self).encode('utf-8')
-    
+
     def __repr__(self):
         return unicode(self)
-        
-    
+
+
     def __getitem__(self, index):
         if index == 0:
             return self.href()
@@ -196,7 +196,7 @@ class ManifestItem(Resource):
 
 
 class Manifest(ResourceCollection):
-    
+
     @staticmethod
     def from_opf_manifest_element(items, dir):
         m = Manifest()
@@ -211,7 +211,7 @@ class Manifest(ResourceCollection):
             except ValueError:
                 continue
         return m
-    
+
     @staticmethod
     def from_paths(entries):
         '''
@@ -226,7 +226,7 @@ class Manifest(ResourceCollection):
             m.next_id += 1
             m.append(mi)
         return m
-    
+
     def add_item(self, path, mime_type=None):
         mi = ManifestItem(path, is_path=True)
         if mime_type:
@@ -235,37 +235,37 @@ class Manifest(ResourceCollection):
         self.next_id += 1
         self.append(mi)
         return mi.id
-    
+
     def __init__(self):
         ResourceCollection.__init__(self)
         self.next_id = 1
-            
-                
+
+
     def item(self, id):
         for i in self:
             if i.id == id:
                 return i
-            
+
     def id_for_path(self, path):
         path = os.path.normpath(os.path.abspath(path))
         for i in self:
             if i.path and os.path.normpath(i.path) == path:
-                return i.id    
-            
+                return i.id
+
     def path_for_id(self, id):
         for i in self:
             if i.id == id:
                 return i.path
 
 class Spine(ResourceCollection):
-    
+
     class Item(Resource):
-        
+
         def __init__(self, idfunc, *args, **kwargs):
             Resource.__init__(self, *args, **kwargs)
             self.is_linear = True
             self.id = idfunc(self.path)
-        
+
     @staticmethod
     def from_opf_spine_element(itemrefs, manifest):
         s = Spine(manifest)
@@ -278,7 +278,7 @@ class Spine(ResourceCollection):
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
                     s.append(r)
         return s
-                
+
     @staticmethod
     def from_paths(paths, manifest):
         s = Spine(manifest)
@@ -288,14 +288,14 @@ class Spine(ResourceCollection):
             except:
                 continue
         return s
-            
-            
-    
+
+
+
     def __init__(self, manifest):
         ResourceCollection.__init__(self)
         self.manifest = manifest
-            
-            
+
+
     def replace(self, start, end, ids):
         '''
         Replace the items between start (inclusive) and end (not inclusive) with
@@ -308,7 +308,7 @@ class Spine(ResourceCollection):
                 raise ValueError('id %s not in manifest')
             items.append(Spine.Item(lambda x: id, path, is_path=True))
         ResourceCollection.replace(start, end, items)
-                    
+
     def linear_items(self):
         for r in self:
             if r.is_linear:
@@ -318,15 +318,15 @@ class Spine(ResourceCollection):
         for r in self:
             if not r.is_linear:
                 yield r.path
-        
+
     def items(self):
         for i in self:
             yield i.path
-    
+
 class Guide(ResourceCollection):
-    
+
     class Reference(Resource):
-        
+
         @staticmethod
         def from_opf_resource_item(ref, basedir):
             title, href, type = ref.get('title', ''), ref.get('href'), ref.get('type')
@@ -334,14 +334,14 @@ class Guide(ResourceCollection):
             res.title = title
             res.type = type
             return res
-        
+
         def __repr__(self):
             ans = '<reference type="%s" href="%s" '%(self.type, self.href())
             if self.title:
                 ans += 'title="%s" '%self.title
             return ans + '/>'
-        
-        
+
+
     @staticmethod
     def from_opf_guide(references, base_dir=os.getcwdu()):
         coll = Guide()
@@ -352,7 +352,7 @@ class Guide(ResourceCollection):
             except:
                 continue
         return coll
-        
+
     def set_cover(self, path):
         map(self.remove, [i for i in self if 'cover' in i.type.lower()])
         for type in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
@@ -362,13 +362,13 @@ class Guide(ResourceCollection):
 
 
 class MetadataField(object):
-    
+
     def __init__(self, name, is_dc=True, formatter=None, none_is=None):
         self.name      = name
         self.is_dc     = is_dc
         self.formatter = formatter
         self.none_is   = none_is
-        
+
     def __real_get__(self, obj, type=None):
         ans = obj.get_metadata_element(self.name)
         if ans is None:
@@ -382,13 +382,13 @@ class MetadataField(object):
             except:
                 return None
         return ans
-    
+
     def __get__(self, obj, type=None):
         ans = self.__real_get__(obj, type)
         if ans is None:
             ans = self.none_is
         return ans
-    
+
     def __set__(self, obj, val):
         elem = obj.get_metadata_element(self.name)
         if elem is None:
@@ -410,10 +410,11 @@ class OPF(object):
     XPath = functools.partial(etree.XPath, namespaces=xpn)
     CONTENT          = XPath('self::*[re:match(name(), "meta$", "i")]/@content')
     TEXT             = XPath('string()')
-    
-    
+
+
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
     metadata_elem_path = XPath('descendant::*[re:match(name(), concat($name, "$"), "i") or (re:match(name(), "meta$", "i") and re:match(@name, concat("^calibre:", $name, "$"), "i"))]')
+    title_path      = XPath('descendant::*[re:match(name(), "title", "i")]')
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut" or (not(@role) and not(@opf:role)))]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
@@ -423,10 +424,10 @@ class OPF(object):
     application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
     manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]')
-    manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]') 
+    manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]')
     spine_path      = XPath('descendant::*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
     guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
-    
+
     title           = MetadataField('title')
     publisher       = MetadataField('publisher')
     language        = MetadataField('language')
@@ -435,8 +436,8 @@ class OPF(object):
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=int, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
-    
-    
+
+
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
@@ -463,7 +464,7 @@ class OPF(object):
         self.guide = Guide.from_opf_guide(guide, basedir) if guide else None
         self.cover_data = (None, None)
         self.find_toc()
-        
+
     def find_toc(self):
         self.toc = None
         try:
@@ -480,7 +481,7 @@ class OPF(object):
                 for item in self.manifest:
                     if 'toc' in item.href().lower():
                         toc = item.path
-            
+
             if toc is None: return
             self.toc = TOC(base_path=self.base_dir)
             if toc.lower() in ('ncx', 'ncxtoc'):
@@ -494,10 +495,10 @@ class OPF(object):
             else:
                 self.toc.read_html_toc(toc)
         except:
-            pass        
-            
-    
-        
+            pass
+
+
+
     def get_text(self, elem):
         return u''.join(self.CONTENT(elem) or self.TEXT(elem))
 
@@ -506,10 +507,10 @@ class OPF(object):
             elem.attrib['content'] = content
         else:
             elem.text = content
-    
+
     def itermanifest(self):
         return self.manifest_path(self.root)
-    
+
     def create_manifest_item(self, href, media_type):
         ids = [i.get('id', None) for i in self.itermanifest()]
         id = None
@@ -519,11 +520,11 @@ class OPF(object):
                 break
         if not media_type:
             media_type = 'application/xhtml+xml'
-        ans = etree.Element('{%s}item'%self.NAMESPACES['opf'], 
+        ans = etree.Element('{%s}item'%self.NAMESPACES['opf'],
                              attrib={'id':id, 'href':href, 'media-type':media_type})
         ans.tail = '\n\t\t'
         return ans
-    
+
     def replace_manifest_item(self, item, items):
         items = [self.create_manifest_item(*i) for i in items]
         for i, item2 in enumerate(items):
@@ -532,7 +533,7 @@ class OPF(object):
         index = manifest.index(item)
         manifest[index:index+1] = items
         return [i.get('id') for i in items]
-    
+
     def add_path_to_manifest(self, path, media_type):
         has_path = False
         path = os.path.abspath(path)
@@ -546,22 +547,22 @@ class OPF(object):
             item = self.create_manifest_item(href, media_type)
             manifest = self.manifest_ppath(self.root)[0]
             manifest.append(item)
-    
+
     def iterspine(self):
         return self.spine_path(self.root)
-    
+
     def spine_items(self):
         for item in self.iterspine():
             idref = item.get('idref', '')
             for x in self.itermanifest():
                 if x.get('id', None) == idref:
                     yield x.get('href', '')
-    
+
     def create_spine_item(self, idref):
         ans = etree.Element('{%s}itemref'%self.NAMESPACES['opf'], idref=idref)
         ans.tail = '\n\t\t'
         return ans
-    
+
     def replace_spine_items_by_idref(self, idref, new_idrefs):
         items = list(map(self.create_spine_item, new_idrefs))
         spine = self.XPath('/opf:package/*[re:match(name(), "spine", "i")]')(self.root)[0]
@@ -569,31 +570,31 @@ class OPF(object):
         for x in old:
             i = spine.index(x)
             spine[i:i+1] = items
-    
+
     def create_guide_element(self):
         e = etree.SubElement(self.root, '{%s}guide'%self.NAMESPACES['opf'])
         e.text = '\n        '
         e.tail =  '\n'
         return e
-    
+
     def remove_guide(self):
         self.guide = None
         for g in self.root.xpath('./*[re:match(name(), "guide", "i")]', namespaces={'re':'http://exslt.org/regular-expressions'}):
             self.root.remove(g)
-    
+
     def create_guide_item(self, type, title, href):
-        e = etree.Element('{%s}reference'%self.NAMESPACES['opf'], 
+        e = etree.Element('{%s}reference'%self.NAMESPACES['opf'],
                              type=type, title=title, href=href)
         e.tail='\n'
         return e
-        
+
     def add_guide_item(self, type, title, href):
         g = self.root.xpath('./*[re:match(name(), "guide", "i")]', namespaces={'re':'http://exslt.org/regular-expressions'})[0]
         g.append(self.create_guide_item(type, title, href))
-        
+
     def iterguide(self):
         return self.guide_path(self.root)
-    
+
     def unquote_urls(self):
         def get_href(item):
             raw = unquote(item.get('href', ''))
@@ -604,16 +605,16 @@ class OPF(object):
             item.set('href', get_href(item))
         for item in self.iterguide():
             item.set('href', get_href(item))
-    
+
     @apply
     def authors():
-        
+
         def fget(self):
             ans = []
             for elem in self.authors_path(self.metadata):
                 ans.extend([x.strip() for x in self.get_text(elem).split(',')])
             return ans
-        
+
         def fset(self, val):
             remove = list(self.authors_path(self.metadata))
             for elem in remove:
@@ -622,12 +623,12 @@ class OPF(object):
                 attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
                 elem = self.create_metadata_element('creator', attrib=attrib)
                 self.set_text(elem, author)
-        
+
         return property(fget=fget, fset=fset)
-    
+
     @apply
     def author_sort():
-        
+
         def fget(self):
             matches = self.authors_path(self.metadata)
             if matches:
@@ -637,39 +638,59 @@ class OPF(object):
                         ans = match.get('file-as', None)
                     if ans:
                         return ans
-            
+
         def fset(self, val):
             matches = self.authors_path(self.metadata)
             if matches:
                 matches[0].set('file-as', unicode(val))
-            
+
         return property(fget=fget, fset=fset)
-    
+
+    @apply
+    def title_sort():
+
+        def fget(self):
+            matches = self.title_path(self.metadata)
+            if matches:
+                for match in matches:
+                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
+                    if not ans:
+                        ans = match.get('file-as', None)
+                    if ans:
+                        return ans
+
+        def fset(self, val):
+            matches = self.title_path(self.metadata)
+            if matches:
+                matches[0].set('file-as', unicode(val))
+
+        return property(fget=fget, fset=fset)
+
     @apply
     def tags():
-        
+
         def fget(self):
             ans = []
             for tag in self.tags_path(self.metadata):
                 ans.append(self.get_text(tag))
             return ans
-        
+
         def fset(self, val):
             for tag in list(self.tags_path(self.metadata)):
                 self.metadata.remove(tag)
             for tag in val:
                 elem = self.create_metadata_element('subject')
                 self.set_text(elem, unicode(tag))
-        
+
         return property(fget=fget, fset=fset)
-    
+
     @apply
     def isbn():
-        
+
         def fget(self):
             for match in self.isbn_path(self.metadata):
                 return self.get_text(match) or None
-            
+
         def fset(self, val):
             matches = self.isbn_path(self.metadata)
             if not matches:
@@ -682,11 +703,11 @@ class OPF(object):
 
     @apply
     def application_id():
-        
+
         def fget(self):
             for match in self.application_id_path(self.metadata):
                 return self.get_text(match) or None
-            
+
         def fset(self, val):
             matches = self.application_id_path(self.metadata)
             if not matches:
@@ -696,14 +717,14 @@ class OPF(object):
             self.set_text(matches[0], unicode(val))
 
         return property(fget=fget, fset=fset)
-    
+
     @apply
     def book_producer():
-        
+
         def fget(self):
             for match in self.bkp_path(self.metadata):
                 return self.get_text(match) or None
-            
+
         def fset(self, val):
             matches = self.bkp_path(self.metadata)
             if not matches:
@@ -712,8 +733,8 @@ class OPF(object):
                                                         attrib=attrib)]
             self.set_text(matches[0], unicode(val))
         return property(fget=fget, fset=fset)
-    
-    
+
+
     def guess_cover(self):
         '''
         Try to guess a cover. Needed for some old/badly formed OPF files.
@@ -733,11 +754,11 @@ class OPF(object):
                         cpath = os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK)
                         if os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK):
                             return cpath
-            
-    
+
+
     @apply
     def cover():
-        
+
         def fget(self):
             if self.guide is not None:
                 for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
@@ -748,19 +769,19 @@ class OPF(object):
                 return self.guess_cover()
             except:
                 pass
-                        
+
         def fset(self, path):
             if self.guide is not None:
                 self.guide.set_cover(path)
                 for item in list(self.iterguide()):
                     if 'cover' in item.get('type', ''):
                         item.getparent().remove(item)
-                        
+
             else:
                 g = self.create_guide_element()
                 self.guide = Guide()
                 self.guide.set_cover(path)
-                etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES, 
+                etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES,
                                  attrib={'type':'cover', 'href':self.guide[-1].href()})
             id = self.manifest.id_for_path(self.cover)
             if id is None:
@@ -768,14 +789,14 @@ class OPF(object):
                     for item in self.guide:
                         if item.type.lower() == t:
                             self.create_manifest_item(item.href(), mimetypes.guess_type(path)[0])
-                 
-        return property(fget=fget, fset=fset)                    
-            
+
+        return property(fget=fget, fset=fset)
+
     def get_metadata_element(self, name):
         matches = self.metadata_elem_path(self.metadata, name=name)
         if matches:
             return matches[-1]
-        
+
     def create_metadata_element(self, name, attrib=None, is_dc=True):
         if is_dc:
             name = '{%s}%s' % (self.NAMESPACES['dc'], name)
@@ -787,24 +808,25 @@ class OPF(object):
                                 nsmap=self.NAMESPACES)
         elem.tail = '\n'
         return elem
-        
+
     def render(self, encoding='utf-8'):
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
         if not raw.lstrip().startswith('<?xml '):
             raw = '<?xml version="1.0"  encoding="%s"?>\n'%encoding.upper()+raw
         return raw
-    
+
     def smart_update(self, mi):
-        for attr in ('author_sort', 'title_sort', 'comments', 'category',
+        for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'language', 'tags', 'title', 'authors'):
+                     'isbn', 'language', 'tags', 'category', 'comments'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
-    
-    
+        print self.render()
+
+
 class OPFCreator(MetaInformation):
-    
+
     def __init__(self, base_path, *args, **kwargs):
         '''
         Initialize.
@@ -824,63 +846,63 @@ class OPFCreator(MetaInformation):
             self.guide = Guide()
         if self.cover:
             self.guide.set_cover(self.cover)
-        
-        
+
+
     def create_manifest(self, entries):
         '''
         Create <manifest>
-        
+
         `entries`: List of (path, mime-type) If mime-type is None it is autodetected
         '''
-        entries = map(lambda x: x if os.path.isabs(x[0]) else 
+        entries = map(lambda x: x if os.path.isabs(x[0]) else
                       (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]),
                       entries)
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
-        
+
     def create_manifest_from_files_in(self, files_and_dirs):
         entries = []
-        
+
         def dodir(dir):
             for spec in os.walk(dir):
                 root, files = spec[0], spec[-1]
                 for name in files:
                     path = os.path.join(root, name)
                     if os.path.isfile(path):
-                        entries.append((path, None)) 
-        
+                        entries.append((path, None))
+
         for i in files_and_dirs:
             if os.path.isdir(i):
                 dodir(i)
             else:
                 entries.append((i, None))
-                
-        self.create_manifest(entries)    
-            
+
+        self.create_manifest(entries)
+
     def create_spine(self, entries):
         '''
         Create the <spine> element. Must first call :method:`create_manifest`.
-        
+
         `entries`: List of paths
         '''
-        entries = map(lambda x: x if os.path.isabs(x) else 
+        entries = map(lambda x: x if os.path.isabs(x) else
                       os.path.abspath(os.path.join(self.base_path, x)), entries)
         self.spine = Spine.from_paths(entries, self.manifest)
-        
+
     def set_toc(self, toc):
         '''
         Set the toc. You must call :method:`create_spine` before calling this
         method.
-        
+
         :param toc: A :class:`TOC` object
         '''
         self.toc = toc
-        
+
     def create_guide(self, guide_element):
         self.guide = Guide.from_opf_guide(guide_element, self.base_path)
         self.guide.set_basedir(self.base_path)
-            
-    def render(self, opf_stream=sys.stdout, ncx_stream=None, 
+
+    def render(self, opf_stream=sys.stdout, ncx_stream=None,
                ncx_manifest_entry=None):
         from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
@@ -914,14 +936,14 @@ class OPFCreator(MetaInformation):
 
 
 class OPFTest(unittest.TestCase):
-    
+
     def setUp(self):
         self.stream = cStringIO.StringIO(
 '''\
 <?xml version="1.0"  encoding="UTF-8"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
 <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-    <dc:title>A Cool &amp; &copy; &#223; Title</dc:title>
+    <dc:title opf:file-as="Wow">A Cool &amp; &copy; &#223; Title</dc:title>
     <creator opf:role="aut" file-as="Monkey">Monkey Kitchen, Next</creator>
     <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
     <dc:identifier scheme="ISBN">123456789</dc:identifier>
@@ -936,32 +958,47 @@ class OPFTest(unittest.TestCase):
 '''
         )
         self.opf = OPF(self.stream, os.getcwd())
-        
-    def testReading(self):
-        opf = self.opf
+
+    def testReading(self, opf=None):
+        if opf is None:
+            opf = self.opf
         self.assertEqual(opf.title, u'A Cool & \xa9 \xdf Title')
         self.assertEqual(opf.authors, u'Monkey Kitchen,Next'.split(','))
         self.assertEqual(opf.author_sort, 'Monkey')
+        self.assertEqual(opf.title_sort, 'Wow')
         self.assertEqual(opf.tags, ['One', 'Two'])
         self.assertEqual(opf.isbn, '123456789')
         self.assertEqual(opf.series, 'A one book series')
         self.assertEqual(opf.series_index, None)
         self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
-        
+
     def testWriting(self):
         for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
                      ('author_sort', "Kitchen"), ('tags', ['Three']),
-                     ('isbn', 'a'), ('rating', 3), ('series_index', 1)]:
+                     ('isbn', 'a'), ('rating', 3), ('series_index', 1),
+                     ('title_sort', 'ts')]:
             setattr(self.opf, *test)
             self.assertEqual(getattr(self.opf, test[0]), test[1])
-        
+
         self.opf.render()
+
+    def testCreator(self):
+        opf = OPFCreator(os.getcwd(), self.opf)
+        buf = cStringIO.StringIO()
+        opf.render(buf)
+        raw = buf.getvalue()
+        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwd()))
+
+    def testSmartUpdate(self):
+        self.opf.smart_update(self.opf)
+        self.testReading()
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(OPFTest)
-    
+
 def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
+
 
 def option_parser():
     parser = get_parser('opf')
@@ -1010,7 +1047,7 @@ def main(args=sys.argv):
     print MetaInformation(OPF(open(opfpath, 'rb'), basedir))
     return 0
 
-    
+
 
 if __name__ == '__main__':
     sys.exit(main())
