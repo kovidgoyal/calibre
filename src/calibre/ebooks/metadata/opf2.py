@@ -816,12 +816,13 @@ class OPF(object):
         return raw
     
     def smart_update(self, mi):
-        for attr in ('author_sort', 'title_sort', 'comments', 'category',
+        for attr in ('title', 'authors', 'author_sort', 'title_sort',  
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'language', 'tags', 'title', 'authors'):
+                     'isbn', 'language', 'tags', 'category', 'comments'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
+        print self.render()
     
     
 class OPFCreator(MetaInformation):
@@ -942,7 +943,7 @@ class OPFTest(unittest.TestCase):
 <?xml version="1.0"  encoding="UTF-8"?>
 <package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
 <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-    <dc:title>A Cool &amp; &copy; &#223; Title</dc:title>
+    <dc:title opf:file-as="Wow">A Cool &amp; &copy; &#223; Title</dc:title>
     <creator opf:role="aut" file-as="Monkey">Monkey Kitchen, Next</creator>
     <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
     <dc:identifier scheme="ISBN">123456789</dc:identifier>
@@ -958,25 +959,39 @@ class OPFTest(unittest.TestCase):
         )
         self.opf = OPF(self.stream, os.getcwd())
         
-    def testReading(self):
-        opf = self.opf
+    def testReading(self, opf=None):
+        if opf is None:
+            opf = self.opf
         self.assertEqual(opf.title, u'A Cool & \xa9 \xdf Title')
         self.assertEqual(opf.authors, u'Monkey Kitchen,Next'.split(','))
         self.assertEqual(opf.author_sort, 'Monkey')
+        self.assertEqual(opf.title_sort, 'Wow')
         self.assertEqual(opf.tags, ['One', 'Two'])
         self.assertEqual(opf.isbn, '123456789')
         self.assertEqual(opf.series, 'A one book series')
-        self.assertEqual(opf.series_index, None)
+        self.assertEqual(opf.series_index, 1)
         self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
         
     def testWriting(self):
         for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
                      ('author_sort', "Kitchen"), ('tags', ['Three']),
-                     ('isbn', 'a'), ('rating', 3), ('series_index', 1)]:
+                     ('isbn', 'a'), ('rating', 3), ('series_index', 1),
+                     ('title_sort', 'ts')]:
             setattr(self.opf, *test)
             self.assertEqual(getattr(self.opf, test[0]), test[1])
         
         self.opf.render()
+        
+    def testCreator(self):
+        opf = OPFCreator(os.getcwd(), self.opf)
+        buf = cStringIO.StringIO()
+        opf.render(buf)
+        raw = buf.getvalue()
+        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwd()))
+        
+    def testSmartUpdate(self):
+        self.opf.smart_update(self.opf)
+        self.testReading()
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(OPFTest)
