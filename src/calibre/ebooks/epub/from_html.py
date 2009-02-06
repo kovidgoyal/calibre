@@ -46,6 +46,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
+from calibre.ebooks.epub.pages import add_page_map
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
 from calibre.customize.ui import run_plugins_on_postprocess
@@ -438,6 +439,8 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             if opts.show_ncx:
                 print toc
         split(opf_path, opts, stylesheet_map)
+        if opts.page:
+            add_page_map(opf_path, opts)
         check_links(opf_path, opts.pretty_print)
         
         opf = OPF(opf_path, tdir)
