@@ -214,7 +214,7 @@ class MetaInformation(object):
         #: mi.cover_data = (ext, data)
         self.cover_data   = getattr(mi, 'cover_data', (None, None))
         
-        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher', 
+        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
                   'book_producer',

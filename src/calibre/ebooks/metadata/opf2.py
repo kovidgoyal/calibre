@@ -503,7 +503,7 @@ class OPF(object):
 
     def set_text(self, elem, content):
         if elem.tag == self.META:
-            elem.attib['content'] = content
+            elem.attrib['content'] = content
         else:
             elem.text = content
     
