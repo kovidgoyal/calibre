@@ -197,14 +197,14 @@ class Document(QWebPage):
     def bookmark(self):
         return self.javascript('calculate_bookmark(%d)'%(self.ypos+25), 'string')
     
-    @apply
-    def at_bottom():
+    @dynamic_property
+    def at_bottom(self):
         def fget(self):
             return self.height - self.ypos <= self.window_height
         return property(fget=fget)
     
-    @apply
-    def at_top():
+    @dynamic_property
+    def at_top(self):
         def fget(self):
             return self.ypos <= 0
         return property(fget=fget)
@@ -213,32 +213,32 @@ class Document(QWebPage):
     def test(self):
         pass
     
-    @apply
-    def ypos():
+    @dynamic_property
+    def ypos(self):
         def fget(self):
             return self.javascript('window.pageYOffset', 'int')
         return property(fget=fget)
     
-    @apply
-    def window_height():
+    @dynamic_property
+    def window_height(self):
         def fget(self):
             return self.javascript('window.innerHeight', 'int')
         return property(fget=fget)
     
-    @apply
-    def window_width():
+    @dynamic_property
+    def window_width(self):
         def fget(self):
             return self.javascript('window.innerWidth', 'int')
         return property(fget=fget)
         
-    @apply
-    def xpos():
+    @dynamic_property
+    def xpos(self):
         def fget(self):
             return self.javascript('window.pageXOffset', 'int')
         return property(fget=fget)
     
-    @apply
-    def scroll_fraction():
+    @dynamic_property
+    def scroll_fraction(self):
         def fget(self):
             try:
                 return float(self.ypos)/(self.height-self.window_height)
@@ -246,20 +246,20 @@ class Document(QWebPage):
                 return 0.
         return property(fget=fget)
     
-    @apply
-    def hscroll_fraction():
+    @dynamic_property
+    def hscroll_fraction(self):
         def fget(self):
             return float(self.xpos)/self.width
         return property(fget=fget)
     
-    @apply
-    def height():
+    @dynamic_property
+    def height(self):
         def fget(self):
             return self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
         return property(fget=fget)
     
-    @apply
-    def width():
+    @dynamic_property
+    def width(self):
         def fget(self):
             return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
         return property(fget=fget)
@@ -338,20 +338,20 @@ class DocumentView(QWebView):
     def sizeHint(self):
         return self._size_hint
     
-    @apply
-    def scroll_fraction():
+    @dynamic_property
+    def scroll_fraction(self):
         def fget(self):
             return self.document.scroll_fraction
         return property(fget=fget)
     
-    @apply
-    def hscroll_fraction():
+    @dynamic_property
+    def hscroll_fraction(self):
         def fget(self):
             return self.document.hscroll_fraction
         return property(fget=fget)
     
-    @apply
-    def content_size():
+    @dynamic_property
+    def content_size(self):
         def fget(self):
             return self.document.width, self.document.height
         return property(fget=fget)

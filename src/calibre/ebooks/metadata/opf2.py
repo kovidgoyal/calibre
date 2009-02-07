@@ -168,8 +168,8 @@ class ManifestItem(Resource):
                 res.mime_type = mt
             return res
 
-    @apply
-    def media_type():
+    @dynamic_property
+    def media_type(self):
         def fget(self):
             return self.mime_type
         def fset(self, val):
@@ -606,8 +606,8 @@ class OPF(object):
         for item in self.iterguide():
             item.set('href', get_href(item))
 
-    @apply
-    def authors():
+    @dynamic_property
+    def authors(self):
 
         def fget(self):
             ans = []
@@ -626,8 +626,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def author_sort():
+    @dynamic_property
+    def author_sort(self):
 
         def fget(self):
             matches = self.authors_path(self.metadata)
@@ -649,8 +649,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def title_sort():
+    @dynamic_property
+    def title_sort(self):
 
         def fget(self):
             matches = self.title_path(self.metadata)
@@ -672,8 +672,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def title_sort():
+    @dynamic_property
+    def title_sort(self):
 
         def fget(self):
             matches = self.title_path(self.metadata)
@@ -692,8 +692,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def tags():
+    @dynamic_property
+    def tags(self):
 
         def fget(self):
             ans = []
@@ -710,8 +710,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def isbn():
+    @dynamic_property
+    def isbn(self):
 
         def fget(self):
             for match in self.isbn_path(self.metadata):
@@ -727,8 +727,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def application_id():
+    @dynamic_property
+    def application_id(self):
 
         def fget(self):
             for match in self.application_id_path(self.metadata):
@@ -744,8 +744,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def book_producer():
+    @dynamic_property
+    def book_producer(self):
 
         def fget(self):
             for match in self.bkp_path(self.metadata):
@@ -782,8 +782,8 @@ class OPF(object):
                             return cpath
 
 
-    @apply
-    def cover():
+    @dynamic_property
+    def cover(self):
 
         def fget(self):
             if self.guide is not None:

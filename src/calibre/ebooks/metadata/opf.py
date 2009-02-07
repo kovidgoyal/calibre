@@ -38,8 +38,8 @@ class ManifestItem(Resource):
                 res.mime_type = mt
             return res
     
-    @apply
-    def media_type():
+    @dynamic_property
+    def media_type(self):
         def fget(self):
             return self.mime_type
         def fset(self, val):
@@ -242,14 +242,14 @@ class OPF(MetaInformation):
     def __init__(self):
         raise NotImplementedError('Abstract base class')
     
-    @apply
-    def package():
+    @dynamic_property
+    def package(self):
         def fget(self):
             return self.soup.find(re.compile('package'))
         return property(fget=fget)
     
-    @apply
-    def metadata():
+    @dynamic_property
+    def metadata(self):
         def fget(self):
             return self.package.find(re.compile('metadata'))
         return property(fget=fget)
