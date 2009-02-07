@@ -11,20 +11,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class JBOnline(BasicNewsRecipe):
     title                 = 'Jornal Brasileiro Online'
     __author__            = 'Darko Miletic'
-    description           = 'News from Brasil'    
+    description           = 'News from Brasil'
+    publisher             = 'Jornal Brasileiro'
+    category              = 'news, politics, Brasil'    
     oldest_article        = 2
-    language = _('Spanish')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
     cover_url             = 'http://jbonline.terra.com.br/img/logo_01.gif'
-
+    remove_javascript     = True
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Brasil'
-                        , '--publisher'     , title
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
                         
     keep_only_tags = [dict(name='div', attrs={'id':'corpoNoticia'})]
 
@@ -36,7 +40,8 @@ class JBOnline(BasicNewsRecipe):
         ifr = soup.find('iframe')
         if ifr:
            ifr.extract()
-        item = soup.find('div', attrs={'id':'corpoNoticia'})
-        if item:
-           del item['style']
+        for item in soup.findAll(style=True):
+            del item['style']           
         return soup
+
+    language = _('Portugese')

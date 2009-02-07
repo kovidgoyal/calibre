@@ -17,6 +17,7 @@ import types
 import re
 import copy
 from itertools import izip
+from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
@@ -288,15 +289,19 @@ class Style(object):
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)
-        
+    
     def _apply_style_attr(self):
         attrib = self._element.attrib
-        if 'style' in attrib:
-            css = attrib['style'].split(';')
-            css = filter(None, map(lambda x: x.strip(), css))
+        if 'style' not in attrib:
+            return
+        css = attrib['style'].split(';')
+        css = filter(None, (x.strip() for x in css))
+        try:
             style = CSSStyleDeclaration('; '.join(css))
-            self._style.update(self._stylizer.flatten_style(style))
-
+        except CSSSyntaxError:
+            return
+        self._style.update(self._stylizer.flatten_style(style))
+    
     def _has_parent(self):
         return (self._element.getparent() is not None)
 

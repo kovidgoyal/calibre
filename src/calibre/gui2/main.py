@@ -369,13 +369,14 @@ class Main(MainWindow, Ui_MainWindow):
         if r == QSystemTrayIcon.Trigger:
             if self.isVisible():
                 for window in QApplication.topLevelWidgets():
-                    if isinstance(window, (MainWindow, QDialog)):
+                    if isinstance(window, (MainWindow, QDialog)) and window.isVisible():
                         window.hide()
+                        setattr(window, '__systray_minimized', True)
             else:
                 for window in QApplication.topLevelWidgets():
-                    if isinstance(window, (MainWindow, QDialog)):
-                        if window not in (self.device_error_dialog, self.jobs_dialog):
-                            window.show()
+                    if getattr(window, '__systray_minimized', False):
+                        window.show()
+                        setattr(window, '__systray_minimized', False)
                          
     
     def do_default_sync(self, checked):
