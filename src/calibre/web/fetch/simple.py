@@ -15,7 +15,7 @@ from PIL import Image
 from cStringIO import StringIO
 
 from calibre import setup_cli_handlers, browser, sanitize_file_name, \
-                    relpath, LoggingInterface
+                    relpath, LoggingInterface, unicode_path
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
@@ -53,7 +53,7 @@ def save_soup(soup, target):
     nm = ns.find('meta')
     metas = soup.findAll('meta', content=True)
     for meta in metas:
-        if 'charset' in meta['content']:
+        if 'charset' in meta.get('content', '').lower():
             meta.replaceWith(nm)
     
     selfdir = os.path.dirname(target)
@@ -62,7 +62,7 @@ def save_soup(soup, target):
         for key in ('src', 'href'):
             path = tag.get(key, None)
             if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
-                tag[key] = relpath(path, selfdir).replace(os.sep, '/')
+                tag[key] = unicode_path(relpath(path, selfdir).replace(os.sep, '/'))
     
     html = unicode(soup)
     with open(target, 'wb') as f:
@@ -227,7 +227,7 @@ class RecursiveFetcher(object, LoggingInterface):
         return True
         
     def process_stylesheets(self, soup, baseurl):
-        diskpath = os.path.join(self.current_dir, 'stylesheets')
+        diskpath = unicode_path(os.path.join(self.current_dir, 'stylesheets'))
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
         for c, tag in enumerate(soup.findAll(lambda tag: tag.name.lower()in ['link', 'style'] and tag.has_key('type') and tag['type'].lower() == 'text/css')):
@@ -280,7 +280,7 @@ class RecursiveFetcher(object, LoggingInterface):
                         
     
     def process_images(self, soup, baseurl):
-        diskpath = os.path.join(self.current_dir, 'images')
+        diskpath = unicode_path(os.path.join(self.current_dir, 'images'))
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
         c = 0

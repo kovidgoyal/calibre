@@ -102,13 +102,23 @@ def config(defaults=None, name='epub'):
     c.remove_opt('zip')
     
     c.add_opt('output', ['-o', '--output'], default=None,
-             help=_('The output EPUB file. If not specified, it is derived from the input file name.'))
+             help=_('The output EPUB file. If not specified, it is '
+                    'derived from the input file name.'))
     c.add_opt('profile', ['--profile'], default='PRS505', choices=list(PROFILES.keys()),
-              help=_('Profile of the target device this EPUB is meant for. Set to None to create a device independent EPUB. The profile is used for device specific restrictions on the EPUB. Choices are: ')+str(list(PROFILES.keys())))
+              help=_('Profile of the target device this EPUB is meant for. '
+                     'Set to None to create a device independent EPUB. '
+                     'The profile is used for device specific restrictions '
+                     'on the EPUB. Choices are: ')+str(list(PROFILES.keys())))
     c.add_opt('override_css', ['--override-css'], default=None,
-              help=_('Either the path to a CSS stylesheet or raw CSS. This CSS will override any existing CSS declarations in the source files.'))
-    structure = c.add_group('structure detection', _('Control auto-detection of document structure.'))
-    structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section|part', 'i')] | //*[@class = 'chapter']",
+              help=_('Either the path to a CSS stylesheet or raw CSS. '
+                     'This CSS will override any existing CSS '
+                     'declarations in the source files.'))
+    structure = c.add_group('structure detection', 
+                            _('Control auto-detection of document structure.'))
+    structure('chapter', ['--chapter'], 
+              default="//*[re:match(name(), 'h[1-2]') and "
+              "re:test(., 'chapter|book|section|part', 'i')] | "
+              "//*[@class = 'chapter']",
             help=_('''\
 An XPath expression to detect chapter titles. The default is to consider <h1> or
 <h2> tags that contain the words "chapter","book","section" or "part" as chapter titles as 
@@ -118,14 +128,39 @@ use the expression "/". See the XPath Tutorial in the calibre User Manual for fu
 help on using this feature.
 ''').replace('\n', ' '))
     structure('chapter_mark', ['--chapter-mark'], choices=['pagebreak', 'rule', 'both', 'none'],
-              default='pagebreak', help=_('Specify how to mark detected chapters. A value of "pagebreak" will insert page breaks before chapters. A value of "rule" will insert a line before chapters. A value of "none" will disable chapter marking and a value of "both" will use both page breaks and lines to mark chapters.'))
+              default='pagebreak', 
+              help=_('Specify how to mark detected chapters. A value of '
+                     '"pagebreak" will insert page breaks before chapters. '
+                     'A value of "rule" will insert a line before chapters. '
+                     'A value of "none" will disable chapter marking and a '
+                     'value of "both" will use both page breaks and lines '
+                     'to mark chapters.'))
     structure('cover', ['--cover'], default=None,
               help=_('Path to the cover to be used for this book'))
     structure('prefer_metadata_cover', ['--prefer-metadata-cover'], default=False,
               action='store_true',
-              help=_('Use the cover detected from the source file in preference to the specified cover.'))
+              help=_('Use the cover detected from the source file in preference '
+                     'to the specified cover.'))
+    structure('remove_first_image', ['--remove-first-image'], default=False,
+              help=_('Remove the first image from the input ebook. Useful if '
+                     'the first image in the source file is a cover and you '
+                     'are specifying an external cover.'))
     structure('dont_split_on_page_breaks', ['--dont-split-on-page-breaks'], default=False,
-              help=_('Turn off splitting at page breaks. Normally, input files are automatically split at every page break into two files. This gives an output ebook that can be parsed faster and with less resources. However, splitting is slow and if your source file contains a very large number of page breaks, you should turn off splitting on page breaks.'))
+              help=_('Turn off splitting at page breaks. Normally, input files '
+                     'are automatically split at every page break into '
+                     'two files. This gives an output ebook that can be parsed '
+                     'faster and with less resources. However, splitting is '
+                     'slow and if your source file contains a very large '
+                     'number of page breaks, you should turn off splitting '
+                     'on page breaks.'))
+    structure('page', ['--page'], default=None,
+              help=_('XPath expression to detect page boundaries for building '
+                     'a custom pagination map, as used by AdobeDE. Default is '
+                     'not to build an explicit pagination map.'))
+    structure('page_names', ['--page-names'], default=None,
+              help=_('XPath expression to find the name of each page in the '
+                     'pagination map relative to its boundary element. '
+                     'Default is to number all pages staring with 1.'))
     toc = c.add_group('toc', 
         _('''\
 Control the automatic generation of a Table of Contents. If an OPF file is detected
@@ -133,21 +168,36 @@ and it specifies a Table of Contents, then that will be used rather than trying
 to auto-generate a Table of Contents.
 ''').replace('\n', ' '))
     toc('max_toc_links', ['--max-toc-links'], default=50, 
-        help=_('Maximum number of links to insert into the TOC. Set to 0 to disable. Default is: %default. Links are only added to the TOC if less than the --toc-threshold number of chapters were detected.'))
+        help=_('Maximum number of links to insert into the TOC. Set to 0 '
+               'to disable. Default is: %default. Links are only added to the '
+               'TOC if less than the --toc-threshold number of chapters were detected.'))
     toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
         help=_("Don't add auto-detected chapters to the Table of Contents."))
     toc('toc_threshold', ['--toc-threshold'], default=6,
-        help=_('If fewer than this number of chapters is detected, then links are added to the Table of Contents. Default: %default'))
+        help=_('If fewer than this number of chapters is detected, then links '
+               'are added to the Table of Contents. Default: %default'))
     toc('level1_toc', ['--level1-toc'], default=None,
-        help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level one. If this is specified, it takes precedence over other forms of auto-detection.'))
+        help=_('XPath expression that specifies all tags that should be added '
+               'to the Table of Contents at level one. If this is specified, '
+               'it takes precedence over other forms of auto-detection.'))
     toc('level2_toc', ['--level2-toc'], default=None,
-        help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level two. Each entry is added under the previous level one entry.'))
+        help=_('XPath expression that specifies all tags that should be added '
+               'to the Table of Contents at level two. Each entry is added '
+               'under the previous level one entry.'))
     toc('level3_toc', ['--level3-toc'], default=None,
-        help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level three. Each entry is added under the previous level two entry.'))
+        help=_('XPath expression that specifies all tags that should be added '
+               'to the Table of Contents at level three. Each entry is added '
+               'under the previous level two entry.'))
     toc('from_ncx', ['--from-ncx'], default=None,
-        help=_('Path to a .ncx file that contains the table of contents to use for this ebook. The NCX file should contain links relative to the directory it is placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for an overview of the NCX format.'))
+        help=_('Path to a .ncx file that contains the table of contents to use '
+               'for this ebook. The NCX file should contain links relative to '
+               'the directory it is placed in. See '
+               'http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for '
+               'an overview of the NCX format.'))
     toc('use_auto_toc', ['--use-auto-toc'], default=False,
-        help=_('Normally, if the source file already has a Table of Contents, it is used in preference to the autodetected one. With this option, the autodetected one is always used.'))
+        help=_('Normally, if the source file already has a Table of Contents, '
+               'it is used in preference to the autodetected one. '
+               'With this option, the autodetected one is always used.'))
     
     layout = c.add_group('page layout', _('Control page layout'))
     layout('margin_top', ['--margin-top'], default=5.0, 
@@ -159,18 +209,33 @@ to auto-generate a Table of Contents.
     layout('margin_right', ['--margin-right'], default=5.0, 
            help=_('Set the right margin in pts. Default is %default'))
     layout('base_font_size2', ['--base-font-size'], default=12.0,
-           help=_('The base font size in pts. Default is %defaultpt. Set to 0 to disable rescaling of fonts.'))
+           help=_('The base font size in pts. Default is %defaultpt. '
+                  'Set to 0 to disable rescaling of fonts.'))
     layout('remove_paragraph_spacing', ['--remove-paragraph-spacing'], default=False,
-           help=_('Remove spacing between paragraphs. Will not work if the source file forces inter-paragraph spacing.'))
+           help=_('Remove spacing between paragraphs. '
+                  'Also sets a indent on paragraphs of 1.5em. '
+                  'You can override this by adding p {text-indent: 0cm} to '
+                  '--override-css. Spacing removal will not work if the source '
+                  'file forces inter-paragraph spacing.'))
+    layout('no_justification', ['--no-justification'], default=False,
+           help=_('Do not force text to be justified in output.'))
+    layout('linearize_tables', ['--linearize-tables'], default=False,
+           help=_('Remove table markup, converting it into paragraphs. '
+                  'This is useful if your source file uses a table to manage layout.'))
     layout('preserve_tag_structure', ['--preserve-tag-structure'], default=False,
-           help=_('Preserve the HTML tag structure while splitting large HTML files. This is only neccessary if the HTML files contain CSS that uses sibling selectors. Enabling this greatly slows down processing of large HTML files.'))
+           help=_('Preserve the HTML tag structure while splitting large HTML files. '
+                  'This is only neccessary if the HTML files contain CSS that '
+                  'uses sibling selectors. Enabling this greatly slows down '
+                  'processing of large HTML files.'))
     
     c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
               help=_('Print generated OPF file to stdout'))
     c.add_opt('show_ncx', ['--show-ncx'], default=False, group='debug',
               help=_('Print generated NCX file to stdout'))
-    c.add_opt('keep_intermediate', ['--keep-intermediate-files'], group='debug', default=False,
+    c.add_opt('keep_intermediate', ['--keep-intermediate-files'], group='debug', 
+              default=False,
               help=_('Keep intermediate files during processing by html2epub'))
     c.add_opt('extract_to', ['--extract-to'], group='debug', default=None,
-              help=_('Extract the contents of the produced EPUB file to the specified directory.'))
+              help=_('Extract the contents of the produced EPUB file to the '
+                     'specified directory.'))
     return c

@@ -47,6 +47,9 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: The author of this recipe
     __author__             = __appname__    
     
+    #: The language that the news is in
+    language               = _('Unknown')
+    
     #: Maximum number of articles to download from each feed. This is primarily
     #: useful for feeds that don't have article dates. For most feeds, you should
     #: use :attr:`BasicNewsRecipe.oldest_article`

@@ -77,7 +77,7 @@ def run_windows_install_jammer(installer):
 
 def build_windows(shutdown=True):
     installer = installer_name('exe')
-    vm = '/vmware/Windows XP/Windows XP Professional.vmx'
+    vm = '/mnt/backup/calibre_windows_xp_home/calibre_windows_xp_home.vmx'
     start_vm(vm, 'windows', BUILD_SCRIPT%('python setup.py develop', 'python','installer\\\\windows\\\\freeze.py'))
     if os.path.exists('build/py2exe'):
         shutil.rmtree('build/py2exe')

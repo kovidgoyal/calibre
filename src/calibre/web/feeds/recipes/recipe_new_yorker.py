@@ -13,6 +13,7 @@ class NewYorker(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Best of the US journalism'    
     oldest_article        = 7
+    language = _('English')
     max_articles_per_feed = 100
     no_stylesheets        = False
     use_embedded_content  = False

@@ -15,6 +15,7 @@ class Harpers_full(BasicNewsRecipe):
     title                 = u"Harper's Magazine - articles from printed edition"
     __author__            = u'Darko Miletic'
     description           = u"Harper's Magazine: Founded June 1850."
+    language = _('English')
     oldest_article        = 30
     max_articles_per_feed = 100
     no_stylesheets        = True

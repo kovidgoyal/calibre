@@ -46,6 +46,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
+from calibre.ebooks.epub.pages import add_page_map
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
 from calibre.customize.ui import run_plugins_on_postprocess
@@ -141,7 +142,7 @@ class HTMLProcessor(Processor, Rationalizer):
             p = QPixmap()
             p.load(path)
             if not p.isNull():
-                p.save(path+'_calibre_converted.jpg')
+                p.save(path + '_calibre_converted.jpg')
                 os.remove(path)
                 for key, val in self.resource_map.items():
                     if val == rpath:
@@ -194,7 +195,10 @@ class HTMLProcessor(Processor, Rationalizer):
             if not tag.text and not tag.get('src', False):
                 tag.getparent().remove(tag)
                 
-        
+        if self.opts.linearize_tables:
+            for tag in self.root.xpath('//table | //tr | //th | //td'):
+                tag.tag = 'div'
+            
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):
@@ -202,6 +206,13 @@ class HTMLProcessor(Processor, Rationalizer):
         #for img in self.root.xpath('//img[@src]'):
         #    self.convert_image(img)
         Processor.save(self)
+        
+    def remove_first_image(self):
+        images = self.root.xpath('//img')
+        if images:
+            images[0].getparent().remove(images[0])
+            return True
+        return False
         
     
             
@@ -224,10 +235,13 @@ def parse_content(filelist, opts, tdir):
     resource_map, stylesheets = {}, {}
     toc = TOC(base_path=tdir, type='root')
     stylesheet_map = {}
+    first_image_removed = False
     for htmlfile in filelist:
         logging.getLogger('html2epub').debug('Processing %s...'%htmlfile)
         hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
                            resource_map, filelist, stylesheets)
+        if not first_image_removed and opts.remove_first_image:
+            first_image_removed = hp.remove_first_image()
         hp.populate_toc(toc)
         hp.save()
         stylesheet_map[os.path.basename(hp.save_path())] = \
@@ -425,6 +439,9 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             if opts.show_ncx:
                 print toc
         split(opf_path, opts, stylesheet_map)
+        if opts.page:
+            logger.info('\tBuilding page map...')
+            add_page_map(opf_path, opts)
         check_links(opf_path, opts.pretty_print)
         
         opf = OPF(opf_path, tdir)
@@ -441,12 +458,9 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
         
         cpath = os.path.join(tdir, 'content', 'resources', '_cover_.jpg')
         if os.path.exists(cpath):
-            opf.add_path_to_manifest(cpath, 'image/jpeg')    
+            opf.add_path_to_manifest(cpath, 'image/jpeg')
         with open(opf_path, 'wb') as f:
-            raw = opf.render()
-            if not raw.startswith('<?xml '):
-                raw = '<?xml version="1.0"  encoding="UTF-8"?>\n'+raw
-            f.write(raw)
+            f.write(opf.render())
         ncx_path = os.path.join(os.path.dirname(opf_path), 'toc.ncx')
         if os.path.exists(ncx_path) and os.stat(ncx_path).st_size > opts.profile.flow_size:
             logger.info('Condensing NCX from %d bytes...'%os.stat(ncx_path).st_size)
@@ -462,7 +476,7 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             logger.info(_('Output written to ')+opts.output)
         
         if opts.show_opf:
-            print open(os.path.join(tdir, 'metadata.opf')).read()
+            print open(opf_path, 'rb').read()
         
         if opts.extract_to is not None:
             if os.path.exists(opts.extract_to):

@@ -14,7 +14,7 @@ class TheAtlantic(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     description = 'Current affairs and politics focussed on the US'
     INDEX = 'http://www.theatlantic.com/doc/current'
-    
+    language = _('English')
     remove_tags_before = dict(name='div', id='storytop')
     remove_tags        = [dict(name='div', id=['seealso', 'storybottom', 'footer', 'ad_banner_top', 'sidebar'])]
     no_stylesheets     = True

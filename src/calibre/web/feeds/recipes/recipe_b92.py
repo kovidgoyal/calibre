@@ -6,12 +6,13 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 b92.net
 '''
 
-import string,re
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class B92(BasicNewsRecipe):
     title                 = u'B92'
     __author__            = 'Darko Miletic'
+    language = _('Serbian')
     description           = 'Dnevne vesti iz Srbije i sveta'    
     oldest_article        = 7
     max_articles_per_feed = 100

@@ -6,84 +6,120 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os
-import sys
+import os, sys, re, uuid, copy
+from mimetypes import types_map, guess_type
 from collections import defaultdict
 from types import StringTypes
 from itertools import izip, count, chain
 from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
-import logging
-import re
-import uuid
-import copy
-from lxml import etree
-from lxml import html
+from lxml import etree, html
+import calibre
 from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
 from calibre.startup import get_lang
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.metadata.epub import CoverRenderer
 from calibre.ptempfile import TemporaryDirectory
 
-XML_NS = 'http://www.w3.org/XML/1998/namespace'
-XHTML_NS = 'http://www.w3.org/1999/xhtml'
-OEB_DOC_NS = 'http://openebook.org/namespaces/oeb-document/1.0/'
-OPF1_NS = 'http://openebook.org/namespaces/oeb-package/1.0/'
-OPF2_NS = 'http://www.idpf.org/2007/opf'
-OPF_NSES = set([OPF1_NS, OPF2_NS])
-DC09_NS = 'http://purl.org/metadata/dublin_core'
-DC10_NS = 'http://purl.org/dc/elements/1.0/'
-DC11_NS = 'http://purl.org/dc/elements/1.1/'
-DC_NSES = set([DC09_NS, DC10_NS, DC11_NS])
-XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
-DCTERMS_NS = 'http://purl.org/dc/terms/'
-NCX_NS = 'http://www.daisy.org/z3986/2005/ncx/'
-SVG_NS = 'http://www.w3.org/2000/svg'
-XLINK_NS = 'http://www.w3.org/1999/xlink'
-CALIBRE_NS = 'http://calibre.kovidgoyal.net/2009/metadata'
-XPNSMAP = {'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS,
-           'd09': DC09_NS, 'd10': DC10_NS, 'd11': DC11_NS,
-           'xsi': XSI_NS, 'dt': DCTERMS_NS, 'ncx': NCX_NS,
-           'svg': SVG_NS, 'xl': XLINK_NS}
+XML_NS       = 'http://www.w3.org/XML/1998/namespace'
+XHTML_NS     = 'http://www.w3.org/1999/xhtml'
+OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
+OPF1_NS      = 'http://openebook.org/namespaces/oeb-package/1.0/'
+OPF2_NS      = 'http://www.idpf.org/2007/opf'
+OPF_NSES     = set([OPF1_NS, OPF2_NS])
+DC09_NS      = 'http://purl.org/metadata/dublin_core'
+DC10_NS      = 'http://purl.org/dc/elements/1.0/'
+DC11_NS      = 'http://purl.org/dc/elements/1.1/'
+DC_NSES      = set([DC09_NS, DC10_NS, DC11_NS])
+XSI_NS       = 'http://www.w3.org/2001/XMLSchema-instance'
+DCTERMS_NS   = 'http://purl.org/dc/terms/'
+NCX_NS       = 'http://www.daisy.org/z3986/2005/ncx/'
+SVG_NS       = 'http://www.w3.org/2000/svg'
+XLINK_NS     = 'http://www.w3.org/1999/xlink'
+CALIBRE_NS   = 'http://calibre.kovidgoyal.net/2009/metadata'
+XPNSMAP      = {
+                   'h'  : XHTML_NS, 'o1' : OPF1_NS,    'o2' : OPF2_NS,
+                   'd09': DC09_NS,  'd10': DC10_NS,    'd11': DC11_NS,
+                   'xsi': XSI_NS,   'dt' : DCTERMS_NS, 'ncx': NCX_NS,
+                   'svg': SVG_NS,   'xl' : XLINK_NS
+               }
 DC_PREFIXES = ('d11', 'd10', 'd09')
 
-def XML(name): return '{%s}%s' % (XML_NS, name)
-def XHTML(name): return '{%s}%s' % (XHTML_NS, name)
-def OPF(name): return '{%s}%s' % (OPF2_NS, name)
-def DC(name): return '{%s}%s' % (DC11_NS, name)
-def XSI(name): return '{%s}%s' % (XSI_NS, name)
-def DCTERMS(name): return '{%s}%s' % (DCTERMS_NS, name)
-def NCX(name): return '{%s}%s' % (NCX_NS, name)
-def SVG(name): return '{%s}%s' % (SVG_NS, name)
-def XLINK(name): return '{%s}%s' % (XLINK_NS, name)
-def CALIBRE(name): return '{%s}%s' % (CALIBRE_NS, name)
 
-EPUB_MIME = 'application/epub+zip'
-XHTML_MIME = 'application/xhtml+xml'
-CSS_MIME = 'text/css'
-NCX_MIME = 'application/x-dtbncx+xml'
-OPF_MIME = 'application/oebps-package+xml'
-OEB_DOC_MIME = 'text/x-oeb1-document'
-OEB_CSS_MIME = 'text/x-oeb1-css'
-OPENTYPE_MIME = 'font/opentype'
-GIF_MIME = 'image/gif'
-JPEG_MIME = 'image/jpeg'
-PNG_MIME = 'image/png'
-SVG_MIME = 'image/svg+xml'
-BINARY_MIME = 'application/octet-stream'
+def XML(name):
+    return '{%s}%s' % (XML_NS, name)
 
-OEB_STYLES = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
-OEB_DOCS = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
+def XHTML(name):
+    return '{%s}%s' % (XHTML_NS, name)
+
+def OPF(name):
+    return '{%s}%s' % (OPF2_NS, name)
+
+def DC(name):
+    return '{%s}%s' % (DC11_NS, name)
+
+def XSI(name):
+    return '{%s}%s' % (XSI_NS, name)
+
+def DCTERMS(name):
+    return '{%s}%s' % (DCTERMS_NS, name)
+
+def NCX(name):
+    return '{%s}%s' % (NCX_NS, name)
+
+def SVG(name):
+    return '{%s}%s' % (SVG_NS, name)
+
+def XLINK(name):
+    return '{%s}%s' % (XLINK_NS, name)
+
+def CALIBRE(name):
+    return '{%s}%s' % (CALIBRE_NS, name)
+
+def LINK_SELECTORS():
+    results = []
+    for expr in ('h:head/h:link/@href', 'h:body//h:a/@href',
+                 'h:body//h:img/@src', 'h:body//h:object/@data',
+                 'h:body//*/@xl:href', '//ncx:content/@src',
+                 'o2:page/@href'):
+        results.append(etree.XPath(expr, namespaces=XPNSMAP))
+    return results
+
+LINK_SELECTORS = LINK_SELECTORS()
+
+EPUB_MIME      = types_map['.epub']
+XHTML_MIME     = types_map['.xhtml']
+CSS_MIME       = types_map['.css']
+NCX_MIME       = types_map['.ncx']
+OPF_MIME       = types_map['.opf']
+PAGE_MAP_MIME  = 'application/oebps-page-map+xml'
+OEB_DOC_MIME   = 'text/x-oeb1-document'
+OEB_CSS_MIME   = 'text/x-oeb1-css'
+OPENTYPE_MIME  = 'application/x-font-opentype'
+GIF_MIME       = types_map['.gif']
+JPEG_MIME      = types_map['.jpeg']
+PNG_MIME       = types_map['.png']
+SVG_MIME       = types_map['.svg']
+BINARY_MIME    = 'application/octet-stream'
+
+OEB_STYLES        = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
+OEB_DOCS          = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
 OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
-OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
+OEB_IMAGES        = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
 
-ENTITY_RE = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
-COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
-QNAME_RE = re.compile(r'^[{][^{}]+[}][^{}]+$')
+ENTITY_RE     = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
+COLLAPSE_RE   = re.compile(r'[ \t\r\n\v]+')
+QNAME_RE      = re.compile(r'^[{][^{}]+[}][^{}]+$')
 PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
+XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
+CSSURL_RE     = re.compile(r'''url[(](?P<q>["']?)(?P<url>[^)]+)(?P=q)[)]''')
+
+RECOVER_PARSER = etree.XMLParser(recover=True)
+
 
 def element(parent, *args, **kwargs):
     if parent is not None:
@@ -134,21 +170,28 @@ def xpath(elem, expr):
 def xml2str(root):
     return etree.tostring(root, encoding='utf-8', xml_declaration=True)
 
-ASCII_CHARS = set(chr(x) for x in xrange(128))
-URL_SAFE = set(u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-               u'abcdefghijklmnopqrstuvwxyz'
-               u'0123456789' u'_.-/~')
-URL_UNSAFE = ASCII_CHARS - URL_SAFE
+ASCII_CHARS   = set(chr(x) for x in xrange(128))
+UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
+URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                    'abcdefghijklmnopqrstuvwxyz'
+                    '0123456789' '_.-/~')
+URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE]
+
 def urlquote(href):
     result = []
+    unsafe = 0 if isinstance(href, unicode) else 1
+    unsafe = URL_UNSAFE[unsafe]
     for char in href:
-        if char in URL_UNSAFE:
+        if char in unsafe:
             char = "%%%02x" % ord(char)
         result.append(char)
     return ''.join(result)
 
 def urlnormalize(href):
     parts = urlparse(href)
+    if not parts.scheme:
+        path, frag = urldefrag(href)
+        parts = ('', '', path, '', '', frag)
     parts = (part.replace('\\', '/') for part in parts)
     parts = (urlunquote(part) for part in parts)
     parts = (urlquote(part) for part in parts)
@@ -177,7 +220,7 @@ class AbstractContainer(object):
 
 class DirContainer(AbstractContainer):
     def __init__(self, rootdir):
-        self.rootdir = rootdir
+        self.rootdir = unicode(rootdir)
 
     def read(self, path):
         path = os.path.join(self.rootdir, path)
@@ -197,36 +240,53 @@ class DirContainer(AbstractContainer):
         return os.path.isfile(urlunquote(path))
 
 class DirWriter(object):
-    def __init__(self, version=2.0):
+    def __init__(self, version='2.0', page_map=False):
         self.version = version
+        self.page_map = page_map
 
     def dump(self, oeb, path):
+        version = int(self.version[0])
+        opfname = None
+        if os.path.splitext(path)[1].lower() == '.opf':
+            opfname = os.path.basename(path)
+            path = os.path.dirname(path)
         if not os.path.isdir(path):
             os.mkdir(path)
         output = DirContainer(path)
         for item in oeb.manifest.values():
             output.write(item.href, str(item))
-        metadata = oeb.to_opf2() if self.version == 2 else oeb.to_opf1()
-        for href, data in metadata.values():
+        if version == 1:
+            metadata = oeb.to_opf1()
+        elif version == 2:
+            metadata = oeb.to_opf2(page_map=self.page_map)
+        else:
+            raise OEBError("Unrecognized OPF version %r" % self.version)
+        for mime, (href, data) in metadata.items():
+            if opfname and mime == OPF_MIME:
+                href = opfname
             output.write(href, xml2str(data))
         return
 
 
 class Metadata(object):
-    DC_TERMS = set(['contributor', 'coverage', 'creator', 'date',
+    DC_TERMS      = set([
+                    'contributor', 'coverage', 'creator', 'date',
                     'description', 'format', 'identifier', 'language',
                     'publisher', 'relation', 'rights', 'source', 'subject',
-                    'title', 'type'])
+                    'title', 'type'
+                    ])
     CALIBRE_TERMS = set(['series', 'series_index', 'rating'])
-    OPF_ATTRS = {'role': OPF('role'), 'file-as': OPF('file-as'),
-                 'scheme': OPF('scheme'), 'event': OPF('event'),
-                 'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}
-    OPF1_NSMAP = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
-    OPF2_NSMAP = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
-                  'xsi': XSI_NS, 'calibre': CALIBRE_NS}
+    OPF_ATTRS     = {'role': OPF('role'), 'file-as': OPF('file-as'),
+                     'scheme': OPF('scheme'), 'event': OPF('event'),
+                     'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}
+    OPF1_NSMAP    = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
+    OPF2_NSMAP    = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
+                     'xsi': XSI_NS, 'calibre': CALIBRE_NS}
     
     class Item(object):
+        
         class Attribute(object):
+            
             def __init__(self, attr, allowed=None):
                 if not callable(attr):
                     attr_, attr = attr, lambda term: attr_
@@ -277,17 +337,14 @@ class Metadata(object):
                 if attr != nsattr:
                     attrib[nsattr] = attrib.pop(attr)
         
-        def scheme(term):
-            if term == OPF('meta'):
-                return 'scheme'
-            return OPF('scheme')
-        scheme = Attribute(scheme, [DC('identifier'), OPF('meta')])
+        scheme  = Attribute(lambda term : 'scheme' if term == OPF('meta') else OPF('scheme'), 
+                           [DC('identifier'), OPF('meta')])
         file_as = Attribute(OPF('file-as'), [DC('creator'), DC('contributor')])
-        role = Attribute(OPF('role'), [DC('creator'), DC('contributor')])
-        event = Attribute(OPF('event'), [DC('date')])
-        id = Attribute('id')
-        type = Attribute(XSI('type'), [DC('date'), DC('format'), DC('type')])
-        lang = Attribute(XML('lang'), [DC('contributor'), DC('coverage'),
+        role    = Attribute(OPF('role'), [DC('creator'), DC('contributor')])
+        event   = Attribute(OPF('event'), [DC('date')])
+        id      = Attribute('id')
+        type    = Attribute(XSI('type'), [DC('date'), DC('format'), DC('type')])
+        lang    = Attribute(XML('lang'), [DC('contributor'), DC('coverage'),
                                        DC('creator'), DC('publisher'),
                                        DC('relation'), DC('rights'),
                                        DC('source'), DC('subject'),
@@ -368,6 +425,7 @@ class Metadata(object):
     def __getattr__(self, term):
         return self.items[term]
 
+    @apply
     def _nsmap():
         def fget(self):
             nsmap = {}
@@ -376,8 +434,8 @@ class Metadata(object):
                     nsmap.update(item.nsmap)
             return nsmap
         return property(fget=fget)
-    _nsmap = _nsmap()        
     
+    @apply
     def _opf1_nsmap():
         def fget(self):
             nsmap = self._nsmap
@@ -386,15 +444,16 @@ class Metadata(object):
                     del nsmap[key]
             return nsmap
         return property(fget=fget)
-    _opf1_nsmap = _opf1_nsmap()
     
+    
+    @apply
     def _opf2_nsmap():
         def fget(self):
             nsmap = self._nsmap
             nsmap.update(self.OPF2_NSMAP)
             return nsmap
         return property(fget=fget)
-    _opf2_nsmap = _opf2_nsmap()
+    
     
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
@@ -421,7 +480,9 @@ class Metadata(object):
 
 
 class Manifest(object):
+    
     class Item(object):
+    
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
         META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
     
@@ -444,9 +505,9 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _force_xhtml(self, data):
-            # Possibly decode in user-specified encoding
-            if self.oeb.encoding is not None:
-                data = data.decode(self.oeb.encoding, 'replace')
+            # Convert to Unicode and normalize line endings
+            data = self.oeb.decode(data)
+            data = XMLDECL_RE.sub('', data)
             # Handle broken XHTML w/ SVG (ugh)
             if 'svg:' in data and SVG_NS not in data:
                 data = data.replace(
@@ -471,7 +532,10 @@ class Manifest(object):
                         if elem.text:
                             elem.text = elem.text.strip('-')
                     data = etree.tostring(data, encoding=unicode)
-                    data = etree.fromstring(data)
+                    try:
+                        data = etree.fromstring(data)
+                    except etree.XMLSyntaxError:
+                        data = etree.fromstring(data, parser=RECOVER_PARSER)
             # Force into the XHTML namespace
             if barename(data.tag) != 'html':
                 raise OEBError(
@@ -493,9 +557,6 @@ class Manifest(object):
                 for elem in data:
                     nroot.append(elem)
                 data = nroot
-            # Remove any encoding-specifying <meta/> elements
-            for meta in self.META_XP(data):
-                meta.getparent().remove(meta)
             # Ensure has a <head/>
             head = xpath(data, '/h:html/h:head')
             head = head[0] if head else None
@@ -511,6 +572,12 @@ class Manifest(object):
                     'File %r missing <title/> element' % self.href)
                 title = etree.SubElement(head, XHTML('title'))
                 title.text = self.oeb.translate(__('Unknown'))
+            # Remove any encoding-specifying <meta/> elements
+            for meta in self.META_XP(data):
+                meta.getparent().remove(meta)
+            etree.SubElement(head, XHTML('meta'),
+                attrib={'http-equiv': 'Content-Type',
+                        'content': '%s; charset=utf-8' % XHTML_NS})
             # Ensure has a <body/>
             if not xpath(data, '/h:html/h:body'):
                 self.oeb.logger.warn(
@@ -518,6 +585,7 @@ class Manifest(object):
                 etree.SubElement(data, XHTML('body'))
             return data
         
+        @apply
         def data():
             def fget(self):
                 if self._data is not None:
@@ -527,6 +595,8 @@ class Manifest(object):
                     data = self._force_xhtml(data)
                 elif self.media_type[-4:] in ('+xml', '/xml'):
                     data = etree.fromstring(data)
+                elif self.media_type in OEB_STYLES:
+                    data = self.oeb.decode(data)
                 self._data = data
                 return data
             def fset(self, value):
@@ -534,12 +604,13 @@ class Manifest(object):
             def fdel(self):
                 self._data = None
             return property(fget, fset, fdel)
-        data = data()
-        
+                
         def __str__(self):
             data = self.data
             if isinstance(data, etree._Element):
                 return xml2str(data)
+            if isinstance(data, unicode):
+                return data.encode('utf-8')
             return str(data)
         
         def __eq__(self, other):
@@ -563,7 +634,9 @@ class Manifest(object):
             return cmp(skey, okey)
         
         def relhref(self, href):
-            if '/' not in self.href or ':' in href:
+            if urlparse(href).scheme:
+                return href
+            if '/' not in self.href:
                 return href
             base = os.path.dirname(self.href).split('/')
             target, frag = urldefrag(href)
@@ -579,7 +652,12 @@ class Manifest(object):
             return relhref
 
         def abshref(self, href):
-            if '/' not in self.href or ':' in href:
+            if urlparse(href).scheme:
+                return href
+            path, frag = urldefrag(href)
+            if not path:
+                return '#'.join((self.href, frag))
+            if '/' not in self.href:
                 return href
             dirname = os.path.dirname(self.href)
             href = os.path.join(dirname, href)
@@ -606,18 +684,20 @@ class Manifest(object):
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
 
-    def generate(self, id, href):
-        href = urlnormalize(href)
-        base = id
-        index = 1
-        while id in self.ids:
-            id = base + str(index)
-            index += 1
-        base, ext = os.path.splitext(href)
-        index = 1
-        while href in self.hrefs:
-            href = base + str(index) + ext
-            index += 1
+    def generate(self, id=None, href=None):
+        if id is not None:
+            base = id
+            index = 1
+            while id in self.ids:
+                id = base + str(index)
+                index += 1
+        if href is not None:
+            href = urlnormalize(href)
+            base, ext = os.path.splitext(href)
+            index = 1
+            while href in self.hrefs:
+                href = base + str(index) + ext
+                index += 1
         return id, href
 
     def __iter__(self):
@@ -670,6 +750,7 @@ class Manifest(object):
 
 
 class Spine(object):
+    
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = []
@@ -735,7 +816,9 @@ class Spine(object):
 
 
 class Guide(object):
+    
     class Reference(object):
+        
         _TYPES_TITLES = [('cover', __('Cover')),
                          ('title-page', __('Title Page')),
                          ('toc', __('Table of Contents')),
@@ -774,24 +857,24 @@ class Guide(object):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
         
+        @apply
         def _order():
             def fget(self):
                 return self.ORDER.get(self.type, self.type)
             return property(fget=fget)
-        _order = _order()
         
         def __cmp__(self, other):
             if not isinstance(other, Guide.Reference):
                 return NotImplemented
             return cmp(self._order, other._order)
         
+        @apply
         def item():
             def fget(self):
-                path, frag = urldefrag(self.href)
+                path = urldefrag(self.href)[0]
                 hrefs = self.oeb.manifest.hrefs
                 return hrefs.get(path, None)
             return property(fget=fget)
-        item = item()
     
     def __init__(self, oeb):
         self.oeb = oeb
@@ -846,6 +929,7 @@ class Guide(object):
 
 
 class TOC(object):
+    # This needs beefing up to support the interface of toc.TOC
     def __init__(self, title=None, href=None, klass=None, id=None):
         self.title = title
         self.href = urlnormalize(href) if href else href
@@ -892,27 +976,75 @@ class TOC(object):
             node.to_opf1(tour)
         return tour
     
-    def to_ncx(self, parent, order=None, depth=1):
-        if not order: order = [0]
+    def to_ncx(self, parent, depth=1):
         for node in self.nodes:
-            order[0] += 1
-            playOrder = str(order[0])
-            id = self.id or 'np' + playOrder
-            point = etree.SubElement(parent,
-                NCX('navPoint'), id=id, playOrder=playOrder)
-            if self.klass:
-                point.attrib['class'] = node.klass
+            id = node.id or unicode(uuid.uuid4())
+            attrib = {'id': id, 'playOrder': '0'}
+            if node.klass:
+                attrib['class'] = node.klass
+            point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
-            etree.SubElement(label, NCX('text')).text = node.title
+            element(label, NCX('text')).text = node.title
             href = node.href if depth > 1 else urldefrag(node.href)[0]
-            child = etree.SubElement(point,
-                NCX('content'), attrib={'src': href})
-            node.to_ncx(point, order, depth+1)
+            element(point, NCX('content'), src=href)
+            node.to_ncx(point, depth+1)
         return parent
 
+
+class PageList(object):
     
+    class Page(object):
+        def __init__(self, name, href, type='normal', klass=None, id=None):
+            self.name = name
+            self.href = urlnormalize(href)
+            self.type = type
+            self.id = id
+            self.klass = klass
+    
+    def __init__(self):
+        self.pages = []
+    
+    def add(self, name, href, type='normal', klass=None, id=None):
+        page = self.Page(name, href, type, klass, id)
+        self.pages.append(page)
+        return page
+
+    def __len__(self):
+        return len(self.pages)
+    
+    def __iter__(self):
+        for page in self.pages:
+            yield page
+    
+    def __getitem__(self, index):
+        return self.pages[index]
+    
+    def to_ncx(self, parent=None):
+        plist = element(parent, NCX('pageList'), id=str(uuid.uuid4()))
+        values = dict((t, count(1)) for t in ('front', 'normal', 'special'))
+        for page in self.pages:
+            id = page.id or unicode(uuid.uuid4())
+            type = page.type
+            value = str(values[type].next())
+            attrib = {'id': id, 'value': value, 'type': type, 'playOrder': '0'}
+            if page.klass:
+                attrib['class'] = page.klass
+            ptarget = element(plist, NCX('pageTarget'), attrib=attrib)
+            label = element(ptarget, NCX('navLabel'))
+            element(label, NCX('text')).text = page.name
+            element(ptarget, NCX('content'), src=page.href)
+        return plist
+    
+    def to_page_map(self):
+        pmap = etree.Element(OPF('page-map'), nsmap={None: OPF2_NS})
+        for page in self.pages:
+            element(pmap, OPF('page'), name=page.name, href=page.href)
+        return pmap
+
+
 class OEBBook(object):
-    COVER_SVG_XP = XPath('h:body//svg:svg[position() = 1]')
+    
+    COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
     def __init__(self, opfpath=None, container=None, encoding=None,
@@ -941,13 +1073,11 @@ class OEBBook(object):
         metadata = etree.SubElement(nroot, OPF('metadata'), nsmap=nsmap)
         ignored = (OPF('dc-metadata'), OPF('x-metadata'))
         for elem in xpath(opf, 'o2:metadata//*'):
+            if elem.tag in ignored:
+                continue
             if namespace(elem.tag) in DC_NSES:
                 tag = barename(elem.tag).lower()
                 elem.tag = '{%s}%s' % (DC11_NS, tag)
-            for name in elem.attrib:
-                if name in ('role', 'file-as', 'scheme', 'event'):
-                    nsname = '{%s}%s' % (OPF2_NS, name)
-                    elem.attrib[nsname] = elem.attrib.pop(name)
             metadata.append(elem)
         for element in xpath(opf, 'o2:metadata//o2:meta'):
             metadata.append(element)
@@ -957,13 +1087,15 @@ class OEBBook(object):
         return nroot
     
     def _read_opf(self, opfpath):
-        opf = self.container.read(opfpath)
+        data = self.container.read(opfpath)
+        data = self.decode(data)
+        data = XMLDECL_RE.sub('', data)
         try:
-            opf = etree.fromstring(opf)
+            opf = etree.fromstring(data)
         except etree.XMLSyntaxError:
             repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-            opf = ENTITY_RE.sub(repl, opf)
-            opf = etree.fromstring(opf)
+            data = ENTITY_RE.sub(repl, data)
+            opf = etree.fromstring(data)
             self.logger.warn('OPF contains invalid HTML named entities')
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
@@ -972,7 +1104,7 @@ class OEBBook(object):
         return opf
     
     def _metadata_from_opf(self, opf):
-        uid = opf.get('unique-identifier', 'calibre-uuid')
+        uid = opf.get('unique-identifier', None)
         self.uid = None
         self.metadata = metadata = Metadata(self)
         for elem in xpath(opf, '/o2:package/o2:metadata//*'):
@@ -993,11 +1125,15 @@ class OEBBook(object):
                 haveuuid = True
             if 'id' in ident.attrib:
                 haveid = True
-        if not haveuuid and haveid:
+        if not (haveuuid and haveid):
             bookid = "urn:uuid:%s" % str(uuid.uuid4())
             metadata.add('identifier', bookid, id='calibre-uuid')
+        if uid is None:
+            self.logger.warn(u'Unique-identifier not specified')
         for item in metadata.identifier:
-            if item.id == uid:
+            if not item.id:
+                continue
+            if uid is None or item.id == uid:
                 self.uid = item
                 break
         else:
@@ -1015,6 +1151,45 @@ class OEBBook(object):
         if not metadata.title:
             self.logger.warn('Title not specified')
             metadata.add('title', self.translate(__('Unknown')))
+
+    def _manifest_add_missing(self):
+        manifest = self.manifest
+        known = set(manifest.hrefs)
+        unchecked = set(manifest.values())
+        while unchecked:
+            new = set()
+            for item in unchecked:
+                if (item.media_type in OEB_DOCS or
+                    item.media_type[-4:] in ('/xml', '+xml')) and \
+                   item.data is not None:
+                    hrefs = [sel(item.data) for sel in LINK_SELECTORS]
+                    for href in chain(*hrefs):
+                        href, _ = urldefrag(href)
+                        if not href:
+                            continue
+                        href = item.abshref(urlnormalize(href))
+                        scheme = urlparse(href).scheme
+                        if not scheme and href not in known:
+                            new.add(href)
+                elif item.media_type in OEB_STYLES:
+                    for match in CSSURL_RE.finditer(item.data):
+                        href, _ = urldefrag(match.group('url'))
+                        href = item.abshref(urlnormalize(href))
+                        scheme = urlparse(href).scheme
+                        if not scheme and href not in known:
+                            new.add(href)
+            unchecked.clear()
+            for href in new:
+                known.add(href)
+                if not self.container.exists(href):
+                    self.logger.warn('Referenced file %r not found' % href)
+                    continue
+                self.logger.warn('Referenced file %r not in manifest' % href)
+                id, _ = manifest.generate(id='added')
+                guessed = guess_type(href)[0]
+                media_type = guessed or BINARY_MIME
+                added = manifest.add(id, href, media_type)
+                unchecked.add(added)
     
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
@@ -1023,7 +1198,10 @@ class OEBBook(object):
             href = elem.get('href')
             media_type = elem.get('media-type', None)
             if media_type is None:
-                media_type = elem.get('mediatype', BINARY_MIME)
+                media_type = elem.get('mediatype', None)
+            if media_type is None or media_type == 'text/xml':
+                guessed = guess_type(href)[0]
+                media_type = guessed or media_type or BINARY_MIME
             fallback = elem.get('fallback')
             if href in manifest.hrefs:
                 self.logger.warn(u'Duplicate manifest entry for %r' % href)
@@ -1035,6 +1213,40 @@ class OEBBook(object):
                 self.logger.warn(u'Duplicate manifest id %r' % id)
                 id, href = manifest.generate(id, href)
             manifest.add(id, href, media_type, fallback)
+        self._manifest_add_missing()
+    
+    def _spine_add_extra(self):
+        manifest = self.manifest
+        spine = self.spine
+        unchecked = set(spine)
+        selector = XPath('h:body//h:a/@href')
+        extras = set()
+        while unchecked:
+            new = set()
+            for item in unchecked:
+                if item.media_type not in OEB_DOCS:
+                    # TODO: handle fallback chains
+                    continue
+                for href in selector(item.data):
+                    href, _ = urldefrag(href)
+                    if not href:
+                        continue
+                    href = item.abshref(urlnormalize(href))
+                    if href not in manifest.hrefs:
+                        continue
+                    found = manifest.hrefs[href]
+                    if found.media_type not in OEB_DOCS or \
+                       found in spine or found in extras:
+                        continue
+                    new.add(found)
+            extras.update(new)
+            unchecked = new
+        version = int(self.version[0])
+        for item in sorted(extras):
+            if version >= 2:
+                self.logger.warn(
+                    'Spine-referenced file %r not in spine' % item.href)
+            spine.add(item, linear=False)
     
     def _spine_from_opf(self, opf):
         self.spine = spine = Spine(self)
@@ -1045,69 +1257,86 @@ class OEBBook(object):
                 continue
             item = self.manifest[idref]
             spine.add(item, elem.get('linear'))
-        extras = []
-        for item in self.manifest.values():
-            if item.media_type in OEB_DOCS \
-               and item not in spine:
-                extras.append(item)
-        extras.sort()
-        for item in extras:
-            spine.add(item, False)
         if len(spine) == 0:
             raise OEBError("Spine is empty")
-
+        self._spine_add_extra()
+    
     def _guide_from_opf(self, opf):
         self.guide = guide = Guide(self)
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
             href = elem.get('href')
-            path, frag = urldefrag(href)
+            path = urldefrag(href)[0]
             if path not in self.manifest.hrefs:
                 self.logger.warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
-
-    def _toc_from_navpoint(self, toc, navpoint):
+    
+    def _find_ncx(self, opf):
+        result = xpath(opf, '/o2:package/o2:spine/@toc')
+        if result:
+            id = result[0]
+            if id not in self.manifest.ids:
+                return None
+            item = self.manifest.ids[id]
+            self.manifest.remove(item)
+            return item
+        for item in self.manifest.values():
+            if item.media_type == NCX_MIME:
+                self.manifest.remove(item)
+                return item                
+        return None
+    
+    def _toc_from_navpoint(self, item, toc, navpoint):
         children = xpath(navpoint, 'ncx:navPoint')
         for child in children:
             title = ''.join(xpath(child, 'ncx:navLabel/ncx:text/text()'))
-            href = xpath(child, 'ncx:content/@src')[0]
+            title = COLLAPSE_RE.sub(' ', title.strip())
+            href = xpath(child, 'ncx:content/@src')
+            if not title or not href:
+                continue
+            href = item.abshref(urlnormalize(href[0]))
+            path, _ = urldefrag(href)
+            if path not in self.manifest.hrefs:
+                self.logger.warn('TOC reference %r not found' % href)
+                continue
             id = child.get('id')
             klass = child.get('class')
             node = toc.add(title, href, id=id, klass=klass)
-            self._toc_from_navpoint(node, child)
-            
-    def _toc_from_ncx(self, opf):
-        result = xpath(opf, '/o2:package/o2:spine/@toc')
-        if not result:
-            expr = '/o2:package/o2:manifest/o2:item[@media-type="%s"]/@id'
-            result = xpath(opf, expr % NCX_MIME)
-            if len(result) != 1:
-                return False
-        id = result[0]
-        if id not in self.manifest.ids:
+            self._toc_from_navpoint(item, node, child)
+    
+    def _toc_from_ncx(self, item):
+        if item is None:
             return False
-        item = self.manifest.ids[id]
         ncx = item.data
-        self.manifest.remove(item)
-        title = xpath(ncx, 'ncx:docTitle/ncx:text/text()')
-        title = title[0].strip() if title else unicode(self.metadata.title[0])
+        title = ''.join(xpath(ncx, 'ncx:docTitle/ncx:text/text()'))
+        title = COLLAPSE_RE.sub(' ', title.strip())
+        title = title or unicode(self.metadata.title[0])
         self.toc = toc = TOC(title)
         navmaps = xpath(ncx, 'ncx:navMap')
         for navmap in navmaps:
-            self._toc_from_navpoint(toc, navmap)
+            self._toc_from_navpoint(item, toc, navmap)
         return True
-
+    
     def _toc_from_tour(self, opf):
-        result = xpath(opf, '/o2:package/o2:tours/o2:tour')
+        result = xpath(opf, 'o2:tours/o2:tour')
         if not result:
             return False
         tour = result[0]
         self.toc = toc = TOC(tour.get('title'))
         sites = xpath(tour, 'o2:site')
         for site in sites:
-            toc.add(site.get('title'), site.get('href'))
+            title = site.get('title')
+            href = site.get('href')
+            if not title or not href:
+                continue
+            path, _ = urldefrag(urlnormalize(href))
+            if path not in self.manifest.hrefs:
+                self.logger.warn('TOC reference %r not found' % href)
+                continue            
+            id = site.get('id')
+            toc.add(title, href, id=id)
         return True
-
+    
     def _toc_from_html(self, opf):
         if 'toc' not in self.guide:
             return False
@@ -1127,11 +1356,12 @@ class OEBBook(object):
         order = []
         for anchor in xpath(html, './/h:a[@href]'):
             href = anchor.attrib['href']
+            href = item.abshref(urlnormalize(href))
             path, frag = urldefrag(href)
-            if not path:
-                href = '#'.join((itempath, frag))
+            if path not in self.manifest.hrefs:
+                continue
             title = ' '.join(xpath(anchor, './/text()'))
-            href = urlnormalize(href)
+            title = COLLAPSE_RE.sub(' ', title.strip())
             if href not in titles:
                 order.append(href)
             titles[href].append(title)
@@ -1146,15 +1376,17 @@ class OEBBook(object):
         for item in self.spine:
             if not item.linear: continue
             html = item.data
-            title = xpath(html, '/h:html/h:head/h:title/text()')
-            title = title[0].strip() if title else None
-            if title: titles.append(title)
+            title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
+            title = COLLAPSE_RE.sub(' ', title.strip())
+            if title:
+                titles.append(title)
             headers.append('(unlabled)')
             for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
-                expr = '/h:html/h:body//h:%s[position()=1]/text()' % (tag,)
-                header = xpath(html, expr)
+                expr = '/h:html/h:body//h:%s[position()=1]/text()'
+                header = ''.join(xpath(html, expr % tag))
+                header = COLLAPSE_RE.sub(' ', header.strip())
                 if header:
-                    headers[-1] = header[0]
+                    headers[-1] = header
                     break
         use = titles
         if len(titles) > len(set(titles)):
@@ -1164,17 +1396,81 @@ class OEBBook(object):
             toc.add(title, item.href)
         return True
     
-    def _toc_from_opf(self, opf):
-        if self._toc_from_ncx(opf): return
+    def _toc_from_opf(self, opf, item):
+        if self._toc_from_ncx(item): return
         if self._toc_from_tour(opf): return
+        self.logger.warn('No metadata table of contents found')
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
-
+    
+    def _pages_from_ncx(self, opf, item):
+        if item is None:
+            return False
+        ncx = item.data
+        ptargets = xpath(ncx, 'ncx:pageList/ncx:pageTarget')
+        if not ptargets:
+            return False
+        pages = self.pages = PageList()
+        for ptarget in ptargets:
+            name = ''.join(xpath(ptarget, 'ncx:navLabel/ncx:text/text()'))
+            name = COLLAPSE_RE.sub(' ', name.strip())
+            href = xpath(ptarget, 'ncx:content/@src')
+            if not href:
+                continue
+            href = item.abshref(urlnormalize(href[0]))
+            id = ptarget.get('id')
+            type = ptarget.get('type', 'normal')
+            klass = ptarget.get('class')
+            pages.add(name, href, type=type, id=id, klass=klass)
+        return True
+    
+    def _find_page_map(self, opf):
+        result = xpath(opf, '/o2:package/o2:spine/@page-map')
+        if result:
+            id = result[0]
+            if id not in self.manifest.ids:
+                return None
+            item = self.manifest.ids[id]
+            self.manifest.remove(item)
+            return item
+        for item in self.manifest.values():
+            if item.media_type == PAGE_MAP_MIME:
+                self.manifest.remove(item)
+                return item
+        return None
+    
+    def _pages_from_page_map(self, opf):
+        item = self._find_page_map(opf)
+        if item is None:
+            return False
+        pmap = item.data
+        pages = self.pages = PageList()
+        for page in xpath(pmap, 'o2:page'):
+            name = page.get('name', '')
+            href = page.get('href')
+            if not href:
+                continue
+            name = COLLAPSE_RE.sub(' ', name.strip())
+            href = item.abshref(urlnormalize(href))
+            type = 'normal'
+            if not name:
+                type = 'special'
+            elif name.lower().strip('ivxlcdm') == '':
+                type = 'front'
+            pages.add(name, href, type=type)
+        return True
+    
+    def _pages_from_opf(self, opf, item):
+        if self._pages_from_ncx(opf, item): return
+        if self._pages_from_page_map(opf): return
+        self.pages = PageList()
+        return
+    
     def _cover_from_html(self, hcover):
         with TemporaryDirectory('_html_cover') as tdir:
             writer = DirWriter()
             writer.dump(self, tdir)
-            path = os.path.join(tdir, hcover.href)
+            path = os.path.join(tdir, urlunquote(hcover.href))
             renderer = CoverRenderer(path)
             data = renderer.image_data
         id, href = self.manifest.generate('cover', 'cover.jpeg')
@@ -1185,8 +1481,10 @@ class OEBBook(object):
         if self.metadata.cover:
             id = str(self.metadata.cover[0])
             item = self.manifest.ids.get(id, None)
-            if item is not None:
+            if item is not None and item.media_type in OEB_IMAGES:
                 return item
+            else:
+                self.logger.warn('Invalid cover image @id %r' % id)
         hcover = self.spine[0]
         if 'cover' in self.guide:
             href = self.guide['cover'].href
@@ -1224,31 +1522,85 @@ class OEBBook(object):
         self.metadata.add('cover', cover.id)
     
     def _all_from_opf(self, opf):
+        self.version = opf.get('version', '1.2')
         self._metadata_from_opf(opf)
         self._manifest_from_opf(opf)
         self._spine_from_opf(opf)
         self._guide_from_opf(opf)
-        self._toc_from_opf(opf)
+        item = self._find_ncx(opf)
+        self._toc_from_opf(opf, item)
+        self._pages_from_opf(opf, item)
         self._ensure_cover_image()
-
+    
     def translate(self, text):
         lang = str(self.metadata.language[0])
         lang = lang.split('-', 1)[0].lower()
         return translate(lang, text)
     
+    def decode(self, data):
+        if isinstance(data, unicode):
+            return data
+        if data[:2] in ('\xff\xfe', '\xfe\xff'):
+            try:
+                return data.decode('utf-16')
+            except UnicodeDecodeError:
+                pass
+        try:
+            return data.decode('utf-8')
+        except UnicodeDecodeError:
+            pass
+        if self.encoding is not None:
+            try:
+                return data.decode(self.encoding)
+            except UnicodeDecodeError:
+                pass
+        data, _ = xml_to_unicode(data)
+        data = data.replace('\r\n', '\n')
+        data = data.replace('\r', '\n')
+        return data
+    
     def to_opf1(self):
         package = etree.Element('package',
             attrib={'unique-identifier': self.uid.id})
-        metadata = self.metadata.to_opf1(package)
-        manifest = self.manifest.to_opf1(package)
-        spine = self.spine.to_opf1(package)
+        self.metadata.to_opf1(package)
+        self.manifest.to_opf1(package)
+        self.spine.to_opf1(package)
         tours = element(package, 'tours')
         tour = element(tours, 'tour',
             attrib={'id': 'chaptertour', 'title': 'Chapter Tour'})
         self.toc.to_opf1(tour)
-        guide = self.guide.to_opf1(package)
+        self.guide.to_opf1(package)
         return {OPF_MIME: ('content.opf', package)}
 
+    def _update_playorder(self, ncx):
+        hrefs = set(xpath(ncx, '//ncx:content/@src'))
+        playorder = {}
+        next = 1
+        selector = XPath('h:body//*[@id or @name]')
+        for item in self.spine:
+            base = item.href
+            if base in hrefs:
+                playorder[base] = next
+                next += 1
+            for elem in selector(item.data):
+                added = False
+                for attr in ('id', 'name'):
+                    id = elem.get(attr)
+                    if not id:
+                        continue
+                    href = '#'.join([base, id])
+                    if href in hrefs:
+                        playorder[href] = next
+                        added = True
+                if added:
+                    next += 1
+        selector = XPath('ncx:content/@src')
+        for elem in xpath(ncx, '//*[@playOrder and ./ncx:content[@src]]'):
+            href = selector(elem)[0]
+            order = playorder.get(href, 0)
+            elem.attrib['playOrder'] = str(order)
+        return
+    
     def _to_ncx(self):
         lang = unicode(self.metadata.language[0])
         ncx = etree.Element(NCX('ncx'),
@@ -1256,35 +1608,50 @@ class OEBBook(object):
             nsmap={None: NCX_NS})
         head = etree.SubElement(ncx, NCX('head'))
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:uid', 'content': unicode(self.uid)})
+            name='dtb:uid', content=unicode(self.uid))
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:depth', 'content': str(self.toc.depth())})
+            name='dtb:depth', content=str(self.toc.depth()))
+        generator = ''.join(['calibre (', calibre.__version__, ')'])
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:totalPageCount', 'content': '0'})
+            name='dtb:generator', content=generator)
         etree.SubElement(head, NCX('meta'),
-            attrib={'name': 'dtb:maxPageNumber', 'content': '0'})
+            name='dtb:totalPageCount', content=str(len(self.pages)))
+        maxpnum = etree.SubElement(head, NCX('meta'),
+            name='dtb:maxPageNumber', content='0')
         title = etree.SubElement(ncx, NCX('docTitle'))
         text = etree.SubElement(title, NCX('text'))
         text.text = unicode(self.metadata.title[0])
         navmap = etree.SubElement(ncx, NCX('navMap'))
         self.toc.to_ncx(navmap)
+        if len(self.pages) > 0:
+            plist = self.pages.to_ncx(ncx)
+            value = max(int(x) for x in xpath(plist, '//@value'))
+            maxpnum.attrib['content'] = str(value)
+        self._update_playorder(ncx)
         return ncx
     
-    def to_opf2(self):
+    def to_opf2(self, page_map=False):
+        results = {}
         package = etree.Element(OPF('package'),
             attrib={'version': '2.0', 'unique-identifier': self.uid.id},
             nsmap={None: OPF2_NS})
-        metadata = self.metadata.to_opf2(package)
+        self.metadata.to_opf2(package)
         manifest = self.manifest.to_opf2(package)
-        id, href = self.manifest.generate('ncx', 'toc.ncx')
-        etree.SubElement(manifest, OPF('item'),
-            attrib={'id': id, 'href': href, 'media-type': NCX_MIME})
         spine = self.spine.to_opf2(package)
+        self.guide.to_opf2(package)
+        results[OPF_MIME] = ('content.opf', package)
+        id, href = self.manifest.generate('ncx', 'toc.ncx')
+        etree.SubElement(manifest, OPF('item'), id=id, href=href,
+                         attrib={'media-type': NCX_MIME})
         spine.attrib['toc'] = id
-        guide = self.guide.to_opf2(package)
-        ncx = self._to_ncx()
-        return {OPF_MIME: ('content.opf', package),
-                NCX_MIME: (href, ncx)}
+        results[NCX_MIME] = (href, self._to_ncx())
+        if page_map and len(self.pages) > 0:
+            id, href = self.manifest.generate('page-map', 'page-map.xml')
+            etree.SubElement(manifest, OPF('item'), id=id, href=href,
+                             attrib={'media-type': PAGE_MAP_MIME})
+            spine.attrib['page-map'] = id
+            results[PAGE_MAP_MIME] = (href, self.pages.to_page_map())
+        return results
 
 
 def main(argv=sys.argv):
@@ -1292,7 +1659,7 @@ def main(argv=sys.argv):
         oeb = OEBBook(arg)
         for name, doc in oeb.to_opf1().values():
             print etree.tostring(doc, pretty_print=True)
-        for name, doc in oeb.to_opf2().values():
+        for name, doc in oeb.to_opf2(page_map=True).values():
             print etree.tostring(doc, pretty_print=True)
     return 0
 

@@ -15,6 +15,7 @@ class Tomshardware(BasicNewsRecipe):
     description = 'Hardware reviews and News'
     no_stylesheets = True
     needs_subscription = True
+    language = _('English')
     INDEX = 'http://www.tomshardware.com'
     LOGIN = 'http://www.tomshardware.com/membres/?r=%2Fus%2F#loginForm'
     cover_url = 'http://img.bestofmedia.com/img/tomshardware/design/tomshardware.jpg'

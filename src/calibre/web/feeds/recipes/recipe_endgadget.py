@@ -12,7 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Engadget(BasicNewsRecipe):
     title                 = u'Engadget'
     __author__            = 'Darko Miletic'
-    description           = 'Tech news'    
+    description           = 'Tech news'
+    language = _('English')    
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

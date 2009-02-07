@@ -14,6 +14,7 @@ class LondonReviewOfBooks(BasicNewsRecipe):
     description           = u'Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'
     oldest_article        = 7
     max_articles_per_feed = 100
+    language = _('English')
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'

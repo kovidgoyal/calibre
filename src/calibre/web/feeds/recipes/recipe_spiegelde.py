@@ -16,6 +16,7 @@ class SpeigelOnline(BasicNewsRecipe):
     description = 'Nachrichten des Magazins Der Spiegel'
     __author__ = 'Kovid Goyal'
     use_embedded_content   = False
+    language = _('German')
     timefmt = ' [ %Y-%m-%d %a]'
     max_articles_per_feed = 40
     no_stylesheets = True

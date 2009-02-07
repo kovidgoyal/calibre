@@ -115,16 +115,11 @@ class Main(MainWindow, Ui_MainWindow):
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered(bool)'), lambda c : self.show())
         self.connect(self.action_show_book_details, SIGNAL('triggered(bool)'), self.show_book_info)
-        def restart_app(c):
-            self.quit(None, restart=True)
-        self.connect(self.action_restart, SIGNAL('triggered(bool)'), restart_app)
-        def sta(r):
-            if r == QSystemTrayIcon.Trigger:
-                self.hide() if self.isVisible() else self.show()
-        self.connect(self.system_tray_icon, SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), sta)
-        def tcme(self, *args):
-            pass
-        self.tool_bar.contextMenuEvent = tcme
+        self.connect(self.action_restart, SIGNAL('triggered(bool)'), 
+                     lambda c : self.quit(None, restart=True))
+        self.connect(self.system_tray_icon, SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), 
+                     self.system_tray_icon_activated)
+        self.tool_bar.contextMenuEvent = self.no_op
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -165,15 +160,11 @@ class Main(MainWindow, Ui_MainWindow):
         sm.addSeparator()
         sm.addAction(_('Send to storage card by default'))
         sm.actions()[-1].setCheckable(True)
-        def default_sync(checked):
-            config.set('send_to_storage_card_by_default', bool(checked))
-            QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)
-            QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card)
-            QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card if checked else self.sync_to_main_memory)
-        QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), default_sync)
+        QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), 
+                        self.do_default_sync)
 
         sm.actions()[-1].setChecked(config.get('send_to_storage_card_by_default'))
-        default_sync(sm.actions()[-1].isChecked())
+        self.do_default_sync(sm.actions()[-1].isChecked())
         self.sync_menu = sm # Needed
         md = QMenu()
         md.addAction(_('Edit metadata individually'))
@@ -294,7 +285,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.stack.setCurrentIndex(0)
         try:
             db = LibraryDatabase2(self.library_path)
-        except OSError, err:
+        except Exception, err:
             error_dialog(self, _('Bad database location'), unicode(err)).exec_()
             dir = unicode(QFileDialog.getExistingDirectory(self,
                             _('Choose a location for your ebook library.'), os.path.expanduser('~')))
@@ -370,6 +361,32 @@ class Main(MainWindow, Ui_MainWindow):
         self.action_news.setMenu(self.scheduler.news_menu)
         self.connect(self.action_news, SIGNAL('triggered(bool)'), self.scheduler.show_dialog)
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
+    
+    def no_op(self, *args):
+        pass
+    
+    def system_tray_icon_activated(self, r):
+        if r == QSystemTrayIcon.Trigger:
+            if self.isVisible():
+                for window in QApplication.topLevelWidgets():
+                    if isinstance(window, (MainWindow, QDialog)) and window.isVisible():
+                        window.hide()
+                        setattr(window, '__systray_minimized', True)
+            else:
+                for window in QApplication.topLevelWidgets():
+                    if getattr(window, '__systray_minimized', False):
+                        window.show()
+                        setattr(window, '__systray_minimized', False)
+                         
+    
+    def do_default_sync(self, checked):
+        config.set('send_to_storage_card_by_default', bool(checked))
+        QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), 
+                           self.sync_to_main_memory)
+        QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), 
+                           self.sync_to_card)
+        QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), 
+                        self.sync_to_card if checked else self.sync_to_main_memory)
     
     def change_output_format(self, x):
         of = unicode(x).strip()
@@ -1426,10 +1443,10 @@ class Main(MainWindow, Ui_MainWindow):
     def donate(self, *args):
         BUTTON = '''
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-            <input type="hidden" name="cmd" value="_s-xclick">
-            <input type="hidden" name="hosted_button_id" value="1335186">
-            <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="">
-            <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+            <input type="hidden" name="cmd" value="_s-xclick" />
+            <input type="hidden" name="hosted_button_id" value="3029467" />
+            <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="Donate to support calibre development" />
+            <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
         </form>
         '''
         MSG = _('is the result of the efforts of many volunteers from all over the world. If you find it useful, please consider donating to support its development.')

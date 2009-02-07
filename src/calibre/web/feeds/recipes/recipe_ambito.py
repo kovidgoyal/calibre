@@ -18,6 +18,7 @@ class Ambito(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'iso--8859-1'
+    language              = _('Spanish')
     cover_url             = 'http://www.ambito.com/img/logo_.jpg'
 
     html2lrf_options = [

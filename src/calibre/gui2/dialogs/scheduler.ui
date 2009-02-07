@@ -24,8 +24,20 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout" >
       <item>
-       <widget class="RecipeListView" name="recipes" >
-        <property name="alternatingRowColors" >
+       <widget class="QTreeView" name="recipes" >
+        <property name="showDropIndicator" stdset="0" >
+         <bool>false</bool>
+        </property>
+        <property name="iconSize" >
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="animated" >
+         <bool>true</bool>
+        </property>
+        <property name="headerHidden" >
          <bool>true</bool>
         </property>
        </widget>
@@ -321,13 +333,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>RecipeListView</class>
-   <extends>QListView</extends>
-   <header>recipelistview.h</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../images.qrc" />
  </resources>

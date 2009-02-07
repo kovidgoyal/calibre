@@ -12,6 +12,7 @@ class ElArgentino(BasicNewsRecipe):
     title                 = 'ElArgentino.com'
     __author__            = 'Darko Miletic'
     description           = 'Informacion Libre las 24 horas'    
+    language = _('Spanish')
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True

@@ -12,6 +12,7 @@ class Wired(BasicNewsRecipe):
     __author__ = 'David Chen <SonyReader<at>DaveChen<dot>org>'
     description = 'Technology news'
     timefmt  = ' [%Y%b%d  %H%M]'
+    language = _('English')
     no_stylesheets = True
     #html2lrf_options = ['--base-font-size', '16']
     

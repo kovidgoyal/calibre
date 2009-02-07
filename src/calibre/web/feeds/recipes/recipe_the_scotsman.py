@@ -16,6 +16,7 @@ class TheScotsman(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    language = _('English')
     simultaneous_downloads = 1
 
     keep_only_tags = [dict(name='div', attrs={'id':'viewarticle'})]

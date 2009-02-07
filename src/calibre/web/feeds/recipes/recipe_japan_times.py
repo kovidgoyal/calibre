@@ -11,7 +11,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class JapanTimes(BasicNewsRecipe):
     title                 = u'The Japan Times'
     __author__            = 'Darko Miletic'
-    description           = 'News from Japan'    
+    description           = 'News from Japan'
+    language = _('English')    
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

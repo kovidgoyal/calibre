@@ -16,6 +16,7 @@ class Sueddeutsche(BasicNewsRecipe):
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 40
+    language = _('German')
     no_stylesheets = True
     encoding = 'latin1'
     remove_tags_after = [dict(name='div', attrs={'class':'artikelBox navigatorBox'})]

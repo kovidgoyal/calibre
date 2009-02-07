@@ -27,15 +27,6 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre import sanitize_file_name
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
-iscaseinsensitive = iswindows or isosx
-
-def normpath(x):
-    # The builtin os.path.normcase doesn't work on OS X
-    x = os.path.abspath(x)
-    if iscaseinsensitive:
-        x = x.lower()
-    return x
-
 
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5, 
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
@@ -355,6 +346,8 @@ class LibraryDatabase2(LibraryDatabase):
         if isinstance(self.dbpath, unicode):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
         self.connect()
+        self.is_case_sensitive = not iswindows and not isosx and \
+            not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         # Upgrade database 
         while True:
             meth = getattr(self, 'upgrade_version_%d'%self.user_version, None)
@@ -488,6 +481,16 @@ class LibraryDatabase2(LibraryDatabase):
         name   = title + ' - ' + author
         return name
     
+    def rmtree(self, path):
+        if not self.normpath(self.library_path).startswith(self.normpath(path)):
+            shutil.rmtree(path)
+    
+    def normpath(self, path):
+        path = os.path.abspath(os.path.realpath(path))
+        if not self.is_case_sensitive:
+            path = path.lower()
+        return path
+    
     def set_path(self, index, index_is_id=False):
         '''
         Set the path to the directory containing this books files based on its
@@ -531,11 +534,11 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.set(id, FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
-            if normpath(spath) != normpath(tpath):
-                shutil.rmtree(spath)
+            if self.normpath(spath) != self.normpath(tpath):
+                self.rmtree(spath)
                 parent  = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
-                    shutil.rmtree(parent)
+                    self.rmtree(parent)
             
     def add_listener(self, listener):
         '''
@@ -698,10 +701,10 @@ class LibraryDatabase2(LibraryDatabase):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         self.data.remove(id)
         if os.path.exists(path):
-            shutil.rmtree(path)
+            self.rmtree(path)
             parent = os.path.dirname(path)
             if len(os.listdir(parent)) == 0:
-                shutil.rmtree(parent)
+                self.rmtree(parent)
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
         self.clean()

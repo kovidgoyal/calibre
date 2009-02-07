@@ -14,6 +14,7 @@ class GlobeAndMail(BasicNewsRecipe):
     
     title = 'Globe and Mail'
     __author__ = 'Kovid Goyal'
+    language = _('English')
     description = 'Canada\'s national newspaper'
     keep_only_tags = [dict(id='content')]
     remove_tags    = [dict(attrs={'class':'nav'}), dict(id=['related', 'TPphoto', 'secondaryNav', 'articleBottomToolsHolder'])]

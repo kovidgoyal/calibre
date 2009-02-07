@@ -14,6 +14,7 @@ class Nspm(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Casopis za politicku teoriju i drustvena istrazivanja'    
     oldest_article        = 7
+    language = _('Serbian')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

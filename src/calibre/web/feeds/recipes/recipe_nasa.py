@@ -31,6 +31,7 @@ class NASA(BasicNewsRecipe):
 
     title = 'NASA'
     timefmt  = ' [%Y%b%d  %H%M]'
+    language = _('English')
     description = 'News from NASA'
     __author__ = 'Scott Wxby & David Chen'
     no_stylesheets = True

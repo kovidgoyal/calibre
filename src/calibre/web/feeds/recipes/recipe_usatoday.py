@@ -15,6 +15,7 @@ class USAToday(BasicNewsRecipe):
     timefmt  = ' [%d %b %Y]'
     max_articles_per_feed = 20
     no_stylesheets = True
+    language = _('English')
     extra_css = '''
     .inside-head { font: x-large bold } 
     .inside-head2 { font: x-large bold }

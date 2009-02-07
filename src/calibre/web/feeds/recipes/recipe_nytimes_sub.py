@@ -14,6 +14,7 @@ class NYTimes(BasicNewsRecipe):
     
     title       = 'The New York Times (subscription)'
     __author__  = 'Kovid Goyal'
+    language = _('English')
     description = 'Daily news from the New York Times (subscription version)'
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = True
