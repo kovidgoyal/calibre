@@ -246,6 +246,10 @@ class DirWriter(object):
 
     def dump(self, oeb, path):
         version = int(self.version[0])
+        opfname = None
+        if os.path.splitext(path)[1].lower() == '.opf':
+            opfname = os.path.basename(path)
+            path = os.path.dirname(path)
         if not os.path.isdir(path):
             os.mkdir(path)
         output = DirContainer(path)
@@ -257,7 +261,9 @@ class DirWriter(object):
             metadata = oeb.to_opf2(page_map=self.page_map)
         else:
             raise OEBError("Unrecognized OPF version %r" % self.version)
-        for href, data in metadata.values():
+        for mime, (href, data) in metadata.items():
+            if opfname and mime == OPF_MIME:
+                href = opfname
             output.write(href, xml2str(data))
         return
 
@@ -551,9 +557,6 @@ class Manifest(object):
                 for elem in data:
                     nroot.append(elem)
                 data = nroot
-            # Remove any encoding-specifying <meta/> elements
-            for meta in self.META_XP(data):
-                meta.getparent().remove(meta)
             # Ensure has a <head/>
             head = xpath(data, '/h:html/h:head')
             head = head[0] if head else None
@@ -569,6 +572,12 @@ class Manifest(object):
                     'File %r missing <title/> element' % self.href)
                 title = etree.SubElement(head, XHTML('title'))
                 title.text = self.oeb.translate(__('Unknown'))
+            # Remove any encoding-specifying <meta/> elements
+            for meta in self.META_XP(data):
+                meta.getparent().remove(meta)
+            etree.SubElement(head, XHTML('meta'),
+                attrib={'http-equiv': 'Content-Type',
+                        'content': '%s; charset=utf-8' % XHTML_NS})
             # Ensure has a <body/>
             if not xpath(data, '/h:html/h:body'):
                 self.oeb.logger.warn(

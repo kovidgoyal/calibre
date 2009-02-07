@@ -96,7 +96,7 @@ class PRS500(Device):
     # Location of cache.xml on storage card in device
     CACHE_XML = "/Sony Reader/database/cache.xml" 
     # Ordered list of supported formats
-    FORMATS     = ["lrf", "rtf", "pdf", "txt"]             
+    FORMATS     = ["lrf", "lrx", "rtf", "pdf", "txt"]             
     # Height for thumbnails of books/images on the device
     THUMBNAIL_HEIGHT = 68
     # Directory on card to which books are copied

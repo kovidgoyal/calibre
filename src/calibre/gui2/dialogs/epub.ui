@@ -524,7 +524,7 @@
           </layout>
          </widget>
          <widget class="QWidget" name="pagesetup_page" >
-          <layout class="QGridLayout" name="_13" >
+          <layout class="QGridLayout" name="gridLayout_7" >
            <item row="0" column="0" >
             <widget class="QLabel" name="profile_label" >
              <property name="text" >
@@ -544,6 +544,32 @@
               <number>1</number>
              </property>
             </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="source_profile_label" >
+             <property name="text" >
+              <string>&amp;Source profile:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_source_profile</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QComboBox" name="opt_source_profile" />
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="dest_profile_label" >
+             <property name="text" >
+              <string>&amp;Destination profile:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_dest_profile</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" >
+            <widget class="QComboBox" name="opt_dest_profile" />
            </item>
            <item row="3" column="0" >
             <widget class="QLabel" name="label_12" >
@@ -644,31 +670,72 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="source_profile_label" >
-             <property name="text" >
-              <string>&amp;Source profile:</string>
+           <item row="8" column="0" colspan="2" >
+            <widget class="QGroupBox" name="page_map_box" >
+             <property name="title" >
+              <string>&amp;Page map</string>
              </property>
-             <property name="buddy" >
-              <cstring>opt_source_profile</cstring>
-             </property>
+             <layout class="QGridLayout" name="gridLayout" >
+              <item rowspan="2" row="0" column="0" colspan="4" >
+               <widget class="QLabel" name="label_23" >
+                <property name="sizePolicy" >
+                 <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text" >
+                 <string>&lt;p>You can control how calibre detects page boundaries using a XPath expression. To learn how to use XPath expressions see the &lt;a href="http://calibre.kovidgoyal.net/user_manual/xpath.html">XPath tutorial&lt;/a>. The page boundaries are useful only if you want a mapping from pages in a paper book, to locations in the e-book. This controls where Adobe Digital Editions displays the page numbers in the right margin.&lt;/p></string>
+                </property>
+                <property name="wordWrap" >
+                 <bool>true</bool>
+                </property>
+                <property name="openExternalLinks" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_21" >
+                <property name="text" >
+                 <string>&amp;Boundary XPath:</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_page</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <widget class="QLineEdit" name="opt_page" />
+              </item>
+              <item row="1" column="2" >
+               <widget class="QLabel" name="label_22" >
+                <property name="text" >
+                 <string>&amp;Name XPath:</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_page_names</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3" >
+               <widget class="QLineEdit" name="opt_page_names" />
+              </item>
+             </layout>
             </widget>
            </item>
-           <item row="1" column="1" >
-            <widget class="QComboBox" name="opt_source_profile" />
-           </item>
-           <item row="2" column="0" >
-            <widget class="QLabel" name="dest_profile_label" >
-             <property name="text" >
-              <string>&amp;Destination profile:</string>
+           <item row="9" column="0" >
+            <spacer name="verticalSpacer" >
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
              </property>
-             <property name="buddy" >
-              <cstring>opt_dest_profile</cstring>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
              </property>
-            </widget>
-           </item>
-           <item row="2" column="1" >
-            <widget class="QComboBox" name="opt_dest_profile" />
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -679,21 +746,8 @@
              <property name="title" >
               <string>Automatic &amp;chapter detection</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout" >
-              <item row="1" column="0" >
-               <widget class="QLabel" name="label_17" >
-                <property name="text" >
-                 <string>&amp;XPath:</string>
-                </property>
-                <property name="buddy" >
-                 <cstring>opt_chapter</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" >
-               <widget class="QLineEdit" name="opt_chapter" />
-              </item>
-              <item row="0" column="0" colspan="2" >
+             <layout class="QVBoxLayout" name="verticalLayout_4" >
+              <item>
                <widget class="QLabel" name="label_8" >
                 <property name="text" >
                  <string>&lt;p>You can control how calibre detects chapters using a XPath expression. To learn how to use XPath expressions see the &lt;a href="http://calibre.kovidgoyal.net/user_manual/xpath.html">XPath tutorial&lt;/a>&lt;/p></string>
@@ -709,18 +763,35 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="1" >
-               <widget class="QComboBox" name="opt_chapter_mark" />
-              </item>
-              <item row="2" column="0" >
-               <widget class="QLabel" name="label_9" >
-                <property name="text" >
-                 <string>Chapter &amp;mark:</string>
-                </property>
-                <property name="buddy" >
-                 <cstring>opt_chapter_mark</cstring>
-                </property>
-               </widget>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3" >
+                <item>
+                 <widget class="QLabel" name="label_17" >
+                  <property name="text" >
+                   <string>&amp;XPath:</string>
+                  </property>
+                  <property name="buddy" >
+                   <cstring>opt_chapter</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="opt_chapter" />
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_9" >
+                  <property name="text" >
+                   <string>Chapter &amp;mark:</string>
+                  </property>
+                  <property name="buddy" >
+                   <cstring>opt_chapter_mark</cstring>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="opt_chapter_mark" />
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -847,7 +918,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2" >
+   <item row="3" column="0" colspan="2" >
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
