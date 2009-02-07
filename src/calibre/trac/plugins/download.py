@@ -30,7 +30,7 @@ class Distribution(object):
         ('libusb', '0.1.12', None, None, None),
         ('Qt', '4.4.0', 'qt', 'libqt4-core libqt4-gui', 'qt4'),
         ('PyQt', '4.4.2', 'PyQt4', 'python-qt4', 'PyQt4'),
-        ('mechanize for python', '0.1.8', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
+        ('mechanize for python', '0.1.11', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
         ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
