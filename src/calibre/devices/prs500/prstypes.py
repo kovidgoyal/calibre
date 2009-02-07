@@ -284,8 +284,8 @@ class Command(TransferBuffer):
     # Length of the data part of this packet
     length = field(start=12, fmt=DWORD) 
     
-    @apply
-    def data():
+    @dynamic_property
+    def data(self):
         doc = \
         """ 
         The data part of this command. Returned/set as/by a TransferBuffer. 
@@ -447,8 +447,8 @@ class LongCommand(Command):
         self.length  = 16
         self.command = command
     
-    @apply
-    def command():
+    @dynamic_property
+    def command(self):
         doc = \
         """ 
         Usually carries extra information needed for the command
@@ -568,8 +568,8 @@ class FileOpen(PathCommand):
         PathCommand.__init__(self, path, FileOpen.NUMBER, path_len_at_byte=20)
         self.mode = mode
     
-    @apply
-    def mode():
+    @dynamic_property
+    def mode(self):
         doc = \
                     """ 
                     The file open mode. Is either L{FileOpen.READ} 
@@ -651,8 +651,8 @@ class Response(Command):
             raise PacketError("Response packets must have their number set to " \
             + hex(0x00001000))
     
-    @apply
-    def data():
+    @dynamic_property
+    def data(self):
         doc = \
                   """ 
                   The last 3 DWORDs (12 bytes) of data in this 
@@ -681,43 +681,43 @@ class ListResponse(Response):
     PATH_NOT_FOUND = 0xffffffd7 #: Queried path is not found 
     PERMISSION_DENIED = 0xffffffd6 #: Permission denied
     
-    @apply
-    def is_file():
+    @dynamic_property
+    def is_file(self):
         doc = """ True iff queried path is a file """
         def fget(self):      
             return self.code == ListResponse.IS_FILE
         return property(doc=doc, fget=fget)
     
-    @apply
-    def is_invalid():
+    @dynamic_property
+    def is_invalid(self):
         doc = """ True iff queried path is invalid """
         def fget(self):    
             return self.code == ListResponse.IS_INVALID
         return property(doc=doc, fget=fget)
     
-    @apply
-    def path_not_found():
+    @dynamic_property
+    def path_not_found(self):
         doc = """ True iff queried path is not found """
         def fget(self):    
             return self.code == ListResponse.PATH_NOT_FOUND
         return property(doc=doc, fget=fget)
     
-    @apply
-    def permission_denied():
+    @dynamic_property
+    def permission_denied(self):
         doc = """ True iff permission is denied for path operations """
         def fget(self):    
             return self.code == ListResponse.PERMISSION_DENIED
         return property(doc=doc, fget=fget)
     
-    @apply
-    def is_unmounted():
+    @dynamic_property
+    def is_unmounted(self):
         doc = """ True iff queried path is unmounted (i.e. removed storage card) """
         def fget(self):
             return self.code == ListResponse.IS_UNMOUNTED
         return property(doc=doc, fget=fget)
     
-    @apply
-    def is_eol():
+    @dynamic_property
+    def is_eol(self):
         doc = """ True iff there are no more items in the list """
         def fget(self):
             return self.code == ListResponse.IS_EOL
@@ -759,8 +759,8 @@ class FileProperties(Answer):
     # 0 = default permissions, 4 = read only
     permissions = field(start=36, fmt=DWORD)  
     
-    @apply
-    def is_dir():
+    @dynamic_property
+    def is_dir(self):
         doc = """True if path points to a directory, False if it points to a file."""    
         
         def fget(self):
@@ -776,8 +776,8 @@ class FileProperties(Answer):
         return property(doc=doc, fget=fget, fset=fset)
     
     
-    @apply
-    def is_readonly():
+    @dynamic_property
+    def is_readonly(self):
         doc = """ Whether this file is readonly."""
         
         def fget(self):
@@ -801,8 +801,8 @@ class IdAnswer(Answer):
     
     """ Defines the structure of packets that contain identifiers for queries. """
     
-    @apply
-    def id():
+    @dynamic_property
+    def id(self):
         doc = \
         """ 
         The identifier. C{unsigned int} stored in 4 bytes 
@@ -841,8 +841,8 @@ class ListAnswer(Answer):
     name_length = field(start=20, fmt=DWORD)
     name        = stringfield(name_length, start=24)
     
-    @apply
-    def is_dir():
+    @dynamic_property
+    def is_dir(self):
         doc = \
         """ 
         True if list item points to a directory, False if it points to a file.
@@ -858,5 +858,4 @@ class ListAnswer(Answer):
             self.pack(val, start=16, fmt=DWORD)
         
         return property(doc=doc, fget=fget, fset=fset)
-
 

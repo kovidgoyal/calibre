@@ -419,8 +419,8 @@ class Metadata(object):
     def __getattr__(self, term):
         return self.items[term]
 
-    @apply
-    def _nsmap():
+    @dynamic_property
+    def _nsmap(self):
         def fget(self):
             nsmap = {}
             for term in self.items:
@@ -429,8 +429,8 @@ class Metadata(object):
             return nsmap
         return property(fget=fget)
     
-    @apply
-    def _opf1_nsmap():
+    @dynamic_property
+    def _opf1_nsmap(self):
         def fget(self):
             nsmap = self._nsmap
             for key, value in nsmap.items():
@@ -440,8 +440,8 @@ class Metadata(object):
         return property(fget=fget)
     
     
-    @apply
-    def _opf2_nsmap():
+    @dynamic_property
+    def _opf2_nsmap(self):
         def fget(self):
             nsmap = self._nsmap
             nsmap.update(self.OPF2_NSMAP)
@@ -576,8 +576,8 @@ class Manifest(object):
                 etree.SubElement(data, XHTML('body'))
             return data
         
-        @apply
-        def data():
+        @dynamic_property
+        def data(self):
             def fget(self):
                 if self._data is not None:
                     return self._data
@@ -848,8 +848,8 @@ class Guide(object):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
         
-        @apply
-        def _order():
+        @dynamic_property
+        def _order(self):
             def fget(self):
                 return self.ORDER.get(self.type, self.type)
             return property(fget=fget)
@@ -859,8 +859,8 @@ class Guide(object):
                 return NotImplemented
             return cmp(self._order, other._order)
         
-        @apply
-        def item():
+        @dynamic_property
+        def item(self):
             def fget(self):
                 path = urldefrag(self.href)[0]
                 hrefs = self.oeb.manifest.hrefs

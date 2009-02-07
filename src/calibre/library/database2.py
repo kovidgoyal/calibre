@@ -311,8 +311,8 @@ class LibraryDatabase2(LibraryDatabase):
     An ebook metadata database that stores references to ebook files on disk.
     '''
     PATH_LIMIT = 40 if 'win32' in sys.platform else 100
-    @apply
-    def user_version():
+    @dynamic_property
+    def user_version(self):
         doc = 'The user version of this database'
         
         def fget(self):

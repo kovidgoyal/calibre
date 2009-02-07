@@ -31,8 +31,8 @@ from cssutils import CSSParser
 
 class HTMLElement(HtmlElement):
     
-    @apply
-    def specified_font_size():
+    @dynamic_property
+    def specified_font_size(self):
         
         def fget(self):
             ans = self.get('specified_font_size', '')
@@ -47,8 +47,8 @@ class HTMLElement(HtmlElement):
                      
         return property(fget=fget, fset=fset)
     
-    @apply
-    def computed_font_size():
+    @dynamic_property
+    def computed_font_size(self):
         def fget(self):
             ans = self.get('computed_font_size', '')
             if ans == '':
