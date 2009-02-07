@@ -12,21 +12,25 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Juventudrebelde(BasicNewsRecipe):
     title                 = 'Juventud Rebelde'
     __author__            = 'Darko Miletic'
-    description           = 'Diario de la Juventud Cubana'    
+    description           = 'Diario de la Juventud Cubana'
+    publisher             = 'Juventud rebelde'
+    category              = 'news, politics, Cuba'    
     oldest_article        = 2
-    language = _('Spanish')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
     cover_url             = strftime('http://www.juventudrebelde.cu/UserFiles/File/impreso/iportada-%Y-%m-%d.jpg')
-
+    remove_javascript     = True
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Cuba'
-                        , '--publisher'     , title
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         , '--ignore-tables'
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
 
     keep_only_tags = [dict(name='div', attrs={'id':'noticia'})]
 
@@ -40,4 +44,11 @@ class Juventudrebelde(BasicNewsRecipe):
               ,(u'Lectura', u'http://www.juventudrebelde.cu/rss/generales.php?seccion=lectura' )
             ]
 
-            
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Language" content="es-CU"/>'
+        soup.head.insert(0,mtag)    
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+             
+    language = _('Spanish')

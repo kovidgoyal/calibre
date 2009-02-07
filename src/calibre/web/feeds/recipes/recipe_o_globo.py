@@ -11,20 +11,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class OGlobo(BasicNewsRecipe):
     title                 = 'O Globo'
     __author__            = 'Darko Miletic'
-    description           = 'News from Brasil'    
+    description           = 'News from Brasil'
+    publisher             = 'O Globo'
+    category              = 'news, politics, Brasil'
     oldest_article        = 2
     max_articles_per_feed = 100
-    language = _('Portugese')
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
     cover_url             = 'http://oglobo.globo.com/_img/o-globo.png'
-
+    remove_javascript     = True
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Brasil'
-                        , '--publisher'     , title
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
                         
     keep_only_tags = [dict(name='div', attrs={'id':'ltintb'})]
 
@@ -56,3 +60,10 @@ class OGlobo(BasicNewsRecipe):
               ,(u'Economia', u'http://oglobo.globo.com/rss/plantaoeconomia.xml')
               ,(u'Tecnologia', u'http://oglobo.globo.com/rss/plantaotecnologia.xml')
             ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    language = _('Portugese')

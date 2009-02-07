@@ -7,15 +7,17 @@ nin.co.yu
 '''
 
 import re, urllib
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Nin(BasicNewsRecipe):
+class Nin(BasicNewsRecipe):    
     title                  = 'NIN online'
     __author__             = 'Darko Miletic'
     description            = 'Nedeljne informativne novine'
+    publisher              = 'NIN'
+    category               = 'news, politics, Serbia'    
     no_stylesheets         = True
     oldest_article         = 15
-    language              = _('Serbian')
     simultaneous_downloads = 1
     delay                  = 1
     encoding               = 'utf8'
@@ -23,11 +25,17 @@ class Nin(BasicNewsRecipe):
     PREFIX                 = 'http://www.nin.co.yu'
     INDEX                  = PREFIX + '/?change_lang=ls'
     LOGIN                  = PREFIX + '/?logout=true'
+    remove_javascript      = True
+    use_embedded_content   = False
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
+
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, politics, Serbia'
-                        , '--publisher'     , 'NIN'
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
                           
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     
@@ -54,3 +62,12 @@ class Nin(BasicNewsRecipe):
         if link_item:
            cover_url = self.PREFIX + link_item['src']
         return cover_url
+
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
+        soup.head.insert(0,mtag)    
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    language              = _('Serbian')
