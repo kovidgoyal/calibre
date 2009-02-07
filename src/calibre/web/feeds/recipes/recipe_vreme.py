@@ -16,6 +16,7 @@ class Vreme(BasicNewsRecipe):
     __author__  = 'Darko Miletic'
     description = 'Politicki Nedeljnik Srbije'
     no_stylesheets = True
+    language              = _('Serbian')
     needs_subscription = True    
     INDEX = 'http://www.vreme.com'
     LOGIN = 'http://www.vreme.com/account/index.php'

@@ -15,6 +15,7 @@ class Nin(BasicNewsRecipe):
     description            = 'Nedeljne informativne novine'
     no_stylesheets         = True
     oldest_article         = 15
+    language              = _('Serbian')
     simultaneous_downloads = 1
     delay                  = 1
     encoding               = 'utf8'

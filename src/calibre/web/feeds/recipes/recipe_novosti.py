@@ -13,6 +13,7 @@ class Novosti(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'novosti, vesti, politika, dosije, drustvo, ekonomija, hronika, reportaze, svet, kultura, sport, beograd, regioni, mozaik, feljton, intrvju, pjer, fudbal, kosarka, podvig, arhiva, komentari, kolumne, srbija, republika srpska,Vecernje novosti'
     oldest_article        = 2
+    language              = _('Serbian')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

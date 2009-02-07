@@ -13,6 +13,7 @@ class Blic(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Blic.rs online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'
     oldest_article        = 7
+    language              = _('Serbian')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
