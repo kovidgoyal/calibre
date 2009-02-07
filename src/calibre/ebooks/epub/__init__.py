@@ -153,6 +153,14 @@ help on using this feature.
                      'slow and if your source file contains a very large '
                      'number of page breaks, you should turn off splitting '
                      'on page breaks.'))
+    structure('page', ['--page'], default=None,
+              help=_('XPath expression to detect page boundaries for building '
+                     'a custom pagination map, as used by AdobeDE. Default is '
+                     'not to build an explicit pagination map.'))
+    structure('page_names', ['--page-names'], default=None,
+              help=_('XPath expression to find the name of each page in the '
+                     'pagination map relative to its boundary element. '
+                     'Default is to number all pages staring with 1.'))
     toc = c.add_group('toc', 
         _('''\
 Control the automatic generation of a Table of Contents. If an OPF file is detected

@@ -224,6 +224,7 @@ class Config(ResizableDialog, Ui_Dialog):
                     g.setValue(val)
                 elif isinstance(g, (QLineEdit, QTextEdit)):
                     getattr(g, 'setPlainText', g.setText)(val)
+                    getattr(g, 'setCursorPosition', lambda x: x)(0)
                 elif isinstance(g, QComboBox):
                     for value in pref.choices:
                         g.addItem(value)
@@ -253,7 +254,8 @@ class Config(ResizableDialog, Ui_Dialog):
                     self.source_format = d.format()
                 
     def accept(self):
-        for opt in ('chapter', 'level1_toc', 'level2_toc', 'level3_toc'):
+        for opt in ('chapter', 'level1_toc', 'level2_toc', 'level3_toc', 'page',
+                    'page_names'):
             text = unicode(getattr(self, 'opt_'+opt).text())
             if text:
                 try:

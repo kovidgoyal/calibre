@@ -27,12 +27,12 @@ class File(object):
         
 
 class PRS505(Device):
-    VENDOR_ID    = 0x054c #: SONY Vendor Id
-    PRODUCT_ID   = 0x031e #: Product Id for the PRS-505
+    VENDOR_ID    = 0x054c   #: SONY Vendor Id
+    PRODUCT_ID   = 0x031e   #: Product Id for the PRS-505
     BCD          = [0x229]  #: Needed to disambiguate 505 and 700 on linux
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
-    FORMATS      = ['lrf', 'epub', "rtf", "pdf", "txt"]
+    FORMATS      = ['lrf', 'epub', 'lrx', 'rtf', 'pdf', 'txt']
     
     MEDIA_XML    = 'database/cache/media.xml'
     CACHE_XML    = 'Sony Reader/database/cache.xml'

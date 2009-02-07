@@ -20,3 +20,4 @@ class Config(_Config):
         self.opt_preserve_tag_structure.setVisible(False)
         self.opt_linearize_tables.setVisible(False)
         self.opt_no_justification.setVisible(False)
+        self.page_map_box.setVisible(False)
