@@ -48,34 +48,34 @@ XPNSMAP      = {
 DC_PREFIXES = ('d11', 'd10', 'd09')
 
 
-def XML(name): 
+def XML(name):
     return '{%s}%s' % (XML_NS, name)
 
-def XHTML(name): 
+def XHTML(name):
     return '{%s}%s' % (XHTML_NS, name)
 
-def OPF(name): 
+def OPF(name):
     return '{%s}%s' % (OPF2_NS, name)
 
-def DC(name): 
+def DC(name):
     return '{%s}%s' % (DC11_NS, name)
 
-def XSI(name): 
+def XSI(name):
     return '{%s}%s' % (XSI_NS, name)
 
-def DCTERMS(name): 
+def DCTERMS(name):
     return '{%s}%s' % (DCTERMS_NS, name)
 
-def NCX(name): 
+def NCX(name):
     return '{%s}%s' % (NCX_NS, name)
 
-def SVG(name): 
+def SVG(name):
     return '{%s}%s' % (SVG_NS, name)
 
-def XLINK(name): 
+def XLINK(name):
     return '{%s}%s' % (XLINK_NS, name)
 
-def CALIBRE(name): 
+def CALIBRE(name):
     return '{%s}%s' % (CALIBRE_NS, name)
 
 def LINK_SELECTORS():

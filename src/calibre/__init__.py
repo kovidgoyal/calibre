@@ -19,6 +19,8 @@ import mechanize
 
 mimetypes.add_type('application/epub+zip',                '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml',                '.lrs')
+mimetypes.add_type('http://www.w3.org/1999/xhtml',        '.xhtml')
+mimetypes.add_type('image/svg+xml',                       '.svg')
 mimetypes.add_type('application/x-sony-bbeb',             '.lrf')
 mimetypes.add_type('application/x-dtbncx+xml',            '.ncx')
 mimetypes.add_type('application/adobe-page-template+xml', '.xpgt')
