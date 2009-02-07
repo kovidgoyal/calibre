@@ -1,3 +1,6 @@
+"""
+Container-/OPF-based input OEBBook reader.
+"""
 from __future__ import with_statement
 
 __license__   = 'GPL v3'
