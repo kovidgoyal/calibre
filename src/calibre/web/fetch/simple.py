@@ -410,6 +410,7 @@ class RecursiveFetcher(object, LoggingInterface):
                         _fname.decode('latin1', 'replace')
                     _fname = _fname.encode('ascii', 'replace').replace('%', '').replace(os.sep, '')
                     _fname = sanitize_file_name(_fname)
+                    _fname = os.path.splitext(_fname)[0]+'.xhtml'
                     res = os.path.join(linkdiskpath, _fname)
                     self.downloaded_paths.append(res)
                     self.filemap[nurl] = res
