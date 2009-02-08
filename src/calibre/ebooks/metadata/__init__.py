@@ -287,7 +287,7 @@ class MetaInformation(object):
         ans += [('ISBN', unicode(self.isbn))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
-            ans += [(_('Series'), unicode(self.series))+ ' #%s'%self.format_series_index()]
+            ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
         ans += [(_('Language'), unicode(self.language))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
