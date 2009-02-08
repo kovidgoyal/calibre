@@ -1223,6 +1223,8 @@ class Main(MainWindow, Ui_MainWindow):
                 format = 'LRF'
             if 'EPUB' in formats:
                 format = 'EPUB'
+            if 'MOBI' in formats:
+                format = 'MOBI'
             if not formats:
                 d = error_dialog(self, _('Cannot view'),
                         _('%s has no available formats.')%(title,))

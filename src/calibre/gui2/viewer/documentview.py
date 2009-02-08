@@ -15,6 +15,7 @@ from calibre.utils.config import Config, StringConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.js import bookmarks, referencing
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.constants import iswindows
 
 def load_builtin_fonts():
     from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
@@ -56,9 +57,12 @@ def config(defaults=None):
               help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
     
     fonts = c.add_group('FONTS', _('Font options'))
-    fonts('serif_family', default='Liberation Serif', help=_('The serif font family'))
-    fonts('sans_family', default='Liberation Sans', help=_('The sans-serif font family'))
-    fonts('mono_family', default='Liberation Mono', help=_('The monospaced font family'))
+    fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif', 
+          help=_('The serif font family'))
+    fonts('sans_family', default='Verdana' if iswindows else 'Liberation Sans', 
+          help=_('The sans-serif font family'))
+    fonts('mono_family', default='Courier New' if iswindows else 'Liberation Mono', 
+          help=_('The monospaced font family'))
     fonts('default_font_size', default=20, help=_('The standard font size in px'))
     fonts('mono_font_size', default=16, help=_('The monospaced font size in px'))
     fonts('standard_font', default='serif', help=_('The standard font type'))
