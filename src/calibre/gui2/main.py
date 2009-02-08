@@ -701,7 +701,7 @@ class Main(MainWindow, Ui_MainWindow):
         progress.show()
         try:
             for c, book in enumerate(paths):
-                progress.set_value(c)
+                progress.set_value(c+1)
                 if progress.canceled:
                     return
                 format = os.path.splitext(book)[1]
@@ -722,9 +722,11 @@ class Main(MainWindow, Ui_MainWindow):
                               'cover':self.default_thumbnail, 'tags':[]})
                 title = mi.title if isinstance(mi.title, unicode) else mi.title.decode(preferred_encoding, 'replace')
                 progress.set_msg(_('Read metadata from ')+title)
+                QApplication.processEvents()
             
             if not to_device:
                 progress.set_msg(_('Adding books to database...'))
+                QApplication.processEvents()
                 model = self.library_view.model()
                 
                 paths = list(paths)
@@ -741,6 +743,7 @@ class Main(MainWindow, Ui_MainWindow):
             else:
                 self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
         finally:
+            QApplication.processEvents()
             progress.hide()
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
