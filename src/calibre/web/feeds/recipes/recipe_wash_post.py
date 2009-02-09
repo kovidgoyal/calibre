@@ -12,19 +12,7 @@ class WashingtonPost(BasicNewsRecipe):
     language = _('English')
 
     
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
-[
-    	(r'<HEAD>.*?</HEAD>' , lambda match : '<HEAD></HEAD>'),
-    	(r'<div id="apple-rss-sidebar-background">.*?<!-- start Entries -->', lambda match : ''),
-    	(r'<!-- end apple-rss-content-area -->.*?</body>', lambda match : '</body>'),
-    	(r'<script.*?>.*?</script>', lambda match : ''),
-    	(r'<body.*?>.*?.correction {', lambda match : '<body><style>.correction {'),
-    	(r'<span class="display:none;" name="pubDate".*?>.*?</body>', lambda match : '<body>'),
-    	
-    	
-    ]
-    ]   
-     
+    remove_javascript = True   
 
   
     feeds = [ ('Today\'s Highlights', 'http://www.washingtonpost.com/wp-dyn/rss/linkset/2005/03/24/LI2005032400102.xml'),
@@ -37,9 +25,18 @@ class WashingtonPost(BasicNewsRecipe):
      	         ('Education', 'http://www.washingtonpost.com/wp-dyn/rss/education/index.xml'),
      	         ('Editorials', 'http://www.washingtonpost.com/wp-dyn/rss/linkset/2005/05/30/LI2005053000331.xml'),
      	]
+    
+    remove_tags = [{'id':['pfmnav', 'ArticleCommentsWrapper']}]
 
 
+    def get_article_url(self, article):
+        return article.get('feedburner_origlink', article.get('link', None))
 
     def print_version(self, url):
-        return (url.rpartition('.')[0] + '_pf.html')
+        return url.rpartition('.')[0] + '_pf.html'
+    
+    def postprocess_html(self, soup, first):
+        for div in soup.findAll(name='div', style=re.compile('margin')):
+            div['style'] = ''
+        return soup
 
