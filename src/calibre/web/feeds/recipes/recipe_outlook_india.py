@@ -13,11 +13,10 @@ class OutlookIndia(BasicNewsRecipe):
     
     title = 'Outlook India'
     __author__  = 'Kovid Goyal'
-    description = 'Weekly news magazine focussed on India.'
+    description = 'Weekly news magazine focused on India.'
     language = _('English')
     recursions = 1
     match_regexp = r'full.asp.*&pn=\d+'
-    html2lrf_options = ['--ignore-tables']
     
     remove_tags = [
                    dict(name='img', src="images/space.gif"),
@@ -81,5 +80,8 @@ class OutlookIndia(BasicNewsRecipe):
                 bad.append(table)
         for b in bad:
             b.extract()
+        soup = soup.findAll('html')[0]
+        for t in soup.findAll(['table', 'tr', 'td']):
+            t.name = 'div' 
         return soup
     
