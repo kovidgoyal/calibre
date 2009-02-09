@@ -86,9 +86,9 @@ class MetadataUpdater(object):
         image_base, = unpack('>I', record0[108:112])
         flags, = unpack('>I', record0[128:132])
         have_exth = self.have_exth = (flags & 0x40) != 0
+        self.cover_record = self.thumbnail_record = None
         if not have_exth:
             return
-        self.cover_record = self.thumbnail_record = None
         exth_off = unpack('>I', record0[20:24])[0] + 16 + record0.start
         exth = self.exth = StreamSlicer(stream, exth_off, record0.stop)
         nitems, = unpack('>I', exth[8:12])
@@ -143,6 +143,8 @@ class MetadataUpdater(object):
         exth = ['EXTH', pack('>II', len(exth) + 12, len(recs)), exth, pad]
         exth = ''.join(exth)
         title = (mi.title or _('Unknown')).encode(self.codec, 'replace')
+        if getattr(self, 'exth', None) is None:
+            raise MobiError('No existing EXTH record. Cannot update metadata.')
         title_off = (self.exth.start - self.record0.start) + len(exth)
         title_len = len(title)
         trail = len(self.exth) - len(exth) - len(title)
