@@ -618,7 +618,7 @@ class OPF(object):
         def fset(self, val):
             remove = list(self.authors_path(self.metadata))
             for elem in remove:
-                self.metadata.remove(elem)
+                elem.getparent().remove(elem)
             for author in val:
                 attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
                 elem = self.create_metadata_element('creator', attrib=attrib)

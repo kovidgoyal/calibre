@@ -467,7 +467,7 @@ class Parser(PreProcessor, LoggingInterface):
         if self.htmlfile.is_binary:
             raise ValueError('Not a valid HTML file: '+self.htmlfile.path)
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
-        src = src.replace('\x00', '')
+        src = src.replace('\x00', '').replace('\r', ' ')
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
         for pat in ENCODING_PATS:

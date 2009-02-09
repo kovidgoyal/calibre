@@ -18,6 +18,7 @@ from calibre.library.database2 import FIELD_MAP
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
 from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 
 class LibraryDelegate(QItemDelegate):
     COLOR    = QColor("blue")
@@ -423,7 +424,7 @@ class BooksModel(QAbstractTableModel):
                      
             
     
-    def get_preferred_formats(self, rows, formats, paths=False):
+    def get_preferred_formats(self, rows, formats, paths=False, set_metadata=False):
         ans = []
         for row in (row.row() for row in rows):
             format = None
@@ -441,6 +442,9 @@ class BooksModel(QAbstractTableModel):
                 pt = PersistentTemporaryFile(suffix='.'+format)
                 pt.write(self.db.format(row, format))
                 pt.flush()
+                if set_metadata:
+                    _set_metadata(pt, self.db.get_metadata(row, get_cover=True),
+                                  format)
                 pt.close() if paths else pt.seek(0)
                 ans.append(pt)
             else:

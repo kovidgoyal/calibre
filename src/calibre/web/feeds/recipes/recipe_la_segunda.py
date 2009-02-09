@@ -11,21 +11,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaSegunda(BasicNewsRecipe):
     title                 = 'La Segunda'
     __author__            = 'Darko Miletic'
-    description           = 'El sitio de noticias online de Chile'
-    language = _('Spanish')    
+    description           = 'El sitio de noticias online de Chile' 
+    publisher             = 'La Segunda'
+    category              = 'news, politics, Chile'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
     cover_url             = 'http://www.lasegunda.com/imagenes/logotipo_lasegunda_Oli.gif'
-
+    remove_javascript     = True
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Chile'
-                        , '--publisher'     , title
-                        , '--ignore-tables'
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
                         
     keep_only_tags = [dict(name='table')]
                         
@@ -45,4 +48,14 @@ class LaSegunda(BasicNewsRecipe):
     def print_version(self, url):
         rest, sep, article_id = url.partition('index.asp?idnoticia=')        
         return u'http://www.lasegunda.com/edicionOnline/include/secciones/_detalle_impresion.asp?idnoticia=' + article_id
+
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
+        soup.head.insert(0,mtag)
+        for item in soup.findAll(name='table', width=True):
+            del item['width']
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
     
+    language = _('Spanish')    

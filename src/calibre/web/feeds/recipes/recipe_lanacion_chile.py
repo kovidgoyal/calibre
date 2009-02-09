@@ -12,20 +12,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaNacionChile(BasicNewsRecipe):
     title                 = 'La Nacion Chile'
     __author__            = 'Darko Miletic'
-    description           = 'El sitio de noticias online de Chile'    
+    description           = 'El sitio de noticias online de Chile'
+    publisher             = 'La Nacion'
+    category              = 'news, politics, Chile'
     oldest_article        = 2
-    language = _('Spanish')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
     cover_url             = 'http://www.lanacion.cl/prontus_noticias_v2/imag/site/logo.gif'
-
+    remove_javascript     = True
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Chile'
-                        , '--publisher'     , title
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
                         
     keep_only_tags = [dict(name='div', attrs={'class':'bloque'})]
                         
@@ -41,5 +45,10 @@ class LaNacionChile(BasicNewsRecipe):
         item = soup.find('a', attrs={'href':'javascript:window.close()'})
         if item:
            item.extract()
+        mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
+        soup.head.insert(0,mtag)    
+        for item in soup.findAll(style=True):
+            del item['style']           
         return soup
     
+    language = _('Spanish')

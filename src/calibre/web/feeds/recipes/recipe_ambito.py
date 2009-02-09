@@ -1,31 +1,38 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 ambito.com
 '''
-
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Ambito(BasicNewsRecipe):
     title                 = 'Ambito.com'
     __author__            = 'Darko Miletic'
-    description           = 'Informacion Libre las 24 horas'    
+    description           = 'Informacion Libre las 24 horas'
+    publisher             = 'Ambito.com'
+    category              = 'news, politics, Argentina'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'iso--8859-1'
-    language              = _('Spanish')
+    encoding              = 'iso-8859-1'
     cover_url             = 'http://www.ambito.com/img/logo_.jpg'
-
+    remove_javascript     = True
+    use_embedded_content  = False
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Argentina'
-                        , '--publisher'     , title
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    keep_only_tags    = [dict(name='div', attrs={'align':'justify'})]
+
+    remove_tags       = [dict(name=['object','link'])]
 
     feeds = [ 
               (u'Principales Noticias', u'http://www.ambito.com/rss/noticiasp.asp'                         )
@@ -43,3 +50,12 @@ class Ambito(BasicNewsRecipe):
 
     def print_version(self, url):
         return url.replace('http://www.ambito.com/noticia.asp?','http://www.ambito.com/noticias/imprimir.asp?')
+
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
+        soup.head.insert(0,mtag)    
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+        
+    language              = _('Spanish')

@@ -17,7 +17,7 @@ class PetersburgTimes(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    language = _('Russian')
+    language = _('English')
     INDEX = 'http://www.sptimes.ru'
     
     def parse_index(self):

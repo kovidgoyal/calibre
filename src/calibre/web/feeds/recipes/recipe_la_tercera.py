@@ -11,21 +11,25 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaTercera(BasicNewsRecipe):
     title                 = 'La Tercera'
     __author__            = 'Darko Miletic'
-    description           = 'El sitio de noticias online de Chile'    
+    description           = 'El sitio de noticias online de Chile'
+    publisher             = 'La Tercera'
+    category              = 'news, politics, Chile'
     oldest_article        = 2
-    language = _('Spanish')
     max_articles_per_feed = 100
     no_stylesheets        = True
-    use_embedded_content  = False
     encoding              = 'cp1252'
-
+    remove_javascript     = True
+    use_embedded_content  = False
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Chile'
-                        , '--publisher'     , title
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
                         
-    keep_only_tags = [dict(name='div', attrs={'class':'span-16 articulo border'}) ]
+    keep_only_tags = [dict(name='div', attrs={'class':['span-16 articulo border','span-16 border','span-16']}) ]
 
     remove_tags = [  
                      dict(name='script')
@@ -50,4 +54,11 @@ class LaTercera(BasicNewsRecipe):
               ,(u'Educacion', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=657')
             ]
 
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
+        soup.head.insert(0,mtag)    
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
     
+    language = _('Spanish')
