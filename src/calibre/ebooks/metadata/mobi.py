@@ -23,8 +23,8 @@ class StreamSlicer(object):
     def __init__(self, stream, start=0, stop=None):
         self._stream = stream
         self.start = start
-        if stop is None: 
-            stream.seek(0, 2)        
+        if stop is None:
+            stream.seek(0, 2)
             stop = stream.tell()
         self.stop = stop
         self._len = stop - start
@@ -74,7 +74,7 @@ class StreamSlicer(object):
         raise TypeError("stream indices must be integers")
 
     
-class MetadataUpdater(object):    
+class MetadataUpdater(object):
     def __init__(self, stream):
         self.stream = stream
         data = self.data = StreamSlicer(stream)
@@ -151,18 +151,22 @@ class MetadataUpdater(object):
         self.exth[:] = ''.join([exth, title, '\0' * trail])
         self.record0[84:92] = pack('>II', title_off, title_len)
         self.record0[92:96] = iana2mobi(mi.language)
-        if mi.cover_data[1]:
-            data =  mi.cover_data[1]
-            if self.cover_record is not None:
-                size = len(self.cover_record)
-                cover = rescale_image(data, size)
-                cover += '\0' * (size - len(cover))
-                self.cover_record[:] = cover
-            if self.thumbnail_record is not None:
-                size = len(self.thumbnail_record)
-                thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
-                thumbnail += '\0' * (size - len(thumbnail))
-                self.thumbnail_record[:] = thumbnail
+        if mi.cover_data[1] or mi.cover:
+            try:
+                data =  mi.cover_data[1] if mi.cover_data[1] else open(mi.cover, 'rb').read()
+            except:
+                pass
+            else:
+                if self.cover_record is not None:
+                    size = len(self.cover_record)
+                    cover = rescale_image(data, size)
+                    cover += '\0' * (size - len(cover))
+                    self.cover_record[:] = cover
+                if self.thumbnail_record is not None:
+                    size = len(self.thumbnail_record)
+                    thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
+                    thumbnail += '\0' * (size - len(thumbnail))
+                    self.thumbnail_record[:] = thumbnail
         return
 
 def set_metadata(stream, mi):

@@ -18,7 +18,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.metadata import get_parser, MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
-from calibre import CurrentDir, fit_image
+from calibre import CurrentDir
 
 class EPubException(Exception):
     pass

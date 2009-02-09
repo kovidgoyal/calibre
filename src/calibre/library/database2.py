@@ -19,8 +19,9 @@ from calibre.library import title_sort
 from calibre.library.database import LibraryDatabase
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
-from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata import string_to_authors, authors_to_string, MetaInformation
+from calibre.ebooks.metadata.meta import get_metadata, set_metadata
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
@@ -556,7 +557,8 @@ class LibraryDatabase2(LibraryDatabase):
                 traceback.print_exc()
                 continue
     
-    def cover(self, index, index_is_id=False, as_file=False, as_image=False):
+    def cover(self, index, index_is_id=False, as_file=False, as_image=False, 
+              as_path=False):
         '''
         Return the cover image as a bytestring (in JPEG format) or None.
         
@@ -566,12 +568,38 @@ class LibraryDatabase2(LibraryDatabase):
         id = index if  index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
+            if as_path:
+                return path
             f = open(path, 'rb')
             if as_image:
                 img = QImage()
                 img.loadFromData(f.read())
                 return img
             return f if as_file else f.read()
+    
+    def get_metadata(self, idx, index_is_id=False, get_cover=False):
+        '''
+        Convenience method to return metadata as a L{MetaInformation} object.
+        '''
+        aum = self.authors(idx, index_is_id=index_is_id)
+        if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
+        mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
+        mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
+        mi.comments    = self.comments(idx, index_is_id=index_is_id)
+        mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
+        tags = self.tags(idx, index_is_id=index_is_id)
+        if tags:
+            mi.tags = [i.strip() for i in tags.split(',')]
+        mi.series = self.series(idx, index_is_id=index_is_id)
+        if mi.series:
+            mi.series_index = self.series_index(idx, index_is_id=index_is_id)
+        mi.rating = self.rating(idx, index_is_id=index_is_id)
+        mi.isbn = self.isbn(idx, index_is_id=index_is_id)
+        id = idx if index_is_id else self.id(idx)
+        mi.application_id = id
+        if get_cover:
+            mi.cover = self.cover(id, index_is_id=True, as_path=True)
+        return mi
     
     def has_book(self, mi):
         title = mi.title
@@ -1322,5 +1350,107 @@ books_series_link      feeds
         self.vacuum()
         progress.reset()
         return len(books)
-        
+    
+    def export_to_dir(self, dir, indices, byauthor=False, single_dir=False,
+                      index_is_id=False, callback=None):
+        if not os.path.exists(dir):
+            raise IOError('Target directory does not exist: '+dir)
+        by_author = {}
+        count = 0
+        for index in indices:
+            id = index if index_is_id else self.id(index)
+            au = self.conn.get('SELECT author_sort FROM books WHERE id=?',
+                                   (id,), all=False)
+            if not au:
+                au = self.authors(index, index_is_id=index_is_id)
+                if not au:
+                    au = _('Unknown')
+                au = au.split(',')[0]
+            if not by_author.has_key(au):
+                by_author[au] = []
+            by_author[au].append(index)
+        for au in by_author.keys():
+            apath = os.path.join(dir, sanitize_file_name(au))
+            if not single_dir and not os.path.exists(apath):
+                os.mkdir(apath)
+            for idx in by_author[au]:
+                title = re.sub(r'\s', ' ', self.title(idx, index_is_id=index_is_id))
+                tpath = os.path.join(apath, sanitize_file_name(title))
+                id = idx if index_is_id else self.id(idx)
+                id = str(id)
+                if not single_dir and not os.path.exists(tpath):
+                    os.mkdir(tpath)
+
+                name = au + ' - ' + title if byauthor else title + ' - ' + au
+                name += '_'+id
+                base  = dir if single_dir else tpath
+                mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
+                f = open(os.path.join(base, sanitize_file_name(name)+'.opf'), 'wb')
+                if not mi.authors:
+                    mi.authors = [_('Unknown')]
+                opf = OPFCreator(base, mi)
+                opf.render(f)
+                f.close()
+                
+                fmts = self.formats(idx, index_is_id=index_is_id)
+                if not fmts:
+                    fmts = ''
+                for fmt in fmts.split(','):
+                    data = self.format(idx, fmt, index_is_id=index_is_id)
+                    if not data:
+                        continue
+                    fname = name +'.'+fmt.lower()
+                    fname = sanitize_file_name(fname)
+                    f = open(os.path.join(base, fname), 'w+b')
+                    f.write(data)
+                    f.flush()
+                    f.seek(0)
+                    try:
+                        set_metadata(f, mi, fmt.lower())
+                    except:
+                        pass
+                    f.close()
+                count += 1
+                if callable(callback):
+                    if not callback(count, mi.title):
+                        return
+
+    def export_single_format_to_dir(self, dir, indices, format, 
+                                    index_is_id=False, callback=None):
+        dir = os.path.abspath(dir)
+        if not index_is_id:
+            indices = map(self.id, indices)
+        failures = []
+        for count, id in enumerate(indices):
+            try:
+                data = self.format(id, format, index_is_id=True)
+                if not data:
+                    failures.append((id, self.title(id, index_is_id=True)))
+                    continue
+            except:
+                failures.append((id, self.title(id, index_is_id=True)))
+                continue
+            title = self.title(id, index_is_id=True)
+            au = self.authors(id, index_is_id=True)
+            if not au:
+                au = _('Unknown')
+            fname = '%s - %s.%s'%(title, au, format.lower())
+            fname = sanitize_file_name(fname)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            f = open(os.path.join(dir, fname), 'w+b')
+            f.write(data)
+            f.seek(0)
+            try:
+                set_metadata(f, self.get_metadata(id, index_is_id=True, get_cover=True), 
+                             stream_type=format.lower())
+            except:
+                pass
+            f.close()
+            if callable(callback):
+                if not callback(count, title):
+                    break
+        return failures
+
+
         

@@ -4,12 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Backend that implements storage of ebooks in an sqlite database.
 '''
 import sqlite3 as sqlite
-import datetime, re, os, cPickle, traceback, sre_constants
+import datetime, re, os, cPickle, sre_constants
 from zlib import compress, decompress
 
 from calibre import sanitize_file_name
 from calibre.ebooks.metadata.meta import set_metadata, metadata_from_formats
-from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.web.feeds.recipes import migrate_automatic_profile_to_automatic_recipe
@@ -1389,77 +1388,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def all_ids(self):
         return [i[0] for i in self.conn.get('SELECT id FROM books')]
 
-    def export_to_dir(self, dir, indices, byauthor=False, single_dir=False,
-                      index_is_id=False, callback=None):
-        if not os.path.exists(dir):
-            raise IOError('Target directory does not exist: '+dir)
-        by_author = {}
-        count = 0
-        for index in indices:
-            id = index if index_is_id else self.id(index)
-            au = self.conn.get('SELECT author_sort FROM books WHERE id=?',
-                                   (id,), all=False)
-            if not au:
-                au = self.authors(index, index_is_id=index_is_id)
-                if not au:
-                    au = _('Unknown')
-                au = au.split(',')[0]
-            if not by_author.has_key(au):
-                by_author[au] = []
-            by_author[au].append(index)
-        for au in by_author.keys():
-            apath = os.path.join(dir, sanitize_file_name(au))
-            if not single_dir and not os.path.exists(apath):
-                os.mkdir(apath)
-            for idx in by_author[au]:
-                title = re.sub(r'\s', ' ', self.title(idx, index_is_id=index_is_id))
-                tpath = os.path.join(apath, sanitize_file_name(title))
-                id = idx if index_is_id else self.id(idx)
-                id = str(id)
-                if not single_dir and not os.path.exists(tpath):
-                    os.mkdir(tpath)
-
-                name = au + ' - ' + title if byauthor else title + ' - ' + au
-                name += '_'+id
-                base  = dir if single_dir else tpath
-                mi = self.get_metadata(idx, index_is_id=index_is_id)
-                cover = self.cover(idx, index_is_id=index_is_id)
-                if cover is not None:
-                    cname = sanitize_file_name(name) + '.jpg'
-                    cpath = os.path.join(base, cname)
-                    open(cpath, 'wb').write(cover)
-                    mi.cover = cname
-                f = open(os.path.join(base, sanitize_file_name(name)+'.opf'), 'wb')
-                if not mi.authors:
-                    mi.authors = [_('Unknown')]
-                opf = OPFCreator(base, mi)
-                opf.render(f)
-                f.close()
-                
-                fmts = self.formats(idx, index_is_id=index_is_id)
-                if not fmts:
-                    fmts = ''
-                for fmt in fmts.split(','):
-                    data = self.format(idx, fmt, index_is_id=index_is_id)
-                    if not data:
-                        continue
-                    fname = name +'.'+fmt.lower()
-                    fname = sanitize_file_name(fname)
-                    f = open(os.path.join(base, fname), 'w+b')
-                    f.write(data)
-                    f.flush()
-                    f.seek(0)
-                    try:
-                        set_metadata(f, mi, fmt.lower())
-                    except:
-                        print 'Error setting metadata for book:', mi.title
-                        traceback.print_exc()
-                    f.close()
-                count += 1
-                if callable(callback):
-                    if not callback(count, mi.title):
-                        return
-                     
+                         
 
 
     def import_book(self, mi, formats):
@@ -1573,43 +1502,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             
         return duplicates
 
-    def export_single_format_to_dir(self, dir, indices, format, 
-                                    index_is_id=False, callback=None):
-        dir = os.path.abspath(dir)
-        if not index_is_id:
-            indices = map(self.id, indices)
-        failures = []
-        for count, id in enumerate(indices):
-            try:
-                data = self.format(id, format, index_is_id=True)
-                if not data:
-                    failures.append((id, self.title(id, index_is_id=True)))
-                    continue
-            except:
-                failures.append((id, self.title(id, index_is_id=True)))
-                continue
-            title = self.title(id, index_is_id=True)
-            au = self.authors(id, index_is_id=True)
-            if not au:
-                au = _('Unknown')
-            fname = '%s - %s.%s'%(title, au, format.lower())
-            fname = sanitize_file_name(fname)
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            f = open(os.path.join(dir, fname), 'w+b')
-            f.write(data)
-            f.seek(0)
-            try:
-                set_metadata(f, self.get_metadata(id, index_is_id=True), stream_type=format.lower())
-            except:
-                pass
-            f.close()
-            if callable(callback):
-                if not callback(count, title):
-                    break
-        return failures
-
-
+    
 
 class SearchToken(object):
 

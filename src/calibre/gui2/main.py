@@ -932,7 +932,8 @@ class Main(MainWindow, Ui_MainWindow):
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
         _files   = self.library_view.model().get_preferred_formats(rows,
-                                    self.device_manager.device_class.FORMATS, paths=True)
+                                    self.device_manager.device_class.FORMATS, 
+                                    paths=True, set_metadata=True)
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:

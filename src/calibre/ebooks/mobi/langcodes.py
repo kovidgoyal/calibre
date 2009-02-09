@@ -306,13 +306,15 @@ IANA_MOBI = \
      'zu': {None: (53, 0)}}
 
 def iana2mobi(icode):
-    subtags = list(icode.split('-'))
-    langdict = IANA_MOBI[None]
-    while len(subtags) > 0:
-        lang = subtags.pop(0).lower()
-        if lang in IANA_MOBI:
-            langdict = IANA_MOBI[lang]
-            break
+    langdict, subtags = IANA_MOBI[None], []
+    if icode:
+        subtags = list(icode.split('-'))
+        while len(subtags) > 0:
+            lang = subtags.pop(0).lower()
+            if lang in IANA_MOBI:
+                langdict = IANA_MOBI[lang]
+                break
+            
     mcode = langdict[None]
     while len(subtags) > 0:
         subtag = subtags.pop(0)
