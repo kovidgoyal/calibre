@@ -20,6 +20,7 @@ class Jutarnji(BasicNewsRecipe):
     max_articles_per_feed = 100
     simultaneous_downloads = 1
     delay = 1    
+    language              = _('Croatian')
     no_stylesheets        = True
     use_embedded_content  = False
     remove_javascript     = True
