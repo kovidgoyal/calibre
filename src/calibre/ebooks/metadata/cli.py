@@ -31,21 +31,21 @@ from calibre import prints
 
 def config():
     c = StringConfig('')
-    c.add_opt('title', ['-t', '--title'], 
+    c.add_opt('title', ['-t', '--title'],
               help=_('Set the title.'))
     c.add_opt('authors', ['-a', '--authors'],
               help=_('Set the authors. Multiple authors should be separated '
                      'by the & character. Author names should be in the order '
                      'Firstname Lastname.'))
-    c.add_opt('title_sort', ['--title-sort'], 
+    c.add_opt('title_sort', ['--title-sort'],
               help=_('The version of the title to be used for sorting. '
                      'If unspecified, and the title is specified, it will ' 
                      'be auto-generated from the title.'))
-    c.add_opt('author_sort', ['--author-sort'], 
+    c.add_opt('author_sort', ['--author-sort'],
               help=_('String to be used when sorting by author. '
                      'If unspecified, and the author(s) are specified, it will ' 
                      'be auto-generated from the author(s).'))
-    c.add_opt('cover', ['--cover'], 
+    c.add_opt('cover', ['--cover'],
               help=_('Set the cover to the specified file.'))
     c.add_opt('comments', ['-c', '--comments'],
               help=_('Set the ebook description.'))
