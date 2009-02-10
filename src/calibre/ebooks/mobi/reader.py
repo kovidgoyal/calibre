@@ -308,8 +308,8 @@ class MobiReader(object):
             if 'filepos-id' in attrib:
                 attrib['id'] = attrib.pop('filepos-id')
             if 'filepos' in attrib:
-                filepos = int(attrib.pop('filepos'))
-                attrib['href'] = "#filepos%d" % filepos
+                filepos = attrib.pop('filepos')
+                attrib['href'] = "#filepos%s" % filepos
             if tag.tag == 'img':
                 recindex = None
                 for attr in self.IMAGE_ATTRS:

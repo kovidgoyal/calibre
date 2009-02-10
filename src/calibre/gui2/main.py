@@ -391,7 +391,7 @@ class Main(MainWindow, Ui_MainWindow):
     def change_output_format(self, x):
         of = unicode(x).strip()
         if of != prefs['output_format']:
-            if of not in ('LRF',):
+            if of not in ('LRF', 'EPUB'):
                 warning_dialog(self, 'Warning', 
                                '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
             prefs.set('output_format', of)
