@@ -380,8 +380,10 @@ class LibraryDatabase2(LibraryDatabase):
             return row[loc]
         
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn', 
-                     'publisher', 'rating', 'series', 'series_index', 'tags', 'title'):
-            setattr(self, prop, functools.partial(get_property, loc=FIELD_MAP['comments' if prop == 'comment' else prop]))
+                     'publisher', 'rating', 'series', 'series_index', 'tags', 
+                     'title', 'timestamp'):
+            setattr(self, prop, functools.partial(get_property, 
+                    loc=FIELD_MAP['comments' if prop == 'comment' else prop]))
         
     def initialize_database(self):
         from calibre.resources import metadata_sqlite
@@ -590,6 +592,7 @@ class LibraryDatabase2(LibraryDatabase):
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
+        mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -884,6 +887,8 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_isbn(id, mi.isbn, notify=False)
         if mi.series_index and mi.series_index > 0:
             self.set_series_index(id, mi.series_index, notify=False)
+        if getattr(mi, 'timestamp', None) is not None:
+            self.set_timestamp(id, mi.timestamp, notify=False)
         self.set_path(id, True)
         self.notify('metadata', [id])
         
@@ -1203,6 +1208,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.set_metadata(id, mi)
         for path in formats:
             ext = os.path.splitext(path)[1][1:].lower()
+            if ext == 'opf':
+                continue
             stream = open(path, 'rb')
             self.add_format(id, ext, stream, index_is_id=True)
         self.conn.commit()
@@ -1392,10 +1399,11 @@ books_series_link      feeds
                 f = open(os.path.join(base, sanitize_file_name(name)+'.opf'), 'wb')
                 if not mi.authors:
                     mi.authors = [_('Unknown')]
-                cdata = self.cover(id, index_is_id=True)
-                cname = sanitize_file_name(name)+'.jpg'
-                open(os.path.join(base, cname), 'wb').write(cdata)
-                mi.cover = cname
+                cdata = self.cover(int(id), index_is_id=True)
+                if cdata is not None:
+                    cname = sanitize_file_name(name)+'.jpg'
+                    open(os.path.join(base, cname), 'wb').write(cdata)
+                    mi.cover = cname
                 opf = OPFCreator(base, mi)
                 opf.render(f)
                 f.close()
@@ -1472,7 +1480,7 @@ books_series_link      feeds
                 if not ext:
                     continue
                 ext = ext[1:].lower()
-                if ext not in BOOK_EXTENSIONS:
+                if ext not in BOOK_EXTENSIONS and ext != 'opf':
                     continue
                 formats.append(path)
             yield formats

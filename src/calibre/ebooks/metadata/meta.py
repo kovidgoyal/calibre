@@ -31,8 +31,14 @@ def metadata_from_formats(formats):
     mi = MetaInformation(None, None)
     formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],
                                      METADATA_PRIORITIES[path_to_ext(y)]))
-    for path in formats:
-        ext = path_to_ext(path)
+    extensions = list(map(path_to_ext, formats))
+    if 'opf' in extensions:
+        opf = formats[extensions.index('opf')]
+        mi2 = opf_metadata(opf)
+        if mi2 is not None and mi2.title:
+            return mi2
+    
+    for path, ext in zip(formats, extensions):
         stream = open(path, 'rb')
         try:
             mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
