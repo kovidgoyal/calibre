@@ -1572,6 +1572,11 @@ def main(args=sys.argv):
             print 'Restarting with:', e, sys.argv
             os.execvp(e, sys.argv)
         else:
+            if iswindows:
+                try:
+                    main.system_tray_icon.hide()
+                except:
+                    pass
             return ret
     return 0
 
