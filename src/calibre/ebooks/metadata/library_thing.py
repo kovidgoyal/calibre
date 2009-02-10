@@ -43,8 +43,9 @@ def cover_from_isbn(isbn, timeout=5.):
         src = browser.open('http://www.librarything.com/isbn/'+isbn).read().decode('utf-8', 'replace')
     except Exception, err:
         if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
-            raise LibraryThingError(_('LibraryThing.com timed out. Try again later.'))
-        raise
+            err = LibraryThingError(_('LibraryThing.com timed out. Try again later.'))
+        raise err
+    else:
         s = BeautifulSoup(src)
         url = s.find('td', attrs={'class':'left'})
         if url is None:
