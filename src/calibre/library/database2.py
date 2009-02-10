@@ -12,7 +12,7 @@ from itertools import repeat
 from datetime import datetime
 
 from PyQt4.QtCore import QCoreApplication, QThread, QReadWriteLock
-from PyQt4.QtGui import QApplication, QPixmap, QImage
+from PyQt4.QtGui import QApplication, QImage
 __app = None
 
 from calibre.library import title_sort
@@ -20,12 +20,15 @@ from calibre.library.database import LibraryDatabase
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, MetaInformation
-from calibre.ebooks.metadata.meta import get_metadata, set_metadata
+from calibre.ebooks.metadata.meta import get_metadata, set_metadata, \
+    metadata_from_formats
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
+
 from calibre import sanitize_file_name
+from calibre.ebooks import BOOK_EXTENSIONS
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -627,7 +630,7 @@ class LibraryDatabase2(LibraryDatabase):
             if not QCoreApplication.instance():
                 global __app
                 __app = QApplication([])
-            p = QPixmap()
+            p = QImage()
             if callable(getattr(data, 'read', None)):
                 data = data.read()
             p.loadFromData(data)
@@ -1142,7 +1145,7 @@ class LibraryDatabase2(LibraryDatabase):
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. The result cache is not updated.
-        @param paths: List of paths to book files or file-like objects
+        :param:`paths` List of paths to book files or file-like objects
         '''
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
@@ -1180,17 +1183,17 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.commit()
         self.data.refresh_ids(self.conn, ids) # Needed to update format list and size
         if duplicates:
-            paths    = tuple(duplicate[0] for duplicate in duplicates)
-            formats  = tuple(duplicate[1] for duplicate in duplicates)
-            metadata = tuple(duplicate[2] for duplicate in duplicates)
-            uris     = tuple(duplicate[3] for duplicate in duplicates)
+            paths    = list(duplicate[0] for duplicate in duplicates)
+            formats  = list(duplicate[1] for duplicate in duplicates)
+            metadata = list(duplicate[2] for duplicate in duplicates)
+            uris     = list(duplicate[3] for duplicate in duplicates)
             return (paths, formats, metadata, uris), len(ids)
         return None, len(ids)
      
-    def import_book(self, mi, formats):
+    def import_book(self, mi, formats, notify=True):
         series_index = 1 if mi.series_index is None else mi.series_index
         if not mi.authors:
-            mi.authors = ['Unknown']
+            mi.authors = [_('Unknown')]
         aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
         obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
                           (mi.title, None, series_index, aus))
@@ -1204,7 +1207,8 @@ class LibraryDatabase2(LibraryDatabase):
             self.add_format(id, ext, stream, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
-        self.notify('add', [id])
+        if notify:
+            self.notify('add', [id])
         
     def move_library_to(self, newloc, progress=None):
         header = _(u'<p>Copying books to %s<br><center>')%newloc
@@ -1388,6 +1392,10 @@ books_series_link      feeds
                 f = open(os.path.join(base, sanitize_file_name(name)+'.opf'), 'wb')
                 if not mi.authors:
                     mi.authors = [_('Unknown')]
+                cdata = self.cover(id, index_is_id=True)
+                cname = sanitize_file_name(name)+'.jpg'
+                open(os.path.join(base, cname), 'wb').write(cdata)
+                mi.cover = cname
                 opf = OPFCreator(base, mi)
                 opf.render(f)
                 f.close()
@@ -1451,6 +1459,88 @@ books_series_link      feeds
                 if not callback(count, title):
                     break
         return failures
+    
+    def find_books_in_directory(self, dirpath, single_book_per_directory):
+        dirpath = os.path.abspath(dirpath)
+        if single_book_per_directory:
+            formats = []
+            for path in os.listdir(dirpath):
+                path = os.path.abspath(os.path.join(dirpath, path))
+                if os.path.isdir(path) or not os.access(path, os.R_OK):
+                    continue
+                ext = os.path.splitext(path)[1]
+                if not ext:
+                    continue
+                ext = ext[1:].lower()
+                if ext not in BOOK_EXTENSIONS:
+                    continue
+                formats.append(path)
+            yield formats
+        else:
+            books = {}
+            for path in os.listdir(dirpath):
+                path = os.path.abspath(os.path.join(dirpath, path))
+                if os.path.isdir(path) or not os.access(path, os.R_OK):
+                    continue
+                ext = os.path.splitext(path)[1]
+                if not ext:
+                    continue
+                ext = ext[1:].lower()
+                if ext not in BOOK_EXTENSIONS:
+                    continue
+    
+                key = os.path.splitext(path)[0]
+                if not books.has_key(key):
+                    books[key] = []
+                books[key].append(path)
+            
+            for formats in books.values():
+                yield formats
+
+    def import_book_directory_multiple(self, dirpath, callback=None):
+        duplicates = []
+        for formats in self.find_books_in_directory(dirpath, False):
+            mi = metadata_from_formats(formats)
+            if mi.title is None:
+                continue
+            if self.has_book(mi):
+                duplicates.append((mi, formats))
+                continue
+            self.import_book(mi, formats)
+            if callable(callback):
+                if callback(mi.title):
+                    break
+        return duplicates
+
+    def import_book_directory(self, dirpath, callback=None):
+        dirpath = os.path.abspath(dirpath)
+        formats = self.find_books_in_directory(dirpath, True)
+        if not formats:
+            return
+        
+        mi = metadata_from_formats(formats)
+        if mi.title is None:
+            return
+        if self.has_book(mi):
+            return [(mi, formats)]
+        self.import_book(mi, formats)
+        if callable(callback):
+            callback(mi.title)
+            
+    def recursive_import(self, root, single_book_per_directory=True, callback=None):
+        root = os.path.abspath(root)
+        duplicates  = []
+        for dirpath in os.walk(root):
+            res = self.import_book_directory(dirpath[0], callback=callback) if \
+                single_book_per_directory else \
+                  self.import_book_directory_multiple(dirpath[0], callback=callback)
+            if res is not None:
+                duplicates.extend(res)
+            if callable(callback):
+                if callback(''):
+                    break
+            
+        return duplicates
 
 
         

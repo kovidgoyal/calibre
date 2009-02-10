@@ -4,13 +4,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Backend that implements storage of ebooks in an sqlite database.
 '''
 import sqlite3 as sqlite
-import datetime, re, os, cPickle, sre_constants
+import datetime, re, cPickle, sre_constants
 from zlib import compress, decompress
 
-from calibre import sanitize_file_name
-from calibre.ebooks.metadata.meta import set_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.web.feeds.recipes import migrate_automatic_profile_to_automatic_recipe
 
 class Concatenate(object):
@@ -1391,117 +1388,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                          
 
 
-    def import_book(self, mi, formats):
-        series_index = 1 if mi.series_index is None else mi.series_index
-        if not mi.authors:
-            mi.authors = [_('Unknown')]
-        aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
-        obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
-                          (mi.title, None, series_index, aus))
-        id = obj.lastrowid
-        self.conn.commit()
-        self.set_metadata(id, mi)
-        for path in formats:
-            ext = os.path.splitext(path)[1][1:].lower()
-            stream = open(path, 'rb')
-            stream.seek(0, 2)
-            usize = stream.tell()
-            stream.seek(0)
-            data = sqlite.Binary(compress(stream.read()))
-            try:
-                self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                              (id, ext, usize, data))
-            except sqlite.IntegrityError:
-                self.conn.execute('UPDATE data SET uncompressed_size=?, data=? WHERE book=? AND format=?',
-                                  (usize, data, id, ext))
-        self.conn.commit()
-
-    def import_book_directory_multiple(self, dirpath, callback=None):
-        dirpath = os.path.abspath(dirpath)
-        duplicates = []
-        books = {}
-        for path in os.listdir(dirpath):
-            if callable(callback):
-                callback('.')
-            path = os.path.abspath(os.path.join(dirpath, path))
-            if os.path.isdir(path) or not os.access(path, os.R_OK):
-                continue
-            ext = os.path.splitext(path)[1]
-            if not ext:
-                continue
-            ext = ext[1:].lower()
-            if ext not in BOOK_EXTENSIONS:
-                continue
-
-            key = os.path.splitext(path)[0]
-            if not books.has_key(key):
-                books[key] = []
-
-            books[key].append(path)
-
-        for formats in books.values():
-            mi = metadata_from_formats(formats)
-            if mi.title is None:
-                continue
-            if self.has_book(mi):
-                duplicates.append((mi, formats))
-                continue
-            self.import_book(mi, formats)
-            if callable(callback):
-                if callback(mi.title):
-                    break
-        return duplicates
-
-
-    def import_book_directory(self, dirpath, callback=None):
-        dirpath = os.path.abspath(dirpath)
-        formats = []
-        for path in os.listdir(dirpath):
-            if callable(callback):
-                callback('.')
-            path = os.path.abspath(os.path.join(dirpath, path))
-            if os.path.isdir(path) or not os.access(path, os.R_OK):
-                continue
-            ext = os.path.splitext(path)[1]
-            if not ext:
-                continue
-            ext = ext[1:].lower()
-            if ext not in BOOK_EXTENSIONS:
-                continue
-            formats.append(path)
-
-        if not formats:
-            return
-        
-        mi = metadata_from_formats(formats)
-        if mi.title is None:
-            return
-        if self.has_book(mi):
-            return [(mi, formats)]
-        self.import_book(mi, formats)
-        if callable(callback):
-            callback(mi.title)
-            
-
+    
 
     def has_id(self, id):
         return self.conn.get('SELECT id FROM books where id=?', (id,), all=False) is not None
 
-    def recursive_import(self, root, single_book_per_directory=True, callback=None):
-        root = os.path.abspath(root)
-        duplicates  = []
-        for dirpath in os.walk(root):
-            res = self.import_book_directory(dirpath[0], callback=callback) if \
-                single_book_per_directory else \
-                  self.import_book_directory_multiple(dirpath[0], callback=callback)
-            if res is not None:
-                duplicates.extend(res)
-            if callable(callback):
-                if callback(''):
-                    break
-            
-        return duplicates
-
+    
     
 
 class SearchToken(object):
