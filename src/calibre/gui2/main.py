@@ -48,7 +48,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.utils.filenames import ascii_filename
-from calibre.gui2.widgets import WarningDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class Main(MainWindow, Ui_MainWindow):
