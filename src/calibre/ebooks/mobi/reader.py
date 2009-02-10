@@ -311,7 +311,7 @@ class MobiReader(object):
                 filepos = attrib.pop('filepos')
                 try:
                     attrib['href'] = "#filepos%d" % int(filepos)
-                except ValueError:
+                except:
                     attrib['href'] = filepos
             if tag.tag == 'img':
                 recindex = None
