@@ -292,13 +292,28 @@ class Serializer(object):
                 buffer.seek(hoff)
                 buffer.write('%010d' % ioff)
 
-    
+
+class MobiFlattener(object):
+    def config(self, cfg):
+        return cfg
+
+    def generate(self, opts):
+        return self
+
+    def __call__(self, oeb, context):
+        fbase = context.dest.fbase
+        fkey = context.dest.fnums.values()
+        flattener = CSSFlattener(
+            fbase=fbase, fkey=fkey, unfloat=True, untable=True)
+        return flattener(oeb, context)
+
+                
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
     DEFAULT_PROFILE = 'CybookG3'
 
-    TRANSFORMS = [HTMLTOCAdder, CaseMangler, CSSFlattener, SVGRasterizer,
+    TRANSFORMS = [HTMLTOCAdder, CaseMangler, MobiFlattener(), SVGRasterizer,
                   ManifestTrimmer, MobiMLizer]
     
     def __init__(self, compression=None, imagemax=None,
@@ -562,13 +577,6 @@ def config(defaults=None):
     else:
         c = StringConfig(defaults, desc)
         
-    mobi = c.add_group('mobipocket', _('Mobipocket-specific options.'))
-    mobi('toc_title', ['--toc-title'], default=None, 
-         help=_('Title for any generated in-line table of contents.'))
-    mobi('ignore_tables', ['--ignore-tables'], default=False,
-         help=_('Render HTML tables as blocks of text instead of actual '
-                'tables. This is neccessary if the HTML contains very large '
-                'or complex tables.'))
     profiles = c.add_group('profiles', _('Device renderer profiles. '
         'Affects conversion of font sizes, image rescaling and rasterization '
         'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
