@@ -22,8 +22,8 @@ class StreamSlicer(object):
     def __init__(self, stream, start=0, stop=None):
         self._stream = stream
         self.start = start
-        if stop is None: 
-            stream.seek(0, 2)        
+        if stop is None:
+            stream.seek(0, 2)
             stop = stream.tell()
         self.stop = stop
         self._len = stop - start
@@ -73,7 +73,7 @@ class StreamSlicer(object):
         raise TypeError("stream indices must be integers")
 
     
-class MetadataUpdater(object):    
+class MetadataUpdater(object):
     def __init__(self, stream):
         self.stream = stream
         data = self.data = StreamSlicer(stream)
@@ -85,9 +85,9 @@ class MetadataUpdater(object):
         image_base, = unpack('>I', record0[108:112])
         flags, = unpack('>I', record0[128:132])
         have_exth = self.have_exth = (flags & 0x40) != 0
+        self.cover_record = self.thumbnail_record = None
         if not have_exth:
             return
-        self.cover_record = self.thumbnail_record = None
         exth_off = unpack('>I', record0[20:24])[0] + 16 + record0.start
         exth = self.exth = StreamSlicer(stream, exth_off, record0.stop)
         nitems, = unpack('>I', exth[8:12])
@@ -142,6 +142,8 @@ class MetadataUpdater(object):
         exth = ['EXTH', pack('>II', len(exth) + 12, len(recs)), exth, pad]
         exth = ''.join(exth)
         title = (mi.title or _('Unknown')).encode(self.codec, 'replace')
+        if getattr(self, 'exth', None) is None:
+            raise MobiError('No existing EXTH record. Cannot update metadata.')
         title_off = (self.exth.start - self.record0.start) + len(exth)
         title_len = len(title)
         trail = len(self.exth) - len(exth) - len(title)
@@ -150,18 +152,22 @@ class MetadataUpdater(object):
         self.exth[:] = ''.join([exth, title, '\0' * trail])
         self.record0[84:92] = pack('>II', title_off, title_len)
         self.record0[92:96] = iana2mobi(mi.language)
-        if mi.cover_data[1]:
-            data =  mi.cover_data[1]
-            if self.cover_record is not None:
-                size = len(self.cover_record)
-                cover = rescale_image(data, size)
-                cover += '\0' * (size - len(cover))
-                self.cover_record[:] = cover
-            if self.thumbnail_record is not None:
-                size = len(self.thumbnail_record)
-                thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
-                thumbnail += '\0' * (size - len(thumbnail))
-                self.thumbnail_record[:] = thumbnail
+        if mi.cover_data[1] or mi.cover:
+            try:
+                data =  mi.cover_data[1] if mi.cover_data[1] else open(mi.cover, 'rb').read()
+            except:
+                pass
+            else:
+                if self.cover_record is not None:
+                    size = len(self.cover_record)
+                    cover = rescale_image(data, size)
+                    cover += '\0' * (size - len(cover))
+                    self.cover_record[:] = cover
+                if self.thumbnail_record is not None:
+                    size = len(self.thumbnail_record)
+                    thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
+                    thumbnail += '\0' * (size - len(thumbnail))
+                    self.thumbnail_record[:] = thumbnail
         return
 
 def set_metadata(stream, mi):

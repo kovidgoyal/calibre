@@ -236,7 +236,9 @@ Donors per day: %(dpd).2f
         ml   = mdates.MonthLocator() # every month
         fig = plt.figure(1, (8, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
         ax = fig.add_subplot(111)
+        average = sum(y)/len(y)
         ax.bar(x, y, align='center', width=20, color='g')
+        ax.hlines([average], x[0], x[-1])
         ax.xaxis.set_major_locator(ml)
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %y'))
         ax.set_xlim(_months[0].min-timedelta(days=15), _months[-1].min+timedelta(days=15))

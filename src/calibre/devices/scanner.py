@@ -58,17 +58,20 @@ class DeviceScanner(object):
         return False
     
     def is_device_connected(self, device):
+        vendor_ids  = device.VENDOR_ID if hasattr(device.VENDOR_ID, '__len__') else [device.VENDOR_ID]
+        product_ids =  device.PRODUCT_ID if hasattr(device.PRODUCT_ID, '__len__') else [device.PRODUCT_ID]
         if iswindows:
-            vid, pid = 'vid_%4.4x'%device.VENDOR_ID, 'pid_%4.4x'%device.PRODUCT_ID
-            vidd, pidd = 'vid_%i'%device.VENDOR_ID, 'pid_%i'%device.PRODUCT_ID
-            for device_id in self.devices:
-                if (vid in device_id or vidd in device_id) and (pid in device_id or pidd in device_id):
-                    if self.test_bcd_windows(device_id, getattr(device, 'BCD', None)):
-                        if device.can_handle(device_id):
-                            return True
+            for vendor_id, product_id in zip(vendor_ids, product_ids):
+                vid, pid = 'vid_%4.4x'%vendor_id, 'pid_%4.4x'%product_id
+                vidd, pidd = 'vid_%i'%vendor_id, 'pid_%i'%product_id
+                for device_id in self.devices:
+                    if (vid in device_id or vidd in device_id) and (pid in device_id or pidd in device_id):
+                        if self.test_bcd_windows(device_id, getattr(device, 'BCD', None)):
+                            if device.can_handle(device_id):
+                                return True
         else:
             for vendor, product, bcdDevice in self.devices:
-                if device.VENDOR_ID == vendor and device.PRODUCT_ID == product:
+                if vendor in vendor_ids and product in product_ids:
                     if self.test_bcd(bcdDevice, getattr(device, 'BCD', None)):
                         if device.can_handle((vendor, product, bcdDevice)):
                             return True

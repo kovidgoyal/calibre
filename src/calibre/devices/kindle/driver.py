@@ -12,8 +12,8 @@ class KINDLE(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['azw', 'mobi', 'prc', 'txt']
     
-    VENDOR_ID   = 0x1949
-    PRODUCT_ID  = 0x0001
+    VENDOR_ID   = [0x1949]
+    PRODUCT_ID  = [0x0001]
     BCD         = [0x399]
     
     VENDOR_NAME = 'KINDLE'

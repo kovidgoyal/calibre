@@ -342,6 +342,7 @@ def main():
                                        'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
                                        'keyword', 'codeop', 'pydoc', 'readline',
                                        'BeautifulSoup', 'calibre.ebooks.lrf.fonts.prs500.*',
+                                       'dateutil',
                                        ],
                          'packages' : ['PIL', 'Authorization', 'lxml'],
                          'excludes' : ['IPython'],

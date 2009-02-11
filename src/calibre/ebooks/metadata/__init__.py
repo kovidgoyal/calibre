@@ -188,7 +188,8 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
-                     'manifest', 'spine', 'toc', 'cover', 'language', 'book_producer'):
+                     'manifest', 'spine', 'toc', 'cover', 'language',
+                     'book_producer', 'timestamp'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
 
@@ -213,7 +214,7 @@ class MetaInformation(object):
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer',
+                  'book_producer', 'timestamp'
                   ):
             setattr(self, x, getattr(mi, x, None))
 
@@ -231,7 +232,8 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
-                     'cover', 'language', 'guide', 'book_producer'):
+                     'cover', 'language', 'guide', 'book_producer',
+                     'timestamp'):
             val = getattr(mi, attr, None)
             if val is not None:
                 setattr(self, attr, val)
@@ -254,7 +256,7 @@ class MetaInformation(object):
         ans = []
         def fmt(x, y):
             ans.append(u'%-20s: %s'%(unicode(x), unicode(y)))
-        
+
         fmt('Title', self.title)
         if self.title_sort:
             fmt('Title sort', self.title_sort)
@@ -279,6 +281,8 @@ class MetaInformation(object):
             fmt('Language', self.language)
         if self.rating is not None:
             fmt('Rating', self.rating)
+        if self.timestamp is not None:
+            fmt('Timestamp', self.timestamp.isoformat(' '))
         return u'\n'.join(ans)
 
     def to_html(self):
@@ -290,13 +294,13 @@ class MetaInformation(object):
         ans += [('ISBN', unicode(self.isbn))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
-            ans += [(_('Series'), unicode(self.series))+ ' #%s'%self.format_series_index()]
+            ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
         ans += [(_('Language'), unicode(self.language))]
+        if self.timestamp is not None:
+            ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)
-
-
 
     def __str__(self):
         return self.__unicode__().encode('utf-8')
