@@ -16,6 +16,7 @@ class Politika(BasicNewsRecipe):
     publisher             = 'Politika novine i Magazini d.o.o'
     category              = 'news, politics, Serbia'            
     oldest_article        = 2
+    language              = _('Serbian')
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
