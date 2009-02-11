@@ -17,8 +17,8 @@ class CYBOOKG3(USBMS):
     # Be sure these have an entry in calibre.devices.mime
     FORMATS     = ['mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
     
-    VENDOR_ID   = 0x0bda
-    PRODUCT_ID  = 0x0703
+    VENDOR_ID   = [0x0bda, 0x3034]
+    PRODUCT_ID  = [0x0703, 0x1795]
     BCD         = [0x110, 0x132]
     
     VENDOR_NAME = 'BOOKEEN'

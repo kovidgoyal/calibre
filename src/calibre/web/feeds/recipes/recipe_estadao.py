@@ -8,24 +8,27 @@ estadao.com.br
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 class Estadao(BasicNewsRecipe):
     title                 = 'O Estado de S. Paulo'
     __author__            = 'Darko Miletic'
-    description           = 'News from Brasil'
-    language = _('Spanish')    
+    description           = 'News from Brasil in Portugese'
+    publisher             = 'O Estado de S. Paulo'
+    category              = 'news, politics, Brasil'    
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf8'
     cover_url             = 'http://www.estadao.com.br/img/logo_estadao.png'
-
+    remove_javascript     = True
+    
     html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Brasil'
-                        , '--publisher'     , title
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
                         
     keep_only_tags = [dict(name='div', attrs={'id':'c1'})]
 
@@ -52,4 +55,8 @@ class Estadao(BasicNewsRecipe):
         ifr = soup.find('iframe')
         if ifr:
            ifr.extract()
+        for item in soup.findAll(style=True):
+            del item['style']
         return soup
+
+    language = _('Portugese')    

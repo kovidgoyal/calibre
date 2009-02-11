@@ -17,6 +17,8 @@ import types
 import re
 import copy
 from itertools import izip
+from weakref import WeakKeyDictionary
+from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
@@ -106,7 +108,7 @@ class CSSSelector(etree.XPath):
 
 
 class Stylizer(object):    
-    STYLESHEETS = {}
+    STYLESHEETS = WeakKeyDictionary()
     
     def __init__(self, tree, path, oeb, profile=PROFILES['PRS505']):
         self.oeb = oeb
@@ -131,18 +133,19 @@ class Stylizer(object):
                  and elem.get('type', CSS_MIME) in OEB_STYLES:
                 href = urlnormalize(elem.attrib['href'])
                 path = item.abshref(href)
-                if path not in oeb.manifest.hrefs:
+                sitem = oeb.manifest.hrefs.get(path, None)
+                if sitem is None:
                     self.logger.warn(
                         'Stylesheet %r referenced by file %r not in manifest' %
                         (path, item.href))
                     continue
-                if path in self.STYLESHEETS:
-                    stylesheet = self.STYLESHEETS[path]
+                if sitem in self.STYLESHEETS:
+                    stylesheet = self.STYLESHEETS[sitem]
                 else:
                     data = self._fetch_css_file(path)[1]
                     stylesheet = parser.parseString(data, href=path)
                     stylesheet.namespaces['h'] = XHTML_NS
-                    self.STYLESHEETS[path] = stylesheet
+                    self.STYLESHEETS[sitem] = stylesheet
                 stylesheets.append(stylesheet)
         rules = []
         index = 0
@@ -288,15 +291,19 @@ class Style(object):
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)
-        
+    
     def _apply_style_attr(self):
         attrib = self._element.attrib
-        if 'style' in attrib:
-            css = attrib['style'].split(';')
-            css = filter(None, map(lambda x: x.strip(), css))
+        if 'style' not in attrib:
+            return
+        css = attrib['style'].split(';')
+        css = filter(None, (x.strip() for x in css))
+        try:
             style = CSSStyleDeclaration('; '.join(css))
-            self._style.update(self._stylizer.flatten_style(style))
-
+        except CSSSyntaxError:
+            return
+        self._style.update(self._stylizer.flatten_style(style))
+    
     def _has_parent(self):
         return (self._element.getparent() is not None)
 

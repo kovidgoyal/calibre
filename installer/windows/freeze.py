@@ -12,7 +12,7 @@ LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 PDFTOHTML        = 'C:\\pdftohtml\\pdftohtml.exe'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
-VC90             = r'C:\Program Files\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT'
+VC90             = r'C:\VC90.CRT'
 
 import sys, os, py2exe, shutil, zipfile, glob, subprocess, re
 from distutils.core import setup
@@ -179,7 +179,8 @@ def main(args=sys.argv):
                                              'calibre.ebooks.lrf.fonts.prs500.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],
-                                  'packages'  : ['PIL', 'lxml', 'cherrypy'],
+                                  'packages'  : ['PIL', 'lxml', 'cherrypy',
+                                                 'dateutil'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],

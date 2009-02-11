@@ -917,7 +917,8 @@ class HTMLConverter(object, LoggingInterface):
                                                          blockStyle=self.current_block.blockStyle)
         
     
-    def process_image(self, path, tag_css, width=None, height=None, dropcaps=False):
+    def process_image(self, path, tag_css, width=None, height=None, 
+                      dropcaps=False, rescale=False):
         def detect_encoding(im):
             fmt = im.format
             if fmt == 'JPG':
@@ -936,10 +937,6 @@ class HTMLConverter(object, LoggingInterface):
             return
         encoding = detect_encoding(im)
 
-        if width == None or height == None:            
-            width, height = im.size
-        
-        factor = 720./self.profile.dpi
         
         def scale_image(width, height):
             if width <= 0:
@@ -955,8 +952,15 @@ class HTMLConverter(object, LoggingInterface):
                 return pt.name
             except (IOError, SystemError), err: # PIL chokes on interlaced PNG images as well a some GIF images
                 self.log_warning(_('Unable to process image %s. Error: %s')%(path, err))
-                return None
         
+        if width == None or height == None:            
+            width, height = im.size
+        elif rescale and (width < im.size[0] or height < im.size[1]):
+            path = scale_image(width, height)
+            if not path:
+                return
+            
+        factor = 720./self.profile.dpi
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
         pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
         
@@ -1518,7 +1522,8 @@ class HTMLConverter(object, LoggingInterface):
                         except:
                             pass
                         dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
-                        self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
+                        self.process_image(path, tag_css, width, height, 
+                                           dropcaps=dropcaps, rescale=True)
                     elif not urlparse(tag['src'])[0]:
                         self.log_warn('Could not find image: '+tag['src'])
                 else:

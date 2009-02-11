@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2 import dynamic
 from calibre.gui2.dialogs.confirm_delete_ui import Ui_Dialog
-from PyQt4.Qt import QDialog, SIGNAL
+from PyQt4.Qt import QDialog, SIGNAL, Qt
 
 def _config_name(name):
     return name + '_again'
@@ -19,6 +19,7 @@ class Dialog(QDialog, Ui_Dialog):
         self.msg.setText(msg)
         self.name = name
         self.connect(self.again, SIGNAL('stateChanged(int)'), self.toggle)
+        self.buttonBox.setFocus(Qt.OtherFocusReason)
         
 
     def toggle(self, x):

@@ -153,6 +153,7 @@ def set_file_type_metadata(stream, mi, ftype):
                         plugin.set_metadata(stream, mi, ftype.lower().strip())
                         break
                     except:
+                        print 'Failed to set metadata for', repr(getattr(mi, 'title', ''))  
                         traceback.print_exc()
     
                 

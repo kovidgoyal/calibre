@@ -6,26 +6,34 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 vreme.com
 '''
 
-import string,re
+import re
 from calibre import strftime
-from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class Vreme(BasicNewsRecipe):
-    
-    title       = 'Vreme'
-    __author__  = 'Darko Miletic'
-    description = 'Politicki Nedeljnik Srbije'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Vreme(BasicNewsRecipe):    
+    title          = 'Vreme'
+    __author__     = 'Darko Miletic'
+    description    = 'Politicki Nedeljnik Srbije'
+    publisher      = 'Vreme d.o.o.'
+    category       = 'news, politics, Serbia'    
     no_stylesheets = True
+    remove_javascript  = True
     needs_subscription = True    
     INDEX = 'http://www.vreme.com'
     LOGIN = 'http://www.vreme.com/account/index.php'
+    remove_javascript     = True
+    use_embedded_content  = False
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
+    
     html2lrf_options = [
                           '--comment', description
-                        , '--base-font-size', '10'
-                        , '--category', 'news, politics, Serbia'
-                        , '--publisher', 'Vreme d.o.o.'
+                        , '--category', category
+                        , '--publisher', publisher
                         ]
-
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     def get_browser(self):
@@ -66,10 +74,29 @@ class Vreme(BasicNewsRecipe):
                                  ,'description':description
                                 })
         return [(soup.head.title.string, articles)]
+
+    remove_tags = [
+                    dict(name=['object','link'])
+                   ,dict(name='table',attrs={'xclass':'image'})
+                  ]
         
     def print_version(self, url):
         return url + '&print=yes'
 
+    def preprocess_html(self, soup):
+        del soup.body['text'   ]
+        del soup.body['bgcolor']
+        del soup.body['onload' ]
+        mtag = '<meta http-equiv="Content-Language" content="sr-Latn"/>'
+        soup.head.insert(0,mtag)
+        tbl = soup.body.table
+        tbbb = soup.find('td')
+        if tbbb:
+           tbbb.extract()
+           tbl.extract()
+           soup.body.insert(0,tbbb)
+        return soup
+                
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
@@ -77,3 +104,5 @@ class Vreme(BasicNewsRecipe):
         if cover_item:
            cover_url = self.INDEX + cover_item['src']
         return cover_url
+
+    language              = _('Serbian')

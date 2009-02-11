@@ -12,6 +12,7 @@ from urllib import unquote
 from urlparse import urlparse
 
 from lxml import etree
+from dateutil import parser
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import relpath
@@ -436,6 +437,7 @@ class OPF(object):
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=int, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
+    timestamp       = MetadataField('date', formatter=parser.parse)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):
@@ -618,7 +620,7 @@ class OPF(object):
         def fset(self, val):
             remove = list(self.authors_path(self.metadata))
             for elem in remove:
-                self.metadata.remove(elem)
+                elem.getparent().remove(elem)
             for author in val:
                 attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
                 elem = self.create_metadata_element('creator', attrib=attrib)

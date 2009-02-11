@@ -330,7 +330,8 @@ class PreProcessor(object):
                    sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
-                  
+                  # Remove the <![if/endif tags inserted by everybody's darling, MS Word
+                  (re.compile(r'(?i)<{0,1}!\[(end){0,1}if[^>]*>'), lambda match: ''),
                   ]
                      
     # Fix pdftohtml markup
@@ -467,7 +468,7 @@ class Parser(PreProcessor, LoggingInterface):
         if self.htmlfile.is_binary:
             raise ValueError('Not a valid HTML file: '+self.htmlfile.path)
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
-        src = src.replace('\x00', '')
+        src = src.replace('\x00', '').replace('\r', ' ')
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
         for pat in ENCODING_PATS:
