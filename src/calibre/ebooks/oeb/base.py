@@ -5,6 +5,7 @@ from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+__docformat__ = 'restructuredtext en'
 
 import os, sys, re, uuid
 from mimetypes import types_map
@@ -175,6 +176,7 @@ URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE]
 
 def urlquote(href):
+    """Quote URL-unsafe characters, allowing IRI-safe characters."""
     result = []
     unsafe = 0 if isinstance(href, unicode) else 1
     unsafe = URL_UNSAFE[unsafe]
@@ -185,6 +187,9 @@ def urlquote(href):
     return ''.join(result)
 
 def urlnormalize(href):
+    """Convert a URL into normalized form, with all and only URL-unsafe
+    characters URL quoted.
+    """
     parts = urlparse(href)
     if not parts.scheme:
         path, frag = urldefrag(href)
@@ -196,21 +201,30 @@ def urlnormalize(href):
 
 
 class OEBError(Exception):
+    """Generic OEB-processing error."""
     pass
 
 
 class FauxLogger(object):
+    """Fake logging interface."""
     def __getattr__(self, name):
         return self
     def __call__(self, message):
         print message
 
 class Logger(LoggingInterface, object):
+    """A logging object which provides both the standard `logging.Logger` and
+    calibre-specific interfaces.
+    """
     def __getattr__(self, name):
         return object.__getattribute__(self, 'log_' + name)
 
 
 class NullContainer(object):
+    """An empty container.
+
+    For use with book formats which do not support container-like access.
+    """
     def read(self, path):
         raise OEBError('Attempt to read from NullContainer')
 
@@ -224,6 +238,8 @@ class NullContainer(object):
         return []
 
 class DirContainer(object):
+    """Filesystem directory container."""
+
     def __init__(self, path):
         path = unicode(path)
         ext = os.path.splitext(path)[1].lower()
@@ -269,20 +285,38 @@ class DirContainer(object):
 
 
 class Metadata(object):
-    DC_TERMS      = set([
-                    'contributor', 'coverage', 'creator', 'date',
-                    'description', 'format', 'identifier', 'language',
-                    'publisher', 'relation', 'rights', 'source', 'subject',
-                    'title', 'type'
-                    ])
+    """A collection of OEB data model metadata.
+
+    Provides access to the list of items associated with a particular metadata
+    term via the term's local name using either Python container or attribute
+    syntax.  Return an empty list for any terms with no currently associated
+    metadata items.
+    """
+    
+    DC_TERMS      = set(['contributor', 'coverage', 'creator', 'date',
+                         'description', 'format', 'identifier', 'language',
+                         'publisher', 'relation', 'rights', 'source',
+                         'subject', 'title', 'type'])
     CALIBRE_TERMS = set(['series', 'series_index', 'rating'])
     OPF_ATTRS     = {'role': OPF('role'), 'file-as': OPF('file-as'),
                      'scheme': OPF('scheme'), 'event': OPF('event'),
                      'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}
     
     class Item(object):
-        
+        """An item of OEB data model metadata.
+
+        The metadata term or name may be accessed via the :attr:`term` or
+        :attr:`name` attributes.  The metadata value or content may be accessed
+        via the :attr:`value` or :attr:`content` attributes, or via Unicode or
+        string representations of the object.
+
+        OEB data model metadata attributes may be accessed either via their
+        fully-qualified names using the Python container access syntax, or via
+        their local names using Python attribute syntax.  Only attributes
+        allowed by the OPF 2.0 specification are supported.
+        """
         class Attribute(object):
+            """Smart accessor for allowed OEB metadata item attributes."""
             
             def __init__(self, attr, allowed=None):
                 if not callable(attr):
@@ -333,10 +367,24 @@ class Metadata(object):
                     nsattr = 'scheme'
                 if attr != nsattr:
                     attrib[nsattr] = attrib.pop(attr)
-        
+
+        @dynamic_property
+        def name(self):
+            def fget(self):
+                return self.term
+            return property(fget=fget)
+
+        @dynamic_property
+        def content(self):
+            def fget(self):
+                return self.value
+            def fset(self, value):
+                self.value = value
+            return property(fget=fget, fset=fset)
+                    
         scheme  = Attribute(lambda term: 'scheme' if \
                                 term == OPF('meta') else OPF('scheme'),
-                           [DC('identifier'), OPF('meta')])
+                            [DC('identifier'), OPF('meta')])
         file_as = Attribute(OPF('file-as'), [DC('creator'), DC('contributor')])
         role    = Attribute(OPF('role'), [DC('creator'), DC('contributor')])
         event   = Attribute(OPF('event'), [DC('date')])
@@ -405,6 +453,7 @@ class Metadata(object):
         self.items = defaultdict(list)
 
     def add(self, term, value, attrib={}, nsmap={}, **kwargs):
+        """Add a new metadata item."""
         item = self.Item(term, value, attrib, nsmap, **kwargs)
         items = self.items[barename(item.term)]
         items.append(item)
@@ -477,8 +526,40 @@ class Metadata(object):
 
 
 class Manifest(object):
+    """Collection of files composing an OEB data model book.
+
+    Provides access to the content of the files composing the book and
+    attributes associated with those files, including their internal paths,
+    unique identifiers, and MIME types.
+
+    Itself acts as a :class:`set` of manifest items, and provides the following
+    instance data member for dictionary-like access:
+
+    :attr:`ids`: A dictionary in which the keys are the unique identifiers of
+        the manifest items and the values are the items themselves.
+    :attr:`hrefs`: A dictionary in which the keys are the internal paths of the
+        manifest items and the values are the items themselves.
+    """
     
     class Item(object):
+        """An OEB data model book content file.
+
+        Provides the following data members for accessing the file content and
+        metadata associated with this particular file.
+
+        :attr:`id`: Unique identifier.
+        :attr:`href`: Book-internal path.
+        :attr:`media_type`: MIME type of the file content.
+        :attr:`fallback`: Unique id of any fallback manifest item associated
+            with this manifest item.
+        :attr:`spine_position`: Display/reading order index for book textual
+            content.  `None` for manifest items which are not part of the
+            book's textual content.
+        :attr:`linear`: `True` for textual content items which are part of the
+            primary linear reading order and `False` for textual content items
+            which are not (such as footnotes).  Meaningless for items which
+            have a :attr:`spine_position` of `None`.
+        """
     
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
         META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
@@ -584,6 +665,18 @@ class Manifest(object):
         
         @dynamic_property
         def data(self):
+            doc = """Provides MIME type sensitive access to the manifest
+            entry's associated content.
+
+            - XHTML, HTML, and variant content is parsed as necessary to
+              convert and and return as an lxml.etree element in the XHTML
+              namespace.
+            - XML content is parsed and returned as an lxml.etree element.
+            - CSS and CSS-variant content is parsed and returned as a cssutils
+              CSS DOM stylesheet.
+            - All other content is returned as a :class:`str` object with no
+              special parsing.
+            """
             def fget(self):
                 if self._data is not None:
                     return self._data
@@ -600,7 +693,7 @@ class Manifest(object):
                 self._data = value
             def fdel(self):
                 self._data = None
-            return property(fget, fset, fdel)
+            return property(fget, fset, fdel, doc=doc)
                 
         def __str__(self):
             data = self.data
@@ -631,6 +724,9 @@ class Manifest(object):
             return cmp(skey, okey)
         
         def relhref(self, href):
+            """Convert the URL provided in :param:`href` from a book-absolute
+            reference to a reference relative to this manifest item.
+            """
             if urlparse(href).scheme:
                 return href
             if '/' not in self.href:
@@ -649,6 +745,9 @@ class Manifest(object):
             return relhref
 
         def abshref(self, href):
+            """Convert the URL provided in :param:`href` from a reference
+            relative to this manifest item to a book-absolute reference.
+            """
             if urlparse(href).scheme:
                 return href
             path, frag = urldefrag(href)
@@ -663,25 +762,46 @@ class Manifest(object):
     
     def __init__(self, oeb):
         self.oeb = oeb
+        self.items = set()
         self.ids = {}
         self.hrefs = {}
 
     def add(self, id, href, media_type, fallback=None, loader=None, data=None):
+        """Add a new item to the book manifest.
+
+        The item's :param:`id`, :param:`href`, and :param:`media_type` are all
+        required.  A :param:`fallback` item-id is required for any items with a
+        MIME type which is not one of the OPS core media types.  Either the
+        item's data itself may be provided with :param:`data`, or a loader
+        function for the data may be provided with :param:`loader`, or the
+        item's data may latter be set manually via the :attr:`data` attribute.
+        """
         item = self.Item(
             self.oeb, id, href, media_type, fallback, loader, data)
+        self.items.add(item)
         self.ids[item.id] = item
         self.hrefs[item.href] = item
         return item
 
     def remove(self, item):
+        """Removes :param:`item` from the manifest."""
         if item in self.ids:
             item = self.ids[item]
         del self.ids[item.id]
         del self.hrefs[item.href]
+        self.items.remove(item)
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
 
     def generate(self, id=None, href=None):
+        """Generate a new unique identifier and/or internal path for use in
+        creating a new manifest item, using the provided :param:`id` and/or
+        :param:`href` as bases.
+
+        Returns an two-tuple of the new id and path.  If either :param:`id` or
+        :param:`href` are `None` then the corresponding item in the return
+        tuple will also be `None`.
+        """
         if id is not None:
             base = id
             index = 1
@@ -698,26 +818,16 @@ class Manifest(object):
         return id, href
 
     def __iter__(self):
-        for id in self.ids:
-            yield id
-
-    def __getitem__(self, id):
-        return self.ids[id]
-
-    def values(self):
-        for item in self.ids.values():
+        for item in self.items:
             yield item
+    values = __iter__
 
-    def items(self):
-        for id, item in self.ids.items():
-            yield id, item
-    
-    def __contains__(self, key):
-        return key in self.ids
+    def __contains__(self, item):
+        return item in self.items
 
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
-        for item in self.ids.values():
+        for item in self.items:
             media_type = item.media_type
             if media_type in OEB_DOCS:
                 media_type = OEB_DOC_MIME
@@ -732,7 +842,7 @@ class Manifest(object):
     
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
-        for item in self.ids.values():
+        for item in self.items:
             media_type = item.media_type
             if media_type in OEB_DOCS:
                 media_type = XHTML_MIME
@@ -747,7 +857,13 @@ class Manifest(object):
 
 
 class Spine(object):
-    
+    """Collection of manifest items composing an OEB data model book's main
+    textual content.
+
+    The spine manages which manifest items compose the book's main textual
+    content and the sequence in which they appear.  Provides Python container
+    access as a list-like object.
+    """
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = []
@@ -762,12 +878,14 @@ class Spine(object):
         return linear
         
     def add(self, item, linear=None):
+        """Append :param:`item` to the end of the `Spine`."""
         item.linear = self._linear(linear)
         item.spine_position = len(self.items)
         self.items.append(item)
         return item
     
     def insert(self, index, item, linear):
+        """Insert :param:`item` at position :param:`index` in the `Spine`."""
         item.linear = self._linear(linear)
         item.spine_position = index
         self.items.insert(index, item)
@@ -776,6 +894,7 @@ class Spine(object):
         return item
     
     def remove(self, item):
+        """Remove :param:`item` from the `Spine`."""
         index = item.spine_position
         self.items.pop(index)
         for i in xrange(index, len(self.items)):
@@ -813,9 +932,24 @@ class Spine(object):
 
 
 class Guide(object):
+    """Collection of references to standard frequently-occurring sections
+    within an OEB data model book.
+
+    Provides dictionary-like access, in which the keys are the OEB reference
+    type identifiers and the values are `Reference` objects.
+    """
     
     class Reference(object):
-        
+        """Reference to a standard book section.
+
+        Provides the following instance data members:
+
+        :attr:`type`: Reference type identifier, as chosen from the list
+            allowed in the OPF 2.0 specification.
+        :attr:`title`: Human-readable section title.
+        :attr:`href`: Book-internal URL of the referenced section.  May include
+            a fragment identifier.
+        """
         _TYPES_TITLES = [('cover', __('Cover')),
                          ('title-page', __('Title Page')),
                          ('toc', __('Table of Contents')),
@@ -867,17 +1001,19 @@ class Guide(object):
         
         @dynamic_property
         def item(self):
+            doc = """The manifest item associated with this reference."""
             def fget(self):
                 path = urldefrag(self.href)[0]
                 hrefs = self.oeb.manifest.hrefs
                 return hrefs.get(path, None)
-            return property(fget=fget)
+            return property(fget=fget, doc=doc)
     
     def __init__(self, oeb):
         self.oeb = oeb
         self.refs = {}
     
     def add(self, type, title, href):
+        """Add a new reference to the `Guide`."""
         ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
@@ -925,8 +1061,19 @@ class Guide(object):
         return elem
 
 
+# TODO: This needs beefing up to support the interface of toc.TOC
 class TOC(object):
-    # This needs beefing up to support the interface of toc.TOC
+    """Represents a hierarchical table of contents or navigation tree for
+    accessing arbitrary semantic sections within an OEB data model book.
+
+    Acts as a node within the navigation tree.  Provides list-like access to
+    sub-nodes.  Provides the follow node instance data attributes:
+
+    :attr:`title`: The title of this navigation node.
+    :attr:`href`: Book-internal URL referenced by this node.
+    :attr:`klass`: Optional semantic class referenced by this node.
+    :attr:`id`: Option unique identifier for this node.
+    """
     def __init__(self, title=None, href=None, klass=None, id=None):
         self.title = title
         self.href = urlnormalize(href) if href else href
@@ -935,17 +1082,26 @@ class TOC(object):
         self.nodes = []
     
     def add(self, title, href, klass=None, id=None):
+        """Create and return a new sub-node of this node."""
         node = TOC(title, href, klass, id)
         self.nodes.append(node)
         return node
 
+    def iter(self):
+        """Iterate over this node and all descendants in depth-first order."""
+        yield self
+        for child in self.nodes:
+            for node in child.iter():
+                yield node
+    
     def iterdescendants(self):
-        for node in self.nodes:
-            yield node
-            for child in node.iterdescendants():
-                yield child
+        """Iterate over all descendant nodes in depth-first order."""
+        for child in self.nodes:
+            for node in child.iter():
+                yield node
     
     def __iter__(self):
+        """Iterate over all immediate child nodes."""
         for node in self.nodes:
             yield node
     
@@ -953,6 +1109,9 @@ class TOC(object):
         return self.nodes[index]
 
     def autolayer(self):
+        """Make sequences of children pointing to the same content file into
+        children of the first node referencing that file.
+        """
         prev = None
         for node in list(self.nodes):
             if prev and urldefrag(prev.href)[0] == urldefrag(node.href)[0]:
@@ -961,10 +1120,12 @@ class TOC(object):
             else:
                 prev = node
     
-    def depth(self, level=0):
-        if self.nodes:
-            return self.nodes[0].depth(level+1)
-        return level
+    def depth(self):
+        """The maximum depth of the navigation tree rooted at this node."""
+        try:
+            return max(node.depth() for node in self.nodes) + 1
+        except ValueError:
+            return 1
 
     def to_opf1(self, tour):
         for node in self.nodes:
@@ -989,12 +1150,34 @@ class TOC(object):
 
 
 class PageList(object):
+    """Collection of named "pages" to mapped positions within an OEB data model
+    book's textual content.
+
+    Provides list-like access to the pages.
+    """
     
     class Page(object):
+        """Represents a mapping between a page name and a position within
+        the book content.
+
+        Provides the following instance data attributes:
+
+        :attr:`name`: The name of this page.  Generally a number.
+        :attr:`href`: Book-internal URL at which point this page begins.
+        :attr:`type`: Must be one of 'front' (for prefatory pages, as commonly
+            labeled in print with small-case Roman numerals), 'normal' (for
+            standard pages, as commonly labeled in print with Arabic numerals),
+            or 'special' (for other pages, as commonly not labeled in any
+            fashion in print, such as the cover and title pages).
+        :attr:`klass`: Optional semantic class of this page.
+        :attr:`id`: Optional unique identifier for this page.
+        """
+        TYPES = set(['front', 'normal', 'special'])
+        
         def __init__(self, name, href, type='normal', klass=None, id=None):
-            self.name = name
+            self.name = unicode(name)
             self.href = urlnormalize(href)
-            self.type = type
+            self.type = type if type in self.TYPES else 'normal'
             self.id = id
             self.klass = klass
     
@@ -1002,6 +1185,7 @@ class PageList(object):
         self.pages = []
     
     def add(self, name, href, type='normal', klass=None, id=None):
+        """Create a new page and add it to the `PageList`."""
         page = self.Page(name, href, type, klass, id)
         self.pages.append(page)
         return page
@@ -1015,6 +1199,12 @@ class PageList(object):
     
     def __getitem__(self, index):
         return self.pages[index]
+
+    def pop(self, index=-1):
+        return self.pages.pop(index)
+
+    def remove(self, page):
+        return self.pages.remove(page)
     
     def to_ncx(self, parent=None):
         plist = element(parent, NCX('pageList'), id=str(uuid.uuid4()))
@@ -1040,8 +1230,33 @@ class PageList(object):
 
 
 class OEBBook(object):
+    """Representation of a book in the IDPF OEB data model."""
     
     def __init__(self, encoding=None, pretty_print=False, logger=FauxLogger()):
+        """Create empty book.  Optional arguments:
+        
+        :param:`encoding`: Default encoding for textual content read
+            from an external container.
+        :param:`pretty_print`: Whether or not the canonical string form
+            of XML markup is pretty-printed.
+        :prama:`logger`: A Logger object to use for logging all messages
+            related to the processing of this book.  It is accessible
+            via the instance data member :attr:`logger`.
+        
+        It provides the following public instance data members for
+        accessing various parts of the OEB data model:
+        
+        :attr:`metadata`: Metadata such as title, author name(s), etc.
+        :attr:`manifest`: Manifest of all files included in the book,
+            including MIME types and fallback information.
+        :attr:`spine`: In-order list of manifest items which compose
+            the textual content of the book.
+        :attr:`guide`: Collection of references to standard positions
+            within the text, such as the cover, preface, etc.
+        :attr:`toc`: Hierarchical table of contents.
+        :attr:`pages`: List of "pages," such as indexed to a print edition of
+            the same text.
+        """
         self.encoding = encoding
         self.pretty_print = pretty_print
         self.logger = logger
@@ -1057,16 +1272,19 @@ class OEBBook(object):
 
     @classmethod
     def generate(cls, opts):
+        """Generate an OEBBook instance from command-line options."""
         encoding = opts.encoding
         pretty_print = opts.pretty_print
         return cls(encoding=encoding, pretty_print=pretty_print)
     
     def translate(self, text):
+        """Translate :param:`text` into the book's primary language."""
         lang = str(self.metadata.language[0])
         lang = lang.split('-', 1)[0].lower()
         return translate(lang, text)
     
     def decode(self, data):
+        """Automatically decode :param:`data` into a `unicode` object."""
         if isinstance(data, unicode):
             return data
         if data[:2] in ('\xff\xfe', '\xfe\xff'):
@@ -1089,6 +1307,11 @@ class OEBBook(object):
         return data
     
     def to_opf1(self):
+        """Produce OPF 1.2 representing the book's metadata and structure.
+
+        Returns a dictionary in which the keys are MIME types and the values
+        are tuples of (default) filenames and lxml.etree element structures.
+        """
         package = etree.Element('package',
             attrib={'unique-identifier': self.uid.id})
         self.metadata.to_opf1(package)
@@ -1160,6 +1383,11 @@ class OEBBook(object):
         return ncx
     
     def to_opf2(self, page_map=False):
+        """Produce OPF 2.0 representing the book's metadata and structure.
+        
+        Returns a dictionary in which the keys are MIME types and the values
+        are tuples of (default) filenames and lxml.etree element structures.
+        """
         results = {}
         package = etree.Element(OPF('package'),
             attrib={'version': '2.0', 'unique-identifier': self.uid.id},
