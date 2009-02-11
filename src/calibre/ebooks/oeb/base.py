@@ -820,8 +820,10 @@ class Manifest(object):
     def __iter__(self):
         for item in self.items:
             yield item
-    values = __iter__
 
+    def values(self):
+        return list(self.items)
+    
     def __contains__(self, item):
         return item in self.items
 
@@ -1134,7 +1136,7 @@ class TOC(object):
             node.to_opf1(tour)
         return tour
     
-    def to_ncx(self, parent, depth=1):
+    def to_ncx(self, parent):
         for node in self.nodes:
             id = node.id or unicode(uuid.uuid4())
             attrib = {'id': id, 'playOrder': '0'}
@@ -1143,9 +1145,8 @@ class TOC(object):
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
             element(label, NCX('text')).text = node.title
-            href = node.href if depth > 1 else urldefrag(node.href)[0]
-            element(point, NCX('content'), src=href)
-            node.to_ncx(point, depth+1)
+            element(point, NCX('content'), src=node.href)
+            node.to_ncx(point)
         return parent
 
 

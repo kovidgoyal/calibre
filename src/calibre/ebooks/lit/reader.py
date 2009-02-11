@@ -802,6 +802,7 @@ class LitFile(object):
 
 
 class LitContainer(object):
+    """Simple Container-interface, read-only accessor for LIT files."""
 
     def __init__(self, filename_or_stream):
         self._litfile = LitFile(filename_or_stream)

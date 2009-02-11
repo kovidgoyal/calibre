@@ -31,15 +31,39 @@ from calibre.ptempfile import TemporaryDirectory
 __all__ = ['OEBReader']
 
 class OEBReader(object):
+    """Read an OEBPS 1.x or OPF/OPS 2.0 file collection."""
     
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
     Container = DirContainer
+    """Container type used to access book files.  Override in sub-classes."""
     
     DEFAULT_PROFILE = 'PRS505'
+    """Default renderer profile for content read with this Reader."""
+
+    TRANSFORMS = []
+    """List of transforms to apply to content read with this Reader."""
+
+    def __init__(self):
+        return
     
+    @classmethod
+    def config(cls, cfg):
+        """Add any book-reading options to the :class:`Config` object
+        :param:`cfg`.
+        """
+        return
+
+    @classmethod
+    def generate(cls, opts):
+        """Generate a Reader instance from command-line options."""
+        return cls()
+
     def __call__(self, oeb, path):
+        """Read the book at :param:`path` into the :class:`OEBBook` object
+        :param:`oeb`.
+        """
         self.oeb = oeb
         self.logger = oeb.logger
         oeb.container = self.Container(path)
