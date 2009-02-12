@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 __appname__ = 'calibre'
-import re
+import re, textwrap
 
 DEPENDENCIES = [
             #(Generic, version, gentoo, ubuntu, fedora)
@@ -191,7 +191,7 @@ else:
             return 'linux.html', data, None
                                 
     
-    LINUX_INSTALLER = r'''
+    LINUX_INSTALLER = textwrap.dedent(r'''
     import sys, os, shutil, tarfile, subprocess, tempfile, urllib2, re, stat
     
     MOBILEREAD='https://dev.mobileread.com/dist/kovid/calibre/'
@@ -382,5 +382,5 @@ else:
         pi = os.path.join(destdir, 'calibre_postinstall')
         subprocess.call(pi, shell=True)
         return 0
-    '''
+    ''')
     
