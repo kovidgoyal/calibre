@@ -8,7 +8,7 @@
   <head>
     <title>${title}</title>
     <style type="text/css">
-        .distro_type { 
+        th.distro_type { 
             font-family: monospace;
             text-align: center;
             border-bottom: solid 1pt black;
@@ -49,7 +49,7 @@
             <table id="info">
                 <col width="150" /><col width="*" />
                 <tr>
-                    <th class="left distro_type">Supported distributions</th>
+                    <th class="left distro_type">Supported<br/>distributions</th>
                     <th class="right distro_type">Unsupported distributions</th>
                 </tr>
                 <tr class="tdata">
@@ -133,7 +133,8 @@ python setup.py build &amp;&amp; sudo python setup.py install
       <br/><br/>
       <table id="dependencies">
           <tr>
-              <th style="margin-right:2em">Package</th><th>Version</th>
+              <th class="distro_type" style="margin-right:2em">Package</th>
+              <th class="distro_type">Version</th>
           </tr>
               
           <tr class="dependency" py:for="dep in dependencies">
