@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 
 import os, logging, shutil, sys
-from calibre.ebooks.oeb.base import Logger, OEBBook
-from calibre.ebooks.oeb.profile import Context
+
+from calibre import LoggingInterface
 from calibre.ebooks.epub.iterator import SpineItem
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -17,8 +17,7 @@ from calibre.utils.config import Config, StringConfig
 
 from PyQt4 import QtCore
 from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, QApplication, QPrinter, \
-    QMetaObject
-from PyQt4.Qt import *
+    QMetaObject, Qt
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -29,6 +28,8 @@ class PDFWriter(QObject):
             QApplication([])
         QObject.__init__(self)
         
+        self.logger = logging.getLogger('oeb2pdf')
+        
         self.loop = QEventLoop()
         self.view = QWebView()
         self.connect(self.view, SIGNAL('loadFinished(bool)'), self._render_html)
@@ -36,12 +37,12 @@ class PDFWriter(QObject):
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
 
-    def dump(self, oeb, oebpath, path):
-        self._reset()
+    def dump(self, oebpath, path):
+        self._delete_tmpdir()
         
         opf = OPF(oebpath, os.path.dirname(oebpath))
         self.render_queue = [SpineItem(i.path) for i in opf.spine]
-        
+        self.combine_queue = []
         self.path = path
         
         QMetaObject.invokeMethod(self, "_render_book", Qt.QueuedConnection)
@@ -57,28 +58,32 @@ class PDFWriter(QObject):
     def _render_next(self):
         item = str(self.render_queue.pop(0))        
         self.combine_queue.append(os.path.join(self.tmp_path, '%s.pdf' % os.path.basename(item)))
+        
+        self.logger.info('Processing %s...' % item)
     
         self.view.load(QUrl(item))
 
     def _render_html(self, ok):
         if ok:
+            item_path = os.path.join(self.tmp_path, '%s.pdf' % os.path.basename(str(self.view.url().toLocalFile())))
+            
+            self.logger.debug('\tRendering item as %s' % item_path)
+        
             printer = QPrinter(QPrinter.HighResolution)
             printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
             printer.setOutputFormat(QPrinter.PdfFormat)
-            printer.setOutputFileName(os.path.join(self.tmp_path, '%s.pdf' % os.path.basename(str(self.view.url().toLocalFile()))))
+            printer.setOutputFileName(item_path)
             self.view.print_(printer)
         self._render_book()
 
-    def _reset(self):
-        self.render_queue = []
-        self.combine_queue = []
-        self.path = ''
+    def _delete_tmpdir(self):
         if os.path.exists(self.tmp_path):
             shutil.rmtree(self.tmp_path, True)
             self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
 
     def _write(self):
-        print self.path
+        self.logger.info('Combining individual PDF parts...')
+    
         try:
             outPDF = PdfFileWriter()
             for item in self.combine_queue:
@@ -89,7 +94,7 @@ class PDFWriter(QObject):
             outPDF.write(outputStream)
             outputStream.close()
         finally:
-            self._reset()
+            self._delete_tmpdir()
             self.loop.exit(0)
 
 
@@ -117,26 +122,18 @@ def option_parser():
     return parser
 
 def oeb2pdf(opts, inpath):
-    logger = Logger(logging.getLogger('oeb2pdf'))
+    logger = LoggingInterface(logging.getLogger('oeb2pdf'))
     logger.setup_cli_handler(opts.verbose)
+    
     outpath = opts.output
     if outpath is None:
         outpath = os.path.basename(inpath)
         outpath = os.path.splitext(outpath)[0] + '.pdf'
-#    source = opts.source_profile
-#    if source not in Context.PROFILES:
-#        logger.error(_('Unknown source profile %r') % source)
-#        return 1
-#    dest = opts.dest_profile
-#    if dest not in Context.PROFILES:
-#        logger.error(_('Unknown destination profile %r') % dest)
-#        return 1
 
-    oeb = OEBBook(inpath, logger=logger, encoding=opts.encoding)
     writer = PDFWriter()
-    writer.dump(oeb, inpath, outpath)
+    writer.dump(inpath, outpath)
     run_plugins_on_postprocess(outpath, 'pdf')
-    logger.info(_('Output written to ') + outpath)
+    logger.log_info(_('Output written to ') + outpath)
     
 def main(argv=sys.argv):
     parser = option_parser()
