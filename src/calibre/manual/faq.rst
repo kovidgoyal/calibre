@@ -28,7 +28,7 @@ What formats does |app| support conversion to/from?
 |                   |        |                  |                       |                       |
 |                   |  LIT   |       ✔          |          ✔            |          ✔            |
 |                   |        |                  |                       |                       |
-|                   |  PRC*  |       ✔          |          ✔            |          ✔            |
+|                   |  PRC** |       ✔          |          ✔            |          ✔            |
 |                   |        |                  |                       |                       |
 |                   |  EPUB  |       ✔          |          ✔            |          ✔            |
 |                   |        |                  |                       |                       |
@@ -48,7 +48,8 @@ What formats does |app| support conversion to/from?
 |                   |        |                  |                       |                       |
 |                   |  LRS   |                  |          ✔            |                       |
 +-------------------+--------+------------------+-----------------------+-----------------------+
-* PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
+
+** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
 
 
 What are the best source formats to convert?
