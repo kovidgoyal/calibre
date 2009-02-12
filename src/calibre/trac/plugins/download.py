@@ -114,10 +114,6 @@ else:
                         return self.osx(req)
                     elif os == 'linux':
                         return self.linux(req)
-                    elif 'binary' in os:
-                        return self.linux_binary(req)
-                    else:
-                        return self.linux_distro(req, os)       
         
         def top_level(self, req):
             operating_systems = [
@@ -172,10 +168,6 @@ else:
     '''%dict(appname=__appname__)))
             return 'binary.html', data, None
         
-        def linux_binary(self, req):
-            version = self.version_from_filename()
-            return 'pyinstaller.html', {'app':__appname__, 'version':version}, None
-        
         def osx(self, req):
             version = self.version_from_filename()
             file = 'calibre-%s.dmg'%(version,) 
@@ -196,7 +188,7 @@ else:
         
         def linux(self, req):
             data = get_linux_data(version=self.version_from_filename())
-            return 'download.html', data, None
+            return 'linux.html', data, None
                                 
     
     LINUX_INSTALLER = r'''
