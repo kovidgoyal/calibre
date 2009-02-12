@@ -49,7 +49,7 @@ if __name__ == '__main__':
     import cherrypy
     class Test:
         def index(self):
-            raw = open(os.path.dirname(os.path.abspath(__file__))+'/templates/download.html').read()
+            raw = open(os.path.dirname(os.path.abspath(__file__))+'/templates/linux.html').read()
             return MarkupTemplate(raw).generate(**get_linux_data()).render('xhtml')
         index.exposed = True
     t = Test()
