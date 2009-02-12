@@ -51,6 +51,7 @@ entry_points = {
                              'any2epub  = calibre.ebooks.epub.from_any:main',
                              'any2lit   = calibre.ebooks.lit.from_any:main',
                              'any2mobi  = calibre.ebooks.mobi.from_any:main',
+                             'any2pdf  = calibre.ebooks.pdf.from_any:main',
                              'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
                              'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',

@@ -71,6 +71,9 @@ PARALLEL_FUNCS = {
       'any2mobi'     :
         ('calibre.ebooks.mobi.from_any', 'any2mobi', {}, None),
         
+      'any2pdf'     :
+        ('calibre.ebooks.pdf.from_any', 'any2pdf', {}, None),        
+        
       'feeds2mobi'   :
         ('calibre.ebooks.mobi.from_feeds', 'main', {}, 'notification'),
         
