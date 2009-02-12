@@ -1,3 +1,4 @@
+from calibre.ebooks.metadata import authors_to_string
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, textwrap, traceback, time, re
@@ -371,35 +372,24 @@ class BooksModel(QAbstractTableModel):
         if not rows_are_ids:
             rows = [self.db.id(row.row()) for row in rows]
         for id in rows:
-            au = self.db.authors(id, index_is_id=True)
-            tags = self.db.tags(id, index_is_id=True)
-            if not au:
-                au = _('Unknown')
-            au = au.split(',')
-            if len(au) > 1:
-                t = ', '.join(au[:-1])
-                t += ' & ' + au[-1]
-                au = t
-            else:
-                au = ' & '.join(au)
-            if not tags:
-                tags = []
-            else:
-                tags = tags.split(',')
-            series = self.db.series(id, index_is_id=True)
-            if series is not None:
-                tags.append(series)
-            mi = {
-                  'title'   : self.db.title(id, index_is_id=True),
+            mi = self.db.get_metadata(id, index_is_id=True)
+            au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
+            tags = mi.tags if mi.tags else []
+            if mi.series is not None:
+                tags.append(mi.series)
+            info = {
+                  'title'   : mi.title,
                   'authors' : au,
                   'cover'   : self.db.cover(id, index_is_id=True),
                   'tags'    : tags,
-                  'comments': self.db.comments(id, index_is_id=True),
+                  'comments': mi.comments,
                   }
-            if series is not None:
-                mi['tag order'] = {series:self.db.books_in_series_of(id, index_is_id=True)}
+            if mi.series is not None:
+                info['tag order'] = {
+                    mi.series:self.db.books_in_series_of(id, index_is_id=True)
+                }
 
-            metadata.append(mi)
+            metadata.append(info)
         return metadata
 
     def get_preferred_formats_from_ids(self, ids, all_formats, mode='r+b'):

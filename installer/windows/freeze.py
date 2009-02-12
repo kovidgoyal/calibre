@@ -179,7 +179,8 @@ def main(args=sys.argv):
                                              'calibre.ebooks.lrf.fonts.prs500.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],
-                                  'packages'  : ['PIL', 'lxml', 'cherrypy'],
+                                  'packages'  : ['PIL', 'lxml', 'cherrypy',
+                                                 'dateutil'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],

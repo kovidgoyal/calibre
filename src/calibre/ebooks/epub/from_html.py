@@ -74,7 +74,9 @@ def check_links(opf_path, pretty_print):
         html_files = []
         for item in opf.itermanifest():
             if 'html' in item.get('media-type', '').lower():
-                f = item.get('href').split('/')[-1].decode('utf-8')
+                f = item.get('href').split('/')[-1]
+                if isinstance(f, str):
+                    f = f.decode('utf-8')
                 html_files.append(os.path.abspath(content(f)))
         
         for path in html_files:

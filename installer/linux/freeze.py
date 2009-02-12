@@ -81,7 +81,8 @@ def freeze():
                 'PyQt4.QtScript.so', 'PyQt4.QtSql.so', 'PyQt4.QtTest.so', 'qt',
                 'glib', 'gobject']
     
-    packages = ['calibre', 'encodings', 'cherrypy', 'cssutils', 'xdg']
+    packages = ['calibre', 'encodings', 'cherrypy', 'cssutils', 'xdg', 
+                'dateutil']
     
     includes += ['calibre.web.feeds.recipes.'+r for r in recipe_modules]
     

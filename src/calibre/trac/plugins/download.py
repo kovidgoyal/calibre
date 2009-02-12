@@ -35,6 +35,7 @@ class Distribution(object):
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('lxml', '2.0.5', 'lxml', 'python-lxml', 'python-lxml'),
+        ('python-dateutil', '1.4.1', 'python-dateutil', 'python-dateutil', 'python-dateutil'),
         ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]

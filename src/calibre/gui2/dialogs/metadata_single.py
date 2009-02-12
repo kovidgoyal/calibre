@@ -113,6 +113,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def set_cover(self):
         row = self.formats.currentRow()
         fmt = self.formats.item(row)
+        if fmt is None:
+            error_dialog(self, _('No format selected'),
+                    _('No format selected')).exec_()
+            return
         ext = fmt.ext.lower()
         if fmt.path is None:
             stream = self.db.format(self.row, ext, as_file=True)
@@ -121,7 +125,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         try:
             mi = get_metadata(stream, ext)
         except:
-            error_dialog(self, _('Could not read metadata'), 
+            error_dialog(self, _('Could not read metadata'),
                          _('Could not read metadata from %s format')%ext).exec_()
             return
         cdata = None

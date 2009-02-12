@@ -330,7 +330,8 @@ class PreProcessor(object):
                    sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
-                  
+                  # Remove the <![if/endif tags inserted by everybody's darling, MS Word
+                  (re.compile(r'(?i)<{0,1}!\[(end){0,1}if[^>]*>'), lambda match: ''),
                   ]
                      
     # Fix pdftohtml markup

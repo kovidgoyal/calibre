@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import sys, os, re, StringIO, traceback
+import sys, os, re, StringIO, traceback, time
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QLocale, QUrl, QTranslator, QCoreApplication, \
                          QModelIndex
@@ -14,6 +14,9 @@ from calibre import __author__, islinux, iswindows, isosx
 from calibre.startup import get_lang
 from calibre.utils.config import Config, ConfigProxy, dynamic
 import calibre.resources as resources
+from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
+from calibre.ebooks.metadata import MetaInformation
+
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
@@ -148,7 +151,41 @@ class Dispatcher(QObject):
         
     def dispatch(self, args, kwargs):
         self.func(*args, **kwargs)
+
+class GetMetadata(QObject):
+    '''
+    Convenience class to ensure that metadata readers are used only in the
+    GUI thread. Must be instantiated in the GUI thread.
+    '''
+    
+    def __init__(self):
+        QObject.__init__(self)
+        self.connect(self, SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+                     self._get_metadata, Qt.QueuedConnection)
+        self.connect(self, SIGNAL('idispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+                     self._from_formats, Qt.QueuedConnection)
         
+    def __call__(self, id, *args, **kwargs):
+        self.emit(SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+                  id, args, kwargs)
+    
+    def from_formats(self, id, *args, **kwargs):
+        self.emit(SIGNAL('idispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+                  id, args, kwargs)
+    
+    def _from_formats(self, id, args, kwargs):
+        try:
+            mi = metadata_from_formats(*args, **kwargs)
+        except:
+            mi = MetaInformation('', [_('Unknown')])
+        self.emit(SIGNAL('metadataf(PyQt_PyObject, PyQt_PyObject)'), id, mi)
+    
+    def _get_metadata(self, id, args, kwargs):
+        try:
+            mi = get_metadata(*args, **kwargs)
+        except:
+            mi = MetaInformation('', [_('Unknown')])
+        self.emit(SIGNAL('metadata(PyQt_PyObject, PyQt_PyObject)'), id, mi)
 
 class TableView(QTableView):
     def __init__(self, parent):

@@ -27,8 +27,8 @@
       <widget class="QWidget" name="layoutWidget" >
        <layout class="QGridLayout" name="gridLayout" >
         <item row="0" column="0" >
-         <widget class="QWebView" name="view" >
-          <property name="url" >
+         <widget class="QWebView" native="1" name="view" >
+          <property name="url" stdset="0" >
            <url>
             <string>about:blank</string>
            </url>
@@ -86,9 +86,6 @@
    <addaction name="separator" />
    <addaction name="action_bookmark" />
    <addaction name="action_reference_mode" />
-   <addaction name="separator" />
-   <addaction name="action_print_preview" />
-   <addaction name="action_print" />
    <addaction name="separator" />
    <addaction name="action_preferences" />
    <addaction name="action_full_screen" />
@@ -235,24 +232,6 @@
    </property>
    <property name="text" >
     <string>Toggle full screen</string>
-   </property>
-  </action>
-  <action name="action_print" >
-   <property name="icon" >
-    <iconset resource="../images.qrc" >
-     <normaloff>:/images/document-print.svg</normaloff>:/images/document-print.svg</iconset>
-   </property>
-   <property name="text" >
-    <string>Print</string>
-   </property>
-  </action>
-  <action name="action_print_preview" >
-   <property name="icon" >
-    <iconset resource="../images.qrc" >
-     <normaloff>:/images/document-print-preview.svg</normaloff>:/images/document-print-preview.svg</iconset>
-   </property>
-   <property name="text" >
-    <string>Print Preview</string>
    </property>
   </action>
  </widget>

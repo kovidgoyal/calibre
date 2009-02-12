@@ -20,6 +20,7 @@ class ProgressDialog(QDialog, Ui_Dialog):
         self.setWindowModality(Qt.ApplicationModal)
         self.set_min(min)
         self.set_max(max)
+        self.bar.setValue(min)
         self.canceled = False
         
         self.connect(self.button_box, SIGNAL('rejected()'), self._canceled)

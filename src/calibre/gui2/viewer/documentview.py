@@ -8,8 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, math, re
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, \
-                     QFont, QPrinter, QPrintPreviewDialog, QPrintDialog 
+                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, QFont
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -310,61 +309,6 @@ class DocumentView(QWebView):
         
     def goto_bookmark(self, bm):
         self.document.goto_bookmark(bm)
-
-    def all_content(self):
-        book_content = ''
-        
-        if self.manager is not None:
-            for path in self.manager.iterator.spine:
-                html = open(path, 'rb').read().decode(path.encoding)
-                book_content += EntityDeclarationProcessor(html).processed_html
-            base_url = QUrl.fromLocalFile(self.manager.iterator.spine[0])
-        else:
-            book_content = self.page().mainFrame().toHtml()
-            base_url = QUrl.fromLocalFile(self.path())
-            
-        return (book_content, base_url)
-
-    def print_preview(self):        
-        print_view = QWebView()
-        book_content, base_url = self.all_content()
-        print_view.setHtml(book_content, base_url)
-        print_view.setTextSizeMultiplier(self.textSizeMultiplier())
-
-        def finished(ok):
-            printer = QPrinter(QPrinter.HighResolution)
-            printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
-            
-            previewDialog = QPrintPreviewDialog(printer, self)
-            
-            self.connect(previewDialog, SIGNAL('paintRequested(QPrinter *)'), print_view.print_)
-            previewDialog.exec_()
-            self.disconnect(previewDialog, SIGNAL('paintRequested(QPrinter *)'), print_view.print_)
-
-            self.disconnect(print_view, SIGNAL('loadFinished(bool)'), finished)
-
-        self.connect(print_view, SIGNAL('loadFinished(bool)'), finished)
-        
-    def print_book(self):        
-        print_view = QWebView()
-        book_content, base_url = self.all_content()
-        print_view.setHtml(book_content, base_url)
-        print_view.setTextSizeMultiplier(self.textSizeMultiplier())
-
-        def finished(ok):
-            printer = QPrinter(QPrinter.HighResolution)
-            printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
-            
-            printDialog = QPrintDialog(printer, self)
-            printDialog.setWindowTitle(_("Print eBook"))
-            
-            printDialog.exec_()
-            if printDialog.result() == QDialog.Accepted:
-                print_view.print_(printer)
-                
-            self.disconnect(print_view, SIGNAL('loadFinished(bool)'), finished)
-
-        self.connect(print_view, SIGNAL('loadFinished(bool)'), finished)
     
     def config(self, parent=None):
         self.document.do_config(parent)
