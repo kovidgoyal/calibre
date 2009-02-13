@@ -198,6 +198,7 @@ class Server(object):
         stats = self.get_slice(date.today()-timedelta(days=days-1), date.today())
         fig = plt.figure(2, (12, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
         ax = fig.add_subplot(111)
+        fig.clear()
         x = list(range(days-1, -1, -1))
         y = stats.daily_totals
         ax.plot(x, y)#, align='center', width=20, color='g')
@@ -235,6 +236,7 @@ Donors per day: %(dpd).2f
         y = [m.total for m in _months]
         ml   = mdates.MonthLocator() # every month
         fig = plt.figure(1, (8, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        fig.clear()
         ax = fig.add_subplot(111)
         average = sum(y)/len(y)
         ax.bar(x, y, align='center', width=20, color='g')
