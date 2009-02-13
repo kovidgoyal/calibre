@@ -544,7 +544,7 @@ def _prefs():
               help=_('Path to directory in which your library of books is stored'))
     c.add_opt('language', default=None,
               help=_('The language in which to display the user interface'))
-    c.add_opt('output_format', default='LRF', 
+    c.add_opt('output_format', default='EPUB', 
               help=_('The default output format for ebook conversions.'))
     c.add_opt('read_file_metadata', default=True,
               help=_('Read metadata from files'))
