@@ -197,8 +197,8 @@ class Server(object):
     def calculate_month_trend(self, days=31):
         stats = self.get_slice(date.today()-timedelta(days=days-1), date.today())
         fig = plt.figure(2, (12, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
-        ax = fig.add_subplot(111)
         fig.clear()
+        ax = fig.add_subplot(111)
         x = list(range(days-1, -1, -1))
         y = stats.daily_totals
         ax.plot(x, y)#, align='center', width=20, color='g')
