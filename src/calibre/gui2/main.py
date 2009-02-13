@@ -330,12 +330,17 @@ class Main(MainWindow, Ui_MainWindow):
             self.cover_flow.setVisible(False)
             if not config['separate_cover_flow']:
                 self.library.layout().addWidget(self.cover_flow)
-            self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
-            self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), self.show_book_info)
-            self.connect(self.status_bar.cover_flow_button, SIGNAL('toggled(bool)'), self.toggle_cover_flow)
-            self.connect(self.cover_flow, SIGNAL('stop()'), self.status_bar.cover_flow_button.toggle)
-            QObject.connect(self.library_view.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
-                        self.sync_cf_to_listview)
+            self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), 
+                         self.sync_cf_to_listview)
+            self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), 
+                         self.show_book_info)
+            self.connect(self.status_bar.cover_flow_button, 
+                         SIGNAL('toggled(bool)'), self.toggle_cover_flow)
+            self.connect(self.cover_flow, SIGNAL('stop()'), 
+                         self.status_bar.cover_flow_button.toggle)
+            QObject.connect(self.library_view.selectionModel(), 
+                            SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
+                            self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
         else:
@@ -482,7 +487,8 @@ class Main(MainWindow, Ui_MainWindow):
         if not hasattr(index, 'row') and self.library_view.currentIndex().row() != index:
             index = self.library_view.model().index(index, 0)
             self.library_view.setCurrentIndex(index)
-        if hasattr(index, 'row') and self.cover_flow.isVisible() and self.cover_flow.currentSlide() != index.row():
+        if hasattr(index, 'row') and self.cover_flow.isVisible() and \
+                self.cover_flow.currentSlide() != index.row():
             self.cover_flow.setCurrentSlide(index.row())
 
     def another_instance_wants_to_talk(self, msg):
@@ -709,6 +715,7 @@ class Main(MainWindow, Ui_MainWindow):
                 t.process_duplicates()
         if t.number_of_books_added > 0:
             self.library_view.model().books_added(t.number_of_books_added)
+            self.db_images.reset()
         
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
