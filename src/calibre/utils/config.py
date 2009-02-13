@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, textwrap
+import os, re, cPickle, textwrap, traceback
 from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
@@ -314,7 +314,12 @@ class OptionSet(object):
         if not isinstance(src, unicode):
             src = src.decode('utf-8')
         if src is not None:
-            exec src in options
+            try:
+                exec src in options
+            except:
+                print 'Failed to parse options string:'
+                print repr(src)
+                traceback.print_exc()
         opts = OptionValues()
         for pref in self.preferences:
             val = options.get(pref.name, pref.default)
