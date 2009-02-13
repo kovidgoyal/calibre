@@ -382,8 +382,10 @@ def walk(dir):
         for f in record[-1]:
             yield os.path.join(record[0], f)
 
-def strftime(fmt, t=time.localtime()):
+def strftime(fmt, t=None):
     ''' A version of strtime that returns unicode strings. '''
+    if t is None:
+        t = time.localtime()
     if iswindows:
         if isinstance(fmt, unicode):
             fmt = fmt.encode('mbcs')
