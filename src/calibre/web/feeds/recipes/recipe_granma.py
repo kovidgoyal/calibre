@@ -7,6 +7,8 @@ granma.cubaweb.cu
 '''
 import urllib
 
+from calibre.web.feeds.news import BasicNewsRecipe
+
 class Granma(BasicNewsRecipe):
     title                 = 'Diario Granma'
     __author__            = 'Darko Miletic'
