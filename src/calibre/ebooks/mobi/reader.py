@@ -186,6 +186,8 @@ class MobiReader(object):
         self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
+        self.processed_html = re.sub(r'&(\S+?);', entity_to_unicode,
+                                     self.processed_html)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup_html()
@@ -271,6 +273,8 @@ class MobiReader(object):
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
                 continue
+            if tag.tag == 'pre' and not tag.text:
+                tag.tag = 'div'
             styles, attrib = [], tag.attrib
             if attrib.has_key('style'):
                 style = attrib.pop('style').strip()
@@ -451,6 +455,7 @@ class MobiReader(object):
             self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
             pos = end
         self.processed_html += self.mobi_html[pos:]
+        
     
     def extract_images(self, processed_records, output_dir):
         if self.verbose:
