@@ -1,13 +1,11 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 granma.cubaweb.cu
 '''
 import urllib
-
-from calibre.web.feeds.news import BasicNewsRecipe
 
 class Granma(BasicNewsRecipe):
     title                 = 'Diario Granma'
@@ -21,18 +19,21 @@ class Granma(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     cover_url             = 'http://www.granma.cubaweb.cu/imagenes/granweb229d.jpg'
+    language              = _('Spanish')
     remove_javascript     = True
     
     html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
+                          '--comment'  , description
+                        , '--category' , category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
 
     keep_only_tags = [dict(name='table', attrs={'height':'466'})]
+    
+    remove_tags = [dict(name=['embed','link','object'])]
 
     feeds = [(u'Noticias', u'http://www.granma.cubaweb.cu/noticias.xml' )]
 
@@ -49,4 +50,3 @@ class Granma(BasicNewsRecipe):
             del item['style']
         return soup
     
-    language = _('Spanish')

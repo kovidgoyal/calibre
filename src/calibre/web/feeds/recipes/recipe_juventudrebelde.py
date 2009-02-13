@@ -1,12 +1,12 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 juventudrebelde.cu
 '''
-from calibre import strftime
 
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Juventudrebelde(BasicNewsRecipe):
@@ -20,17 +20,18 @@ class Juventudrebelde(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
+    language              = _('Spanish')
     cover_url             = strftime('http://www.juventudrebelde.cu/UserFiles/File/impreso/iportada-%Y-%m-%d.jpg')
     remove_javascript     = True
     
     html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
+                          '--comment'  , description
+                        , '--category' , category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
 
     keep_only_tags = [dict(name='div', attrs={'id':'noticia'})]
 
@@ -51,4 +52,3 @@ class Juventudrebelde(BasicNewsRecipe):
             del item['style']
         return soup
              
-    language = _('Spanish')

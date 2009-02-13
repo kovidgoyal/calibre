@@ -5,7 +5,6 @@ __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 elargentino.com
 '''
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElArgentino(BasicNewsRecipe):
@@ -21,6 +20,7 @@ class ElArgentino(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     cover_url             = 'http://www.elargentino.com/TemplateWeb/MediosFooter/tapa_elargentino.png'
+    language              = _('Spanish')
 
     html2lrf_options = [
                           '--comment', description
@@ -59,5 +59,3 @@ class ElArgentino(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']        
         return soup
-    
-    language = _('Spanish')
