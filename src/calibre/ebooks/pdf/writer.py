@@ -56,8 +56,8 @@ class PDFWriter(QObject):
             self._render_next()
             
     def _render_next(self):
-        item = str(self.render_queue.pop(0))        
-        self.combine_queue.append(os.path.join(self.tmp_path, '%s.pdf' % os.path.basename(item)))
+        item = str(self.render_queue.pop(0))
+        self.combine_queue.append(os.path.join(self.tmp_path, '%s_%i.pdf' % (os.path.basename(item), len(self.combine_queue))))
         
         self.logger.info('Processing %s...' % item)
     
@@ -65,7 +65,7 @@ class PDFWriter(QObject):
 
     def _render_html(self, ok):
         if ok:
-            item_path = os.path.join(self.tmp_path, '%s.pdf' % os.path.basename(str(self.view.url().toLocalFile())))
+            item_path = os.path.join(self.tmp_path, '%s_%i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue) - 1))
             
             self.logger.debug('\tRendering item as %s' % item_path)
         
