@@ -1,13 +1,12 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 b92.net
 '''
 
 import re
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class B92(BasicNewsRecipe):
@@ -22,19 +21,22 @@ class B92(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     cover_url = 'http://static.b92.net/images/fp/logo.gif'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
+    language              = _('Serbian')
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
+    
+    html2lrf_options = [
+                          '--comment'  , description
+                        , '--category' , category
+                        , '--publisher', publisher
+                        , '--ignore-tables'
+                        ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
 
     keep_only_tags = [ dict(name='div', attrs={'class':'sama_vest'}) ]
         
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-    
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
     feeds          = [
                         (u'Vesti', u'http://www.b92.net/info/rss/vesti.xml')
                        ,(u'Biz'  , u'http://www.b92.net/info/rss/biz.xml'  )
@@ -54,9 +56,10 @@ class B92(BasicNewsRecipe):
         return nurl
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = 'sr-Latn'
-        soup.html['lang']     = 'sr-Latn'
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn"/>'
+        lng = 'sr-Latn-RS'
+        soup.html['xml:lang'] = lng
+        soup.html['lang']     = lng
+        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
         soup.head.insert(0,mtag)    
         for item in soup.findAll(style=True):
             del item['style']
@@ -64,4 +67,3 @@ class B92(BasicNewsRecipe):
             del item['align']
             item.insert(0,'<br /><br />')
         return soup
-    language = _('Serbian')

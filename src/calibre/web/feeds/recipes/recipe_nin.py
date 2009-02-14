@@ -1,13 +1,12 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 nin.co.yu
 '''
 
 import re, urllib
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Nin(BasicNewsRecipe):    
@@ -27,15 +26,17 @@ class Nin(BasicNewsRecipe):
     LOGIN                  = PREFIX + '/?logout=true'
     remove_javascript      = True
     use_embedded_content   = False
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
-
+    language              = _('Serbian')
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
+    
     html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
+                          '--comment'  , description
+                        , '--category' , category
                         , '--publisher', publisher
+                        , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
                           
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     
@@ -69,5 +70,3 @@ class Nin(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-
-    language              = _('Serbian')

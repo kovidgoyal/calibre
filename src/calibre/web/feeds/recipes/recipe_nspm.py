@@ -1,13 +1,12 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 nspm.rs
 '''
 
 import re
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Nspm(BasicNewsRecipe):
@@ -16,26 +15,30 @@ class Nspm(BasicNewsRecipe):
     description           = 'Casopis za politicku teoriju i drustvena istrazivanja'    
     publisher             = 'NSPM'
     category              = 'news, politics, Serbia'    
-    oldest_article        = 7
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     INDEX                 = 'http://www.nspm.rs/?alphabet=l'
     encoding              = 'utf8'
     remove_javascript     = True
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
+    language              = _('Serbian')
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
     html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
+                          '--comment'  , description
+                        , '--category' , category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
     
-    html2epub_options  = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    remove_tags        = [dict(name='a')]
+    remove_tags        = [
+                            dict(name=['a','img','link','object','embed'])
+                           ,dict(name='td', attrs={'class':'buttonheading'})
+                         ]
     
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -48,13 +51,12 @@ class Nspm(BasicNewsRecipe):
         return url.replace('.html','/stampa.html')
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = 'sr-Latn-RS'
-        soup.html['lang']     = 'sr-Latn-RS'
+        lng = 'sr-Latn-RS'
+        soup.html['xml:lang'] = lng
+        soup.html['lang']     = lng
         ftag = soup.find('meta',attrs={'http-equiv':'Content-Language'})
         if ftag:
-           ftag['content'] = 'sr-Latn-RS'
+           ftag['content'] = lng
         for item in soup.findAll(style=True):
-            del item['style']        
+            del item['style']     
         return soup
-
-    language = _('Serbian')

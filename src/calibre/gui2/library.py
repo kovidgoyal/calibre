@@ -245,7 +245,7 @@ class BooksModel(QAbstractTableModel):
         if num > 0:
             self.beginInsertRows(QModelIndex(), 0, num-1)
             self.endInsertRows()
-        self.count_changed()
+            self.count_changed()
 
     def search(self, text, refinement, reset=True):
         self.db.search(text)
