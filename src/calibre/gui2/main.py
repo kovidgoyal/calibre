@@ -156,6 +156,9 @@ class Main(MainWindow, Ui_MainWindow):
         sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card'))
         sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory')+' '+_('and delete from library'))
         sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card')+' '+_('and delete from library'))
+        sm.addAction(self.action_send_specific_format_to_device)
+        self.connect(self.action_send_specific_format_to_device, 
+                     SIGNAL('triggered()'), self.send_specific_format_to_device)
         sm.addSeparator()
         sm.addAction(_('Send to storage card by default'))
         sm.actions()[-1].setCheckable(True)
@@ -893,8 +896,16 @@ class Main(MainWindow, Ui_MainWindow):
                 self.upload_books(files, names, metadata, on_card=on_card, memory=[[f.name for f in files], remove])
                 self.status_bar.showMessage(_('Sending news to device.'), 5000)
                 
+    def send_specific_format_to_device(self):
+        d = ChooseFormatDialog(self, _('Choose format to send to device'), 
+                               self.device_manager.device_class.FORMATS)
+        d.exec_()
+        fmt = d.format().lower()
+        on_card = config['send_to_storage_card_by_default']
+        self.sync_to_device(on_card, False, specific_format=fmt)
+        
     
-    def sync_to_device(self, on_card, delete_from_library):
+    def sync_to_device(self, on_card, delete_from_library, specific_format=None):
         rows = self.library_view.selectionModel().selectedRows()
         if not self.device_manager or not rows or len(rows) == 0:
             return
@@ -907,7 +918,8 @@ class Main(MainWindow, Ui_MainWindow):
         metadata = iter(metadata)
         _files   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, 
-                                    paths=True, set_metadata=True)
+                                    paths=True, set_metadata=True,
+                                    specific_format=specific_format)
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
