@@ -124,6 +124,7 @@ MAP = {
        'lit'  : lit2opf,
        'mobi' : mobi2opf,
        'prc'  : mobi2opf,
+       'azw'  : mobi2opf,
        'fb2'  : fb22opf,
        'rtf'  : rtf2opf,
        'txt'  : txt2opf,
@@ -131,7 +132,8 @@ MAP = {
        'epub' : epub2opf,
        'odt'  : odt2epub,
        }
-SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'odt', 'rtf', 'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf', 
+                  'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
 
 def unarchive(path, tdir):
     extract(path, tdir)
