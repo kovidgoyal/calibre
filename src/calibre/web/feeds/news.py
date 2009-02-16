@@ -190,7 +190,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
     #: For example::
     #:
-    #:     remove_tags_before = [dict(id='content')]
+    #:     remove_tags_before = dict(id='content')
     #:
     #: will remove all
     #: tags before the first element with `id="content"`.
