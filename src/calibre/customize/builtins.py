@@ -132,7 +132,7 @@ class HTMLMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
     
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc'])
+    file_types  = set(['mobi', 'prc', '.azw'])
     description = _('Read metadata from %s files')%'MOBI'
     
     def get_metadata(self, stream, ftype):
