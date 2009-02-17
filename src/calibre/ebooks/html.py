@@ -504,8 +504,14 @@ class Parser(PreProcessor, LoggingInterface):
                                    '</p><pre>%s</pre></body></html>'%err)
             self.head = self.root.xpath('./head')[0]
             self.body = self.root.body
+        invalid_counter = 0
         for a in self.root.xpath('//a[@name]'):
-            a.set('id', a.get('name'))
+            try:
+                a.set('id', a.get('name'))
+            except:
+                invalid_counter += 1
+                for x in ('id', 'name'):
+                    a.set(x, 'calibre_invalid_id_%d'%invalid_counter)
         if not self.head.xpath('./title'):
             title = etree.SubElement(self.head, 'title')
             title.text = _('Unknown')
