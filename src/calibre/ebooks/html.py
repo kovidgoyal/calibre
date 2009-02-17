@@ -332,8 +332,8 @@ class PreProcessor(object):
                   (re.compile(r'&(\S+?);'), convert_entities),
                   # Remove the <![if/endif tags inserted by everybody's darling, MS Word
                   (re.compile(r'(?i)<{0,1}!\[(end){0,1}if[^>]*>'), lambda match: ''),
-                  # Replace ---> with --> since Adobe DE cries when it sees one
-                  (re.compile(r'-{3,}>'), lambda match : '-->'),
+                  # Strip all comments since Adobe DE is petrified of them
+                  (re.compile(r'<!--[^>]*>'), lambda match : ''),
                   ]
                      
     # Fix pdftohtml markup
