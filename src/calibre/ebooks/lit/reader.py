@@ -780,7 +780,7 @@ class LitReader(object):
                 if u != 0:
                     raise LitError("Reset table entry greater than 32 bits")
                 if size >= len(content):
-                    raise LitError("Reset table entry out of bounds")
+                    self._warn("LZX reset table entry out of bounds")
                 if bytes_remaining >= window_bytes:
                     lzx.reset()
                     try:
