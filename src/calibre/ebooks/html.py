@@ -493,7 +493,17 @@ class Parser(PreProcessor, LoggingInterface):
             self.root.insert(0, head)
 
         self.head = head 
-        self.body = self.root.body
+        try:
+            self.body = self.root.body
+        except:
+            import traceback
+            err = traceback.format_exc()
+            self.root = fromstring(u'<html><head/><body><p>This page was too '
+                                   'severely malformed for calibre to handle. '
+                                   'It has been replaced by this error message.'
+                                   '</p><pre>%s</pre></body></html>'%err)
+            self.head = self.root.xpath('./head')[0]
+            self.body = self.root.body
         for a in self.root.xpath('//a[@name]'):
             a.set('id', a.get('name'))
         if not self.head.xpath('./title'):
