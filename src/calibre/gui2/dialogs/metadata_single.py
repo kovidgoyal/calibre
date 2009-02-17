@@ -269,7 +269,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def cover_dropped(self):
         self.cover_changed = True
     
-    def initialize_series_and_publisher(self):
+    def initialize_series(self):
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         series_id = self.db.series_id(self.row)
@@ -293,6 +293,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 l.invalidate()
                 l.activate()
         
+    def initialize_series_and_publisher(self):
+        self.initialize_series()
         all_publishers = self.db.all_publishers()
         all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         publisher_id = self.db.publisher_id(self.row)

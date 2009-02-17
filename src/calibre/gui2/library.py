@@ -414,8 +414,11 @@ class BooksModel(QAbstractTableModel):
                      
             
     
-    def get_preferred_formats(self, rows, formats, paths=False, set_metadata=False):
+    def get_preferred_formats(self, rows, formats, paths=False, 
+                              set_metadata=False, specific_format=None):
         ans = []
+        if specific_format is not None:
+            formats = [specific_format.lower()]
         for row in (row.row() for row in rows):
             format = None
             fmts = self.db.formats(row)

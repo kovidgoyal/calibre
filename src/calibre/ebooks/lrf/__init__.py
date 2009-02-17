@@ -29,6 +29,7 @@ preferred_source_formats = [
                             'XHTM',
                             'XHTML',
                             'PRC',
+                            'AZW',
                             'RTF',
                             'PDF',
                             'TXT',
