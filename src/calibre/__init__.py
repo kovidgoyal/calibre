@@ -27,7 +27,8 @@ mimetypes.add_type('application/adobe-page-template+xml', '.xpgt')
 mimetypes.add_type('application/x-font-opentype',         '.otf')
 mimetypes.add_type('application/x-font-truetype',         '.ttf')
 mimetypes.add_type('application/oebps-package+xml',       '.opf')
-
+import cssutils
+cssutils.log.setLevel(logging.WARN)
 
 def to_unicode(raw, encoding='utf-8', errors='strict'):
     if isinstance(raw, unicode):
