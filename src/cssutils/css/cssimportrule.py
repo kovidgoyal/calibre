@@ -1,60 +1,30 @@
-"""CSSImportRule implements DOM Level 2 CSS CSSImportRule.
-
-plus:
-
-``name`` property
-    http://www.w3.org/TR/css3-cascade/#cascading
+"""CSSImportRule implements DOM Level 2 CSS CSSImportRule plus the 
+``name`` property from http://www.w3.org/TR/css3-cascade/#cascading.
 
 """
 __all__ = ['CSSImportRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssimportrule.py 1401 2008-07-29 21:07:54Z cthedot $'
+__version__ = '$Id: cssimportrule.py 1638 2009-01-13 20:39:33Z cthedot $'
 
+import cssrule
+import cssutils
 import os
 import urllib
 import urlparse
 import xml.dom
-import cssrule
-import cssutils
 
 class CSSImportRule(cssrule.CSSRule):
     """
     Represents an @import rule within a CSS style sheet.  The @import rule
     is used to import style rules from other style sheets.
 
-    Properties
-    ==========
-    atkeyword: (cssutils only)
-        the literal keyword used
-    cssText: of type DOMString
-        The parsable textual representation of this rule
-    href: of type DOMString, (DOM readonly, cssutils also writable)
-        The location of the style sheet to be imported. The attribute will
-        not contain the url(...) specifier around the URI.
-    hreftype: 'uri' (serializer default) or 'string' (cssutils only)
-        The original type of href, not really relevant as it may be
-        reconfigured in the serializer but it is kept anyway
-    media: of type stylesheets::MediaList (DOM readonly)
-        A list of media types for this rule of type MediaList.
-    name:
-        An optional name used for cascading
-    styleSheet: of type CSSStyleSheet (DOM readonly)
-        The style sheet referred to by this rule. The value of this
-        attribute is None if the style sheet has not yet been loaded or if
-        it will not be loaded (e.g. if the stylesheet is for a media type
-        not supported by the user agent).
+    Format::
 
-    Inherits properties from CSSRule
-
-    Format
-    ======
-    import
-      : IMPORT_SYM S*
-      [STRING|URI] S* [ medium [ COMMA S* medium]* ]? S* STRING? S* ';' S*
-      ;
+        import
+          : IMPORT_SYM S*
+          [STRING|URI] S* [ medium [ COMMA S* medium]* ]? S* STRING? S* ';' S*
+          ;
     """
-    type = property(lambda self: cssrule.CSSRule.IMPORT_RULE)
-
     def __init__(self, href=None, mediaText=u'all', name=None,
                  parentRule=None, parentStyleSheet=None, readonly=False):
         """
@@ -90,30 +60,44 @@ class CSSImportRule(cssrule.CSSRule):
         self._setSeq(seq)
         self._readonly = readonly
 
+    def __repr__(self):
+        if self._usemedia:
+            mediaText = self.media.mediaText
+        else:
+            mediaText = None
+        return "cssutils.css.%s(href=%r, mediaText=%r, name=%r)" % (
+                self.__class__.__name__,
+                self.href, self.media.mediaText, self.name)
+
+    def __str__(self):
+        if self._usemedia:
+            mediaText = self.media.mediaText
+        else:
+            mediaText = None
+        return "<cssutils.css.%s object href=%r mediaText=%r name=%r at 0x%x>" % (
+                self.__class__.__name__, self.href, mediaText, self.name, id(self))
+
     _usemedia = property(lambda self: self.media.mediaText not in (u'', u'all'),
                          doc="if self._media is used (or simply empty)")
 
     def _getCssText(self):
-        """
-        returns serialized property cssText
-        """
+        """Return serialized property cssText."""
         return cssutils.ser.do_CSSImportRule(self)
 
     def _setCssText(self, cssText):
         """
-        DOMException on setting
-
-        - HIERARCHY_REQUEST_ERR: (CSSStylesheet)
-          Raised if the rule cannot be inserted at this point in the
-          style sheet.
-        - INVALID_MODIFICATION_ERR: (self)
-          Raised if the specified CSS string value represents a different
-          type of rule than the current one.
-        - NO_MODIFICATION_ALLOWED_ERR: (CSSRule)
-          Raised if the rule is readonly.
-        - SYNTAX_ERR: (self)
-          Raised if the specified CSS string value has a syntax error and
-          is unparsable.
+        :exceptions:    
+            - :exc:`~xml.dom.HierarchyRequestErr`:
+              Raised if the rule cannot be inserted at this point in the
+              style sheet.
+            - :exc:`~xml.dom.InvalidModificationErr`:
+              Raised if the specified CSS string value represents a different
+              type of rule than the current one.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if the rule is readonly.
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified CSS string value has a syntax error and
+              is unparsable.
         """
         super(CSSImportRule, self)._setCssText(cssText)
         tokenizer = self._tokenize2(cssText)
@@ -268,7 +252,7 @@ class CSSImportRule(cssrule.CSSRule):
                     self.styleSheet._parentStyleSheet = self.parentStyleSheet
 
     cssText = property(fget=_getCssText, fset=_setCssText,
-        doc="(DOM attribute) The parsable textual representation.")
+        doc="(DOM) The parsable textual representation of this rule.")
 
     def _setHref(self, href):
         # update seq
@@ -291,11 +275,11 @@ class CSSImportRule(cssrule.CSSRule):
                     doc="Location of the style sheet to be imported.")
 
     media = property(lambda self: self._media,
-                     doc=u"(DOM readonly) A list of media types for this rule"
-                     " of type MediaList")
+                     doc="(DOM readonly) A list of media types for this rule "
+                         "of type :class:`~cssutils.stylesheets.MediaList`.")
 
     def _setName(self, name):
-        """raises xml.dom.SyntaxErr if name is not a string"""
+        """Raises xml.dom.SyntaxErr if name is not a string."""
         if isinstance(name, basestring) or name is None:
             # "" or ''
             if not name:
@@ -322,7 +306,7 @@ class CSSImportRule(cssrule.CSSRule):
             self._log.error(u'CSSImportRule: Not a valid name: %s' % name)
 
     name = property(lambda self: self._name, _setName,
-                    doc=u"An optional name for the imported sheet")
+                    doc=u"An optional name for the imported sheet.")
 
     def __setStyleSheet(self):
         """Read new CSSStyleSheet cssText from href using parentStyleSheet.href
@@ -372,28 +356,15 @@ class CSSImportRule(cssrule.CSSRule):
     styleSheet = property(lambda self: self._styleSheet,
                           doc="(readonly) The style sheet referred to by this rule.")
 
+    type = property(lambda self: self.IMPORT_RULE, 
+                    doc="The type of this rule, as defined by a CSSRule "
+                        "type constant.")
+
     def _getWellformed(self):
-        "depending if media is used at all"
+        "Depending if media is used at all."
         if self._usemedia:
             return bool(self.href and self.media.wellformed)
         else:
             return bool(self.href)
 
     wellformed = property(_getWellformed)
-
-    def __repr__(self):
-        if self._usemedia:
-            mediaText = self.media.mediaText
-        else:
-            mediaText = None
-        return "cssutils.css.%s(href=%r, mediaText=%r, name=%r)" % (
-                self.__class__.__name__,
-                self.href, self.media.mediaText, self.name)
-
-    def __str__(self):
-        if self._usemedia:
-            mediaText = self.media.mediaText
-        else:
-            mediaText = None
-        return "<cssutils.css.%s object href=%r mediaText=%r name=%r at 0x%x>" % (
-                self.__class__.__name__, self.href, mediaText, self.name, id(self))

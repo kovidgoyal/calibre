@@ -1,31 +1,26 @@
 #!/usr/bin/env python
-"""a validating CSSParser
-"""
+"""A validating CSSParser"""
 __all__ = ['CSSParser']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: parse.py 1418 2008-08-09 19:27:50Z cthedot $'
+__version__ = '$Id: parse.py 1656 2009-02-03 20:31:06Z cthedot $'
 
-import codecs
-import os
-import urllib
 from helper import Deprecated
-import tokenize2
+import codecs
 import cssutils
+import os
+import tokenize2
+import urllib
 
 class CSSParser(object):
-    """
-    parses a CSS StyleSheet string or file and
-    returns a DOM Level 2 CSS StyleSheet object
+    """Parse a CSS StyleSheet from URL, string or file and return a DOM Level 2
+    CSS StyleSheet object.
 
     Usage::
 
         parser = CSSParser()
-
         # optionally
         parser.setFetcher(fetcher)
-
         sheet = parser.parseFile('test1.css', 'ascii')
-
         print sheet.cssText
     """
     def __init__(self, log=None, loglevel=None, raiseExceptions=None,
@@ -40,7 +35,7 @@ class CSSParser(object):
             parsing. Later while working with the resulting sheets
             the setting used in cssutils.log.raiseExeptions is used
         fetcher
-            see ``setFetchUrl(fetcher)``
+            see ``setFetcher(fetcher)``
         """
         if log is not None:
             cssutils.log.setLog(log)
@@ -69,26 +64,28 @@ class CSSParser(object):
 
     def parseString(self, cssText, encoding=None, href=None, media=None,
                     title=None):
-        """Return parsed CSSStyleSheet from given string cssText.
-        Raises errors during retrieving (e.g. UnicodeDecodeError).
+        """Parse `cssText` as :class:`~cssutils.css.CSSStyleSheet`.
+        Errors may be raised (e.g. UnicodeDecodeError).
 
-        cssText
+        :param cssText:
             CSS string to parse
-        encoding
+        :param encoding:
             If ``None`` the encoding will be read from BOM or an @charset
             rule or defaults to UTF-8.
             If given overrides any found encoding including the ones for
             imported sheets.
-            It also will be used to decode ``cssText`` if given as a (byte)
+            It also will be used to decode `cssText` if given as a (byte)
             string.
-        href
-            The href attribute to assign to the parsed style sheet.
-            Used to resolve other urls in the parsed sheet like @import hrefs
-        media
-            The media attribute to assign to the parsed style sheet
-            (may be a MediaList, list or a string)
-        title
-            The title attribute to assign to the parsed style sheet
+        :param href:
+            The ``href`` attribute to assign to the parsed style sheet.
+            Used to resolve other urls in the parsed sheet like @import hrefs.
+        :param media:
+            The ``media`` attribute to assign to the parsed style sheet
+            (may be a MediaList, list or a string).
+        :param title:
+            The ``title`` attribute to assign to the parsed style sheet.
+        :returns:
+            :class:`~cssutils.css.CSSStyleSheet`.
         """
         self.__parseSetting(True)
         if isinstance(cssText, str):
@@ -107,23 +104,23 @@ class CSSParser(object):
 
     def parseFile(self, filename, encoding=None,
                   href=None, media=None, title=None):
-        """Retrieve and return a CSSStyleSheet from given filename.
-        Raises errors during retrieving (e.g. IOError).
-
-        filename
-            of the CSS file to parse, if no ``href`` is given filename is
+        """Retrieve content from `filename` and parse it. Errors may be raised
+        (e.g. IOError).
+        
+        :param filename:
+            of the CSS file to parse, if no `href` is given filename is
             converted to a (file:) URL and set as ``href`` of resulting
             stylesheet.
-            If href is given it is set as ``sheet.href``. Either way
+            If `href` is given it is set as ``sheet.href``. Either way
             ``sheet.href`` is used to resolve e.g. stylesheet imports via
             @import rules.
-        encoding
+        :param encoding:
             Value ``None`` defaults to encoding detection via BOM or an
             @charset rule.
             Other values override detected encoding for the sheet at
-            ``filename`` including any imported sheets.
-
-        for other parameters see ``parseString``
+            `filename` including any imported sheets.
+        :returns:
+            :class:`~cssutils.css.CSSStyleSheet`.
         """
         if not href:
             # prepend // for file URL, urllib does not do this?
@@ -134,19 +131,19 @@ class CSSParser(object):
                                 href=href, media=media, title=title)
 
     def parseUrl(self, href, encoding=None, media=None, title=None):
-        """Retrieve and return a CSSStyleSheet from given href (an URL).
-        In case of any errors while reading the URL returns None.
-
-        href
+        """Retrieve content from URL `href` and parse it. Errors may be raised
+        (e.g. URLError).
+        
+        :param href:
             URL of the CSS file to parse, will also be set as ``href`` of
             resulting stylesheet
-        encoding
+        :param encoding:
             Value ``None`` defaults to encoding detection via HTTP, BOM or an
             @charset rule.
             A value overrides detected encoding for the sheet at ``href``
             including any imported sheets.
-
-        for other parameters see ``parseString``
+        :returns:
+            :class:`~cssutils.css.CSSStyleSheet`.
         """
         encoding, enctype, text = cssutils.util._readUrl(href,
                                                          overrideEncoding=encoding)
@@ -160,20 +157,24 @@ class CSSParser(object):
 
     def setFetcher(self, fetcher=None):
         """Replace the default URL fetch function with a custom one.
-        The fetcher function gets a single parameter
+        
+        :param fetcher:
+            A function which gets a single parameter
 
-        ``url``
-            the URL to read
+            ``url``
+                the URL to read
 
-        and returns ``(encoding, content)`` where ``encoding`` is the HTTP
-        charset normally given via the Content-Type header (which may simply
-        omit the charset) and ``content`` being the (byte) string content.
-        The Mimetype should be 'text/css' but this has to be checked by the
-        fetcher itself (the default fetcher emits a warning if encountering
-        a different mimetype).
+            and must return ``(encoding, content)`` where ``encoding`` is the 
+            HTTP charset normally given via the Content-Type header (which may
+            simply omit the charset in which case ``encoding`` would be 
+            ``None``) and ``content`` being the string (or unicode) content.
+            
+            The Mimetype should be 'text/css' but this has to be checked by the
+            fetcher itself (the default fetcher emits a warning if encountering
+            a different mimetype).
 
-        Calling ``setFetcher`` with ``fetcher=None`` resets cssutils
-        to use its default function.
+            Calling ``setFetcher`` with ``fetcher=None`` resets cssutils
+            to use its default function.
         """
         self.__fetcher = fetcher
 

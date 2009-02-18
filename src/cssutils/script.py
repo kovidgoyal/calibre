@@ -4,16 +4,16 @@ __all__ = ['CSSCapture', 'csscombine']
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: parse.py 1323 2008-07-06 18:13:57Z cthedot $'
 
-import codecs
-import errno
 import HTMLParser
+import codecs
+import cssutils
+import errno
 import logging
 import os
 import sys
 import urllib2
 import urlparse
 
-import cssutils
 try:
     import cssutils.encutils as encutils
 except ImportError:
@@ -307,65 +307,47 @@ class CSSCapture(object):
                 sf.write(sheet.cssText)
             sf.close()
 
-
-def csscombine(proxypath, sourceencoding=None, targetencoding='utf-8',
+def csscombine(path=None, url=None, 
+               sourceencoding=None, targetencoding=None, 
                minify=True):
     """Combine sheets referred to by @import rules in given CSS proxy sheet
-into a single new sheet.
+    into a single new sheet.
 
     :returns: combined cssText, normal or minified
     :Parameters:
-        `proxypath`
-            url or path to a CSSStyleSheet which imports other sheets which
+        `path` or `url`
+            path  or URL to a CSSStyleSheet which imports other sheets which
             are then combined into one sheet
-        `sourceencoding`
-            encoding of the source sheets including the proxy sheet
         `targetencoding`
             encoding of the combined stylesheet, default 'utf-8'
         `minify`
             defines if the combined sheet should be minified, default True
     """
-    log = cssutils.log
-
-    log.info('Combining files in proxy %r' % proxypath, neverraise=True)
-
+    cssutils.log.info(u'Combining files from %r' % url, 
+                      neverraise=True)
     if sourceencoding is not None:
-        log.info('Using source encoding %r' % sourceencoding,
-                  neverraise=True)
+        cssutils.log.info(u'Using source encoding %r' % sourceencoding,
+                          neverraise=True)
+    if path:
+        src = cssutils.parseFile(path, encoding=sourceencoding)
+    elif url:
+        src = cssutils.parseUrl(url, encoding=sourceencoding)
+    else:
+        sys.exit('Path or URL must be given')
 
-    src = cssutils.parseFile(proxypath, encoding=sourceencoding)
-    srcpath = os.path.dirname(proxypath)
-    combined = cssutils.css.CSSStyleSheet()
-    for rule in src.cssRules:
-        if rule.type == rule.IMPORT_RULE:
-            fn = os.path.join(srcpath, rule.href)
-            log.info('Processing @import %r' % fn,
-                     neverraise=True)
-            importsheet = cssutils.parseFile(fn, encoding=sourceencoding)
-            importsheet.encoding = None # remove @charset
-            combined.add(cssutils.css.CSSComment(cssText=u'/* %s */' %
-                                                 rule.cssText))
-            for x in importsheet.cssRules:
-                if x.type == x.IMPORT_RULE:
-                    log.info('Nested @imports are not combined: %s' % x.cssText,
-                              neverraise=True)
-
-                combined.add(x)
-
-        else:
-            combined.add(rule)
-
-    log.info('Setting target encoding %r' % targetencoding, neverraise=True)
-    combined.encoding = targetencoding
+    result = cssutils.resolveImports(src)
+    result.encoding = targetencoding
+    cssutils.log.info(u'Using target encoding: %r' % targetencoding, neverraise=True)
 
     if minify:
         # save old setting and use own serializer
         oldser = cssutils.ser
         cssutils.setSerializer(cssutils.serialize.CSSSerializer())
         cssutils.ser.prefs.useMinified()
-        cssText = combined.cssText
+        cssText = result.cssText
         cssutils.setSerializer(oldser)
     else:
-        cssText = combined.cssText
+        cssText = result.cssText
 
     return cssText
+

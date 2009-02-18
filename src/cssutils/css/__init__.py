@@ -1,5 +1,4 @@
-"""
-Document Object Model Level 2 CSS
+"""Implements Document Object Model Level 2 CSS
 http://www.w3.org/TR/2000/PR-DOM-Level-2-Style-20000927/css.html
 
 currently implemented
@@ -43,7 +42,7 @@ __all__ = [
     'CSSValue', 'CSSPrimitiveValue', 'CSSValueList'
     ]
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: __init__.py 1116 2008-03-05 13:52:23Z cthedot $'
+__version__ = '$Id: __init__.py 1610 2009-01-03 21:07:57Z cthedot $'
 
 from cssstylesheet import *
 from cssrulelist import *
@@ -60,4 +59,5 @@ from cssunknownrule import *
 from selector import *
 from selectorlist import *
 from cssstyledeclaration import *
+from property import *
 from cssvalue import *

@@ -1,44 +1,25 @@
-"""CSSUnknownRule implements DOM Level 2 CSS CSSUnknownRule.
-"""
+"""CSSUnknownRule implements DOM Level 2 CSS CSSUnknownRule."""
 __all__ = ['CSSUnknownRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssunknownrule.py 1170 2008-03-20 17:42:07Z cthedot $'
+__version__ = '$Id: cssunknownrule.py 1638 2009-01-13 20:39:33Z cthedot $'
 
-import xml.dom
 import cssrule
 import cssutils
+import xml.dom
 
 class CSSUnknownRule(cssrule.CSSRule):
     """
-    represents an at-rule not supported by this user agent.
+    Represents an at-rule not supported by this user agent, so in 
+    effect all other at-rules not defined in cssutils.
 
-    Properties
-    ==========
-    inherited from CSSRule
-        - cssText
-        - type
+    Format::
 
-    cssutils only
-    -------------
-    atkeyword
-        the literal keyword used
-    seq
-        All parts of this rule excluding @KEYWORD but including CSSComments
-    wellformed
-        if this Rule is wellformed, for Unknown rules if an atkeyword is set
-        at all
-
-    Format
-    ======
-    unknownrule:
         @xxx until ';' or block {...}
     """
-    type = property(lambda self: cssrule.CSSRule.UNKNOWN_RULE)
-
     def __init__(self, cssText=u'', parentRule=None, 
                  parentStyleSheet=None, readonly=False):
         """
-        cssText
+        :param cssText:
             of type string
         """
         super(CSSUnknownRule, self).__init__(parentRule=parentRule, 
@@ -49,25 +30,32 @@ class CSSUnknownRule(cssrule.CSSRule):
 
         self._readonly = readonly
 
+    def __repr__(self):
+        return "cssutils.css.%s(cssText=%r)" % (
+                self.__class__.__name__, self.cssText)
+        
+    def __str__(self):
+        return "<cssutils.css.%s object cssText=%r at 0x%x>" % (
+                self.__class__.__name__, self.cssText, id(self))
+
     def _getCssText(self):
-        """ returns serialized property cssText """
+        """Return serialized property cssText."""
         return cssutils.ser.do_CSSUnknownRule(self)
 
     def _setCssText(self, cssText):
         """
-        DOMException on setting
-        
-        - SYNTAX_ERR:
-          Raised if the specified CSS string value has a syntax error and
-          is unparsable.
-        - INVALID_MODIFICATION_ERR:
-          Raised if the specified CSS string value represents a different
-          type of rule than the current one.
-        - HIERARCHY_REQUEST_ERR: (never raised)
-          Raised if the rule cannot be inserted at this point in the
-          style sheet.
-        - NO_MODIFICATION_ALLOWED_ERR: (CSSRule)
-          Raised if the rule is readonly.
+        :exceptions:
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified CSS string value has a syntax error and
+              is unparsable.
+            - :exc:`~xml.dom.InvalidModificationErr`:
+              Raised if the specified CSS string value represents a different
+              type of rule than the current one.
+            - :exc:`~xml.dom.HierarchyRequestErr`:
+              Raised if the rule cannot be inserted at this point in the
+              style sheet.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if the rule is readonly.
         """
         super(CSSUnknownRule, self)._setCssText(cssText)
         tokenizer = self._tokenize2(cssText)
@@ -197,12 +185,9 @@ class CSSUnknownRule(cssrule.CSSRule):
     cssText = property(fget=_getCssText, fset=_setCssText,
         doc="(DOM) The parsable textual representation.")
     
+    type = property(lambda self: self.UNKNOWN_RULE, 
+                    doc="The type of this rule, as defined by a CSSRule "
+                        "type constant.")
+    
     wellformed = property(lambda self: bool(self.atkeyword))
     
-    def __repr__(self):
-        return "cssutils.css.%s(cssText=%r)" % (
-                self.__class__.__name__, self.cssText)
-        
-    def __str__(self):
-        return "<cssutils.css.%s object cssText=%r at 0x%x>" % (
-                self.__class__.__name__, self.cssText, id(self))

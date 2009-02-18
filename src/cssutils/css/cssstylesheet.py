@@ -1,5 +1,4 @@
-"""
-CSSStyleSheet implements DOM Level 2 CSS CSSStyleSheet.
+"""CSSStyleSheet implements DOM Level 2 CSS CSSStyleSheet.
 
 Partly also:
     - http://dev.w3.org/csswg/cssom/#the-cssstylesheet
@@ -10,53 +9,32 @@ TODO:
 """
 __all__ = ['CSSStyleSheet']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstylesheet.py 1429 2008-08-11 19:01:52Z cthedot $'
+__version__ = '$Id: cssstylesheet.py 1641 2009-01-13 21:05:37Z cthedot $'
 
-import xml.dom
-import cssutils.stylesheets
-from cssutils.util import _Namespaces, _SimpleNamespaces, _readUrl
 from cssutils.helper import Deprecated
+from cssutils.util import _Namespaces, _SimpleNamespaces, _readUrl
+import cssutils.stylesheets
+import xml.dom
 
 class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
-    """
-    The CSSStyleSheet interface represents a CSS style sheet.
+    """CSSStyleSheet represents a CSS style sheet.
 
-    Properties
-    ==========
-    CSSOM
-    -----
-    cssRules
-        of type CSSRuleList, (DOM readonly)
-    encoding
-        reflects the encoding of an @charset rule or 'utf-8' (default)
-        if set to ``None``
-    ownerRule
-        of type CSSRule, readonly. If this sheet is imported this is a ref
-        to the @import rule that imports it.
+    Format::
+    
+        stylesheet
+          : [ CHARSET_SYM S* STRING S* ';' ]?
+            [S|CDO|CDC]* [ import [S|CDO|CDC]* ]*
+            [ namespace [S|CDO|CDC]* ]* # according to @namespace WD
+            [ [ ruleset | media | page ] [S|CDO|CDC]* ]*
 
-    Inherits properties from stylesheet.StyleSheet
-
-    cssutils
-    --------
-    cssText: string
-        a textual representation of the stylesheet
-    namespaces
-        reflects set @namespace rules of this rule.
-        A dict of {prefix: namespaceURI} mapping.
-
-    Format
-    ======
-    stylesheet
-      : [ CHARSET_SYM S* STRING S* ';' ]?
-        [S|CDO|CDC]* [ import [S|CDO|CDC]* ]*
-        [ namespace [S|CDO|CDC]* ]* # according to @namespace WD
-        [ [ ruleset | media | page ] [S|CDO|CDC]* ]*
+    ``cssRules``
+        All Rules in this style sheet, a :class:`~cssutils.css.CSSRuleList`.
     """
     def __init__(self, href=None, media=None, title=u'', disabled=None,
                  ownerNode=None, parentStyleSheet=None, readonly=False,
                  ownerRule=None):
         """
-        init parameters are the same as for stylesheets.StyleSheet
+        For parameters see :class:`~cssutils.stylesheets.StyleSheet`
         """
         super(CSSStyleSheet, self).__init__(
                 'text/css', href, media, title, disabled,
@@ -74,12 +52,32 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         self._fetcher = None
 
     def __iter__(self):
-        "generator which iterates over cssRules."
+        "Generator which iterates over cssRules."
         for rule in self.cssRules:
             yield rule
 
+    def __repr__(self):
+        if self.media:
+            mediaText = self.media.mediaText
+        else:
+            mediaText = None
+        return "cssutils.css.%s(href=%r, media=%r, title=%r)" % (
+                self.__class__.__name__,
+                self.href, mediaText, self.title)
+
+    def __str__(self):
+        if self.media:
+            mediaText = self.media.mediaText
+        else:
+            mediaText = None
+        return "<cssutils.css.%s object encoding=%r href=%r "\
+               "media=%r title=%r namespaces=%r at 0x%x>" % (
+                self.__class__.__name__, self.encoding, self.href,
+                mediaText, self.title, self.namespaces.namespaces,
+                id(self))
+
     def _cleanNamespaces(self):
-        "removes all namespace rules with same namespaceURI but last one set"
+        "Remove all namespace rules with same namespaceURI but last one set."
         rules = self.cssRules
         namespaceitems = self.namespaces.items()
         i = 0
@@ -92,7 +90,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                 i += 1
 
     def _getUsedURIs(self):
-        "returns set of URIs used in the sheet"
+        "Return set of URIs used in the sheet."
         useduris = set()
         for r1 in self:
             if r1.STYLE_RULE == r1.type:
@@ -104,21 +102,20 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         return useduris
 
     def _getCssText(self):
+        "Textual representation of the stylesheet (a byte string)."
         return cssutils.ser.do_CSSStyleSheet(self)
 
     def _setCssText(self, cssText):
-        """
-        (cssutils)
-        Parses ``cssText`` and overwrites the whole stylesheet.
+        """Parse `cssText` and overwrites the whole stylesheet.
 
         :param cssText:
             a parseable string or a tuple of (cssText, dict-of-namespaces)
-        :Exceptions:
-            - `NAMESPACE_ERR`:
+        :exceptions:
+            - :exc:`~xml.dom.NamespaceErr`:
               If a namespace prefix is found which is not declared.
-            - `NO_MODIFICATION_ALLOWED_ERR`: (self)
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if the rule is readonly.
-            - `SYNTAX_ERR`:
+            - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified CSS string value has a syntax error and
               is unparsable.
         """
@@ -269,10 +266,10 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
             self._cleanNamespaces()
 
     cssText = property(_getCssText, _setCssText,
-            "(cssutils) a textual representation of the stylesheet")
+            "Textual representation of the stylesheet (a byte string)")
 
     def _resolveImport(self, url):
-        """Read (encoding, enctype, decodedContent) from ``url`` for @import 
+        """Read (encoding, enctype, decodedContent) from `url` for @import
         sheets."""
         try:
             # only available during parse of a complete sheet
@@ -289,12 +286,12 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                         overrideEncoding=self.__encodingOverride,
                         parentEncoding=selfAsParentEncoding)
 
-    def _setCssTextWithEncodingOverride(self, cssText, encodingOverride=None, 
+    def _setCssTextWithEncodingOverride(self, cssText, encodingOverride=None,
                                         encoding=None):
-        """Set cssText but use ``encodingOverride`` to overwrite detected
+        """Set `cssText` but use `encodingOverride` to overwrite detected
         encoding. This is used by parse and @import during setting of cssText.
 
-        If ``encoding`` is given use this but do not save it as encodingOverride"""
+        If `encoding` is given use this but do not save it as `encodingOverride`."""
         if encodingOverride:
             # encoding during resolving of @import
             self.__encodingOverride = encodingOverride
@@ -312,14 +309,14 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
             self.encoding = encoding
 
     def _setFetcher(self, fetcher=None):
-        """sets @import URL loader, if None the default is used"""
+        """Set @import URL loader, if None the default is used."""
         self._fetcher = fetcher
 
     def _setEncoding(self, encoding):
-        """
-        sets encoding of charset rule if present or inserts new charsetrule
-        with given encoding. If encoding if None removes charsetrule if
-        present.
+        """Set `encoding` of charset rule if present in sheet or insert a new
+        :class:`~cssutils.css.CSSCharsetRule` with given `encoding`. 
+        If `encoding` is None removes charsetrule if present resulting in 
+        default encoding of utf-8.
         """
         try:
             rule = self.cssRules[0]
@@ -334,41 +331,41 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
             self.insertRule(cssutils.css.CSSCharsetRule(encoding=encoding), 0)
 
     def _getEncoding(self):
-        "return encoding if @charset rule if given or default of 'utf-8'"
+        """Encoding set in :class:`~cssutils.css.CSSCharsetRule` or if ``None``
+        resulting in default ``utf-8`` encoding being used."""
         try:
             return self.cssRules[0].encoding
         except (IndexError, AttributeError):
             return 'utf-8'
 
     encoding = property(_getEncoding, _setEncoding,
-            "(cssutils) reflects the encoding of an @charset rule or 'UTF-8' (default) if set to ``None``")
+            "(cssutils) Reflect encoding of an @charset rule or 'utf-8' "
+            "(default) if set to ``None``")
 
     namespaces = property(lambda self: self._namespaces,
-                          doc="Namespaces used in this CSSStyleSheet.")
+                          doc="All Namespaces used in this CSSStyleSheet.")
 
     def add(self, rule):
-        """
-        Adds rule to stylesheet at appropriate position.
-        Same as ``sheet.insertRule(rule, inOrder=True)``.
+        """Add `rule` to style sheet at appropriate position.
+        Same as ``insertRule(rule, inOrder=True)``.
         """
         return self.insertRule(rule, index=None, inOrder=True)
 
     def deleteRule(self, index):
-        """
-        Used to delete a rule from the style sheet.
+        """Delete rule at `index` from the style sheet.
 
         :param index:
             of the rule to remove in the StyleSheet's rule list. For an
-            index < 0 **no** INDEX_SIZE_ERR is raised but rules for
-            normal Python lists are used. E.g. ``deleteRule(-1)`` removes
-            the last rule in cssRules.
-        :Exceptions:
-            - `INDEX_SIZE_ERR`: (self)
+            `index` < 0 **no** :exc:`~xml.dom.IndexSizeErr` is raised but 
+            rules for normal Python lists are used. E.g. ``deleteRule(-1)`` 
+            removes the last rule in cssRules.
+        :exceptions:
+            - :exc:`~xml.dom.IndexSizeErr`:
               Raised if the specified index does not correspond to a rule in
               the style sheet's rule list.
-            - `NAMESPACE_ERR`: (self)
+            - :exc:`~xml.dom.NamespaceErr`:
               Raised if removing this rule would result in an invalid StyleSheet
-            - `NO_MODIFICATION_ALLOWED_ERR`: (self)
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if this style sheet is readonly.
         """
         self._checkReadonly()
@@ -398,32 +395,31 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         Used to insert a new rule into the style sheet. The new rule now
         becomes part of the cascade.
 
-        :Parameters:
-            rule
-                a parsable DOMString, in cssutils also a CSSRule or a
-                CSSRuleList
-            index
-                of the rule before the new rule will be inserted.
-                If the specified index is equal to the length of the
-                StyleSheet's rule collection, the rule will be added to the end
-                of the style sheet.
-                If index is not given or None rule will be appended to rule
-                list.
-            inOrder
-                if True the rule will be put to a proper location while
-                ignoring index but without raising HIERARCHY_REQUEST_ERR.
-                The resulting index is returned nevertheless
-        :returns: the index within the stylesheet's rule collection
+        :param rule:
+            a parsable DOMString, in cssutils also a 
+            :class:`~cssutils.css.CSSRule` or :class:`~cssutils.css.CSSRuleList`
+        :param index:
+            of the rule before the new rule will be inserted.
+            If the specified `index` is equal to the length of the
+            StyleSheet's rule collection, the rule will be added to the end
+            of the style sheet.
+            If `index` is not given or ``None`` rule will be appended to rule
+            list.
+        :param inOrder:
+            if ``True`` the rule will be put to a proper location while
+            ignoring `index` and without raising :exc:`~xml.dom.HierarchyRequestErr`.
+            The resulting index is returned nevertheless.
+        :returns: The index within the style sheet's rule collection
         :Exceptions:
-            - `HIERARCHY_REQUEST_ERR`: (self)
-              Raised if the rule cannot be inserted at the specified index
+            - :exc:`~xml.dom.HierarchyRequestErr`:
+              Raised if the rule cannot be inserted at the specified `index`
               e.g. if an @import rule is inserted after a standard rule set
               or other at-rule.
-            - `INDEX_SIZE_ERR`: (self)
-              Raised if the specified index is not a valid insertion point.
-            - `NO_MODIFICATION_ALLOWED_ERR`: (self)
+            - :exc:`~xml.dom.IndexSizeErr`:
+              Raised if the specified `index` is not a valid insertion point.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if this style sheet is readonly.
-            - `SYNTAX_ERR`: (rule)
+            - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified rule has a syntax error and is
               unparsable.
         """
@@ -618,57 +614,18 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         return index
 
     ownerRule = property(lambda self: self._ownerRule,
-                         doc="(DOM attribute) NOT IMPLEMENTED YET")
-
-    @Deprecated('Use cssutils.replaceUrls(sheet, replacer) instead.')
-    def replaceUrls(self, replacer):
-        """
-        **EXPERIMENTAL**
-
-        Utility method to replace all ``url(urlstring)`` values in
-        ``CSSImportRules`` and ``CSSStyleDeclaration`` objects (properties).
-
-        ``replacer`` must be a function which is called with a single
-        argument ``urlstring`` which is the current value of url()
-        excluding ``url(`` and ``)``. It still may have surrounding
-        single or double quotes though.
-        """
-        cssutils.replaceUrls(self, replacer)
+                         doc="A ref to an @import rule if it is imported, else ``None``.")
 
     def setSerializer(self, cssserializer):
-        """
-        Sets the global Serializer used for output of all stylesheet
-        output.
-        """
+        """Set the cssutils global Serializer used for all output."""
         if isinstance(cssserializer, cssutils.CSSSerializer):
             cssutils.ser = cssserializer
         else:
             raise ValueError(u'Serializer must be an instance of cssutils.CSSSerializer.')
 
     def setSerializerPref(self, pref, value):
-        """
-        Sets Preference of CSSSerializer used for output of this
-        stylesheet. See cssutils.serialize.Preferences for possible
+        """Set a Preference of CSSSerializer used for output.
+        See :class:`cssutils.serialize.Preferences` for possible
         preferences to be set.
         """
         cssutils.ser.prefs.__setattr__(pref, value)
-
-    def __repr__(self):
-        if self.media:
-            mediaText = self.media.mediaText
-        else:
-            mediaText = None
-        return "cssutils.css.%s(href=%r, media=%r, title=%r)" % (
-                self.__class__.__name__,
-                self.href, mediaText, self.title)
-
-    def __str__(self):
-        if self.media:
-            mediaText = self.media.mediaText
-        else:
-            mediaText = None
-        return "<cssutils.css.%s object encoding=%r href=%r "\
-               "media=%r title=%r namespaces=%r at 0x%x>" % (
-                self.__class__.__name__, self.encoding, self.href,
-                mediaText, self.title, self.namespaces.namespaces,
-                id(self))

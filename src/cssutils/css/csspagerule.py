@@ -2,13 +2,13 @@
 """
 __all__ = ['CSSPageRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: csspagerule.py 1284 2008-06-05 16:29:17Z cthedot $'
+__version__ = '$Id: csspagerule.py 1658 2009-02-07 18:24:40Z cthedot $'
 
-import xml.dom
+from cssstyledeclaration import CSSStyleDeclaration
+from selectorlist import SelectorList
 import cssrule
 import cssutils
-from selectorlist import SelectorList
-from cssstyledeclaration import CSSStyleDeclaration
+import xml.dom
 
 class CSSPageRule(cssrule.CSSRule):
     """
@@ -16,22 +16,7 @@ class CSSPageRule(cssrule.CSSRule):
     sheet. The @page rule is used to specify the dimensions, orientation,
     margins, etc. of a page box for paged media.
 
-    Properties
-    ==========
-    atkeyword (cssutils only)
-        the literal keyword used
-    cssText: of type DOMString
-        The parsable textual representation of this rule
-    selectorText: of type DOMString
-        The parsable textual representation of the page selector for the rule.
-    style: of type CSSStyleDeclaration
-        The declaration-block of this rule.
-
-    Inherits properties from CSSRule
-
-    Format
-    ======
-    ::
+    Format::
 
         page
           : PAGE_SYM S* pseudo_page? S*
@@ -40,20 +25,15 @@ class CSSPageRule(cssrule.CSSRule):
         pseudo_page
           : ':' IDENT # :first, :left, :right in CSS 2.1
           ;
-
     """
-    type = property(lambda self: cssrule.CSSRule.PAGE_RULE)
-    # constant but needed:
-    wellformed = True 
-
     def __init__(self, selectorText=None, style=None, parentRule=None, 
                  parentStyleSheet=None, readonly=False):
         """
-        if readonly allows setting of properties in constructor only
+        If readonly allows setting of properties in constructor only.
 
-        selectorText
+        :param selectorText:
             type string
-        style
+        :param style:
             CSSStyleDeclaration for this CSSStyleRule
         """
         super(CSSPageRule, self).__init__(parentRule=parentRule, 
@@ -64,7 +44,7 @@ class CSSPageRule(cssrule.CSSRule):
             self.selectorText = selectorText
             tempseq.append(self.selectorText, 'selectorText')
         else:
-            self._selectorText = u''
+            self._selectorText = self._tempSeq()
         if style:
             self.style = style
             tempseq.append(self.style, 'style')
@@ -74,20 +54,29 @@ class CSSPageRule(cssrule.CSSRule):
         
         self._readonly = readonly
 
+    def __repr__(self):
+        return "cssutils.css.%s(selectorText=%r, style=%r)" % (
+                self.__class__.__name__, self.selectorText, self.style.cssText)
+
+    def __str__(self):
+        return "<cssutils.css.%s object selectorText=%r style=%r at 0x%x>" % (
+                self.__class__.__name__, self.selectorText, self.style.cssText,
+                id(self))
+
     def __parseSelectorText(self, selectorText):
         """
-        parses selectorText which may also be a list of tokens
-        and returns (selectorText, seq)
+        Parse `selectorText` which may also be a list of tokens
+        and returns (selectorText, seq).
 
         see _setSelectorText for details
         """
         # for closures: must be a mutable
-        new = {'selector': None, 'wellformed': True}
+        new = {'wellformed': True, 'last-S': False}
 
         def _char(expected, seq, token, tokenizer=None):
             # pseudo_page, :left, :right or :first
             val = self._tokenvalue(token)
-            if ':' == expected and u':' == val:
+            if not new['last-S'] and expected in ['page', ': or EOF'] and u':' == val:
                 try:
                     identtoken = tokenizer.next()
                 except StopIteration:
@@ -100,8 +89,7 @@ class CSSPageRule(cssrule.CSSRule):
                             u'CSSPageRule selectorText: Expected IDENT but found: %r' % 
                             ival, token)
                     else:
-                        new['selector'] = val + ival
-                        seq.append(new['selector'], 'selector')
+                        seq.append(val + ival, 'pseudo')
                         return 'EOF'
                 return expected
             else:
@@ -112,7 +100,22 @@ class CSSPageRule(cssrule.CSSRule):
 
         def S(expected, seq, token, tokenizer=None):
             "Does not raise if EOF is found."
+            if expected == ': or EOF':
+                # pseudo must directly follow IDENT if given
+                new['last-S'] = True
             return expected
+
+        def IDENT(expected, seq, token, tokenizer=None):
+            ""
+            val = self._tokenvalue(token)
+            if 'page' == expected:
+                seq.append(val, 'IDENT')
+                return ': or EOF'
+            else:
+                new['wellformed'] = False
+                self._log.error(
+                    u'CSSPageRule selectorText: Unexpected IDENT: %r' % val, token)
+                return expected
 
         def COMMENT(expected, seq, token, tokenizer=None):
             "Does not raise if EOF is found."
@@ -120,14 +123,14 @@ class CSSPageRule(cssrule.CSSRule):
             return expected 
 
         newseq = self._tempSeq()
-        wellformed, expected = self._parse(expected=':',
+        wellformed, expected = self._parse(expected='page',
             seq=newseq, tokenizer=self._tokenize2(selectorText),
             productions={'CHAR': _char,
+                         'IDENT': IDENT,
                          'COMMENT': COMMENT, 
                          'S': S}, 
             new=new)
         wellformed = wellformed and new['wellformed']
-        newselector = new['selector']
         
         # post conditions
         if expected == 'ident':
@@ -135,33 +138,30 @@ class CSSPageRule(cssrule.CSSRule):
                 u'CSSPageRule selectorText: No valid selector: %r' %
                     self._valuestr(selectorText))
             
-        if not newselector in (None, u':first', u':left', u':right'):
-            self._log.warn(u'CSSPageRule: Unknown CSS 2.1 @page selector: %r' %
-                     newselector, neverraise=True)
+#        if not newselector in (None, u':first', u':left', u':right'):
+#            self._log.warn(u'CSSPageRule: Unknown CSS 2.1 @page selector: %r' %
+#                     newselector, neverraise=True)
 
-        return newselector, newseq
+        return wellformed, newseq
 
     def _getCssText(self):
-        """
-        returns serialized property cssText
-        """
+        """Return serialized property cssText."""
         return cssutils.ser.do_CSSPageRule(self)
 
     def _setCssText(self, cssText):
         """
-        DOMException on setting
-
-        - SYNTAX_ERR: (self, StyleDeclaration)
-          Raised if the specified CSS string value has a syntax error and
-          is unparsable.
-        - INVALID_MODIFICATION_ERR: (self)
-          Raised if the specified CSS string value represents a different
-          type of rule than the current one.
-        - HIERARCHY_REQUEST_ERR: (CSSStylesheet)
-          Raised if the rule cannot be inserted at this point in the
-          style sheet.
-        - NO_MODIFICATION_ALLOWED_ERR: (CSSRule)
-          Raised if the rule is readonly.
+        :exceptions:    
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified CSS string value has a syntax error and
+              is unparsable.
+            - :exc:`~xml.dom.InvalidModificationErr`:
+              Raised if the specified CSS string value represents a different
+              type of rule than the current one.
+            - :exc:`~xml.dom.HierarchyRequestErr`:
+              Raised if the rule cannot be inserted at this point in the
+              style sheet.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if the rule is readonly.
         """
         super(CSSPageRule, self)._setCssText(cssText)
         
@@ -190,7 +190,7 @@ class CSSPageRule(cssrule.CSSRule):
                     u'CSSPageRule: Trailing content found.', token=nonetoken)
                 
                 
-            newselector, newselectorseq = self.__parseSelectorText(selectortokens)
+            wellformed, newselectorseq = self.__parseSelectorText(selectortokens)
 
             newstyle = CSSStyleDeclaration()
             val, typ = self._tokenvalue(braceorEOFtoken), self._type(braceorEOFtoken)
@@ -206,63 +206,49 @@ class CSSPageRule(cssrule.CSSRule):
                 newstyle.cssText = styletokens
 
             if wellformed:
-                self._selectorText = newselector # already parsed
+                self._selectorText = newselectorseq # already parsed
                 self.style = newstyle
                 self._setSeq(newselectorseq) # contains upto style only
 
     cssText = property(_getCssText, _setCssText,
-        doc="(DOM) The parsable textual representation of the rule.")
+        doc="(DOM) The parsable textual representation of this rule.")
 
     def _getSelectorText(self):
-        """
-        wrapper for cssutils Selector object
-        """
-        return self._selectorText
+        """Wrapper for cssutils Selector object."""
+        return cssutils.ser.do_CSSPageRuleSelector(self._selectorText)#self._selectorText
 
     def _setSelectorText(self, selectorText):
-        """
-        wrapper for cssutils Selector object
+        """Wrapper for cssutils Selector object.
 
-        selector: DOM String
-            in CSS 2.1 one of
+        :param selectorText: 
+            DOM String, in CSS 2.1 one of
+            
             - :first
             - :left
             - :right
             - empty
 
-        If WS or Comments are included they are ignored here! Only
-        way to add a comment is via setting ``cssText``
-
-        DOMException on setting
-
-        - SYNTAX_ERR:
-          Raised if the specified CSS string value has a syntax error
-          and is unparsable.
-        - NO_MODIFICATION_ALLOWED_ERR: (self)
-          Raised if this rule is readonly.
+        :exceptions:
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified CSS string value has a syntax error
+              and is unparsable.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if this rule is readonly.
         """
         self._checkReadonly()
 
         # may raise SYNTAX_ERR
-        newselectortext, newseq = self.__parseSelectorText(selectorText)
-
-        if newselectortext:
-            for i, x in enumerate(self.seq):
-                if x == self._selectorText:
-                    self.seq[i] = newselectortext
-            self._selectorText = newselectortext
+        wellformed, newseq = self.__parseSelectorText(selectorText)
+        if wellformed and newseq:
+            self._selectorText = newseq
 
     selectorText = property(_getSelectorText, _setSelectorText,
         doc="""(DOM) The parsable textual representation of the page selector for the rule.""")
 
-    def _getStyle(self):
-        
-        return self._style
-
     def _setStyle(self, style):
         """
-        style
-            StyleDeclaration or string
+        :param style:
+            a CSSStyleDeclaration or string
         """
         self._checkReadonly()
         
@@ -273,14 +259,14 @@ class CSSPageRule(cssrule.CSSRule):
             # so use seq!
             self._style._seq = style.seq 
 
-    style = property(_getStyle, _setStyle,
-        doc="(DOM) The declaration-block of this rule set.")
+    style = property(lambda self: self._style, _setStyle,
+                     doc="(DOM) The declaration-block of this rule set, "
+                         "a :class:`~cssutils.css.CSSStyleDeclaration`.")
 
-    def __repr__(self):
-        return "cssutils.css.%s(selectorText=%r, style=%r)" % (
-                self.__class__.__name__, self.selectorText, self.style.cssText)
 
-    def __str__(self):
-        return "<cssutils.css.%s object selectorText=%r style=%r at 0x%x>" % (
-                self.__class__.__name__, self.selectorText, self.style.cssText,
-                id(self))
+    type = property(lambda self: self.PAGE_RULE, 
+                    doc="The type of this rule, as defined by a CSSRule "
+                        "type constant.")
+    
+    # constant but needed:
+    wellformed = property(lambda self: True)

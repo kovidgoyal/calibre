@@ -12,42 +12,33 @@ open issues
 """
 __all__ = ['CSSProductions', 'MACROS', 'PRODUCTIONS']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssproductions.py 1378 2008-07-15 20:02:19Z cthedot $'
+__version__ = '$Id: cssproductions.py 1537 2008-12-03 14:37:10Z cthedot $'
 
 # a complete list of css3 macros
 MACROS = {
-    'ident': r'[-]?{nmstart}{nmchar}*',
-    'name': r'{nmchar}+',
-    'nmstart': r'[_a-zA-Z]|{nonascii}|{escape}',
     'nonascii': r'[^\0-\177]',
-    'unicode': r'\\[0-9a-f]{1,6}(?:{nl}|{wc})?',
+    'unicode': r'\\[0-9a-f]{1,6}(?:{nl}|{s})?',
+    # 'escape': r'{unicode}|\\[ -~\200-\4177777]',
     'escape': r'{unicode}|\\[ -~\200-\777]',
-    #   'escape': r'{unicode}|\\[ -~\200-\4177777]',
+    'nmstart': r'[_a-zA-Z]|{nonascii}|{escape}',
     'nmchar': r'[-_a-zA-Z0-9]|{nonascii}|{escape}',
-
-    'num': r'[0-9]*\.[0-9]+|[0-9]+', #r'[-]?\d+|[-]?\d*\.\d+',
-    'string':  r"""\'({stringesc1}|{stringchar}|")*\'""" + "|" + '''\"({stringesc2}|{stringchar}|')*\"''',
-    # seems an error in CSS 3 but is allowed in CSS 2.1
-    'stringesc1' : r"\\'",
-    'stringesc2' : r'\\"',
-
-    'stringchar':  r'{urlchar}| |\\{nl}',
-
-    # urlchar  ::= [#x9#x21#x23-#x26#x27-#x7E] | nonascii | escape
-    # 0x27 is "'" which should not be in here..., should ) be in here???
-    'urlchar':  r'[\x09\x21\x23-\x26\x28-\x7E]|{nonascii}|{escape}',
-
-    # from CSS2.1
-    'invalid': r'{invalid1}|{invalid2}',
+    'string1': r'"([^\n\r\f\\"]|\\{nl}|{escape})*"',
+    'string2': r"'([^\n\r\f\\']|\\{nl}|{escape})*'",
     'invalid1': r'\"([^\n\r\f\\"]|\\{nl}|{escape})*',
     'invalid2': r"\'([^\n\r\f\\']|\\{nl}|{escape})*",
 
-    # \r\n should be counted as one char see unicode above
-    'nl': r'\n|\r\n|\r|\f',
-    'w': r'{wc}*',
-    'wc': r'\t|\r|\n|\f|\x20',
-
     'comment': r'\/\*[^*]*\*+([^/][^*]*\*+)*\/',
+    'ident': r'[-]?{nmstart}{nmchar}*',
+    'name': r'{nmchar}+',
+    'num': r'[0-9]*\.[0-9]+|[0-9]+', #r'[-]?\d+|[-]?\d*\.\d+',   
+    'string': r'{string1}|{string2}',
+    # from CSS2.1
+    'invalid': r'{invalid1}|{invalid2}',
+    'url':  r'[\x09\x21\x23-\x26\x28\x2a-\x7E]|{nonascii}|{escape}',
+
+    's': r'\t|\r|\n|\f|\x20',
+    'w': r'{s}*',
+    'nl': r'\n|\r\n|\r|\f',
 
     'A': r'A|a|\\0{0,4}(?:41|61)(?:\r\n|[ \t\r\n\f])?',
     'C': r'C|c|\\0{0,4}(?:43|63)(?:\r\n|[ \t\r\n\f])?',
@@ -77,8 +68,8 @@ MACROS = {
 PRODUCTIONS = [
     ('BOM', r'\xFEFF'), # will only be checked at beginning of CSS
     
-    ('S', r'{wc}+'), # 1st in list of general productions
-    ('URI', r'{U}{R}{L}\({w}({string}|{urlchar}*){w}\)'),
+    ('S', r'{s}+'), # 1st in list of general productions
+    ('URI', r'{U}{R}{L}\({w}({string}|{url}*){w}\)'),
     ('FUNCTION', r'{ident}\('),
     ('IDENT', r'{ident}'),
     ('STRING', r'{string}'),
