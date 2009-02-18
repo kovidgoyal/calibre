@@ -13,7 +13,6 @@ from PyQt4.QtSvg import QSvgRenderer
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
                     iswindows, isosx, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.metadata.meta import get_metadata
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.interface import Device
 from calibre.utils.config import prefs, dynamic
@@ -23,7 +22,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, \
                            max_available_height, config, info_dialog, \
-                           available_width
+                           available_width, GetMetadata
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
@@ -49,7 +48,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.utils.filenames import ascii_filename
-from calibre.gui2.widgets import WarningDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class Main(MainWindow, Ui_MainWindow):
@@ -78,6 +76,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle(__appname__)
         self.verbose = opts.verbose
+        self.get_metadata = GetMetadata()
         self.read_settings()
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
@@ -157,6 +156,9 @@ class Main(MainWindow, Ui_MainWindow):
         sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card'))
         sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory')+' '+_('and delete from library'))
         sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card')+' '+_('and delete from library'))
+        sm.addAction(self.action_send_specific_format_to_device)
+        self.connect(self.action_send_specific_format_to_device, 
+                     SIGNAL('triggered()'), self.send_specific_format_to_device)
         sm.addSeparator()
         sm.addAction(_('Send to storage card by default'))
         sm.actions()[-1].setCheckable(True)
@@ -331,12 +333,17 @@ class Main(MainWindow, Ui_MainWindow):
             self.cover_flow.setVisible(False)
             if not config['separate_cover_flow']:
                 self.library.layout().addWidget(self.cover_flow)
-            self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
-            self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), self.show_book_info)
-            self.connect(self.status_bar.cover_flow_button, SIGNAL('toggled(bool)'), self.toggle_cover_flow)
-            self.connect(self.cover_flow, SIGNAL('stop()'), self.status_bar.cover_flow_button.toggle)
-            QObject.connect(self.library_view.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
-                        self.sync_cf_to_listview)
+            self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), 
+                         self.sync_cf_to_listview)
+            self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), 
+                         self.show_book_info)
+            self.connect(self.status_bar.cover_flow_button, 
+                         SIGNAL('toggled(bool)'), self.toggle_cover_flow)
+            self.connect(self.cover_flow, SIGNAL('stop()'), 
+                         self.status_bar.cover_flow_button.toggle)
+            QObject.connect(self.library_view.selectionModel(), 
+                            SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
+                            self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
             self.cover_flow.setImages(self.db_images)
         else:
@@ -391,7 +398,7 @@ class Main(MainWindow, Ui_MainWindow):
     def change_output_format(self, x):
         of = unicode(x).strip()
         if of != prefs['output_format']:
-            if of not in ('LRF',):
+            if of not in ('LRF', 'EPUB'):
                 warning_dialog(self, 'Warning', 
                                '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
             prefs.set('output_format', of)
@@ -483,7 +490,8 @@ class Main(MainWindow, Ui_MainWindow):
         if not hasattr(index, 'row') and self.library_view.currentIndex().row() != index:
             index = self.library_view.model().index(index, 0)
             self.library_view.setCurrentIndex(index)
-        if hasattr(index, 'row') and self.cover_flow.isVisible() and self.cover_flow.currentSlide() != index.row():
+        if hasattr(index, 'row') and self.cover_flow.isVisible() and \
+                self.cover_flow.currentSlide() != index.row():
             self.cover_flow.setCurrentSlide(index.row())
 
     def another_instance_wants_to_talk(self, msg):
@@ -608,36 +616,26 @@ class Main(MainWindow, Ui_MainWindow):
     ################################# Add books ################################
 
     def add_recursive(self, single):
-        root = choose_dir(self, 'recursive book import root dir dialog', 'Select root folder')
+        root = choose_dir(self, 'recursive book import root dir dialog', 
+                          'Select root folder')
         if not root:
             return
-        progress = ProgressDialog(_('Adding books recursively...'),
-                                   min=0, max=0, parent=self)
-        progress.show()
-        def callback(msg):
-            if msg != '.':
-                progress.set_msg((_('Added ')+msg) if msg else _('Searching...'))
-            QApplication.processEvents()
-            QApplication.sendPostedEvents()
-            QApplication.flush()
-            return progress.canceled
-        try:
-            duplicates = self.library_view.model().db.recursive_import(root, single, callback=callback)
-        finally:
-            progress.hide()            
-        if duplicates:
-            files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
-            for mi, formats in duplicates:
-                files += '<li>'+mi.title+'</li>\n'
-            d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), 
-                              files+'</ul></p>', self)
-            if d.exec_() == QDialog.Accepted:
-                for mi, formats in duplicates:
-                    self.library_view.model().db.import_book(mi, formats )
-
-        self.library_view.model().resort()
-        self.library_view.model().research()
-
+        from calibre.gui2.add import AddRecursive
+        self._add_recursive_thread = AddRecursive(root, 
+                                self.library_view.model().db, self.get_metadata,
+                                single, self)
+        self.connect(self._add_recursive_thread, SIGNAL('finished()'),
+                     self._recursive_files_added)
+        self._add_recursive_thread.start()
+    
+    def _recursive_files_added(self):
+        self._add_recursive_thread.process_duplicates()
+        if self._add_recursive_thread.number_of_books_added > 0:
+            self.library_view.model().resort(reset=False)
+            self.library_view.model().research()
+            self.library_view.model().count_changed()
+        self._add_recursive_thread = None
+        
     def add_recursive_single(self, checked):
         '''
         Add books from the local filesystem to either the library or the device
@@ -686,66 +684,42 @@ class Main(MainWindow, Ui_MainWindow):
             return
         to_device = self.stack.currentIndex() != 0
         self._add_books(books, to_device)
-        if to_device:
-            self.status_bar.showMessage(_('Uploading books to device.'), 2000)
+        
 
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:
             on_card = self.stack.currentIndex() == 2
         if not paths:
             return
-        # Get format and metadata information
-        formats, metadata, names, infos = [], [], [], []
-        progress = ProgressDialog(_('Adding books...'), _('Reading metadata...'),
-                                  min=0, max=len(paths), parent=self)
-        progress.show()
-        try:
-            for c, book in enumerate(paths):
-                progress.set_value(c+1)
-                if progress.canceled:
-                    return
-                format = os.path.splitext(book)[1]
-                format = format[1:] if format else None
-                stream = open(book, 'rb')
-                try:
-                    mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
-                except:
-                    mi = MetaInformation(None, None)
-                if not mi.title:
-                    mi.title = os.path.splitext(os.path.basename(book))[0]
-                if not mi.authors:
-                    mi.authors = [_('Unknown')]
-                formats.append(format)
-                metadata.append(mi)
-                names.append(os.path.basename(book))
-                infos.append({'title':mi.title, 'authors':', '.join(mi.authors),
-                              'cover':self.default_thumbnail, 'tags':[]})
-                title = mi.title if isinstance(mi.title, unicode) else mi.title.decode(preferred_encoding, 'replace')
-                progress.set_msg(_('Read metadata from ')+title)
-                QApplication.processEvents()
-            
-            if not to_device:
-                progress.set_msg(_('Adding books to database...'))
-                QApplication.processEvents()
-                model = self.library_view.model()
-                
-                paths = list(paths)
-                duplicates, number_added = model.add_books(paths, formats, metadata)
-                if duplicates:
-                    files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
-                    for mi in duplicates[2]:
-                        files += '<li>'+mi.title+'</li>\n'
-                    d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', parent=self)
-                    if d.exec_() == QDialog.Accepted:
-                        num = model.add_books(*duplicates, **dict(add_duplicates=True))[1]
-                        number_added += num
-                model.books_added(number_added)
+        from calibre.gui2.add import AddFiles
+        self._add_files_thread = AddFiles(paths, self.default_thumbnail, 
+                                          self.get_metadata,
+                                          None if to_device else \
+                                          self.library_view.model().db
+                                          )
+        self._add_files_thread.send_to_device = to_device
+        self._add_files_thread.on_card = on_card
+        self._add_files_thread.create_progress_dialog(_('Adding books...'),
+                                                _('Reading metadata...'), self)
+        self.connect(self._add_files_thread, SIGNAL('finished()'),
+                     self._files_added)
+        self._add_files_thread.start()
+    
+    def _files_added(self):
+        t = self._add_files_thread
+        self._add_files_thread = None
+        if not t.canceled:
+            if t.send_to_device:
+                self.upload_books(t.paths, 
+                                  list(map(sanitize_file_name, t.names)), 
+                                  t.infos, on_card=t.on_card)
+                self.status_bar.showMessage(_('Uploading books to device.'), 2000)
             else:
-                self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
-        finally:
-            QApplication.processEvents()
-            progress.hide()
-
+                t.process_duplicates()
+        if t.number_of_books_added > 0:
+            self.library_view.model().books_added(t.number_of_books_added)
+            self.db_images.reset()
+        
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
         Upload books to device.
@@ -801,7 +775,10 @@ class Main(MainWindow, Ui_MainWindow):
         if not rows or len(rows) == 0:
             return
         if self.stack.currentIndex() == 0:
-            if not confirm('<p>'+_('The selected books will be <b>permanently deleted</b> and the files removed from your computer. Are you sure?')+'</p>', 'library_delete_books', self):
+            if not confirm('<p>'+_('The selected books will be '
+                                   '<b>permanently deleted</b> and the files '
+                                   'removed from your computer. Are you sure?')
+                                +'</p>', 'library_delete_books', self):
                 return
             view.model().delete_books(rows)
         else:
@@ -919,8 +896,16 @@ class Main(MainWindow, Ui_MainWindow):
                 self.upload_books(files, names, metadata, on_card=on_card, memory=[[f.name for f in files], remove])
                 self.status_bar.showMessage(_('Sending news to device.'), 5000)
                 
+    def send_specific_format_to_device(self):
+        d = ChooseFormatDialog(self, _('Choose format to send to device'), 
+                               self.device_manager.device_class.FORMATS)
+        d.exec_()
+        fmt = d.format().lower()
+        on_card = config['send_to_storage_card_by_default']
+        self.sync_to_device(on_card, False, specific_format=fmt)
+        
     
-    def sync_to_device(self, on_card, delete_from_library):
+    def sync_to_device(self, on_card, delete_from_library, specific_format=None):
         rows = self.library_view.selectionModel().selectedRows()
         if not self.device_manager or not rows or len(rows) == 0:
             return
@@ -933,7 +918,8 @@ class Main(MainWindow, Ui_MainWindow):
         metadata = iter(metadata)
         _files   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, 
-                                    paths=True, set_metadata=True)
+                                    paths=True, set_metadata=True,
+                                    specific_format=specific_format)
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
@@ -1410,8 +1396,15 @@ class Main(MainWindow, Ui_MainWindow):
     def initialize_database(self):
         self.library_path = prefs['library_path']
         if self.library_path is None: # Need to migrate to new database layout
+            base = os.path.expanduser('~')
+            if iswindows:
+                from calibre import plugins
+                from PyQt4.Qt import QDir
+                base = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_PERSONAL)
+                if not base or not os.path.exists(base):
+                    base = unicode(QDir.homePath()).replace('/', os.sep)
             dir = unicode(QFileDialog.getExistingDirectory(self, 
-                            _('Choose a location for your ebook library.'), os.getcwd()))
+                            _('Choose a location for your ebook library.'), base))
             if not dir:
                 dir = os.path.expanduser('~/Library')
             self.library_path = os.path.abspath(dir)
@@ -1597,6 +1590,11 @@ def main(args=sys.argv):
             print 'Restarting with:', e, sys.argv
             os.execvp(e, sys.argv)
         else:
+            if iswindows:
+                try:
+                    main.system_tray_icon.hide()
+                except:
+                    pass
             return ret
     return 0
 

@@ -113,6 +113,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def set_cover(self):
         row = self.formats.currentRow()
         fmt = self.formats.item(row)
+        if fmt is None:
+            error_dialog(self, _('No format selected'),
+                    _('No format selected')).exec_()
+            return
         ext = fmt.ext.lower()
         if fmt.path is None:
             stream = self.db.format(self.row, ext, as_file=True)
@@ -121,7 +125,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         try:
             mi = get_metadata(stream, ext)
         except:
-            error_dialog(self, _('Could not read metadata'), 
+            error_dialog(self, _('Could not read metadata'),
                          _('Could not read metadata from %s format')%ext).exec_()
             return
         cdata = None
@@ -265,7 +269,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def cover_dropped(self):
         self.cover_changed = True
     
-    def initialize_series_and_publisher(self):
+    def initialize_series(self):
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         series_id = self.db.series_id(self.row)
@@ -289,6 +293,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 l.invalidate()
                 l.activate()
         
+    def initialize_series_and_publisher(self):
+        self.initialize_series()
         all_publishers = self.db.all_publishers()
         all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         publisher_id = self.db.publisher_id(self.row)

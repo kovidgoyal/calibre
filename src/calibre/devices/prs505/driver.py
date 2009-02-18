@@ -32,7 +32,7 @@ class PRS505(Device):
     BCD          = [0x229]  #: Needed to disambiguate 505 and 700 on linux
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
-    FORMATS      = ['lrf', 'epub', 'lrx', 'rtf', 'pdf', 'txt']
+    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
     
     MEDIA_XML    = 'database/cache/media.xml'
     CACHE_XML    = 'Sony Reader/database/cache.xml'
@@ -248,15 +248,20 @@ class PRS505(Device):
                 time.sleep(3)
                 self.open_osx()
         if self._card_prefix is not None:
-            cachep = os.path.join(self._card_prefix, self.CACHE_XML)
-            if not os.path.exists(cachep):
-                os.makedirs(os.path.dirname(cachep), mode=0777)
-                f = open(cachep, 'wb')
-                f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+            try:
+                cachep = os.path.join(self._card_prefix, self.CACHE_XML)
+                if not os.path.exists(cachep):
+                    os.makedirs(os.path.dirname(cachep), mode=0777)
+                    f = open(cachep, 'wb')
+                    f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
 <cache xmlns="http://www.kinoma.com/FskCache/1">
 </cache>
 '''.encode('utf8'))
-                f.close()
+                    f.close()
+            except:
+                self._card_prefix = None
+                import traceback
+                traceback.print_exc()
             
     def set_progress_reporter(self, pr):
         self.report_progress = pr

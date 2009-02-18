@@ -1,14 +1,13 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 vreme.com
 '''
 
 import re
 from calibre import strftime
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Vreme(BasicNewsRecipe):    
@@ -24,15 +23,17 @@ class Vreme(BasicNewsRecipe):
     LOGIN = 'http://www.vreme.com/account/index.php'
     remove_javascript     = True
     use_embedded_content  = False
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
+    language              = _('Serbian')
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
     html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
+                          '--comment'  , description
+                        , '--category' , category
                         , '--publisher', publisher
+                        , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
     
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -87,14 +88,19 @@ class Vreme(BasicNewsRecipe):
         del soup.body['text'   ]
         del soup.body['bgcolor']
         del soup.body['onload' ]
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn"/>'
+        for item in soup.findAll('table'):
+            if item.has_key('width'):
+               del item['width']
+            if item.has_key('height'):
+               del item['height']                    
+        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
         soup.head.insert(0,mtag)
         tbl = soup.body.table
         tbbb = soup.find('td')
         if tbbb:
            tbbb.extract()
            tbl.extract()
-           soup.body.insert(0,tbbb)
+           soup.body.insert(0,tbbb)        
         return soup
                 
     def get_cover_url(self):
@@ -104,5 +110,3 @@ class Vreme(BasicNewsRecipe):
         if cover_item:
            cover_url = self.INDEX + cover_item['src']
         return cover_url
-
-    language              = _('Serbian')

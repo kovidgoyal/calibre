@@ -330,7 +330,10 @@ class PreProcessor(object):
                    sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
-                  
+                  # Remove the <![if/endif tags inserted by everybody's darling, MS Word
+                  (re.compile(r'(?i)<{0,1}!\[(end){0,1}if[^>]*>'), lambda match: ''),
+                  # Strip all comments since Adobe DE is petrified of them
+                  (re.compile(r'<!--[^>]*>'), lambda match : ''),
                   ]
                      
     # Fix pdftohtml markup
@@ -490,7 +493,17 @@ class Parser(PreProcessor, LoggingInterface):
             self.root.insert(0, head)
 
         self.head = head 
-        self.body = self.root.body
+        try:
+            self.body = self.root.body
+        except:
+            import traceback
+            err = traceback.format_exc()
+            self.root = fromstring(u'<html><head/><body><p>This page was too '
+                                   'severely malformed for calibre to handle. '
+                                   'It has been replaced by this error message.'
+                                   '</p><pre>%s</pre></body></html>'%err)
+            self.head = self.root.xpath('./head')[0]
+            self.body = self.root.body
         for a in self.root.xpath('//a[@name]'):
             a.set('id', a.get('name'))
         if not self.head.xpath('./title'):

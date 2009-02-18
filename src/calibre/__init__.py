@@ -69,7 +69,7 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     one = re.sub(r'^\.+$', '_', one)
     if as_unicode:
         one = one.decode(filesystem_encoding)
-    return one
+    return one.replace('..', '_')
 
 
 class CommandLineError(Exception):
@@ -382,8 +382,10 @@ def walk(dir):
         for f in record[-1]:
             yield os.path.join(record[0], f)
 
-def strftime(fmt, t=time.localtime()):
+def strftime(fmt, t=None):
     ''' A version of strtime that returns unicode strings. '''
+    if t is None:
+        t = time.localtime()
     if iswindows:
         if isinstance(fmt, unicode):
             fmt = fmt.encode('mbcs')

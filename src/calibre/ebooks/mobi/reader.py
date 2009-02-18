@@ -186,6 +186,8 @@ class MobiReader(object):
         self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
+        self.processed_html = re.sub(r'&(\S+?);', entity_to_unicode,
+                                     self.processed_html)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup_html()
@@ -287,11 +289,12 @@ class MobiReader(object):
                 align = attrib.pop('align').strip()
                 if align:
                     styles.append('text-align: %s' % align)
-            if mobi_version == 1 and tag.tag == 'hr':
-                tag.tag = 'div'
-                styles.append('page-break-before: always')
-                styles.append('display: block')
-                styles.append('margin: 0')
+            if tag.tag == 'hr':
+                if mobi_version == 1:
+                    tag.tag = 'div'
+                    styles.append('page-break-before: always')
+                    styles.append('display: block')
+                    styles.append('margin: 0')
             elif tag.tag == 'i':
                 tag.tag = 'span'
                 tag.attrib['class'] = 'italic'
@@ -311,6 +314,9 @@ class MobiReader(object):
                     recindex = attrib.pop(attr, None) or recindex
                 if recindex is not None:
                     attrib['src'] = 'images/%s.jpg' % recindex
+            elif tag.tag == 'pre':
+                if not tag.text:
+                    tag.tag = 'div'
             if styles:
                 attrib['style'] = '; '.join(styles)
             if 'filepos-id' in attrib:
@@ -453,6 +459,7 @@ class MobiReader(object):
             self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
             pos = end
         self.processed_html += self.mobi_html[pos:]
+        
     
     def extract_images(self, processed_records, output_dir):
         if self.verbose:

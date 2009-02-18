@@ -154,7 +154,7 @@ def process_file(path, options, logger=None):
             convertor = txt2lrf
         elif 'epub' == ext:
             convertor = epub2lrf
-        elif ext in ['mobi', 'prc']:
+        elif ext in ['mobi', 'prc', 'azw']:
             convertor = mobi2lrf
         elif ext == 'fb2':
             convertor = fb22lrf

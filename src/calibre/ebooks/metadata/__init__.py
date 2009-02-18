@@ -192,7 +192,8 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
-                     'manifest', 'spine', 'toc', 'cover', 'language', 'book_producer'):
+                     'manifest', 'spine', 'toc', 'cover', 'language', 
+                     'book_producer', 'timestamp'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
         
@@ -217,7 +218,7 @@ class MetaInformation(object):
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer',
+                  'book_producer', 'timestamp'
                   ):
             setattr(self, x, getattr(mi, x, None))
     
@@ -235,7 +236,8 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc', 
-                     'cover', 'language', 'guide', 'book_producer'):
+                     'cover', 'language', 'guide', 'book_producer', 
+                     'timestamp'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
@@ -276,6 +278,8 @@ class MetaInformation(object):
             ans += u'Series   : '+unicode(self.series) + ' #%s\n'%self.format_series_index()  
         if self.language:
             ans += u'Language : '     + unicode(self.language) + u'\n'
+        if self.timestamp is not None:
+            ans += u'Timestamp : ' + self.timestamp.isoformat(' ')
         return ans.strip()
     
     def to_html(self):
@@ -289,12 +293,12 @@ class MetaInformation(object):
         if self.series:
             ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
         ans += [(_('Language'), unicode(self.language))]
+        if self.timestamp is not None:
+            ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)
         
-        
-    
     def __str__(self):
         return self.__unicode__().encode('utf-8')
     

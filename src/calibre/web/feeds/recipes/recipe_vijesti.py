@@ -4,11 +4,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 
 '''
-vijesti.cg.yu
+vijesti.me
 '''
 
 import re
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Vijesti(BasicNewsRecipe):
@@ -22,10 +21,11 @@ class Vijesti(BasicNewsRecipe):
     no_stylesheets        = True
     remove_javascript     = True
     encoding              = 'cp1250'
-    cover_url             = 'http://www.vijesti.cg.yu/img/logo.gif'
+    cover_url             = 'http://www.vijesti.me/img/logo.gif'
     remove_javascript     = True
     use_embedded_content  = False
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
+    language              = _('Serbian')
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
     html2lrf_options = [
                           '--comment', description
@@ -39,12 +39,9 @@ class Vijesti(BasicNewsRecipe):
 
     keep_only_tags = [dict(name='div', attrs={'id':'mainnews'})]
 
-    remove_tags = [
-                     dict(name='div', attrs={'align':'right'})
-                    ,dict(name=['object','link'])
-                  ]
+    remove_tags = [dict(name=['object','link','embed'])]
 
-    feeds = [(u'Sve vijesti', u'http://www.vijesti.cg.yu/rss.php' )]
+    feeds = [(u'Sve vijesti', u'http://www.vijesti.me/rss.php' )]
 
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = 'sr-Latn-ME'
@@ -56,5 +53,3 @@ class Vijesti(BasicNewsRecipe):
                del item['align']
                item.insert(0,'<br /><br />')
         return soup
-
-    language              = _('Serbian')

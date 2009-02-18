@@ -6,7 +6,6 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 politika.rs
 '''
 import re
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Politika(BasicNewsRecipe):
@@ -21,7 +20,8 @@ class Politika(BasicNewsRecipe):
     use_embedded_content  = False
     remove_javascript     = True
     encoding              = 'utf8'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "monospace1";src:url(res:///opt/sony/ebook/FONT/tt0419m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: left; font-family: serif1, serif} .article_date{font-family: monospace1, monospace} .article_description{font-family: sans1, sans-serif} .navbar{font-family: monospace1, monospace}'
+    language              = _('Serbian')
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
     html2lrf_options = [
                           '--comment', description
@@ -60,6 +60,6 @@ class Politika(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         ftag = soup.find('div',attrs={'class':'content_center_border'})
-        if ftag:
-           ftag['align'] = 'left'
+        if ftag.has_key('align'):
+           del ftag['align']
         return soup

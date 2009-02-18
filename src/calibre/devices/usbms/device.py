@@ -74,24 +74,27 @@ class Device(_Device):
     def get_fdi(cls):
         fdi = ''
 
-        fdi_base_values = dict(
-                               app=__appname__,
-                               deviceclass=cls.__name__,
-                               vendor_id=hex(cls.VENDOR_ID),
-                               product_id=hex(cls.PRODUCT_ID),
-                               main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
-                               storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
-                          )
-        if cls.BCD is None:
-            fdi_base_values['BCD_start'] = ''
-            fdi_base_values['BCD_end'] = ''
-            fdi = cls.FDI_TEMPLATE % fdi_base_values
-        else:
-            for bcd in cls.BCD:
-                fdi_bcd_values = fdi_base_values
-                fdi_bcd_values['BCD_start'] = cls.FDI_BCD_TEMPLATE % dict(bcd=hex(bcd))
-                fdi_bcd_values['BCD_end'] = '</match>'
-                fdi += cls.FDI_TEMPLATE % fdi_bcd_values
+        for vid in cls.VENDOR_ID:
+            for pid in cls.PRODUCT_ID:
+                fdi_base_values = dict(
+                                       app=__appname__,
+                                       deviceclass=cls.__name__,
+                                       vendor_id=hex(vid),
+                                       product_id=hex(pid),
+                                       main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
+                                       storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
+                                  )
+
+                if cls.BCD is None:
+                    fdi_base_values['BCD_start'] = ''
+                    fdi_base_values['BCD_end'] = ''
+                    fdi += cls.FDI_TEMPLATE % fdi_base_values
+                else:
+                    for bcd in cls.BCD:
+                        fdi_bcd_values = fdi_base_values
+                        fdi_bcd_values['BCD_start'] = cls.FDI_BCD_TEMPLATE % dict(bcd=hex(bcd))
+                        fdi_bcd_values['BCD_end'] = '</match>'
+                        fdi += cls.FDI_TEMPLATE % fdi_bcd_values
 
         return fdi
 
