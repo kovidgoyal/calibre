@@ -1217,8 +1217,7 @@ class LibraryDatabase2(LibraryDatabase):
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':
                 continue
-            stream = open(path, 'rb')
-            self.add_format(id, ext, stream, index_is_id=True)
+            self.add_format_with_hooks(id, ext, path, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
         if notify:
