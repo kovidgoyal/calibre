@@ -30,7 +30,7 @@ recipe_modules = ['recipe_' + r for r in (
            'honoluluadvertiser', 'starbulletin', 'exiled', 'indy_star', 'dna',
            'pobjeda', 'chicago_breaking_news', 'glasgow_herald', 'linuxdevices',
            'hindu', 'cincinnati_enquirer', 'physics_world', 'pressonline',
-           'la_republica',
+           'la_republica', 'physics_today',
           )]
 
 import re, imp, inspect, time, os
