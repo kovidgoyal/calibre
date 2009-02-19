@@ -23,7 +23,8 @@ class Harpers_full(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     simultaneous_downloads = 1
-    delay = 1
+    delay                  = 1
+    language               = _('English')
     needs_subscription = True
     INDEX = strftime('http://www.harpers.org/archive/%Y/%m')
     LOGIN = 'http://www.harpers.org'
@@ -36,7 +37,7 @@ class Harpers_full(BasicNewsRecipe):
                         , '--publisher', publisher
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"' 
 
     keep_only_tags = [ dict(name='div', attrs={'id':'cached'}) ]
     remove_tags = [
@@ -71,10 +72,4 @@ class Harpers_full(BasicNewsRecipe):
                                  ,'description':''
                                 })
         return [(soup.head.title.string, articles)]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
         
-    language = _('English')

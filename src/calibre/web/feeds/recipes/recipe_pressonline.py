@@ -32,7 +32,7 @@ class PressOnline(BasicNewsRecipe):
                         , '--publisher', publisher
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"' 
      
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -61,7 +61,6 @@ class PressOnline(BasicNewsRecipe):
         soup.html['lang']     = 'sr-Latn-RS'
         mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
         soup.head.insert(0,mtag)
-        img = soup.find('img')
-        if img:
-           del img['align']
+        for img in soup.findAll('img', align=True):
+            del img['align']
         return soup        
