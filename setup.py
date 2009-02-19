@@ -48,7 +48,7 @@ main_functions = {
 if __name__ == '__main__':
     from setuptools import setup, find_packages
     from pyqtdistutils import PyQtExtension, build_ext, Extension
-    from upload2 import sdist, pot, build, build_py, manual, \
+    from upload import sdist, pot, build, build_py, manual, \
                         resources, clean, gui, translations, update, \
                         tag_release, upload_demo, build_linux, build_windows, \
                         build_osx, upload_installers, upload_user_manual, \
