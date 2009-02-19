@@ -60,8 +60,11 @@ class Economist(BasicNewsRecipe):
                 continue
             a = tag.find('a', href=True)
             if a is not None:
+                url=a['href'].replace('displaystory', 'PrinterFriendly') 
+                if url.startswith('/'):
+                    url = 'http://www.economist.com' + url
                 article = dict(title=text, 
-                    url='http://www.economist.com'+a['href'].replace('displaystory', 'PrinterFriendly'), 
+                    url = url,
                     description='', content='', date='')
                 feeds[key].append(article)
                 
