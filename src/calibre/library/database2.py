@@ -729,7 +729,7 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('metadata', [id])
         
-    def delete_book(self, id):
+    def delete_book(self, id, notify=True):
         '''
         Removes book from the result cache and the underlying database.
         '''
@@ -744,7 +744,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.commit()
         self.clean()
         self.data.books_deleted([id])
-        self.notify('delete', [id])
+        if notify:
+            self.notify('delete', [id])
     
     def remove_format(self, index, format, index_is_id=False, notify=True):
         id = index if index_is_id else self.id(index)

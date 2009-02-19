@@ -1,5 +1,6 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import strftime
 
 class Physicstoday(BasicNewsRecipe):
     title          = u'Physicstoday'
@@ -8,6 +9,7 @@ class Physicstoday(BasicNewsRecipe):
     publisher             = 'American Institute of Physics'
     category              = 'Physics'
     language              = _('English')
+    cover_url = strftime('http://ptonline.aip.org/journals/doc/PHTOAD-home/jrnls/images/medcover%m_%Y.jpg')
     oldest_article = 30
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -17,8 +19,10 @@ class Physicstoday(BasicNewsRecipe):
     remove_tags_before = dict(name='h1')
     remove_tags =  [dict(name='div', attrs={'class':'highslide-footer'})]
     remove_tags =  [dict(name='div', attrs={'class':'highslide-header'})]
+    #remove_tags =  [dict(name='a', attrs={'class':'highslide'})]
     preprocess_regexps = [
-   (re.compile(r'<!--start PHTOAD_tail.jsp -->.*</body>', re.DOTALL|re.IGNORECASE),
+   #(re.compile(r'<!--start PHTOAD_tail.jsp -->.*</body>', re.DOTALL|re.IGNORECASE),
+   (re.compile(r'<!-- END ARTICLE and footer section -->.*</body>', re.DOTALL|re.IGNORECASE),
     lambda match: '</body>'),
 ]
 
