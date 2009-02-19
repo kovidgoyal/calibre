@@ -1355,10 +1355,13 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         Handle exceptions in threaded device jobs.
         '''
-        if 'Could not read 32 bytes on the control bus.' in str(job.exception):
-            error_dialog(self, _('Error talking to device'), 
-                         _('There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.')).show()
-            return
+        try:
+            if 'Could not read 32 bytes on the control bus.' in unicode(job.exception):
+                error_dialog(self, _('Error talking to device'), 
+                             _('There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.')).show()
+                return
+        except:
+            pass
         try:
             print >>sys.stderr, job.console_text()
         except:
