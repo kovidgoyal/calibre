@@ -449,7 +449,7 @@ def installer_name(ext):
 
 
 class build_linux(OptionlessCommand):
-    
+    description = 'Build linux installer'
     def run(self):
         installer = installer_name('tar.bz2')
         locals = {}
@@ -502,7 +502,7 @@ class VMInstaller(OptionlessCommand):
         check_call('ssh -t %s bash build-calibre'%ssh_host, shell=True)
 
 class build_windows(VMInstaller):
-    
+    description = 'Build windows installer'
     VM = '/mnt/backup/calibre_windows_xp_home/calibre_windows_xp_home.vmx'
     if not os.path.exists(VM):
         VM = '/home/kovid/calibre_windows_xp_home/calibre_windows_xp_home.vmx'
@@ -535,7 +535,7 @@ class build_windows(VMInstaller):
 
 
 class build_osx(VMInstaller):
-    
+    description = 'Build OS X app bundle'
     VM = '/vmware/Mac OSX/Mac OSX.vmx'
     if not os.path.exists(VM):
         VM = '/home/kovid/calibre_os_x/Mac OSX.vmx'
@@ -548,7 +548,7 @@ class build_osx(VMInstaller):
         python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
         self.start_vm('osx', ('sudo %s setup.py develop'%python, python, 
                               'installer/osx/freeze.py'))
-        check_call(('scp', 'osx:build/calibre/dist/*.dmg', 'dist'), shell=True)
+        check_call(('scp', 'osx:build/calibre/dist/*.dmg', 'dist'))
         if not os.path.exists(installer):
             raise Exception('Failed to build installer '+installer)
         if not self.dont_shutdown:
@@ -558,7 +558,7 @@ class build_osx(VMInstaller):
 
 
 class upload_installers(OptionlessCommand):
-
+    description = 'Upload any installers present in dist/'
     def curl_list_dir(self, url=MOBILEREAD, listonly=1):
         import pycurl
         c = pycurl.Curl()
@@ -631,7 +631,7 @@ class upload_installers(OptionlessCommand):
                    %(__version__, DOWNLOADS), shell=True)
 
 class upload_user_manual(OptionlessCommand):
-    
+    description = 'Build and upload the User Manual'
     sub_commands = [('manual', None)]
     
     def run(self):
@@ -640,9 +640,9 @@ class upload_user_manual(OptionlessCommand):
                     'divok:%s'%USER_MANUAL]), shell=True)
         
 class upload_to_pypi(OptionlessCommand):
-    
+    description = 'Upload eggs and source to PyPI'
     def run(self):
-        check_call('python setup.py register')
+        check_call('python setup.py register'.split())
         check_call('rm -f dist/*', shell=True)
         check_call('sudo rm -rf build src/calibre/plugins/*', shell=True)
         os.mkdir('build')
@@ -653,28 +653,31 @@ class upload_to_pypi(OptionlessCommand):
         check_call('python setup.py sdist upload'.split())
         
 class stage3(OptionlessCommand):
-    
+    description = 'Stage 3 of the build process'
     sub_commands = [
                     ('upload_installers', None),
                     ('upload_user_manual', None),
                     ('upload_to_pypi', None),
                     ]
     
-    def run(self):
-        OptionlessCommand.run(self)
+    @classmethod
+    def misc(cls):
         check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS, shell=True)
         check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS, shell=True)
         check_call('''rm -rf dist/* build/*''', shell=True)
         check_call('ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/',
-                   shell=True) 
+                   shell=True)
+    
+    def run(self):
+        OptionlessCommand.run(self)
+        self.misc() 
         
 class stage2(OptionlessCommand):
-    
+    description = 'Stage 2 of the build process' 
     sub_commands = [
                     ('build_linux', None),
                     ('build_windows', None),
-                    ('build_osx', None),
-                    ('upload_installers', None),
+                    ('build_osx', None)
                     ]
     
     def run(self):
@@ -682,7 +685,7 @@ class stage2(OptionlessCommand):
         OptionlessCommand.run(self)
         
 class stage1(OptionlessCommand):
-    
+    description = 'Stage 1 of the build process'
     sub_commands = [
                 ('update', None),
                 ('tag_release', None),
@@ -690,6 +693,7 @@ class stage1(OptionlessCommand):
                 ]
     
 class upload(OptionlessCommand):
+    description = 'Build and upload calibre to the servers'
     
     sub_commands = [
             ('stage1', None),

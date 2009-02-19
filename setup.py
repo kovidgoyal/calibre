@@ -173,7 +173,7 @@ if __name__ == '__main__':
                       'stage3' : stage3,
                       'stage2' : stage2,
                       'stage1' : stage1,
-                      'upload' : upload,
+                      'publish' : upload,
                       },
          )
 
