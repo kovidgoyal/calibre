@@ -47,350 +47,15 @@ main_functions = {
 
 if __name__ == '__main__':
     from setuptools import setup, find_packages
-    from setuptools.command.build_py import build_py as _build_py, convert_path
-    from distutils.command.build import build as _build
-    from distutils.core import Command as _Command
     from pyqtdistutils import PyQtExtension, build_ext, Extension
-    import subprocess, glob
+    from upload2 import sdist, pot, build, build_py, manual, \
+                        resources, clean, gui, translations, update, \
+                        tag_release, upload_demo, build_linux, build_windows, \
+                        build_osx, upload_installers, upload_user_manual, \
+                        upload_to_pypi, stage3, stage2, stage1, upload
     
-    def newer(targets, sources):
-        '''
-        Return True is sources is newer that targets or if targets
-        does not exist. 
-        '''
-        for f in targets:
-            if not os.path.exists(f):
-                return True
-        ttimes = map(lambda x: os.stat(x).st_mtime, targets)
-        stimes = map(lambda x: os.stat(x).st_mtime, sources)
-        newest_source, oldest_target = max(stimes), min(ttimes)
-        return newest_source > oldest_target
-    
-    class build_py(_build_py):
-        
-        def find_data_files(self, package, src_dir):
-            """
-            Return filenames for package's data files in 'src_dir'
-            Modified to treat data file specs as paths not globs
-            """
-            globs = (self.package_data.get('', [])
-                     + self.package_data.get(package, []))
-            files = self.manifest_files.get(package, [])[:]
-            for pattern in globs:
-                # Each pattern has to be converted to a platform-specific path
-                pattern = os.path.join(src_dir, convert_path(pattern))
-                next = glob.glob(pattern)
-                files.extend(next if next else [pattern])
-                
-            return self.exclude_data_files(package, src_dir, files)
-
-    
-    class Command(_Command):
-        user_options = []
-        def initialize_options(self): pass
-        def finalize_options(self): pass
-    
-    class sdist(Command):
-        
-        description = "create a source distribution using bzr"
-        
-        def run(self):
-            name = 'dist/calibre-%s.tar.gz'%VERSION
-            subprocess.check_call(('bzr export '+name).split())
-            self.distribution.dist_files.append(('sdist', '', name))
-    
-    class pot(Command):
-        description = '''Create the .pot template for all translatable strings'''
-        
-        PATH = os.path.join('src', APPNAME, 'translations')
-        
-        def source_files(self):
-            ans = []
-            for root, dirs, files in os.walk(os.path.dirname(self.PATH)):
-                for name in files:
-                    if name.endswith('.py'):
-                        ans.append(os.path.abspath(os.path.join(root, name)))
-            return ans
-
-        
-        def run(self):
-            sys.path.insert(0, os.path.abspath(self.PATH))
-            try:
-                from pygettext import main as pygettext
-                files = self.source_files()
-                buf = cStringIO.StringIO()
-                print 'Creating translations template'
-                tempdir = tempfile.mkdtemp()
-                pygettext(buf, ['-k', '__', '-p', tempdir]+files)
-                src = buf.getvalue()
-                pot = os.path.join(tempdir, 'calibre.pot')
-                f = open(pot, 'wb')
-                f.write(src)
-                f.close()
-                print 'Translations template:', pot
-                return pot
-            finally:
-                sys.path.remove(os.path.abspath(self.PATH))
-            
-    class manual(Command):
-        description='''Build the User Manual '''
-
-        def run(self):
-            cwd = os.path.abspath(os.getcwd())
-            os.chdir(os.path.join('src', 'calibre', 'manual'))
-            try:
-                for d in ('.build', 'cli'):
-                    if os.path.exists(d):
-                        shutil.rmtree(d)
-                    os.makedirs(d)
-                if not os.path.exists('.build'+os.sep+'html'):
-                    os.makedirs('.build'+os.sep+'html')
-                subprocess.check_call(['sphinx-build', '-b', 'custom', '-d', 
-                                       '.build/doctrees', '.', '.build/html'])
-            finally:
-                os.chdir(cwd)
-            
-        @classmethod
-        def clean(cls):
-            path = os.path.join('src', 'calibre', 'manual', '.build')
-            if os.path.exists(path):
-                shutil.rmtree(path)
-            
-    class resources(Command):
-        description='''Compile various resource files used in calibre. '''
-        
-        RESOURCES = dict(
-            opf_template    = 'ebooks/metadata/opf.xml',
-            ncx_template    = 'ebooks/metadata/ncx.xml',
-            fb2_xsl         = 'ebooks/lrf/fb2/fb2.xsl',
-            metadata_sqlite = 'library/metadata_sqlite.sql',
-            jquery          = 'gui2/viewer/jquery.js',
-            jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
-            html_css        = 'ebooks/oeb/html.css',
-        )
-        
-        DEST = os.path.join('src', APPNAME, 'resources.py')
-        
-        def get_qt_translations(self):
-            data = {}
-            translations_found = False
-            for TPATH in ('/usr/share/qt4/translations', '/usr/lib/qt4/translations'):
-                if os.path.exists(TPATH):
-                     files = glob.glob(TPATH + '/qt_??.qm')
-                     for f in files:
-                         key = os.path.basename(f).partition('.')[0]
-                         data[key] = f
-                     translations_found = True
-                     break
-            if not translations_found:
-                print 'WARNING: Could not find Qt transations'
-            return data
-        
-        def get_static_resources(self):
-            sdir = os.path.join('src', 'calibre', 'library', 'static')
-            resources, max = {}, 0
-            for f in os.listdir(sdir):
-                resources[f] = open(os.path.join(sdir, f), 'rb').read()
-                mtime = os.stat(os.path.join(sdir, f)).st_mtime
-                max = mtime if mtime > max else max
-            return resources, max
-        
-        def get_recipes(self):
-            sdir = os.path.join('src', 'calibre', 'web', 'feeds', 'recipes')
-            resources, max = {}, 0
-            for f in os.listdir(sdir):
-                if f.endswith('.py') and f != '__init__.py':
-                    resources[f.replace('.py', '')] = open(os.path.join(sdir, f), 'rb').read()
-                    mtime = os.stat(os.path.join(sdir, f)).st_mtime
-                    max = mtime if mtime > max else max
-            return resources, max
-        
-        def run(self):
-            data, dest, RESOURCES = {}, self.DEST, self.RESOURCES
-            for key in RESOURCES:
-                path = RESOURCES[key]
-                if not os.path.isabs(path):
-                    RESOURCES[key] = os.path.join('src', APPNAME, path)
-            translations = self.get_qt_translations()
-            RESOURCES.update(translations)
-            static, smax = self.get_static_resources()
-            recipes, rmax = self.get_recipes()
-            amax = max(rmax, smax)
-            if newer([dest], RESOURCES.values()) or os.stat(dest).st_mtime < amax:
-                print 'Compiling resources...'
-                with open(dest, 'wb') as f:
-                    for key in RESOURCES:
-                        data = open(RESOURCES[key], 'rb').read()
-                        f.write(key + ' = ' + repr(data)+'\n\n')
-                    f.write('server_resources = %s\n\n'%repr(static))
-                    f.write('recipes = %s\n\n'%repr(recipes))
-                    f.write('build_time = "%s"\n\n'%time.strftime('%d %m %Y %H%M%S'))
-            else:
-                print 'Resources are up to date'
-        
-        @classmethod
-        def clean(cls):
-            path = cls.DEST
-            for path in glob.glob(path+'*'):
-                if os.path.exists(path):
-                    os.remove(path)
-    
-    class translations(Command):
-        description='''Compile the translations'''
-        PATH = os.path.join('src', APPNAME, 'translations')
-        DEST = os.path.join(PATH, 'compiled.py')
-        
-        def run(self):
-            sys.path.insert(0, os.path.abspath(self.PATH))
-            try:
-                files = glob.glob(os.path.join(self.PATH, '*.po'))
-                if newer([self.DEST], files):
-                    from msgfmt import main as msgfmt
-                    translations = {}
-                    print 'Compiling translations...'
-                    for po in files:
-                        lang = os.path.basename(po).partition('.')[0]
-                        buf = cStringIO.StringIO()
-                        print 'Compiling', lang
-                        msgfmt(buf, [po])
-                        translations[lang] = buf.getvalue()
-                    open(self.DEST, 'wb').write('translations = '+repr(translations))
-                else:
-                    print 'Translations up to date'
-            finally:
-                sys.path.remove(os.path.abspath(self.PATH))
-        
-                
-        @classmethod
-        def clean(cls):
-            path = cls.DEST
-            if os.path.exists(path):
-                os.remove(path)
-            
-    
-    class gui(Command):
-        description='''Compile all GUI forms and images'''
-        PATH  = os.path.join('src', APPNAME, 'gui2')
-        IMAGES_DEST = os.path.join(PATH, 'images_rc.py')
-        QRC = os.path.join(PATH, 'images.qrc')
-        
-        @classmethod
-        def find_forms(cls):
-            forms = []
-            for root, dirs, files in os.walk(cls.PATH):
-                for name in files:
-                    if name.endswith('.ui'):
-                        forms.append(os.path.abspath(os.path.join(root, name)))
-                
-            return forms
-        
-        @classmethod
-        def form_to_compiled_form(cls, form):
-            return form.rpartition('.')[0]+'_ui.py'
-        
-        def run(self):
-            self.build_forms()
-            self.build_images()
-        
-        def build_images(self):
-            cwd, images = os.getcwd(), os.path.basename(self.IMAGES_DEST)
-            try:
-                os.chdir(self.PATH)
-                sources, files = [], []
-                for root, dirs, files in os.walk('images'):
-                    for name in files:
-                        sources.append(os.path.join(root, name))
-                if newer([images], sources):
-                    print 'Compiling images...'
-                    for s in sources:
-                        alias = ' alias="library"' if s.endswith('images'+os.sep+'library.png') else ''
-                        files.append('<file%s>%s</file>'%(alias, s))
-                    manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(files)
-                    with open('images.qrc', 'wb') as f:
-                        f.write(manifest)
-                    subprocess.check_call(['pyrcc4', '-o', images, 'images.qrc'])
-                else:
-                    print 'Images are up to date'
-            finally:
-                os.chdir(cwd)
-            
-        
-        def build_forms(self):
-            from PyQt4.uic import compileUi
-            forms = self.find_forms()
-            for form in forms:
-                compiled_form = self.form_to_compiled_form(form) 
-                if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
-                    print 'Compiling form', form
-                    buf = cStringIO.StringIO()
-                    compileUi(form, buf)
-                    dat = buf.getvalue()
-                    dat = dat.replace('__appname__', APPNAME)
-                    dat = dat.replace('import images_rc', 'from calibre.gui2 import images_rc')
-                    dat = dat.replace('from library import', 'from calibre.gui2.library import')
-                    dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
-                    dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
-                    
-                    # Workaround bug in Qt 4.4 on Windows
-                    if form.endswith('dialogs%sconfig.ui'%os.sep) or form.endswith('dialogs%slrf_single.ui'%os.sep):
-                        print 'Implementing Workaround for buggy pyuic in form', form
-                        dat = re.sub(r'= QtGui\.QTextEdit\(self\..*?\)', '= QtGui.QTextEdit()', dat) 
-                        dat = re.sub(r'= QtGui\.QListWidget\(self\..*?\)', '= QtGui.QListWidget()', dat)
-                    
-                    if form.endswith('viewer%smain.ui'%os.sep):
-                        print 'Promoting WebView'
-                        dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                        dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
-                    
-                    open(compiled_form, 'wb').write(dat)
-
-                
-        @classmethod
-        def clean(cls):
-            forms = cls.find_forms()
-            for form in forms:
-                c = cls.form_to_compiled_form(form)
-                if os.path.exists(c):
-                    os.remove(c)
-            for x in (cls.IMAGES_DEST, cls.QRC):
-                if os.path.exists(x):
-                    os.remove(x)
-    
-    class clean(Command):
-        description='''Delete all computer generated files in the source tree'''
-        
-        def run(self):
-            print 'Cleaning...'
-            manual.clean()
-            gui.clean()
-            translations.clean()
-            resources.clean()
-            
-            for f in glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
-                os.remove(f)
-            for root, dirs, files in os.walk('.'):
-                for name in files:
-                    for t in ('.pyc', '.pyo', '~'):
-                        if name.endswith(t):
-                            os.remove(os.path.join(root, name))
-                            break
-                        
-            for dir in ('build', 'dist', os.path.join('src', 'calibre.egg-info')):
-                shutil.rmtree(dir, ignore_errors=True)
-    
-    class build(_build):
-        
-        sub_commands = [
-                         ('resources',    lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
-                         ('translations', lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
-                         ('gui',          lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
-                         ('build_ext',    lambda self: True),
-                         ('build_py',     lambda self: True),
-                         ('build_clib',    _build.has_c_libraries),
-                         ('build_scripts', _build.has_scripts),
-                       ]
-        
-    entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
+    entry_points['console_scripts'].append(
+                            'calibre_postinstall = calibre.linux:post_install')
     ext_modules = [
                    Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
@@ -430,8 +95,10 @@ if __name__ == '__main__':
         plugins = ['plugins/%s.so'%(x.name.rpartition('.')[-1]) for x in ext_modules]
     else:
         plugins = ['plugins/%s.pyd'%(x.name.rpartition('.')[-1]) for x in ext_modules] + \
-                  ['plugins/%s.pyd.manifest'%(x.name.rpartition('.')[-1]) for x in ext_modules if 'pictureflow' not in x.name]
+                  ['plugins/%s.pyd.manifest'%(x.name.rpartition('.')[-1]) \
+                        for x in ext_modules if 'pictureflow' not in x.name]
 
+    
     setup(
           name           = APPNAME,
           packages       = find_packages('src'),
@@ -451,7 +118,11 @@ if __name__ == '__main__':
                       ''',
           long_description =
           '''
-  %s is an e-book library manager. It can view, convert and catalog e-books in most of the major e-book formats. It can also talk to a few e-book reader devices. It can go out to the internet and fetch metadata for your books. It can download newspapers and convert them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
+  %s is an e-book library manager. It can view, convert and catalog e-books \
+  in most of the major e-book formats. It can also talk to e-book reader \
+  devices. It can go out to the internet and fetch metadata for your books. \
+  It can download newspapers and convert them into e-books for convenient \
+  reading. It is cross platform, running on Linux, Windows and OS X.
 
   For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
 
@@ -490,6 +161,19 @@ if __name__ == '__main__':
                       'gui'           : gui,
                       'clean'         : clean,
                       'sdist'         : sdist,
+                      'update'        : update,
+                      'tag_release'   : tag_release,
+                      'upload_demo'   : upload_demo,
+                      'build_linux'   : build_linux,
+                      'build_windows' : build_windows,
+                      'build_osx'     : build_osx,
+                      'upload_installers': upload_installers,
+                      'upload_user_manual': upload_user_manual,
+                      'upload_to_pypi': upload_to_pypi,
+                      'stage3' : stage3,
+                      'stage2' : stage2,
+                      'stage1' : stage1,
+                      'upload' : upload,
                       },
          )
 
