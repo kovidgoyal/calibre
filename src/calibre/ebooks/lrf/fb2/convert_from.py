@@ -38,6 +38,7 @@ def extract_embedded_content(doc):
             open(fname, 'wb').write(data)
 
 def to_html(fb2file, tdir):
+    fb2file = os.path.abspath(fb2file)
     cwd = os.getcwd()
     try:
         os.chdir(tdir)
@@ -52,7 +53,7 @@ def to_html(fb2file, tdir):
         result = transform(doc)
         open('index.html', 'wb').write(transform.tostring(result))
         try:
-            mi = get_metadata(open(fb2file, 'rb'))
+            mi = get_metadata(open(fb2file, 'rb'), 'fb2')
         except:
             mi = MetaInformation(None, None)
         if not mi.title:
