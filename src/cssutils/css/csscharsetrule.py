@@ -1,16 +1,12 @@
-"""CSSCharsetRule implements DOM Level 2 CSS CSSCharsetRule.
-
-TODO:
-    - check encoding syntax and not codecs.lookup?
-"""
+"""CSSCharsetRule implements DOM Level 2 CSS CSSCharsetRule."""
 __all__ = ['CSSCharsetRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: csscharsetrule.py 1170 2008-03-20 17:42:07Z cthedot $'
+__version__ = '$Id: csscharsetrule.py 1605 2009-01-03 18:27:32Z cthedot $'
 
 import codecs
-import xml.dom
 import cssrule
 import cssutils
+import xml.dom
 
 class CSSCharsetRule(cssrule.CSSRule):
     """
@@ -28,35 +24,26 @@ class CSSCharsetRule(cssrule.CSSRule):
     character encoding information e.g. in an HTTP header, has priority
     (see CSS document representation) but this is not reflected in the
     CSSCharsetRule.
+    
+    This rule is not really needed anymore as setting 
+    :attr:`CSSStyleSheet.encoding` is much easier.
 
-    Properties
-    ==========
-    cssText: of type DOMString
-        The parsable textual representation of this rule
-    encoding: of type DOMString
-        The encoding information used in this @charset rule.
+    Format::
 
-    Inherits properties from CSSRule
+        charsetrule:
+            CHARSET_SYM S* STRING S* ';'
 
-    Format
-    ======
-    charsetrule:
-        CHARSET_SYM S* STRING S* ';'
-
-    BUT: Only valid format is:
+    BUT: Only valid format is (single space, double quotes!)::
+    
         @charset "ENCODING";
     """
-    type = property(lambda self: cssrule.CSSRule.CHARSET_RULE)
-
     def __init__(self, encoding=None, parentRule=None, 
                  parentStyleSheet=None, readonly=False):
         """
-        encoding:
+        :param encoding:
             a valid character encoding
-        readonly:
+        :param readonly:
             defaults to False, not used yet
-
-        if readonly allows setting of properties in constructor only
         """
         super(CSSCharsetRule, self).__init__(parentRule=parentRule, 
                                              parentStyleSheet=parentStyleSheet)
@@ -67,25 +54,34 @@ class CSSCharsetRule(cssrule.CSSRule):
 
         self._readonly = readonly
 
+    def __repr__(self):
+        return "cssutils.css.%s(encoding=%r)" % (
+                self.__class__.__name__, self.encoding)
+
+    def __str__(self):
+        return "<cssutils.css.%s object encoding=%r at 0x%x>" % (
+                self.__class__.__name__, self.encoding, id(self))
+
     def _getCssText(self):
-        """returns serialized property cssText"""
+        """The parsable textual representation."""
         return cssutils.ser.do_CSSCharsetRule(self)
 
     def _setCssText(self, cssText):
         """
-        DOMException on setting
-
-        - SYNTAX_ERR: (self)
-          Raised if the specified CSS string value has a syntax error and
-          is unparsable.
-        - INVALID_MODIFICATION_ERR: (self)
-          Raised if the specified CSS string value represents a different
-          type of rule than the current one.
-        - HIERARCHY_REQUEST_ERR: (CSSStylesheet)
-          Raised if the rule cannot be inserted at this point in the
-          style sheet.
-        - NO_MODIFICATION_ALLOWED_ERR: (CSSRule)
-          Raised if the rule is readonly.
+        :param cssText:
+            A parsable DOMString.
+        :exceptions:
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified CSS string value has a syntax error and
+              is unparsable.
+            - :exc:`~xml.dom.InvalidModificationErr`:
+              Raised if the specified CSS string value represents a different
+              type of rule than the current one.
+            - :exc:`~xml.dom.HierarchyRequestErr`:
+              Raised if the rule cannot be inserted at this point in the
+              style sheet.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if the rule is readonly.
         """
         super(CSSCharsetRule, self)._setCssText(cssText)
 
@@ -120,14 +116,15 @@ class CSSCharsetRule(cssrule.CSSRule):
 
     def _setEncoding(self, encoding):
         """
-        DOMException on setting
-
-        - NO_MODIFICATION_ALLOWED_ERR: (CSSRule)
-          Raised if this encoding rule is readonly.
-        - SYNTAX_ERR: (self)
-          Raised if the specified encoding value has a syntax error and
-          is unparsable.
-          Currently only valid Python encodings are allowed.
+        :param encoding:
+            a valid encoding to be used. Currently only valid Python encodings
+            are allowed.
+        :exceptions:
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if this encoding rule is readonly.
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified encoding value has a syntax error and
+              is unparsable.  
         """
         self._checkReadonly()
         tokenizer = self._tokenize2(encoding)
@@ -154,12 +151,8 @@ class CSSCharsetRule(cssrule.CSSRule):
     encoding = property(lambda self: self._encoding, _setEncoding,
         doc="(DOM)The encoding information used in this @charset rule.")
 
+    type = property(lambda self: self.CHARSET_RULE, 
+                    doc="The type of this rule, as defined by a CSSRule "
+                        "type constant.")
+
     wellformed = property(lambda self: bool(self.encoding))
-
-    def __repr__(self):
-        return "cssutils.css.%s(encoding=%r)" % (
-                self.__class__.__name__, self.encoding)
-
-    def __str__(self):
-        return "<cssutils.css.%s object encoding=%r at 0x%x>" % (
-                self.__class__.__name__, self.encoding, id(self))

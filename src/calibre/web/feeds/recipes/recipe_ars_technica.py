@@ -15,7 +15,6 @@ class ArsTechnica2(BasicNewsRecipe):
     description           = 'The art of technology'    
     publisher             = 'Ars Technica'
     category              = 'news, IT, technology'    
-    language              = _('English')
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -50,11 +49,29 @@ class ArsTechnica2(BasicNewsRecipe):
              ,(u'Nobel Intent (Science content)'       , u'http://feeds.arstechnica.com/arstechnica/science/'    )
              ,(u'Law & Disorder (Tech policy content)' , u'http://feeds.arstechnica.com/arstechnica/tech-policy/')
             ]
-
+    
+    def append_page(self, soup, appendtag, position):
+        pager = soup.find('div',attrs={'id':'pager'})
+        if pager:
+           for atag in pager.findAll('a',href=True):
+               str = self.tag_to_string(atag)
+               if str.startswith('Next'):
+                  soup2 = self.index_to_soup(atag['href'])
+                  texttag = soup2.find('div', attrs={'class':'news-item-text'})
+                  for it in texttag.findAll(style=True):
+                      del it['style']
+                  newpos = len(texttag.contents)
+                  self.append_page(soup2,texttag,newpos)
+                  texttag.extract()
+                  pager.extract()
+                  appendtag.insert(position,texttag)
+        
+    
     def preprocess_html(self, soup):
         ftag = soup.find('div', attrs={'class':'news-item-byline'})
         if ftag:
            ftag.insert(4,'<br /><br />')
         for item in soup.findAll(style=True):
             del item['style']
+        self.append_page(soup, soup.body, 3)
         return soup

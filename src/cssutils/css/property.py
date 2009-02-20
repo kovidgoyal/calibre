@@ -1,55 +1,18 @@
-"""Property is a single CSS property in a CSSStyleDeclaration
-
-Internal use only, may be removed in the future!
-"""
+"""Property is a single CSS property in a CSSStyleDeclaration."""
 __all__ = ['Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: property.py 1444 2008-08-31 18:45:35Z cthedot $'
+__version__ = '$Id: property.py 1664 2009-02-07 22:47:09Z cthedot $'
 
-import xml.dom
-import cssutils
-#import cssproperties
+from cssutils.helper import Deprecated
 from cssutils.profiles import profiles
 from cssvalue import CSSValue
-from cssutils.helper import Deprecated
+import cssutils
+import xml.dom
 
 class Property(cssutils.util.Base):
-    """
-    (cssutils) a CSS property in a StyleDeclaration of a CSSStyleRule
+    """A CSS property in a StyleDeclaration of a CSSStyleRule (cssutils).
 
-    Properties
-    ==========
-    cssText
-        a parsable textual representation of this property
-    name
-        normalized name of the property, e.g. "color" when name is "c\olor"
-        (since 0.9.5)
-    literalname (since 0.9.5)
-        original name of the property in the source CSS which is not normalized
-        e.g. "C\\OLor"
-    cssValue
-        the relevant CSSValue instance for this property
-    value
-        the string value of the property, same as cssValue.cssText
-    priority
-        of the property (currently only u"important" or None)
-    literalpriority
-        original priority of the property in the source CSS which is not
-        normalized e.g. "IM\portant"
-    seqs
-        combination of a list for seq of name, a CSSValue object, and
-        a list for seq of  priority (empty or [!important] currently)
-    valid
-        if this Property is valid
-    wellformed
-        if this Property is syntactically ok
-
-    DEPRECATED normalname (since 0.9.5)
-        normalized name of the property, e.g. "color" when name is "c\olor"
-
-    Format
-    ======
-    ::
+    Format::
 
         property = name
           : IDENT S*
@@ -81,60 +44,67 @@ class Property(cssutils.util.Base):
           ;
 
     """
-    def __init__(self, name=None, value=None, priority=u'', _mediaQuery=False):
+    def __init__(self, name=None, value=None, priority=u'', 
+                 _mediaQuery=False, _parent=None):
         """
-        inits property
-
-        name
+        :param name:
             a property name string (will be normalized)
-        value
+        :param value:
             a property value string
-        priority
+        :param priority:
             an optional priority string which currently must be u'',
             u'!important' or u'important'
-        _mediaQuery boolean
-            if True value is optional as used by MediaQuery objects
+        :param _mediaQuery:
+            if ``True`` value is optional (used by MediaQuery)
+        :param _parent:
+            the parent object, normally a 
+            :class:`cssutils.css.CSSStyleDeclaration`
         """
         super(Property, self).__init__()
 
         self.seqs = [[], None, []]
-        self.valid = False
         self.wellformed = False
         self._mediaQuery = _mediaQuery
+        self._parent = _parent
 
+        self._name = u''
+        self._literalname = u''
         if name:
             self.name = name
-        else:
-            self._name = u''
-            self._literalname = u''
-            self.__normalname = u'' # DEPRECATED
 
         if value:
             self.cssValue = value
         else:
             self.seqs[1] = CSSValue()
 
+        self._priority = u''
+        self._literalpriority = u''
         if priority:
             self.priority = priority
-        else:
-            self._priority = u''
-            self._literalpriority = u''
+            
+    def __repr__(self):
+        return "cssutils.css.%s(name=%r, value=%r, priority=%r)" % (
+                self.__class__.__name__,
+                self.literalname, self.cssValue.cssText, self.priority)
+
+    def __str__(self):
+        return "<%s.%s object name=%r value=%r priority=%r valid=%r at 0x%x>" % (
+                self.__class__.__module__, self.__class__.__name__,
+                self.name, self.cssValue.cssText, self.priority,
+                self.valid, id(self))
 
     def _getCssText(self):
-        """
-        returns serialized property cssText
-        """
+        """Return serialized property cssText."""
         return cssutils.ser.do_Property(self)
 
     def _setCssText(self, cssText):
         """
-        DOMException on setting
-
-        - NO_MODIFICATION_ALLOWED_ERR: (CSSRule)
-          Raised if the rule is readonly.
-        - SYNTAX_ERR: (self)
-          Raised if the specified CSS string value has a syntax error and
-          is unparsable.
+        :exceptions:
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified CSS string value has a syntax error and
+              is unparsable.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if the rule is readonly.
         """
         # check and prepare tokenlists for setting
         tokenizer = self._tokenize2(cssText)
@@ -174,11 +144,14 @@ class Property(cssutils.util.Base):
                 self._log.error(u'Property: No property value found: %r.' %
                                 self._valuestr(cssText), colontoken)
 
-            if wellformed:
+            if wellformed:                
                 self.wellformed = True
                 self.name = nametokens
                 self.cssValue = valuetokens
                 self.priority = prioritytokens
+                
+                # also invalid values are set!
+                self.validate()
 
         else:
             self._log.error(u'Property: No property name found: %r.' %
@@ -189,11 +162,10 @@ class Property(cssutils.util.Base):
 
     def _setName(self, name):
         """
-        DOMException on setting
-
-        - SYNTAX_ERR: (self)
-          Raised if the specified name has a syntax error and is
-          unparsable.
+        :exceptions:    
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified name has a syntax error and is
+              unparsable.
         """
         # for closures: must be a mutable
         new = {'literalname': None,
@@ -233,43 +205,42 @@ class Property(cssutils.util.Base):
             self.wellformed = True
             self._literalname = new['literalname']
             self._name = self._normalize(self._literalname)
-            self.__normalname = self._name # DEPRECATED
             self.seqs[0] = newseq
 
-            # validate
-            if self._name not in profiles.propertiesByProfile():
-                self.valid = False
-                tokenizer=self._tokenize2(name)
-                self._log.warn(u'Property: Unknown Property: %r.' %
-                         new['literalname'], token=token, neverraise=True)
+#            # validate
+            if self._name not in profiles.knownnames:
+                # self.valid = False
+                self._log.warn(u'Property: Unknown Property.',
+                               token=token, neverraise=True)
             else:
-                self.valid = True
-                if self.cssValue:
-                    self.cssValue._propertyName = self._name
-                    self.valid = self.cssValue.valid
+                pass
+#                self.valid = True
+#                if self.cssValue:
+#                    self.cssValue._propertyName = self._name
+#                    #self.valid = self.cssValue.valid
         else:
             self.wellformed = False
 
     name = property(lambda self: self._name, _setName,
-        doc="Name of this property")
-
+                    doc="Name of this property.")
+    
     literalname = property(lambda self: self._literalname,
-        doc="Readonly literal (not normalized) name of this property")
+                           doc="Readonly literal (not normalized) name "
+                               "of this property")
 
     def _getCSSValue(self):
         return self.seqs[1]
 
     def _setCSSValue(self, cssText):
         """
-        see css.CSSValue
+        See css.CSSValue
 
-        DOMException on setting?
-
-        - SYNTAX_ERR: (self)
+        :exceptions:
+        - :exc:`~xml.dom.SyntaxErr`:
           Raised if the specified CSS string value has a syntax error
           (according to the attached property) or is unparsable.
-        - TODO: INVALID_MODIFICATION_ERR:
-          Raised if the specified CSS string value represents a different
+        - :exc:`~xml.dom.InvalidModificationErr`:
+          TODO: Raised if the specified CSS string value represents a different
           type of values than the values allowed by the CSS property.
         """
         if self._mediaQuery and not cssText:
@@ -279,25 +250,24 @@ class Property(cssutils.util.Base):
                 self.seqs[1] = CSSValue()
 
             cssvalue = self.seqs[1]
-            cssvalue._propertyName = self.name
             cssvalue.cssText = cssText
-            if cssvalue._value and cssvalue.wellformed:
+            if cssvalue.wellformed: #cssvalue._value and 
                 self.seqs[1] = cssvalue
-            self.valid = self.valid and cssvalue.valid
             self.wellformed = self.wellformed and cssvalue.wellformed
 
     cssValue = property(_getCSSValue, _setCSSValue,
         doc="(cssutils) CSSValue object of this property")
 
+
     def _getValue(self):
         if self.cssValue:
-            return self.cssValue._value
+            return self.cssValue.cssText # _value # [0]
         else:
             return u''
 
     def _setValue(self, value):
         self.cssValue.cssText = value
-        self.valid = self.valid and self.cssValue.valid
+#        self.valid = self.valid and self.cssValue.valid
         self.wellformed = self.wellformed and self.cssValue.wellformed
 
     value = property(_getValue, _setValue,
@@ -308,9 +278,7 @@ class Property(cssutils.util.Base):
         priority
             a string, currently either u'', u'!important' or u'important'
 
-        Format
-        ======
-        ::
+        Format::
 
             prio
               : IMPORTANT_SYM S*
@@ -318,14 +286,13 @@ class Property(cssutils.util.Base):
 
             "!"{w}"important"   {return IMPORTANT_SYM;}
 
-        DOMException on setting
-
-        - SYNTAX_ERR: (self)
-          Raised if the specified priority has a syntax error and is
-          unparsable.
-          In this case a priority not equal to None, "" or "!{w}important".
-          As CSSOM defines CSSStyleDeclaration.getPropertyPriority resulting in
-          u'important' this value is also allowed to set a Properties priority
+        :exceptions:
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified priority has a syntax error and is
+              unparsable.
+              In this case a priority not equal to None, "" or "!{w}important".
+              As CSSOM defines CSSStyleDeclaration.getPropertyPriority resulting in
+              u'important' this value is also allowed to set a Properties priority
         """
         if self._mediaQuery:
             self._priority = u''
@@ -356,8 +323,7 @@ class Property(cssutils.util.Base):
         def _ident(expected, seq, token, tokenizer=None):
             # "important"
             val = self._tokenvalue(token)
-            normalval = self._tokenvalue(token, normalize=True)
-            if 'important' == expected == normalval:
+            if 'important' == expected:
                 new['literalpriority'] = val
                 seq.append(val)
                 return 'EOF'
@@ -378,38 +344,66 @@ class Property(cssutils.util.Base):
         if priority and not new['literalpriority']:
             wellformed = False
             self._log.info(u'Property: Invalid priority: %r.' %
-                    self._valuestr(priority))
+                           self._valuestr(priority))
 
         if wellformed:
             self.wellformed = self.wellformed and wellformed
             self._literalpriority = new['literalpriority']
             self._priority = self._normalize(self.literalpriority)
             self.seqs[2] = newseq
-
-            # validate
+            # validate priority
             if self._priority not in (u'', u'important'):
-                self.valid = False
-                self._log.info(u'Property: No CSS2 priority value: %r.' %
-                    self._priority, neverraise=True)
+                self._log.error(u'Property: No CSS priority value: %r.' %
+                    self._priority)
 
     priority = property(lambda self: self._priority, _setPriority,
-        doc="(cssutils) Priority of this property")
+        doc="Priority of this property.")
 
     literalpriority = property(lambda self: self._literalpriority,
         doc="Readonly literal (not normalized) priority of this property")
 
-    def __repr__(self):
-        return "cssutils.css.%s(name=%r, value=%r, priority=%r)" % (
-                self.__class__.__name__,
-                self.literalname, self.cssValue.cssText, self.priority)
+    def validate(self, profile=None):
+        """Validate value against `profile`.
+        
+        :param profile:
+            A profile name used for validating. If no `profile` is given
+            ``Property.profiles
+        """
+        valid = False
+        
+        if self.name and self.value:
+            if profile is None:
+                usedprofile = cssutils.profiles.defaultprofile
+            else:
+                usedprofile = profile
+            
+            if self.name in profiles.knownnames:
+                valid, validprofiles = profiles.validateWithProfile(self.name,
+                                                                   self.value,
+                                                                   usedprofile)
 
-    def __str__(self):
-        return "<%s.%s object name=%r value=%r priority=%r at 0x%x>" % (
-                self.__class__.__module__, self.__class__.__name__,
-                self.name, self.cssValue.cssText, self.priority, id(self))
+                if not valid:
+                    self._log.error(u'Property: Invalid value for "%s" property: %s: %s'
+                                   % (u'/'.join(validprofiles), 
+                                      self.name, 
+                                      self.value),
+                                   neverraise=True)
+                elif valid and (usedprofile and usedprofile not in validprofiles):
+                    self._log.warn(u'Property: Not valid for profile "%s": %s: %s'
+                                   % (usedprofile, self.name, self.value),
+                                   neverraise=True)
+                                
+                if valid:
+                    self._log.info(u'Property: Found valid "%s" property: %s: %s'
+                                   % (u'/'.join(validprofiles), 
+                                       self.name, 
+                                       self.value),
+                                   neverraise=True)
+                    
+        if self._priority not in (u'', u'important'):
+            valid = False
 
-    @Deprecated(u'Use property ``name`` instead (since cssutils 0.9.5).')
-    def _getNormalname(self):
-        return self.__normalname
-    normalname = property(_getNormalname,
-                          doc="DEPRECATED since 0.9.5, use name instead")
+        return valid
+
+    valid = property(validate, doc="Check if value of this property is valid "
+                                   "in the properties context.")

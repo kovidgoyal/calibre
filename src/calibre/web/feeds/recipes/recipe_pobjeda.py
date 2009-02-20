@@ -17,9 +17,6 @@ class Pobjeda(BasicNewsRecipe):
     description           = 'News from Montenegro'
     publisher             = 'Pobjeda a.d.'
     category              = 'news, politics, Montenegro'    
-    language              = _('Serbian')
-    oldest_article        = 2
-    max_articles_per_feed = 100
     no_stylesheets        = True
     remove_javascript     = True
     encoding              = 'utf8'
@@ -30,12 +27,14 @@ class Pobjeda(BasicNewsRecipe):
     
     html2lrf_options = [
                           '--comment', description
+                        , '--base-font-size', '10'
                         , '--category', category
                         , '--publisher', publisher
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-     
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"'
+
+    
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags = [dict(name='div', attrs={'class':'vijest'})]
@@ -64,8 +63,6 @@ class Pobjeda(BasicNewsRecipe):
         soup.html['lang']     = 'sr-Latn-ME'
         mtag = '<meta http-equiv="Content-Language" content="sr-Latn-ME"/>'
         soup.head.insert(0,mtag)
-        for item in soup.findAll(style=True):
-            del item['style']
         return soup
 
     def get_cover_url(self):
@@ -81,16 +78,16 @@ class Pobjeda(BasicNewsRecipe):
         lfeeds = self.get_feeds()
         for feedobj in lfeeds:
             feedtitle, feedurl = feedobj
-            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))             
             articles = []
-            soup = self.index_to_soup(feedurl)
+            soup = self.index_to_soup(feedurl)        
             for item in soup.findAll('div', attrs={'class':'vijest'}):
                 description = self.tag_to_string(item.h2)
                 atag = item.h1.find('a')
-                if atag:
+                if atag and atag.has_key('href'):
                     url         = self.INDEX + '/' + atag['href']
                     title       = self.tag_to_string(atag)
-                    date        = strftime(self.timefmt)
+                    date        = strftime(self.timefmt)                
                     articles.append({
                                       'title'      :title
                                      ,'date'       :date

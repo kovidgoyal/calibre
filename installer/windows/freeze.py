@@ -28,33 +28,12 @@ for icon in ICONS:
         raise Exception('No icon at '+icon)
 
 VERSION = re.sub('[a-z]\d+', '', VERSION)
+WINVER = VERSION+'.0'
 
 PY2EXE_DIR = os.path.join(BASE_DIR, 'build','py2exe')
 
 class BuildEXE(py2exe.build_exe.py2exe):
-    manifest_resource_id = 0
-     
-    MANIFEST_TEMPLATE = '''
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0"> 
-  <assemblyIdentity version="%(version)s"
-     processorArchitecture="x86"
-     name="net.kovidgoyal.%(prog)s"
-     type="win32"
-     /> 
-  <description>Ebook management application</description> 
-  <!-- Identify the application security requirements. -->
-  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
-    <security>
-      <requestedPrivileges>
-        <requestedExecutionLevel
-          level="asInvoker"
-          uiAccess="false"/>
-        </requestedPrivileges>
-       </security>
-  </trustInfo>
-</assembly>
-'''
+    
     def run(self):
         py2exe.build_exe.py2exe.run(self)
         print 'Adding plugins...'
@@ -128,40 +107,36 @@ class BuildEXE(py2exe.build_exe.py2exe):
         for f in glob.glob(os.path.join(VC90, '*')):
             shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
         
-        
-    @classmethod
-    def manifest(cls, prog):
-        cls.manifest_resource_id += 1
-        return (24, cls.manifest_resource_id,
-                cls.MANIFEST_TEMPLATE % dict(prog=prog, version=(VERSION+'.0')))
-
+    
+def exe_factory(dest_base, script, icon_resources=None):
+    exe = {
+           'dest_base'       : dest_base,
+           'script'          : script,
+           'name'            : dest_base,
+           'version'         : WINVER,
+           'description'     : 'calibre - E-book library management',
+           'author'          : 'Kovid Goyal',
+           'copyright'       : '(c) Kovid Goyal, 2008',
+           'company'         : 'kovidgoyal.net',
+           }
+    if icon_resources is not None:
+        exe['icon_resources'] = icon_resources
+    return exe
 
 def main(args=sys.argv):
     sys.argv[1:2] = ['py2exe']
     if os.path.exists(PY2EXE_DIR):
         shutil.rmtree(PY2EXE_DIR)
 
-    console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i])
+    console = [exe_factory(basenames['console'][i], scripts['console'][i])
                for i in range(len(scripts['console']))]
     setup(
           cmdclass = {'py2exe': BuildEXE},
           windows = [
-                     {'script'          : scripts['gui'][0],
-                      'dest_base'       : APPNAME,
-                      'icon_resources'  : [(1, ICONS[0])],
-                      #'other_resources' : [BuildEXE.manifest(APPNAME)],
-                      },
-                      {'script'         : scripts['gui'][1],
-                      'dest_base'       : 'lrfviewer',
-                      'icon_resources'  : [(1, ICONS[1])],
-                      #'other_resources' : [BuildEXE.manifest('lrfviewer')],
-                      },
-                      {'script'         : scripts['gui'][2],
-                      'dest_base'       : 'ebook-viewer',
-                      'icon_resources'  : [(1, ICONS[1])],
-                      #'other_resources' : [BuildEXE.manifest('ebook-viewer')],
-                      },
-                      ],
+                     exe_factory(APPNAME, scripts['gui'][0], [(1, ICONS[0])]),
+                     exe_factory('lrfviewer', scripts['gui'][1], [(1, ICONS[1])]),
+                     exe_factory('ebook-viewer', scripts['gui'][2], [(1, ICONS[1])]),
+                    ],
           console = console,
           options = { 'py2exe' : {'compressed': 1,
                                   'optimize'  : 2,

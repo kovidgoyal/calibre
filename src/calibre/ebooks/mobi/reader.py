@@ -249,9 +249,6 @@ class MobiReader(object):
             self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
-        for t, c in [('b', 'bold'), ('i', 'italic')]:
-            self.processed_html = re.sub(r'(?i)<%s>'%t, r'<span class="%s">'%c, self.processed_html)
-            self.processed_html = re.sub(r'(?i)</%s>'%t, r'</span>', self.processed_html)
         
     def upshift_markup(self, root):
         if self.verbose:
@@ -273,8 +270,6 @@ class MobiReader(object):
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
                 continue
-            if tag.tag == 'pre' and not tag.text:
-                tag.tag = 'div'
             styles, attrib = [], tag.attrib
             if attrib.has_key('style'):
                 style = attrib.pop('style').strip()
@@ -294,35 +289,44 @@ class MobiReader(object):
                 align = attrib.pop('align').strip()
                 if align:
                     styles.append('text-align: %s' % align)
-            if mobi_version == 1 and tag.tag == 'hr':
-                tag.tag = 'div'
-                styles.append('page-break-before: always')
-                styles.append('display: block')
-                styles.append('margin: 0')
-            if styles:
-                attrib['style'] = '; '.join(styles)
-                
-            if tag.tag.lower() == 'font':
+            if tag.tag == 'hr':
+                if mobi_version == 1:
+                    tag.tag = 'div'
+                    styles.append('page-break-before: always')
+                    styles.append('display: block')
+                    styles.append('margin: 0')
+            elif tag.tag == 'i':
+                tag.tag = 'span'
+                tag.attrib['class'] = 'italic'
+            elif tag.tag == 'b':
+                tag.tag = 'span'
+                tag.attrib['class'] = 'bold'
+            elif tag.tag == 'font':
                 sz = tag.get('size', '').lower()
                 try:
                     float(sz)
                 except ValueError:
                     if sz in size_map.keys():
                         attrib['size'] = size_map[sz]
+            elif tag.tag == 'img':
+                recindex = None
+                for attr in self.IMAGE_ATTRS:
+                    recindex = attrib.pop(attr, None) or recindex
+                if recindex is not None:
+                    attrib['src'] = 'images/%s.jpg' % recindex
+            elif tag.tag == 'pre':
+                if not tag.text:
+                    tag.tag = 'div'
+            if styles:
+                attrib['style'] = '; '.join(styles)
             if 'filepos-id' in attrib:
                 attrib['id'] = attrib.pop('filepos-id')
             if 'filepos' in attrib:
                 filepos = attrib.pop('filepos')
                 try:
                     attrib['href'] = "#filepos%d" % int(filepos)
-                except:
-                    attrib['href'] = filepos
-            if tag.tag == 'img':
-                recindex = None
-                for attr in self.IMAGE_ATTRS:
-                    recindex = attrib.pop(attr, None) or recindex
-                if recindex is not None:
-                    attrib['src'] = 'images/%s.jpg' % recindex
+                except ValueError:
+                    pass
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
@@ -332,7 +336,7 @@ class MobiReader(object):
         manifest = [(htmlfile, 'text/x-oeb1-document')]
         bp = os.path.dirname(htmlfile)
         for i in getattr(self, 'image_names', []):
-            manifest.append((os.path.join(bp, 'images/', i), 'image/jpg'))
+            manifest.append((os.path.join(bp, 'images/', i), 'image/jpeg'))
         
         opf.create_manifest(manifest)
         opf.create_spine([os.path.basename(htmlfile)])

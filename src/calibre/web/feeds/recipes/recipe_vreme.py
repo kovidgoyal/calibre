@@ -24,7 +24,7 @@ class Vreme(BasicNewsRecipe):
     remove_javascript     = True
     use_embedded_content  = False
     language              = _('Serbian')
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: serif1, serif}' 
     
     html2lrf_options = [
                           '--comment'  , description
@@ -33,7 +33,8 @@ class Vreme(BasicNewsRecipe):
                         , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
+    
     
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -88,19 +89,12 @@ class Vreme(BasicNewsRecipe):
         del soup.body['text'   ]
         del soup.body['bgcolor']
         del soup.body['onload' ]
-        for item in soup.findAll('table'):
-            if item.has_key('width'):
-               del item['width']
-            if item.has_key('height'):
-               del item['height']                    
+        for item in soup.findAll(face=True):
+            del item['face']
+        for item in soup.findAll(size=True):
+            del item['size']
         mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
         soup.head.insert(0,mtag)
-        tbl = soup.body.table
-        tbbb = soup.find('td')
-        if tbbb:
-           tbbb.extract()
-           tbl.extract()
-           soup.body.insert(0,tbbb)        
         return soup
                 
     def get_cover_url(self):

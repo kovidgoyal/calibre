@@ -1,7 +1,5 @@
 """Selector is a single Selector of a CSSStyleRule SelectorList.
-
-Partly implements
-    http://www.w3.org/TR/css3-selectors/
+Partly implements http://www.w3.org/TR/css3-selectors/.
 
 TODO
     - .contains(selector)
@@ -9,45 +7,18 @@ TODO
 """
 __all__ = ['Selector']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: selector.py 1429 2008-08-11 19:01:52Z cthedot $'
+__version__ = '$Id: selector.py 1638 2009-01-13 20:39:33Z cthedot $'
 
-import xml.dom
-import cssutils
 from cssutils.util import _SimpleNamespaces
+import cssutils
+import xml.dom
 
 class Selector(cssutils.util.Base2):
     """
-    (cssutils) a single selector in a SelectorList of a CSSStyleRule
+    (cssutils) a single selector in a :class:`~cssutils.css.SelectorList` 
+    of a :class:`~cssutils.css.CSSStyleRule`.
 
-    Properties
-    ==========
-    element
-        Effective element target of this selector
-    parentList: of type SelectorList, readonly
-        The SelectorList that contains this selector or None if this
-        Selector is not attached to a SelectorList.
-    selectorText
-        textual representation of this Selector
-    seq
-        sequence of Selector parts including comments
-    specificity (READONLY)
-        tuple of (a, b, c, d) where:
-        
-        a
-            presence of style in document, always 0 if not used on a document
-        b
-            number of ID selectors
-        c 
-            number of .class selectors
-        d 
-            number of Element (type) selectors
-        
-    wellformed
-        if this selector is wellformed regarding the Selector spec
-
-    Format
-    ======
-    ::
+    Format::
 
         # implemented in SelectorList
         selectors_group
@@ -150,14 +121,46 @@ class Selector(cssutils.util.Base2):
 
         self._readonly = readonly
 
+    def __repr__(self):
+        if self.__getNamespaces():
+            st = (self.selectorText, self._getUsedNamespaces())
+        else:
+            st = self.selectorText
+        return u"cssutils.css.%s(selectorText=%r)" % (
+                self.__class__.__name__, st)
+
+    def __str__(self):
+        return u"<cssutils.css.%s object selectorText=%r specificity=%r _namespaces=%r at 0x%x>" % (
+                self.__class__.__name__, self.selectorText, self.specificity, 
+                self._getUsedNamespaces(), id(self))
+
+    def _getUsedUris(self):
+        "Return list of actually used URIs in this Selector."
+        uris = set()
+        for item in self.seq:
+            type_, val = item.type, item.value
+            if type_.endswith(u'-selector') or type_ == u'universal' and \
+               type(val) == tuple and val[0] not in (None, u'*'):
+                uris.add(val[0])
+        return uris
+
+    def _getUsedNamespaces(self):
+        "Return actually used namespaces only."
+        useduris = self._getUsedUris()
+        namespaces = _SimpleNamespaces(log=self._log)
+        for p, uri in self._namespaces.items():
+            if uri in useduris:
+                namespaces[p] = uri
+        return namespaces
+
     def __getNamespaces(self):
-        "uses own namespaces if not attached to a sheet, else the sheet's ones"
+        "Use own namespaces if not attached to a sheet, else the sheet's ones."
         try:
             return self._parent.parentRule.parentStyleSheet.namespaces
         except AttributeError:
             return self.__namespaces
 
-    _namespaces = property(__getNamespaces, doc="""if this Selector is attached
+    _namespaces = property(__getNamespaces, doc="""If this Selector is attached
         to a CSSStyleSheet the namespaces of that sheet are mirrored here.
         While the Selector (or parent SelectorList or parentRule(s) of that are
         not attached a own dict of {prefix: namespaceURI} is used.""")
@@ -171,9 +174,7 @@ class Selector(cssutils.util.Base2):
         None if this Selector is not attached to a SelectorList.")
         
     def _getSelectorText(self):
-        """
-        returns serialized format
-        """
+        """Return serialized format."""
         return cssutils.ser.do_css_Selector(self)
 
     def _setSelectorText(self, selectorText):
@@ -183,14 +184,14 @@ class Selector(cssutils.util.Base2):
             Given namespaces are ignored if this object is attached to a 
             CSSStyleSheet!
         
-        :Exceptions:
-            - `NAMESPACE_ERR`: (self)
+        :exceptions:
+            - :exc:`~xml.dom.NamespaceErr`:
               Raised if the specified selector uses an unknown namespace
               prefix.
-            - `SYNTAX_ERR`: (self)
+            - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified CSS string value has a syntax error
               and is unparsable.
-            - `NO_MODIFICATION_ALLOWED_ERR`: (self)
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if this rule is readonly.
         """
         self._checkReadonly()
@@ -763,38 +764,17 @@ class Selector(cssutils.util.Base2):
 
 
     specificity = property(lambda self: self._specificity, 
-                           doc="Specificity of this selector (READONLY).")
+         doc="""Specificity of this selector (READONLY). 
+                Tuple of (a, b, c, d) where: 
+                
+                a
+                    presence of style in document, always 0 if not used on a document
+                b
+                    number of ID selectors
+                c 
+                    number of .class selectors
+                d 
+                    number of Element (type) selectors
+                    """)
 
     wellformed = property(lambda self: bool(len(self.seq)))
-
-    def __repr__(self):
-        if self.__getNamespaces():
-            st = (self.selectorText, self._getUsedNamespaces())
-        else:
-            st = self.selectorText
-        return u"cssutils.css.%s(selectorText=%r)" % (
-                self.__class__.__name__, st)
-
-    def __str__(self):
-        return u"<cssutils.css.%s object selectorText=%r specificity=%r _namespaces=%r at 0x%x>" % (
-                self.__class__.__name__, self.selectorText, self.specificity, 
-                self._getUsedNamespaces(), id(self))
-
-    def _getUsedUris(self):
-        "returns list of actually used URIs in this Selector"
-        uris = set()
-        for item in self.seq:
-            type_, val = item.type, item.value
-            if type_.endswith(u'-selector') or type_ == u'universal' and \
-               type(val) == tuple and val[0] not in (None, u'*'):
-                uris.add(val[0])
-        return uris
-
-    def _getUsedNamespaces(self):
-        "returns actually used namespaces only"
-        useduris = self._getUsedUris()
-        namespaces = _SimpleNamespaces(log=self._log)
-        for p, uri in self._namespaces.items():
-            if uri in useduris:
-                namespaces[p] = uri
-        return namespaces

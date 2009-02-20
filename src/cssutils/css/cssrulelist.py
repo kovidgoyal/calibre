@@ -1,16 +1,12 @@
-"""
-CSSRuleList implements DOM Level 2 CSS CSSRuleList.
-
-Partly also
-    * http://dev.w3.org/csswg/cssom/#the-cssrulelist
+"""CSSRuleList implements DOM Level 2 CSS CSSRuleList.
+Partly also http://dev.w3.org/csswg/cssom/#the-cssrulelist
 """
 __all__ = ['CSSRuleList']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssrulelist.py 1116 2008-03-05 13:52:23Z cthedot $'
+__version__ = '$Id: cssrulelist.py 1641 2009-01-13 21:05:37Z cthedot $'
 
 class CSSRuleList(list):
-    """
-    The CSSRuleList object represents an (ordered) list of statements.
+    """The CSSRuleList object represents an (ordered) list of statements.
 
     The items in the CSSRuleList are accessible via an integral index,
     starting from 0.
@@ -21,28 +17,20 @@ class CSSRuleList(list):
     class if so desired.
     E.g. CSSStyleSheet adds ``append`` which is not available in a simple
     instance of this class! 
-
-    Properties
-    ==========
-    length: of type unsigned long, readonly
-        The number of CSSRules in the list. The range of valid child rule
-        indices is 0 to length-1 inclusive.
     """
     def __init__(self, *ignored):
-        "nothing is set as this must also be defined later"
+        "Nothing is set as this must also be defined later."
         pass
     
     def __notimplemented(self, *ignored):
-        "no direct setting possible"
+        "Implemented in class using a CSSRuleList only."
         raise NotImplementedError(
             'Must be implemented by class using an instance of this class.')
     
     append = extend =  __setitem__ = __setslice__ = __notimplemented
     
     def item(self, index):
-        """
-        (DOM)
-        Used to retrieve a CSS rule by ordinal index. The order in this
+        """(DOM) Retrieve a CSS rule by ordinal `index`. The order in this
         collection represents the order of the rules in the CSS style
         sheet. If index is greater than or equal to the number of rules in
         the list, this returns None.

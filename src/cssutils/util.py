@@ -2,34 +2,91 @@
 """
 __all__ = []
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: util.py 1453 2008-09-08 20:57:19Z cthedot $'
-
-import codecs
-from itertools import ifilter
-import types
-import urllib2
-import xml.dom
+__version__ = '$Id: util.py 1654 2009-02-03 20:16:20Z cthedot $'
 
 from helper import normalize
+from itertools import ifilter
+import css
+import codec
+import codecs
+import errorhandler
 import tokenize2
-import cssutils
-import encutils
+import types
+import xml.dom
 
-class Base(object):
+try:
+    from _fetchgae import _defaultFetcher
+except ImportError, e:
+    from _fetch import _defaultFetcher
+    
+log = errorhandler.ErrorHandler()
+
+class _BaseClass(object):
     """
-    Base class for most CSS and StyleSheets classes
+    Base class for Base, Base2 and _NewBase.
+
+    **Base and Base2 will be removed in the future!**
+    """
+    _log = errorhandler.ErrorHandler()
+    _prods = tokenize2.CSSProductions
+
+    def _checkReadonly(self):
+        "Raise xml.dom.NoModificationAllowedErr if rule/... is readonly"
+        if hasattr(self, '_readonly') and self._readonly:
+            raise xml.dom.NoModificationAllowedErr(
+                u'%s is readonly.' % self.__class__)
+            return True
+        return False
+
+    def _valuestr(self, t):
+        """
+        Return string value of t (t may be a string, a list of token tuples
+        or a single tuple in format (type, value, line, col).
+        Mainly used to get a string value of t for error messages.
+        """
+        if not t:
+            return u''
+        elif isinstance(t, basestring):
+            return t
+        else:
+            return u''.join([x[1] for x in t])
+
+
+class _NewBase(_BaseClass):
+    """
+    New base class for classes using ProdParser.
+
+    **Currently CSSValue and related ones only.**
+    """
+    def __init__(self):
+        self._seq = Seq()
+
+    def _setSeq(self, newseq):
+        """Set value of ``seq`` which is readonly."""
+        newseq._readonly = True
+        self._seq = newseq
+
+    def _tempSeq(self, readonly=False):
+        "Get a writeable Seq() which is used to set ``seq`` later"
+        return Seq(readonly=readonly)
+
+    seq = property(lambda self: self._seq,
+                   doc="Internal readonly attribute, **DO NOT USE**!")
+
+
+class Base(_BaseClass):
+    """
+    **Superceded by _NewBase**
 
     **Superceded by Base2 which is used for new seq handling class.**
-    See cssutils.util.Base2
+
+    Base class for most CSS and StyleSheets classes
 
     Contains helper methods for inheriting classes helping parsing
 
     ``_normalize`` is static as used by Preferences.
     """
     __tokenizer2 = tokenize2.Tokenizer()
-
-    _log = cssutils.log
-    _prods = tokenize2.CSSProductions
 
     # for more on shorthand properties see
     # http://www.dustindiaz.com/css-shorthand/
@@ -65,14 +122,6 @@ class Base(object):
         - lowercase
         """
         return normalize(x)
-
-    def _checkReadonly(self):
-        "raises xml.dom.NoModificationAllowedErr if rule/... is readonly"
-        if hasattr(self, '_readonly') and self._readonly:
-            raise xml.dom.NoModificationAllowedErr(
-                u'%s is readonly.' % self.__class__)
-            return True
-        return False
 
     def _splitNamespacesOff(self, text_namespaces_tuple):
         """
@@ -141,7 +190,7 @@ class Base(object):
         """
         if token:
             value = token[1]
-            return value.replace('\\'+value[0], value[0])[1:-1]
+            return value.replace('\\' + value[0], value[0])[1: - 1]
         else:
             return None
 
@@ -153,10 +202,10 @@ class Base(object):
              url("\"") => "
         """
         if token:
-            value = token[1][4:-1].strip()
-            if value and (value[0] in '\'"') and (value[0] == value[-1]):
+            value = token[1][4: - 1].strip()
+            if value and (value[0] in '\'"') and (value[0] == value[ - 1]):
                 # a string "..." or '...'
-                value = value.replace('\\'+value[0], value[0])[1:-1]
+                value = value.replace('\\' + value[0], value[0])[1: - 1]
             return value
         else:
             return None
@@ -190,7 +239,7 @@ class Base(object):
 
         if blockstartonly: # {
             ends = u'{'
-            brace = -1 # set to 0 with first {
+            brace = - 1 # set to 0 with first {
         elif blockendonly: # }
             ends = u'}'
             brace = 1
@@ -205,7 +254,7 @@ class Base(object):
             # end of mediaquery which may be { or STRING
             # special case, see below
             ends = u'{'
-            brace = -1 # set to 0 with first {
+            brace = - 1 # set to 0 with first {
             endtypes = ('STRING',)
         elif semicolon:
             ends = u';'
@@ -254,7 +303,7 @@ class Base(object):
                 if (brace == bracket == parant == 0) and (
                     val in ends or typ in endtypes):
                     break
-                elif mediaqueryendonly and brace == -1 and (
+                elif mediaqueryendonly and brace == - 1 and (
                      bracket == parant == 0) and typ in endtypes:
                      # mediaqueryendonly with STRING
                     break
@@ -262,24 +311,11 @@ class Base(object):
         if separateEnd:
             # TODO: use this method as generator, then this makes sense
             if resulttokens:
-                return resulttokens[:-1], resulttokens[-1]
+                return resulttokens[: - 1], resulttokens[ - 1]
             else:
                 return resulttokens, None
         else:
             return resulttokens
-
-    def _valuestr(self, t):
-        """
-        returns string value of t (t may be a string, a list of token tuples
-        or a single tuple in format (type, value, line, col).
-        Mainly used to get a string value of t for error messages.
-        """
-        if not t:
-            return u''
-        elif isinstance(t, basestring):
-            return t
-        else:
-            return u''.join([x[1] for x in t])
 
     def _adddefaultproductions(self, productions, new=None):
         """
@@ -295,7 +331,7 @@ class Base(object):
             "default impl for unexpected @rule"
             if expected != 'EOF':
                 # TODO: parentStyleSheet=self
-                rule = cssutils.css.CSSUnknownRule()
+                rule = css.CSSUnknownRule()
                 rule.cssText = self._tokensupto2(tokenizer, token)
                 if rule.wellformed:
                     seq.append(rule)
@@ -307,7 +343,7 @@ class Base(object):
 
         def COMMENT(expected, seq, token, tokenizer=None):
             "default implementation for COMMENT token adds CSSCommentRule"
-            seq.append(cssutils.css.CSSComment([token]))
+            seq.append(css.CSSComment([token]))
             return expected
 
         def S(expected, seq, token, tokenizer=None):
@@ -351,7 +387,7 @@ class Base(object):
         returns (wellformed, expected) which the last prod might have set
         """
         wellformed = True
-        
+
         if initialtoken:
             # add initialtoken to tokenizer
             def tokens():
@@ -362,7 +398,7 @@ class Base(object):
             fulltokenizer = (t for t in tokens())
         else:
             fulltokenizer = tokenizer
-                
+
         if fulltokenizer:
             prods = self._adddefaultproductions(productions, new)
             for token in fulltokenizer:
@@ -375,25 +411,14 @@ class Base(object):
         return wellformed, expected
 
 
-class Base2(Base):
+class Base2(Base, _NewBase):
     """
-    Base class for new seq handling, used by Selector for now only
+    **Superceded by _NewBase.**
+
+    Base class for new seq handling.
     """
     def __init__(self):
         self._seq = Seq()
-
-    def _setSeq(self, newseq):
-        """
-        sets newseq and makes it readonly
-        """
-        newseq._readonly = True
-        self._seq = newseq
-
-    seq = property(lambda self: self._seq, doc="seq for most classes")
-
-    def _tempSeq(self, readonly=False):
-        "get a writeable Seq() which is added later"
-        return Seq(readonly=readonly)
 
     def _adddefaultproductions(self, productions, new=None):
         """
@@ -409,10 +434,10 @@ class Base2(Base):
             "default impl for unexpected @rule"
             if expected != 'EOF':
                 # TODO: parentStyleSheet=self
-                rule = cssutils.css.CSSUnknownRule()
+                rule = css.CSSUnknownRule()
                 rule.cssText = self._tokensupto2(tokenizer, token)
                 if rule.wellformed:
-                    seq.append(rule, cssutils.css.CSSRule.UNKNOWN_RULE,
+                    seq.append(rule, css.CSSRule.UNKNOWN_RULE,
                                line=token[2], col=token[3])
                 return expected
             else:
@@ -425,7 +450,7 @@ class Base2(Base):
             if expected == 'EOF':
                 new['wellformed'] = False
                 self._log.error(u'Expected EOF but found comment.', token=token)
-            seq.append(cssutils.css.CSSComment([token]), 'COMMENT')
+            seq.append(css.CSSComment([token]), 'COMMENT')
             return expected
 
         def S(expected, seq, token, tokenizer=None):
@@ -493,7 +518,7 @@ class Seq(object):
         else:
             self._seq.append(item)
 
-    def replace(self, index=-1, val=None, typ=None, line=None, col=None):
+    def replace(self, index= - 1, val=None, typ=None, line=None, col=None):
         """
         if not readonly replace Item at index with new Item or
         simply replace value or type
@@ -503,7 +528,13 @@ class Seq(object):
         else:
             self._seq[index] = Item(val, typ, line, col)
 
-    def appendToVal(self, val=None, index=-1):
+    def rstrip(self):
+        "trims S items from end of Seq"
+        while self._seq and self._seq[ - 1].type == tokenize2.CSSProductions.S:
+            # TODO: removed S before CSSComment /**/ /**/
+            del self._seq[ - 1]
+
+    def appendToVal(self, val=None, index= - 1):
         """
         if not readonly append to Item's value at index
         """
@@ -511,15 +542,16 @@ class Seq(object):
             raise AttributeError('Seq is readonly.')
         else:
             old = self._seq[index]
-            self._seq[index] = Item(old.value + val, old.type, 
+            self._seq[index] = Item(old.value + val, old.type,
                                     old.line, old.col)
 
     def __repr__(self):
         "returns a repr same as a list of tuples of (value, type)"
-        return u'cssutils.%s.%s([\n    %s])' % (self.__module__,
+        return u'cssutils.%s.%s([\n    %s], readonly=%r)' % (self.__module__,
                                           self.__class__.__name__,
             u',\n    '.join([u'%r' % item for item in self._seq]
-            ))
+            ), self._readonly)
+
     def __str__(self):
         vals = []
         for v in self:
@@ -529,10 +561,10 @@ class Seq(object):
                 vals.append(v.value[1])
             else:
                 vals.append(str(v))
-        
-        return "<cssutils.%s.%s object length=%r valuestring=%r at 0x%x>" % (
-                self.__module__, self.__class__.__name__, len(self), 
-                u''.join(vals), id(self))
+
+        return "<cssutils.%s.%s object length=%r values=%r readonly=%r at 0x%x>" % (
+                self.__module__, self.__class__.__name__, len(self),
+                u''.join(vals), self._readonly, id(self))
 
 class Item(object):
     """
@@ -671,7 +703,7 @@ class _Namespaces(object):
             prefix = u'' # None or ''
         rule = self.__findrule(prefix)
         if not rule:
-            self.parentStyleSheet.insertRule(cssutils.css.CSSNamespaceRule(
+            self.parentStyleSheet.insertRule(css.CSSNamespaceRule(
                                                     prefix=prefix,
                                                     namespaceURI=namespaceURI),
                                   inOrder=True)
@@ -688,17 +720,18 @@ class _Namespaces(object):
             if rule.prefix == prefix:
                 return rule
 
-    def __getNamespaces(self):
+    @property
+    def namespaces(self):
+        """
+        A property holding only effective @namespace rules in
+        self.parentStyleSheets.
+        """
         namespaces = {}
         for rule in ifilter(lambda r: r.type == r.NAMESPACE_RULE,
                             reversed(self.parentStyleSheet.cssRules)):
             if rule.namespaceURI not in namespaces.values():
                 namespaces[rule.prefix] = rule.namespaceURI
         return namespaces
-
-    namespaces = property(__getNamespaces,
-        doc=u'Holds only effective @namespace rules in self.parentStyleSheets'
-             '@namespace rules.')
 
     def get(self, prefix, default):
         return self.namespaces.get(prefix, default)
@@ -751,35 +784,6 @@ class _SimpleNamespaces(_Namespaces):
             self.namespaces)
 
 
-def _defaultFetcher(url):
-    """Retrieve data from ``url``. cssutils default implementation of fetch
-    URL function.
-
-    Returns ``(encoding, string)`` or ``None``
-    """
-    try:
-        res = urllib2.urlopen(url)
-    except OSError, e:
-        # e.g if file URL and not found
-        cssutils.log.warn(e, error=OSError)
-    except (OSError, ValueError), e:
-        # invalid url, e.g. "1"
-        cssutils.log.warn(u'ValueError, %s' % e.message, error=ValueError)
-    except urllib2.HTTPError, e:
-        # http error, e.g. 404, e can be raised
-        cssutils.log.warn(u'HTTPError opening url=%r: %s %s' %
-                          (url, e.code, e.msg), error=e)
-    except urllib2.URLError, e:
-        # URLError like mailto: or other IO errors, e can be raised
-        cssutils.log.warn(u'URLError, %s' % e.reason, error=e)
-    else:
-        if res:
-            mimeType, encoding = encutils.getHTTPInfo(res)
-            if mimeType != u'text/css':
-                cssutils.log.error(u'Expected "text/css" mime type for url=%r but found: %r' %
-                                  (url, mimeType), error=ValueError)
-            return encoding, res.read()
-
 def _readUrl(url, fetcher=None, overrideEncoding=None, parentEncoding=None):
     """
     Read cssText from url and decode it using all relevant methods (HTTP
@@ -824,9 +828,14 @@ def _readUrl(url, fetcher=None, overrideEncoding=None, parentEncoding=None):
         elif httpEncoding:
             enctype = 1 # 1. HTTP
             encoding = httpEncoding
-        else:
-            # check content
-            contentEncoding, explicit = cssutils.codec.detectencoding_str(content)
+        else:  
+            if isinstance(content, unicode): 
+                # no need to check content as unicode so no BOM
+                explicit = False
+            else:
+                # check content
+                contentEncoding, explicit = codec.detectencoding_str(content)
+
             if explicit:
                 enctype = 2 # 2. BOM/@charset: explicitly
                 encoding = contentEncoding
@@ -838,18 +847,17 @@ def _readUrl(url, fetcher=None, overrideEncoding=None, parentEncoding=None):
                 enctype = 5 # 5. assume UTF-8
                 encoding = 'utf-8'
 
-        try:
-            # encoding may still be wrong if encoding *is lying*!
-            if isinstance(content, unicode):
-                decodedCssText = content
-            elif content is not None:
+        if isinstance(content, unicode):
+            decodedCssText = content
+        else:
+            try:
+                # encoding may still be wrong if encoding *is lying*!
                 decodedCssText = codecs.lookup("css")[1](content, encoding=encoding)[0]
-            else:
+            except UnicodeDecodeError, e:
+                log.warn(e, neverraise=True)
                 decodedCssText = None
-        except UnicodeDecodeError, e:
-            cssutils.log.warn(e, neverraise=True)
-            decodedCssText = None
 
         return encoding, enctype, decodedCssText
     else:
         return None, None, None
+

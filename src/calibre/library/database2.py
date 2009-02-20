@@ -729,7 +729,7 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('metadata', [id])
         
-    def delete_book(self, id):
+    def delete_book(self, id, notify=True):
         '''
         Removes book from the result cache and the underlying database.
         '''
@@ -744,7 +744,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.commit()
         self.clean()
         self.data.books_deleted([id])
-        self.notify('delete', [id])
+        if notify:
+            self.notify('delete', [id])
     
     def remove_format(self, index, format, index_is_id=False, notify=True):
         id = index if index_is_id else self.id(index)
@@ -1217,8 +1218,7 @@ class LibraryDatabase2(LibraryDatabase):
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':
                 continue
-            stream = open(path, 'rb')
-            self.add_format(id, ext, stream, index_is_id=True)
+            self.add_format_with_hooks(id, ext, path, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
         if notify:

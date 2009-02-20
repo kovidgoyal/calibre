@@ -216,12 +216,9 @@ class BooksModel(QAbstractTableModel):
 
 
     def delete_books(self, indices):
-        ids = [ self.id(i) for i in indices ]
+        ids = map(self.id, indices)
         for id in ids:
-            row = self.db.index(id)
-            self.beginRemoveRows(QModelIndex(), row, row)
-            self.db.delete_book(id)
-            self.endRemoveRows()
+            self.db.delete_book(id, notify=False)
         self.count_changed()
         self.clear_caches()
         self.reset()

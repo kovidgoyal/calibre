@@ -16,12 +16,12 @@ log
 """
 __all__ = ['ErrorHandler']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: errorhandler.py 1361 2008-07-13 18:12:40Z cthedot $'
+__version__ = '$Id: errorhandler.py 1560 2008-12-14 16:13:16Z cthedot $'
 
+from helper import Deprecated
 import logging
 import urllib2
 import xml.dom
-from helper import Deprecated
 
 class _ErrorHandler(object):
     """
@@ -74,17 +74,22 @@ class _ErrorHandler(object):
         handles all calls
         logs or raises exception
         """
+        line, col = None, None
         if token:
             if isinstance(token, tuple):
-                msg = u'%s [%s:%s: %s]' % (
-                    msg, token[2], token[3], token[1])
+                value, line, col = token[1], token[2], token[3]
             else:
-                msg = u'%s [%s:%s: %s]' % (
-                    msg, token.line, token.col, token.value)
+                value, line, col = token.value, token.line, token.col
+            msg = u'%s [%s:%s: %s]' % (
+                msg, line, col, value)
 
         if error and self.raiseExceptions and not neverraise:
             if isinstance(error, urllib2.HTTPError) or isinstance(error, urllib2.URLError):
-                raise error
+                raise
+            elif issubclass(error, xml.dom.DOMException): 
+                error.line = line
+                error.col = col
+                raise error(msg, line, col)
             else:
                 raise error(msg)
         else:

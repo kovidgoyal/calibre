@@ -416,7 +416,11 @@ class MobiWriter(object):
         coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
-            data = rescale_image(item.data, self._imagemax)
+            try:
+                data = rescale_image(item.data, self._imagemax)
+            except IOError:
+                self._oeb.logger.warn('Bad image file %r' % item.href)
+                continue
             self._records.append(data)
     
     def _generate_record0(self):
@@ -486,9 +490,11 @@ class MobiWriter(object):
             index = self._images[href] - 1
             exth.write(pack('>III', 0xc9, 0x0c, index))
             exth.write(pack('>III', 0xcb, 0x0c, 0))
-            index = self._add_thumbnail(item) - 1
-            exth.write(pack('>III', 0xca, 0x0c, index))
-            nrecs += 3
+            nrecs += 2
+            index = self._add_thumbnail(item)
+            if index is not None:
+                exth.write(pack('>III', 0xca, 0x0c, index - 1))
+                nrecs += 1
         exth = exth.getvalue()
         trail = len(exth) % 4
         pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
@@ -496,7 +502,11 @@ class MobiWriter(object):
         return ''.join(exth)
 
     def _add_thumbnail(self, item):
-        data = rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
+        try:
+            data = rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
+        except IOError:
+            self._oeb.logger.warn('Bad image file %r' % item.href)
+            return None
         manifest = self._oeb.manifest
         id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
         manifest.add(id, href, 'image/jpeg', data=data)
