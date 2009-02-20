@@ -28,7 +28,9 @@ recipe_modules = ['recipe_' + r for r in (
            'la_tercera', 'el_mercurio_chile', 'la_cuarta', 'lanacion_chile', 'la_segunda',
            'jb_online', 'estadao', 'o_globo', 'vijesti', 'elmundo', 'the_oz',
            'honoluluadvertiser', 'starbulletin', 'exiled', 'indy_star', 'dna',
-           'pobjeda',
+           'pobjeda', 'chicago_breaking_news', 'glasgow_herald', 'linuxdevices',
+           'hindu', 'cincinnati_enquirer', 'physics_world', 'pressonline',
+           'la_republica', 'physics_today',
           )]
 
 import re, imp, inspect, time, os

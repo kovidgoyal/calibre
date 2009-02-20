@@ -6,13 +6,9 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
-import os
 from itertools import chain
 from urlparse import urldefrag
-from lxml import etree
-import cssutils
-from calibre.ebooks.oeb.base import XPNSMAP, CSS_MIME, OEB_DOCS
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS
 from calibre.ebooks.oeb.base import LINK_SELECTORS, CSSURL_RE
 from calibre.ebooks.oeb.base import urlnormalize
 

@@ -216,12 +216,9 @@ class BooksModel(QAbstractTableModel):
 
 
     def delete_books(self, indices):
-        ids = [ self.id(i) for i in indices ]
+        ids = map(self.id, indices)
         for id in ids:
-            row = self.db.index(id)
-            self.beginRemoveRows(QModelIndex(), row, row)
-            self.db.delete_book(id)
-            self.endRemoveRows()
+            self.db.delete_book(id, notify=False)
         self.count_changed()
         self.clear_caches()
         self.reset()
@@ -245,7 +242,7 @@ class BooksModel(QAbstractTableModel):
         if num > 0:
             self.beginInsertRows(QModelIndex(), 0, num-1)
             self.endInsertRows()
-        self.count_changed()
+            self.count_changed()
 
     def search(self, text, refinement, reset=True):
         self.db.search(text)
@@ -414,8 +411,11 @@ class BooksModel(QAbstractTableModel):
                      
             
     
-    def get_preferred_formats(self, rows, formats, paths=False, set_metadata=False):
+    def get_preferred_formats(self, rows, formats, paths=False, 
+                              set_metadata=False, specific_format=None):
         ans = []
+        if specific_format is not None:
+            formats = [specific_format.lower()]
         for row in (row.row() for row in rows):
             format = None
             fmts = self.db.formats(row)

@@ -32,7 +32,7 @@ class PRS505(Device):
     BCD          = [0x229]  #: Needed to disambiguate 505 and 700 on linux
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
-    FORMATS      = ['lrf', 'epub', 'lrx', 'rtf', 'pdf', 'txt']
+    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
     
     MEDIA_XML    = 'database/cache/media.xml'
     CACHE_XML    = 'Sony Reader/database/cache.xml'

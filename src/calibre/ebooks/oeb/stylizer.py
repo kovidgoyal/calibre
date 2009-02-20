@@ -8,24 +8,20 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
 import os
-import locale
-import codecs
 import itertools
-import types
 import re
 import copy
-from itertools import izip
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
+from cssutils.profiles import profiles as cssprofiles
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
-from calibre.ebooks.oeb.base import XPNSMAP, xpath, barename, urlnormalize
+from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
 from calibre.resources import html_css
 
@@ -163,7 +159,7 @@ class Stylizer(object):
         for _, _, cssdict, text, _ in rules:
             try:
                 selector = CSSSelector(text)
-            except ExpressionError, e:
+            except ExpressionError:
                 continue
             for elem in selector(tree):
                 self.style(elem)._update_cssdict(cssdict)
@@ -246,7 +242,7 @@ class Stylizer(object):
             primitives.reverse()
             value = primitives.pop()
             for key in composition:
-                if cssproperties.cssvalues[key](value):
+                if cssprofiles.validate(key, value):
                     style[key] = value
                     if not primitives: break
                     value = primitives.pop()

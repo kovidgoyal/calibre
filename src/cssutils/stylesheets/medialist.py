@@ -1,5 +1,4 @@
-"""
-MediaList implements DOM Level 2 Style Sheets MediaList.
+"""MediaList implements DOM Level 2 Style Sheets MediaList.
 
 TODO:
     - delete: maybe if deleting from all, replace *all* with all others?
@@ -7,49 +6,36 @@ TODO:
 """
 __all__ = ['MediaList']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: medialist.py 1423 2008-08-11 12:43:22Z cthedot $'
+__version__ = '$Id: medialist.py 1605 2009-01-03 18:27:32Z cthedot $'
 
-import xml.dom
-import cssutils
 from cssutils.css import csscomment
 from mediaquery import MediaQuery
+import cssutils
+import xml.dom
 
 class MediaList(cssutils.util.Base, cssutils.util.ListSeq):
-    """
-    Provides the abstraction of an ordered collection of media,
+    """Provides the abstraction of an ordered collection of media,
     without defining or constraining how this collection is
     implemented.
 
-    A media is always an instance of MediaQuery.
-
+    A single media in the list is an instance of :class:`MediaQuery`. 
     An empty list is the same as a list that contains the medium "all".
 
-    Properties
-    ==========
-    length:
-        The number of MediaQuery objects in the list.
-    mediaText: of type DOMString
-        The parsable textual representation of this MediaList
-    self: a list (cssutils)
-        All MediaQueries in this MediaList
-    wellformed:
-        if this list is wellformed
-
-    Format
-    ======
-    ::
+    Format from CSS2.1::
 
         medium [ COMMA S* medium ]*
 
-    New::
+    New format with :class:`MediaQuery`::
 
         <media_query> [, <media_query> ]*
     """
     def __init__(self, mediaText=None, readonly=False):
         """
-        mediaText
-            unicodestring of parsable comma separared media
-            or a list of media
+        :param mediaText:
+            Unicodestring of parsable comma separared media
+            or a (Python) list of media.
+        :param readonly:
+            Not used yet.
         """
         super(MediaList, self).__init__()
         self._wellformed = False
@@ -62,27 +48,31 @@ class MediaList(cssutils.util.Base, cssutils.util.ListSeq):
 
         self._readonly = readonly
 
+    def __repr__(self):
+        return "cssutils.stylesheets.%s(mediaText=%r)" % (
+                self.__class__.__name__, self.mediaText)
+
+    def __str__(self):
+        return "<cssutils.stylesheets.%s object mediaText=%r at 0x%x>" % (
+                self.__class__.__name__, self.mediaText, id(self))
+
     length = property(lambda self: len(self),
-        doc="(DOM readonly) The number of media in the list.")
+        doc="The number of media in the list (DOM readonly).")
 
     def _getMediaText(self):
-        """
-        returns serialized property mediaText
-        """
         return cssutils.ser.do_stylesheets_medialist(self)
 
     def _setMediaText(self, mediaText):
         """
-        mediaText
+        :param mediaText:
             simple value or comma-separated list of media
 
-        DOMException
-
-        - SYNTAX_ERR: (MediaQuery)
-          Raised if the specified string value has a syntax error and is
-          unparsable.
-        - NO_MODIFICATION_ALLOWED_ERR: (self)
-          Raised if this media list is readonly.
+        :exceptions:
+            - - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified string value has a syntax error and is
+              unparsable.
+            - - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if this media list is readonly.
         """
         self._checkReadonly()
         wellformed = True
@@ -121,55 +111,46 @@ class MediaList(cssutils.util.Base, cssutils.util.ListSeq):
             self._wellformed = True
 
     mediaText = property(_getMediaText, _setMediaText,
-        doc="""(DOM) The parsable textual representation of the media list.
-            This is a comma-separated list of media.""")
-
-    wellformed = property(lambda self: self._wellformed)
+        doc="The parsable textual representation of the media list.")
 
     def __prepareset(self, newMedium):
         # used by appendSelector and __setitem__
         self._checkReadonly()
-        
+
         if not isinstance(newMedium, MediaQuery):
             newMedium = MediaQuery(newMedium)
 
         if newMedium.wellformed:
             return newMedium
-        
+
     def __setitem__(self, index, newMedium):
-        """
-        overwrites ListSeq.__setitem__
-        
-        Any duplicate items are **not** removed.
+        """Overwriting ListSeq.__setitem__
+
+        Any duplicate items are **not yet** removed.
         """
         newMedium = self.__prepareset(newMedium)
         if newMedium:
             self.seq[index] = newMedium
-        # TODO: remove duplicates?   
-    
+        # TODO: remove duplicates?
+
     def appendMedium(self, newMedium):
-        """
-        (DOM)
-        Adds the medium newMedium to the end of the list. If the newMedium
-        is already used, it is first removed.
-
-        newMedium
-            a string or a MediaQuery object
-
-        returns if newMedium is wellformed
-
-        DOMException
-
-        - INVALID_CHARACTER_ERR: (self)
-          If the medium contains characters that are invalid in the
-          underlying style language.
-        - INVALID_MODIFICATION_ERR (self)
-          If mediaText is "all" and a new medium is tried to be added.
-          Exception is "handheld" which is set in any case (Opera does handle
-          "all, handheld" special, this special case might be removed in the
-          future). 
-        - NO_MODIFICATION_ALLOWED_ERR: (self)
-          Raised if this list is readonly.
+        """Add the `newMedium` to the end of the list. 
+        If the `newMedium` is already used, it is first removed.
+        
+        :param newMedium:
+            a string or a :class:`~cssutils.stylesheets.MediaQuery`
+        :returns: Wellformedness of `newMedium`.
+        :exceptions:
+            - :exc:`~xml.dom.InvalidCharacterErr`:
+              If the medium contains characters that are invalid in the
+              underlying style language.
+            - :exc:`~xml.dom.InvalidModificationErr`:
+              If mediaText is "all" and a new medium is tried to be added.
+              Exception is "handheld" which is set in any case (Opera does handle
+              "all, handheld" special, this special case might be removed in the
+              future).
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if this list is readonly.
         """
         newMedium = self.__prepareset(newMedium)
 
@@ -207,20 +188,19 @@ class MediaList(cssutils.util.Base, cssutils.util.ListSeq):
             return False
 
     def append(self, newMedium):
-        "overwrites ListSeq.append"
+        "Same as :meth:`appendMedium`."
         self.appendMedium(newMedium)
-    
+
     def deleteMedium(self, oldMedium):
-        """
-        (DOM)
-        Deletes the medium indicated by oldMedium from the list.
+        """Delete a medium from the list.
 
-        DOMException
-
-        - NO_MODIFICATION_ALLOWED_ERR: (self)
-          Raised if this list is readonly.
-        - NOT_FOUND_ERR: (self)
-          Raised if oldMedium is not in the list.
+        :param oldMedium:
+            delete this medium from the list.
+        :exceptions:
+            - :exc:`~xml.dom.NotFoundErr`:
+              Raised if `oldMedium` is not in the list.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if this list is readonly.
         """
         self._checkReadonly()
         oldMedium = self._normalize(oldMedium)
@@ -232,25 +212,15 @@ class MediaList(cssutils.util.Base, cssutils.util.ListSeq):
         else:
             self._log.error(u'"%s" not in this MediaList' % oldMedium,
                             error=xml.dom.NotFoundErr)
-#            raise xml.dom.NotFoundErr(
-#                u'"%s" not in this MediaList' % oldMedium)
 
     def item(self, index):
-        """
-        (DOM)
-        Returns the mediaType of the index'th element in the list.
-        If index is greater than or equal to the number of media in the
-        list, returns None.
+        """Return the mediaType of the `index`'th element in the list.
+        If `index` is greater than or equal to the number of media in the
+        list, returns ``None``.
         """
         try:
             return self[index].mediaType
         except IndexError:
             return None
 
-    def __repr__(self):
-        return "cssutils.stylesheets.%s(mediaText=%r)" % (
-                self.__class__.__name__, self.mediaText)
-
-    def __str__(self):
-        return "<cssutils.stylesheets.%s object mediaText=%r at 0x%x>" % (
-                self.__class__.__name__, self.mediaText, id(self))
+    wellformed = property(lambda self: self._wellformed)

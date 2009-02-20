@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""serializer classes for CSS classes
-
-"""
+"""cssutils serializer"""
 __all__ = ['CSSSerializer', 'Preferences']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: serialize.py 1472 2008-09-15 21:14:54Z cthedot $'
+__version__ = '$Id: serialize.py 1606 2009-01-03 20:32:17Z cthedot $'
+
 import codecs
+import cssutils
+import helper
 import re
 import xml.dom
-import cssutils
 
 def _escapecss(e):
     """
@@ -26,8 +26,7 @@ codecs.register_error('escapecss', _escapecss)
 
 
 class Preferences(object):
-    """
-    controls output of CSSSerializer
+    """Control output of CSSSerializer.
 
     defaultAtKeyword = True
         Should the literal @keyword from src CSS be used or the default
@@ -39,11 +38,12 @@ class Preferences(object):
         Only used if ``keepAllProperties==False``.
         
     defaultPropertyPriority = True
-        Should the normalized or literal priority be used, e.g. '!important'
-        or u'!Im\portant'
+        Should the normalized or literal priority be used, e.g. ``!important``
+        or ``!Im\portant``
 
     importHrefFormat = None
-        Uses hreftype if ``None`` or explicit ``'string'`` or ``'uri'``
+        Uses hreftype if ``None`` or format ``"URI"`` if ``'string'`` or
+        format ``url(URI)`` if ``'uri'``
     indent = 4 * ' '
         Indentation of e.g Properties inside a CSSStyleDeclaration
     indentSpecificities = False
@@ -87,21 +87,28 @@ class Preferences(object):
         
         A Property is valid if it is a known Property with a valid value.
         Currently CSS 2.1 values as defined in cssproperties.py would be
-        valid.
-        
+        valid. 
     """
     def __init__(self, **initials):
-        """
-        Always use named instead of positional parameters
-        """
+        """Always use named instead of positional parameters."""
         self.useDefaults()
-        
         for key, value in initials.items():
             if value:
                 self.__setattr__(key, value)
 
+    def __repr__(self):
+        return u"cssutils.css.%s(%s)" % (self.__class__.__name__, 
+            u', '.join(['\n    %s=%r' % (p, self.__getattribute__(p)) for p in self.__dict__]
+                ))
+
+    def __str__(self):
+        return u"<cssutils.css.%s object %s at 0x%x" % (self.__class__.__name__, 
+            u' '.join(['%s=%r' % (p, self.__getattribute__(p)) for p in self.__dict__]
+                ),
+                id(self))
+
     def useDefaults(self):
-        "reset all preference options to the default value"
+        "Reset all preference options to their default value."
         self.defaultAtKeyword = True
         self.defaultPropertyName = True
         self.defaultPropertyPriority = True
@@ -123,11 +130,10 @@ class Preferences(object):
         self.validOnly = False # should not be changed currently!!!
         
     def useMinified(self):
-        """
-        sets options to achive a minified stylesheet
+        """Set options resulting in a minified stylesheet.
         
-        you may want to set preferences with this convenience method
-        and set settings you want adjusted afterwards
+        You may want to set preferences with this convenience method
+        and set settings you want adjusted afterwards.
         """
         self.importHrefFormat = 'string'
         self.indent = u''
@@ -144,22 +150,9 @@ class Preferences(object):
         self.spacer = u''
         self.validOnly = False
 
-    def __repr__(self):
-        return u"cssutils.css.%s(%s)" % (self.__class__.__name__, 
-            u', '.join(['\n    %s=%r' % (p, self.__getattribute__(p)) for p in self.__dict__]
-                ))
-
-    def __str__(self):
-        return u"<cssutils.css.%s object %s at 0x%x" % (self.__class__.__name__, 
-            u' '.join(['%s=%r' % (p, self.__getattribute__(p)) for p in self.__dict__]
-                ),
-                id(self))
-
 
 class Out(object):
-    """
-    a simple class which makes appended items available as a combined string
-    """
+    """A simple class which makes appended items available as a combined string"""
     def __init__(self, ser):
         self.ser = ser
         self.out = []
@@ -178,11 +171,11 @@ class Out(object):
         - typ "Property", cssutils.css.CSSRule.UNKNOWN_RULE
             uses cssText
         - typ STRING
-            escapes ser._string
+            escapes helper.string
         - typ S
             ignored except ``keepS=True``
         - typ URI
-            calls ser_uri
+            calls helper.uri
         - val ``{``
             adds LF after
         - val ``;``
@@ -194,6 +187,8 @@ class Out(object):
         - some other vals
             add ``*spacer`` except ``space=False``
         """
+        prefspace = self.ser.prefs.spacer
+        
         if val or typ in ('STRING', 'URI'):
             # PRE
             if 'COMMENT' == typ:
@@ -207,6 +202,8 @@ class Out(object):
 #                val = val.cssText
             elif 'S' == typ and not keepS:
                 return
+            elif 'S' == typ and keepS:
+                val = u' '
             elif typ in ('NUMBER', 'DIMENSION', 'PERCENTAGE') and val == '0':
                 # remove sign + or - if value is zero
                 # TODO: only for lenghts!
@@ -216,12 +213,16 @@ class Out(object):
                 # may be empty but MUST not be None
                 if val is None: 
                     return
-                val = self.ser._string(val)                
+                val = helper.string(val) 
+                if not prefspace:
+                    self._remove_last_if_S()
             elif 'URI' == typ:
-                val = self.ser._uri(val)
+                val = helper.uri(val)
+            elif 'HASH' == typ:
+                val = self.ser._hash(val)
             elif val in u'+>~,:{;)]/':
                 self._remove_last_if_S()
-
+                
             # APPEND
             if indent:
                 self.out.append(self.ser._indentblock(val, self.ser._level+1))
@@ -243,8 +244,11 @@ class Out(object):
                 self.out.append(self.ser.prefs.lineSeparator)
             elif u';' == val: # end or prop or block
                 self.out.append(self.ser.prefs.lineSeparator)
-            elif val not in u'}[]()/' and typ not in ('FUNCTION',) and space:
+            elif val not in u'}[]()/' and typ != 'FUNCTION' and space:
                 self.out.append(self.ser.prefs.spacer)
+                if typ != 'STRING' and not self.ser.prefs.spacer and \
+                   self.out and not self.out[-1].endswith(u' '):
+                    self.out.append(u' ')
         
     def value(self, delim=u'', end=None, keepS=False):
         "returns all items joined by delim"
@@ -256,19 +260,14 @@ class Out(object):
     
 
 class CSSSerializer(object):
-    """
-    Methods to serialize a CSSStylesheet and its parts
+    """Serialize a CSSStylesheet and its parts.
 
     To use your own serializing method the easiest is to subclass CSS
     Serializer and overwrite the methods you like to customize.
     """
-    # chars not in URI without quotes around as problematic with other stuff
-    # really ","?
-    __forbidden_in_uri_matcher = re.compile(ur'''.*?[\(\)\s\;,]''', re.U).match
-
     def __init__(self, prefs=None):
         """
-        prefs
+        :param prefs:
             instance of Preferences
         """
         if not prefs:
@@ -319,23 +318,17 @@ class CSSSerializer(object):
             text = self.prefs.lineSeparator.join(out)
         return text
 
-    def _string(self, s):
+    def _hash(self, val, type_=None):
         """
-        returns s encloded between "..." and escaped delim charater ", 
-        escape line breaks \\n \\r and \\f
+        Short form of hash, e.g. #123 instead of #112233
         """
-        # \n = 0xa, \r = 0xd, \f = 0xc
-        s = s.replace('\n', '\\a ').replace(
-                      '\r', '\\d ').replace(
-                      '\f', '\\c ')
-        return u'"%s"' % s.replace('"', u'\\"')
-
-    def _uri(self, uri):
-        """returns uri enclosed in url() and "..." if necessary"""
-        if CSSSerializer.__forbidden_in_uri_matcher(uri):
-            return 'url(%s)' % self._string(uri)
+        # TODO: add pref for this!
+        if len(val) == 7 and val[1] == val[2] and\
+                             val[3] == val[4] and\
+                             val[5] == val[6]:
+            return u'#%s%s%s' % (val[1], val[3], val[5])
         else:
-            return 'url(%s)' % uri
+            return val
 
     def _valid(self, x):
         "checks items valid property and prefs.validOnly"
@@ -384,7 +377,7 @@ class CSSSerializer(object):
         no comments or other things allowed!
         """
         if rule.wellformed:
-            return u'@charset %s;' % self._string(rule.encoding)
+            return u'@charset %s;' % helper.string(rule.encoding)
         else:
             return u''
 
@@ -438,8 +431,6 @@ class CSSSerializer(object):
                              rule.hreftype == 'string'):
                         out.append(val, 'STRING')
                     else:
-                        if not len(self.prefs.spacer):
-                            out.append(u' ')   
                         out.append(val, 'URI')
                 elif 'media' == typ:
                     # media
@@ -468,10 +459,7 @@ class CSSSerializer(object):
         """
         if rule.wellformed:
             out = Out(self)
-            out.append(self._atkeyword(rule, u'@namespace'))
-            if not len(self.prefs.spacer):
-                out.append(u' ')   
-            
+            out.append(self._atkeyword(rule, u'@namespace'))            
             for item in rule.seq:
                 typ, val = item.type, item.value
                 if 'namespaceURI' == typ:
@@ -509,7 +497,7 @@ class CSSSerializer(object):
         if rule.name:
             out.append(self.prefs.spacer)
             nameout = Out(self)
-            nameout.append(self._string(rule.name))
+            nameout.append(helper.string(rule.name))
             for item in rule.seq:
                 nameout.append(item.value, item.type)
             out.append(nameout.value())
@@ -548,22 +536,26 @@ class CSSSerializer(object):
         + CSSComments
         """
         styleText = self.do_css_CSSStyleDeclaration(rule.style)
-
         if styleText and rule.wellformed:
             out = Out(self)
             out.append(self._atkeyword(rule, u'@page'))
-            if not len(self.prefs.spacer):
-                out.append(u' ')
-                        
-            for item in rule.seq:
-                out.append(item.value, item.type)
-                            
+            out.append(rule.selectorText)                            
             out.append(u'{')            
             out.append(u'%s%s}' % (styleText, self.prefs.lineSeparator),
                        indent=1)
             return out.value()            
         else:
             return u''
+
+    def do_CSSPageRuleSelector(self, seq):
+        "Serialize selector of a CSSPageRule"
+        out = Out(self)
+        for item in seq:
+            if item.type == 'IDENT':
+                out.append(item.value, item.type, space=False)
+            else:
+                out.append(item.value, item.type)
+        return out.value()
         
     def do_CSSUnknownRule(self, rule):
         """
@@ -574,8 +566,6 @@ class CSSSerializer(object):
         if rule.wellformed:
             out = Out(self)
             out.append(rule.atkeyword)  
-            if not len(self.prefs.spacer):
-                out.append(u' ')
                          
             stacks = []
             for item in rule.seq:
@@ -751,7 +741,7 @@ class CSSSerializer(object):
                         out.append(separator)
                 elif isinstance(val, cssutils.css.Property):
                     # PropertySimilarNameList
-                    out.append(self.do_Property(val))
+                    out.append(val.cssText)
                     if not (self.prefs.omitLastSemicolon and i==len(seq)-1):
                         out.append(u';')
                     out.append(separator)
@@ -822,8 +812,7 @@ class CSSSerializer(object):
         """
         a Properties priority "!" S* "important"
         """
-        # TODO: use Out()
-        
+        # TODO: use Out()       
         out = []
         for part in priorityseq:
             if hasattr(part, 'cssText'): # comments
@@ -836,72 +825,47 @@ class CSSSerializer(object):
 
     def do_css_CSSValue(self, cssvalue):
         """Serializes a CSSValue"""
-        # TODO: use self._valid(cssvalue)?
         if not cssvalue:
             return u''
         else:
             out = Out(self)
             for item in cssvalue.seq:
                 type_, val = item.type, item.value
-                if type_ in (cssutils.css.CSSColor, 
-                             cssutils.css.CSSValue):
-                    # CSSColor or CSSValue if a CSSValueList
-                    out.append(val.cssText, type_, space=False, keepS=True)
+                if hasattr(val, 'cssText'):
+                    # RGBColor or CSSValue if a CSSValueList
+                    out.append(val.cssText, type_)
                 else:
                     if val and val[0] == val[-1] and val[0] in '\'"':
-                        val = self._string(val[1:-1])
+                        val = helper.string(val[1:-1])
                     # S must be kept! in between values but no extra space
-                    out.append(val, type_, space=False, keepS=True)
+                    out.append(val, type_)
+
             return out.value() 
                         
     def do_css_CSSPrimitiveValue(self, cssvalue):
         """Serialize a CSSPrimitiveValue"""
-        # TODO: use self._valid(cssvalue)?
         if not cssvalue:
             return u''
         else:
             out = Out(self)
-            
-            unary = None
             for item in cssvalue.seq:
                 type_, val = item.type, item.value
-                if 'CHAR' == type_ and val in u'+-':
-                    # save for next round
-                    unary = val
-                    continue
-                if cssutils.css.CSSColor == type_:
-                    # Comment or CSSColor
-                    val = val.cssText
-                elif type_ in ('DIMENSION', 'NUMBER', 'PERCENTAGE'):
-                    # handle saved unary and add to number
-                    try:
-                        # NUMBER or DIMENSION and is it 0?
-                        if 0 == cssvalue.getFloatValue():
+                if type_ in ('DIMENSION', 'NUMBER', 'PERCENTAGE'):
+                    n, d = cssvalue._getNumDim(val)
+                    if 0 == n:
+                        if cssvalue.primitiveType in cssvalue._lengthtypes:
+                            # 0 if zero value
                             val = u'0'
                         else:
-                            # add unary to val if not 0
-                            # TODO: only for lengths!
-                            if u'-' == unary:
-                                val = unary + val
-                    except xml.dom.InvalidAccessErr, e:
-                        pass
-                    unary = None
-                elif unary:
-                    # or simple add
-                    out.append(unary, 'CHAR', space=False, keepS=True)
-                    unary = None
-                
+                            val = u'0' + d
+                    else:
+                        val = unicode(n) + d
                 out.append(val, type_)
-#                if hasattr(val, 'cssText'):
-#                    # comments or CSSValue if a CSSValueList
-#                    out.append(val.cssText, type_)
-#                else:
-#                    out.append(val, type_) #?
-
+                
             return out.value() 
             
-    def do_css_CSSColor(self, cssvalue):
-        """Serialize a CSSColor value"""
+    def do_css_RGBColor(self, cssvalue):
+        """Serialize a RGBColor value"""
         if not cssvalue:
             return u''
         else:
@@ -910,21 +874,16 @@ class CSSSerializer(object):
             for item in cssvalue.seq:
                 type_, val = item.type, item.value
                 
-                # prepare
-                if 'HASH' == type_:
-                    # TODO: add pref for this!
-                    if len(val) == 7 and val[1] == val[2] and \
-                       val[3] == val[4] and val[5] == val[6]:
-                        val = u'#%s%s%s' % (val[1], val[3], val[5])
-                elif 'CHAR' == type_ and val in u'+-':
-                    # save - for next round                
-                    if u'-' == val:
-                        # omit +
-                        unary = val
-                    continue
-                elif unary:
-                    val = unary + val.cssText
-                    unary = None
+#                # prepare
+#                if 'CHAR' == type_ and val in u'+-':
+#                    # save - for next round                
+#                    if u'-' == val:
+#                        # omit +
+#                        unary = val
+#                    continue
+#                elif unary:
+#                    val = unary + val.cssText
+#                    unary = None
                     
                 out.append(val, type_)
             
@@ -960,3 +919,29 @@ class CSSSerializer(object):
             return u' '.join(out)
         else:
             return u''
+
+
+    def do_css_ExpressionValue(self, cssvalue):
+        """Serialize an ExpressionValue (IE only), 
+        should at least keep the original syntax"""
+        if not cssvalue:
+            return u''
+        else:
+            out = Out(self)
+            for item in cssvalue.seq:
+                type_, val = item.type, item.value
+                if type_ in ('DIMENSION', 'NUMBER', 'PERCENTAGE'):
+                    n, d = cssvalue._getNumDim(val)
+                    if 0 == n:
+                        if cssvalue.primitiveType in cssvalue._lengthtypes:
+                            # 0 if zero value
+                            val = u'0'
+                        else:
+                            val = u'0' + d
+                    else:
+                        val = unicode(n) + d
+                # do no send type_ so no special cases!
+                out.append(val, None, space=False)
+                
+            return out.value() 
+            

@@ -58,7 +58,7 @@ class Checker(object):
                             "specific sections. You must explicitly pass "
                             "application config via "
                             "cherrypy.tree.mount(..., config=app_config)")
-                warnings.warn(msg)
+                    warnings.warn(msg[:5])
                 return
     
     def check_static_paths(self):

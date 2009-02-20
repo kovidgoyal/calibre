@@ -14,21 +14,28 @@ class Infobae(BasicNewsRecipe):
     description           = 'Informacion Libre las 24 horas'
     publisher             = 'Infobae.com'
     category              = 'news, politics, Argentina'     
-    oldest_article        = 2
+    oldest_article        = 1
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    language              = _('Spanish')
     encoding              = 'iso-8859-1'
     cover_url             = 'http://www.infobae.com/imgs/header/header.gif'
     remove_javascript     = True
     
     html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
+                          '--comment'  , description
+                        , '--category' , category
                         , '--publisher', publisher
+                        , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+
+    remove_tags = [
+                     dict(name=['embed','link','object'])
+                    ,dict(name='a', attrs={'onclick':'javascript:window.print()'})
+                  ]
     
     feeds = [ 
               (u'Noticias'  , u'http://www.infobae.com/adjuntos/html/RSS/hoy.xml'       )
@@ -48,5 +55,3 @@ class Infobae(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-
-    language = _('Spanish')

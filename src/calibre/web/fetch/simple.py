@@ -8,7 +8,7 @@ Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
 import sys, socket, os, urlparse, logging, re, time, copy, urllib2, threading, traceback
-from urllib import url2pathname
+from urllib import url2pathname, quote
 from threading import RLock
 from httplib import responses
 from PIL import Image
@@ -179,6 +179,8 @@ class RecursiveFetcher(object, LoggingInterface):
         delta = time.time() - self.last_fetch_at 
         if  delta < self.delay:
             time.sleep(delta)
+        if re.search(r'\s+', url) is not None:
+            url = quote(url)
         with self.browser_lock:
             try:
                 with closing(self.browser.open(url)) as f:

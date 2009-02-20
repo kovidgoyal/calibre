@@ -19,153 +19,207 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: parse.py 1418 2008-08-09 19:27:50Z cthedot $'
 
 import cssutils
+import sys
 
 
 class ParseError(Exception):
     """Base Exception class for ProdParser (used internally)."""
     pass
 
+class Done(ParseError):
+    """Raised if Sequence or Choice is finished and no more Prods left."""
+    pass
+
 class Exhausted(ParseError):
-    """Raised if Sequence or Choice is done."""
+    """Raised if Sequence or Choice is finished but token is given."""
+    pass
+
+class Missing(ParseError):
+    """Raised if Sequence or Choice is not finished but no matching token given."""
     pass
 
 class NoMatch(ParseError):
-    """Raised if Sequence or Choice do not match."""
-    pass
-
-class MissingToken(ParseError):
-    """Raised if Sequence or Choice are not exhausted."""
+    """Raised if nothing in Sequence or Choice does match."""
     pass
 
 
 class Choice(object):
     """A Choice of productions (Sequence or single Prod)."""
-    def __init__(self, prods):
+
+    def __init__(self, *prods, **options):
         """
-        prods
+        *prods
             Prod or Sequence objects
+        options:
+            optional=False
         """
         self._prods = prods
+
+        try:
+            self.optional = options['optional']
+        except KeyError, e:
+            for p in self._prods:
+                if p.optional:
+                    self.optional = True
+                    break
+            else:
+                self.optional = False
+
+        self.reset()
+
+    def reset(self):
+        """Start Choice from zero"""
         self._exhausted = False
+
+    def matches(self, token):
+        """Check if token matches"""
+        for prod in self._prods:
+            if prod.matches(token):
+                return True
+        return False
 
     def nextProd(self, token):
         """
         Return:
-        
-        - next matching Prod or Sequence 
-        - raises ParseError if nothing matches
-        - raises Exhausted if choice already done
+
+        - next matching Prod or Sequence
+        - ``None`` if any Prod or Sequence is optional and no token matched
+        - raise ParseError if nothing matches and all are mandatory
+        - raise Exhausted if choice already done
 
         ``token`` may be None but this occurs when no tokens left."""
         if not self._exhausted:
+            optional = False
             for x in self._prods:
-                if isinstance(x, Prod):
-                    test = x
-                else:
-                    # nested Sequence matches if 1st prod matches
-                    test = x.first()
-                try:
-                    if test.matches(token):
-                        self._exhausted = True
-                        return x
-                except ParseError, e:
-                    # do not raise if other my match
-                    continue
+                if x.matches(token):
+                    self._exhausted = True
+                    x.reset()
+                    return x
+                elif x.optional:
+                    optional = True
             else:
-                # None matched
-                raise ParseError(u'No match in choice')
-        else:
+                if not optional:
+                    # None matched but also None is optional
+                    raise ParseError(u'No match in %s' % self)
+        elif token:
             raise Exhausted(u'Extra token')
+
+    def __str__(self):
+        return u'Choice(%s)' % u', '.join([str(x) for x in self._prods])
 
 
 class Sequence(object):
     """A Sequence of productions (Choice or single Prod)."""
-    def __init__(self, prods, minmax=None):
+    def __init__(self, *prods, **options):
         """
-        prods
+        *prods
             Prod or Sequence objects
-        minmax = lambda: (1, 1)
-            callback returning number of times this sequence may run
+        **options:
+            minmax = lambda: (1, 1)
+                callback returning number of times this sequence may run
         """
         self._prods = prods
-        if not minmax:
+        try:
+            minmax = options['minmax']
+        except KeyError:
             minmax = lambda: (1, 1)
+
         self._min, self._max = minmax()
+        if self._max is None:
+            # unlimited
+            try:
+                # py2.6/3
+                self._max = sys.maxsize
+            except AttributeError:
+                # py<2.6
+                self._max = sys.maxint
 
-        self._number = len(self._prods)
-        self._round = 1 # 1 based!
-        self._pos = 0
+        self._prodcount = len(self._prods)
+        self.reset()
 
-    def first(self):
-        """Return 1st element of Sequence, used by Choice"""
-        # TODO: current impl first only if 1st if an prod!
+    def matches(self, token):
+        """Called by Choice to try to find if Sequence matches."""
         for prod in self._prods:
-            if not prod.optional:
-                return prod
+            if prod.matches(token):
+                return True
+            try:
+                if not prod.optional:
+                    break
+            except AttributeError:
+                pass
+        return False
+
+    def reset(self):
+        """Reset this Sequence if it is nested."""
+        self._roundstarted = False
+        self._i = 0
+        self._round = 0
 
     def _currentName(self):
         """Return current element of Sequence, used by name"""
         # TODO: current impl first only if 1st if an prod!
-        for prod in self._prods[self._pos:]:
+        for prod in self._prods[self._i:]:
             if not prod.optional:
-                return prod.name
+                return str(prod)
         else:
-            return 'Unknown'
+            return 'Sequence'
 
-    name = property(_currentName, doc='Used for Error reporting')
+    optional = property(lambda self: self._min == 0)
 
     def nextProd(self, token):
         """Return
-        
-        - next matching Prod or Choice 
+
+        - next matching Prod or Choice
         - raises ParseError if nothing matches
         - raises Exhausted if sequence already done
         """
-        while self._pos < self._number:
-            x = self._prods[self._pos]
-            thisround = self._round
-            
-            self._pos += 1
-            if self._pos == self._number:
-                if self._round < self._max:
-                    # new round?
-                    self._pos = 0
-                    self._round += 1
+        while self._round < self._max:
+            # for this round
+            i = self._i
+            round = self._round
+            p = self._prods[i]
+            if i == 0:
+                self._roundstarted = False
 
-            if isinstance(x, Prod):
-                if not token and (x.optional or thisround > self._min):
-                    # token is None if nothing expected
-                    raise Exhausted()
-                elif not token and not x.optional:
-                    raise MissingToken(u'Missing token for production %s'
-                                       % x.name)
-                elif x.matches(token):
-                    return x
-                elif x.optional:
-                    # try next 
-                    continue
-#                elif thisround > self._min:
-#                    # minimum done
-#                    self._round = self._max
-#                    self._pos = self._number
-#                    return None
+            # for next round
+            self._i += 1
+            if self._i == self._prodcount:
+                self._round += 1
+                self._i = 0
+
+            if p.matches(token):
+                self._roundstarted = True
+                # reset nested Choice or Prod to use from start
+                p.reset()
+                return p
+
+            elif p.optional:
+                continue
+
+            elif round < self._min:
+                raise Missing(u'Missing token for production %s' % p)
+
+            elif not token:
+                if self._roundstarted:
+                    raise Missing(u'Missing token for production %s' % p)
                 else:
-                    # should have matched
-                    raise NoMatch(u'No matching production for token')
-                    
+                    raise Done()
+
             else:
-                # nested Sequence or Choice
-                return x
-        
-        # Sequence is exhausted
-        if self._round >= self._max:
+                raise NoMatch(u'No matching production for token')
+
+        if token:
             raise Exhausted(u'Extra token')
+
+    def __str__(self):
+        return u'Sequence(%s)' % u', '.join([str(x) for x in self._prods])
 
 
 class Prod(object):
     """Single Prod in Sequence or Choice."""
-    def __init__(self, name, match, toSeq=None, toStore=None,
-                 optional=False):
+    def __init__(self, name, match, optional=False,
+                 toSeq=None, toStore=None,
+                 stop=False, nextSor=False, mayEnd=False):
         """
         name
             name used for error reporting
@@ -173,16 +227,24 @@ class Prod(object):
             function called with parameters tokentype and tokenvalue
             returning True, False or raising ParseError
         toSeq callback (optional)
-            if given calling toSeq(token) will be appended to seq
-            else simply seq
+            calling toSeq(token, tokens) returns (type_, val) == (token[0], token[1])
+            to be appended to seq else simply unaltered (type_, val)
         toStore (optional)
             key to save util.Item to store or callback(store, util.Item)
         optional = False
             wether Prod is optional or not
+        stop = False
+            if True stop parsing of tokens here
+        mayEnd = False
+            no token must follow even defined by Sequence.
+            Used for operator ',/ ' currently only
         """
-        self.name = name
+        self._name = name
         self.match = match
-        self.optional=optional
+        self.optional = optional
+        self.stop = stop
+        self.nextSor = nextSor
+        self.mayEnd = mayEnd
 
         def makeToStore(key):
             "Return a function used by toStore."
@@ -198,9 +260,9 @@ class Prod(object):
             # called: seq.append(toSeq(value))
             self.toSeq = toSeq
         else:
-            self.toSeq = lambda val: val
+            self.toSeq = lambda t, tokens: (t[0], t[1])
 
-        if callable(toStore):
+        if hasattr(toStore, '__call__'):
             self.toStore = toStore
         elif toStore:
             self.toStore = makeToStore(toStore)
@@ -210,12 +272,20 @@ class Prod(object):
 
     def matches(self, token):
         """Return if token matches."""
+        if not token:
+            return False
         type_, val, line, col = token
         return self.match(type_, val)
 
+    def reset(self):
+        pass
+
+    def __str__(self):
+        return self._name
+
     def __repr__(self):
         return "<cssutils.prodsparser.%s object name=%r at 0x%x>" % (
-                self.__class__.__name__, self.name, id(self))
+                self.__class__.__name__, self._name, id(self))
 
 
 class ProdParser(object):
@@ -225,17 +295,81 @@ class ProdParser(object):
         self._log = cssutils.log
         self._tokenizer = cssutils.tokenize2.Tokenizer()
 
+    def _texttotokens(self, text):
+        """Build a generator which is the only thing that is parsed!
+        old classes may use lists etc
+        """
+        if isinstance(text, basestring):
+            # to tokenize strip space
+            tokens = self._tokenizer.tokenize(text.strip())
+        elif isinstance(text, tuple):
+            # (token, tokens) or a single token
+            if len(text) == 2:
+                # (token, tokens)
+                def gen(token, tokens):
+                    "new generator appending token and tokens"
+                    yield token
+                    for t in tokens:
+                        yield t
+
+                tokens = (t for t in gen(*text))
+
+            else:
+                # single token
+                tokens = (t for t in [text])
+        elif isinstance(text, list):
+            # generator from list
+            tokens = (t for t in text)
+        else:
+            # already tokenized, assume generator
+            tokens = text
+
+        return tokens
+
+    def _SorTokens(self, tokens, until=',/'):
+        """New tokens generator which has S tokens removed,
+        if followed by anything in ``until``, normally a ``,``."""
+        def removedS(tokens):
+            for token in tokens:
+                if token[0] == self.types.S:
+                    try:
+                        next_ = tokens.next()
+                    except StopIteration:
+                        yield token
+                    else:
+                        if next_[1] in until:
+                            # omit S as e.g. ``,`` has been found
+                            yield next_
+                        elif next_[0] == self.types.COMMENT:
+                            # pass COMMENT
+                            yield next_
+                        else:
+                            yield token
+                            yield next_
+
+                elif token[0] == self.types.COMMENT:
+                    # pass COMMENT
+                    yield token
+                else:
+                    yield token
+                    break
+            # normal mode again
+            for token in tokens:
+                yield token
+
+        return (token for token in removedS(tokens))
+
     def parse(self, text, name, productions, store=None):
         """
         text (or token generator)
             to parse, will be tokenized if not a generator yet
-            
+
             may be:
             - a string to be tokenized
             - a single token, a tuple
             - a tuple of (token, tokensGenerator)
-            - already tokenized so a tokens generator 
-            
+            - already tokenized so a tokens generator
+
         name
             used for logging
         productions
@@ -255,148 +389,249 @@ class ProdParser(object):
             :store: filled keys defined by Prod.toStore
             :unusedtokens: token generator containing tokens not used yet
         """
-        if isinstance(text, basestring):
-            # to tokenize
-            tokens = self._tokenizer.tokenize(text)
-        elif isinstance(text, tuple):
-            # (token, tokens) or a single token
-            if len(text) == 2:
-                # (token, tokens)
-                def gen(token, tokens):
-                    "new generator appending token and tokens"
-                    yield token
-                    for t in tokens:
-                        yield t
-                        
-                tokens = (t for t in gen(*text))
-                
-            else:
-                # single token
-                tokens = [text]
-        else:
-            # already tokenized, assume generator
-            tokens = text
+        tokens = self._texttotokens(text)
+        if not tokens:
+            self._log.error(u'No content to parse.')
+            # TODO: return???
 
-        # a new seq to append all Items to
         seq = cssutils.util.Seq(readonly=False)
-
-        # store for specific values
-        if not store:
+        if not store: # store for specific values
             store = {}
-#        store['_raw'] = []
-
-        # stack of productions
-        prods = [productions]
-
+        prods = [productions] # stack of productions
         wellformed = True
-        for token in tokens:
+
+        # while no real token is found any S are ignored
+        started = False
+        prod = None
+        # flag if default S handling should be done
+        defaultS = True
+        while True:
+            try:
+                token = tokens.next()
+            except StopIteration:
+                break
             type_, val, line, col = token
-#            store['_raw'].append(val)
 
             # default productions
-            if type_ == self.types.S:
-                # always append S?
-                seq.append(val, type_, line, col)
-            elif type_ == self.types.COMMENT:
+            if type_ == self.types.COMMENT:
                 # always append COMMENT
-                seq.append(val, type_, line, col)
+                seq.append(cssutils.css.CSSComment(val),
+                           cssutils.css.CSSComment, line, col)
+            elif defaultS and type_ == self.types.S:
+                # append S (but ignore starting ones)
+                if started:
+                    seq.append(val, type_, line, col)
+                else:
+                    continue
 #            elif type_ == self.types.ATKEYWORD:
 #                # @rule
 #                r = cssutils.css.CSSUnknownRule(cssText=val)
 #                seq.append(r, type(r), line, col)
-            elif type_ == self.types.EOF:
-                # do nothing
+            elif type_ == self.types.INVALID:
+                # invalidate parse
+                wellformed = False
+                self._log.error(u'Invalid token: %r' % (token,))
+                break
+            elif type_ == 'EOF':
+                # do nothing? (self.types.EOF == True!)
                 pass
-#               next = 'EOF'
             else:
-                # check prods
+                started = True # check S now
+                nextSor = False # reset
+
                 try:
                     while True:
                         # find next matching production
                         try:
                             prod = prods[-1].nextProd(token)
-                        except (NoMatch, Exhausted), e:
+                        except (Exhausted, NoMatch), e:
                             # try next
                             prod = None
-                            
                         if isinstance(prod, Prod):
+                            # found actual Prod, not a Choice or Sequence
                             break
-                        elif not prod:
-                            if len(prods) > 1:
-                                # nested exhausted, next in parent
-                                prods.pop()
-                            else:
-                                raise Exhausted('Extra token')
-                        else:
+                        elif prod:
                             # nested Sequence, Choice
                             prods.append(prod)
-
+                        else:
+                            # nested exhausted, try in parent
+                            if len(prods) > 1:
+                                prods.pop()
+                            else:
+                                raise ParseError('No match')
                 except ParseError, e:
                     wellformed = False
                     self._log.error(u'%s: %s: %r' % (name, e, token))
-
+                    break
                 else:
                     # process prod
                     if prod.toSeq:
-                        seq.append(prod.toSeq(val), type_, line, col)
-                    else:
+                        type_, val = prod.toSeq(token, tokens)
+                    if val is not None:
                         seq.append(val, type_, line, col)
-
                     if prod.toStore:
                         prod.toStore(store, seq[-1])
-                        
-#                    if 'STOP' == next: # EOF?
-#                        # stop here and ignore following tokens
-#                        break
+                    if prod.stop: # EOF?
+                        # stop here and ignore following tokens
+                        break
+                    if prod.nextSor:
+                        # following is S or other token (e.g. ",")?
+                        # remove S if
+                        tokens = self._SorTokens(tokens, ',/')
+                        defaultS = False
+                    else:
+                        defaultS = True
 
+        lastprod = prod
         while True:
             # all productions exhausted?
             try:
                 prod = prods[-1].nextProd(token=None)
-            except Exhausted, e:
-                prod = None # ok
-            except (MissingToken, NoMatch), e:
-                wellformed = False
-                self._log.error(u'%s: %s'
-                                % (name, e))
-            else:
-                try:
-                    if prod.optional:
-                        # ignore optional ones
-                        continue
-                except AttributeError:
-                    pass
+            except Done, e:
+                # ok
+                prod = None
 
-            if prod:
+            except Missing, e:
+                prod = None
+                # last was a S operator which may End a Sequence, then ok
+                if hasattr(lastprod, 'mayEnd') and not lastprod.mayEnd:
+                    wellformed = False
+                    self._log.error(u'%s: %s' % (name, e))
+
+            except ParseError, e:
+                prod = None
+                wellformed = False
+                self._log.error(u'%s: %s' % (name, e))
+
+            else:
+                if prods[-1].optional:
+                    prod = None
+                elif prod and prod.optional:
+                    # ignore optional
+                    continue
+
+            if prod and not prod.optional:
                 wellformed = False
                 self._log.error(u'%s: Missing token for production %r'
-                                % (name, prod.name))
+                                % (name, str(prod)))
+                break
             elif len(prods) > 1:
                 # nested exhausted, next in parent
                 prods.pop()
             else:
                 break
 
-        # bool, Seq, None or generator
+        # trim S from end
+        seq.rstrip()
         return wellformed, seq, store, tokens
 
 
 class PreDef(object):
     """Predefined Prod definition for use in productions definition
     for ProdParser instances.
-    """ 
-    @staticmethod
-    def comma():
-        ","
-        return Prod(name=u'comma', match=lambda t, v: v == u',')
+    """
+    types = cssutils.cssproductions.CSSProductions
 
     @staticmethod
-    def funcEnd():
-        ")"
-        return Prod(name=u'end FUNC ")"', match=lambda t, v: v == u')')
-    
+    def CHAR(name='char', char=u',', toSeq=None, toStore=None, stop=False,
+             nextSor=False):
+        "any CHAR"
+        return Prod(name=name, match=lambda t, v: v == char,
+                    toSeq=toSeq,
+                    toStore=toStore,
+                    stop=stop,
+                    nextSor=nextSor)
+
     @staticmethod
-    def unary():
+    def comma(toStore=None):
+        return PreDef.CHAR(u'comma', u',', toStore=toStore)
+
+    @staticmethod
+    def dimension(toStore=None, nextSor=False):
+        return Prod(name=u'dimension',
+                    match=lambda t, v: t == PreDef.types.DIMENSION,
+                    toStore=toStore,
+                    toSeq=lambda t, tokens: (t[0], cssutils.helper.normalize(t[1])),
+                    nextSor=nextSor)
+
+    @staticmethod
+    def function(toSeq=None, toStore=None, nextSor=False):
+        return Prod(name=u'function',
+                    match=lambda t, v: t == PreDef.types.FUNCTION,
+                    toSeq=toSeq,
+                    toStore=toStore,
+                    nextSor=nextSor)
+
+    @staticmethod
+    def funcEnd(toStore=None, stop=False, nextSor=False):
+        ")"
+        return PreDef.CHAR(u'end FUNC ")"', u')',
+                           toStore=toStore,
+                           stop=stop,
+                           nextSor=nextSor)
+
+    @staticmethod
+    def ident(toStore=None, nextSor=False):
+        return Prod(name=u'ident',
+                    match=lambda t, v: t == PreDef.types.IDENT,
+                    toStore=toStore,
+                    nextSor=nextSor)
+
+    @staticmethod
+    def number(toStore=None, nextSor=False):
+        return Prod(name=u'number',
+                    match=lambda t, v: t == PreDef.types.NUMBER,
+                    toStore=toStore,
+                    nextSor=nextSor)
+
+    @staticmethod
+    def string(toStore=None, nextSor=False):
+        "string delimiters are removed by default"
+        return Prod(name=u'string',
+                    match=lambda t, v: t == PreDef.types.STRING,
+                    toStore=toStore,
+                    toSeq=lambda t, tokens: (t[0], cssutils.helper.stringvalue(t[1])),
+                    nextSor=nextSor)
+
+    @staticmethod
+    def percentage(toStore=None, nextSor=False):
+        return Prod(name=u'percentage',
+                    match=lambda t, v: t == PreDef.types.PERCENTAGE,
+                    toStore=toStore,
+                    nextSor=nextSor)
+
+    @staticmethod
+    def S(name=u'whitespace', optional=True, toSeq=None, toStore=None, nextSor=False,
+          mayEnd=False):
+        return Prod(name=name,
+                    match=lambda t, v: t == PreDef.types.S,
+                    optional=optional,
+                    toSeq=toSeq,
+                    toStore=toStore,
+                    mayEnd=mayEnd)
+
+    @staticmethod
+    def unary(optional=True, toStore=None):
         "+ or -"
-        return Prod(name=u'unary +-', match=lambda t, v: v in u'+-', 
-                    optional=True)            
+        return Prod(name=u'unary +-', match=lambda t, v: v in (u'+', u'-'),
+                    optional=optional,
+                    toStore=toStore)
+
+    @staticmethod
+    def uri(toStore=None, nextSor=False):
+        "'url(' and ')' are removed and URI is stripped"
+        return Prod(name=u'URI',
+                    match=lambda t, v: t == PreDef.types.URI,
+                    toStore=toStore,
+                    toSeq=lambda t, tokens: (t[0], cssutils.helper.urivalue(t[1])),
+                    nextSor=nextSor)
+
+    @staticmethod
+    def hexcolor(toStore=None, toSeq=None, nextSor=False):
+        return Prod(name='HEX color',
+                    match=lambda t, v: t == PreDef.types.HASH and
+                                       len(v) == 4 or len(v) == 7,
+                    toStore=toStore,
+                    toSeq=toSeq,
+                    nextSor=nextSor
+                    )

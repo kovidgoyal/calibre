@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """cssutils - CSS Cascading Style Sheets library for Python
 
-    Copyright (C) 2004-2008 Christof Hoeke
+    Copyright (C) 2004-2009 Christof Hoeke
 
     cssutils is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
@@ -63,18 +63,18 @@ Usage may be::
     >>> sheet = parser.parseString(u'a { color: red}')
     >>> print sheet.cssText
     a {
-    color: red
-    }
+        color: red
+        }
 
 """
 __all__ = ['css', 'stylesheets', 'CSSParser', 'CSSSerializer']
 __docformat__ = 'restructuredtext'
 __author__ = 'Christof Hoeke with contributions by Walter Doerwald'
-__date__ = '$LastChangedDate:: 2008-08-11 11:11:23 -0700 #$:'
+__date__ = '$LastChangedDate:: 2009-02-16 12:05:02 -0800 #$:'
 
-VERSION = '0.9.5.1'
+VERSION = '0.9.6a1'
 
-__version__ = '%s $Id: __init__.py 1426 2008-08-11 18:11:23Z cthedot $' % VERSION
+__version__ = '%s $Id: __init__.py 1669 2009-02-16 20:05:02Z cthedot $' % VERSION
 
 import codec
 import xml.dom
@@ -84,20 +84,19 @@ from helper import Deprecated
 import errorhandler
 log = errorhandler.ErrorHandler()
 
-import util
 import css
 import stylesheets
+import util
 from parse import CSSParser
 
 from serialize import CSSSerializer
 ser = CSSSerializer()
 
-# used by Selector defining namespace prefix '*' 
+# used by Selector defining namespace prefix '*'
 _ANYNS = -1
 
 class DOMImplementationCSS(object):
-    """
-    This interface allows the DOM user to create a CSSStyleSheet
+    """This interface allows the DOM user to create a CSSStyleSheet
     outside the context of a document. There is no way to associate
     the new CSSStyleSheet with a document in DOM Level 2.
 
@@ -166,21 +165,21 @@ parse.__doc__ = CSSParser.parse.__doc__
 
 # set "ser", default serializer
 def setSerializer(serializer):
-    """
-    sets the global serializer used by all class in cssutils
-    """
+    """Set the global serializer used by all class in cssutils."""
     global ser
     ser = serializer
 
 
 def getUrls(sheet):
-    """
-    Utility function to get all ``url(urlstring)`` values in 
-    ``CSSImportRules`` and ``CSSStyleDeclaration`` objects (properties)
-    of given CSSStyleSheet ``sheet``.
+    """Retrieve all ``url(urlstring)`` values (in e.g.
+    :class:`cssutils.css.CSSImportRule` or :class:`cssutils.css.CSSValue`
+    objects of given `sheet`.
 
-    This function is a generator. The url values exclude ``url(`` and ``)``
-    and surrounding single or double quotes.
+    :param sheet:
+        :class:`cssutils.css.CSSStyleSheet` object whose URLs are yielded
+
+    This function is a generator. The generated URL values exclude ``url(`` and
+    ``)`` and surrounding single or double quotes.
     """
     for importrule in (r for r in sheet if r.type == r.IMPORT_RULE):
         yield importrule.href
@@ -211,16 +210,17 @@ def getUrls(sheet):
                 u = getUrl(v)
                 if u is not None:
                     yield u
-        
-def replaceUrls(sheet, replacer):
-    """
-    Utility function to replace all ``url(urlstring)`` values in 
-    ``CSSImportRules`` and ``CSSStyleDeclaration`` objects (properties)
-    of given CSSStyleSheet ``sheet``.
 
-    ``replacer`` must be a function which is called with a single
-    argument ``urlstring`` which is the current value of url()
-    excluding ``url(`` and ``)`` and surrounding single or double quotes.
+def replaceUrls(sheet, replacer):
+    """Replace all URLs in :class:`cssutils.css.CSSImportRule` or
+    :class:`cssutils.css.CSSValue` objects of given `sheet`.
+
+    :param sheet:
+        :class:`cssutils.css.CSSStyleSheet` which is changed
+    :param replacer:
+        a function which is called with a single argument `urlstring` which is
+        the current value of each url() excluding ``url(`` and ``)`` and
+        surrounding single or double quotes.
     """
     for importrule in (r for r in sheet if r.type == r.IMPORT_RULE):
         importrule.href = replacer(importrule.href)
@@ -249,6 +249,37 @@ def replaceUrls(sheet, replacer):
             elif v.CSS_PRIMITIVE_VALUE == v.cssValueType:
                 setProperty(v)
 
+def resolveImports(sheet, target=None):
+    """Recurcively combine all rules in given `sheet` into a `target` sheet.
+
+    :param sheet:
+        in this given :class:`cssutils.css.CSSStyleSheet` all import rules are
+        resolved and added to a resulting *flat* sheet.
+    :param target:
+        A :class:`cssutils.css.CSSStyleSheet` object which will be the resulting
+        *flat* sheet if given
+    :returns: given `target` or a new :class:`cssutils.css.CSSStyleSheet` object
+    """
+    if not target:
+        target = css.CSSStyleSheet()
+
+    #target.add(css.CSSComment(cssText=u'/* START %s */' % sheet.href))
+    for rule in sheet.cssRules:
+        if rule.type == rule.CHARSET_RULE:
+            pass
+        elif rule.type == rule.IMPORT_RULE:
+            log.info(u'Processing @import %r' % rule.href, neverraise=True)
+            if rule.styleSheet:
+                target.add(css.CSSComment(cssText=u'/* START @import "%s" */' % rule.href))
+                resolveImports(rule.styleSheet, target)
+                target.add(css.CSSComment(cssText=u'/* END "%s" */' % rule.href))
+            else:
+                log.error(u'Cannot get referenced stylesheet %r' %
+                          rule.href, neverraise=True)
+                target.add(rule)
+        else:
+            target.add(rule)
+    return target
 
 if __name__ == '__main__':
     print __doc__

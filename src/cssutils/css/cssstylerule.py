@@ -1,49 +1,25 @@
-"""CSSStyleRule implements DOM Level 2 CSS CSSStyleRule.
-"""
+"""CSSStyleRule implements DOM Level 2 CSS CSSStyleRule."""
 __all__ = ['CSSStyleRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstylerule.py 1284 2008-06-05 16:29:17Z cthedot $'
+__version__ = '$Id: cssstylerule.py 1638 2009-01-13 20:39:33Z cthedot $'
 
-import xml.dom
+from cssstyledeclaration import CSSStyleDeclaration
+from selectorlist import SelectorList
 import cssrule
 import cssutils
-from selectorlist import SelectorList
-from cssstyledeclaration import CSSStyleDeclaration
+import xml.dom
 
 class CSSStyleRule(cssrule.CSSRule):
-    """
-    The CSSStyleRule object represents a ruleset specified (if any) in a CSS
+    """The CSSStyleRule object represents a ruleset specified (if any) in a CSS
     style sheet. It provides access to a declaration block as well as to the
     associated group of selectors.
     
-    Properties
-    ==========
-    selectorList: of type SelectorList (cssutils only)
-        A list of all Selector elements for the rule set.
-    selectorText: of type DOMString
-        The textual representation of the selector for the rule set. The
-        implementation may have stripped out insignificant whitespace while
-        parsing the selector.
-    style: of type CSSStyleDeclaration, (DOM)
-        The declaration-block of this rule set.
-    type
-        the type of this rule, constant cssutils.CSSRule.STYLE_RULE
-        
-    inherited properties:
-        - cssText
-        - parentRule
-        - parentStyleSheet
-
-    Format
-    ======
-    ruleset::
+    Format::
     
         : selector [ COMMA S* selector ]*
         LBRACE S* declaration [ ';' S* declaration ]* '}' S*
         ;
     """
-    type = property(lambda self: cssrule.CSSRule.STYLE_RULE)
-
     def __init__(self, selectorText=None, style=None, parentRule=None, 
                  parentStyleSheet=None, readonly=False):
         """
@@ -67,31 +43,41 @@ class CSSStyleRule(cssrule.CSSRule):
 
         self._readonly = readonly
 
+    def __repr__(self):
+        if self._namespaces:
+            st = (self.selectorText, self._namespaces)
+        else:
+            st = self.selectorText 
+        return "cssutils.css.%s(selectorText=%r, style=%r)" % (
+                self.__class__.__name__, st, self.style.cssText)
+
+    def __str__(self):
+        return "<cssutils.css.%s object selector=%r style=%r _namespaces=%r at 0x%x>" % (
+                self.__class__.__name__, self.selectorText, self.style.cssText,
+                self._namespaces, id(self))
 
     def _getCssText(self):
-        """
-        returns serialized property cssText
-        """
+        """Return serialized property cssText."""
         return cssutils.ser.do_CSSStyleRule(self)
 
     def _setCssText(self, cssText):
         """
         :param cssText:
             a parseable string or a tuple of (cssText, dict-of-namespaces)
-        :Exceptions:
-            - `NAMESPACE_ERR`: (Selector)
+        :exceptions:
+            - :exc:`~xml.dom.NamespaceErr`:
               Raised if the specified selector uses an unknown namespace
               prefix.
-            - `SYNTAX_ERR`: (self, StyleDeclaration, etc)
+            - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified CSS string value has a syntax error and
               is unparsable.
-            - `INVALID_MODIFICATION_ERR`: (self)
+            - :exc:`~xml.dom.InvalidModificationErr`:
               Raised if the specified CSS string value represents a different
               type of rule than the current one.
-            - `HIERARCHY_REQUEST_ERR`: (CSSStylesheet)
+            - :exc:`~xml.dom.HierarchyRequestErr`:
               Raised if the rule cannot be inserted at this point in the
               style sheet.
-            - `NO_MODIFICATION_ALLOWED_ERR`: (CSSRule)
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if the rule is readonly.
         """
         super(CSSStyleRule, self)._setCssText(cssText)
@@ -160,20 +146,21 @@ class CSSStyleRule(cssrule.CSSRule):
                 self.style = newstyle
 
     cssText = property(_getCssText, _setCssText,
-        doc="(DOM) The parsable textual representation of the rule.")
+        doc="(DOM) The parsable textual representation of this rule.")
 
 
     def __getNamespaces(self):
-        "uses children namespaces if not attached to a sheet, else the sheet's ones"
+        "Uses children namespaces if not attached to a sheet, else the sheet's ones."
         try:
             return self.parentStyleSheet.namespaces
         except AttributeError:
             return self.selectorList._namespaces
             
-    _namespaces = property(__getNamespaces, doc=u"""if this Rule is 
-        attached to a CSSStyleSheet the namespaces of that sheet are mirrored
-        here. While the Rule is not attached the namespaces of selectorList
-        are used.""")
+    _namespaces = property(__getNamespaces, 
+                           doc="If this Rule is attached to a CSSStyleSheet "
+                               "the namespaces of that sheet are mirrored "
+                               "here. While the Rule is not attached the "
+                               "namespaces of selectorList are used.""")
 
     def _setSelectorList(self, selectorList):
         """
@@ -190,16 +177,17 @@ class CSSStyleRule(cssrule.CSSRule):
         """
         wrapper for cssutils SelectorList object
 
-        :param selectorText: of type string, might also be a comma separated list
+        :param selectorText: 
+            of type string, might also be a comma separated list
             of selectors
-        :Exceptions:
-            - `NAMESPACE_ERR`: (Selector)
+        :exceptions:
+            - :exc:`~xml.dom.NamespaceErr`:
               Raised if the specified selector uses an unknown namespace
               prefix.
-            - `SYNTAX_ERR`: (SelectorList, Selector)
+            - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified CSS string value has a syntax error
               and is unparsable.
-            - `NO_MODIFICATION_ALLOWED_ERR`: (self)
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if this rule is readonly.
         """
         self._checkReadonly()
@@ -207,8 +195,8 @@ class CSSStyleRule(cssrule.CSSRule):
 
     selectorText = property(lambda self: self._selectorList.selectorText, 
                             _setSelectorText,
-        doc="""(DOM) The textual representation of the selector for the
-            rule set.""")
+                            doc="(DOM) The textual representation of the "
+                                "selector for the rule set.")
 
     def _setStyle(self, style):
         """
@@ -224,19 +212,10 @@ class CSSStyleRule(cssrule.CSSRule):
             self._style._seq = style._seq 
 
     style = property(lambda self: self._style, _setStyle,
-        doc="(DOM) The declaration-block of this rule set.")
+                     doc="(DOM) The declaration-block of this rule set.")
+
+    type = property(lambda self: self.STYLE_RULE, 
+                    doc="The type of this rule, as defined by a CSSRule "
+                        "type constant.")
 
     wellformed = property(lambda self: self.selectorList.wellformed)
-
-    def __repr__(self):
-        if self._namespaces:
-            st = (self.selectorText, self._namespaces)
-        else:
-            st = self.selectorText 
-        return "cssutils.css.%s(selectorText=%r, style=%r)" % (
-                self.__class__.__name__, st, self.style.cssText)
-
-    def __str__(self):
-        return "<cssutils.css.%s object selector=%r style=%r _namespaces=%r at 0x%x>" % (
-                self.__class__.__name__, self.selectorText, self.style.cssText,
-                self._namespaces, id(self))

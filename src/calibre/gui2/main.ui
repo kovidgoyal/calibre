@@ -656,6 +656,15 @@
     <string>Books with the same tags</string>
    </property>
   </action>
+  <action name="action_send_specific_format_to_device" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/book.svg</normaloff>:/images/book.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Send specific format to device</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

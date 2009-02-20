@@ -1,16 +1,12 @@
-"""CSSNamespaceRule currently implements
-http://dev.w3.org/csswg/css3-namespace/
-
-(until 0.9.5a2: http://www.w3.org/TR/2006/WD-css3-namespace-20060828/)
-"""
+"""CSSNamespaceRule currently implements http://dev.w3.org/csswg/css3-namespace/"""
 __all__ = ['CSSNamespaceRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssnamespacerule.py 1305 2008-06-22 18:42:51Z cthedot $'
+__version__ = '$Id: cssnamespacerule.py 1638 2009-01-13 20:39:33Z cthedot $'
 
-import xml.dom
+from cssutils.helper import Deprecated
 import cssrule
 import cssutils
-from cssutils.helper import Deprecated
+import xml.dom
 
 class CSSNamespaceRule(cssrule.CSSRule):
     """
@@ -20,36 +16,19 @@ class CSSNamespaceRule(cssrule.CSSRule):
     it with a given namespace (a string). This namespace prefix can then be
     used in namespace-qualified names such as those described in the
     Selectors Module [SELECT] or the Values and Units module [CSS3VAL].
+    
+    Dealing with these rules directly is not needed anymore, easier is 
+    the use of :attr:`cssutils.css.CSSStyleSheet.namespaces`.
 
-    Properties
-    ==========
-    atkeyword (cssutils only)
-        the literal keyword used
-    cssText: of type DOMString
-        The parsable textual representation of this rule
-    namespaceURI: of type DOMString
-        The namespace URI (a simple string!) which is bound to the given
-        prefix. If no prefix is set (``CSSNamespaceRule.prefix==''``)
-        the namespace defined by ``namespaceURI`` is set as the default 
-        namespace.
-    prefix: of type DOMString
-        The prefix used in the stylesheet for the given
-        ``CSSNamespaceRule.nsuri``. If prefix is empty namespaceURI sets a 
-        default namespace for the stylesheet.
+    Format::
 
-    Inherits properties from CSSRule
-
-    Format
-    ======
-    namespace
-      : NAMESPACE_SYM S* [namespace_prefix S*]? [STRING|URI] S* ';' S*
-      ;
-    namespace_prefix
-      : IDENT
-      ;
+        namespace
+          : NAMESPACE_SYM S* [namespace_prefix S*]? [STRING|URI] S* ';' S*
+          ;
+        namespace_prefix
+          : IDENT
+          ;
     """
-    type = property(lambda self: cssrule.CSSRule.NAMESPACE_RULE)
-
     def __init__(self, namespaceURI=None, prefix=None, cssText=None, 
                  parentRule=None, parentStyleSheet=None, readonly=False):
         """
@@ -102,27 +81,31 @@ class CSSNamespaceRule(cssrule.CSSRule):
 
         self._readonly = readonly
 
+    def __repr__(self):
+        return "cssutils.css.%s(namespaceURI=%r, prefix=%r)" % (
+                self.__class__.__name__, self.namespaceURI, self.prefix)
+
+    def __str__(self):
+        return "<cssutils.css.%s object namespaceURI=%r prefix=%r at 0x%x>" % (
+                self.__class__.__name__, self.namespaceURI, self.prefix, id(self))
+
     def _getCssText(self):
-        """
-        returns serialized property cssText
-        """
+        """Return serialized property cssText"""
         return cssutils.ser.do_CSSNamespaceRule(self)
 
     def _setCssText(self, cssText):
         """
-        DOMException on setting
-
         :param cssText: initial value for this rules cssText which is parsed
-        :Exceptions:
-            - `HIERARCHY_REQUEST_ERR`: (CSSStylesheet)
+        :exceptions:
+            - :exc:`~xml.dom.HierarchyRequestErr`:
               Raised if the rule cannot be inserted at this point in the
               style sheet.
-            - `INVALID_MODIFICATION_ERR`: (self)
+            - :exc:`~xml.dom.InvalidModificationErr`:
               Raised if the specified CSS string value represents a different
               type of rule than the current one.
-            - `NO_MODIFICATION_ALLOWED_ERR`: (CSSRule)
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if the rule is readonly.
-            - `SYNTAX_ERR`: (self)
+            - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified CSS string value has a syntax error and
               is unparsable.
         """
@@ -222,15 +205,13 @@ class CSSNamespaceRule(cssrule.CSSRule):
                 self._setSeq(newseq)
 
     cssText = property(fget=_getCssText, fset=_setCssText,
-        doc="(DOM attribute) The parsable textual representation.")
+        doc="(DOM) The parsable textual representation of this rule.")
 
     def _setNamespaceURI(self, namespaceURI):
         """
-        DOMException on setting
-    
         :param namespaceURI: the initial value for this rules namespaceURI
-        :Exceptions:
-            - `NO_MODIFICATION_ALLOWED_ERR`: 
+        :exceptions:
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               (CSSRule) Raised if this rule is readonly or a namespaceURI is 
               already set in this rule.
         """
@@ -246,18 +227,16 @@ class CSSNamespaceRule(cssrule.CSSRule):
                             error=xml.dom.NoModificationAllowedErr)
 
     namespaceURI = property(lambda self: self._namespaceURI, _setNamespaceURI,
-        doc="URI (string!) of the defined namespace.")
+        doc="URI (handled as simple string) of the defined namespace.")
 
     def _setPrefix(self, prefix=None):
         """
-        DOMException on setting
-        
         :param prefix: the new prefix 
-        :Exceptions:
-            - `SYNTAX_ERR`: (TODO)
+        :exceptions:
+            - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified CSS string value has a syntax error and
               is unparsable.
-            - `NO_MODIFICATION_ALLOWED_ERR`: CSSRule)
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if this rule is readonly.
         """
         self._checkReadonly()
@@ -295,12 +274,9 @@ class CSSNamespaceRule(cssrule.CSSRule):
 #                                _setParentStyleSheet,
 #                                doc=u"Containing CSSStyleSheet.")
 
+    type = property(lambda self: self.NAMESPACE_RULE, 
+                    doc="The type of this rule, as defined by a CSSRule "
+                        "type constant.")
+    
     wellformed = property(lambda self: self.namespaceURI is not None)
-
-    def __repr__(self):
-        return "cssutils.css.%s(namespaceURI=%r, prefix=%r)" % (
-                self.__class__.__name__, self.namespaceURI, self.prefix)
-
-    def __str__(self):
-        return "<cssutils.css.%s object namespaceURI=%r prefix=%r at 0x%x>" % (
-                self.__class__.__name__, self.namespaceURI, self.prefix, id(self))
+    

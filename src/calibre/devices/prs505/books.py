@@ -186,7 +186,10 @@ class BookList(_BookList):
         node = self.document.createElement(self.prefix + "text")
         mime = MIME_MAP[name.rpartition('.')[-1].lower()]
         cid = self.max_id()+1
-        sourceid = str(self[0].sourceid) if len(self) else "1"
+        try:
+            sourceid = str(self[0].sourceid) if len(self) else '1'
+        except:
+            sourceid = '1'
         attrs = {
                  "title"  : info["title"], 
                  'titleSorter' : sortable_title(info['title']),

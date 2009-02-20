@@ -1,41 +1,22 @@
-"""
-MediaQuery, see http://www.w3.org/TR/css3-mediaqueries/
+"""Implements a DOM for MediaQuery, see 
+http://www.w3.org/TR/css3-mediaqueries/.
 
-A cssutils own implementation, not defined in official DOM
-
-TODO:
-    add possibility to
-
-part of a media_query_list: <media_query> [, <media_query> ]*
-see stylesheets.MediaList
+A cssutils implementation, not defined in official DOM.
 """
 __all__ = ['MediaQuery']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: mediaquery.py 1363 2008-07-13 18:14:26Z cthedot $'
+__version__ = '$Id: mediaquery.py 1638 2009-01-13 20:39:33Z cthedot $'
 
+import cssutils
 import re
 import xml.dom
-import cssutils
 
 class MediaQuery(cssutils.util.Base):
     """
-    A Media Query consists of a media type and one or more
-    expressions involving media features.
+    A Media Query consists of one of :const:`MediaQuery.MEDIA_TYPES`
+    and one or more expressions involving media features.
 
-    Properties
-    ==========
-    mediaText: of type DOMString
-        The parsable textual representation of this MediaQuery
-    mediaType: of type DOMString
-        one of MEDIA_TYPES like e.g. 'print'
-    seq: a list (cssutils)
-        All parts of this MediaQuery including CSSComments
-    wellformed:
-        if this query is wellformed
-
-    Format
-    ======
-    ::
+    Format::
     
         media_query: [[only | not]? <media_type> [ and <expression> ]*]
           | <expression> [ and <expression> ]*
@@ -65,7 +46,7 @@ class MediaQuery(cssutils.util.Base):
 
     def __init__(self, mediaText=None, readonly=False):
         """
-        mediaText
+        :param mediaText:
             unicodestring of parsable media
         """
         super(MediaQuery, self).__init__()
@@ -77,26 +58,30 @@ class MediaQuery(cssutils.util.Base):
 
         self._readonly = readonly
 
+    def __repr__(self):
+        return "cssutils.stylesheets.%s(mediaText=%r)" % (
+                self.__class__.__name__, self.mediaText)
+
+    def __str__(self):
+        return "<cssutils.stylesheets.%s object mediaText=%r at 0x%x>" % (
+                self.__class__.__name__, self.mediaText, id(self))
+
     def _getMediaText(self):
-        """
-        returns serialized property mediaText
-        """
         return cssutils.ser.do_stylesheets_mediaquery(self)
 
     def _setMediaText(self, mediaText):
         """
-        mediaText
-            a single media query string, e.g. "print and (min-width: 25cm)"
+        :param mediaText:
+            a single media query string, e.g. ``print and (min-width: 25cm)``
 
-        DOMException
-
-        - SYNTAX_ERR: (self)
-          Raised if the specified string value has a syntax error and is
-          unparsable.
-        - INVALID_CHARACTER_ERR: (self)
-          Raised if the given mediaType is unknown.
-        - NO_MODIFICATION_ALLOWED_ERR: (self)
-          Raised if this media query is readonly.
+        :exceptions:    
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified string value has a syntax error and is
+              unparsable.
+            - :exc:`~xml.dom.InvalidCharacterErr`:
+              Raised if the given mediaType is unknown.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if this media query is readonly.
         """
         self._checkReadonly()
         tokenizer = self._tokenize2(mediaText)
@@ -171,29 +156,21 @@ class MediaQuery(cssutils.util.Base):
                 self.seq = newseq
 
     mediaText = property(_getMediaText, _setMediaText,
-        doc="""(DOM) The parsable textual representation of the media list.
-            This is a comma-separated list of media.""")
-
-    def _getMediaType(self):
-        """
-        returns serialized property mediaText
-        """
-        return self._mediaType
+        doc="The parsable textual representation of the media list.")
 
     def _setMediaType(self, mediaType):
         """
-        mediaType
-            one of MEDIA_TYPES
+        :param mediaType:
+            one of :attr:`MEDIA_TYPES`
 
-        DOMException
-
-        - SYNTAX_ERR: (self)
-          Raised if the specified string value has a syntax error and is
-          unparsable.
-        - INVALID_CHARACTER_ERR: (self)
-          Raised if the given mediaType is unknown.
-        - NO_MODIFICATION_ALLOWED_ERR: (self)
-          Raised if this media query is readonly.
+        :exceptions:
+            - :exc:`~xml.dom.SyntaxErr`:
+              Raised if the specified string value has a syntax error and is
+              unparsable.
+            - :exc:`~xml.dom.InvalidCharacterErr`:
+              Raised if the given mediaType is unknown.
+            - :exc:`~xml.dom.NoModificationAllowedErr`:
+              Raised if this media query is readonly.
         """
         self._checkReadonly()
         nmediaType = self._normalize(mediaType)
@@ -223,15 +200,8 @@ class MediaQuery(cssutils.util.Base):
             else:
                 self.seq.insert(0, mediaType)
 
-    mediaType = property(_getMediaType, _setMediaType,
-        doc="""(DOM) media type (one of MediaQuery.MEDIA_TYPES) of this MediaQuery.""")
+    mediaType = property(lambda self: self._mediaType, _setMediaType,
+        doc="The media type of this MediaQuery (one of "
+            ":attr:`MEDIA_TYPES`).")
 
     wellformed = property(lambda self: bool(len(self.seq)))
-
-    def __repr__(self):
-        return "cssutils.stylesheets.%s(mediaText=%r)" % (
-                self.__class__.__name__, self.mediaText)
-
-    def __str__(self):
-        return "<cssutils.stylesheets.%s object mediaText=%r at 0x%x>" % (
-                self.__class__.__name__, self.mediaText, id(self))

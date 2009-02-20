@@ -19,7 +19,8 @@ from calibre.library import title_sort
 from calibre.library.database import LibraryDatabase
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.ebooks.metadata import string_to_authors, authors_to_string, MetaInformation
+from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
+                                    MetaInformation, authors_to_sort_string
 from calibre.ebooks.metadata.meta import get_metadata, set_metadata, \
     metadata_from_formats
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -727,8 +728,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
-
-    def delete_book(self, id):
+        
+    def delete_book(self, id, notify=True):
         '''
         Removes book from the result cache and the underlying database.
         '''
@@ -743,8 +744,9 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.commit()
         self.clean()
         self.data.books_deleted([id])
-        self.notify('delete', [id])
-
+        if notify:
+            self.notify('delete', [id])
+    
     def remove_format(self, index, format, index_is_id=False, notify=True):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, *self.path(id, index_is_id=True).split(os.sep))
@@ -1197,11 +1199,17 @@ class LibraryDatabase2(LibraryDatabase):
 
     def import_book(self, mi, formats, notify=True):
         series_index = 1 if mi.series_index is None else mi.series_index
+        if not mi.title:
+            mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
-        obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
-                          (mi.title, None, series_index, aus))
+        aus = mi.author_sort if mi.author_sort else authors_to_sort_string(mi.authors)
+        if isinstance(aus, str):
+            aus = aus.decode(preferred_encoding, 'replace')
+        title = mi.title if isinstance(mi.title, unicode) else \
+                mi.title.decode(preferred_encoding, 'replace')
+        obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
+                          (title, None, series_index, aus))
         id = obj.lastrowid
         self.data.books_added([id], self.conn)
         self.set_path(id, True)
@@ -1210,8 +1218,7 @@ class LibraryDatabase2(LibraryDatabase):
             ext = os.path.splitext(path)[1][1:].lower()
             if ext == 'opf':
                 continue
-            stream = open(path, 'rb')
-            self.add_format(id, ext, stream, index_is_id=True)
+            self.add_format_with_hooks(id, ext, path, index_is_id=True)
         self.conn.commit()
         self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
         if notify:
