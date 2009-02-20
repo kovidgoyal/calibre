@@ -23,7 +23,6 @@ class Article(object):
         try:
             self.title = re.sub(r'&(\S+);', 
                 entity_to_unicode, self.title)
-            print 11111, repr(self.title)
         except:
             pass
         self.url = url
