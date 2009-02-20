@@ -312,7 +312,7 @@ class LitWriter(object):
         cover = None
         if oeb.metadata.cover:
             id = str(oeb.metadata.cover[0])
-            cover = oeb.manifest[id]
+            cover = oeb.manifest.ids[id]
             for type, title in ALL_MS_COVER_TYPES:
                 if type not in oeb.guide:
                     oeb.guide.add(type, title, cover.href)

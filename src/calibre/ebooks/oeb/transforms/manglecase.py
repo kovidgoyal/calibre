@@ -29,7 +29,15 @@ CASE_MANGLER_CSS = """
 TEXT_TRANSFORMS = set(['capitalize', 'uppercase', 'lowercase'])
 
 class CaseMangler(object):
-    def transform(self, oeb, context):
+    @classmethod
+    def config(cls, cfg):
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls()
+    
+    def __call__(self, oeb, context):
         oeb.logger.info('Applying case-transforming CSS...')
         self.oeb = oeb
         self.profile = context.source

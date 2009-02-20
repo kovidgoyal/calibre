@@ -13,7 +13,15 @@ from calibre.ebooks.oeb.base import LINK_SELECTORS, CSSURL_RE
 from calibre.ebooks.oeb.base import urlnormalize
 
 class ManifestTrimmer(object):
-    def transform(self, oeb, context):
+    @classmethod
+    def config(cls, cfg):
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls()
+    
+    def __call__(self, oeb, context):
         oeb.logger.info('Trimming unused files from manifest...')
         used = set()
         hrefs = oeb.manifest.hrefs

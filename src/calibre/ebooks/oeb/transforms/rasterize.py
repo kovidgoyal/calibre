@@ -34,7 +34,15 @@ class SVGRasterizer(object):
         if QApplication.instance() is None:
             QApplication([])
 
-    def transform(self, oeb, context):
+    @classmethod
+    def config(cls, cfg):
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls()
+    
+    def __call__(self, oeb, context):
         oeb.logger.info('Rasterizing SVG images...')
         self.oeb = oeb
         self.profile = context.dest
