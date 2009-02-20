@@ -332,8 +332,6 @@ class PreProcessor(object):
                   (re.compile(r'&(\S+?);'), convert_entities),
                   # Remove the <![if/endif tags inserted by everybody's darling, MS Word
                   (re.compile(r'(?i)<{0,1}!\[(end){0,1}if[^>]*>'), lambda match: ''),
-                  # Strip all comments since Adobe DE is petrified of them
-                  (re.compile(r'<!--[^>]*>'), lambda match : ''),
                   ]
                      
     # Fix pdftohtml markup
@@ -447,7 +445,7 @@ class Parser(PreProcessor, LoggingInterface):
     def save_path(self):
         return os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path])
     
-    def save(self):
+    def save(self, strip_comments=False):
         '''
         Save processed HTML into the content directory.
         Should be called after all HTML processing is finished.
@@ -458,7 +456,11 @@ class Parser(PreProcessor, LoggingInterface):
             svg.set('xmlns', 'http://www.w3.org/2000/svg')
         
         ans = tostring(self.root, pretty_print=self.opts.pretty_print)
-        ans = re.compile(r'<head>', re.IGNORECASE).sub('<head>\n\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n', ans[:1000])+ans[1000:]
+        ans = re.compile(r'<head>', re.IGNORECASE).sub(
+            '<head>\n\t<meta http-equiv="Content-Type" '
+            'content="text/html; charset=utf-8" />\n', ans[:1000])+ans[1000:]
+        if strip_comments:
+            ans = re.compile(r'<!--.*?-->', re.DOTALL).sub('', ans)
         with open(self.save_path(), 'wb') as f:
             f.write(ans)
             return f.name
@@ -594,7 +596,7 @@ class Processor(Parser):
                 mark = etree.Element('hr', style=page_break_before)
             elem.addprevious(mark)
     
-    def save(self):
+    def save(self, strip_comments=False):
         style_path = os.path.splitext(os.path.basename(self.save_path()))[0]
         for i, sheet in enumerate([self.stylesheet, self.font_css, self.override_css]):
             if sheet is not None:
@@ -608,7 +610,7 @@ class Processor(Parser):
                 if isinstance(raw, unicode):
                     raw = raw.encode('utf-8')
                 open(path, 'wb').write(raw)
-        return Parser.save(self)
+        return Parser.save(self, strip_comments=strip_comments)
     
     def populate_toc(self, toc):
         '''
