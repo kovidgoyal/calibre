@@ -7,6 +7,7 @@ pagina12.com.ar
 '''
 
 from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class Pagina12(BasicNewsRecipe):
     title                 = 'Pagina/12'
