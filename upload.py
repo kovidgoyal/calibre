@@ -676,7 +676,7 @@ class stage3(OptionlessCommand):
     
     def run(self):
         OptionlessCommand.run(self)
-        self.misc() 
+        self.misc()
         
 class stage2(OptionlessCommand):
     description = 'Stage 2 of the build process' 
