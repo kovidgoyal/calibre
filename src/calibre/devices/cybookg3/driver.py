@@ -33,6 +33,7 @@ class CYBOOKG3(USBMS):
     
     EBOOK_DIR_MAIN = "eBooks"
     EBOOK_DIR_CARD = "eBooks"
+    THUMBNAIL_HEIGHT = 144
     SUPPORTS_SUB_DIRS = True
     
     def upload_books(self, files, names, on_card=False, end_session=True, 

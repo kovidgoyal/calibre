@@ -30,7 +30,7 @@ def write_t2b(t2bfile, coverdata=None):
     if coverdata != None:
         coverdata = StringIO.StringIO(coverdata)
         cover = Image.open(coverdata).convert("L")
-        cover.thumbnail((96, 144))
+        cover.thumbnail((96, 144), Image.ANTIALIAS)
         t2bcover = Image.new('L', (96, 144), 'white')
         
         x, y = cover.size
