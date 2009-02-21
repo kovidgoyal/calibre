@@ -8,10 +8,8 @@ pagina12.com.ar
 
 from calibre import strftime
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
 class Pagina12(BasicNewsRecipe):
-    title                 = u'Pagina/12'
+    title                 = 'Pagina/12'
     __author__            = 'Darko Miletic'
     description           = 'Noticias de Argentina y el resto del mundo'
     publisher             = 'La Pagina S.A.'
@@ -20,9 +18,11 @@ class Pagina12(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'cp1252'
-    cover_url             = strftime('http://www.pagina12.com.ar/fotos/%Y%m%d/diario/TAPAN.jpg')
+    cover_url             = strftime('http://www.pagina12.com.ar/fotos/%Y%m%d/diario/tapagn.jpg')
     remove_javascript     = True
     use_embedded_content  = False
+    language              = _('Spanish')    
+    
     
     html2lrf_options = [
                           '--comment', description
@@ -50,5 +50,3 @@ class Pagina12(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-
-    language = _('Spanish')    
