@@ -233,7 +233,7 @@ class RTFMetadataWriter(MetadataWriterPlugin):
 class MOBIMetadataWriter(MetadataWriterPlugin):
     
     name        = 'Set MOBI metadata'
-    file_types  = set(['mobi', 'prc'])
+    file_types  = set(['mobi', 'prc', 'azw'])
     description = _('Set metadata in %s files')%'MOBI'
     author      = 'Marshall T. Vandegrift'
     
