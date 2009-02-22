@@ -284,7 +284,13 @@ class gui(OptionlessCommand):
                 manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(files)
                 with open('images.qrc', 'wb') as f:
                     f.write(manifest)
-                check_call(['pyrcc4', '-o', images, 'images.qrc'])
+                try:
+                    check_call(['pyrcc4', '-o', images, 'images.qrc'])
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    raise Exception('You do not have pyrcc4 in your PATH. '
+                                    'Install the PyQt4 development tools.')
             else:
                 print 'Images are up to date'
         finally:
@@ -670,7 +676,7 @@ class stage3(OptionlessCommand):
     
     def run(self):
         OptionlessCommand.run(self)
-        self.misc() 
+        self.misc()
         
 class stage2(OptionlessCommand):
     description = 'Stage 2 of the build process' 

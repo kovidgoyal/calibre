@@ -5,10 +5,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.
 '''
-import time, logging, traceback, copy
+import time, logging, traceback, copy, re
 from datetime import datetime
 
 from calibre.web.feeds.feedparser import parse
+from calibre import entity_to_unicode
 from lxml import html
 
 class Article(object):
@@ -19,6 +20,11 @@ class Article(object):
         self.downloaded = False
         self.id = id
         self.title = title.strip() if title else title
+        try:
+            self.title = re.sub(r'&(\S+);', 
+                entity_to_unicode, self.title)
+        except:
+            pass
         self.url = url
         self.summary = summary
         if summary and not isinstance(summary, unicode):
@@ -37,6 +43,7 @@ class Article(object):
         self.date = published
         self.utctime = datetime(*self.date[:6])
         self.localtime = self.utctime + self.time_offset
+
                 
     def __repr__(self):
         return \
@@ -91,7 +98,8 @@ class Feed(object):
             if len(self.articles) >= max_articles_per_feed:
                 break
             self.parse_article(item)
-
+            
+        
     def populate_from_preparsed_feed(self, title, articles, oldest_article=7, 
                            max_articles_per_feed=100):
         self.title      = title if title else _('Unknown feed')

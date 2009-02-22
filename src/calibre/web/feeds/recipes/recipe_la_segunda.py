@@ -21,14 +21,16 @@ class LaSegunda(BasicNewsRecipe):
     encoding              = 'cp1252'
     cover_url             = 'http://www.lasegunda.com/imagenes/logotipo_lasegunda_Oli.gif'
     remove_javascript     = True
+    language              = _('Spanish')    
     
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
+                        , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} "' 
                         
     keep_only_tags = [dict(name='table')]
                         
@@ -52,10 +54,7 @@ class LaSegunda(BasicNewsRecipe):
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
         soup.head.insert(0,mtag)
-        for item in soup.findAll(name='table', width=True):
-            del item['width']
         for item in soup.findAll(style=True):
             del item['style']
         return soup
     
-    language = _('Spanish')    

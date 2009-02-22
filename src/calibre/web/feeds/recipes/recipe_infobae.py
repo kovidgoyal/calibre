@@ -19,7 +19,7 @@ class Infobae(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     language              = _('Spanish')
-    encoding              = 'iso-8859-1'
+    encoding              = 'cp1252'
     cover_url             = 'http://www.infobae.com/imgs/header/header.gif'
     remove_javascript     = True
     
@@ -28,9 +28,10 @@ class Infobae(BasicNewsRecipe):
                         , '--category' , category
                         , '--publisher', publisher
                         , '--ignore-tables'
+                        , '--ignore-colors'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
 
     remove_tags = [
                      dict(name=['embed','link','object'])

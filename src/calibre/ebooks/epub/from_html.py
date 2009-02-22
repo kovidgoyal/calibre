@@ -205,9 +205,8 @@ class HTMLProcessor(Processor, Rationalizer):
     def save(self):
         for meta in list(self.root.xpath('//meta')):
             meta.getparent().remove(meta)
-        #for img in self.root.xpath('//img[@src]'):
-        #    self.convert_image(img)
-        Processor.save(self)
+        # Strip all comments since Adobe DE is petrified of them
+        Processor.save(self, strip_comments=True)
         
     def remove_first_image(self):
         images = self.root.xpath('//img')
