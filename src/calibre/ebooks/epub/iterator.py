@@ -98,7 +98,7 @@ class EbookIterator(object):
                     url    = re.compile(r'url\s*\([\'"]*(.+?)[\'"]*\)', re.DOTALL).search(block)
                     if url:
                         path = url.group(1).split('/')
-                        path = os.path.join(os.path.dirname(item.path), *path) 
+                        path = os.path.join(os.path.dirname(item.path), *path)
                         id = QFontDatabase.addApplicationFont(path)
                         if id != -1:
                             families = [unicode(f) for f in QFontDatabase.applicationFontFamilies(id)]
@@ -106,6 +106,8 @@ class EbookIterator(object):
                                 family = family.group(1).strip().replace('"', '')
                                 if family not in families:
                                     print 'WARNING: Family aliasing not supported:', block
+                                else:
+                                    print 'Loaded embedded font:', repr(family)
     
     def __enter__(self):
         self._tdir = TemporaryDirectory('_ebook_iter')
