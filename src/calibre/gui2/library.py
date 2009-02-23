@@ -20,6 +20,7 @@ from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
+from calibre.ebooks.metadata import string_to_authors
 
 class LibraryDelegate(QItemDelegate):
     COLOR    = QColor("blue")
@@ -364,12 +365,13 @@ class BooksModel(QAbstractTableModel):
         return data
 
 
-    def get_metadata(self, rows, rows_are_ids=False):
-        metadata = []
+    def get_metadata(self, rows, rows_are_ids=False, full_metadata=False):
+        metadata, _full_metadata = [], []
         if not rows_are_ids:
             rows = [self.db.id(row.row()) for row in rows]
         for id in rows:
             mi = self.db.get_metadata(id, index_is_id=True)
+            _full_metadata.append(mi)
             au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
             tags = mi.tags if mi.tags else []
             if mi.series is not None:
@@ -377,6 +379,7 @@ class BooksModel(QAbstractTableModel):
             info = {
                   'title'   : mi.title,
                   'authors' : au,
+                  'author_sort' : mi.author_sort,
                   'cover'   : self.db.cover(id, index_is_id=True),
                   'tags'    : tags,
                   'comments': mi.comments,
@@ -387,7 +390,10 @@ class BooksModel(QAbstractTableModel):
                 }
 
             metadata.append(info)
-        return metadata
+        if full_metadata:
+            return metadata, _full_metadata
+        else:
+            return metadata
 
     def get_preferred_formats_from_ids(self, ids, all_formats, mode='r+b'):
         ans = []
@@ -928,12 +934,8 @@ class DeviceBooksModel(BooksModel):
                     au = self.unknown
                 if role == Qt.EditRole:
                     return QVariant(au)
-                au = au.split(',')
-                authors = []
-                for i in au:
-                    authors += i.strip().split('&')
-                jau = [ a.strip() for a in authors ]
-                return QVariant("\n".join(jau))
+                authors = string_to_authors(au)
+                return QVariant("\n".join(authors))
             elif col == 2:
                 size = self.db[self.map[row]].size
                 return QVariant(BooksView.human_readable(size))

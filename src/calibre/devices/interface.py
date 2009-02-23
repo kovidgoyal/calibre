@@ -150,10 +150,13 @@ class Device(object):
         the device. 
         @param locations: Result of a call to L{upload_books}
         @param metadata: List of dictionaries. Each dictionary must have the
-        keys C{title}, C{authors}, C{cover}, C{tags}. The value of the C{cover} 
+        keys C{title}, C{authors}, C{author_sort}, C{cover}, C{tags}. 
+        The value of the C{cover} 
         element can be None or a three element tuple (width, height, data)
         where data is the image data in JPEG format as a string. C{tags} must be
         a possibly empty list of strings. C{authors} must be a string.
+        C{author_sort} may be None. It is upto the driver to decide whether to
+        use C{author_sort} or not.
         The dictionary can also have an optional key "tag order" which should be
         another dictionary that maps tag names to lists of book ids. The ids are
         ids from the book database.
