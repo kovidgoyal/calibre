@@ -1147,7 +1147,7 @@ class LibraryDatabase2(LibraryDatabase):
             path = pt.name
         else:
             path = path_or_stream
-            return run_plugins_on_import(path, format)
+        return run_plugins_on_import(path, format)
     
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
