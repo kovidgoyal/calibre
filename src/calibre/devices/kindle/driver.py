@@ -10,7 +10,7 @@ from calibre.devices.usbms.driver import USBMS
 
 class KINDLE(USBMS):
     # Ordered list of supported formats
-    FORMATS     = ['azw', 'mobi', 'prc', 'txt']
+    FORMATS     = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'txt']
     
     VENDOR_ID   = [0x1949]
     PRODUCT_ID  = [0x0001]

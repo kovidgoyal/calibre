@@ -1,3 +1,4 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, time
@@ -910,12 +911,13 @@ class Main(MainWindow, Ui_MainWindow):
         if not self.device_manager or not rows or len(rows) == 0:
             return
         ids = iter(self.library_view.model().id(r) for r in rows)
-        metadata = self.library_view.model().get_metadata(rows)
+        metadata, full_metadata = self.library_view.model().get_metadata(
+                                                    rows, full_metadata=True)
         for mi in metadata:
             cdata = mi['cover']
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
-        metadata = iter(metadata)
+        metadata, full_metadata = iter(metadata), iter(full_metadata)
         _files   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, 
                                     paths=True, set_metadata=True,
@@ -923,22 +925,15 @@ class Main(MainWindow, Ui_MainWindow):
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
-            mi = metadata.next()
+            mi, smi = metadata.next(), full_metadata.next()
             id = ids.next()
             if f is None:
                 bad.append(mi['title'])
             else:
                 remove_ids.append(id)
-                aus = mi['authors'].split(',')
-                aus2 = []
-                for a in aus:
-                    aus2.extend(a.split('&'))
                 try:
-                    smi = MetaInformation(mi['title'], aus2)
-                    smi.comments = mi.get('comments', None)
-                    _f = open(f, 'r+b')
-                    set_metadata(_f, smi, f.rpartition('.')[2])
-                    _f.close()
+                    with open(f, 'r+b') as _f:
+                        set_metadata(_f, smi, f.rpartition('.')[2])
                 except:
                     print 'Error setting metadata in book:', mi['title']
                     traceback.print_exc()

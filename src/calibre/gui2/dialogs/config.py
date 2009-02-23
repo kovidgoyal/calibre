@@ -180,11 +180,12 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
         self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
 
-        for ext in BOOK_EXTENSIONS:
+        book_exts = sorted(BOOK_EXTENSIONS)
+        for ext in book_exts:
             self.single_format.addItem(ext.upper(), QVariant(ext))
         
         single_format = config['save_to_disk_single_format']
-        self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
+        self.single_format.setCurrentIndex(book_exts.index(single_format))
         self.cover_browse.setValue(config['cover_flow_queue_length'])
         self.systray_notifications.setChecked(not config['disable_tray_notification'])
         from calibre.translations.compiled import translations
@@ -203,7 +204,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.pdf_metadata.setChecked(prefs['read_file_metadata'])
         
         added_html = False
-        for ext in BOOK_EXTENSIONS:
+        for ext in book_exts:
             ext = ext.lower()
             ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
             if ext == 'lrf' or is_supported('book.'+ext):

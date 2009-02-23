@@ -30,6 +30,7 @@ preferred_source_formats = [
                             'XHTML',
                             'PRC',
                             'AZW',
+                            'FB2',
                             'RTF',
                             'PDF',
                             'TXT',

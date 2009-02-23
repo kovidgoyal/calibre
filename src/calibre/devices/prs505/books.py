@@ -55,7 +55,7 @@ class Book(object):
     
     title        = book_metadata_field("title")
     authors      = book_metadata_field("author", \
-                            formatter=lambda x: x if x and x.strip() else "Unknown")
+                            formatter=lambda x: x if x and x.strip() else _('Unknown'))
     mime         = book_metadata_field("mime")
     rpath        = book_metadata_field("path")
     id           = book_metadata_field("id", formatter=int)
@@ -193,7 +193,7 @@ class BookList(_BookList):
         attrs = {
                  "title"  : info["title"], 
                  'titleSorter' : sortable_title(info['title']),
-                 "author" : info["authors"] if info['authors'] else 'Unknown', \
+                 "author" : info["authors"] if info['authors'] else _('Unknown'), 
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
                  "mime":mime, "path":name, "size":str(size)
