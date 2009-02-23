@@ -90,19 +90,25 @@ class AddFiles(Add):
         
         
     def run(self):
-        self.canceled = False
-        for c, book in enumerate(self.paths):
-            if self.pd.canceled:
-                self.canceled = True
-                break
-            format = os.path.splitext(book)[1]
-            format = format[1:] if format else None
-            stream = open(book, 'rb')
-            self.formats.append(format)
-            self.names.append(os.path.basename(book))
-            self.get_metadata(c, stream, stream_type=format, 
-                                  use_libprs_metadata=True)
-            self.wait_for_condition()
+        try:
+            self.canceled = False
+            for c, book in enumerate(self.paths):
+                if self.pd.canceled:
+                    self.canceled = True
+                    break
+                format = os.path.splitext(book)[1]
+                format = format[1:] if format else None
+                stream = open(book, 'rb')
+                self.formats.append(format)
+                self.names.append(os.path.basename(book))
+                self.get_metadata(c, stream, stream_type=format, 
+                                      use_libprs_metadata=True)
+                self.wait_for_condition()
+        finally:
+            self.disconnect(self.get_metadata, 
+                            SIGNAL('metadata(PyQt_PyObject, PyQt_PyObject)'), 
+                            self.metadata_delivered)
+            self.get_metadata = None
         
                     
     def process_duplicates(self):
@@ -178,34 +184,40 @@ class AddRecursive(Add):
     
    
     def run(self):
-        root = os.path.abspath(self.path)
-        for dirpath in os.walk(root):
-            if self.is_canceled():
-                return
-            self.emit(SIGNAL('update(PyQt_PyObject)'), 
-                      _('Searching in')+' '+dirpath[0])
-            self.books += list(self.db.find_books_in_directory(dirpath[0], 
-                                            self.single_book_per_directory))
-        self.books = [formats for formats in self.books if formats]
-        # Reset progress bar
-        self.emit(SIGNAL('searching_done()'))
-        
-        for c, formats in enumerate(self.books):
-            self.get_metadata.from_formats(c, formats)
-            self.wait_for_condition()
+        try:
+            root = os.path.abspath(self.path)
+            for dirpath in os.walk(root):
+                if self.is_canceled():
+                    return
+                self.emit(SIGNAL('update(PyQt_PyObject)'), 
+                          _('Searching in')+' '+dirpath[0])
+                self.books += list(self.db.find_books_in_directory(dirpath[0], 
+                                                self.single_book_per_directory))
+            self.books = [formats for formats in self.books if formats]
+            # Reset progress bar
+            self.emit(SIGNAL('searching_done()'))
             
-        # Add books to database
-        for c, x in enumerate(self.metadata):
-            mi, formats = x
-            if self.is_canceled():
-                break
-            if self.db.has_book(mi):
-                self.duplicates.append((mi, formats))
-            else:
-                self.db.import_book(mi, formats, notify=False)
-                self.number_of_books_added += 1
-            self.emit(SIGNAL('pupdate(PyQt_PyObject)'), c)
- 
+            for c, formats in enumerate(self.books):
+                self.get_metadata.from_formats(c, formats)
+                self.wait_for_condition()
+                
+            # Add books to database
+            for c, x in enumerate(self.metadata):
+                mi, formats = x
+                if self.is_canceled():
+                    break
+                if self.db.has_book(mi):
+                    self.duplicates.append((mi, formats))
+                else:
+                    self.db.import_book(mi, formats, notify=False)
+                    self.number_of_books_added += 1
+                self.emit(SIGNAL('pupdate(PyQt_PyObject)'), c)
+        finally:
+            self.disconnect(self.get_metadata, 
+                            SIGNAL('metadataf(PyQt_PyObject, PyQt_PyObject)'), 
+                            self.metadata_delivered)
+            self.get_metadata = None
+            
         
     def process_duplicates(self):
         if self.duplicates:
