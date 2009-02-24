@@ -9,7 +9,7 @@ from PyQt4.Qt import QMovie, QApplication, Qt, QIcon, QTimer, QWidget, SIGNAL, \
                      QDesktopServices, QDoubleSpinBox, QLabel, QTextBrowser, \
                      QPainter, QBrush, QColor, QStandardItemModel, QPalette, \
                      QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit, \
-                     QToolButton, QMenu, QInputDialog
+                     QToolButton, QMenu, QInputDialog, QAction
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
@@ -222,8 +222,14 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.set_manager(self)
         self.pi = ProgressIndicator(self)
         self.toc.setVisible(False)
+        self.action_quit = QAction(self)
+        self.addAction(self.action_quit)
+        self.action_quit.setShortcut(Qt.CTRL+Qt.Key_Q)
+        self.connect(self.action_quit, SIGNAL('triggered(bool)'), 
+                     lambda x:QApplication.instance().quit())
         self.action_copy.setDisabled(True)
         self.action_metadata.setCheckable(True)
+        self.action_metadata.setShortcut(Qt.CTRL+Qt.Key_I)
         self.action_table_of_contents.setCheckable(True)
         self.action_reference_mode.setCheckable(True)
         self.connect(self.action_reference_mode, SIGNAL('triggered(bool)'), 

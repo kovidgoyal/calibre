@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class NewYorker(BasicNewsRecipe):
     title                 = u'The New Yorker'
     __author__            = 'Darko Miletic'
-    description           = 'Best of the US journalism'    
+    description           = 'The best of US journalism'    
     oldest_article        = 7
     language = _('English')
     max_articles_per_feed = 100
