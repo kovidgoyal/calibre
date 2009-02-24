@@ -916,12 +916,18 @@ class LibraryDatabase2(LibraryDatabase):
             else:
                 aid = self.conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
             try:
-                self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
+                self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)',
+                                   (id, aid))
             except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
+        ss = authors_to_sort_string(authors)    
+        self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
+                          (ss, id))
         self.conn.commit()
-        self.data.set(id, FIELD_MAP['authors'], ','.join([a.replace(',', '|') for a in authors]), row_is_id=True)
-        self.data.set(id, FIELD_MAP['author_sort'], self.data[self.data.row(id)][FIELD_MAP['authors']], row_is_id=True) 
+        self.data.set(id, FIELD_MAP['authors'], 
+                      ','.join([a.replace(',', '|') for a in authors]), 
+                      row_is_id=True)
+        self.data.set(id, FIELD_MAP['author_sort'], ss, row_is_id=True) 
         self.set_path(id, True)
         if notify:
             self.notify('metadata', [id])
