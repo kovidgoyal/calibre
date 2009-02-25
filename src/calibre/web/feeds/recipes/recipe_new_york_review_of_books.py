@@ -17,9 +17,19 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
     description = u'Book reviews'
     language = _('English')
     __author__ = 'Kovid Goyal' 
-    
+    needs_subscription = True
     remove_tags_before = {'id':'container'}
     remove_tags = [{'class':['noprint', 'ad', 'footer']}, {'id':'right-content'}]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.nybooks.com/register/')
+            br.select_form(name='login')
+            br['email']   = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
     
     def parse_index(self):
         root = html.fromstring(self.browser.open('http://www.nybooks.com/current-issue').read())
@@ -42,10 +52,4 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
                     articles.append(article)
                     
         return [('Current Issue', articles)]
-                    
-            
-        
-        
-        
-        
-        
+       

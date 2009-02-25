@@ -174,6 +174,9 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         return template.generate(data=data).render('xml')
     elif output_format == 'stanza':
         data = [i for i in data if i.has_key('fmt_epub')]
+        for x in data:
+            if isinstance(x['fmt_epub'], unicode):
+                x['fmt_epub'] = x['fmt_epub'].encode('utf-8')
         template = MarkupTemplate(STANZA_TEMPLATE)
         return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle, 
                 sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')

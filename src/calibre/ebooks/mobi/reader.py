@@ -505,7 +505,7 @@ def get_metadata(stream):
         except:
             import traceback
             traceback.print_exc()
-        return mi
+    return mi
         
         
 def option_parser():

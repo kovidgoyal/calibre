@@ -4,13 +4,13 @@ __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 Device driver for Amazon's Kindle
 '''
 
-import os, fnmatch
+import os
 
 from calibre.devices.usbms.driver import USBMS
 
 class KINDLE(USBMS):
     # Ordered list of supported formats
-    FORMATS     = ['azw', 'mobi', 'prc', 'txt']
+    FORMATS     = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'txt']
     
     VENDOR_ID   = [0x1949]
     PRODUCT_ID  = [0x0001]
@@ -35,10 +35,13 @@ class KINDLE(USBMS):
             if os.path.exists(path):
                 os.unlink(path)
                 
-                filepath, ext = os.path.splitext(path)
-                basepath, filename = os.path.split(filepath)
+                filepath = os.path.splitext(path)[0]
                 
                 # Delete the ebook auxiliary file
                 if os.path.exists(filepath + '.mbp'):
                     os.unlink(filepath + '.mbp')
 
+class KINDLE2(KINDLE):
+    
+    PRODUCT_ID = [0x0002]
+    BCD        = [0x0100]

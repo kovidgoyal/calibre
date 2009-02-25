@@ -37,17 +37,20 @@ class KeyMapper(object):
 
     @staticmethod
     def relate(size, base):
+        if size == 0:
+            return base
         size = float(size)
         base = float(base)
         if abs(size - base) < 0.1: return 0
         sign = -1 if size < base else 1
         endp = 0 if size < base else 36
         diff = (abs(base - size) * 3) + ((36 - size) / 100)
-        logb = abs(base - endp) 
+        logb = abs(base - endp)
         result = sign * math.log(diff, logb)
         return result
         
     def __getitem__(self, ssize):
+        ssize = asfloat(ssize, 0)
         if ssize in self.cache:
             return self.cache[ssize]
         dsize = self.map(ssize)
@@ -66,6 +69,7 @@ class ScaleMapper(object):
         self.dscale = float(dbase) / float(sbase)
 
     def __getitem__(self, ssize):
+        ssize = asfloat(ssize, 0)
         dsize = ssize * self.dscale
         return dsize
 

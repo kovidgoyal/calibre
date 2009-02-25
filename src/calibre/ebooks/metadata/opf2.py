@@ -18,7 +18,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre import relpath
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 
 class Resource(object):
@@ -614,7 +614,7 @@ class OPF(object):
         def fget(self):
             ans = []
             for elem in self.authors_path(self.metadata):
-                ans.extend([x.strip() for x in self.get_text(elem).split(',')])
+                ans.extend(string_to_authors(self.get_text(elem)))
             return ans
 
         def fset(self, val):
@@ -624,8 +624,8 @@ class OPF(object):
             for author in val:
                 attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
                 elem = self.create_metadata_element('creator', attrib=attrib)
-                self.set_text(elem, author)
-
+                self.set_text(elem, author.strip())
+            
         return property(fget=fget, fset=fset)
 
     @dynamic_property
