@@ -195,5 +195,8 @@ class EbookIterator(object):
         self.bookmarks.append(bm)
         self.save_bookmarks()
         
+    def set_bookmarks(self, bookmarks):
+        self.bookmarks = bookmarks
+        
     def __exit__(self, *args):
         self._tdir.__exit__(*args)

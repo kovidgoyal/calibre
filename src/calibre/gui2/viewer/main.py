@@ -12,6 +12,8 @@ from PyQt4.Qt import QMovie, QApplication, Qt, QIcon, QTimer, QWidget, SIGNAL, \
                      QToolButton, QMenu, QInputDialog, QAction
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
+from calibre.gui2.viewer.printing import Printing
+from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
                          info_dialog, error_dialog
@@ -262,7 +264,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.toc, SIGNAL('clicked(QModelIndex)'), self.toc_clicked)
         self.connect(self.reference, SIGNAL('goto(PyQt_PyObject)'), self.goto)
         
+        
+        self.bookmarks_menu = QMenu()
+        self.action_bookmark.setMenu(self.bookmarks_menu)
         self.set_bookmarks([])
+        
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook)
             QTimer.singleShot(50, f)
@@ -273,6 +279,16 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.MenuButtonPopup)
         self.action_full_screen.setCheckable(True)
+        
+        self.print_menu = QMenu()
+        self.print_menu.addAction(QIcon(':/images/print-preview.svg'), _('Print Preview'))
+        self.action_print.setMenu(self.print_menu)
+        self.tool_bar.widgetForAction(self.action_print).setPopupMode(QToolButton.MenuButtonPopup)
+        self.connect(self.action_print, SIGNAL("triggered(bool)"), partial(self.print_book, preview=False))
+        self.connect(self.print_menu.actions()[0], SIGNAL("triggered(bool)"), partial(self.print_book, preview=True))
+
+    def print_book(self, preview):
+        Printing(self.iterator.spine, preview)
 
     def toggle_fullscreen(self, x):
         if self.isFullScreen():
@@ -477,16 +493,27 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.setCursor(Qt.BusyCursor)
     
     def set_bookmarks(self, bookmarks):
-        menu = QMenu()
+        self.bookmarks_menu.clear()
+        self.bookmarks_menu.addAction(_("Manage Bookmarks"), self.manage_bookmarks)
+        self.bookmarks_menu.addSeparator()
         current_page = None
         for bm in bookmarks:
             if bm[0] == 'calibre_current_page_bookmark':
                 current_page = bm
             else:
-                menu.addAction(bm[0], partial(self.goto_bookmark, bm))
-        self.action_bookmark.setMenu(menu)
-        self._menu = menu
+                self.bookmarks_menu.addAction(bm[0], partial(self.goto_bookmark, bm))
         return current_page
+        
+    def manage_bookmarks(self):
+        bmm = BookmarkManager(self, self.iterator.bookmarks)
+        bmm.exec_()
+        
+        bookmarks = bmm.get_bookmarks()
+        
+        if bookmarks != self.iterator.bookmarks:
+            self.iterator.set_bookmarks(bookmarks)
+            self.iterator.save_bookmarks()
+            self.set_bookmarks(bookmarks)
         
     def save_current_position(self):
         try:

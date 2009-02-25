@@ -60,6 +60,7 @@ entry_points = {
              'calibre-parallel   = calibre.parallel:main',
              'calibre-customize  = calibre.customize.ui:main',                             
 		     'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
+             'any2pdf  = calibre.ebooks.pdf.from_any:main',
                            ],
         'gui_scripts'    : [
             __appname__+' = calibre.gui2.main:main',
