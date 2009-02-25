@@ -3,6 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
 
 import sys, os, subprocess, logging
+import errno
 from functools import partial
 from calibre import isosx, setup_cli_handlers, filename_to_utf8, iswindows, islinux
 from calibre.ebooks import ConversionError, DRMError
@@ -41,14 +42,26 @@ def generate_html(pathtopdf, tdir):
     try:
         os.chdir(tdir)
         try:
-            p = popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            p = popen(cmd, stderr=subprocess.PIPE)
         except OSError, err:
             if err.errno == 2:
                 raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'), True)
             else:
                 raise
+
+        '''
         print p.stdout.read()
-        ret = p.wait()
+        '''
+        while True:
+            try:
+                ret = p.wait()
+                break
+            except OSError, e:
+                if e.errno == errno.EINTR:
+                    continue
+                else:
+                    raise
+
         if ret != 0:
             err = p.stderr.read()
             raise ConversionError, err
