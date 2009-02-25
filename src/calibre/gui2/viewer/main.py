@@ -506,7 +506,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         
     def manage_bookmarks(self):
         bmm = BookmarkManager(self, self.iterator.bookmarks)
-        bmm.exec_()
+        if bmm.exec_() != BookmarkManager.Accepted:
+            return
         
         bookmarks = bmm.get_bookmarks()
         

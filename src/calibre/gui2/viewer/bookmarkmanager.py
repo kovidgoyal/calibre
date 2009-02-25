@@ -1,9 +1,12 @@
+from __future__ import with_statement 
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 
+import cPickle, os
 
 from PyQt4.Qt import Qt, QDialog, QAbstractTableModel, QVariant, SIGNAL, \
-    QModelIndex, QInputDialog, QLineEdit
+    QModelIndex, QInputDialog, QLineEdit, QFileDialog
 
 from calibre.gui2.viewer.bookmarkmanager_ui import Ui_BookmarkManager
 from calibre.gui2 import NONE, qstring_to_unicode
@@ -20,9 +23,13 @@ class BookmarkManager(QDialog, Ui_BookmarkManager):
         self.connect(self.button_revert, SIGNAL('clicked()'), self.set_bookmarks)
         self.connect(self.button_delete, SIGNAL('clicked()'), self.delete_bookmark)
         self.connect(self.button_edit, SIGNAL('clicked()'), self.edit_bookmark)
+        self.connect(self.button_export, SIGNAL('clicked()'), self.export_bookmarks)
+        self.connect(self.button_import, SIGNAL('clicked()'), self.import_bookmarks)
         
-    def set_bookmarks(self):
-        self._model = BookmarkTableModel(self, self.bookmarks)
+    def set_bookmarks(self, bookmarks=None):
+        if bookmarks == None:
+            bookmarks = self.bookmarks[:]
+        self._model = BookmarkTableModel(self, bookmarks)
         self.bookmarks_table.setModel(self._model)
         
     def delete_bookmark(self):
@@ -41,6 +48,40 @@ class BookmarkManager(QDialog, Ui_BookmarkManager):
     def get_bookmarks(self):
         return self._model.bookmarks
         
+    def export_bookmarks(self):
+        filename = QFileDialog.getSaveFileName(self, _("Export Bookmarks"), '%s%suntitled.pickle' % (os.getcwdu(), os.sep), _("Pickled Bookmarks (*.pickle)"))
+        if filename == '':
+            return
+            
+        with open(filename, 'w') as fileobj:
+            cPickle.dump(self._model.bookmarks, fileobj)
+        
+    def import_bookmarks(self):
+        filename = QFileDialog.getOpenFileName(self, _("Import Bookmarks"), '%s' % os.getcwdu(), _("Pickled Bookmarks (*.pickle)"))
+        if filename == '':
+            return
+    
+        imported = None
+        with open(filename, 'r') as fileobj:
+            imported = cPickle.load(fileobj)
+        
+        if imported != None:
+            bad = False
+            try:
+                for bm in imported:
+                    if len(bm) != 2:
+                        bad = True
+                        break
+            except:
+                pass
+                
+            if not bad:
+                bookmarks = self._model.bookmarks[:]
+                for bm in imported:
+                    if bm not in bookmarks and bm[0] != 'calibre_current_page_bookmark':
+                        bookmarks.append(bm)
+                self.set_bookmarks(bookmarks)
+
 
 class BookmarkTableModel(QAbstractTableModel):
     headers = [_("Name")]
