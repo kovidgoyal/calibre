@@ -13,6 +13,7 @@ from PyQt4.Qt import QMovie, QApplication, Qt, QIcon, QTimer, QWidget, SIGNAL, \
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
+from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
                          info_dialog, error_dialog
@@ -263,7 +264,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.toc, SIGNAL('clicked(QModelIndex)'), self.toc_clicked)
         self.connect(self.reference, SIGNAL('goto(PyQt_PyObject)'), self.goto)
         
+        
+        self.bookmarks_menu = QMenu()
+        self.action_bookmark.setMenu(self.bookmarks_menu)
         self.set_bookmarks([])
+        
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook)
             QTimer.singleShot(50, f)
@@ -488,16 +493,27 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.setCursor(Qt.BusyCursor)
     
     def set_bookmarks(self, bookmarks):
-        menu = QMenu()
+        self.bookmarks_menu.clear()
+        self.bookmarks_menu.addAction(_("Manage Bookmarks"), self.manage_bookmarks)
+        self.bookmarks_menu.addSeparator()
         current_page = None
         for bm in bookmarks:
             if bm[0] == 'calibre_current_page_bookmark':
                 current_page = bm
             else:
-                menu.addAction(bm[0], partial(self.goto_bookmark, bm))
-        self.action_bookmark.setMenu(menu)
-        self._menu = menu
+                self.bookmarks_menu.addAction(bm[0], partial(self.goto_bookmark, bm))
         return current_page
+        
+    def manage_bookmarks(self):
+        bmm = BookmarkManager(self, self.iterator.bookmarks)
+        bmm.exec_()
+        
+        bookmarks = bmm.get_bookmarks()
+        
+        if bookmarks != self.iterator.bookmarks:
+            self.iterator.set_bookmarks(bookmarks)
+            self.iterator.save_bookmarks()
+            self.set_bookmarks(bookmarks)
         
     def save_current_position(self):
         try:

@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+__license__   = 'GPL v3'
+__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+
+
 import os, sys, traceback, urlparse
 
 from BeautifulSoup import BeautifulSoup, Tag
