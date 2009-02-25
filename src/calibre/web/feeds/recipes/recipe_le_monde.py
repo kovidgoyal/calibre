@@ -7,7 +7,7 @@ lemonde.fr
 '''
 
 import re
-
+from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -15,11 +15,15 @@ class LeMonde(BasicNewsRecipe):
     title          = 'LeMonde.fr'
     __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
     description = 'Global news in french'
-    oldest_article = 7
+    oldest_article = 3
     language = _('French')
-    max_articles_per_feed = 20
+    max_articles_per_feed = 30
     no_stylesheets = True
+    cover_url='http://abonnes.lemonde.fr/titresdumonde/'+date.today().strftime("%y%m%d")+'/1.jpg'
 
+
+    html2lrf_options = ['--base-font-size', '10']
+    
     feeds =  [
              ('A la Une', 'http://www.lemonde.fr/rss/une.xml'),
              ('International', 'http://www.lemonde.fr/rss/sequence/0,2-3210,1-0,0.xml'),
@@ -38,25 +42,57 @@ class LeMonde(BasicNewsRecipe):
              ('Examens', 'http://www.lemonde.fr/rss/sequence/0,2-3404,1-0,0.xml'),
              ('Opinions', 'http://www.lemonde.fr/rss/sequence/0,2-3232,1-0,0.xml')
              ]
-
+             
     remove_tags    = [dict(name='img', attrs={'src':'http://medias.lemonde.fr/mmpub/img/lgo/lemondefr_pet.gif'}),
                                     dict(name='div', attrs={'id':'xiti-logo-noscript'}),
                                     dict(name='br', attrs={}),
                                     dict(name='iframe', attrs={}),
     ]
-
+    
     extra_css      = '.ar-tit {font-size: x-large;} \n .dt {font-size: x-small;}'
 
-    filter_regexps = [r'xiti\.com']
-
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
         [
+            (r'<html.*(<div class="post".*?>.*?</div>.*?<div class="entry">.*?</div>).*You can start editing here.*</html>', lambda match : '<html><body>'+match.group(1)+'</body></html>'),
             (r'<p>&nbsp;</p>', lambda match : ''),
             (r'<img src="http://medias\.lemonde\.fr/mmpub/img/let/(.)\.gif"[^>]*><div class=ar-txt>', lambda match : '<div class=ar-txt>'+match.group(1).upper()),
+            (r'<img src="http://medias\.lemonde\.fr/mmpub/img/let/q(.)\.gif"[^>]*><div class=ar-txt>', lambda match : '<div class=ar-txt>"'+match.group(1).upper()),
             (r'(<div class=desc><b>.*</b></div>).*</body>', lambda match : match.group(1)),
         ]
     ]
-
+                       
+    article_match_regexps = [ (re.compile(i)) for i in
+        [
+            (r'http://www\.lemonde\.fr/\S+/article/.*'),
+            (r'http://www\.lemonde\.fr/\S+/portfolio/.*'),
+            (r'http://www\.lemonde\.fr/\S+/article_interactif/.*'),
+            (r'http://\S+\.blog\.lemonde\.fr/.*'),
+        ]
+    ]
+    
     def print_version(self, url):
-        return re.sub('http:.*_([0-9]+)_[0-9]+\.html.*','http://www.lemonde.fr/web/imprimer_element/0,40-0,50-\\1,0.html' ,url)
+        return re.sub('http://www\.lemonde\.fr/.*_([0-9]+)_[0-9]+\.html.*','http://www.lemonde.fr/web/imprimer_element/0,40-0,50-\\1,0.html' ,url)
 
+    # Used to filter duplicated articles
+    articles_list = []
+
+    def get_article_url(self, article):
+        url=article.get('link',  None)
+        url=url[0:url.find("#")]
+        if url in self.articles_list:
+            self.log_debug(_('Skipping duplicated article: %s')%url)
+            return False
+        if self.is_article_wanted(url):
+            self.articles_list.append(url)
+            return url
+        self.log_debug(_('Skipping filtered article: %s')%url)
+        return False
+
+
+    def is_article_wanted(self, url):
+        if self.article_match_regexps:
+            for m in self.article_match_regexps:
+                if m.search(url):
+                    return True
+            return False
+        return False

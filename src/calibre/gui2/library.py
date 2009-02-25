@@ -90,11 +90,11 @@ class DateDelegate(QStyledItemDelegate):
     def displayText(self, val, locale):
         d = val.toDate()
         return d.toString('dd MMM yyyy')
-        if d.isNull():
-            return ''
-        d = datetime(d.year(), d.month(), d.day())
-        return strftime(BooksView.TIME_FMT, d.timetuple())
         
+    def createEditor(self, parent, option, index):
+        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
+        qde.setDisplayFormat('MM/dd/yyyy')
+        return qde
 
 class BooksModel(QAbstractTableModel):
     coding = zip(
