@@ -276,8 +276,11 @@ class UnBinary(object):
                     state = 'get attr'
                 elif count > 0:
                     if not in_censorship:
-                        self.buf.write(c.encode(
-                            'ascii', 'xmlcharrefreplace'))
+                        if c == '"':
+                            c = '&quot;'
+                        elif c == '<':
+                            c = '&lt;'
+                        self.buf.write(c.encode('ascii', 'xmlcharrefreplace'))
                     count -= 1
                 if count == 0:
                     if not in_censorship:
