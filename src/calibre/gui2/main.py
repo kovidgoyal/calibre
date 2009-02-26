@@ -44,7 +44,6 @@ from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks.metadata.meta import set_metadata
-from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
@@ -399,7 +398,7 @@ class Main(MainWindow, Ui_MainWindow):
     def change_output_format(self, x):
         of = unicode(x).strip()
         if of != prefs['output_format']:
-            if of not in ('LRF', 'EPUB'):
+            if of not in ('LRF', 'EPUB', 'MOBI'):
                 warning_dialog(self, 'Warning', 
                                '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
             prefs.set('output_format', of)
