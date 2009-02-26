@@ -255,7 +255,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.gui_headerformat.setDisabled(True)
         self.gui_header_separation.setDisabled(True)
         self.gui_use_metadata_cover.setCheckState(Qt.Checked)
-        self.preprocess.addItem('No preprocessing')
+        self.preprocess.addItem(_('No preprocessing'))
         for opt in self.PREPROCESS_OPTIONS:
             self.preprocess.addItem(opt.get_opt_string()[2:])
         ph = _('Preprocess the file before converting to LRF. This is useful if you know that the file is from a specific source. Known sources:')
@@ -338,7 +338,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                     cmd.append(opt)
                     
         text = qstring_to_unicode(self.preprocess.currentText())
-        if text != 'No preprocessing':
+        if text != _('No preprocessing'):
             cmd.append(u'--'+text)
         cmd.extend([u'--profile',  qstring_to_unicode(self.gui_profile.currentText())])
         
