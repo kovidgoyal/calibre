@@ -235,7 +235,7 @@ class MobiReader(object):
             if self.verbose:
                 print 'Creating OPF...'
             ncx = cStringIO.StringIO()
-            opf = self.create_opf(htmlfile, guide)
+            opf = self.create_opf(htmlfile, guide, root)
             opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)
             ncx = ncx.getvalue()
             if ncx:
@@ -328,7 +328,7 @@ class MobiReader(object):
                 except ValueError:
                     pass
     
-    def create_opf(self, htmlfile, guide=None):
+    def create_opf(self, htmlfile, guide=None, root=None):
         mi = self.book_header.exth.mi
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
@@ -347,21 +347,27 @@ class MobiReader(object):
                 if ref.type.lower() == 'toc':
                     toc = ref.href()
         if toc:
-            index = self.processed_html.find('<a id="%s" name="%s"'%(toc.partition('#')[-1], toc.partition('#')[-1]))
+            elems = root.xpath('//*[@id="%s"]'%toc.partition('#')[-1])
             tocobj = None
             ent_pat = re.compile(r'&(\S+?);')
-            if index > -1:
-                raw = '<html><body>'+self.processed_html[index:]
-                root = html.fromstring(raw)
+            if elems:
                 tocobj = TOC()
-                for a in root.xpath('//a[@href]'):
-                    try:
-                        text = u' '.join([t.strip() for t in a.xpath('descendant::text()')])
-                    except:
-                        text = ''
-                    text = ent_pat.sub(entity_to_unicode, text)
-                    if a.get('href', '').startswith('#'):
-                        tocobj.add_item(toc.partition('#')[0], a.attrib['href'][1:], text)
+                reached = False
+                for x in root.iter():
+                    if x == elems[-1]:
+                        reached = True
+                        continue
+                    if reached and x.tag == 'a':
+                        href = x.get('href', '')
+                        if href:
+                            try:
+                                text = u' '.join([t.strip() for t in \
+                                                x.xpath('descendant::text()')])
+                            except:
+                                text = ''
+                            text = ent_pat.sub(entity_to_unicode, text)
+                            tocobj.add_item(toc.partition('#')[0], href[1:], 
+                                            text)
             if tocobj is not None:
                 opf.set_toc(tocobj)
         
