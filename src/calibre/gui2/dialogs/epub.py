@@ -126,7 +126,8 @@ class Config(ResizableDialog, Ui_Dialog):
                 pix = QPixmap()
                 pix.loadFromData(cover)
                 if pix.isNull():
-                    d = error_dialog(self.window, _file + _(" is not a valid picture"))
+                    d = error_dialog(self.window, _('Error reading file'),
+                                      _file + _(" is not a valid picture"))
                     d.exec_()
                 else:
                     self.cover_path.setText(_file)
