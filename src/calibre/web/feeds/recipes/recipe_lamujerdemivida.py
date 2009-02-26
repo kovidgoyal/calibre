@@ -1,0 +1,76 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+lamujerdemivida.com.ar
+'''
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LaMujerDeMiVida(BasicNewsRecipe):
+    title                 = 'La Mujer de mi Vida'
+    __author__            = 'Darko Miletic'
+    description           = 'Cultura de otra manera'    
+    oldest_article        = 90
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1252'
+    publisher             = 'La Mujer de mi Vida'
+    category              = 'literatura, critica, arte, ensayos'    
+    language              = _('Spanish')
+    INDEX                 = 'http://www.lamujerdemivida.com.ar/'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        , '--ignore-tables'
+                        ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+
+    keep_only_tags = [dict(name='table', attrs={'width':'570'})]
+
+    feeds = [(u'Articulos', u'http://www.lamujerdemivida.com.ar/index.php')]
+
+    def preprocess_html(self, soup):
+        soup.html['xml:lang'] = 'es-AR'
+        soup.html['lang']     = 'es-AR'
+        mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
+        soup.head.insert(0,mtag)
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup(self.INDEX)
+        cover_item = soup.find('img',attrs={'alt':'Lamujerdemivida.'})
+        if cover_item:
+           cover_url = self.INDEX + cover_item['src']
+        return cover_url
+    
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for item in soup.findAll('td', attrs={'width':'390'}):
+                atag = item.find('a',href=True)
+                if atag:
+                    url         = atag['href']
+                    title       = self.tag_to_string(atag)
+                    date        = strftime(self.timefmt)
+                    articles.append({
+                                      'title'      :title
+                                     ,'date'       :date
+                                     ,'url'        :url
+                                     ,'description':''
+                                    })
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds
+                
