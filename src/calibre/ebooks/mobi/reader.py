@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import sys, struct, os, cStringIO, re
+import sys, struct, os, cStringIO, re, functools
 
 try:
     from PIL import Image as PILImage
@@ -186,7 +186,9 @@ class MobiReader(object):
         self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
-        self.processed_html = re.sub(r'&(\S+?);', entity_to_unicode,
+        e2u = functools.partial(entity_to_unicode, 
+                                exceptions=['lt', 'gt', 'amp', 'apos', 'quot'])
+        self.processed_html = re.sub(r'&(\S+?);', e2u,
                                      self.processed_html)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
