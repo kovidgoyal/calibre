@@ -19,7 +19,7 @@ except:
     send_message = None
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
-from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
+from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.genshi.template import MarkupTemplate
 
 FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'cover'])
@@ -453,7 +453,7 @@ id is an id number from the list command.
     return 0
 
 def do_set_metadata(db, id, stream):
-    mi = OPFReader(stream)
+    mi = OPF(stream)
     db.set_metadata(id, mi)
     do_show_metadata(db, id, False)
     if send_message is not None:
