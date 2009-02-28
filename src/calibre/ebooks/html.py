@@ -273,7 +273,12 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                 hf.links.remove(link)
                 
         next_level = list(nl)
-    return flat, list(depth_first(flat[0], flat))
+    orec = sys.getrecursionlimit()
+    sys.setrecursionlimit(500000)
+    try:
+        return flat, list(depth_first(flat[0], flat))
+    finally:
+        sys.setrecursionlimit(orec)
     
     
 def opf_traverse(opf_reader, verbose=0, encoding=None):
