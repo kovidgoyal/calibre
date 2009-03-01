@@ -30,12 +30,50 @@ def detect(aBuf):
 
 # Added by Kovid
 ENCODING_PATS = [
-                 re.compile(r'<\?[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
-                 re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>', re.IGNORECASE)
+                 re.compile(r'<\?[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', 
+                            re.IGNORECASE),
+                 re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>', 
+                            re.IGNORECASE)
                  ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
-def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False, resolve_entities=False):
+def strip_encoding_declarations(raw):
+    for pat in ENCODING_PATS:
+        raw = pat.sub('', raw)
+    return raw
+
+def substitute_entites(raw):
+    from calibre import entity_to_unicode
+    from functools import partial
+    f = partial(entity_to_unicode, exceptions=
+                ['amp', 'apos', 'quot', 'lt', 'gt'])
+    return ENTITY_PATTERN.sub(f, raw)
+
+_CHARSET_ALIASES = { "macintosh" : "mac-roman",
+                        "x-sjis" : "shift-jis" }
+    
+
+def force_encoding(raw, verbose):
+    from calibre.constants import preferred_encoding
+    try:
+        chardet = detect(raw)
+    except:
+        chardet = {'encoding':preferred_encoding, 'confidence':0}
+    encoding = chardet['encoding']
+    if chardet['confidence'] < 1 and verbose:
+        print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
+    if not encoding:
+        encoding = preferred_encoding
+    encoding = encoding.lower()
+    if _CHARSET_ALIASES.has_key(encoding):
+        encoding = _CHARSET_ALIASES[encoding]
+    if encoding == 'ascii':
+        encoding = 'utf-8'
+    return encoding
+        
+
+def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False, 
+                   resolve_entities=False):
     '''
     Force conversion of byte string to unicode. Tries to look for XML/HTML 
     encoding declaration first, if not found uses the chardet library and
@@ -45,44 +83,27 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False, resolve_entiti
     encoding = None
     if not raw:
         return u'', encoding    
-    if isinstance(raw, unicode):
-        return raw, encoding
-    for pat in ENCODING_PATS:
-        match = pat.search(raw)
-        if match:
-            encoding = match.group(1)
-            break
-    if strip_encoding_pats:
+    if not isinstance(raw, unicode):
+        if raw.startswith('\xff\xfe'):
+            raw, encoding = raw.decode('utf-16-le')[1:], 'utf-16-le'
+        elif raw.startswith('\xfe\xff'):
+            raw, encoding = raw.decode('utf-16-be')[1:], 'utf-16-be'
+    if not isinstance(raw, unicode):
         for pat in ENCODING_PATS:
-            raw = pat.sub('', raw)
-    if encoding is None:
+            match = pat.search(raw)
+            if match:
+                encoding = match.group(1)
+                break
+        if encoding is None:
+            encoding = force_encoding(raw, verbose)
         try:
-            chardet = detect(raw)
-        except:
-            chardet = {'encoding':'utf-8', 'confidence':0}
-        encoding = chardet['encoding']
-        if chardet['confidence'] < 1 and verbose:
-            print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
-    CHARSET_ALIASES = { "macintosh" : "mac-roman",
-                        "x-sjis" : "shift-jis" }
-    if not encoding:
-        from calibre import preferred_encoding
-        encoding = preferred_encoding
-    if encoding:
-        encoding = encoding.lower()
-    if CHARSET_ALIASES.has_key(encoding):
-        encoding = CHARSET_ALIASES[encoding]
-    if encoding == 'ascii':
-        encoding = 'utf-8'
+            raw = raw.decode(encoding, 'replace')
+        except LookupError:
+            raw = raw.decode('utf-8', 'replace')
     
-    try:
-        raw = raw.decode(encoding, 'replace')
-    except LookupError:
-        raw = raw.decode('utf-8', 'replace')
+    if strip_encoding_pats:
+        raw = strip_encoding_declarations(raw)
     if resolve_entities:
-        from calibre import entity_to_unicode
-        from functools import partial
-        f = partial(entity_to_unicode, exceptions=['amp', 'apos', 'quot', 'lt', 'gt'])
-        raw = ENTITY_PATTERN.sub(f, raw)
-    
+        raw = substitute_entites(raw)
+        
     return raw, encoding 

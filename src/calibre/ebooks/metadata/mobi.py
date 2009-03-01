@@ -80,6 +80,7 @@ class MetadataUpdater(object):
         type = self.type = data[60:68]
         self.nrecs, = unpack('>H', data[76:78])
         record0 = self.record0 = self.record(0)
+        self.encryption_type, = unpack('>H', record0[12:14])
         codepage, = unpack('>I', record0[28:32])
         self.codec = 'utf-8' if codepage == 65001 else 'cp1252'
         image_base, = unpack('>I', record0[108:112])
@@ -133,6 +134,8 @@ class MetadataUpdater(object):
         if self.thumbnail_record is not None:
             recs.append((202, pack('>I', self.thumbnail_rindex)))
         exth = StringIO()
+        if getattr(self, 'encryption_type', -1) != 0:
+            raise MobiError('Setting metadata in DRMed MOBI files is not supported.')
         for code, data in recs:
             exth.write(pack('>II', code, len(data) + 8))
             exth.write(data)

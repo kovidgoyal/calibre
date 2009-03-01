@@ -73,7 +73,9 @@ class LrsParser(object):
             return CharButton(self.parsed_objects[tag.get('refobj')], None)
         if tag.name == 'plot':
             return Plot(self.parsed_objects[tag.get('refobj')], **self.attrs_to_dict(tag, ['refobj']))
-        return map[tag.name](**self.attrs_to_dict(tag))
+        settings = self.attrs_to_dict(tag)
+        settings.pop('spanstyle', '')
+        return map[tag.name](**settings)
     
     def process_text_element(self, tag, elem):
         for item in tag.contents:
@@ -121,7 +123,8 @@ class LrsParser(object):
         for tag in self.soup.findAll('page'):
             page = self.parsed_objects[tag.get('objid')]
             self.book.append(page)
-            for block_tag in tag.findAll(['canvas', 'imageblock', 'textblock', 'ruledline']):
+            for block_tag in tag.findAll(['canvas', 'imageblock', 'textblock', 
+                                          'ruledline', 'simpletextblock']):
                 if block_tag.name == 'ruledline':
                     page.append(RuledLine(**self.attrs_to_dict(block_tag)))
                 else:
@@ -134,7 +137,7 @@ class LrsParser(object):
             self.book.append(jb)
             self.parsed_objects[tag.get('objid')] = jb
         
-        for tag in self.soup.findAll('textblock'):
+        for tag in self.soup.findAll(['textblock', 'simpletextblock']):
             self.process_text_block(tag)
         toc = self.soup.find('toc')
         if toc:
@@ -145,8 +148,10 @@ class LrsParser(object):
     
     def third_pass(self):
         map = {
-               'page'       : (Page, ['pagestyle', 'evenfooterid', 'oddfooterid', 'evenheaderid', 'oddheaderid']),
+               'page'       : (Page, ['pagestyle', 'evenfooterid', 
+                                      'oddfooterid', 'evenheaderid', 'oddheaderid']),
                'textblock'  : (TextBlock, ['textstyle', 'blockstyle']),
+               'simpletextblock'  : (TextBlock, ['textstyle', 'blockstyle']),
                'imageblock' : (ImageBlock, ['blockstyle', 'refstream']),
                'image'      : (Image, ['refstream']),
                'canvas'     : (Canvas, ['canvaswidth', 'canvasheight']),
@@ -160,8 +165,12 @@ class LrsParser(object):
             if tag.name in map.keys():
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid', 'objlabel'])
                 for a in ('pagestyle', 'blockstyle', 'textstyle'):
-                    if tag.has_key(a):
-                        settings[attrmap[a]] = self.parsed_objects[tag.get(a)]
+                    label = tag.get(a, False)
+                    if label:
+                        _obj = self.parsed_objects[label] if \
+                            self.parsed_objects.has_key(label) else \
+                            self._style_labels[label]
+                        settings[attrmap[a]] = _obj
                 for a in ('evenfooterid', 'oddfooterid', 'evenheaderid', 'oddheaderid'):
                     if tag.has_key(a):
                         settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
@@ -182,6 +191,7 @@ class LrsParser(object):
                'imagestream': (ImageStream, ['imagestreamlabel']),
                'registfont' : (Font, [])
                }
+        self._style_labels = {}
         for id, tag in self.objects.items():
             if tag.name in map.keys():
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid'])
@@ -189,7 +199,11 @@ class LrsParser(object):
                     for a in ('evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid'):
                         if tag.has_key(a):
                             settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
+                settings.pop('autoindex', '')
                 self.parsed_objects[id] = map[tag.name][0](**settings)
+                x = tag.get('stylelabel', False)
+                if x:
+                    self._style_labels[x] = self.parsed_objects[id]
                 if tag.name == 'registfont':
                     self.book.append(self.parsed_objects[id])
                     
@@ -220,6 +234,8 @@ class LrsParser(object):
         
         def me(base, tagname):
             tag = base.find(tagname.lower())
+            if tag is None:
+                return ('', '', '')
             tag = (self.tag_to_string(tag), tag.get('reading') if tag.has_key('reading') else '')
             return tag
             
