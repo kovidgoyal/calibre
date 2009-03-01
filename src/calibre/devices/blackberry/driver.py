@@ -26,5 +26,5 @@ class BLACKBERRY(USBMS):
     
     EBOOK_DIR_MAIN = 'ebooks'
     #EBOOK_DIR_CARD = "documents"
-    SUPPORTS_SUB_DIRS = False
+    SUPPORTS_SUB_DIRS = True
 
