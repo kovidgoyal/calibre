@@ -167,6 +167,7 @@ class USBMS(Device):
         path = self.munge_path(path)
         src = open(path, 'rb')
         shutil.copyfileobj(src, outfile, 10*1024*1024)
+        src.close()
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
