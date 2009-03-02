@@ -115,10 +115,12 @@ class UnBinary(object):
     OPEN_ANGLE_RE = re.compile(r'<<(?![!]--)')
     CLOSE_ANGLE_RE = re.compile(r'(?<!--)>>(?=>>|[^>])')
     DOUBLE_ANGLE_RE = re.compile(r'([<>])\1')
+    EMPTY_ATOMS = ({},{})
     
-    def __init__(self, bin, path, manifest={}, map=HTML_MAP):
+    def __init__(self, bin, path, manifest={}, map=HTML_MAP, atoms=EMPTY_ATOMS):
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
+        self.tag_atoms, self.attr_atoms = atoms
         self.opf = map is OPF_MAP
         self.bin = bin
         self.dir = os.path.dirname(path)
@@ -196,7 +198,10 @@ class UnBinary(object):
                         state = 'get custom length'
                         continue
                     if flags & FLAG_ATOM:
-                        raise LitError('TODO: Atoms not yet implemented')
+                        if not self.tag_atoms or tag not in self.tag_atoms:
+                            raise LitError("atom tag %d not in atom tag list" % tag)
+                        tag_name = self.tag_atoms[tag]
+                        current_map = self.attr_atoms
                     elif tag < len(self.tag_map):
                         tag_name = self.tag_map[tag]
                         current_map = self.tag_to_attr_map[tag]
@@ -806,6 +811,37 @@ class LitReader(object):
             raise LitError("Failed to completely decompress section")
         return ''.join(result)
 
+    def get_atoms(self, entry):
+        name = '/'.join(('/data', entry.internal, 'atom'))
+        if name not in self.entries:
+            return ({}, {})
+        data = self.get_file(name)
+        nentries, data = u32(data), data[4:]
+        tags = {}
+        for i in xrange(1, nentries + 1):
+            if len(data) <= 1:
+                break
+            size, data = ord(data[0]), data[1:]
+            if size == 0 or len(data) < size:
+                break
+            tags[i], data = data[:size], data[size:]
+        if len(tags) != nentries:
+            self._warn("damaged or invalid atoms tag table")
+        if len(data) < 4:
+            return (tags, {})
+        attrs = {}
+        nentries, data = u32(data), data[4:]
+        for i in xrange(1, nentries + 1):
+            if len(data) <= 4:
+                break
+            size, data = u32(data), data[4:]
+            if size == 0 or len(data) < size:
+                break
+            attrs[i], data = data[:size], data[size:]
+        if len(attrs) != nentries:
+            self._warn("damaged or invalid atoms attributes table")
+        return (tags, attrs)
+    
     def get_entry_content(self, entry, pretty_print=False):
         if 'spine' in entry.state:
             name = '/'.join(('/data', entry.internal, 'content'))
@@ -813,7 +849,8 @@ class LitReader(object):
             raw = self.get_file(name)
             decl, map = (OPF_DECL, OPF_MAP) \
                 if name == '/meta' else (HTML_DECL, HTML_MAP)
-            content = decl + unicode(UnBinary(raw, path, self.manifest, map))
+            atoms = self.get_atoms(entry)
+            content = decl + unicode(UnBinary(raw, path, self.manifest, map, atoms))
             if pretty_print:
                 content = self._pretty_print(content)
             content = content.encode('utf-8')
