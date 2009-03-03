@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import sys, struct, os, cStringIO, re
+import sys, struct, os, cStringIO, re, functools
 
 try:
     from PIL import Image as PILImage
@@ -186,7 +186,9 @@ class MobiReader(object):
         self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
-        self.processed_html = re.sub(r'&(\S+?);', entity_to_unicode,
+        e2u = functools.partial(entity_to_unicode, 
+                                exceptions=['lt', 'gt', 'amp', 'apos', 'quot'])
+        self.processed_html = re.sub(r'&(\S+?);', e2u,
                                      self.processed_html)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
@@ -235,7 +237,7 @@ class MobiReader(object):
             if self.verbose:
                 print 'Creating OPF...'
             ncx = cStringIO.StringIO()
-            opf = self.create_opf(htmlfile, guide)
+            opf = self.create_opf(htmlfile, guide, root)
             opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)
             ncx = ncx.getvalue()
             if ncx:
@@ -328,7 +330,7 @@ class MobiReader(object):
                 except ValueError:
                     pass
     
-    def create_opf(self, htmlfile, guide=None):
+    def create_opf(self, htmlfile, guide=None, root=None):
         mi = self.book_header.exth.mi
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
@@ -347,21 +349,27 @@ class MobiReader(object):
                 if ref.type.lower() == 'toc':
                     toc = ref.href()
         if toc:
-            index = self.processed_html.find('<a id="%s" name="%s"'%(toc.partition('#')[-1], toc.partition('#')[-1]))
+            elems = root.xpath('//*[@id="%s"]'%toc.partition('#')[-1])
             tocobj = None
             ent_pat = re.compile(r'&(\S+?);')
-            if index > -1:
-                raw = '<html><body>'+self.processed_html[index:]
-                root = html.fromstring(raw)
+            if elems:
                 tocobj = TOC()
-                for a in root.xpath('//a[@href]'):
-                    try:
-                        text = u' '.join([t.strip() for t in a.xpath('descendant::text()')])
-                    except:
-                        text = ''
-                    text = ent_pat.sub(entity_to_unicode, text)
-                    if a.get('href', '').startswith('#'):
-                        tocobj.add_item(toc.partition('#')[0], a.attrib['href'][1:], text)
+                reached = False
+                for x in root.iter():
+                    if x == elems[-1]:
+                        reached = True
+                        continue
+                    if reached and x.tag == 'a':
+                        href = x.get('href', '')
+                        if href:
+                            try:
+                                text = u' '.join([t.strip() for t in \
+                                                x.xpath('descendant::text()')])
+                            except:
+                                text = ''
+                            text = ent_pat.sub(entity_to_unicode, text)
+                            tocobj.add_item(toc.partition('#')[0], href[1:], 
+                                            text)
             if tocobj is not None:
                 opf.set_toc(tocobj)
         

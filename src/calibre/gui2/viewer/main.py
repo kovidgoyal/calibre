@@ -194,7 +194,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def __init__(self, pathtoebook=None):
         MainWindow.__init__(self, None)
         self.setupUi(self)
-        
         self.iterator          = None
         self.current_page      = None
         self.pending_search    = None
@@ -619,7 +618,7 @@ View an ebook.
 def main(args=sys.argv):
     parser = option_parser()
     args = parser.parse_args(args)[-1]
-    pid = os.fork() if islinux else -1
+    pid = os.fork() if False and islinux else -1
     if pid <= 0:
         app = Application(args)
         app.setWindowIcon(QIcon(':/images/viewer.svg'))

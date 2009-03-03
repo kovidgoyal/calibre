@@ -456,17 +456,16 @@ def post_install():
     parser = option_parser()
     opts = parser.parse_args()[0]
 
-    if not opts.no_root and os.geteuid() != 0:
-        print >> sys.stderr, 'You must be root to run this command.'
-        sys.exit(1)
-
     global use_destdir
     use_destdir = opts.destdir
     manifest = []
-    manifest += setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
-    manifest += setup_completion(opts.fatal_errors)
     setup_desktop_integration(opts.fatal_errors)
-    manifest += install_man_pages(opts.fatal_errors)
+    if opts.no_root or os.geteuid() == 0:
+        manifest += setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
+        manifest += setup_completion(opts.fatal_errors)
+        manifest += install_man_pages(opts.fatal_errors)
+    else:
+        print "Skipping udev, completion, and man-page install for non-root user."
 
     try:
         from PyQt4 import Qt

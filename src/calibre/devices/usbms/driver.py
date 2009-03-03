@@ -1,3 +1,4 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 '''
@@ -165,9 +166,14 @@ class USBMS(Device):
 
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)
+<<<<<<< TREE
         src = open(path, 'rb')
         shutil.copyfileobj(src, outfile, 10*1024*1024)
         src.close()
+=======
+        with open(path, 'rb') as src:
+            shutil.copyfileobj(src, outfile, 10*1024*1024)
+>>>>>>> MERGE-SOURCE
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
