@@ -55,252 +55,221 @@
    <item row="0" column="1" >
     <layout class="QVBoxLayout" name="verticalLayout_3" >
      <item>
-      <widget class="QGroupBox" name="detail_box" >
-       <property name="title" >
-        <string>Schedule for download</string>
+      <widget class="QScrollArea" name="scrollArea" >
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4" >
-        <item>
-         <widget class="QLabel" name="title" >
-          <property name="font" >
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text" >
-           <string>title</string>
-          </property>
-          <property name="textFormat" >
-           <enum>Qt::PlainText</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="description" >
-          <property name="text" >
-           <string>description</string>
-          </property>
-          <property name="wordWrap" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="author" >
-          <property name="text" >
-           <string>author</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2" >
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="schedule" >
-          <property name="text" >
-           <string>&amp;Schedule for download:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QWidget" native="1" name="widget" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2" >
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2" >
-             <item>
-              <widget class="QRadioButton" name="daily_button" >
-               <property name="text" >
-                <string>Every </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="day" />
-             </item>
-             <item>
-              <widget class="QLabel" name="label_4" >
-               <property name="text" >
-                <string>at</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QTimeEdit" name="time" />
-             </item>
-             <item>
-              <spacer name="horizontalSpacer" >
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0" >
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout" >
-             <item>
-              <widget class="QRadioButton" name="interval_button" >
-               <property name="text" >
-                <string>Every </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="interval" >
-               <property name="sizePolicy" >
-                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip" >
-                <string>Interval at which to download this recipe. A value of zero means that the recipe will be downloaded every hour.</string>
-               </property>
-               <property name="suffix" >
-                <string> days</string>
-               </property>
-               <property name="decimals" >
-                <number>1</number>
-               </property>
-               <property name="minimum" >
-                <double>0.000000000000000</double>
-               </property>
-               <property name="maximum" >
-                <double>365.100000000000023</double>
-               </property>
-               <property name="singleStep" >
-                <double>1.000000000000000</double>
-               </property>
-               <property name="value" >
-                <double>1.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="last_downloaded" >
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="wordWrap" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="account" >
-          <property name="title" >
-           <string>&amp;Account</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_2" >
-           <item row="0" column="1" >
-            <widget class="QLineEdit" name="username" />
-           </item>
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_2" >
-             <property name="text" >
-              <string>&amp;Username:</string>
-             </property>
-             <property name="buddy" >
-              <cstring>username</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="label_3" >
-             <property name="text" >
-              <string>&amp;Password:</string>
-             </property>
-             <property name="buddy" >
-              <cstring>password</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1" >
-            <widget class="QLineEdit" name="password" >
-             <property name="echoMode" >
-              <enum>QLineEdit::Password</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" >
-            <widget class="QCheckBox" name="show_password" >
-             <property name="text" >
-              <string>&amp;Show password</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_3" >
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="label" >
-          <property name="text" >
-           <string>For the scheduling to work, you must leave calibre running.</string>
-          </property>
-          <property name="wordWrap" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="download" >
-          <property name="text" >
-           <string>&amp;Download now</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer" >
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0" >
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+       <property name="widgetResizable" >
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>361</width>
+          <height>500</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_5" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="detail_box" >
+           <property name="title" >
+            <string>Schedule for download</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4" >
+            <item>
+             <widget class="QLabel" name="blurb" >
+              <property name="text" >
+               <string>blurb</string>
+              </property>
+              <property name="textFormat" >
+               <enum>Qt::RichText</enum>
+              </property>
+              <property name="wordWrap" >
+               <bool>true</bool>
+              </property>
+              <property name="openExternalLinks" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="schedule" >
+              <property name="text" >
+               <string>&amp;Schedule for download:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" native="1" name="widget" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_2" >
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2" >
+                 <item>
+                  <widget class="QRadioButton" name="daily_button" >
+                   <property name="text" >
+                    <string>Every </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="day" />
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_4" >
+                   <property name="text" >
+                    <string>at</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QTimeEdit" name="time" />
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer" >
+                   <property name="orientation" >
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0" >
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout" >
+                 <item>
+                  <widget class="QRadioButton" name="interval_button" >
+                   <property name="text" >
+                    <string>Every </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDoubleSpinBox" name="interval" >
+                   <property name="sizePolicy" >
+                    <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip" >
+                    <string>Interval at which to download this recipe. A value of zero means that the recipe will be downloaded every hour.</string>
+                   </property>
+                   <property name="suffix" >
+                    <string> days</string>
+                   </property>
+                   <property name="decimals" >
+                    <number>1</number>
+                   </property>
+                   <property name="minimum" >
+                    <double>0.000000000000000</double>
+                   </property>
+                   <property name="maximum" >
+                    <double>365.100000000000023</double>
+                   </property>
+                   <property name="singleStep" >
+                    <double>1.000000000000000</double>
+                   </property>
+                   <property name="value" >
+                    <double>1.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="last_downloaded" >
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="wordWrap" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="account" >
+              <property name="title" >
+               <string>&amp;Account</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2" >
+               <item row="0" column="1" >
+                <widget class="QLineEdit" name="username" />
+               </item>
+               <item row="0" column="0" >
+                <widget class="QLabel" name="label_2" >
+                 <property name="text" >
+                  <string>&amp;Username:</string>
+                 </property>
+                 <property name="buddy" >
+                  <cstring>username</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" >
+                <widget class="QLabel" name="label_3" >
+                 <property name="text" >
+                  <string>&amp;Password:</string>
+                 </property>
+                 <property name="buddy" >
+                  <cstring>password</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1" >
+                <widget class="QLineEdit" name="password" >
+                 <property name="echoMode" >
+                  <enum>QLineEdit::Password</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0" >
+                <widget class="QCheckBox" name="show_password" >
+                 <property name="text" >
+                  <string>&amp;Show password</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label" >
+              <property name="text" >
+               <string>For the scheduling to work, you must leave calibre running.</string>
+              </property>
+              <property name="wordWrap" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="download" >
+              <property name="text" >
+               <string>&amp;Download now</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>

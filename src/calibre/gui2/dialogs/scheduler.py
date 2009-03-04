@@ -366,9 +366,14 @@ class SchedulerDialog(QDialog, Ui_Dialog):
     def show_recipe(self, index):
         recipe = self._model.data(index, Qt.UserRole)
         self.current_recipe = recipe
-        self.title.setText(recipe.title)
-        self.author.setText(_('Created by: ') + recipe.author)
-        self.description.setText(recipe.description if recipe.description else '')
+        self.blurb.setText('''
+        <p>
+        <b>%(title)s</b><br>
+        %(cb)s %(author)s<br/>
+        %(description)s
+        </p>
+        '''%dict(title=recipe.title, cb=_('Created by: '), author=recipe.author,
+                 description=recipe.description if recipe.description else ''))
         self.allow_scheduling = False
         schedule = -1 if recipe.schedule is None else recipe.schedule
         if schedule < 1e5 and schedule >= 0:
