@@ -465,7 +465,3 @@ if isosx:
     except:
         import traceback
         traceback.print_exc()
-                
-# Migrate from QSettings based config system
-from calibre.utils.config import migrate
-migrate()

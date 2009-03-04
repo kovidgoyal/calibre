@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-02-19 00:09+0000\n"
+"POT-Creation-Date: 2009-02-26 19:09+0000\n"
 "PO-Revision-Date: 2009-02-18 20:47+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-02-23 19:12+0000\n"
+"X-Launchpad-Export-Date: 2009-03-03 17:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -22,22 +22,24 @@ msgid "Does absolutely nothing"
 msgstr "Nerobí vôbec nič"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:58
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:196
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:71
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:517
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1033
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1049
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1051
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:78
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:80
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:82
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:520
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1036
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1052
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1054
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:79
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:88
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:295
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:61
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:95
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:97
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:99
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:101
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:69
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:62
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:96
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:98
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:100
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:82
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:179
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:200
@@ -49,7 +51,7 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:93
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:95
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:145
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:334
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:851
@@ -75,24 +77,24 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:121
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:364
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:376
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:897
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:949
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:952
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:362
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:375
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:900
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:943
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:946
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:257
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:260
 #: /home/kovid/work/calibre/src/calibre/library/database.py:916
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:473
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:485
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:866
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:901
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1202
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1204
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1385
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1408
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1459
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:867
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:902
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1209
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1211
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1391
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1414
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1465
 #: /home/kovid/work/calibre/src/calibre/library/server.py:315
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:51
 msgid "Unknown"
@@ -222,18 +224,18 @@ msgstr "Aktivovať modul podľa mena"
 msgid "Disable the named plugin"
 msgstr "Deaktivovať modul podľa mena"
 
-#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:42
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:390
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:70
 msgid "The reader has no storage card connected."
 msgstr "V čítacom zariadení nie je vložená žiadna pamäťová karta."
 
-#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:60
+#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:61
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:89
 msgid "There is insufficient free space on the storage card"
 msgstr "Na pamäťovej karte nie je dostatok voľného miesta"
 
-#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:62
+#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:63
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:91
 msgid "There is insufficient free space in main memory"
 msgstr "V hlavnej pamäti zariadenia nie je dostatok miesta"
@@ -539,7 +541,7 @@ msgstr ""
 msgid "Could not find an ebook inside the archive"
 msgstr "V archíve nebola nájdená žiadna elektronická kniha"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:227
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:226
 msgid ""
 "%prog [options] file.html|opf\n"
 "\n"
@@ -556,14 +558,14 @@ msgstr ""
 "Ak miesto HTML súboru zadáte OPF súbor, odkazy budú prevzaté z jeho sekcie "
 "<spine>.  \n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:480
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:479
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:758
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:623
 msgid "Output written to "
 msgstr "Výstup zapísaný do "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:502
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1136
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:501
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1139
 msgid "You must specify an input HTML file"
 msgstr "Musíte zadať vstupný HTML súbor"
 
@@ -585,26 +587,26 @@ msgstr ""
 "\t\tPríliš zložitá štruktúra súboru. Prerozdeľujem bez zachovania štruktúry. "
 "Súbor sa môže zobraziť nekorektne."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:529
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:532
 msgid "Written processed HTML to "
 msgstr "Spracované HTML bolo zapísané do "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:917
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:920
 msgid "Options to control the traversal of HTML"
 msgstr "Možnosti spracovania HTML"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:924
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:927
 msgid "The output directory. Default is the current directory."
 msgstr "Výstupný adresár. Štandardne sa použije aktuálny pracovný adresár."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:926
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:929
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:570
 msgid "Character encoding for HTML files. Default is to auto detect."
 msgstr ""
 "Kódovanie znakov v HTML súboru. Bez explicitne zadanej hodnoty bude "
 "detekované automaticky."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:928
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:931
 msgid ""
 "Create the output in a zip file. If this option is specified, the --output "
 "should be the name of a file not a directory."
@@ -612,11 +614,11 @@ msgstr ""
 "Vytvoriť výstup v súbore .zip. Ak je zvolená táto možnosť, --output by mal "
 "byť názov súboru, nie adresára."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:930
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:933
 msgid "Control the following of links in HTML files."
 msgstr "Nasledovanie odkazov v HTML súboroch."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:932
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:935
 msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first"
@@ -624,7 +626,7 @@ msgstr ""
 "Prechádzať odkazy v HTML súboroch \"najprv do šírky\". Štandardne sa odkazy "
 "prechádzajú \"najprv do hĺbky\"."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:934
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:937
 msgid ""
 "Maximum levels of recursion when following links in HTML files. Must be non-"
 "negative. 0 implies that no links in the root HTML file are followed."
@@ -633,39 +635,39 @@ msgstr ""
 "je pozitívna hodnota. 0 značí, že žiadne odkazy v koreňovom súbore nebudú "
 "prechádzané."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:936
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:939
 msgid "Set metadata of the generated ebook"
 msgstr "Metadáta vygenerovanej elektronickej knihy"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:938
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:941
 msgid "Set the title. Default is to autodetect."
 msgstr "Názov. Štandardne automaticky detekovaný."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:940
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:943
 msgid "The author(s) of the ebook, as a & separated list."
 msgstr "Autor(i) knihy, oddelení ampersandmi (&)."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:942
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:945
 msgid "The subject(s) of this book, as a comma separated list."
 msgstr "Témy tejto knihy, oddelené čiarkami."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:944
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:947
 msgid "Set the publisher of this book."
 msgstr "Vydavateľ knihy."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:946
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:949
 msgid "A summary of this book."
 msgstr "Stručný obsah knihy."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:948
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:951
 msgid "Load metadata from the specified OPF file"
 msgstr "Súbor OPF z ktorého sa majú prevziať metadáta."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:950
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:953
 msgid "Options useful for debugging"
 msgstr "Možnosti užitočné pri hľadaní chýb v programe."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:952
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:955
 msgid ""
 "Be more verbose while processing. Can be specified multiple times to "
 "increase verbosity."
@@ -673,11 +675,11 @@ msgstr ""
 "Pri spracovaní vypisovať viac informácií. Viacnásobné použitie ďalej zvyšuje "
 "množstvo zobrazených informácií."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:954
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:957
 msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
 msgstr "Výstupný HTML súbor bude úhľadne formátovaný pre uľahčenie čítania."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:960
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:963
 msgid ""
 "%prog [options] file.html|opf\n"
 "\n"
@@ -699,27 +701,27 @@ msgstr ""
 msgid "Creating LIT file from EPUB..."
 msgstr "Vytváram LIT súbor z EPUB..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:852
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:855
 msgid "%prog [options] LITFILE"
 msgstr "%prog [možnosti] LITsúbor"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:855
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:858
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:515
 msgid "Output directory. Defaults to current directory."
 msgstr "Výstupný adresár. Štandardne aktuálny pracovný adresár."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:858
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:861
 msgid "Legibly format extracted markup. May modify meaningful whitespace."
 msgstr ""
 "Čitateľne formátovať extrahované HTML. Môže ovplyvniť medzery v texte."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:861
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:864
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:731
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:582
 msgid "Useful for debugging."
 msgstr "Užitočné pri hľadaní chýb v programe."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:872
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:875
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:539
 msgid "OEB ebook created in"
 msgstr "OEB elektronická kniha bude vytvorená v"
@@ -734,11 +736,11 @@ msgstr "%prog [možnosti] OPFsúbor"
 msgid "Output file. Default is derived from input filename."
 msgstr "Výstupný súbor. Štandardne odvodený od vstupného súboru."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:75
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:76
 msgid "Set the title. Default: filename."
 msgstr "Názov knihy. Štandardne sa použije názov súboru."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:78
 msgid ""
 "Set the author(s). Multiple authors should be set as a comma separated list. "
 "Default: %default"
@@ -746,34 +748,34 @@ msgstr ""
 "Autori knihy. Viacerí autori by mali byť oddelení čiarkami. Predvolená "
 "hodnota: %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:80
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
 msgid "Set the comment."
 msgstr "Poznámky."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:82
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
 msgid "Set the category"
 msgstr "Kategória knihy"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:84
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:85
 msgid "Sort key for the title"
 msgstr "Názov, v tvare vhodnom pre triedenie"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:86
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
 msgid "Sort key for the author"
 msgstr "Autor, v tvare vhodnom pre triedenie (priezvisko, meno)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:288
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:39
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:111
 msgid "Publisher"
 msgstr "Vydavateľ"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:90
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
 msgid "Path to file containing image to be used as cover"
 msgstr "Cesta k obrazovému súboru, ktorý má byť použitý ako obálka knihy"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:92
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:93
 msgid ""
 "If there is a cover graphic detected in the source file, use that instead of "
 "the specified cover."
@@ -781,12 +783,12 @@ msgstr ""
 "Ak bude vo vstupnom súbore nájdená obálka knihy, bude použitá namiesto "
 "uvedenej obálky."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:95
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:96
 msgid "Output file name. Default is derived from input filename"
 msgstr ""
 "Názov výstupného súboru. Štandardne bude odvodený od názvu vstupného súboru"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:97
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:554
 msgid ""
 "Render HTML tables as blocks of text instead of actual tables. This is "
@@ -795,7 +797,7 @@ msgstr ""
 "Zobraziť HTML tabuľky ako bloky textu namiesto skutočných tabuliek. Potrebné "
 "v prípade ak HTML obsahuje veľmi veľké alebo komplexné tabuľky."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:100
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
 msgid ""
 "Specify the base font size in pts. All fonts are rescaled accordingly. This "
 "option obsoletes the --font-delta option and takes precedence over it. To "
@@ -806,24 +808,24 @@ msgstr ""
 "chete použiť --font-delta, nastavte túto hodnotu na 0. Predvolená hodnota: "
 "%default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:103
 msgid "Enable autorotation of images that are wider than the screen width."
 msgstr ""
 "Povoliť automatické otáčanie obrázkov širších než je šírka obrazovky."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:105
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:106
 msgid "Set the space between words in pts. Default is %default"
 msgstr "Medzery medzi slovami v bodoch. Predvolená hodnota je %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:107
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:108
 msgid "Separate paragraphs by blank lines."
 msgstr "Oddelenie odstavcov prázdnymi riadkami."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:109
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:110
 msgid "Add a header to all the pages with title and author."
 msgstr "Ku každej strane pridať hlavičku s názvom knihy a menom autora."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:111
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:112
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
@@ -831,13 +833,13 @@ msgstr ""
 "Formát hlavičky. %a bude nahradené menom autora, %t názvom knihy. Štandardná "
 "hlavička je %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:113
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:114
 msgid "Add extra spacing below the header. Default is %default px."
 msgstr ""
 "Pridať dodatočné odsadenie pod hlavičku. Štandardne je to %default "
 "obrazových bodov."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:115
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:116
 msgid ""
 "Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
 "it is a string it is interpreted as CSS."
@@ -845,7 +847,7 @@ msgstr ""
 "Nahradenie CSS. Môže byť buď cesta k súboru CSS alebo reťazec. Reťazec bude "
 "interpretovaný ako CSS."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:117
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:118
 msgid ""
 "Use the <spine> element from the OPF file to determine the order in which "
 "the HTML files are appended to the LRF. The .opf file must be in the same "
@@ -855,7 +857,7 @@ msgstr ""
 "použitý blok <spine> OPF súboru. Súbor .opf musí byť v rovnakom adresári ako "
 "základný HTML súbor."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:119
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:120
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
@@ -863,7 +865,7 @@ msgstr ""
 "Minimálne odsadenie odstavca (odsadenie prvého riadka odstavca) v bodoch. "
 "Predvolená hodnota: %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:122
 msgid ""
 "Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
 "FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
@@ -873,7 +875,7 @@ msgstr ""
 "FONT_DELTA bodov. FONT_DELTA nemusí byť celé čislo. Ak je hodnota FONT_DELTA "
 "záporná, veľkosť písma sa zmenší."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:126
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:127
 msgid ""
 "Render all content as black on white instead of the colors specified by the "
 "HTML or CSS."
@@ -881,7 +883,7 @@ msgstr ""
 "Zobrazenie obsahu v čiernej farbe na bielom pozadí, namiesto farieb "
 "uvedených v HTML alebo CSS."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:132
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:133
 msgid ""
 "Profile of the target device for which this LRF is being generated. The "
 "profile determines things like the resolution and screen size of the target "
@@ -891,23 +893,23 @@ msgstr ""
 "určuje charakteristiky zariadenia, ako napríklad rozlíšenie alebo veľkosť "
 "obrazovky. Štandardný profil: %s Podporované profily: "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:139
 msgid "Left margin of page. Default is %default px."
 msgstr "Ľavý okraj strany. Štandardný okraj je %default obrazových bodov."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:140
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:141
 msgid "Right margin of page. Default is %default px."
 msgstr "Pravý okraj strany. Štandardný okraj je %default obrazových bodov."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:142
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:143
 msgid "Top margin of page. Default is %default px."
 msgstr "Horný okraj strany. Štandardný okraj je %default obrazových bodov."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:144
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:145
 msgid "Bottom margin of page. Default is %default px."
 msgstr "Dolný okraj strany. Štandardný okraj je %default obrazových bodov."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:146
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:147
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
@@ -915,7 +917,7 @@ msgstr ""
 "Zobrazenie HTML tabuliek v podobe obrázkov (užitočné ak dokument obsahuje "
 "veľké alebo zložité tabuľky)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:148
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:149
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
@@ -923,7 +925,7 @@ msgstr ""
 "Faktor znásobenia veľkosti písma v zobrazených tabuľkách. Predvolená hodnota "
 "je %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:153
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:154
 msgid ""
 "The maximum number of levels to recursively process links. A value of 0 "
 "means thats links are not followed. A negative value means that <a> tags are "
@@ -933,7 +935,7 @@ msgstr ""
 "odkazy nebudú nasledované. Záporná hodnota spôsobí, že bloky <a> budú úplne "
 "preskočené."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:157
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:158
 msgid ""
 "A regular expression. <a> tags whose href matches will be ignored. Defaults "
 "to %default"
@@ -941,15 +943,15 @@ msgstr ""
 "Regulárny výraz. <a> bloky zhodujúce sa s týmto výrazom budú ignorované. "
 "Štandardne %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:161
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:162
 msgid "Don't add links to the table of contents."
 msgstr "Nepridávať odkazy do obsahu."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:165
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:166
 msgid "Prevent the automatic detection chapters."
 msgstr "Zakázať automatické rozoznávanie kapitol."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:168
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
 msgid ""
 "The regular expression used to detect chapter titles. It is searched for in "
 "heading tags (h1-h6). Defaults to %default"
@@ -957,7 +959,7 @@ msgstr ""
 "Regulárny výraz na automatické rozoznávanie názvov kapitol. Bude hľadaný v "
 "nadpisových blokoch (h1-h6). Štandardne %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:171
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:172
 msgid ""
 "Detect a chapter beginning at an element having the specified attribute. The "
 "format for this option is tagname regexp,attribute name,attribute value "
@@ -974,7 +976,7 @@ msgstr ""
 "Napríklad, ak si želáte nájsť všetky h2 tagy, zadajte \"h2,none,\". "
 "Predvolená hodnota je %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:173
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:174
 msgid ""
 "If html2lrf does not find any page breaks in the html file and cannot detect "
 "chapter headings, it will automatically insert page-breaks before the tags "
@@ -992,14 +994,14 @@ msgstr ""
 "listovania v LRF súbore. Táto možnosť je teda ignorovaná ak aktuálna stránka "
 "má len pár elementov."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:183
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:184
 msgid ""
 "Force a page break before tags whose names match this regular expression."
 msgstr ""
 "Vložiť zalomenie strany pred tagmi, ktorých názvy sa zhodujú s týmto "
 "regulárnym výrazom."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:185
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:186
 msgid ""
 "Force a page break before an element having the specified attribute. The "
 "format for this option is tagname regexp,attribute name,attribute value "
@@ -1012,17 +1014,17 @@ msgstr ""
 "class=\"chapter\" zadajte \"h\\d,class,chapter\". Predvolená hodnota je "
 "%default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:188
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:189
 msgid "Add detected chapters to the table of contents."
 msgstr "Pridanie automaticky nájdených kapitol do obsahu."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:191
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:192
 msgid "Preprocess Baen HTML files to improve generated LRF."
 msgstr ""
 "Predpripravenie HTML súborov z vydavateľstva BAEN na zlepšenie kvality "
 "výstupného LRF súboru."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:193
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:194
 msgid ""
 "You must add this option if processing files generated by pdftohtml, "
 "otherwise conversion will fail."
@@ -1030,13 +1032,13 @@ msgstr ""
 "Táto možnosť musí byť aktivovaná pri spracovaní súborov vytvorených "
 "programom pdftohtml. V opačnom prípade konverzia zlyhá."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:195
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:196
 msgid "Use this option on html0 files from Book Designer."
 msgstr ""
 "Táto možnosť by mala byť použitá pri spracovaní html0 súborov z programu "
 "Book Designer."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:198
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:199
 msgid ""
 "Specify trutype font families for serif, sans-serif and monospace fonts. "
 "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
@@ -1048,27 +1050,27 @@ msgstr ""
 "spomaľujú listovanie v knihe. Príklad: --serif-family \"Times New Roman\"\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:206
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:207
 msgid "The serif family of fonts to embed"
 msgstr "Font pre pätkového písmo"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:209
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:210
 msgid "The sans-serif family of fonts to embed"
 msgstr "Font pre bezpätkové písmo"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:212
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:213
 msgid "The monospace family of fonts to embed"
 msgstr "Font pre nepropocionálne písmo"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:216
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:217
 msgid "Be verbose while processing"
 msgstr "Zvýšiť množstvo údajov zobrazovaných počas spracovania"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:218
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:219
 msgid "Convert to LRS"
 msgstr "Previesť do LRS"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:220
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:221
 msgid ""
 "Minimize memory usage at the cost of longer processing times. Use this "
 "option if you are on a memory constrained machine."
@@ -1076,7 +1078,7 @@ msgstr ""
 "Znížiť požiadavky na veľkosť pamäte, výmenou za pomalšie spracovanie. Táto "
 "možnosť je užitočná pre počítače s obmedzenou kapacitou pamäte."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:222
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:223
 msgid ""
 "Specify the character encoding of the source file. If the output LRF file "
 "contains strange characters, try changing this option. A common encoding for "
@@ -1541,7 +1543,7 @@ msgid "Extract thumbnail from LRF file"
 msgstr "Prevziať náhľad z LRF súboru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:606
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:188
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:191
 msgid "Set the publisher"
 msgstr "Vydavateľ"
 
@@ -1581,20 +1583,20 @@ msgstr ""
 "\n"
 "%prog prevedie kniha.mobi do kniha.lrf"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:47
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:48
 msgid "Could not find pdftohtml, check it is in your PATH"
 msgstr ""
 "Nepodarilo sa nájsť pdftohtml, uistite sa či je cesta k nemu v systémovej "
 "premennej PATH"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:61
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:74
 msgid ""
 " is an image based PDF. Only conversion of text based PDFs is supported."
 msgstr ""
 " je PDF so stranami vo forme obrázkov. Je možný len prevod textových PDF "
 "súborov."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:80
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:93
 msgid ""
 "%prog [options] mybook.pdf\n"
 "\n"
@@ -1666,17 +1668,17 @@ msgstr "Poznámky"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:36
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:105
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:361
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:967
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:359
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:966
 msgid "Title"
 msgstr "Názov"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:287
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:37
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:106
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:366
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:968
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:107
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:364
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:967
 msgid "Author(s)"
 msgstr "Autor(i)"
 
@@ -1690,24 +1692,24 @@ msgstr "Producent"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:489
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:357
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:322
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:320
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:58
 msgid "Comments"
 msgstr "Poznámky"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:292
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:111
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:311
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:907
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:971
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:309
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:910
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:970
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
 msgid "Tags"
 msgstr "Tagy"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:294
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:112
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:327
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:325
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
 msgid "Series"
@@ -1718,7 +1720,7 @@ msgid "Language"
 msgstr "Jazyk"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:297
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:906
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:909
 msgid "Timestamp"
 msgstr "Časová známka"
 
@@ -1835,19 +1837,19 @@ msgid "Usage: %s file.lit"
 msgstr "Použitie: %s súbor.lit"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:45
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:233
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:236
 msgid "Cover saved to"
 msgstr "Obálka uložená do"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:184
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:187
 msgid "Set the subject tags"
 msgstr "Tagy priradené knihe"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:186
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:189
 msgid "Set the language"
 msgstr "Jazyk knihy"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:190
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:193
 msgid "Set the ISBN"
 msgstr "ISBN kód knihy"
 
@@ -2157,12 +2159,12 @@ msgid "Added %s to library"
 msgstr "Kniha %s bola pridaná do knižnice"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:89
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:162
 msgid "Read metadata from "
 msgstr "Čítať metadáta z "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:110
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:224
 msgid ""
 "<p>Books with the same title as the following already exist in the database. "
 "Add them anyway?<ul>"
@@ -2170,31 +2172,31 @@ msgstr ""
 "<p>Knihy s doleuvedeným názvom sa už v databáze nachádzajú. Chcete ich "
 "napriek tomu pridať?<ul>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:114
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:115
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:216
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:229
 msgid "Duplicates found!"
 msgstr "Boli nájdené duplikáty!"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:146
 msgid "Adding books recursively..."
 msgstr "Pridať knihy rekurzívne..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:147
 msgid "Searching for books in all sub-directories..."
 msgstr "Hľadám knihy vo všetkých podadresároch..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:176
 msgid "Adding books to database..."
 msgstr "Pridávam knihy do databázy..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:703
 msgid "Reading metadata..."
 msgstr "Čítam metadáta..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:193
 msgid "Searching in"
 msgstr "Hľadám v"
 
@@ -2233,8 +2235,8 @@ msgstr "Zobraziť knihu v zariadení"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:86
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:318
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:902
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:316
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:905
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:56
 msgid "Path"
 msgstr "Cesta"
@@ -2243,7 +2245,7 @@ msgstr "Cesta"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:92
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:317
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
 msgid "Formats"
@@ -2369,91 +2371,91 @@ msgstr ""
 msgid "Plugins"
 msgstr "Moduly"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:257
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:258
 msgid "No valid plugin path"
 msgstr "Chýba platná cesta k modulom"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:258
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:259
 msgid "%s is not a valid plugin path"
 msgstr "%s nie je platná cesta k modulom"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:262
 msgid "Choose plugin"
 msgstr "Zvoľte modul"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:272
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:273
 msgid "Plugin cannot be disabled"
 msgstr "Modul nie je možné deaktivovať"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:273
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:274
 msgid "The plugin: %s cannot be disabled"
 msgstr "Modul %s nie je možné deaktivovať"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:283
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:284
 msgid "Plugin not customizable"
 msgstr "Modul nie je upraviteľný"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:284
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:285
 msgid "Plugin: %s does not need customization"
 msgstr "Modul %s neumožňuje žiadne úpravy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:287
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:288
 msgid "Customize %s"
 msgstr "Upraviť %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:297
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:298
 msgid "Cannot remove builtin plugin"
 msgstr "Vstavaný modul nie je možné odstrániť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:298
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:299
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
 " nemôže byť odstránený. Je to vstavaý modul. Skúste ho miesto odstránenia "
 "deaktivovať."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:320
 msgid "Error log:"
 msgstr "Záznam o chybách:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:323
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:324
 msgid "Access log:"
 msgstr "Záznam o prístupe:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:346
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:409
 msgid "Failed to start content server"
 msgstr "Nepodarilo sa spustiť obsahový server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:386
 msgid "Invalid size"
 msgstr "Neplatná veľkosť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:386
 msgid "The size %s is invalid. must be of the form widthxheight"
 msgstr "Veľkosť %s je neplatná. Požadovaný formát je šírka x výška"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:423
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:427
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:424
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:428
 msgid "Invalid database location"
 msgstr "Neplatné umiestnenie databázy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:424
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:425
 msgid "<br>Must be a directory."
 msgstr "<br>Musí byť adresár."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:424
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:425
 msgid "Invalid database location "
 msgstr "Neplatné umiestnenie databázy "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:429
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Neplatné umiestnenie databázy.<br>Nemôžem zapisovať do "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:441
 msgid "Compacting database. This may take a while."
 msgstr "Zmenšujem databázu. Tento proces môže chvíľu trvať."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:441
 msgid "Compacting..."
 msgstr "Zmenšujem..."
 
@@ -2869,7 +2871,7 @@ msgid " is not a valid picture"
 msgstr " nie je platný obrazový súbor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1060
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1054
 msgid "Cannot convert"
 msgstr "Nemôžem previesť"
 
@@ -3293,6 +3295,11 @@ msgstr "Previesť %s do formátu LRF"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:360
 msgid "Set conversion defaults"
 msgstr "Štandardné nastavenie prevodu"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:258
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:341
+msgid "No preprocessing"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:261
 msgid ""
@@ -3788,9 +3795,9 @@ msgstr "Pridať vlastný zdroj správ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:448
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:810
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:814
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1123
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:811
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:815
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1130
 msgid "News"
 msgstr "Správy"
 
@@ -4308,35 +4315,35 @@ msgstr "Nie je možné zastaviť úlohy, ktoré komunikujú so zariadením"
 msgid "Job has already run"
 msgstr "Úloha je už dokončená"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:107
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:969
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:108
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:968
 msgid "Size (MB)"
 msgstr "Veľkosť (MB)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:108
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:970
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:969
 msgid "Date"
 msgstr "Dátum"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:110
 msgid "Rating"
 msgstr "Hodnotenie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:310
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:316
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:321
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:308
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:314
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:319
 msgid "None"
 msgstr "Žiadne"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:327
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:325
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Kniha <font face=\"serif\">%s</font> z %s."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:737
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:740
 msgid "Not allowed"
 msgstr "Nedovolené"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:738
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:741
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -4344,11 +4351,11 @@ msgstr ""
 "Priamy prenos kníh do zariadenia nie je možný. Najprv pridajte knihy do "
 "databázy calibre."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:901
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:904
 msgid "Format"
 msgstr "Formát"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1004
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:1003
 msgid "Search (For Advanced Search click the button to the left)"
 msgstr "Hľadať (pre rozšírené vyhľadávanie kliknite na tlačidlo vľavo)"
 
@@ -4377,7 +4384,7 @@ msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
 msgstr "Pre hľadaný výraz <i>%s</i> neboli nájdené <b>žiadne výsledky</b>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:157
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:384
 msgid "No matches found"
 msgstr "Neboli nájdené žiadne výsledky"
 
@@ -4511,7 +4518,7 @@ msgid "Save to disk in a single directory"
 msgstr "Uložiť na disk v jednom adresári"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:196
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1267
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1261
 msgid "Save only %s format to disk"
 msgstr "Uložiť len formát %s na disk"
 
@@ -4549,7 +4556,7 @@ msgid "Bad database location"
 msgstr "Neplatné umiestnenie databázy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:293
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1407
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1404
 msgid "Choose a location for your ebook library."
 msgstr "Zvoľte umiestnenie pre vašu elektronickú knižnicu."
 
@@ -4680,8 +4687,8 @@ msgstr "Nemožno upraviť metadáta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:821
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:846
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:981
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1060
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:975
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1054
 msgid "No books selected"
 msgstr "Nie sú označené žiadne knihy"
 
@@ -4693,15 +4700,15 @@ msgstr "Odosielam správy do zariadenia."
 msgid "Choose format to send to device"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:960
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:954
 msgid "Sending books to device."
 msgstr "Odosielam knihy do zariadenia."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:963
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:957
 msgid "No suitable formats"
 msgstr "Žiadne vhodné formáty"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:964
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:958
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found:<br><ul>%s</ul>"
@@ -4709,23 +4716,23 @@ msgstr ""
 "Nasledovné knihy nebolo možné odoslať do zariadenia, lebo nie sú dostupné vo "
 "vhodnom formáte:<br><ul>%s</ul>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:981
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:975
 msgid "Cannot save to disk"
 msgstr "Chyba zápisu na disk"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:985
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:979
 msgid "Saving to disk..."
 msgstr "Ukladám na disk..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:990
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:984
 msgid "Saved"
 msgstr "Uložené"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:996
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:990
 msgid "Choose destination directory"
 msgstr "Zvoľte cieľový adresár"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1010
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1004
 msgid ""
 "<p>Could not save the following books to disk, because the %s format is not "
 "available for them:<ul>"
@@ -4733,65 +4740,65 @@ msgstr ""
 "<p>Nasledovné knihy nebolo možné uložiť na disk, lebo nie sú dostupné vo "
 "formáte %s:<ul>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1014
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1008
 msgid "Could not save some ebooks"
 msgstr "Niektoré elektronické knihy sa nepodarilo uložiť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1036
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1030
 msgid "Fetching news from "
 msgstr "Preberám správy z "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1050
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1044
 msgid " fetched."
 msgstr " prevzaté."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1171
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1189
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1201
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1165
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1183
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1195
 msgid "No book selected"
 msgstr "Nie je označená žiadna kniha"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1171
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1201
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1219
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1165
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1195
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1213
 msgid "Cannot view"
 msgstr "Nemôžem zobraziť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1177
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1224
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1171
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1218
 msgid "Choose the format to view"
 msgstr "Vyberte formát, ktorý sa má zobraziť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1189
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1183
 msgid "Cannot open folder"
 msgstr "Nemožno otvoriť adresár"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1220
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1214
 msgid "%s has no available formats."
 msgstr "%s nie je dostupná v žiadnom známom formáte."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1258
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1252
 msgid "Cannot configure"
 msgstr "Nemožno nastaviť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1258
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1252
 msgid "Cannot configure while there are running jobs."
 msgstr ""
 "Nastavenia nie je možné zmeniť, kým neprebehne spracovanie všetkých úloh."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1276
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1270
 msgid "Copying database"
 msgstr "Kopírujem databázu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1278
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1272
 msgid "Copying library to "
 msgstr "Kopírujem databázu do "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1288
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1282
 msgid "Invalid database"
 msgstr "Neplatná alebo poškodená databáza"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1289
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1283
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
@@ -4799,23 +4806,23 @@ msgstr ""
 "<p>V adresári %s sa už nachádza poškodená alebo neplatná databáza. Odstráňte "
 "ju predtým než tam presuniete súčasnú databázu.<br>Chyba: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1295
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1289
 msgid "Could not move database"
 msgstr "Nepodarilo sa presunúť databázu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1315
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1309
 msgid "No detailed info available"
 msgstr "Bližšie informácie nie sú dostupné"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1316
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1310
 msgid "No detailed information is available for books on the device."
 msgstr "Bližšie informácie o knihách v tomto zariadení nie sú dostupné"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1359
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1354
 msgid "Error talking to device"
 msgstr "Chyba komunikácie so zariadením"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1360
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1355
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -4823,13 +4830,13 @@ msgstr ""
 "Dočasná chyba komunikácie so zariadením. Prosím odpojte a znovu pripojte "
 "zariadenie a/alebo reštartujte počítač."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1373
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1388
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1392
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1370
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1385
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1389
 msgid "Conversion Error"
 msgstr "Chyba prevodu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1374
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1371
 msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using 3rd party tools."
@@ -4837,7 +4844,7 @@ msgstr ""
 "<p>Nepodarilo sa previesť: %s<p>Obsahuje <a href=\"%s\">ochranu proti "
 "kopírovaniu</a>. Ochranu musíte najprv nejakým externým nástrojom odstrániť."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1451
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1448
 msgid ""
 "is the result of the efforts of many volunteers from all over the world. If "
 "you find it useful, please consider donating to support its development."
@@ -4845,11 +4852,11 @@ msgstr ""
 "je výsledkom snahy mnohých dobrovoľníkov z celého sveta. Ak je pre vás "
 "užitočný, prosím zvážte možnosť príspevku na jeho vývoj."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1473
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1470
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr "Prebieha spracovanie úloh. Určite chcete program ukončiť?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1475
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1472
 msgid ""
 " is communicating with the device!<br>\n"
 "                      'Quitting may cause corruption on the device.<br>\n"
@@ -4860,11 +4867,11 @@ msgstr ""
 "zariadení.<br>\n"
 "                      'Určite chcete program ukončiť?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1479
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1476
 msgid "WARNING: Active jobs"
 msgstr "UPOZORNENIE: Prebieha spracovanie úloh"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1513
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1510
 msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
@@ -4872,7 +4879,7 @@ msgstr ""
 "bude ďalej bežať v systémovej lište. Ak si želáte ho ukončiť, z kontextového "
 "menu ikony v systémovej lište zvoľte položku <b>Ukončiť</b>."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1530
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1527
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a "
 "href=\"%s\">%s</a></span>"
@@ -4880,7 +4887,7 @@ msgstr ""
 "<span style=\"color:red; font-weight:bold\">Najnovšia verzia: <a "
 "href=\"%s\">%s</a></span>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1535
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1532
 msgid ""
 "%s has been updated to version %s. See the <a "
 "href=\"http://calibre.kovidgoyal.net/wiki/Changelog\">new features</a>. "
@@ -4890,19 +4897,19 @@ msgstr ""
 "href=\"http://calibre.kovidgoyal.net/wiki/Changelog\">tu</a>. Želáte si "
 "navštíviť stránku so súbormi na preberanie?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1535
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1532
 msgid "Update available"
 msgstr "Bola vydaná nová verzia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1550
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1547
 msgid "Use the library located at the specified path."
 msgstr "Použiť knižnicu, ktorá sa nachádza na uvedenej ceste."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1552
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1549
 msgid "Start minimized to system tray."
 msgstr "Spustiť program v systémovej lište."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1554
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1551
 msgid "Log debugging information to console"
 msgstr "Do konzoly vypísať informácie užitočné pri hľadaní chýb"
 
@@ -5253,60 +5260,60 @@ msgstr "Prejsť na referenciu. Čísla referencií získate v režime referenci�
 msgid "Search for text in book"
 msgstr "Hľadať text v knihe"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:339
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:345
 msgid "Choose ebook"
 msgstr "Vyberte elektronickú knihu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:346
 msgid "Ebooks"
 msgstr "Elektronické knihy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:364
 msgid "Add bookmark"
 msgstr "Pridať záložku"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:358
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:364
 msgid "Enter title for bookmark:"
 msgstr "Zadajte názov záložky:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:385
 msgid "No matches found for: %s"
 msgstr "Neboli nájdené žiadne výsledky pre: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:425
 msgid "Loading flow..."
 msgstr "Načítavam prúd..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:446
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:452
 msgid "Laying out %s"
 msgstr "Formátujem %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:498
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:504
 msgid "Loading ebook..."
 msgstr "Načítavam elektronickú knihu..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:512
 msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
 msgstr ""
 "<p>Táto kniha je chránená <a href=\"%s\">ochranou proti kopírovaniu</a>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:512
 msgid "DRM Error"
 msgstr "Chyba ochrany proti kopírovaniu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:514
 msgid "Could not open ebook"
 msgstr "Nepodarilo sa otvoriť knihu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:509
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 msgid "<b>%s</b><br/><p>%s</p>"
 msgstr "<b>%s</b><br/><p>%s</p>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:569
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:575
 msgid "Options to control the ebook viewer"
 msgstr "Nastavenie prehliadača elektronických kníh"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:578
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:584
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -5455,7 +5462,7 @@ msgstr ""
 "Cesta ku knižnici calibre. Štandardne sa použije cesta uvedená v hlavnom "
 "nastavení."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:184
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:187
 msgid ""
 "%prog list [options]\n"
 "\n"
@@ -5465,7 +5472,7 @@ msgstr ""
 "\n"
 "Vypíše zoznam kníh, ktoré sa nachádzajú v databáze calibre.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:192
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:195
 msgid ""
 "The fields to display when listing books in the database. Should be a comma "
 "separated list of fields.\n"
@@ -5479,7 +5486,7 @@ msgstr ""
 "Štandardne: %%default. Uvedením zvláštneho poľa \"all\" je možné zobraziť "
 "všetky polia. Toto nastavenie bude použité len pre textový výstup."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:194
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:197
 msgid ""
 "The field by which to sort the results.\n"
 "Available fields: %s\n"
@@ -5489,11 +5496,11 @@ msgstr ""
 "Dostupné polia: %s\n"
 "Štandardne: %%default"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:196
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:199
 msgid "Sort results in ascending order"
 msgstr "Triediť výsledky vo vzostupnom poradí"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:198
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:201
 msgid ""
 "Filter the results by the search query. For the format of the search query, "
 "please see the search related documentation in the User Manual. Default is "
@@ -5503,19 +5510,19 @@ msgstr ""
 "príslušnej sekcii Používateľskej príručky. Štandardne výstup nebude "
 "filtrovaný."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:200
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:203
 msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
 msgstr ""
 "Maximálna šírka riadka výstupu. Štandardne sa použije šírka obrazovky."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:201
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:204
 msgid "The string used to separate fields. Default is a space."
 msgstr ""
 "Reťazec, ktorým budú oddelené jednotlivé polia. Štandardne je to medzera."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:202
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:205
 msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
 "folder."
@@ -5523,21 +5530,21 @@ msgstr ""
 "Prefix všetkých ciest k súborom. Štandardne sa použije absolútna cesta k "
 "adresáru s knižnicou."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:205
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:208
 msgid ""
 "The format in which to output the data. Available choices: %s. Defaults is "
 "text."
 msgstr "Formát výstupu dát. Možnosti sú: %s. Štandardný formát je text."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:213
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:216
 msgid "Invalid fields. Available fields:"
 msgstr "Neplatné polia. Dostupné polia sú:"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:220
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:223
 msgid "Invalid sort field. Available fields:"
 msgstr "Neplatné pole triedenia. Dostupné polia sú:"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:286
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:289
 msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
@@ -5545,7 +5552,7 @@ msgstr ""
 "Nasledovné knihy neboli pridané, lebo sa už nachádzajú v databáze (skúste "
 "možnosť --duplicates):"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:310
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:313
 msgid ""
 "%prog add [options] file1 file2 file3 ...\n"
 "\n"
@@ -5558,7 +5565,7 @@ msgstr ""
 "Pridá uvedené súbory ako knihy do databázy. Vstupom môžu byť aj adresáre,\n"
 "relevantné možnosti sú uvedené nižšie.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:319
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:322
 msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
@@ -5566,11 +5573,11 @@ msgstr ""
 "Považovať každý adresár za jednu knihu a všetky súbory v ňom za rôzne "
 "formáty tej knihy"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:321
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:324
 msgid "Process directories recursively"
 msgstr "Spracovať adresáre rekurzívne"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:323
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:326
 msgid ""
 "Add books to database even if they already exist. Comparison is done based "
 "on book titles."
@@ -5578,11 +5585,11 @@ msgstr ""
 "Pridať knihy do databázy aj keď sa v nej už nachádzajú. Prodovnávajú sa "
 "názvy kníh."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:328
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:331
 msgid "You must specify at least one file to add"
 msgstr "Musíte zadať minimálne jeden súbor, ktorý sa má pridať"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:346
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:349
 msgid ""
 "%prog remove ids\n"
 "\n"
@@ -5596,11 +5603,11 @@ msgstr ""
 "identifikačné kódy oddeľte čiarkami, môžete zadať aj rozsah kódov od-do. "
 "Príklad: 23,34,57-85. Identifikačné kódy získate pomocou príkazu \"list\".\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:358
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:361
 msgid "You must specify at least one book to remove"
 msgstr "Musíte zadať minimálne jednu knihu, ktorá sa má odstrániť"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:378
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:381
 msgid ""
 "%prog add_format [options] id ebook_file\n"
 "\n"
@@ -5614,15 +5621,15 @@ msgstr ""
 "identifikačným kódom ID. Identifikačný kód knihy získate pomocou príkazu "
 "\"list\". Ak daný formát už existuje, bude nahradený.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:389
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:392
 msgid "You must specify an id and an ebook file"
 msgstr "Musíte zadať identifikačný kód a súbor s elektronickou knihou"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:394
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:397
 msgid "ebook file must have an extension"
 msgstr "Súbor s elektronickou knihou musí mať príponu"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:402
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:405
 msgid ""
 "\n"
 "%prog remove_format [options] id fmt\n"
@@ -5639,11 +5646,11 @@ msgstr ""
 "prípona súboru, napríklad LRF, TXT alebo EPUB. Ak daný formát neexistuje, "
 "príkaz bude ignorovaný.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:415
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:418
 msgid "You must specify an id and a format"
 msgstr "Musíte zadať identifikačný kód a formát"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:433
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:436
 msgid ""
 "\n"
 "%prog show_metadata [options] id\n"
@@ -5658,15 +5665,15 @@ msgstr ""
 "Zobrazí metadáta z databázy calibre pre knihu s identifikačným kódom ID.\n"
 "Identifikačný kód knihy získate pomocou príkazu \"list\".\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:441
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:444
 msgid "Print metadata in OPF form (XML)"
 msgstr "Vypísať metadáta vo formáte OPF (XML)"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:446
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:449
 msgid "You must specify an id"
 msgstr "Musíte zadať identifikačný kód"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:460
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:463
 msgid ""
 "\n"
 "%prog set_metadata [options] id /path/to/metadata.opf\n"
@@ -5687,11 +5694,11 @@ msgstr ""
 "\"show_metadata\"\n"
 "s prepínačom --as-opf.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:473
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:476
 msgid "You must specify an id and a metadata file"
 msgstr "Musíte zadať identifikačný kód a súbor s metadátami"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:485
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:488
 msgid ""
 "%prog export [options] ids\n"
 "\n"
@@ -5702,30 +5709,30 @@ msgid ""
 "an opf file). You can get id numbers from the list command.\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:493
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:496
 msgid "Export all books in database, ignoring the list of ids."
 msgstr ""
 "Exportovať všetky knihy v databáze, bez ohľadu na zoznam identifikačných "
 "kódov."
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:495
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:498
 msgid "Export books to the specified directory. Default is"
 msgstr "Exportovať knihy do určeného adresára. Štandardne"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:497
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:500
 msgid "Export all books into a single directory"
 msgstr "Exportovať všetky knihy do jedného adresára"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:499
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:502
 msgid "Create file names as author - title instead of title - author"
 msgstr ""
 "Súbory pomenovávať vo formáte \"autor - názov\" namiesto \"názov - autor\""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:504
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:507
 msgid "You must specify some ids or the %s option"
 msgstr "Musíte zadať identifikačné kódy alebo možnosť %s"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:514
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:517
 msgid ""
 "%%prog command [options] [arguments]\n"
 "\n"
@@ -5746,21 +5753,21 @@ msgstr ""
 "\n"
 "Informácie o jednotlivých príkazoch: %%prog príkaz --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1228
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1234
 msgid "<p>Copying books to %s<br><center>"
 msgstr "<p>Kopírujem knihy do %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1241
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1350
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1247
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1356
 msgid "Copying <b>%s</b>"
 msgstr "Kopírujem <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1321
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1327
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Migrujem starú databázu do knižnice elektronických kníh v %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1367
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1373
 msgid "Compacting database"
 msgstr "Zmenšujem databázu"
 
@@ -5850,13 +5857,13 @@ msgstr "Nepodarilo sa naviazať SSH spojenie: "
 msgid "Failed to authenticate with server: %s"
 msgstr "Zlyhala autentifikácia na serveri: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:76
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:97
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:83
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:105
 msgid "Unknown feed"
 msgstr "Neznámy prúd"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:115
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:137
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:123
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:145
 msgid "Untitled article"
 msgstr "Článok bez názvu"
 
@@ -6105,7 +6112,9 @@ msgid "Article download failed: %s"
 msgstr "Zlyhalo preberanie článku: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1000
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:84
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:78
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:59
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:81
 msgid "Fetching feed"
 msgstr "Preberám prúd"
 
@@ -6121,12 +6130,13 @@ msgstr "Preberám prúd"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_infobae.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_cuarta.py:53
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_segunda.py:61
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_segunda.py:24
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_tercera.py:64
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion.py:60
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion_chile.py:54
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:54
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:25
 msgid "Spanish"
 msgstr "Španielčina"
 
@@ -6138,6 +6148,7 @@ msgstr "Španielčina"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chr_mon.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
@@ -6157,7 +6168,7 @@ msgstr "Španielčina"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_globe_and_mail.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_guardian.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:80
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:27
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honoluluadvertiser.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_iht.py:14
@@ -6181,6 +6192,7 @@ msgstr "Španielčina"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes_sub.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_outlook_india.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_today.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_world.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_portfolio.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_reuters.py:12
@@ -6192,6 +6204,7 @@ msgstr "Španielčina"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
@@ -6209,6 +6222,7 @@ msgstr "Španielčina"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_utne.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
@@ -6218,12 +6232,13 @@ msgstr "Angličtina"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_b92.py:24
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_blic.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_danas.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_e_novine.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nin.py:29
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_novosti.py:24
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pescanik.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politika.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pressonline.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vijesti.py:27
@@ -6231,6 +6246,7 @@ msgstr "Angličtina"
 msgid "Serbian"
 msgstr "Srbština"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_courrierinternational.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cyberpresse.py:9
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_liberation.py:15
@@ -6269,6 +6285,14 @@ msgstr "Chorvátština"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
 msgid "Italian"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
+msgid "Skipping duplicated article: %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
+msgid "Skipping filtered article: %s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:454

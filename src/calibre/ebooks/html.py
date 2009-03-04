@@ -845,7 +845,12 @@ class Processor(Parser):
             except:
                 size = '3'
             if size and size.strip() and size.strip()[0] in ('+', '-'):
-                size = 3 + float(size) # Hack assumes basefont=3
+                size = re.search(r'[+-]{0,1}[\d\.]+', size)
+                try:
+                    size = float(size.group())
+                except:
+                    size = 0
+                size += 3 # Hack assumes basefont=3
             try:
                 setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
             except ValueError:
