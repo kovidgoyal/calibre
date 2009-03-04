@@ -275,8 +275,9 @@ class ResultCache(SearchQueryParser):
               cmp(self._data[x][loc], self._data[y][loc])
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][loc], self._data[y][loc])
-        if ans != 0: return ans
-        return cmp(self._data[x][11].lower(), self._data[y][11].lower())
+        #if ans != 0: return ans
+        #return cmp(self._data[x][11].lower(), self._data[y][11].lower())
+        return ans
     
     def sort(self, field, ascending):
         field = field.lower().strip()
