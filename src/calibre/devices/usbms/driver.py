@@ -37,7 +37,7 @@ class USBMS(Device):
     SUPPORTS_SUB_DIRS = False
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
-        Device.__init__(self, key=key, log_packets=log_packets, 
+        Device.__init__(self, key=key, log_packets=log_packets,
                         report_progress=report_progress)
 
     def get_device_information(self, end_session=True):
@@ -103,10 +103,20 @@ class USBMS(Device):
 
                 if 'tags' in mdata.keys():
                     for tag in mdata['tags']:
-                        if tag.startswith('/'):
+                        if tag.startswith(_('News')):
+                            newpath = os.path.join(newpath, 'news')
+                            newpath = os.path.join(newpath, mdata.get('title', ''))
+                            newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                            break
+                        elif tag.startswith('/'):
+                            newpath = path
                             newpath += tag
                             newpath = os.path.normpath(newpath)
                             break
+                            
+                if newpath == path:
+                    newpath = os.path.join(newpath, mdata.get('authors', ''))
+                    newpath = os.path.join(newpath, mdata.get('title', ''))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)

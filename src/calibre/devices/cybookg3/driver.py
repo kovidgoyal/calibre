@@ -59,7 +59,7 @@ class CYBOOKG3(USBMS):
 
         if on_card and size > self.free_space()[2] - 1024*1024:
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
-        if not on_card and size > self.free_space()[0] - 2*1024*1024: 
+        if not on_card and size > self.free_space()[0] - 2*1024*1024:
             raise FreeSpaceError(_("There is insufficient free space in main memory"))
 
         paths = []
@@ -69,19 +69,28 @@ class CYBOOKG3(USBMS):
         for infile in files:
             newpath = path
             mdata = metadata.next()
-            
+
             if self.SUPPORTS_SUB_DIRS:
                 if 'tags' in mdata.keys():
                     for tag in mdata['tags']:
-                        if tag.startswith('/'):
+                        if tag.startswith(('News')):
+                            newpath = os.path.join(newpath, 'news')
+                            newpath = os.path.join(newpath, mdata.get('title', ''))
+                            newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                        elif tag.startswith('/'):
+                            newpath = path
                             newpath += tag
                             newpath = os.path.normpath(newpath)
                             break
+                            
+                if newpath == path:
+                    newpath = os.path.join(newpath, mdata.get('authors', ''))
+                    newpath = os.path.join(newpath, mdata.get('title', ''))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
             
-            filepath = os.path.join(newpath, names.next())                
+            filepath = os.path.join(newpath, names.next())
             paths.append(filepath)
             
             if hasattr(infile, 'read'):
@@ -90,7 +99,7 @@ class CYBOOKG3(USBMS):
                 dest = open(filepath, 'wb')
                 shutil.copyfileobj(infile, dest, 10*1024*1024)
 
-                dest.flush()                
+                dest.flush()
                 dest.close()
             else:
                 shutil.copy2(infile, filepath)

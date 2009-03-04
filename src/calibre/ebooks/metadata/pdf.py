@@ -67,6 +67,8 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 def get_cover(stream):
+    data = StringIO.StringIO()
+    
     try:
         pdf = PdfFileReader(stream)
         output = PdfFileWriter()
@@ -88,12 +90,12 @@ def get_cover(stream):
             
             img = Image.open('%s.jpg' % cover_path)
             
-            data = StringIO.StringIO()
             img.save(data, 'JPEG')
-            return data.getvalue()
     except:
         import traceback
         traceback.print_exc()
+        
+    return data.getvalue()
 
 def option_parser():
     p = get_parser('pdf')

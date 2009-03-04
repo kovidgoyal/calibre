@@ -58,10 +58,10 @@ entry_points = {
              'calibredb          = calibre.library.cli:main',
              'calibre-fontconfig = calibre.utils.fontconfig:main',
              'calibre-parallel   = calibre.parallel:main',
-             'calibre-customize  = calibre.customize.ui:main',                             
-		     'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
+             'calibre-customize  = calibre.customize.ui:main',
+             'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
              'any2pdf  = calibre.ebooks.pdf.from_any:main',
-                           ],
+        ],
         'gui_scripts'    : [
             __appname__+' = calibre.gui2.main:main',
             'lrfviewer    = calibre.gui2.lrf_renderer.main:main',
