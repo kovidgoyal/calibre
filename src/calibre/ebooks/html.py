@@ -640,7 +640,7 @@ class Processor(Parser):
         name = self.htmlfile_map[self.htmlfile.path]
         href = 'content/'+name
         
-        # Add level 1 and level 2 TOC items
+        # Add level* TOC items
         counter = 0
         
         def elem_to_link(elem, href, counter):
@@ -711,6 +711,8 @@ class Processor(Parser):
                         
                     
             if len(toc) > 0:
+                # Detected TOC entries using --level* options
+                # so aborting all other toc processing
                 return
         # Add chapters to TOC
         if not self.opts.no_chapters_in_toc:

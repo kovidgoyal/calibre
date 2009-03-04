@@ -361,7 +361,7 @@ class MobiReader(object):
                         continue
                     if reached and x.tag == 'a':
                         href = x.get('href', '')
-                        if href:
+                        if href and re.match('\w+://', href) is None:
                             try:
                                 text = u' '.join([t.strip() for t in \
                                                 x.xpath('descendant::text()')])
@@ -370,6 +370,8 @@ class MobiReader(object):
                             text = ent_pat.sub(entity_to_unicode, text)
                             tocobj.add_item(toc.partition('#')[0], href[1:], 
                                             text)
+                    if reached and x.get('class', None) == 'mbp_pagebreak':
+                        break
             if tocobj is not None:
                 opf.set_toc(tocobj)
         
@@ -435,7 +437,7 @@ class MobiReader(object):
     
     def replace_page_breaks(self):
         self.processed_html = self.PAGE_BREAK_PAT.sub(
-            '<div style="page-break-after: always; margin: 0; display: block" />',
+            '<div class="mbp_pagebreak" style="page-break-after: always; margin: 0; display: block" />',
             self.processed_html)
     
     def add_anchors(self):
@@ -521,7 +523,7 @@ def option_parser():
     parser = OptionParser(usage=_('%prog [options] myebook.mobi'))
     parser.add_option('-o', '--output-dir', default='.', 
                       help=_('Output directory. Defaults to current directory.'))
-    parser.add_option('--verbose', default=False, action='store_true',
+    parser.add_option('-v', '--verbose', default=False, action='store_true',
                       help='Useful for debugging.')
     return parser
     
