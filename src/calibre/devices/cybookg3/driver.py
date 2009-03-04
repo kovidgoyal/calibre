@@ -69,14 +69,23 @@ class CYBOOKG3(USBMS):
         for infile in files:
             newpath = path
             mdata = metadata.next()
-            
+
             if self.SUPPORTS_SUB_DIRS:
                 if 'tags' in mdata.keys():
                     for tag in mdata['tags']:
-                        if tag.startswith('/'):
+                        if tag.startswith('News'):
+                            newpath = os.path.join(newpath, 'news')
+                            newpath = os.path.join(newpath, mdata.get('title', ''))
+                            newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                        elif tag.startswith('/'):
+                            newpath = path
                             newpath += tag
                             newpath = os.path.normpath(newpath)
                             break
+                            
+                if newpath == path:
+                    newpath = os.path.join(newpath, mdata.get('authors', ''))
+                    newpath = os.path.join(newpath, mdata.get('title', ''))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)

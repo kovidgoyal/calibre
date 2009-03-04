@@ -103,10 +103,20 @@ class USBMS(Device):
 
                 if 'tags' in mdata.keys():
                     for tag in mdata['tags']:
-                        if tag.startswith('/'):
+                        if tag.startswith('News'):
+                            newpath = os.path.join(newpath, 'news')
+                            newpath = os.path.join(newpath, mdata.get('title', ''))
+                            newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                            break
+                        elif tag.startswith('/'):
+                            newpath = path
                             newpath += tag
                             newpath = os.path.normpath(newpath)
                             break
+                            
+                if newpath == path:
+                    newpath = os.path.join(newpath, mdata.get('authors', ''))
+                    newpath = os.path.join(newpath, mdata.get('title', ''))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
@@ -166,14 +176,8 @@ class USBMS(Device):
 
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)
-<<<<<<< TREE
-        src = open(path, 'rb')
-        shutil.copyfileobj(src, outfile, 10*1024*1024)
-        src.close()
-=======
         with open(path, 'rb') as src:
             shutil.copyfileobj(src, outfile, 10*1024*1024)
->>>>>>> MERGE-SOURCE
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
