@@ -126,6 +126,8 @@ class BookHeader(object):
             
             self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
             self.exth = None
+            if not isinstance(self.title, unicode):
+                self.title = self.title.decode(self.codec, 'replace')
             if self.exth_flag & 0x40:
                 self.exth = EXTHHeader(raw[16+self.length:], self.codec, self.title)
                 self.exth.mi.uid = self.unique_id
