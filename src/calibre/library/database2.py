@@ -157,6 +157,7 @@ class ResultCache(SearchQueryParser):
     
     def __init__(self):
         self._map = self._map_filtered = self._data = []
+        self.first_sort = True
         SearchQueryParser.__init__(self)
         
     def __getitem__(self, row):
@@ -269,25 +270,28 @@ class ResultCache(SearchQueryParser):
         if ans != 0: return ans
         return cmp(self._data[x][10], self._data[y][10])
     
-    def cmp(self, loc, x, y, str=True):
+    def cmp(self, loc, x, y, str=True, subsort=False):
         try:
             ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if str else\
               cmp(self._data[x][loc], self._data[y][loc])
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][loc], self._data[y][loc])
-        #if ans != 0: return ans
-        #return cmp(self._data[x][11].lower(), self._data[y][11].lower())
+        if subsort and ans == 0:
+            return cmp(self._data[x][11].lower(), self._data[y][11].lower())
         return ans
     
-    def sort(self, field, ascending):
+    def sort(self, field, ascending, subsort=False):
         field = field.lower().strip()
         if field in ('author', 'tag', 'comment'):
             field += 's'
         if   field == 'date': field = 'timestamp'
         elif field == 'title': field = 'sort'
         elif field == 'authors': field = 'author_sort'
+        if self.first_sort:
+            subsort = True
+            self.first_sort = False
         fcmp = self.seriescmp if field == 'series' else \
-            functools.partial(self.cmp, FIELD_MAP[field], 
+            functools.partial(self.cmp, FIELD_MAP[field], subsort=subsort, 
                               str=field not in ('size', 'rating', 'timestamp'))
         
         self._map.sort(cmp=fcmp, reverse=not ascending)
