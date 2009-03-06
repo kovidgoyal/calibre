@@ -34,8 +34,8 @@ python = os.path.join(base_dir, 'MacOS', 'python')
 loader_path = os.path.join(dirpath, base_name+'.py')
 loader = open(loader_path, 'w')
 site_packages = glob.glob(resources_dir+'/lib/python*/site-packages.zip')[0]
-print >>loader, '#!'+python
 print >>loader, 'import sys'
+print >>loader, 'sys.argv[0] =', repr(os.path.basename(path))
 print >>loader, 'if', repr(dirpath), 'in sys.path: sys.path.remove(', repr(dirpath), ')'
 print >>loader, 'sys.path.append(', repr(site_packages), ')'
 print >>loader, 'sys.frozen = "macosx_app"'
@@ -49,7 +49,8 @@ os.environ['PYTHONHOME']        = resources_dir
 os.environ['FC_CONFIG_DIR']     = os.path.join(resources_dir, 'fonts')
 os.environ['MAGICK_HOME']       = os.path.join(frameworks_dir, 'ImageMagick')
 os.environ['DYLD_LIBRARY_PATH'] = os.path.join(frameworks_dir, 'ImageMagick', 'lib')
-os.execv(loader_path, sys.argv)
+args = [path, loader_path] + sys.argv[1:]
+os.execv(python, args)
     '''
     CHECK_SYMLINKS_PRESCRIPT = \
 r'''

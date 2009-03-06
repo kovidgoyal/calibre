@@ -140,6 +140,8 @@ class MobiReader(object):
     
     def __init__(self, filename_or_stream, verbose=False):
         self.verbose = verbose
+        self.embedded_mi = None
+        
         if hasattr(filename_or_stream, 'read'):
             stream = filename_or_stream
             stream.seek(0)
@@ -216,7 +218,6 @@ class MobiReader(object):
         guides = root.xpath('//guide')
         guide = guides[0] if guides else None
         metadata_elems = root.xpath('//metadata')
-        self.embedded_mi = None
         if metadata_elems and self.book_header.exth is None:
             self.read_embedded_metadata(root, metadata_elems[0], guide)
         for elem in guides + metadata_elems:
