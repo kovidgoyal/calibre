@@ -797,7 +797,8 @@ class Processor(Parser):
         self.external_stylesheets, self.stylesheet = [], self.css_parser.parseString('')
         self.specified_override_css = []
         for link in self.root.xpath('//link'):
-            if 'css' in link.get('type', 'text/css').lower():
+            ltype = link.get('type', link.get('rel', 'text/css')).lower()
+            if 'css' in ltype or 'style' in ltype:
                 file = os.path.join(self.tdir, *(link.get('href', '').split('/')))
                 if file and not 'http:' in file:
                     if not parsed_sheets.has_key(file):
