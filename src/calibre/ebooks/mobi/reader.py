@@ -22,7 +22,7 @@ from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
 from calibre import sanitize_file_name
 
@@ -215,7 +215,11 @@ class MobiReader(object):
         self.upshift_markup(root)
         guides = root.xpath('//guide')
         guide = guides[0] if guides else None
-        for elem in guides + root.xpath('//metadata'):
+        metadata_elems = root.xpath('//metadata')
+        self.embedded_mi = None
+        if metadata_elems and self.book_header.exth is None:
+            self.read_embedded_metadata(root, metadata_elems[0], guide)
+        for elem in guides + metadata_elems:
             elem.getparent().remove(elem)
         htmlfile = os.path.join(output_dir, 
                                 sanitize_file_name(self.name)+'.html')
@@ -235,7 +239,7 @@ class MobiReader(object):
             f.write(raw)
         self.htmlfile = htmlfile
         
-        if self.book_header.exth is not None:
+        if self.book_header.exth is not None or self.embedded_mi is not None:
             if self.verbose:
                 print 'Creating OPF...'
             ncx = cStringIO.StringIO()
@@ -244,7 +248,33 @@ class MobiReader(object):
             ncx = ncx.getvalue()
             if ncx:
                 open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
+    
+    def read_embedded_metadata(self, root, elem, guide):
+        raw = '<package>'+html.tostring(elem, encoding='utf-8')+'</package>'
+        stream = cStringIO.StringIO(raw)
+        opf = OPF(stream)
+        self.embedded_mi = MetaInformation(opf)
+        if guide is not None:
+            for ref in guide.xpath('descendant::reference'):
+                if 'cover' in ref.get('type', '').lower():
+                    href = ref.get('href', '')
+                    if href.startswith('#'):
+                        href = href[1:]
+                    anchors = root.xpath('//*[@id="%s"]'%href)
+                    if anchors:
+                        cpos = anchors[0]
+                        reached = False
+                        for elem in root.iter():
+                            if elem is cpos:
+                                reached = True
+                            if reached and elem.tag == 'img':
+                                cover = elem.get('src', None)
+                                self.embedded_mi.cover = cover
+                                elem.getparent().remove(elem)
+                                break
+                    break
         
+    
     def cleanup_html(self):
         if self.verbose:
             print 'Cleaning up HTML...'
@@ -333,10 +363,12 @@ class MobiReader(object):
                     pass
     
     def create_opf(self, htmlfile, guide=None, root=None):
-        mi = self.book_header.exth.mi
+        mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
+        elif mi.cover is not None:
+            opf.cover = mi.cover
         manifest = [(htmlfile, 'text/x-oeb1-document')]
         bp = os.path.dirname(htmlfile)
         for i in getattr(self, 'image_names', []):
@@ -481,7 +513,11 @@ class MobiReader(object):
             os.makedirs(output_dir)
         image_index = 0
         self.image_names = []
-        for i in range(self.book_header.first_image_index, self.num_sections):
+        start = self.book_header.first_image_index
+        if start > self.num_sections or start < 0:
+            # BAEN PRC files have bad headers 
+            start=0
+        for i in range(start, self.num_sections):
             if i in processed_records:
                 continue
             processed_records.append(i)
