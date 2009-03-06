@@ -6,8 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 
-import sys
-import os
 import copy
 import re
 from lxml import etree
@@ -200,7 +198,7 @@ class MobiMLizer(object):
                 while vspace > 0:
                     wrapper.addprevious(etree.Element(XHTML('br')))
                     vspace -= 1
-            if istate.halign != 'auto':
+            if istate.halign != 'auto' and isinstance(istate.halign, (str, unicode)):
                 para.attrib['align'] = istate.halign
         pstate = bstate.istate
         if tag in CONTENT_TAGS:

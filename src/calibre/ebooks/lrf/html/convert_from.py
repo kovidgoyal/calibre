@@ -479,7 +479,7 @@ class HTMLConverter(object, LoggingInterface):
             pprop.update(self.pseudo_css[tagname])
         if tag.has_key("class"):
             cls = tag["class"].lower()
-            for cls in cls.split():            
+            for cls in cls.split():
                 for classname in ["."+cls, tagname+"."+cls]:
                     if self.css.has_key(classname):
                         prop.update(self.css[classname])

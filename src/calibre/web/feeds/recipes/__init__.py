@@ -7,7 +7,7 @@ Builtin recipes.
 recipe_modules = ['recipe_' + r for r in (
            'newsweek', 'atlantic', 'economist', 'portfolio',
            'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
-           'wired', 'globe_and_mail', 'smh', 'espn', 'business_week',
+           'wired', 'globe_and_mail', 'smh', 'espn', 'business_week', 'miami_herald',
            'ars_technica', 'upi', 'new_yorker', 'irish_times', 'iht', 'lanacion',
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
            'daily_telegraph', 'guardian', 'el_pais', 'new_scientist', 'b92',
