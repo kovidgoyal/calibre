@@ -1568,6 +1568,8 @@ def main(args=sys.argv):
         QCoreApplication.setApplicationName(APP_UID)
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
         if not singleinstance('calibre GUI'):
+            if len(args) > 1:
+                args[1] = os.path.abspath(args[1])
             if single_instance is not None and single_instance.is_running() and \
                single_instance.send_message('launched:'+repr(args)):
                     return 0

@@ -3,7 +3,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
-nin.co.yu
+nin.co.rs
 '''
 
 import re, urllib
@@ -19,14 +19,17 @@ class Nin(BasicNewsRecipe):
     oldest_article         = 15
     simultaneous_downloads = 1
     delay                  = 1
-    encoding               = 'utf8'
+    encoding               = 'utf-8'
     needs_subscription     = True
-    PREFIX                 = 'http://www.nin.co.yu'
+    PREFIX                 = 'http://www.nin.co.rs'
     INDEX                  = PREFIX + '/?change_lang=ls'
     LOGIN                  = PREFIX + '/?logout=true'
+    FEED                   = PREFIX + '/misc/rss.php?feed=RSS2.0'
     remove_javascript      = True
     use_embedded_content   = False
-    language              = _('Serbian')
+    language               = _('Serbian')
+    lang                   = 'sr-RS'
+    direction              = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
     html2lrf_options = [
@@ -54,7 +57,7 @@ class Nin(BasicNewsRecipe):
 
     keep_only_tags    =[dict(name='td', attrs={'width':'520'})]
     remove_tags_after =dict(name='html')
-    feeds             =[(u'NIN', u'http://www.nin.co.yu/misc/rss.php?feed=RSS2.0')]
+    feeds             =[(u'NIN', FEED)]
     
     def get_cover_url(self):
         cover_url = None
@@ -65,8 +68,16 @@ class Nin(BasicNewsRecipe):
         return cover_url
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction
+        mtag = '<meta http-equiv="Content-Language" content="' + self.lang + '"/>'
+        mtag += '\n<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '"/>'
         soup.head.insert(0,mtag)    
         for item in soup.findAll(style=True):
-            del item['style']
+            del item['style']        
         return soup
+
+    def get_article_url(self, article):
+        raw = article.get('link',  None)         
+        return raw.replace('.co.yu','.co.rs')
+        

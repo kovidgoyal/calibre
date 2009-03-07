@@ -196,8 +196,8 @@ to auto-generate a Table of Contents.
                'an overview of the NCX format.'))
     toc('use_auto_toc', ['--use-auto-toc'], default=False,
         help=_('Normally, if the source file already has a Table of Contents, '
-               'it is used in preference to the autodetected one. '
-               'With this option, the autodetected one is always used.'))
+               'it is used in preference to the auto-generated one. '
+               'With this option, the auto-generated one is always used.'))
     
     layout = c.add_group('page layout', _('Control page layout'))
     layout('margin_top', ['--margin-top'], default=5.0, 

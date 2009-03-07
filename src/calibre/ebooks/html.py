@@ -640,7 +640,7 @@ class Processor(Parser):
         name = self.htmlfile_map[self.htmlfile.path]
         href = 'content/'+name
         
-        # Add level 1 and level 2 TOC items
+        # Add level* TOC items
         counter = 0
         
         def elem_to_link(elem, href, counter):
@@ -711,6 +711,8 @@ class Processor(Parser):
                         
                     
             if len(toc) > 0:
+                # Detected TOC entries using --level* options
+                # so aborting all other toc processing
                 return
         # Add chapters to TOC
         if not self.opts.no_chapters_in_toc:
@@ -795,7 +797,8 @@ class Processor(Parser):
         self.external_stylesheets, self.stylesheet = [], self.css_parser.parseString('')
         self.specified_override_css = []
         for link in self.root.xpath('//link'):
-            if 'css' in link.get('type', 'text/css').lower():
+            ltype = link.get('type', link.get('rel', 'text/css')).lower()
+            if 'css' in ltype or 'style' in ltype:
                 file = os.path.join(self.tdir, *(link.get('href', '').split('/')))
                 if file and not 'http:' in file:
                     if not parsed_sheets.has_key(file):
@@ -845,7 +848,12 @@ class Processor(Parser):
             except:
                 size = '3'
             if size and size.strip() and size.strip()[0] in ('+', '-'):
-                size = 3 + float(size) # Hack assumes basefont=3
+                size = re.search(r'[+-]{0,1}[\d\.]+', size)
+                try:
+                    size = float(size.group())
+                except:
+                    size = 0
+                size += 3 # Hack assumes basefont=3
             try:
                 setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
             except ValueError:

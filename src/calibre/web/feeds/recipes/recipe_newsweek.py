@@ -68,10 +68,9 @@ class Newsweek(BasicNewsRecipe):
 
     
     def parse_index(self):
-        ci = self.get_current_issue()
-        if not ci:
+        soup = self.get_current_issue()
+        if not soup:
             raise RuntimeError('Unable to connect to newsweek.com. Try again later.')
-        soup = self.index_to_soup(ci)
         img = soup.find(alt='Cover')
         if img is not None and img.has_key('src'):
             small = img['src']
@@ -119,10 +118,10 @@ class Newsweek(BasicNewsRecipe):
         return soup
     
     def get_current_issue(self):
-        from urllib2 import urlopen # For some reason mechanize fails
-        home = urlopen('http://www.newsweek.com').read() 
-        soup = BeautifulSoup(home)
+        #from urllib2 import urlopen # For some reason mechanize fails
+        #home = urlopen('http://www.newsweek.com').read() 
+        soup = self.index_to_soup('http://www.newsweek.com')#BeautifulSoup(home)
         img  = soup.find('img', alt='Current Magazine')
         if img and img.parent.has_key('href'):
-            return urlopen(img.parent['href']).read()
+            return self.index_to_soup(img.parent['href'])
     
