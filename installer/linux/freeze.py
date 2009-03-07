@@ -37,6 +37,7 @@ def freeze():
                        '/usr/lib/libpoppler.so.4',
                        '/usr/lib/libxml2.so.2',
                        '/usr/lib/libdbus-1.so.3',
+                       '/usr/lib/libopenjpeg.so.2',
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libgthread-2.0.so.0',
