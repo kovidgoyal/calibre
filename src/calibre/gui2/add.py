@@ -46,7 +46,6 @@ class AddFiles(Add):
     
     def metadata_delivered(self, id, mi):
         if self.is_canceled():
-            self.reading.wakeAll()
             return
         if not mi.title:
             mi.title = os.path.splitext(self.names[id])[0]
@@ -163,7 +162,6 @@ class AddRecursive(Add):
     
     def metadata_delivered(self, id, mi):
         if self.is_canceled():
-            self.reading.wakeAll()
             return
         self.emit(SIGNAL('processed(PyQt_PyObject,PyQt_PyObject)'),
                           mi.title, id)
