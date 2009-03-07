@@ -33,7 +33,7 @@ class TerminalController:
     
     >>> term = TerminalController()
     >>> if term.CLEAR_SCREEN:
-    ...     print 'This terminal supports clearning the screen.'
+    ...     print 'This terminal supports clearing the screen.'
     
     Finally, if the width and height of the terminal are known, then
     they will be stored in the `COLS` and `LINES` attributes.

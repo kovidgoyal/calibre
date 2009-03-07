@@ -14,7 +14,7 @@ from Queue import Queue
 from threading import RLock
 from datetime import tzinfo, datetime, timedelta
 
-from calibre.library import title_sort
+from calibre.ebooks.metadata import title_sort
 
 global_lock = RLock()
 

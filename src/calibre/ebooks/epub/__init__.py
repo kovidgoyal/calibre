@@ -40,38 +40,6 @@ def rules(stylesheets):
                 if r.type == r.STYLE_RULE:
                     yield r
 
-def decrypt_font(key, path):
-    raw = open(path, 'rb').read()
-    crypt = raw[:1024]
-    key = cycle(iter(key))
-    decrypt = ''.join([chr(ord(x)^key.next()) for x in crypt])
-    with open(path, 'wb') as f:
-        f.write(decrypt)
-        f.write(raw[1024:])
-
-def process_encryption(encfile, opf):
-    key = None
-    m = re.search(r'(?i)(urn:uuid:[0-9a-f-]+)', open(opf, 'rb').read())
-    if m:
-        key = m.group(1)
-        key = list(map(ord, uuid.UUID(key).bytes))
-    try:
-        root = etree.parse(encfile)
-        for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
-            algorithm = em.get('Algorithm', '')
-            if algorithm != 'http://ns.adobe.com/pdf/enc#RC':
-                return False
-            cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
-            uri = cr.get('URI')
-            path = os.path.abspath(os.path.join(os.path.dirname(encfile), '..', *uri.split('/')))
-            if os.path.exists(path):
-                decrypt_font(key, path)
-        return True
-    except:
-        import traceback
-        traceback.print_exc()
-    return False
-
 def initialize_container(path_to_container, opf_name='metadata.opf'):
     '''
     Create an empty EPUB document, with a default skeleton.

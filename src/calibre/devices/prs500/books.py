@@ -55,8 +55,8 @@ class Book(object):
     size         = book_metadata_field("size", formatter=int)
     # When setting this attribute you must use an epoch
     datetime     = book_metadata_field("date", formatter=strptime, setter=strftime)
-    @apply
-    def title_sorter():
+    @dynamic_property
+    def title_sorter(self):
         doc = '''String to sort the title. If absent, title is returned'''
         def fget(self):
             src = self.elem.getAttribute('titleSorter').strip()
@@ -67,8 +67,8 @@ class Book(object):
             self.elem.setAttribute('titleSorter', sortable_title(unicode(val)))
         return property(doc=doc, fget=fget, fset=fset)
     
-    @apply
-    def thumbnail():
+    @dynamic_property
+    def thumbnail(self):
         doc = \
         """ 
         The thumbnail. Should be a height 68 image. 
@@ -88,15 +88,15 @@ class Book(object):
                 return decode(rc)
         return property(fget=fget, doc=doc)
     
-    @apply
-    def path():
+    @dynamic_property
+    def path(self):
         doc = """ Absolute path to book on device. Setting not supported. """
         def fget(self):  
             return self.root + self.rpath
         return property(fget=fget, doc=doc)
     
-    @apply
-    def db_id():
+    @dynamic_property
+    def db_id(self):
         doc = '''The database id in the application database that this file corresponds to'''
         def fget(self):
             match = re.search(r'_(\d+)$', self.rpath.rpartition('.')[0])

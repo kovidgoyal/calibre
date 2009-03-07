@@ -12,7 +12,7 @@
         <dc:identifier opf:scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
         <dc:date py:if="getattr(mi, 'timestamp', None) is not None">${mi.timestamp.isoformat()}</dc:date>    
         <dc:language>${mi.language if mi.language else 'UND'}</dc:language>
-        <dc:type py:if="mi.category">${mi.category}</dc:type>
+        <dc:type py:if="getattr(mi, 'category', False)">${mi.category}</dc:type>
         <dc:description py:if="mi.comments">${mi.comments}</dc:description>
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
         <dc:identifier opf:scheme="ISBN" py:if="mi.isbn">${mi.isbn}</dc:identifier>

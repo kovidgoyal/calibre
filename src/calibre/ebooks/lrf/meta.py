@@ -229,6 +229,9 @@ def get_metadata(stream):
     mi.author = lrf.author.strip()
     mi.comments = lrf.free_text.strip()
     mi.category = lrf.category.strip()+', '+lrf.classification.strip()
+    tags = [x.strip() for x in mi.category.split(',') if x.strip()]
+    if tags:
+        mi.tags = tags
     mi.publisher = lrf.publisher.strip()
     mi.cover_data = lrf.get_cover()
     try:
@@ -624,7 +627,9 @@ def set_metadata(stream, mi):
         lrf.title = mi.title
     if mi.authors:
         lrf.author = ', '.join(mi.authors)
-    if mi.category:
+    if mi.tags:
+        lrf.category = mi.tags[0]
+    if getattr(mi, 'category', False):
         lrf.category = mi.category
     if mi.comments:    
         lrf.free_text = mi.comments

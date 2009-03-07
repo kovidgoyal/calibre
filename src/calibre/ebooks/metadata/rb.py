@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from RB files'''
 
-import sys, os, struct
+import sys, struct
 
 from calibre.ebooks.metadata import MetaInformation
 
@@ -53,16 +53,4 @@ def get_metadata(stream):
         raise
     return mi
         
-            
-def main(args=sys.argv):
-    if len(args) != 2:
-        print >>sys.stderr, _('Usage: rb-meta file.rb')
-        print >>sys.stderr, _('No filename specified.')
-        return 1
-    
-    path = os.path.abspath(os.path.expanduser(args[1]))
-    print get_metadata(open(path, 'rb'))
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())
+         

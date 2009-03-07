@@ -292,9 +292,29 @@ class Serializer(object):
                 buffer.seek(hoff)
                 buffer.write('%010d' % ioff)
 
-    
+
+class MobiFlattener(object):
+    def config(self, cfg):
+        return cfg
+
+    def generate(self, opts):
+        return self
+
+    def __call__(self, oeb, context):
+        fbase = context.dest.fbase
+        fkey = context.dest.fnums.values()
+        flattener = CSSFlattener(
+            fbase=fbase, fkey=fkey, unfloat=True, untable=True)
+        return flattener(oeb, context)
+
+                
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
+
+    DEFAULT_PROFILE = 'CybookG3'
+
+    TRANSFORMS = [HTMLTOCAdder, CaseMangler, MobiFlattener(), SVGRasterizer,
+                  ManifestTrimmer, MobiMLizer]
     
     def __init__(self, compression=None, imagemax=None,
                  prefer_author_sort=False):
@@ -302,7 +322,32 @@ class MobiWriter(object):
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
 
-    def dump(self, oeb, path):
+    @classmethod
+    def config(cls, cfg):
+        """Add any book-writing options to the :class:`Config` object
+        :param:`cfg`.
+        """
+        mobi = cfg.add_group('mobipocket', _('Mobipocket-specific options.'))
+        mobi('compress', ['--compress'], default=False,
+             help=_('Compress file text using PalmDOC compression. '
+                    'Results in smaller files, but takes a long time to run.'))
+        mobi('rescale_images', ['--rescale-images'], default=False, 
+             help=_('Modify images to meet Palm device size limitations.'))
+        mobi('prefer_author_sort', ['--prefer-author-sort'], default=False,
+             help=_('When present, use the author sorting information for '
+                    'generating the Mobipocket author metadata.'))
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        """Generate a Writer instance from command-line options."""
+        compression = PALMDOC if opts.compress else UNCOMPRESSED
+        imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
+        prefer_author_sort = opts.prefer_author_sort
+        return cls(compression=compression, imagemax=imagemax,
+                   prefer_author_sort=prefer_author_sort)
+    
+    def __call__(self, oeb, path):
         if hasattr(path, 'write'):
             return self._dump_stream(oeb, path)
         with open(path, 'w+b') as stream:
@@ -542,21 +587,6 @@ def config(defaults=None):
     else:
         c = StringConfig(defaults, desc)
         
-    mobi = c.add_group('mobipocket', _('Mobipocket-specific options.'))
-    mobi('compress', ['--compress'], default=False,
-         help=_('Compress file text using PalmDOC compression. '
-               'Results in smaller files, but takes a long time to run.'))
-    mobi('rescale_images', ['--rescale-images'], default=False, 
-        help=_('Modify images to meet Palm device size limitations.'))
-    mobi('toc_title', ['--toc-title'], default=None, 
-         help=_('Title for any generated in-line table of contents.'))
-    mobi('ignore_tables', ['--ignore-tables'], default=False,
-         help=_('Render HTML tables as blocks of text instead of actual '
-                'tables. This is neccessary if the HTML contains very large '
-                'or complex tables.'))
-    mobi('prefer_author_sort', ['--prefer-author-sort'], default=False,
-         help=_('When present, use the author sorting information for '
-                'generating the Mobipocket author metadata.'))
     profiles = c.add_group('profiles', _('Device renderer profiles. '
         'Affects conversion of font sizes, image rescaling and rasterization '
         'of tables. Valid profiles are: %s.') % ', '.join(_profiles))

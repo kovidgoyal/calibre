@@ -46,17 +46,3 @@ def get_metadata(stream):
         msg = u'Couldn\'t read metadata from imp: %s with error %s'%(mi.title, unicode(err))
         print >>sys.stderr, msg.encode('utf8')
     return mi
-        
-            
-def main(args=sys.argv):
-    if len(args) != 2:
-        print >>sys.stderr, _('Usage: imp-meta file.imp')
-        print >>sys.stderr, _('No filename specified.')
-        return 1
-    
-    path = os.path.abspath(os.path.expanduser(args[1]))
-    print get_metadata(open(path, 'rb'))
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

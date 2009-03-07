@@ -814,8 +814,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 #        _lock_file = None
         self.conn.close()
 
-    @apply
-    def user_version():
+    @dynamic_property
+    def user_version(self):
         doc = 'The user version of this database'
         def fget(self):
             return self.conn.get('pragma user_version;', all=False)

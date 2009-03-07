@@ -21,15 +21,15 @@ class Book(object):
     def __eq__(self, other):
         return self.path == other.path
         
-    @apply
-    def title_sorter():
+    @dynamic_property
+    def title_sorter(self):
         doc = '''String to sort the title. If absent, title is returned'''
         def fget(self):
             return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
         return property(doc=doc, fget=fget)
     
-    @apply
-    def thumbnail():
+    @dynamic_property
+    def thumbnail(self):
         return None
         
     def __str__(self):
@@ -43,5 +43,4 @@ class BookList(_BookList):
     
     def set_tags(self, book, tags):
         pass
-
 

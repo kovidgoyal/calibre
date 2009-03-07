@@ -207,32 +207,32 @@ class Tag(object):
         s += " at %08X, contents: %s" % (self.offset, repr(self.contents))
         return s
     
-    @apply
-    def byte():
+    @dynamic_property
+    def byte(self):
         def fget(self):
             if len(self.contents) != 1:
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
             return struct.unpack("<B", self.contents)[0]
         return property(fget=fget)
     
-    @apply
-    def word():
+    @dynamic_property
+    def word(self):
         def fget(self):
             if len(self.contents) != 2:
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
             return struct.unpack("<H", self.contents)[0]
         return property(fget=fget)
     
-    @apply
-    def sword():
+    @dynamic_property
+    def sword(self):
         def fget(self):
             if len(self.contents) != 2:
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
             return struct.unpack("<h", self.contents)[0]
         return property(fget=fget)
     
-    @apply
-    def dword():
+    @dynamic_property
+    def dword(self):
         def fget(self):
             if len(self.contents) != 4:
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)

@@ -116,8 +116,8 @@ class Device(Structure):
             raise Error("Cannot open device")
         return handle.contents    
     
-    @apply
-    def configurations():
+    @dynamic_property
+    def configurations(self):
         doc = """ List of device configurations. See L{ConfigDescriptor} """
         def fget(self):
             ans = []
@@ -127,8 +127,8 @@ class Device(Structure):
         return property(doc=doc, fget=fget)
 
 class Bus(Structure):
-    @apply
-    def device_list():
+    @dynamic_property
+    def device_list(self):
         doc = \
         """ 
         Flat list of devices on this bus. 

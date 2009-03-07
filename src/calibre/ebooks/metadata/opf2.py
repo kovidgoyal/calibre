@@ -169,8 +169,8 @@ class ManifestItem(Resource):
                 res.mime_type = mt
             return res
 
-    @apply
-    def media_type():
+    @dynamic_property
+    def media_type(self):
         def fget(self):
             return self.mime_type
         def fset(self, val):
@@ -608,8 +608,8 @@ class OPF(object):
         for item in self.iterguide():
             item.set('href', get_href(item))
 
-    @apply
-    def authors():
+    @dynamic_property
+    def authors(self):
 
         def fget(self):
             ans = []
@@ -628,8 +628,8 @@ class OPF(object):
             
         return property(fget=fget, fset=fset)
 
-    @apply
-    def author_sort():
+    @dynamic_property
+    def author_sort(self):
 
         def fget(self):
             matches = self.authors_path(self.metadata)
@@ -651,8 +651,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def title_sort():
+    @dynamic_property
+    def title_sort(self):
 
         def fget(self):
             matches = self.title_path(self.metadata)
@@ -674,8 +674,28 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def tags():
+    @dynamic_property
+    def title_sort(self):
+
+        def fget(self):
+            matches = self.title_path(self.metadata)
+            if matches:
+                for match in matches:
+                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
+                    if not ans:
+                        ans = match.get('file-as', None)
+                    if ans:
+                        return ans
+
+        def fset(self, val):
+            matches = self.title_path(self.metadata)
+            if matches:
+                matches[0].set('file-as', unicode(val))
+
+        return property(fget=fget, fset=fset)
+
+    @dynamic_property
+    def tags(self):
 
         def fget(self):
             ans = []
@@ -692,8 +712,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def isbn():
+    @dynamic_property
+    def isbn(self):
 
         def fget(self):
             for match in self.isbn_path(self.metadata):
@@ -709,8 +729,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def application_id():
+    @dynamic_property
+    def application_id(self):
 
         def fget(self):
             for match in self.application_id_path(self.metadata):
@@ -726,8 +746,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def book_producer():
+    @dynamic_property
+    def book_producer(self):
 
         def fget(self):
             for match in self.bkp_path(self.metadata):
@@ -764,8 +784,8 @@ class OPF(object):
                             return cpath
 
 
-    @apply
-    def cover():
+    @dynamic_property
+    def cover(self):
 
         def fget(self):
             if self.guide is not None:
@@ -1001,62 +1021,19 @@ class OPFTest(unittest.TestCase):
         self.opf.smart_update(MetaInformation(self.opf))
         self.testReading()
 
+    def testCreator(self):
+        opf = OPFCreator(os.getcwd(), self.opf)
+        buf = cStringIO.StringIO()
+        opf.render(buf)
+        raw = buf.getvalue()
+        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwd()))
+
+    def testSmartUpdate(self):
+        self.opf.smart_update(self.opf)
+        self.testReading()
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(OPFTest)
 
 def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
-
-
-def option_parser():
-    from calibre.ebooks.metadata import get_parser
-    parser = get_parser('opf')
-    parser.add_option('--language', default=None, help=_('Set the dc:language field'))
-    return parser
-
-def main(args=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        return 1
-    opfpath = os.path.abspath(args[1])
-    basedir = os.path.dirname(opfpath)
-    mi = MetaInformation(OPF(open(opfpath, 'rb'), basedir))
-    write = False
-    if opts.title is not None:
-        mi.title = opts.title
-        write = True
-    if opts.authors is not None:
-        aus = [i.strip() for i in opts.authors.split(',')]
-        mi.authors = aus
-        write = True
-    if opts.category is not None:
-        mi.category = opts.category
-        write = True
-    if opts.comment is not None:
-        mi.comments = opts.comment
-        write = True
-    if opts.language is not None:
-        mi.language = opts.language
-        write = True
-    if write:
-        mo = OPFCreator(basedir, mi)
-        ncx = cStringIO.StringIO()
-        mo.render(open(args[1], 'wb'), ncx)
-        ncx = ncx.getvalue()
-        if ncx:
-            f = glob.glob(os.path.join(os.path.dirname(args[1]), '*.ncx'))
-            if f:
-                f = open(f[0], 'wb')
-            else:
-                f = open(os.path.splitext(args[1])[0]+'.ncx', 'wb')
-            f.write(ncx)
-            f.close()
-    print MetaInformation(OPF(open(opfpath, 'rb'), basedir))
-    return 0
-
-
-
-if __name__ == '__main__':
-    sys.exit(main())

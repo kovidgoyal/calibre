@@ -80,7 +80,20 @@ class MobiMLizer(object):
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables
     
-    def transform(self, oeb, context):
+    @classmethod
+    def config(cls, cfg):
+        group = cfg.add_group('mobiml', _('Mobipocket markup options.'))
+        group('ignore_tables', ['--ignore-tables'], default=False,
+              help=_('Render HTML tables as blocks of text instead of actual '
+                     'tables. This is neccessary if the HTML contains very '
+                     'large or complex tables.'))
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls(ignore_tables=opts.ignore_tables)
+    
+    def __call__(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
         self.profile = profile = context.dest

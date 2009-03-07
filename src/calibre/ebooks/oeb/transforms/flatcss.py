@@ -98,7 +98,15 @@ class CSSFlattener(object):
         self.unfloat = unfloat
         self.untable = untable
 
-    def transform(self, oeb, context):
+    @classmethod
+    def config(cls, cfg):
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls()
+    
+    def __call__(self, oeb, context):
         oeb.logger.info('Flattening CSS and remapping font sizes...')
         self.oeb = oeb
         self.context = context
