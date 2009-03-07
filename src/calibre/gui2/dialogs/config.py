@@ -320,11 +320,17 @@ class ConfigDialog(QDialog, Ui_Dialog):
         layout.addWidget(QLabel(_('Error log:')))
         el = QPlainTextEdit(d)
         layout.addWidget(el)
-        el.setPlainText(open(log_error_file, 'rb').read().decode('utf8', 'replace'))
+        try:
+            el.setPlainText(open(log_error_file, 'rb').read().decode('utf8', 'replace'))
+        except IOError:
+            el.setPlainText('No error log found')
         layout.addWidget(QLabel(_('Access log:')))
         al = QPlainTextEdit(d)
         layout.addWidget(al)
-        al.setPlainText(open(log_access_file, 'rb').read().decode('utf8', 'replace'))
+        try:
+            al.setPlainText(open(log_access_file, 'rb').read().decode('utf8', 'replace'))
+        except IOError:
+            el.setPlainText('No access log found')
         d.show()
     
     def set_server_options(self):
