@@ -115,7 +115,7 @@ class USBMS(Device):
                             break
                             
                 if newpath == path:
-                    newpath = os.path.join(newpath, mdata.get('authors', ''))
+                    newpath = os.path.join(newpath, authors_to_string(mdata.get('authors', '')))
                     newpath = os.path.join(newpath, mdata.get('title', ''))
 
             if not os.path.exists(newpath):

@@ -249,7 +249,6 @@ class MobiReader(object):
             pass
         parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
-        
         self.log.debug('Creating OPF...')
         ncx = cStringIO.StringIO()
         opf = self.create_opf(htmlfile, guide, root)
@@ -290,7 +289,6 @@ class MobiReader(object):
                                 elem.getparent().remove(elem)
                                 break
                     break
-        
     
     def cleanup_html(self):
         self.log.debug('Cleaning up HTML...')
@@ -576,5 +574,4 @@ def get_metadata(stream):
         except:
             log.exception()
     return mi
-        
-        
+
