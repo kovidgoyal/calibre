@@ -22,8 +22,15 @@ from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
     
+class PDFMargins:
+    def __init__(self, margin=1):
+        self.top    = margin
+        self.bottom = margin
+        self.left   = margin
+        self.right  = margin
+        
 class PDFWriter(QObject):
-    def __init__(self):
+    def __init__(self, margins=PDFMargins()):
         if QApplication.instance() is None:
             QApplication([])
         QObject.__init__(self)
@@ -36,6 +43,7 @@ class PDFWriter(QObject):
         self.render_queue = []
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
+        self.margins = margins
 
     def dump(self, oebpath, path):
         self._delete_tmpdir()
@@ -70,7 +78,7 @@ class PDFWriter(QObject):
             self.logger.debug('\tRendering item as %s' % item_path)
         
             printer = QPrinter(QPrinter.HighResolution)
-            printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
+            printer.setPageMargins(self.margins.left, self.margins.top, self.margins.right, self.margins.bottom, QPrinter.Inch)
             printer.setOutputFormat(QPrinter.PdfFormat)
             printer.setOutputFileName(item_path)
             self.view.print_(printer)
@@ -106,9 +114,17 @@ def config(defaults=None):
         c = StringConfig(defaults, desc)
         
     pdf = c.add_group('PDF', _('PDF options.'))
+            
+    pdf('margin_top', ['--margin_top'], default=1,
+         help=_('The top margin around the document in inches.'))
+    pdf('margin_bottom', ['--margin_bottom'], default=1,
+         help=_('The bottom margin around the document in inches.'))
+    pdf('margin_left', ['--margin_left'], default=1,
+         help=_('The left margin around the document in inches.'))
+    pdf('margin_right', ['--margin_right'], default=1,
+         help=_('The right margin around the document in inches.'))
     
     return c
-    
 
 def option_parser():
     c = config()
@@ -118,7 +134,7 @@ def option_parser():
         help=_('Output file. Default is derived from input filename.'))
     parser.add_option(
         '-v', '--verbose', default=0, action='count',
-        help=_('Useful for debugging.'))
+        help=_('Useful for debugging.'))        
     return parser
 
 def oeb2pdf(opts, inpath):
@@ -130,7 +146,13 @@ def oeb2pdf(opts, inpath):
         outpath = os.path.basename(inpath)
         outpath = os.path.splitext(outpath)[0] + '.pdf'
 
-    writer = PDFWriter()
+    margins = PDFMargins()
+    margins.top = opts.margin_top
+    margins.bottom = opts.margin_bottom
+    margins.left = opts.margin_left
+    margins.right = opts.margin_right
+
+    writer = PDFWriter(margins)
     writer.dump(inpath, outpath)
     run_plugins_on_postprocess(outpath, 'pdf')
     logger.log_info(_('Output written to ') + outpath)
