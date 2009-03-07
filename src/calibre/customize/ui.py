@@ -6,12 +6,13 @@ import os, shutil, traceback, functools, sys
 
 from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
                               MetadataWriterPlugin
+from calibre.customize.conversion import InputFormatPlugin
+from calibre.customize.profiles import InputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.constants import __version__, iswindows, isosx
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser
-
 
 version = tuple([int(x) for x in __version__.split('.')])
 
@@ -70,7 +71,10 @@ _on_import           = {}
 _on_preprocess       = {}
 _on_postprocess      = {}
 
-
+def input_profiles():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, InputProfile):
+            yield plugin
 
 def reread_filetype_plugins():
     global _on_import
@@ -233,6 +237,17 @@ def find_plugin(name):
     for plugin in _initialized_plugins:
         if plugin.name == name:
             return plugin
+
+def input_format_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, InputFormatPlugin):
+            yield plugin
+        
+def plugin_for_input_format(fmt):
+    for plugin in input_format_plugins():
+        if fmt in plugin.file_types:
+            return plugin
+    
 
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)

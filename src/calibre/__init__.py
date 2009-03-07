@@ -90,28 +90,11 @@ def prints(*args, **kwargs):
         if i != len(args)-1:
             file.write(sep)
     file.write(end)
-    file.flush()
 
 class CommandLineError(Exception):
     pass
 
-class ColoredFormatter(Formatter):
 
-    def format(self, record):
-        ln = record.__dict__['levelname']
-        col = ''
-        if ln == 'CRITICAL':
-            col = terminal_controller.YELLOW
-        elif ln == 'ERROR':
-            col = terminal_controller.RED
-        elif ln in ['WARN', 'WARNING']:
-            col = terminal_controller.BLUE
-        elif ln == 'INFO':
-            col = terminal_controller.GREEN
-        elif ln == 'DEBUG':
-            col = terminal_controller.CYAN
-        record.__dict__['levelname'] = col + record.__dict__['levelname'] + terminal_controller.NORMAL
-        return Formatter.format(self, record)
 
 
 def setup_cli_handlers(logger, level):
@@ -335,66 +318,23 @@ def english_sort(x, y):
     '''
     return cmp(_spat.sub('', x), _spat.sub('', y))
 
-class LoggingInterface:
+class ColoredFormatter(Formatter):
 
-    def __init__(self, logger):
-        self.__logger = self.logger = logger
-        
-    def setup_cli_handler(self, verbosity):
-        for handler in self.__logger.handlers:
-            if isinstance(handler, logging.StreamHandler):
-                return
-        if os.environ.get('CALIBRE_WORKER', None) is not None and self.__logger.handlers:
-            return
-        stream    = sys.stdout
-        formatter = logging.Formatter()
-        level     = logging.INFO
-        if verbosity > 0:
-            formatter = ColoredFormatter('[%(levelname)s] %(message)s') if verbosity > 1 else \
-                        ColoredFormatter('%(levelname)s: %(message)s')
-            level     = logging.DEBUG
-            if verbosity > 1:
-                stream = sys.stderr
-        
-        handler = logging.StreamHandler(stream)
-        handler.setFormatter(formatter)
-        handler.setLevel(level)
-        self.__logger.addHandler(handler)
-        self.__logger.setLevel(level)
-
-
-    def ___log(self, func, msg, args, kwargs):
-        args = [msg] + list(args)
-        for i in range(len(args)):
-            if not isinstance(args[i], basestring):
-                continue
-            if sys.version_info[:2] > (2, 5):
-                if not isinstance(args[i], unicode):
-                    args[i] = args[i].decode(preferred_encoding, 'replace')
-            elif isinstance(args[i], unicode):
-                args[i] = args[i].encode(preferred_encoding, 'replace')
-        func(*args, **kwargs)
-
-    def log_debug(self, msg, *args, **kwargs):
-        self.___log(self.__logger.debug, msg, args, kwargs)
-
-    def log_info(self, msg, *args, **kwargs):
-        self.___log(self.__logger.info, msg, args, kwargs)
-
-    def log_warning(self, msg, *args, **kwargs):
-        self.___log(self.__logger.warning, msg, args, kwargs)
-
-    def log_warn(self, msg, *args, **kwargs):
-        self.___log(self.__logger.warning, msg, args, kwargs)
-
-    def log_error(self, msg, *args, **kwargs):
-        self.___log(self.__logger.error, msg, args, kwargs)
-
-    def log_critical(self, msg, *args, **kwargs):
-        self.___log(self.__logger.critical, msg, args, kwargs)
-
-    def log_exception(self, msg, *args):
-        self.___log(self.__logger.exception, msg, args, {})
+    def format(self, record):
+        ln = record.__dict__['levelname']
+        col = ''
+        if ln == 'CRITICAL':
+            col = terminal_controller.YELLOW
+        elif ln == 'ERROR':
+            col = terminal_controller.RED
+        elif ln in ['WARN', 'WARNING']:
+            col = terminal_controller.BLUE
+        elif ln == 'INFO':
+            col = terminal_controller.GREEN
+        elif ln == 'DEBUG':
+            col = terminal_controller.CYAN
+        record.__dict__['levelname'] = col + record.__dict__['levelname'] + terminal_controller.NORMAL
+        return Formatter.format(self, record)
 
 def walk(dir):
     ''' A nice interface to os.walk '''
