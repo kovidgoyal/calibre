@@ -194,7 +194,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         lang = get_lang()
         if lang is not None and language_codes.has_key(lang):
             self.language.addItem(language_codes[lang], QVariant(lang))
-        items = [(l, language_codes[l]) for l in translations.keys() if l != lang]
+        else:
+            lang = 'en'
+            self.language.addItem('English', 'en')
+        items = [(l, language_codes[l]) for l in translations.keys() \
+                 if l != lang]
         if lang != 'en':
             items.append(('en', 'English'))
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
@@ -320,11 +324,17 @@ class ConfigDialog(QDialog, Ui_Dialog):
         layout.addWidget(QLabel(_('Error log:')))
         el = QPlainTextEdit(d)
         layout.addWidget(el)
-        el.setPlainText(open(log_error_file, 'rb').read().decode('utf8', 'replace'))
+        try:
+            el.setPlainText(open(log_error_file, 'rb').read().decode('utf8', 'replace'))
+        except IOError:
+            el.setPlainText('No error log found')
         layout.addWidget(QLabel(_('Access log:')))
         al = QPlainTextEdit(d)
         layout.addWidget(al)
-        al.setPlainText(open(log_access_file, 'rb').read().decode('utf8', 'replace'))
+        try:
+            al.setPlainText(open(log_access_file, 'rb').read().decode('utf8', 'replace'))
+        except IOError:
+            el.setPlainText('No access log found')
         d.show()
     
     def set_server_options(self):
