@@ -44,6 +44,8 @@ def create_man_page(prog, parser):
         lines.extend(format_option(opt))
     for group in parser.option_groups:
         lines.append('.SS '+group.title)
+        if group.description:
+            lines.extend(['.PP', group.description])
         for opt in group.option_list:
             lines.extend(format_option(opt))
     
@@ -54,10 +56,4 @@ def create_man_page(prog, parser):
     
     return  bz2.compress('\n'.join(lines))
 
-def main():
-    from calibre.ebooks.epub.from_any import option_parser
-    open('/tmp/any2epub.1calibre.bz2', 'w').write(create_man_page(
-                                                'any2epub', option_parser()))
-    
-if __name__ == '__main__':
-    main()
+
