@@ -2,10 +2,14 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-import sys, os, re, logging, time, subprocess, atexit, mimetypes
+
+import sys, os, re, logging, time, subprocess, atexit, mimetypes, warnings
 from htmlentitydefs import name2codepoint
 from math import floor
 from logging import Formatter
+
+warnings.simplefilter('ignore', DeprecationWarning)
+
 
 from PyQt4.QtCore import QUrl
 from PyQt4.QtGui  import QDesktopServices
