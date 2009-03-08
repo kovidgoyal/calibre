@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 import os, re
 from itertools import count, chain
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS
-from calibre.ebooks.oeb.base import OEBBook, DirWriter
+from calibre.ebooks.oeb.base import OEBBook
 from lxml import etree, html
 from lxml.etree import XPath
 

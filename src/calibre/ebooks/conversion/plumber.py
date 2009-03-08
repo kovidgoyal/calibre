@@ -50,10 +50,10 @@ OptionRecommendation(name='output_profile',
         
         input_fmt = os.path.splitext(input)[1]
         if not input_fmt:
-            raise ValueError('Input file must have and extension')
+            raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
         
-        output_fmt = os.path.splitext(input)[1]
+        output_fmt = os.path.splitext(output)[1]
         if not output_fmt:
             output_fmt = '.oeb'
         output_fmt = output_fmt[1:].lower()

@@ -24,7 +24,7 @@ from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
     OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.base import Logger, OEBBook
+from calibre.ebooks.oeb.base import OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
 from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer

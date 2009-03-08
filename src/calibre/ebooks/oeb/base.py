@@ -15,7 +15,6 @@ from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
 from lxml import etree, html
 import calibre
-from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
@@ -211,14 +210,6 @@ class FauxLogger(object):
         return self
     def __call__(self, message):
         print message
-
-class Logger(LoggingInterface, object):
-    """A logging object which provides both the standard `logging.Logger` and
-    calibre-specific interfaces.
-    """
-    def __getattr__(self, name):
-        return object.__getattribute__(self, 'log_' + name)
-
 
 class NullContainer(object):
     """An empty container.

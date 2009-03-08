@@ -17,7 +17,7 @@ from PyQt4.Qt import QApplication, QFile, Qt, QPalette, QSize, QImage, QPainter,
 from PyQt4.QtWebKit import QWebPage
 
 
-from calibre import browser, __appname__, iswindows, LoggingInterface, \
+from calibre import browser, __appname__, iswindows, \
                     strftime, __version__, preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -32,7 +32,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import images_rc # Needed for default cover
 
 
-class BasicNewsRecipe(object, LoggingInterface):
+class BasicNewsRecipe(object):
     '''
     Abstract base class that contains logic needed in all feed fetchers.
     '''
@@ -444,7 +444,6 @@ class BasicNewsRecipe(object, LoggingInterface):
         :param parser:  Command line option parser. Used to intelligently merge options.
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
-        LoggingInterface.__init__(self, logging.getLogger('feeds2disk'))
         if not isinstance(self.title, unicode):
             self.title = unicode(self.title, 'utf-8', 'replace')
         

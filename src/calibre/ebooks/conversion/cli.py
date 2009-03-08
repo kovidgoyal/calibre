@@ -12,28 +12,29 @@ input_file output_file [options]
 
 Convert an ebook from one format to another.
 
-input_file is the input and output_file is the output. Both must be 
+input_file is the input and output_file is the output. Both must be \
 specified as the first two arguments to the command.
 
-The output ebook format is guessed from the file extension of 
-output_file. output_file can also be of the special format .EXT where
-EXT is the output file extension. In this case, the name of the output
-file is derived the name of the input file. Note that the filenames must
-not start with a hyphen. Finally, if output_file has no extension, then
-it is treated as a directory and an "open ebook" (OEB) consisting of HTML files
-is written to that directory. These files are the files that would normally
-have been passed to the output plugin.
+The output ebook format is guessed from the file extension of \
+output_file. output_file can also be of the special format .EXT where \
+EXT is the output file extension. In this case, the name of the output \
+file is derived the name of the input file. Note that the filenames must \
+not start with a hyphen. Finally, if output_file has no extension, then \
+it is treated as a directory and an "open ebook" (OEB) consisting of HTML \
+files is written to that directory. These files are the files that would \
+normally have been passed to the output plugin.
 
-
-After specifying the input
-and output file you can customize the conversion by specifying various
-options, listed below.
+After specifying the input \
+and output file you can customize the conversion by specifying various \
+options. the available options depend on the input and output file types. \
+To get help on them specify the input and output file and then use the -h \
+option.
 
 For full documentation of the conversion system see 
-
 ''') + 'http://calibre.kovidgoyal.net/user_manual/conversion.html'
 
 import sys, os
+from optparse import OptionGroup, Option
 
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
@@ -68,10 +69,11 @@ def check_command_line_options(parser, args, log):
 
 def option_recommendation_to_cli_option(add_option, rec):
     opt = rec.option
-    switches = [opt.short_switch] if opt.short_switch else []
-    switches.append(opt.long_switch)
-    add_option(opt.name, switches=switches, help=opt.help,
+    switches = ['-'+opt.short_switch] if opt.short_switch else []
+    switches.append('--'+opt.long_switch)
+    attrs = dict(dest=opt.name, help=opt.help,
                      choices=opt.choices, default=rec.recommended_value)
+    add_option(Option(*switches, **attrs))
 
 def add_input_output_options(parser, plumber):
     input_options, output_options = \
@@ -82,12 +84,18 @@ def add_input_output_options(parser, plumber):
             option_recommendation_to_cli_option(group, opt)
             
     if input_options:
-        io = parser.add_group(plumber.input_fmt.upper() + ' ' + _('OPTIONS'))
-        add_options(io, input_options)
+        title = plumber.input_fmt.upper() + ' ' + _('OPTIONS')
+        io = OptionGroup(parser, title, _('Options to control the processing'
+                                          ' of the input file'))
+        add_options(io.add_option, input_options)
+        parser.add_option_group(io)
         
     if output_options:
-        oo = parser.add_group(plumber.output_fmt.upper() + ' ' + _('OPTIONS'))
-        add_options(oo, output_options)
+        title = plumber.output_fmt.upper() + ' ' + _('OPTIONS')
+        oo = OptionGroup(parser, title, _('Options to control the processing'
+                                          ' of the output file'))
+        add_options(oo.add_option, output_options)
+        parser.add_option_group(oo)
 
 def add_pipeline_options(parser, plumber):
     groups = {
@@ -106,27 +114,28 @@ def add_pipeline_options(parser, plumber):
                 
               }
     
+    group_order = ['', 'DEBUG']
     
-    for group, spec in groups.items():
-        desc, options = spec
+    for group in group_order:
+        desc, options = groups[group]
         if group:
-            group = parser.add_option_group(group, desc)
-        add_option = group if group != '' else parser.add_option
+            group = OptionGroup(parser, group, desc)
+            parser.add_option_group(group)
+        add_option = group.add_option if group != '' else parser.add_option
         
         for name in options:
             rec = plumber.get_option_by_name(name)
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
             
-    
-    
-
 def main(args=sys.argv):
     log = Log()
     parser = OptionParser(usage=USAGE)
-    fargs = parser.parse_args(args)[1]
+    if len(args) < 3:
+        print_help(parser, log)
+        return 1
     
-    input, output = check_command_line_options(parser, fargs, log)
+    input, output = check_command_line_options(parser, args, log)
     
     from calibre.ebooks.conversion.plumber import Plumber
     

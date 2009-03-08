@@ -15,7 +15,7 @@ from PIL import Image
 from cStringIO import StringIO
 
 from calibre import setup_cli_handlers, browser, sanitize_file_name, \
-                    relpath, LoggingInterface, unicode_path
+                    relpath, unicode_path
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
@@ -80,7 +80,7 @@ class DummyLock(object):
     def __enter__(self, *args): return self
     def __exit__(self, *args): pass
 
-class RecursiveFetcher(object, LoggingInterface):
+class RecursiveFetcher(object):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in 
                 ('.exe\s*$', '.mp3\s*$', '.ogg\s*$', '^\s*mailto:', '^\s*$'))
     #ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
@@ -93,7 +93,6 @@ class RecursiveFetcher(object, LoggingInterface):
     DUMMY_LOCK = DummyLock()
     
     def __init__(self, options, logger, image_map={}, css_map={}, job_info=None):
-        LoggingInterface.__init__(self, logger)
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)

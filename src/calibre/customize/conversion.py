@@ -24,7 +24,7 @@ class ConversionOption(object):
         self.choices = choices
         
         if self.long_switch is None:
-            self.long_switch = '--'+self.name.replace('_', '-')
+            self.long_switch = self.name.replace('_', '-')
         
         self.validate_parameters()
         
