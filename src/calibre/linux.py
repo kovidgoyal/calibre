@@ -393,43 +393,27 @@ def option_parser():
                       help='Save a manifest of all installed files to the specified location')
     return parser
 
-def install_man_pages(fatal_errors):
-    from bz2 import compress
-    import subprocess
+def install_man_pages(fatal_errors, use_destdir=False):
+    from calibre.utils.help2man import create_man_page
+    prefix = os.environ.get('DESTDIR', '/') if use_destdir else '/'
+    manpath = os.path.join(prefix, 'usr/share/man/man1')
+    if not os.path.exists(manpath):
+        os.makedirs(manpath)
     print 'Installing MAN pages...'
-    manpath = '/usr/share/man/man1'
-    f = NamedTemporaryFile()
-    f.write('[see also]\nhttp://%s.kovidgoyal.net\n'%__appname__)
-    f.flush()
     manifest = []
-    os.environ['PATH'] += ':'+os.path.expanduser('~/bin')
     for src in entry_points['console_scripts']:
-        prog = src[:src.index('=')].strip()
-        if prog in ('ebook-device', 'markdown-calibre', 
-                    'calibre-fontconfig', 'calibre-parallel'):
+        prog, right = src.split('=')
+        prog = prog.strip()
+        module = __import__(right.split(':')[0].strip(), fromlist=['a'])
+        parser = getattr(module, 'option_parser', None)
+        if parser is None:
             continue
-
-        help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
-                    '--section', '1', '--no-info', '--include',
-                    f.name, '--manual', __appname__)
+        parser = parser()
+        raw = create_man_page(prog, parser)
         manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
         print '\tInstalling MAN page for', prog
-        try:
-            p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
-        except OSError, err:
-            import errno
-            if err.errno != errno.ENOENT:
-                raise
-            print 'Failed to install MAN pages as help2man is missing from your system'
-            break
-        o = p.stdout.read()
-        raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', o)
-        if not raw.strip():
-            print 'Unable to create MAN page for', prog
-            continue
-        f2 = open_file(manfile)
-        manifest.append(f2.name)
-        f2.write(compress(raw))
+        open(manfile, 'wb').write(raw)
+        manifest.append(manfile)
     return manifest
 
 def post_install():
@@ -441,9 +425,9 @@ def post_install():
     manifest = []
     setup_desktop_integration(opts.fatal_errors)
     if opts.no_root or os.geteuid() == 0:
+        manifest += install_man_pages(opts.fatal_errors, use_destdir)
         manifest += setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
         manifest += setup_completion(opts.fatal_errors)
-        manifest += install_man_pages(opts.fatal_errors)
     else:
         print "Skipping udev, completion, and man-page install for non-root user."
 

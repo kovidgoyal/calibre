@@ -389,7 +389,13 @@ class MobiReader(object):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
         elif mi.cover is not None:
             opf.cover = mi.cover
-        manifest = [(htmlfile, 'text/x-oeb1-document'), 
+        else:
+            opf.cover = 'images/%05d.jpg'%1
+            if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
+                                               *opf.cover.split('/'))):
+                opf.cover = None
+
+        manifest = [(htmlfile, 'text/x-oeb1-document'),
                     (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
         for i in getattr(self, 'image_names', []):
