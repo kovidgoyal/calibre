@@ -7,7 +7,6 @@ import sys, os, re, logging, time, subprocess, atexit, mimetypes, \
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
-from logging import Formatter
 
 from PyQt4.QtCore import QUrl
 from PyQt4.QtGui  import QDesktopServices
@@ -317,24 +316,6 @@ def english_sort(x, y):
     Comapare two english phrases ignoring starting prepositions.
     '''
     return cmp(_spat.sub('', x), _spat.sub('', y))
-
-class ColoredFormatter(Formatter):
-
-    def format(self, record):
-        ln = record.__dict__['levelname']
-        col = ''
-        if ln == 'CRITICAL':
-            col = terminal_controller.YELLOW
-        elif ln == 'ERROR':
-            col = terminal_controller.RED
-        elif ln in ['WARN', 'WARNING']:
-            col = terminal_controller.BLUE
-        elif ln == 'INFO':
-            col = terminal_controller.GREEN
-        elif ln == 'DEBUG':
-            col = terminal_controller.CYAN
-        record.__dict__['levelname'] = col + record.__dict__['levelname'] + terminal_controller.NORMAL
-        return Formatter.format(self, record)
 
 def walk(dir):
     ''' A nice interface to os.walk '''

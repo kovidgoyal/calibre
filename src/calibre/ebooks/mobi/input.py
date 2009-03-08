@@ -3,8 +3,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
-
 from calibre.customize.conversion import InputFormatPlugin
 
 class MOBIInput(InputFormatPlugin):
@@ -18,7 +16,7 @@ class MOBIInput(InputFormatPlugin):
         from calibre.ebooks.mobi.reader import MobiReader
         mr = MobiReader(stream, log, options.input_encoding, 
                         options.debug_input)
-        mr.extract_content(output_dir=os.getcwdu(), parse_cache)
+        mr.extract_content('.', parse_cache)
         raw = parse_cache.get('calibre_raw_mobi_markup', False)
         if raw:
             if isinstance(raw, unicode):
@@ -26,4 +24,3 @@ class MOBIInput(InputFormatPlugin):
             open('debug-raw.html', 'wb').write(raw)
             
         return mr.created_opf_path
-        

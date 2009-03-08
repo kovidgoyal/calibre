@@ -244,9 +244,10 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
 
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.mobi.input import MOBIInput
+from calibre.ebooks.oeb.output import OEBOutput
 from calibre.customize.profiles import input_profiles
 
-plugins = [HTML2ZIP, EPUBInput, MOBIInput]
+plugins = [HTML2ZIP, EPUBInput, MOBIInput, OEBOutput]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

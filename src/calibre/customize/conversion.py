@@ -37,19 +37,24 @@ class ConversionOption(object):
         if not self.help:
             raise ValueError('You must set the help text')
         
+    def __hash__(self):
+        return hash(self.name)
+    
+    def __eq__(self, other):
+        return hash(self) == hash(other)
         
 class OptionRecommendation(object):
     LOW  = 1
     MED  = 2
     HIGH = 3
     
-    def __init__(self, recommeded_value, level=LOW, **kwargs):
+    def __init__(self, recommended_value=None, level=LOW, **kwargs):
         '''
         An option recommendation. That is, an option as well as its recommended 
         value and the level of the recommendation.
         '''
         self.level = level
-        self.recommended_value = recommeded_value
+        self.recommended_value = recommended_value
         self.option = kwargs.pop('option', None)
         if self.option is None:
             self.option = ConversionOption(**kwargs)
@@ -59,10 +64,12 @@ class OptionRecommendation(object):
     def validate_parameters(self):
         if self.option.choices and self.recommended_value not in \
                                                     self.option.choices:
-            raise ValueError('Recommended value not in choices')
+            raise ValueError('OpRec: %s: Recommended value not in choices'%
+                             self.option.name)
         if not (isinstance(self.recommended_value, (int, float, str, unicode))\
-            or self.default is None):
-            raise ValueError(unicode(self.default) + 
+            or self.recommended_value is None):
+            raise ValueError('OpRec: %s:'%self.option.name + 
+                             repr(self.recommended_value) + 
                              ' is not a string or a number')
          
 
@@ -186,4 +193,34 @@ class InputFormatPlugin(Plugin):
             
                     
         return ret
+
+
+class OutputFormatPlugin(Plugin):
+    '''
+    OutputFormatPlugins are responsible for converting an OEB document
+    (OPF+HTML) into an output ebook.
+    
+    The OEB document can be assumed to be encoded in UTF-8.
+    The main action happens in :method:`convert`.
+    '''
+    
+    type = _('Conversion Output')
+    can_be_disabled = False
+    supported_platforms = ['windows', 'osx', 'linux']
+    
+    #: The file type (extension without leading period) that this
+    #: plugin outputs
+    file_type     = None
+    
+    #: Options shared by all Input format plugins. Do not override
+    #: in sub-classes. Use :member:`options` instead. Every option must be an
+    #: instance of :class:`OptionRecommendation`. 
+    common_options = set([])
+    
+    #: Options to customize the behavior of this plugin. Every option must be an
+    #: instance of :class:`OptionRecommendation`.  
+    options = set([])
+    
+    def convert(self, oeb_book, input_plugin, options, parse_cache, log):
+        raise NotImplementedError
  

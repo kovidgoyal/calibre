@@ -18,6 +18,7 @@ entry_points = {
         'console_scripts': [ \
              'ebook-device       = calibre.devices.prs500.cli.main:main',
              'ebook-meta         = calibre.ebooks.metadata.cli:main',
+             'ebook-convert      = calibre.ebooks.convert.cli:main',
              'txt2lrf            = calibre.ebooks.lrf.txt.convert_from:main',
              'html2lrf           = calibre.ebooks.lrf.html.convert_from:main',
              'html2oeb           = calibre.ebooks.html:main',
