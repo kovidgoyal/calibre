@@ -859,7 +859,7 @@ class Processor(Parser):
             except ValueError:
                 setting = ''
             face = font.attrib.pop('face', None)
-            if face is not None:
+            if face:
                 faces = []
                 for face in face.split(','):
                     face = face.strip()
