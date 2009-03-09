@@ -45,3 +45,7 @@ class USAToday(BasicNewsRecipe):
     def print_version(self, url):
         return 'http://www.printthis.clickability.com/pt/printThis?clickMap=printThis&fb=Y&url=' + url
     
+   def postprocess_html(self, soup, first_fetch):
+        for t in soup.findAll(['table', 'tr', 'td']):
+            t.name = 'div'
+        return soup 
