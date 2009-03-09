@@ -70,10 +70,14 @@ class NYTimesMobile(BasicNewsRecipe):
     def find_articles(self, root):
         for a in root.xpath('//a[@accesskey]'):
             href = a.get('href')
+            if href.startswith('http://'):
+                url = href
+            else:
+                url = 'http://mobile.nytimes.com/article' + href[href.find('?'):]+'&single=1', 
             yield {
                    'title': a.text.strip(),
                    'date' : '',
-                   'url'  : 'http://mobile.nytimes.com/article' + href[href.find('?'):]+'&single=1',
+                   'url'  : url, 
                    'description': '',
                    }
         

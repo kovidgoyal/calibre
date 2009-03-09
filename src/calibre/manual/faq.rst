@@ -34,6 +34,8 @@ What formats does |app| support conversion to/from?
 |                   |        |                  |                       |                       |
 |                   |  ODT   |       ✔          |          ✔            |          ✔            |
 |                   |        |                  |                       |                       |
+|                   |  FB2   |       ✔          |          ✔            |          ✔            |
+|                   |        |                  |                       |                       |
 |                   |  HTML  |       ✔          |          ✔            |          ✔            |
 |                   |        |                  |                       |                       |
 | **Input formats** |  CBR   |       ✔          |          ✔            |          ✔            |
