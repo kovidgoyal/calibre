@@ -28,8 +28,9 @@ class LrsParser(object):
     def __init__(self, stream, logger):
         self.logger = logger
         src = stream.read()
-        self.soup = BeautifulStoneSoup(xml_to_unicode(src)[0], 
-                                       selfClosingTags=self.SELF_CLOSING_TAGS)
+        self.soup = BeautifulStoneSoup(xml_to_unicode(src)[0],
+                       convertEntities=BeautifulStoneSoup.XML_ENTITIES, 
+                       selfClosingTags=self.SELF_CLOSING_TAGS)
         self.objects = {}
         for obj in self.soup.findAll(objid=True):
             self.objects[obj['objid']] = obj
