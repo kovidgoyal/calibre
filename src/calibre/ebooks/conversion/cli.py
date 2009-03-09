@@ -127,10 +127,13 @@ def add_pipeline_options(parser, plumber):
             rec = plumber.get_option_by_name(name)
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
-            
+
+def option_parser():
+    return OptionParser(usage=USAGE)
+
 def main(args=sys.argv):
     log = Log()
-    parser = OptionParser(usage=USAGE)
+    parser = option_parser()
     if len(args) < 3:
         print_help(parser, log)
         return 1
@@ -147,7 +150,7 @@ def main(args=sys.argv):
     recommendations = [(n.dest, getattr(opts, n.dest)) \
                                         for n in parser.options_iter()]
     
-    plumber.merge_ui_recommendations(recommendations) 
+    plumber.merge_ui_recommendations(recommendations)
     
     return 0
     
