@@ -99,7 +99,8 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         try:
             raw = raw.decode(encoding, 'replace')
         except LookupError:
-            raw = raw.decode('utf-8', 'replace')
+            encoding = 'utf-8'
+            raw = raw.decode(encoding, 'replace')
     
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)

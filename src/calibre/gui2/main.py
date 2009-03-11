@@ -1406,7 +1406,15 @@ class Main(MainWindow, Ui_MainWindow):
                 dir = os.path.expanduser('~/Library')
             self.library_path = os.path.abspath(dir)
         if not os.path.exists(self.library_path):
-            os.makedirs(self.library_path)
+            try:
+                os.makedirs(self.library_path)
+            except:
+                self.library_path = os.path.expanduser('~/Library')
+                error_dialog(self, _('Invalid library location'), 
+                     _('Could not access %s. Using %s as the library.')%
+                     (repr(self.library_path), repr(self.library_path)) 
+                             ).exec_()
+                os.makedirs(self.library_path)
 
 
     def read_settings(self):

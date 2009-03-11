@@ -312,7 +312,7 @@ class MobiReader(object):
         mobi_version = self.book_header.mobi_version
         for i, tag in enumerate(root.iter(etree.Element)):
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                           'state', 'city'):
+                           'state', 'city', 'street', 'address'):
                 tag.tag = 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)

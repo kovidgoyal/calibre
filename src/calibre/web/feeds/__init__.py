@@ -98,7 +98,7 @@ class Feed(object):
             if len(self.articles) >= max_articles_per_feed:
                 break
             self.parse_article(item)
-            
+        
         
     def populate_from_preparsed_feed(self, title, articles, oldest_article=7, 
                            max_articles_per_feed=100):
@@ -156,7 +156,6 @@ class Feed(object):
             content = None
         if not link and not content:
             return
-        
         article = Article(id, title, link, description, published, content)
         delta = datetime.utcnow() - article.utctime
         if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:

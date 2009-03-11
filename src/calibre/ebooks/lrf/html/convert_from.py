@@ -99,6 +99,10 @@ class HTMLConverter(object):
                         # Replace common line break patterns with line breaks
                         (re.compile(r'<p>(&nbsp;|\s)*</p>', re.IGNORECASE), lambda m: '<br />'),
                         
+                        # Replace empty headers with line breaks
+                        (re.compile(r'<h[0-5]?>(&nbsp;|\s)*</h[0-5]?>', 
+                                    re.IGNORECASE), lambda m: '<br />'),
+                        
                         # Replace entities
                         (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
                                                            exceptions=['lt', 'gt', 'amp'])),

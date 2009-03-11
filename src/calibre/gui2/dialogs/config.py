@@ -196,7 +196,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.language.addItem(language_codes[lang], QVariant(lang))
         else:
             lang = 'en'
-            self.language.addItem('English', 'en')
+            self.language.addItem('English', QVariant('en'))
         items = [(l, language_codes[l]) for l in translations.keys() \
                  if l != lang]
         if lang != 'en':
