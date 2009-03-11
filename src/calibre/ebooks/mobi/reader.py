@@ -312,7 +312,7 @@ class MobiReader(object):
         mobi_version = self.book_header.mobi_version
         for i, tag in enumerate(root.iter(etree.Element)):
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                           'state', 'city'):
+                           'state', 'city', 'street', 'address'):
                 tag.tag = 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
@@ -389,7 +389,13 @@ class MobiReader(object):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
         elif mi.cover is not None:
             opf.cover = mi.cover
-        manifest = [(htmlfile, 'text/x-oeb1-document'), 
+        else:
+            opf.cover = 'images/%05d.jpg'%1
+            if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
+                                               *opf.cover.split('/'))):
+                opf.cover = None
+
+        manifest = [(htmlfile, 'text/x-oeb1-document'),
                     (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
         for i in getattr(self, 'image_names', []):

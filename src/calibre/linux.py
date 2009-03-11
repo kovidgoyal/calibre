@@ -1,9 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Post installation script for linux '''
-import sys, os, re, shutil
+import sys, os, shutil
 from subprocess import check_call, call
-from tempfile import NamedTemporaryFile
 
 from calibre import __version__, __appname__
 from calibre.devices import devices
@@ -18,15 +17,8 @@ entry_points = {
         'console_scripts': [ \
              'ebook-device       = calibre.devices.prs500.cli.main:main',
              'ebook-meta         = calibre.ebooks.metadata.cli:main',
-             'txt2lrf            = calibre.ebooks.lrf.txt.convert_from:main',
-             'html2lrf           = calibre.ebooks.lrf.html.convert_from:main',
-             'html2oeb           = calibre.ebooks.html:main',
-             'html2epub          = calibre.ebooks.epub.from_html:main',
-             'odt2oeb            = calibre.ebooks.odt.to_oeb:main',
+             'ebook-convert      = calibre.ebooks.conversion.cli:main',
              'markdown-calibre   = calibre.ebooks.markdown.markdown:main',
-             'lit2lrf            = calibre.ebooks.lrf.lit.convert_from:main',
-             'epub2lrf           = calibre.ebooks.lrf.epub.convert_from:main',
-             'rtf2lrf            = calibre.ebooks.lrf.rtf.convert_from:main',
              'web2disk           = calibre.web.fetch.simple:main',
              'feeds2disk         = calibre.web.feeds.main:main',
              'calibre-server     = calibre.library.server:main',
@@ -34,22 +26,10 @@ entry_points = {
              'feeds2epub         = calibre.ebooks.epub.from_feeds:main',
              'feeds2mobi         = calibre.ebooks.mobi.from_feeds:main',
              'web2lrf            = calibre.ebooks.lrf.web.convert_from:main',
-             'pdf2lrf            = calibre.ebooks.lrf.pdf.convert_from:main',
-             'mobi2lrf           = calibre.ebooks.lrf.mobi.convert_from:main',
-             'fb22lrf            = calibre.ebooks.lrf.fb2.convert_from:main',
-             'any2lrf            = calibre.ebooks.lrf.any.convert_from:main',
-             'any2epub           = calibre.ebooks.epub.from_any:main',
-             'any2lit            = calibre.ebooks.lit.from_any:main',
-             'any2mobi           = calibre.ebooks.mobi.from_any:main',
              'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',
-             'pdfreflow          = calibre.ebooks.lrf.pdf.reflow:main',
              'isbndb             = calibre.ebooks.metadata.isbndb:main',
              'librarything       = calibre.ebooks.metadata.library_thing:main',
-             'mobi2oeb           = calibre.ebooks.mobi.reader:main',
-             'oeb2mobi           = calibre.ebooks.mobi.writer:main',
-             'lit2oeb            = calibre.ebooks.lit.reader:main',
-             'oeb2lit            = calibre.ebooks.lit.writer:main',
              'comic2lrf          = calibre.ebooks.lrf.comic.convert_from:main',
              'comic2epub         = calibre.ebooks.epub.from_comic:main',
              'comic2mobi         = calibre.ebooks.mobi.from_comic:main',
@@ -60,7 +40,6 @@ entry_points = {
              'calibre-parallel   = calibre.parallel:main',
              'calibre-customize  = calibre.customize.ui:main',
              'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
-             'any2pdf  = calibre.ebooks.pdf.from_any:main',
         ],
         'gui_scripts'    : [
             __appname__+' = calibre.gui2.main:main',
@@ -171,25 +150,16 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
         from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
         from calibre.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
-        from calibre.ebooks.mobi.reader import option_parser as mobioeb
-        from calibre.ebooks.lit.reader import option_parser as lit2oeb
         from calibre.web.feeds.main import option_parser as feeds2disk
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
-        from calibre.ebooks.epub.from_html import option_parser as html2epub
-        from calibre.ebooks.html import option_parser as html2oeb
-        from calibre.ebooks.odt.to_oeb import option_parser as odt2oeb
         from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
         from calibre.ebooks.mobi.from_feeds import option_parser as feeds2mobi
-        from calibre.ebooks.epub.from_any import option_parser as any2epub
-        from calibre.ebooks.lit.from_any import option_parser as any2lit
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
-        from calibre.ebooks.mobi.from_any import option_parser as any2mobi
-        from calibre.ebooks.mobi.writer import option_parser as oeb2mobi
-        from calibre.gui2.main import option_parser as guiop 
+        from calibre.gui2.main import option_parser as guiop
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
+             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt']
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
@@ -209,16 +179,10 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, any_formats))
         f.write(opts_and_exts('calibre', guiop, any_formats))
-        f.write(opts_and_exts('any2epub', any2epub, any_formats))
-        f.write(opts_and_exts('any2lit', any2lit, any_formats))
-        f.write(opts_and_exts('any2mobi', any2mobi, any_formats))
-        f.write(opts_and_exts('oeb2mobi', oeb2mobi, ['opf']))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
-        f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
-        f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
         f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2epub', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2mobi', comic2epub, ['cbz', 'cbr']))
@@ -227,9 +191,6 @@ def setup_completion(fatal_errors):
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write(opts_and_words('feeds2epub', feeds2epub, feed_titles))
         f.write(opts_and_words('feeds2mobi', feeds2mobi, feed_titles))
-        f.write(opts_and_exts('html2epub', html2epub, ['html', 'htm', 'xhtm', 'xhtml', 'opf']))
-        f.write(opts_and_exts('html2oeb', html2oeb, ['html', 'htm', 'xhtm', 'xhtml']))
-        f.write(opts_and_exts('odt2oeb', odt2oeb, ['odt']))
         f.write('''
 _prs500_ls()
 {
@@ -392,43 +353,27 @@ def option_parser():
                       help='Save a manifest of all installed files to the specified location')
     return parser
 
-def install_man_pages(fatal_errors):
-    from bz2 import compress
-    import subprocess
+def install_man_pages(fatal_errors, use_destdir=False):
+    from calibre.utils.help2man import create_man_page
+    prefix = os.environ.get('DESTDIR', '/') if use_destdir else '/'
+    manpath = os.path.join(prefix, 'usr/share/man/man1')
+    if not os.path.exists(manpath):
+        os.makedirs(manpath)
     print 'Installing MAN pages...'
-    manpath = '/usr/share/man/man1'
-    f = NamedTemporaryFile()
-    f.write('[see also]\nhttp://%s.kovidgoyal.net\n'%__appname__)
-    f.flush()
     manifest = []
-    os.environ['PATH'] += ':'+os.path.expanduser('~/bin')
     for src in entry_points['console_scripts']:
-        prog = src[:src.index('=')].strip()
-        if prog in ('ebook-device', 'markdown-calibre', 
-                    'calibre-fontconfig', 'calibre-parallel'):
+        prog, right = src.split('=')
+        prog = prog.strip()
+        module = __import__(right.split(':')[0].strip(), fromlist=['a'])
+        parser = getattr(module, 'option_parser', None)
+        if parser is None:
             continue
-
-        help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
-                    '--section', '1', '--no-info', '--include',
-                    f.name, '--manual', __appname__)
+        parser = parser()
+        raw = create_man_page(prog, parser)
         manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
         print '\tInstalling MAN page for', prog
-        try:
-            p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
-        except OSError, err:
-            import errno
-            if err.errno != errno.ENOENT:
-                raise
-            print 'Failed to install MAN pages as help2man is missing from your system'
-            break
-        o = p.stdout.read()
-        raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', o)
-        if not raw.strip():
-            print 'Unable to create MAN page for', prog
-            continue
-        f2 = open_file(manfile)
-        manifest.append(f2.name)
-        f2.write(compress(raw))
+        open(manfile, 'wb').write(raw)
+        manifest.append(manfile)
     return manifest
 
 def post_install():
@@ -440,9 +385,9 @@ def post_install():
     manifest = []
     setup_desktop_integration(opts.fatal_errors)
     if opts.no_root or os.geteuid() == 0:
+        manifest += install_man_pages(opts.fatal_errors, use_destdir)
         manifest += setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
         manifest += setup_completion(opts.fatal_errors)
-        manifest += install_man_pages(opts.fatal_errors)
     else:
         print "Skipping udev, completion, and man-page install for non-root user."
 

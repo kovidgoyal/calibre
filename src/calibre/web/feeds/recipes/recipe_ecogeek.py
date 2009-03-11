@@ -1,0 +1,31 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+EcoGeek.org
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class EcoGeek(BasicNewsRecipe):
+    title                 = 'EcoGeek'
+    __author__            = 'Darko Miletic'
+    description           = 'EcoGeek - Technology for the Environment Blog Feed'    
+    publisher             = 'EcoGeek'
+    language              = _('English')
+    category              = 'news, ecology, blog'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = True
+    
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    feeds = [(u'Posts', u'http://feeds2.feedburner.com/EcoGeek')]

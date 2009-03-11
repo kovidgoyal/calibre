@@ -74,7 +74,7 @@ class CYBOOKG3(USBMS):
             if self.SUPPORTS_SUB_DIRS:
                 if 'tags' in mdata.keys():
                     for tag in mdata['tags']:
-                        if tag.startswith('News'):
+                        if tag.startswith(_('News')):
                             newpath = os.path.join(newpath, 'news')
                             newpath = os.path.join(newpath, mdata.get('title', ''))
                             newpath = os.path.join(newpath, mdata.get('timestamp', ''))

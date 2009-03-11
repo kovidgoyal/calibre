@@ -3,6 +3,7 @@ __copyright__ = '2008, Derry FitzGerald'
 '''
 iht.com
 '''
+import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
@@ -16,7 +17,12 @@ class InternationalHeraldTribune(BasicNewsRecipe):
     max_articles_per_feed = 10
     no_stylesheets = True
 
-    remove_tags    = [dict(name='div', attrs={'class':'footer'})]
+    remove_tags    = [dict(name='div', attrs={'class':'footer'}),
+                      dict(name=['form'])]
+    preprocess_regexps = [
+            (re.compile(r'<!-- webtrends.*', re.DOTALL), 
+             lambda m:'</body></html>')
+                          ]
     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }' 
 
     feeds          = [

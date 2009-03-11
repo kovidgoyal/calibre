@@ -31,7 +31,7 @@ from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.table import Table 
 from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, \
-                    fit_image, LoggingInterface, preferred_encoding
+                    fit_image, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.devices.interface import Device
 from calibre.ebooks.lrf.html.color_map import lrs_color
@@ -78,7 +78,7 @@ def tag_regex(tagname):
     return dict(open=r'(?:<\s*%(t)s\s+[^<>]*?>|<\s*%(t)s\s*>)'%dict(t=tagname), \
                 close=r'</\s*%(t)s\s*>'%dict(t=tagname))
 
-class HTMLConverter(object, LoggingInterface):
+class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
@@ -98,6 +98,10 @@ class HTMLConverter(object, LoggingInterface):
                         
                         # Replace common line break patterns with line breaks
                         (re.compile(r'<p>(&nbsp;|\s)*</p>', re.IGNORECASE), lambda m: '<br />'),
+                        
+                        # Replace empty headers with line breaks
+                        (re.compile(r'<h[0-5]?>(&nbsp;|\s)*</h[0-5]?>', 
+                                    re.IGNORECASE), lambda m: '<br />'),
                         
                         # Replace entities
                         (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
@@ -209,7 +213,6 @@ class HTMLConverter(object, LoggingInterface):
         '''
         # Defaults for various formatting tags        
         object.__setattr__(self, 'options', options)
-        LoggingInterface.__init__(self, logger)
         self.fonts = fonts #: dict specifying font families to use
         # Memory 
         self.scaled_images    = {}    #: Temporary files with scaled version of images        

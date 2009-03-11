@@ -15,7 +15,7 @@ from lxml.cssselect import CSSSelector
 
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.epub import tostring, rules
-from calibre import CurrentDir, LoggingInterface
+from calibre import CurrentDir
 
 XPath = functools.partial(_XPath, namespaces={'re':'http://exslt.org/regular-expressions'})
 content = functools.partial(os.path.join, 'content')
@@ -32,10 +32,9 @@ class SplitError(ValueError):
 
     
 
-class Splitter(LoggingInterface):
+class Splitter(object):
     
     def __init__(self, path, opts, stylesheet_map, opf):
-        LoggingInterface.__init__(self, logging.getLogger('htmlsplit'))
         self.setup_cli_handler(opts.verbose)
         self.path = path
         self.always_remove = not opts.preserve_tag_structure or \

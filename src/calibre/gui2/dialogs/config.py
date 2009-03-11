@@ -194,7 +194,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         lang = get_lang()
         if lang is not None and language_codes.has_key(lang):
             self.language.addItem(language_codes[lang], QVariant(lang))
-        items = [(l, language_codes[l]) for l in translations.keys() if l != lang]
+        else:
+            lang = 'en'
+            self.language.addItem('English', QVariant('en'))
+        items = [(l, language_codes[l]) for l in translations.keys() \
+                 if l != lang]
         if lang != 'en':
             items.append(('en', 'English'))
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))

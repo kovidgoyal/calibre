@@ -112,7 +112,8 @@ key is the account key you generate after signing up for a free account from isb
                       default=None, help=_('The title of the book to search for.'))
     parser.add_option('-p', '--publisher', default=None, dest='publisher',
                       help=_('The publisher of the book to search for.'))
-    parser.add_option('--verbose', default=False, action='store_true', help=_('Verbose processing'))
+    parser.add_option('-v', '--verbose', default=False, 
+                      action='store_true', help=_('Verbose processing'))
     
     return parser
     

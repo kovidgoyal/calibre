@@ -6,8 +6,8 @@ import os, shutil, traceback, functools, sys
 
 from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
                               MetadataWriterPlugin
-from calibre.customize.conversion import InputFormatPlugin
-from calibre.customize.profiles import InputProfile
+from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
+from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.constants import __version__, iswindows, isosx
 from calibre.ebooks.metadata import MetaInformation
@@ -75,6 +75,12 @@ def input_profiles():
     for plugin in _initialized_plugins:
         if isinstance(plugin, InputProfile):
             yield plugin
+
+def output_profiles():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, OutputProfile):
+            yield plugin
+
 
 def reread_filetype_plugins():
     global _on_import
@@ -245,9 +251,19 @@ def input_format_plugins():
         
 def plugin_for_input_format(fmt):
     for plugin in input_format_plugins():
-        if fmt in plugin.file_types:
+        if fmt.lower() in plugin.file_types:
             return plugin
-    
+
+def output_format_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, OutputFormatPlugin):
+            yield plugin
+
+def plugin_for_output_format(fmt):
+    for plugin in output_format_plugins():
+        if fmt.lower() == plugin.file_type:
+            return plugin
+        
 
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)

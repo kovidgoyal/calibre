@@ -75,7 +75,9 @@ class NYTimes(BasicNewsRecipe):
                                   dict(title=title, url=url, date=pubdate, 
                                        description=description,
                                        content=''))
-        ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
+        ans = self.sort_index_by(ans, {'The Front Page':-1, 
+                                       'Dining In, Dining Out':1, 
+                                       'Obituaries':2})
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans
     

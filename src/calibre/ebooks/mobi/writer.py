@@ -9,7 +9,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 import sys
 import os
 from struct import pack
-import functools
 import time
 import random
 from cStringIO import StringIO
@@ -18,13 +17,12 @@ from itertools import izip, count
 from collections import defaultdict
 from urlparse import urldefrag
 import logging
-from lxml import etree
 from PIL import Image
 from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
     OEB_RASTER_IMAGES
-from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
+from calibre.ebooks.oeb.base import namespace, prefixname
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.base import Logger, OEBBook
+from calibre.ebooks.oeb.base import OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
 from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer

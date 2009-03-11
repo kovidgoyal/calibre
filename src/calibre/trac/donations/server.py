@@ -196,7 +196,7 @@ class Server(object):
     
     def calculate_month_trend(self, days=31):
         stats = self.get_slice(date.today()-timedelta(days=days-1), date.today())
-        fig = plt.figure(2, (12, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        fig = plt.figure(2, (10, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
         fig.clear()
         ax = fig.add_subplot(111)
         x = list(range(days-1, -1, -1))
@@ -216,7 +216,7 @@ Donors per day: %(dpd).2f
                  ad=stats.average_deviation,
                  dpd=len(stats.totals)/float(stats.period.days),
              )
-        text = ax.annotate(text, (0.6, 0.65), textcoords='axes fraction')
+        text = ax.annotate(text, (0.5, 0.65), textcoords='axes fraction')
         fig.savefig(self.MONTH_TRENDS)
     
     def calculate_trend(self):
