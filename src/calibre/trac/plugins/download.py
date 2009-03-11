@@ -33,9 +33,10 @@ def get_linux_data(version='1.0.0'):
     data['title'] = 'Download calibre for linux'
     data['supported'] = []
     for name, title in [
-                        ('ubuntu', 'Ubuntu Jaunty Jackalope'),
                         ('debian', 'Debian Sid'),
                         ('exherbo', 'Exherbo'),
+                        ('foresight', 'Foresight 2.1'),
+                        ('ubuntu', 'Ubuntu Jaunty Jackalope'),
                         ]:
         data['supported'].append(CoolDistro(name, title, 
                                         prefix='http://calibre.kovidgoyal.net'))
