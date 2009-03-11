@@ -88,6 +88,8 @@ def prints(*args, **kwargs):
     for i, arg in enumerate(args):
         if isinstance(arg, unicode):
             arg = arg.encode(preferred_encoding)
+        if not isinstance(arg, str):
+            arg = str(arg)
         file.write(arg)
         if i != len(args)-1:
             file.write(sep)
