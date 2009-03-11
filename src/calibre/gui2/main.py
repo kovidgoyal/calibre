@@ -38,7 +38,8 @@ from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, \
-                                set_conversion_defaults, fetch_scheduled_recipe
+                                set_conversion_defaults, fetch_scheduled_recipe, \
+                                auto_convert_ebook
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -904,9 +905,8 @@ class Main(MainWindow, Ui_MainWindow):
         on_card = config['send_to_storage_card_by_default']
         self.sync_to_device(on_card, False, specific_format=fmt)
         
-    
-    def sync_to_device(self, on_card, delete_from_library, specific_format=None):
-        rows = self.library_view.selectionModel().selectedRows()
+    def sync_to_device(self, on_card, delete_from_library, specific_format=None, send_rows=None, auto_convert=True):
+        rows = self.library_view.selectionModel().selectedRows() if send_rows is None else send_rows
         if not self.device_manager or not rows or len(rows) == 0:
             return
         ids = iter(self.library_view.model().id(r) for r in rows)
@@ -917,7 +917,7 @@ class Main(MainWindow, Ui_MainWindow):
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata, full_metadata = iter(metadata), iter(full_metadata)
-        _files   = self.library_view.model().get_preferred_formats(rows,
+        _files, _auto_rows   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, 
                                     paths=True, set_metadata=True,
                                     specific_format=specific_format)
@@ -952,10 +952,29 @@ class Main(MainWindow, Ui_MainWindow):
         remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
+        
         if bad:
+            if specific_format is None:
+                if 'epub' in self.device_manager.device_class.FORMATS:
+                    format = 'epub'
+                elif 'mobi' in self.device_manager.device_class.FORMATS or 'prc' in self.device_manager.device_class.FORMATS:
+                    format = 'mobi'
+                elif 'lrf' in self.device_manager.device_class.FORMATS:
+                    format = 'lrf'
+            else:
+                format = specific_format
+            
+            if format not in ('epub', 'mobi'):
+                auto_convert = False
+
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
-            d = warning_dialog(self, _('No suitable formats'),
-                    _('Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>')%(bad,))
+            if auto_convert:
+                d = info_dialog(self, _('No suitable formats'),
+                    _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(bad,))
+                self.auto_convert(_auto_rows, on_card, format)
+            else:
+                d = warning_dialog(self, _('No suitable formats'),
+                    _('Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>')%(bad,)) 
             d.exec_()
 
 
@@ -1048,6 +1067,32 @@ class Main(MainWindow, Ui_MainWindow):
 
     ############################### Convert ####################################
     
+    def auto_convert(self, rows, on_card, format):
+        previous = self.library_view.currentIndex()
+     
+        comics, others = [], []
+        db = self.library_view.model().db
+        for r in rows:
+            formats = db.formats(r)
+            if not formats: continue
+            formats = formats.lower().split(',')
+            if 'cbr' in formats or 'cbz' in formats:
+                comics.append(r)
+            else:
+                others.append(r)
+        
+        jobs, changed, bad_rows = auto_convert_ebook(format, self, self.library_view.model().db, comics, others)
+        for func, args, desc, fmt, id, temp_files in jobs:
+            if id not in bad_rows:
+                job = self.job_manager.run_job(Dispatcher(self.book_auto_converted), 
+                                            func, args=args, description=desc)
+                self.conversion_jobs[job] = (temp_files, fmt, id, on_card)
+            
+        if changed:
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
+    
     def get_books_for_conversion(self):
         rows = [r.row() for r in self.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
@@ -1108,7 +1153,32 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.model().refresh_rows(rows)
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, previous)
-                    
+                  
+    def book_auto_converted(self, job):
+        temp_files, fmt, book_id, on_card = self.conversion_jobs.pop(job)
+        try:
+            if job.exception is not None:
+                self.job_exception(job)
+                return
+            data = open(temp_files[-1].name, 'rb')
+            self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+            data.close()
+            self.status_bar.showMessage(job.description + (' completed'), 2000)
+        finally:
+            for f in temp_files:
+                try:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+                except:
+                    pass
+        self.tags_view.recount()
+        if self.current_view() is self.library_view:
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, QModelIndex())
+
+        r = self.library_view.model().index(self.library_view.model().db.row(book_id), 0)
+        self.sync_to_device(on_card, False, specific_format=fmt, send_rows=[r], auto_convert=False)
+    
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
         try:
@@ -1618,3 +1688,4 @@ if __name__ == '__main__':
             log = open(logfile).read().decode('utf-8', 'ignore')
             d = QErrorMessage('<b>Error:</b>%s<br><b>Traceback:</b><br>%s<b>Log:</b><br>'%(unicode(err), unicode(tb), log))
             d.exec_()
+
