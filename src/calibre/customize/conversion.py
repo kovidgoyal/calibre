@@ -117,7 +117,11 @@ class InputFormatPlugin(Plugin):
     #: instance of :class:`OptionRecommendation`.  
     options = set([])
     
-    def convert(self, stream, options, file_ext, parse_cache, log):
+    #: A set of 3-tuples of the form 
+    #: (option_name, recommended_value, recommendation_level)
+    recommendations = set([])
+    
+    def convert(self, stream, options, file_ext, parse_cache, log, accelerators):
         '''
         This method must be implemented in sub-classes. It must return
         the path to the created OPF file. All output should be contained in 
@@ -153,10 +157,16 @@ class InputFormatPlugin(Plugin):
         
         :param log: A :class:`calibre.utils.logging.Log` object. All output 
                     should use this object.
+                    
+        :param accelarators: A dictionary of various information that the input
+                             plugin can get easily that would speed up the
+                             subsequent stages of the conversion.
+                             
         '''
         raise NotImplementedError
     
-    def __call__(self, stream, options, file_ext, parse_cache, log, output_dir):
+    def __call__(self, stream, options, file_ext, parse_cache, log, 
+                 accelerators, output_dir):
         log('InputFormatPlugin: %s running'%self.name, end=' ')
         if hasattr(stream, 'name'):
             log('on', stream.name)
@@ -166,7 +176,8 @@ class InputFormatPlugin(Plugin):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
                     
                     
-            ret = self.convert(stream, options, file_ext, parse_cache, log)
+            ret = self.convert(stream, options, file_ext, parse_cache, 
+                               log, accelerators)
             for key in list(parse_cache.keys()):
                 if os.path.abspath(key) != key:
                     log.warn(('InputFormatPlugin: %s returned a '
@@ -221,6 +232,10 @@ class OutputFormatPlugin(Plugin):
     #: instance of :class:`OptionRecommendation`.  
     options = set([])
     
+    #: A set of 3-tuples of the form 
+    #: (option_name, recommended_value, recommendation_level)
+    recommendations = set([])
+
     def convert(self, oeb_book, input_plugin, options, parse_cache, log):
         raise NotImplementedError
  

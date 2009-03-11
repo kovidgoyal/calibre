@@ -39,6 +39,7 @@ from optparse import OptionGroup, Option
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
+from calibre.customize.conversion import OptionRecommendation
 
 def print_help(parser, log):
     help = parser.format_help().encode(preferred_encoding, 'replace')
@@ -84,16 +85,16 @@ def add_input_output_options(parser, plumber):
             option_recommendation_to_cli_option(group, opt)
             
     if input_options:
-        title = plumber.input_fmt.upper() + ' ' + _('OPTIONS')
+        title = _('INPUT OPTIONS')
         io = OptionGroup(parser, title, _('Options to control the processing'
-                                          ' of the input file'))
+                          ' of the input %s file')%plumber.input_fmt)
         add_options(io.add_option, input_options)
         parser.add_option_group(io)
         
     if output_options:
         title = plumber.output_fmt.upper() + ' ' + _('OPTIONS')
         oo = OptionGroup(parser, title, _('Options to control the processing'
-                                          ' of the output file'))
+                          ' of the output %s file')%plumber.input_fmt)
         add_options(oo.add_option, output_options)
         parser.add_option_group(oo)
 
@@ -106,6 +107,9 @@ def add_pipeline_options(parser, plumber):
                      ]
                     ),
               
+              'METADATA' : (_('Options to set metadata in the output'),
+                            plumber.metadata_option_names,
+                            ),
               'DEBUG': (_('Options to help with debugging the conversion'),
                         [
                          'verbose',
@@ -114,7 +118,7 @@ def add_pipeline_options(parser, plumber):
                 
               }
     
-    group_order = ['', 'DEBUG']
+    group_order = ['', 'METADATA', 'DEBUG']
     
     for group in group_order:
         desc, options = groups[group]
@@ -147,10 +151,15 @@ def main(args=sys.argv):
     add_pipeline_options(parser, plumber)
     
     opts = parser.parse_args(args)[0]
-    recommendations = [(n.dest, getattr(opts, n.dest)) \
-                                        for n in parser.options_iter()]
-    
+    recommendations = [(n.dest, getattr(opts, n.dest), 
+                        OptionRecommendation.HIGH) \
+                                        for n in parser.options_iter()
+                                        if n.dest]
     plumber.merge_ui_recommendations(recommendations)
+    
+    plumber.run()
+    
+    log(_('Output saved to'), ' ', plumber.output)
     
     return 0
     

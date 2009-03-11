@@ -12,7 +12,8 @@ class MOBIInput(InputFormatPlugin):
     description = 'Convert MOBI files (.mobi, .prc, .azw) to HTML'
     file_types  = set(['mobi', 'prc', 'azw'])
     
-    def convert(self, stream, options, file_ext, parse_cache, log):
+    def convert(self, stream, options, file_ext, parse_cache, log, 
+                accelerators):
         from calibre.ebooks.mobi.reader import MobiReader
         mr = MobiReader(stream, log, options.input_encoding, 
                         options.debug_input)
@@ -22,5 +23,8 @@ class MOBIInput(InputFormatPlugin):
             if isinstance(raw, unicode):
                 raw = raw.encode('utf-8')
             open('debug-raw.html', 'wb').write(raw)
-            
+        for f, root in parse_cache.items():
+            if '.' in f:
+                accelerators[f] = {'pagebreaks':root.xpath(
+                                            '//div[@class="mbp_pagebreak"]')}
         return mr.created_opf_path

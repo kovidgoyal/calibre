@@ -6,18 +6,14 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
-import os
 import re
 import operator
 import math
-from itertools import chain
 from collections import defaultdict
 from lxml import etree
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import OEBBook
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')

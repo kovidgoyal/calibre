@@ -6,9 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
-import os
-from lxml import etree
 from calibre.ebooks.oeb.base import XML, XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import XHTML_MIME, CSS_MIME
 from calibre.ebooks.oeb.base import element

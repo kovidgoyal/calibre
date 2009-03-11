@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, re, uuid
+import os, re, uuid
 from mimetypes import types_map
 from collections import defaultdict
 from itertools import count
@@ -202,14 +202,6 @@ def urlnormalize(href):
 class OEBError(Exception):
     """Generic OEB-processing error."""
     pass
-
-
-class FauxLogger(object):
-    """Fake logging interface."""
-    def __getattr__(self, name):
-        return self
-    def __call__(self, message):
-        print message
 
 class NullContainer(object):
     """An empty container.
@@ -1224,16 +1216,20 @@ class PageList(object):
 class OEBBook(object):
     """Representation of a book in the IDPF OEB data model."""
     
-    def __init__(self, encoding=None, pretty_print=False, logger=FauxLogger()):
+    def __init__(self, logger, parse_cache={}, encoding='utf-8', 
+                 pretty_print=False):
         """Create empty book.  Optional arguments:
         
+        :param parse_cache: A cache of parsed XHTML/CSS. Keys are absolute
+            paths to te cached files and values are lxml root objects and
+            cssutils stylesheets.
         :param:`encoding`: Default encoding for textual content read
             from an external container.
         :param:`pretty_print`: Whether or not the canonical string form
             of XML markup is pretty-printed.
-        :prama:`logger`: A Logger object to use for logging all messages
+        :param:`logger`: A Log object to use for logging all messages
             related to the processing of this book.  It is accessible
-            via the instance data member :attr:`logger`.
+            via the instance data members :attr:`logger,log`.
         
         It provides the following public instance data members for
         accessing various parts of the OEB data model:
@@ -1251,7 +1247,7 @@ class OEBBook(object):
         """
         self.encoding = encoding
         self.pretty_print = pretty_print
-        self.logger = logger
+        self.logger = self.log = logger
         self.version = '2.0'
         self.container = NullContainer()
         self.metadata = Metadata(self)

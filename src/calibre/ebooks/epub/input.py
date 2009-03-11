@@ -51,7 +51,8 @@ class EPUBInput(InputFormatPlugin):
             traceback.print_exc()
         return False
 
-    def convert(self, stream, options, file_ext, parse_cache, log):
+    def convert(self, stream, options, file_ext, parse_cache, log, 
+                accelerators):
         from calibre.utils.zipfile import ZipFile
         from calibre import walk
         from calibre.ebooks import DRMError
