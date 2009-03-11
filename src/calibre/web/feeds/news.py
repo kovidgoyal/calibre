@@ -1012,7 +1012,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                 feed.description = unicode(err)
                 parsed_feeds.append(feed)
                 self.log_exception(msg)
-                
+        
+        
         return parsed_feeds
     
     @classmethod
