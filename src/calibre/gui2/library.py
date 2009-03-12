@@ -420,6 +420,7 @@ class BooksModel(QAbstractTableModel):
     def get_preferred_formats(self, rows, formats, paths=False, 
                               set_metadata=False, specific_format=None):
         ans = []
+        need_auto = []
         if specific_format is not None:
             formats = [specific_format.lower()]
         for row in (row.row() for row in rows):
@@ -444,8 +445,9 @@ class BooksModel(QAbstractTableModel):
                 pt.close() if paths else pt.seek(0)
                 ans.append(pt)
             else:
+                need_auto.append(row)
                 ans.append(None)
-        return ans
+        return ans, need_auto
 
     def id(self, row):
         return self.db.id(getattr(row, 'row', lambda:row)())
@@ -1069,3 +1071,4 @@ class SearchBox(QLineEdit):
         self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
         self.end(False)
         self.initial_state = False
+
