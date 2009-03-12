@@ -1306,7 +1306,10 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         if self.convertEntities:
             if ref.lower().startswith('x'): #
                 ref = int(ref[1:], 16)      # Added by Kovid to handle hex numeric entities
-            data = unichr(int(ref))
+            try:
+                data = unichr(int(ref))
+            except ValueError: # Bad numerical entity. Added by Kovid
+                data = u'' 
         else:
             data = '&#%s;' % ref
         self.handle_data(data)

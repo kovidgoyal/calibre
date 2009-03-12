@@ -346,19 +346,22 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 pix = QPixmap()
                 pix.loadFromData(cover_data)
                 if pix.isNull():
-                    error_dialog(self.window, "The cover is not a valid picture").exec_()
+                    error_dialog(self.window, _('Bad cover'), 
+                                 _('The cover is not a valid picture')).exec_()
                 else:
                     self.cover.setPixmap(pix)
                     self.cover_changed = True
                     self.cpixmap = pix
             except LibraryThingError, err:
-                error_dialog(self, _('Could not fetch cover'), _('<b>Could not fetch cover.</b><br/>')+repr(err)).exec_()
+                error_dialog(self, _('Cannot fetch cover'), 
+                    _('<b>Could not fetch cover.</b><br/>')+repr(err)).exec_()
             finally:
                 self.fetch_cover_button.setEnabled(True)
                 self.unsetCursor()
                 
         else:
-            error_dialog(self, _('Cannot fetch cover'), _('You must specify the ISBN identifier for this book.')).exec_()
+            error_dialog(self, _('Cannot fetch cover'), 
+                _('You must specify the ISBN identifier for this book.')).exec_()
                 
     
     def fetch_metadata(self):

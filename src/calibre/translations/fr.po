@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-02-26 19:09+0000\n"
-"PO-Revision-Date: 2009-03-05 20:05+0000\n"
+"PO-Revision-Date: 2009-03-07 19:24+0000\n"
 "Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-03-06 17:12+0000\n"
+"X-Launchpad-Export-Date: 2009-03-11 18:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -4160,6 +4160,29 @@ msgid ""
 "expression on a few sample filenames. The group names for the various "
 "metadata entries are documented in tooltips.</p></body></html>"
 msgstr ""
+"Copy text   \t\n"
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Indiquer un modèle "
+"d'expression régulière à utiliser pour déduire les méta-données à partir des "
+"noms de fichiers. </p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Un <a "
+"href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
+"decoration: underline; color:#0000ff;\">renvoi</span></a> sur la syntaxe "
+"d'une expression régulière est disponible.</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Utiliser la fonctionnalité "
+"de <span style=\" font-weight:600;\">test</span> ci-dessous pour valider "
+"votre expression régulière avec quelques exemples de noms de fichiers. Les "
+"groupes pour chacune des entrées de méta-données sont affichés dans les "
+"bulles d'aide.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:104
 msgid "Regular &expression"
@@ -4200,7 +4223,7 @@ msgstr "Pas de correspondance"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:111
 msgid "Authors:"
-msgstr "Auteurs"
+msgstr "Auteurs:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:112
 msgid "Regular expression (?P<authors>)"
@@ -4477,12 +4500,12 @@ msgstr "Sauvegarder sur le disque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:195
 msgid "Save to disk in a single directory"
-msgstr "Sauvegarde vers le disque dans un répertoire"
+msgstr "Sauvegarder sur le disque dans un seul répetoire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1261
 msgid "Save only %s format to disk"
-msgstr "Sauvegarde seulement le format %s vers le disque"
+msgstr "Sauvegarder seulement le format %s vers le disque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:199
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:364
@@ -4491,7 +4514,7 @@ msgstr "Visualiser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:200
 msgid "View specific format"
-msgstr "Afficher le format spécifique"
+msgstr "Visualiser le format spécifique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:217
 msgid "Convert individually"
@@ -4904,11 +4927,11 @@ msgstr "Réinitialisation de la recherche rapide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
 msgid "Match any"
-msgstr ""
+msgstr "Aucune correspondance"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:348
 msgid "Match all"
-msgstr ""
+msgstr "Toutes les correspondances"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:349
 msgid "Sort by &popularity"

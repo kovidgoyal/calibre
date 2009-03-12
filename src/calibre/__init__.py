@@ -31,6 +31,8 @@ mimetypes.add_type('application/adobe-page-template+xml', '.xpgt')
 mimetypes.add_type('application/x-font-opentype',         '.otf')
 mimetypes.add_type('application/x-font-truetype',         '.ttf')
 mimetypes.add_type('application/oebps-package+xml',       '.opf')
+mimetypes.add_type('application/ereader',                 '.pdb')
+guess_type = mimetypes.guess_type
 import cssutils
 cssutils.log.setLevel(logging.WARN)
 

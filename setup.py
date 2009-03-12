@@ -52,7 +52,8 @@ if __name__ == '__main__':
                         resources, clean, gui, translations, update, \
                         tag_release, upload_demo, build_linux, build_windows, \
                         build_osx, upload_installers, upload_user_manual, \
-                        upload_to_pypi, stage3, stage2, stage1, upload
+                        upload_to_pypi, stage3, stage2, stage1, upload, \
+                        upload_rss
     
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
@@ -170,6 +171,7 @@ if __name__ == '__main__':
                       'upload_installers': upload_installers,
                       'upload_user_manual': upload_user_manual,
                       'upload_to_pypi': upload_to_pypi,
+                      'upload_rss'    : upload_rss,
                       'stage3' : stage3,
                       'stage2' : stage2,
                       'stage1' : stage1,
