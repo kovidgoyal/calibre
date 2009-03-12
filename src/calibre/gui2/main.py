@@ -1150,12 +1150,14 @@ class Main(MainWindow, Ui_MainWindow):
             if ext in config['internally_viewed_formats']:
                 if ext == 'LRF':
                     args = ['lrfviewer', name]
-                    self.job_manager.server.run_free_job('lrfviewer', kwdargs=dict(args=args))
+                    self.job_manager.server.run_free_job('lrfviewer', 
+                                                        kwdargs=dict(args=args))
                 else:
                     args = ['ebook-viewer', name]
                     if isosx:
                         args.append('--raise-window')
-                    self.job_manager.server.run_free_job('ebook-viewer', kwdargs=dict(args=args))
+                    self.job_manager.server.run_free_job('ebook-viewer', 
+                                                        kwdargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
             time.sleep(5) # User feedback

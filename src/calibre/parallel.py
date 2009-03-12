@@ -224,7 +224,8 @@ class WorkerMother(object):
         return env
 
     def spawn_free_spirit_osx(self, arg, type='free_spirit'):
-        script = 'from calibre.parallel import main; main(args=["calibre-parallel", %s]);'%repr(arg)
+        script = ('from calibre.parallel import main; '
+                 'main(args=["calibre-parallel", %s]);')%repr(arg)
         exe = self.gui_executable if type == 'free_spirit' else self.executable
         cmdline = [exe, '-c', self.prefix+script]
         child = WorkerStatus(subprocess.Popen(cmdline, env=self.get_env()))

@@ -577,7 +577,7 @@ def config(defaults=None):
     else:
         c = StringConfig(defaults, desc)
         
-    c.add_opt('--raise-window', default=False, 
+    c.add_opt('raise_window', ['--raise-window'], default=False, 
               help=_('If specified, viewer window will try to come to the '
                      'front when started.'))
     return c
