@@ -818,7 +818,8 @@ class Main(MainWindow, Ui_MainWindow):
         rows = self.library_view.selectionModel().selectedRows()
         previous = self.library_view.currentIndex()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
+            d = error_dialog(self, _('Cannot edit metadata'), 
+                             _('No books selected'))
             d.exec_()
             return
 
@@ -1152,6 +1153,8 @@ class Main(MainWindow, Ui_MainWindow):
                     self.job_manager.server.run_free_job('lrfviewer', kwdargs=dict(args=args))
                 else:
                     args = ['ebook-viewer', name]
+                    if isosx:
+                        args.append('--raise-window')
                     self.job_manager.server.run_free_job('ebook-viewer', kwdargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
