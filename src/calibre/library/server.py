@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, operator, os, re, logging
+import sys, textwrap, operator, os, re, logging, subprocess
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -171,6 +171,12 @@ class LibraryServer(object):
         try:
             cherrypy.engine.start()
             self.is_running = True
+            try:
+                subprocess.Popen(('dns-sd -R "calibre Books" '
+                                  '_stanza._tcp local %d')%
+                                 self.opts.port, shell=True)
+            except:
+                pass
             cherrypy.engine.block()
         except Exception, e:
             self.exception = e
