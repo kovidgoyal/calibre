@@ -6,13 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
-import os
-import re
-import operator
-import math
-from itertools import chain
-from collections import defaultdict
 from lxml import etree
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import CSS_MIME
