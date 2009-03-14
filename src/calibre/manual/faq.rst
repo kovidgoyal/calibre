@@ -131,6 +131,8 @@ First install the Stanza reader on your iPhone from http://www.lexcycle.com . Th
     with the IP address of your computer. Stanza will the use the |app| content server to access all the
     EPUB books in your |app| database.
 
+A more detailed guide is available `here <http://www.mobileread.com/forums/showthread.php?p=391919#post391919>`_
+
 Library Management
 ------------------
 
