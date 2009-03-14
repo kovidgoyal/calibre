@@ -10,11 +10,17 @@ _server = None
 def get_external_ip():
     'Get IP address of interface used to connect to the outside world'
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('google.com', 0))
-        return s.getsockname()[0]
+        ipaddr = socket.gethostbyname(socket.gethostname())
     except:
-        return '127.0.0.1' 
+        ipaddr = '127.0.0.1'
+    if ipaddr == '127.0.0.1':
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(('google.com', 0))
+            ipaddr = s.getsockname()[0]
+        except:
+            pass
+    return ipaddr
 
 def start_server():
     global _server
@@ -33,6 +39,7 @@ def publish(desc, type, port, properties=None, add_hostname=True):
     :param properties: An optional dictionary whose keys and values will be put 
                        into the TXT record. 
     '''
+    port = int(port)
     server = start_server()
     hostname = socket.gethostname()
     if add_hostname:

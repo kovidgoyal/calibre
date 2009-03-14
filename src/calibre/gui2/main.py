@@ -237,6 +237,7 @@ class Main(MainWindow, Ui_MainWindow):
 
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
         self.connect(self.preferences_action, SIGNAL('triggered(bool)'), self.do_config)
+        self.connect(self.action_preferences, SIGNAL('triggered(bool)'), self.do_config)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
         
         ####################### Library view ########################
@@ -1252,7 +1253,7 @@ class Main(MainWindow, Ui_MainWindow):
 
     ############################### Do config ##################################
 
-    def do_config(self):
+    def do_config(self, *args):
         if self.job_manager.has_jobs():
             d = error_dialog(self, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec_()
