@@ -55,6 +55,8 @@ class HTMLTOCAdder(object):
     def transform(self, oeb, context):
         if 'toc' in oeb.guide:
             return
+        if not getattr(getattr(oeb, 'toc', False), 'nodes', False):
+            return
         oeb.logger.info('Generating in-line TOC...')
         title = self.title or oeb.translate(DEFAULT_TITLE)
         style = self.style

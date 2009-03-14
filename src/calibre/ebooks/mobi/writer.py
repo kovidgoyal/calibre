@@ -9,7 +9,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 import sys
 import os
 from struct import pack
-import functools
 import time
 import random
 from cStringIO import StringIO
@@ -18,11 +17,10 @@ from itertools import izip, count
 from collections import defaultdict
 from urlparse import urldefrag
 import logging
-from lxml import etree
 from PIL import Image
 from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
     OEB_RASTER_IMAGES
-from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
+from calibre.ebooks.oeb.base import namespace, prefixname
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.base import Logger, OEBBook
 from calibre.ebooks.oeb.profile import Context
@@ -33,7 +31,7 @@ from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
 from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
-from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
+from calibre.ebooks.mobi.mobiml import MBP_NS, MobiMLizer
 from calibre.customize.ui import run_plugins_on_postprocess
 from calibre.utils.config import Config, StringConfig
 
@@ -162,7 +160,7 @@ class Serializer(object):
         hrefs = self.oeb.manifest.hrefs
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
-            path, frag = urldefrag(ref.href)
+            path = urldefrag(ref.href)[0]
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
             buffer.write('<reference type="')
@@ -412,8 +410,6 @@ class MobiWriter(object):
         self._oeb.logger.info('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
         images.sort()
-        metadata = self._oeb.metadata
-        coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
             try:
