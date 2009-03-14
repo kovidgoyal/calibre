@@ -13,6 +13,7 @@ class SecurityWatch(BasicNewsRecipe):
     filter_regexps = [r'ad\.doubleclick']
     filter_regexps = [r'advert']
     language = _('English')
+    extra_css = 'div {text-align:left}'
     
     remove_tags = [dict(id='topBannerContainer'),
                    dict(id='topBannerSmall'),
@@ -30,3 +31,7 @@ class SecurityWatch(BasicNewsRecipe):
     feeds          = [(u'securitywatch', u'http://feeds.ziffdavisenterprise.com/RSS/security_watch/')]
 
 
+    def postprocess_html(self, soup, first_fetch):
+        for t in soup.findAll(['table', 'tr', 'td']):
+            t.name = 'div'
+        return soup
