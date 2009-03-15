@@ -444,6 +444,7 @@ class OPF(object):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
         self.basedir  = self.base_dir = basedir
+        self.path_to_html_toc = None
         raw, self.encoding = xml_to_unicode(stream.read(), strip_encoding_pats=True, resolve_entities=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
@@ -495,6 +496,7 @@ class OPF(object):
                     if f:
                         self.toc.read_ncx_toc(f[0])
             else:
+                self.path_to_html_toc = toc
                 self.toc.read_html_toc(toc)
         except:
             pass

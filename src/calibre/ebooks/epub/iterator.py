@@ -118,10 +118,16 @@ class EbookIterator(object):
         self.spine = [SpineItem(i.path) for i in self.opf.spine]
         
         cover = self.opf.cover
-        if os.path.splitext(self.pathtoebook)[1].lower() in ('.lit', '.mobi', '.prc') and cover:
+        if os.path.splitext(self.pathtoebook)[1].lower() in \
+                                    ('.lit', '.mobi', '.prc') and cover:
             cfile = os.path.join(os.path.dirname(self.spine[0]), 'calibre_ei_cover.html')
             open(cfile, 'wb').write(TITLEPAGE%cover)
             self.spine[0:0] = [SpineItem(cfile)]
+            
+        if self.opf.path_to_html_toc is not None and \
+           self.opf.path_to_html_toc not in self.spine:
+            self.spine.append(SpineItem(self.opf.path_to_html_toc))
+            
         
         sizes = [i.character_count for i in self.spine]
         self.pages = [math.ceil(i/float(self.CHARACTERS_PER_PAGE)) for i in sizes]
