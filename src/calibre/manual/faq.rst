@@ -123,15 +123,12 @@ turned into a collection on the reader. Note that the PRS-500 does not support c
 How do I use |app| with my iPhone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 First install the Stanza reader on your iPhone from http://www.lexcycle.com . Then,
+
   * Set the output format for calibre to EPUB (The output format can be set next to the big red heart) 
   * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
-  * Now you should be able to access your books on your iPhone. If not, try the following:
-    In the Stanza reader on your iPhone, add a new catalog. The URL of the catalog is of the form 
-    ``http://10.34.56.89:8080/stanza``,  where you should replace the IP address ``10.34.56.89`` 
-    with the IP address of your computer. Stanza will the use the |app| content server to access all the
-    EPUB books in your |app| database.
 
+Now you should be able to access your books on your iPhone. 
 
 Library Management
 ------------------
