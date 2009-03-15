@@ -132,11 +132,22 @@ class HTMLMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
     
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', '.azw'])
+    file_types  = set(['mobi', 'prc', 'azw'])
     description = _('Read metadata from %s files')%'MOBI'
     
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.mobi.reader import get_metadata
+        return get_metadata(stream)
+
+
+class TOPAZMetadataReader(MetadataReaderPlugin):
+    
+    name        = 'Read Topaz metadata'
+    file_types  = set(['tpz', 'azw1'])
+    description = _('Read metadata from %s files')%'MOBI'
+    
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.topaz import get_metadata
         return get_metadata(stream)
 
 class ODTMetadataReader(MetadataReaderPlugin):
