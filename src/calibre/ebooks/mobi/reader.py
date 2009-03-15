@@ -92,6 +92,8 @@ class BookHeader(object):
             self.sublanguage = 'NEUTRAL'
             self.exth_flag, self.exth = 0, None
             self.ancient = True
+            self.first_image_index = -1
+            self.mobi_version = 1
         else:
             self.ancient = False
             self.doctype = raw[16:20]
@@ -537,7 +539,7 @@ class MobiReader(object):
             os.makedirs(output_dir)
         image_index = 0
         self.image_names = []
-        start = self.book_header.first_image_index
+        start = getattr(self.book_header, 'first_image_index', -1)
         if start > self.num_sections or start < 0:
             # BAEN PRC files have bad headers 
             start=0

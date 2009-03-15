@@ -177,11 +177,11 @@ else:
                 compatibility='%s works on OS X Tiger and above.'%(__appname__,),
                 path=MOBILEREAD+file, app=__appname__,
                 note=Markup(\
-    '''
+    u'''
     <ol>
     <li>Before trying to use the command line tools, you must run the app at least once. This will ask you for you password and then setup the symbolic links for the command line tools.</li>
     <li>The app cannot be run from within the dmg. You must drag it to a folder on your filesystem (The Desktop, Applications, wherever).</li> 
-    <li>In order for localization of the user interface in your language, select your language in the configuration dialog (by clicking the hammer icon next to the search bar) and select your language.</li>
+    <li>In order for localization of the user interface in your language, select your language in the preferences (by pressing u\2318+P) and select your language.</li>
     </ol>
     '''))
             return 'binary.html', data, None

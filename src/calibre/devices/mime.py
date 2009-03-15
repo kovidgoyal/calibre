@@ -1,19 +1,20 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-'''
-Global Mime mapping of ebook types.
-'''
+from __future__ import with_statement
+__license__ = 'GPL 3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
 
-MIME_MAP   = {
-                'azw'  : 'application/azw',
-                'epub' : 'application/epub+zip',
-                'html' : 'text/html',
-                'lrf'  : 'application/x-sony-bbeb',
-                'lrx'  : 'application/x-sony-bbeb',
-                'mobi' : 'application/mobi',
-                'pdf'  : 'application/pdf',
-                'prc'  : 'application/prc',
-                'rtf'  : 'application/rtf',
-                'txt'  : 'text/plain',
-              }
+from calibre import guess_type
 
+def _mt(path):
+    mt = guess_type(path)[0]
+    if not mt:
+        mt = 'application/octet-stream'
+    return mt
+
+def mime_type_ext(ext):
+    if not ext.startswith('.'):
+        ext = '.'+ext
+    return _mt('a'+ext)
+
+def mime_type_path(path):
+    return _mt(path)

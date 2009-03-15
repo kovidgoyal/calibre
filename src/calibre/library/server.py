@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, operator, os, re, logging, subprocess
+import sys, textwrap, operator, os, re, logging
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
