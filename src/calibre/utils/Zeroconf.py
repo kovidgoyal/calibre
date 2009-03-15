@@ -933,7 +933,11 @@ class Reaper(threading.Thread):
 
     def run(self):
         while 1:
-            self.zeroconf.wait(10 * 1000)
+            try:
+                self.zeroconf.wait(10 * 1000)
+            except TypeError: # By Kovid
+                globals()['_GLOBAL_DONE'] = 1
+                return
             if globals()['_GLOBAL_DONE']:
                 return
             now = currentTimeMillis()

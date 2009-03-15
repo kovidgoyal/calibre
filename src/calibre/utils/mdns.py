@@ -41,7 +41,7 @@ def publish(desc, type, port, properties=None, add_hostname=True):
     '''
     port = int(port)
     server = start_server()
-    hostname = socket.gethostname()
+    hostname = socket.gethostname().partition('.')[0]
     if add_hostname:
         desc += ' (on %s)'%hostname
     local_ip = get_external_ip()
@@ -58,40 +58,3 @@ def stop_server():
     global _server
     if _server is not None:
         _server.close()
-
-'''
-class Publish(object):
-    
-    def __init__(self, desc, name, port, txt=''):
-        self.desc = desc
-        self.name = name
-        self.port = port
-        self.txt  = txt
-        
-    def start(self):
-        if iswindows:
-            return
-        if isosx:
-            args = ['dns-sd', self.desc, self.name, '.', self.port]
-        else:
-            args = ['avahi-publish-service', self.desc, self.name, self.port]
-        if self.txt:
-            args.append(self.txt)
-            
-        self.process = subprocess.Popen(args)
-    
-    def stop(self):
-        if iswindows:
-            pass
-        else:
-            process = getattr(self, 'process', None)
-            if process is not None:
-                process.poll()
-                if process.returncode is not None:
-                    process.terminate()
-                    process.poll()
-                    if process.returncode is not None:
-                        process.kill()
-
-def publish(desc, name, port, txt):
-''' 
