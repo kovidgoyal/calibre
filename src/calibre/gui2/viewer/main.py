@@ -325,6 +325,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         pos = self.history.forward()
         if pos is not None:
             self.goto_page(pos)
+   
+    def goto_start(self):
+        self.goto_page(1)
+        
+    def goto_end(self):
+        self.goto_page(self.pos.maximum())
     
     def goto_page(self, new_page):
         if self.current_page is not None:
