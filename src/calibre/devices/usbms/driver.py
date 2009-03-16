@@ -15,7 +15,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.devices.errors import FreeSpaceError, PathError
-from calibre.devices.mime import MIME_MAP
+from calibre.devices.mime import mime_type_ext
 
 class File(object):
     def __init__(self, path):
@@ -227,13 +227,16 @@ class USBMS(Device):
             os.utime(path, None)
 
     @classmethod
+    def metadata_from_path(cls, path):
+        return metadata_from_formats([path])
+    
+    @classmethod
     def book_from_path(cls, path):
         fileext = path_to_ext(path)
-    
-        mi = metadata_from_formats([path])
-        mime = MIME_MAP[fileext] if fileext in MIME_MAP.keys() else 'Unknown'
-        
+        mi = cls.metadata_from_path(path)
+        mime = mime_type_ext(fileext)
         authors = authors_to_string(mi.authors)
         
-        return Book(path, mi.title, authors, mime)
+        book = Book(path, mi.title, authors, mime)
+        return book
 

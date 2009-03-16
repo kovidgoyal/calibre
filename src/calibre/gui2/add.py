@@ -224,7 +224,10 @@ class AddRecursive(Add):
             files = _('<p>Books with the same title as the following already '
                       'exist in the database. Add them anyway?<ul>')
             for mi in self.duplicates:
-                files += '<li>'+mi[0].title+'</li>\n'
+                title = mi[0].title
+                if not isinstance(title, unicode):
+                    title = title.decode(preferred_encoding, 'replace')
+                files += '<li>'+title+'</li>\n'
             d = WarningDialog (_('Duplicates found!'), 
                               _('Duplicates found!'), 
                               files+'</ul></p>', parent=self._parent)

@@ -23,6 +23,8 @@ from calibre.resources import jquery, server_resources, build_time
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
+from calibre.utils.mdns import publish as publish_zeroconf, \
+                               stop_server as stop_zeroconf
 
 build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
 server_resources['jquery.js'] = jquery
@@ -171,11 +173,14 @@ class LibraryServer(object):
         try:
             cherrypy.engine.start()
             self.is_running = True
+            publish_zeroconf('Books in calibre', '_stanza._tcp', 
+                             self.opts.port, {'path':'/stanza'})
             cherrypy.engine.block()
         except Exception, e:
             self.exception = e
         finally:
             self.is_running = False
+            stop_zeroconf()
         
     def exit(self):
         cherrypy.engine.exit()
@@ -332,7 +337,11 @@ class LibraryServer(object):
     @expose
     def index(self, **kwargs):
         'The / URL'
-        return self.static('index.html')
+        stanza = cherrypy.request.headers.get('Stanza-Device-Name', 919)
+        if stanza == 919:
+            return self.static('index.html')
+        return self.stanza()
+        
     
     @expose
     def get(self, what, id):

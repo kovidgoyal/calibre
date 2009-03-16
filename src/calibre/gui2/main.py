@@ -238,6 +238,7 @@ class Main(MainWindow, Ui_MainWindow):
 
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
         self.connect(self.preferences_action, SIGNAL('triggered(bool)'), self.do_config)
+        self.connect(self.action_preferences, SIGNAL('triggered(bool)'), self.do_config)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
         
         ####################### Library view ########################
@@ -1220,12 +1221,14 @@ class Main(MainWindow, Ui_MainWindow):
             if ext in config['internally_viewed_formats']:
                 if ext == 'LRF':
                     args = ['lrfviewer', name]
-                    self.job_manager.server.run_free_job('lrfviewer', kwdargs=dict(args=args))
+                    self.job_manager.server.run_free_job('lrfviewer', 
+                                                        kwdargs=dict(args=args))
                 else:
                     args = ['ebook-viewer', name]
                     if isosx:
                         args.append('--raise-window')
-                    self.job_manager.server.run_free_job('ebook-viewer', kwdargs=dict(args=args))
+                    self.job_manager.server.run_free_job('ebook-viewer', 
+                                                        kwdargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
             time.sleep(5) # User feedback
@@ -1320,7 +1323,7 @@ class Main(MainWindow, Ui_MainWindow):
 
     ############################### Do config ##################################
 
-    def do_config(self):
+    def do_config(self, *args):
         if self.job_manager.has_jobs():
             d = error_dialog(self, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec_()
