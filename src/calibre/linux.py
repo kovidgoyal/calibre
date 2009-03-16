@@ -1,9 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Post installation script for linux '''
-import sys, os, re, shutil
+import sys, os, shutil
 from subprocess import check_call, call
-from tempfile import NamedTemporaryFile
 
 from calibre import __version__, __appname__
 from calibre.devices import devices
