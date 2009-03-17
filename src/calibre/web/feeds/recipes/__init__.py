@@ -34,7 +34,7 @@ recipe_modules = ['recipe_' + r for r in (
            'al_jazeera', 'winsupersite', 'borba', 'courrierinternational',
            'lamujerdemivida', 'soldiers', 'theonion', 'news_times',
            'el_universal', 'mediapart', 'wikinews_en', 'ecogeek', 'daily_mail',
-           'new_york_review_of_books_no_sub', 'politico',
+           'new_york_review_of_books_no_sub', 'politico', 'adventuregamers',
           )]
 
 import re, imp, inspect, time, os
