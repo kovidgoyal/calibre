@@ -199,6 +199,10 @@ class HTMLProcessor(Processor, Rationalizer):
                 
         for tag in self.root.xpath('//form'):
             tag.getparent().remove(tag)
+            
+        for tag in self.root.xpath('//center'):
+            tag.tag = 'div'
+            tag.set('style', 'text-align:center')
                 
         if self.opts.linearize_tables:
             for tag in self.root.xpath('//table | //tr | //th | //td'):
