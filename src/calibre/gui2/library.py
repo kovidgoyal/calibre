@@ -94,7 +94,8 @@ class DateDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
         qde.setDisplayFormat('MM/dd/yyyy')
-        qde.setMinimumDate(QDate(100,1,1))
+        qde.setMinimumDate(QDate(-4000,1,1))
+        qde.setCalendarPopup(True)
         return qde
 
 class BooksModel(QAbstractTableModel):

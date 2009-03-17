@@ -14,9 +14,10 @@ class Sueddeutsche(BasicNewsRecipe):
     description = 'News from Germany'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
-    timefmt = ' [%d %b %Y]'
-    max_articles_per_feed = 40
     language = _('German')
+    timefmt = ' [%d %b %Y]'
+    oldest_article = 7
+    max_articles_per_feed = 50
     no_stylesheets = True
     encoding = 'latin1'
     remove_tags_after = [dict(name='div', attrs={'class':'artikelBox navigatorBox'})]
@@ -27,6 +28,7 @@ class Sueddeutsche(BasicNewsRecipe):
                    dict(name='div', attrs={'class':'footerLinks'}),
                    dict(name='div', attrs={'class':'seitenanfang'}),
                    dict(name='td', attrs={'class':'mar5'}),
+                   dict(name='a', attrs={'class':'top'}),
                    dict(name='table', attrs={'class':'pageAktiv'}),
                    dict(name='table', attrs={'class':'xartable'}),
                    dict(name='table', attrs={'class':'wpnavi'}),
@@ -39,8 +41,20 @@ class Sueddeutsche(BasicNewsRecipe):
                    dict(name='div', attrs={'class':'similar-article-box'}),
                    dict(name='div', attrs={'class':'videoBigHack'}),
                    dict(name='td', attrs={'class':'artikelDruckenRight'}),
+                   dict(name='td', attrs={'class':'stoerBSbgUnten'}),
+                   dict(name='li', attrs={'class':'first'}),
+                   dict(name='li', attrs={'class':'bookmark closed'}),
+                   dict(name='li', attrs={'class':'print'}),
+                   dict(name='li', attrs={'class':'mail'}),
+                   dict(name='li', attrs={'class':'last'}),
+                   dict(name='li', attrs={'class':'tiefethemen'}),
+                   dict(name='li', attrs={'class':'prev'}),
+                   dict(name='ul', attrs={'class':'activities'}),
+                   dict(name='li', attrs={'class':'next'}),
                    dict(name='span', attrs={'class':'hidePrint'}),
                    dict(id='headerLBox'),
+                   dict(id='bookmarklist1'),
+                   dict(id='bookmarklist2'),
                    dict(id='rechteSpalte'),
                    dict(id='newsticker-list-small'),
                    dict(id='ntop5'),
@@ -57,7 +71,4 @@ class Sueddeutsche(BasicNewsRecipe):
     
     feeds =  [ (u'Sueddeutsche', u'http://www.sueddeutsche.de/app/service/rss/alles/rss.xml') ] 
 
-    def postprocess_html(self, soup, first_fetch):
-        for t in soup.findAll(['table', 'tr', 'td']):
-            t.name = 'div'
-        return soup
+
