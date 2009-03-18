@@ -333,9 +333,9 @@ class Splitter(LoggingInterface):
                      '//pre',
                      '//hr', 
                      '//p',
+                     '//div',
                      '//br',
                      '//li',
-                     '//div',
                      ):
             elems = root.xpath(path, 
                     namespaces={'re':'http://exslt.org/regular-expressions'})
