@@ -360,7 +360,7 @@ else:
         if hasattr(tar, 'read'):
             subprocess.check_call(['tar', 'xjf', tar.name, '-C', destdir])
         else:
-            tarfile.open(tar, 'r').extractall(destdir)
+            subprocess.check_call(['tar', 'xjf', tar, '-C', destdir])
     
     def main():
         defdir = '/opt/calibre'
