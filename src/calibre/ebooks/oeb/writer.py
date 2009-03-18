@@ -8,7 +8,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, os, logging
 from calibre.ebooks.oeb.base import OPF_MIME, xml2str
-from calibre.ebooks.oeb.base import Logger, DirContainer, OEBBook
+from calibre.ebooks.oeb.base import DirContainer, OEBBook
 
 __all__ = ['OEBWriter']
 

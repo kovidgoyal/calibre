@@ -181,7 +181,7 @@ class OEBReader(object):
                         if not scheme and href not in known:
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
-                    for match in CSSURL_RE.finditer(item.data):
+                    for match in CSSURL_RE.finditer(item.data.cssText):
                         href, _ = urldefrag(match.group('url'))
                         href = item.abshref(urlnormalize(href))
                         scheme = urlparse(href).scheme

@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, OEB_STYLES, \
     CSS_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.oeb.base import namespace, barename, prefixname, \
     urlnormalize, xpath
-from calibre.ebooks.oeb.base import Logger, OEBBook
+from calibre.ebooks.oeb.base import OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
@@ -732,7 +732,7 @@ def option_parser():
     return parser
 
 def oeb2lit(opts, inpath):
-    logger = Logger(logging.getLogger('oeb2lit'))
+    logger = logging.getLogger('oeb2lit')
     logger.setup_cli_handler(opts.verbose)
     outpath = opts.output
     if outpath is None:

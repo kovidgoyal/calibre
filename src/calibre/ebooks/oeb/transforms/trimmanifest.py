@@ -53,7 +53,7 @@ class ManifestTrimmer(object):
                             if found not in used:
                                 new.add(found)
                 elif item.media_type == CSS_MIME:
-                    for match in CSSURL_RE.finditer(item.data):
+                    for match in CSSURL_RE.finditer(item.data.cssText):
                         href = match.group('url')
                         href = item.abshref(urlnormalize(href))
                         if href in oeb.manifest.hrefs:
