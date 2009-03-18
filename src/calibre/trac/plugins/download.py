@@ -358,10 +358,7 @@ else:
     def extract_tarball(tar, destdir):
         print 'Extracting application files...'
         if hasattr(tar, 'read'):
-            try:
-                tarfile.open(fileobj=tar, mode='r').extractall(destdir)
-            except: # tarfile.py on Fedora 9 is buggy
-                subprocess.check_call(['tar', 'xjf', tar.name, '-C', destdir])
+            subprocess.check_call(['tar', 'xjf', tar.name, '-C', destdir])
         else:
             tarfile.open(tar, 'r').extractall(destdir)
     

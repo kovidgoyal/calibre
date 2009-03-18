@@ -268,7 +268,7 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                 except IgnoreFile, err:
                     rejects.append(link)
                     if not err.doesnt_exist or verbose > 1:
-                        print str(err)
+                        print repr(err)
             for link in rejects:
                 hf.links.remove(link)
                 
