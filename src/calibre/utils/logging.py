@@ -13,13 +13,25 @@ ERROR = 3
 import sys, traceback
 from functools import partial
 
-from calibre import prints
-from calibre.utils.terminfo import TerminalController
 
-class ANSIStream:
+
+
+class Stream(object):
+    
+    def __init__(self, stream):
+        from calibre import prints
+        self._prints = prints
+        self.stream = stream
+        
+    def flush(self):
+        self.stream.flush()
+
+
+class ANSIStream(Stream):
     
     def __init__(self, stream=sys.stdout):
-        self.stream = stream
+        Stream.__init__(self, stream)
+        from calibre.utils.terminfo import TerminalController
         tc = TerminalController(stream)
         self.color = {
                       DEBUG: tc.GREEN,
@@ -32,16 +44,16 @@ class ANSIStream:
     def prints(self, level, *args, **kwargs):
         self.stream.write(self.color[level])
         kwargs['file'] = self.stream
-        prints(*args, **kwargs)
+        self._prints(*args, **kwargs)
         self.stream.write(self.normal)
         
     def flush(self):
         self.stream.flush()
         
-class HTMLStream:
+class HTMLStream(Stream):
     
     def __init__(self, stream=sys.stdout):
-        self.stream = stream
+        Stream.__init__(self, stream)
         self.color = {
                       DEBUG: '<span style="color:green">',
                       INFO:'<span>',
@@ -53,7 +65,7 @@ class HTMLStream:
     def prints(self, level, *args, **kwargs):
         self.stream.write(self.color[level])
         kwargs['file'] = self.stream
-        prints(*args, **kwargs)
+        self._prints(*args, **kwargs)
         self.stream.write(self.normal)
         
     def flush(self):

@@ -15,7 +15,7 @@ _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
                        'rtf', 'fb2', 'pdf', 'prc', 'odt',
                        'epub', 'lit', 'lrx', 'lrf', 'mobi',
-                       'rb', 'imp'
+                       'rb', 'imp', 'azw'
                       ]
 
 # The priorities for loading metadata from different file types
@@ -41,7 +41,9 @@ def metadata_from_formats(formats):
     for path, ext in zip(formats, extensions):
         with open(path, 'rb') as stream:
             try:
-                mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
+                newmi = get_metadata(stream, stream_type=ext, 
+                                     use_libprs_metadata=True)
+                mi.smart_update(newmi)
             except:
                 continue
             if getattr(mi, 'application_id', None) is not None:
@@ -58,7 +60,7 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if stream_type: stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
         stream_type = 'html'
-    if stream_type in ('mobi', 'prc'):
+    if stream_type in ('mobi', 'prc', 'azw'):
         stream_type = 'mobi'
     if stream_type in ('odt', 'ods', 'odp', 'odg', 'odf'):
         stream_type = 'odt'

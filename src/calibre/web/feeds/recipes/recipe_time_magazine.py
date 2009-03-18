@@ -14,6 +14,7 @@ class Time(BasicNewsRecipe):
     description           = 'Weekly magazine'    
     oldest_article        = 7
     max_articles_per_feed = 100
+    encoding = 'utf-8'
     no_stylesheets        = True
     language = _('English')
     use_embedded_content  = False

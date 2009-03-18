@@ -4,9 +4,9 @@ __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 Device driver for Amazon's Kindle
 '''
 
-import os
+import os, re
 
-from calibre.devices.usbms.driver import USBMS
+from calibre.devices.usbms.driver import USBMS, metadata_from_formats
 
 class KINDLE(USBMS):
     # Ordered list of supported formats
@@ -29,6 +29,9 @@ class KINDLE(USBMS):
     EBOOK_DIR_MAIN = "documents"
     EBOOK_DIR_CARD = "documents"
     SUPPORTS_SUB_DIRS = True
+    
+    WIRELESS_FILE_NAME_PATTERN = re.compile(
+    r'(?P<title>[^-]+)-asin_(?P<asin>[a-zA-Z\d]{10,})-type_(?P<type>\w{4})-v_(?P<index>\d+).*')
 
     def delete_books(self, paths, end_session=True):
         for path in paths:
@@ -40,6 +43,16 @@ class KINDLE(USBMS):
                 # Delete the ebook auxiliary file
                 if os.path.exists(filepath + '.mbp'):
                     os.unlink(filepath + '.mbp')
+                    
+    @classmethod
+    def metadata_from_path(cls, path):
+        mi = metadata_from_formats([path])
+        if mi.title == _('Unknown') or ('-asin' in mi.title and '-type' in mi.title):
+            match = cls.WIRELESS_FILE_NAME_PATTERN.match(os.path.basename(path))
+            if match is not None:
+                mi.title = match.group('title')
+        return mi
+
 
 class KINDLE2(KINDLE):
     

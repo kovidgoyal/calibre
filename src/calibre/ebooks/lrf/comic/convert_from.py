@@ -143,7 +143,8 @@ class PageProcessor(list):
                     MagickRotateImage(wand, pw, -90)
                     
                 # 25 percent fuzzy trim?
-                MagickTrimImage(wand, 25*65535/100)
+                if not self.opts.disable_trim:
+                    MagickTrimImage(wand, 25*65535/100)
                 MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
                 # Do the Photoshop "Auto Levels" equivalent
                 if not self.opts.dont_normalize:
@@ -303,6 +304,9 @@ def config(defaults=None,output_format='lrf'):
               help=_('Maintain picture aspect ratio. Default is to fill the screen.'))
     c.add_opt('dont_sharpen', ['-s', '--disable-sharpen'], default=False,
               help=_('Disable sharpening.'))
+    c.add_opt('disable_trim', ['--disable-trim'], default=False,
+              help=_('Disable trimming of comic pages. For some comics, '
+                     'trimming might remove content as well as borders.'))
     c.add_opt('landscape', ['-l', '--landscape'], default=False,
               help=_("Don't split landscape images into two portrait images"))
     c.add_opt('wide', ['-w', '--wide-aspect'], default=False,

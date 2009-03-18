@@ -12,7 +12,7 @@ from contextlib import nested
 
 from calibre import extract, walk
 from calibre.ebooks import DRMError
-from calibre.ebooks.epub import config as common_config, process_encryption
+from calibre.ebooks.epub import config as common_config
 from calibre.ebooks.epub.from_html import convert as html2epub, find_html_index
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation

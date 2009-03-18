@@ -132,11 +132,22 @@ class HTMLMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
     
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', '.azw'])
+    file_types  = set(['mobi', 'prc', 'azw'])
     description = _('Read metadata from %s files')%'MOBI'
     
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.mobi.reader import get_metadata
+        return get_metadata(stream)
+
+
+class TOPAZMetadataReader(MetadataReaderPlugin):
+    
+    name        = 'Read Topaz metadata'
+    file_types  = set(['tpz', 'azw1'])
+    description = _('Read metadata from %s files')%'MOBI'
+    
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.topaz import get_metadata
         return get_metadata(stream)
 
 class ODTMetadataReader(MetadataReaderPlugin):
@@ -244,11 +255,12 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
 
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.mobi.input import MOBIInput
-from calibre.customize.profiles import input_profiles
+from calibre.ebooks.oeb.output import OEBOutput
+from calibre.customize.profiles import input_profiles, output_profiles
 
-plugins = [HTML2ZIP, EPUBInput, MOBIInput]
+plugins = [HTML2ZIP, EPUBInput, MOBIInput, OEBOutput]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataWriter')]
-plugins += input_profiles
+plugins += input_profiles + output_profiles

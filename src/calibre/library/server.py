@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, mimetypes, operator, os, re, logging
+import sys, textwrap, operator, os, re, logging
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -18,11 +18,13 @@ from PyQt4.Qt import QImage, QApplication, QByteArray, Qt, QBuffer
 
 from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
-from calibre import fit_image
+from calibre import fit_image, guess_type
 from calibre.resources import jquery, server_resources, build_time
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
+from calibre.utils.mdns import publish as publish_zeroconf, \
+                               stop_server as stop_zeroconf
 
 build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
 server_resources['jquery.js'] = jquery
@@ -77,7 +79,7 @@ class LibraryServer(object):
         <id>urn:calibre:${record[FM['id']]}</id>
         <author><name>${authors}</name></author>
         <updated>${record[FM['timestamp']].strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/epub+zip" href="/get/epub/${record[FM['id']]}" />
+        <link type="${mimetype}" href="/get/${fmt}/${record[FM['id']]}" />
         <link rel="x-stanza-cover-image" type="image/jpeg" href="/get/cover/${record[FM['id']]}" />
         <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="/get/thumb/${record[FM['id']]}" />
         <content type="xhtml">
@@ -171,11 +173,14 @@ class LibraryServer(object):
         try:
             cherrypy.engine.start()
             self.is_running = True
+            publish_zeroconf('Books in calibre', '_stanza._tcp', 
+                             self.opts.port, {'path':'/stanza'})
             cherrypy.engine.block()
         except Exception, e:
             self.exception = e
         finally:
             self.is_running = False
+            stop_zeroconf()
         
     def exit(self):
         cherrypy.engine.exit()
@@ -218,7 +223,7 @@ class LibraryServer(object):
         fmt = self.db.format(id, format, index_is_id=True, as_file=True, mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
-        mt = mimetypes.guess_type('dummy.'+format.lower())[0]
+        mt = guess_type('dummy.'+format.lower())[0]
         if mt is None:
             mt = 'application/octet-stream'
         cherrypy.response.headers['Content-Type'] = mt
@@ -258,8 +263,9 @@ class LibraryServer(object):
         for record in iter(self.db):
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
-            if 'EPUB' in r:
-                authors = ' & '.join([i.replace('|', ',') for i in record[FIELD_MAP['authors']].split(',')])
+            if 'EPUB' in r or 'PDB' in r:
+                authors = ' & '.join([i.replace('|', ',') for i in 
+                                      record[FIELD_MAP['authors']].split(',')])
                 extra = []
                 rating = record[FIELD_MAP['rating']]
                 if rating > 0:
@@ -270,12 +276,18 @@ class LibraryServer(object):
                     extra.append('TAGS: %s<br />'%', '.join(tags.split(',')))
                 series = record[FIELD_MAP['series']]
                 if series:
-                    extra.append('SERIES: %s [%d]<br />'%(series, record[FIELD_MAP['series_index']]))
-                books.append(self.STANZA_ENTRY.generate(authors=authors,
-                                                        record=record, FM=FIELD_MAP,
-                                                        port=self.opts.port,
-                                                        extra = ''.join(extra),
-                                                        ).render('xml').decode('utf8'))
+                    extra.append('SERIES: %s [%d]<br />'%(series, 
+                                            record[FIELD_MAP['series_index']]))
+                fmt = 'epub' if 'EPUB' in r else 'pdb'
+                mimetype = guess_type('dummy.'+fmt)[0]
+                books.append(self.STANZA_ENTRY.generate(
+                                                authors=authors,
+                                                record=record, FM=FIELD_MAP,
+                                                port=self.opts.port,
+                                                extra = ''.join(extra),
+                                                mimetype=mimetype,
+                                                fmt=fmt,
+                                                ).render('xml').decode('utf8'))
         
         updated = self.db.last_modified()
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
@@ -325,7 +337,11 @@ class LibraryServer(object):
     @expose
     def index(self, **kwargs):
         'The / URL'
-        return self.static('index.html')
+        stanza = cherrypy.request.headers.get('Stanza-Device-Name', 919)
+        if stanza == 919:
+            return self.static('index.html')
+        return self.stanza()
+        
     
     @expose
     def get(self, what, id):

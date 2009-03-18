@@ -18,7 +18,6 @@ DEPENDENCIES = [
             ('lxml', '2.1.5', 'lxml', 'python-lxml', 'python-lxml'),
             ('python-dateutil', '1.4.1', 'python-dateutil', 'python-dateutil', 'python-dateutil'),
             ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
-            ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
             ]
         
 
@@ -34,9 +33,10 @@ def get_linux_data(version='1.0.0'):
     data['title'] = 'Download calibre for linux'
     data['supported'] = []
     for name, title in [
-                        ('ubuntu', 'Ubuntu Jaunty Jackalope'),
                         ('debian', 'Debian Sid'),
                         ('exherbo', 'Exherbo'),
+                        ('foresight', 'Foresight 2.1'),
+                        ('ubuntu', 'Ubuntu Jaunty Jackalope'),
                         ]:
         data['supported'].append(CoolDistro(name, title, 
                                         prefix='http://calibre.kovidgoyal.net'))
@@ -177,11 +177,11 @@ else:
                 compatibility='%s works on OS X Tiger and above.'%(__appname__,),
                 path=MOBILEREAD+file, app=__appname__,
                 note=Markup(\
-    '''
+    u'''
     <ol>
     <li>Before trying to use the command line tools, you must run the app at least once. This will ask you for you password and then setup the symbolic links for the command line tools.</li>
     <li>The app cannot be run from within the dmg. You must drag it to a folder on your filesystem (The Desktop, Applications, wherever).</li> 
-    <li>In order for localization of the user interface in your language, select your language in the configuration dialog (by clicking the hammer icon next to the search bar) and select your language.</li>
+    <li>In order for localization of the user interface in your language, select your language in the preferences (by pressing u\2318+P) and select your language.</li>
     </ol>
     '''))
             return 'binary.html', data, None

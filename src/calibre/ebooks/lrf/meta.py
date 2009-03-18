@@ -530,7 +530,7 @@ class LRFMetaFile(object):
         """ See L{file.write} """
         self._file.write(val)
         
-    def objects(self):
+    def _objects(self):
         self._file.seek(self.object_index_offset)
         c = self.number_of_objects
         while c > 0:
@@ -543,7 +543,7 @@ class LRFMetaFile(object):
     def get_objects_by_type(self, type):
         from calibre.ebooks.lrf.tags import Tag
         objects = []
-        for id, offset, size in self.objects():
+        for id, offset, size in self._objects():
             self._file.seek(offset)
             tag = Tag(self._file)
             if tag.id == 0xF500:
@@ -554,7 +554,7 @@ class LRFMetaFile(object):
     
     def get_object_by_id(self, tid):
         from calibre.ebooks.lrf.tags import Tag
-        for id, offset, size in self.objects():
+        for id, offset, size in self._objects():
             self._file.seek(offset)
             tag = Tag(self._file)
             if tag.id == 0xF500:

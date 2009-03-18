@@ -97,9 +97,12 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         if encoding is None:
             encoding = force_encoding(raw, verbose)
         try:
+            if encoding.lower().strip() == 'macintosh':
+                encoding = 'mac-roman'
             raw = raw.decode(encoding, 'replace')
         except LookupError:
-            raw = raw.decode('utf-8', 'replace')
+            encoding = 'utf-8'
+            raw = raw.decode(encoding, 'replace')
     
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)

@@ -19,11 +19,10 @@ from lxml.html import HtmlElementClassLookup, HTMLParser as _HTMLParser, \
 from lxml.etree import XPath
 get_text = XPath("//text()")
 
-from calibre import LoggingInterface, unicode_path, entity_to_unicode
+from calibre import unicode_path, entity_to_unicode
 from calibre.ebooks.chardet import xml_to_unicode, ENCODING_PATS
 from calibre.utils.config import Config, StringConfig
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF, OPFCreator
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile
@@ -401,7 +400,7 @@ class PreProcessor(object):
             html = rule[0].sub(rule[1], html)
         return html
     
-class Parser(PreProcessor, LoggingInterface):
+class Parser(PreProcessor):
 #    SELF_CLOSING_TAGS = 'hr|br|link|img|meta|input|area|base|basefont'
 #    SELF_CLOSING_RULES = [re.compile(p[0]%SELF_CLOSING_TAGS, re.IGNORECASE) for p in 
 #                          [
@@ -412,7 +411,6 @@ class Parser(PreProcessor, LoggingInterface):
 #                          ]
     
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, name='htmlparser'):
-        LoggingInterface.__init__(self, logging.getLogger(name))
         self.setup_cli_handler(opts.verbose)
         self.htmlfile = htmlfile
         self.opts = opts
@@ -859,7 +857,7 @@ class Processor(Parser):
             except ValueError:
                 setting = ''
             face = font.attrib.pop('face', None)
-            if face is not None:
+            if face:
                 faces = []
                 for face in face.split(','):
                     face = face.strip()
@@ -1038,6 +1036,7 @@ def merge_metadata(htmlfile, opf, opts):
     if opf:
         mi = MetaInformation(opf)
     elif htmlfile:
+        from calibre.ebooks.metadata.meta import get_metadata
         try:
             mi =  get_metadata(open(htmlfile, 'rb'), 'html')
         except:

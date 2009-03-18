@@ -19,9 +19,9 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
     PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
 from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, CSSURL_RE, \
     ENTITY_RE, LINK_SELECTORS, MS_COVER_TYPE
-from calibre.ebooks.oeb.base import namespace, barename, qname, XPath, xpath
-from calibre.ebooks.oeb.base import urlnormalize, xml2str
-from calibre.ebooks.oeb.base import OEBError, OEBBook, DirContainer
+from calibre.ebooks.oeb.base import namespace, barename, qname, XPath, xpath, \
+                                    urlnormalize, BINARY_MIME, \
+                                    OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.metadata.epub import CoverRenderer
@@ -45,9 +45,6 @@ class OEBReader(object):
     TRANSFORMS = []
     """List of transforms to apply to content read with this Reader."""
 
-    def __init__(self):
-        return
-    
     @classmethod
     def config(cls, cfg):
         """Add any book-reading options to the :class:`Config` object
@@ -65,7 +62,7 @@ class OEBReader(object):
         :param:`oeb`.
         """
         self.oeb = oeb
-        self.logger = oeb.logger
+        self.logger = self.log = oeb.logger
         oeb.container = self.Container(path)
         opf = self._read_opf()
         self._all_from_opf(opf)

@@ -5,8 +5,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Builtin recipes.
 '''
 recipe_modules = ['recipe_' + r for r in (
-           'newsweek', 'atlantic', 'economist', 'portfolio',
-           'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
+           'newsweek', 'atlantic', 'economist', 'portfolio', 'the_register',
+           'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
            'wired', 'globe_and_mail', 'smh', 'espn', 'business_week', 'miami_herald',
            'ars_technica', 'upi', 'new_yorker', 'irish_times', 'iht', 'lanacion',
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
@@ -33,7 +33,8 @@ recipe_modules = ['recipe_' + r for r in (
            'la_republica', 'physics_today', 'chicago_tribune', 'e_novine',
            'al_jazeera', 'winsupersite', 'borba', 'courrierinternational',
            'lamujerdemivida', 'soldiers', 'theonion', 'news_times',
-           'el_universal', 'mediapart',
+           'el_universal', 'mediapart', 'wikinews_en', 'ecogeek', 'daily_mail',
+           'new_york_review_of_books_no_sub', 'politico',
           )]
 
 import re, imp, inspect, time, os
@@ -86,11 +87,15 @@ def compile_recipe(src):
         match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1) if match else 'utf-8'
         src = src.decode(enc)
+    src = re.sub(r'from __future__.*', '', src)
     f = open(temp, 'wb')
     src = 'from %s.web.feeds.news import BasicNewsRecipe, AutomaticNewsRecipe\n'%__appname__ + src
     src = 'from %s.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile\n'%__appname__ + src
     src = '# coding: utf-8\n' + src
-    f.write(src.replace('from libprs500', 'from calibre').encode('utf-8'))
+    src = 'from __future__ import with_statement\n' + src
+    
+    src = src.replace('from libprs500', 'from calibre').encode('utf-8')
+    f.write(src)
     f.close()
     module = imp.find_module(temp.namebase, [temp.dirname()])
     module = imp.load_module(temp.namebase, *module)

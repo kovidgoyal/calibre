@@ -3,11 +3,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 import sys, os, re, logging, time, subprocess, atexit, mimetypes, \
-       __builtin__
+       __builtin__, warnings
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
-from logging import Formatter
+
+warnings.simplefilter('ignore', DeprecationWarning)
+
 
 from PyQt4.QtCore import QUrl
 from PyQt4.QtGui  import QDesktopServices
@@ -24,11 +26,17 @@ mimetypes.add_type('text/x-sony-bbeb+xml',                '.lrs')
 mimetypes.add_type('application/xhtml+xml',               '.xhtml')
 mimetypes.add_type('image/svg+xml',                       '.svg')
 mimetypes.add_type('application/x-sony-bbeb',             '.lrf')
+mimetypes.add_type('application/x-sony-bbeb',             '.lrx')
 mimetypes.add_type('application/x-dtbncx+xml',            '.ncx')
 mimetypes.add_type('application/adobe-page-template+xml', '.xpgt')
 mimetypes.add_type('application/x-font-opentype',         '.otf')
 mimetypes.add_type('application/x-font-truetype',         '.ttf')
 mimetypes.add_type('application/oebps-package+xml',       '.opf')
+mimetypes.add_type('application/ereader',                 '.pdb')
+mimetypes.add_type('application/mobi',                    '.mobi')
+mimetypes.add_type('application/mobi',                    '.prc')
+mimetypes.add_type('application/mobi',                    '.azw')
+guess_type = mimetypes.guess_type
 import cssutils
 cssutils.log.setLevel(logging.WARN)
 
@@ -86,6 +94,8 @@ def prints(*args, **kwargs):
     for i, arg in enumerate(args):
         if isinstance(arg, unicode):
             arg = arg.encode(preferred_encoding)
+        if not isinstance(arg, str):
+            arg = str(arg)
         file.write(arg)
         if i != len(args)-1:
             file.write(sep)
@@ -317,24 +327,6 @@ def english_sort(x, y):
     Comapare two english phrases ignoring starting prepositions.
     '''
     return cmp(_spat.sub('', x), _spat.sub('', y))
-
-class ColoredFormatter(Formatter):
-
-    def format(self, record):
-        ln = record.__dict__['levelname']
-        col = ''
-        if ln == 'CRITICAL':
-            col = terminal_controller.YELLOW
-        elif ln == 'ERROR':
-            col = terminal_controller.RED
-        elif ln in ['WARN', 'WARNING']:
-            col = terminal_controller.BLUE
-        elif ln == 'INFO':
-            col = terminal_controller.GREEN
-        elif ln == 'DEBUG':
-            col = terminal_controller.CYAN
-        record.__dict__['levelname'] = col + record.__dict__['levelname'] + terminal_controller.NORMAL
-        return Formatter.format(self, record)
 
 def walk(dir):
     ''' A nice interface to os.walk '''

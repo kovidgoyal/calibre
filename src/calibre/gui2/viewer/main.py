@@ -341,6 +341,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         pos = self.history.forward()
         if pos is not None:
             self.goto_page(pos)
+   
+    def goto_start(self):
+        self.goto_page(1)
+        
+    def goto_end(self):
+        self.goto_page(self.pos.maximum())
     
     def goto_page(self, new_page):
         if self.current_page is not None:
@@ -604,6 +610,10 @@ def config(defaults=None):
         c = Config('viewer', desc)
     else:
         c = StringConfig(defaults, desc)
+        
+    c.add_opt('raise_window', ['--raise-window'], default=False, 
+              help=_('If specified, viewer window will try to come to the '
+                     'front when started.'))
     return c
 
 def option_parser():
@@ -617,7 +627,7 @@ View an ebook.
 
 def main(args=sys.argv):
     parser = option_parser()
-    args = parser.parse_args(args)[-1]
+    opts, args = parser.parse_args(args)
     pid = os.fork() if False and islinux else -1
     if pid <= 0:
         app = Application(args)
@@ -627,6 +637,8 @@ def main(args=sys.argv):
         main = EbookViewer(args[1] if len(args) > 1 else None)
         sys.excepthook = main.unhandled_exception
         main.show()
+        if opts.raise_window:
+            main.raise_()
         with main:
             return app.exec_()       
     return 0

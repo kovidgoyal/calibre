@@ -1,154 +1,162 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Dialog</class>
- <widget class="QDialog" name="Dialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>646</width>
-    <height>468</height>
+    <height>503</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../images.qrc">
     <normaloff>:/images/convert.svg</normaloff>:/images/convert.svg</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" >
-    <widget class="QLabel" name="title_label" >
-     <property name="text" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="title_label">
+     <property name="text">
       <string>&amp;Title:</string>
      </property>
-     <property name="buddy" >
+     <property name="buddy">
       <cstring>opt_title</cstring>
      </property>
     </widget>
    </item>
-   <item row="0" column="1" >
-    <widget class="QLineEdit" name="opt_title" />
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="opt_title"/>
    </item>
-   <item row="1" column="0" >
-    <widget class="QLabel" name="author_label" >
-     <property name="text" >
+   <item row="1" column="0">
+    <widget class="QLabel" name="author_label">
+     <property name="text">
       <string>&amp;Author(s):</string>
      </property>
-     <property name="buddy" >
+     <property name="buddy">
       <cstring>opt_author</cstring>
      </property>
     </widget>
    </item>
-   <item row="1" column="1" >
-    <widget class="QLineEdit" name="opt_author" />
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="opt_author"/>
    </item>
-   <item row="2" column="0" >
-    <widget class="QLabel" name="label_3" >
-     <property name="text" >
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
       <string>&amp;Number of Colors:</string>
      </property>
-     <property name="buddy" >
+     <property name="buddy">
       <cstring>opt_colors</cstring>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" >
-    <widget class="QSpinBox" name="opt_colors" >
-     <property name="minimum" >
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="opt_colors">
+     <property name="minimum">
       <number>8</number>
      </property>
-     <property name="maximum" >
+     <property name="maximum">
       <number>3200000</number>
      </property>
-     <property name="singleStep" >
+     <property name="singleStep">
       <number>8</number>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" >
-    <widget class="QLabel" name="label_4" >
-     <property name="text" >
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
       <string>&amp;Profile:</string>
      </property>
-     <property name="buddy" >
+     <property name="buddy">
       <cstring>opt_profile</cstring>
      </property>
     </widget>
    </item>
-   <item row="3" column="1" >
-    <widget class="QComboBox" name="opt_profile" />
+   <item row="3" column="1">
+    <widget class="QComboBox" name="opt_profile"/>
    </item>
-   <item row="4" column="0" >
-    <widget class="QCheckBox" name="opt_dont_normalize" >
-     <property name="text" >
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="opt_dont_normalize">
+     <property name="text">
       <string>Disable &amp;normalize</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" >
-    <widget class="QCheckBox" name="opt_keep_aspect_ratio" >
-     <property name="text" >
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="opt_keep_aspect_ratio">
+     <property name="text">
       <string>Keep &amp;aspect ratio</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0" >
-    <widget class="QCheckBox" name="opt_dont_sharpen" >
-     <property name="text" >
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="opt_dont_sharpen">
+     <property name="text">
       <string>Disable &amp;Sharpening</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="0" >
-    <widget class="QCheckBox" name="opt_landscape" >
-     <property name="text" >
+   <item row="9" column="0">
+    <widget class="QCheckBox" name="opt_landscape">
+     <property name="text">
       <string>&amp;Landscape</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" >
-    <widget class="QCheckBox" name="opt_no_sort" >
-     <property name="text" >
+   <item row="11" column="0">
+    <widget class="QCheckBox" name="opt_no_sort">
+     <property name="text">
       <string>Don't so&amp;rt</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="1" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+   <item row="13" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
-   <item row="9" column="0" >
-    <widget class="QCheckBox" name="opt_right2left" >
-     <property name="text" >
+   <item row="10" column="0">
+    <widget class="QCheckBox" name="opt_right2left">
+     <property name="text">
       <string>&amp;Right to left</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="0" >
-    <widget class="QCheckBox" name="opt_despeckle" >
-     <property name="text" >
+   <item row="12" column="0">
+    <widget class="QCheckBox" name="opt_despeckle">
+     <property name="text">
       <string>De&amp;speckle</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="0" >
-    <widget class="QCheckBox" name="opt_wide" >
-     <property name="text" >
+   <item row="8" column="0">
+    <widget class="QCheckBox" name="opt_wide">
+     <property name="text">
       <string>&amp;Wide</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="opt_disable_trim">
+     <property name="text">
+      <string>Disable &amp;Trimming</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../images.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -157,11 +165,11 @@
    <receiver>Dialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -173,11 +181,11 @@
    <receiver>Dialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
