@@ -93,6 +93,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.viewers = collections.deque()
         self.content_server = None
         self.system_tray_icon = QSystemTrayIcon(QIcon(':/library'), self)
+        self.system_tray_icon.setObjectName('calibre')
         if not config['systray_icon']:
             self.system_tray_icon.hide()
         else:

@@ -62,13 +62,14 @@ entry_points = {
                              'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
                              'comic2epub = calibre.ebooks.epub.from_comic:main',
                              'comic2mobi = calibre.ebooks.mobi.from_comic:main',
-			     'comic2pdf  = calibre.ebooks.pdf.from_comic:main',
+       			             'comic2pdf  = calibre.ebooks.pdf.from_comic:main',
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
                              'calibre-parallel   = calibre.parallel:main',
                              'calibre-customize  = calibre.customize.ui:main',                             
-			     'pdftrim = calibre.ebooks.pdf.pdftrim:main' ,
+			                 'pdftrim = calibre.ebooks.pdf.pdftrim:main' ,
+                             'google-books = calibre.ebooks.metadata.google_books:main',
                            ],
         'gui_scripts'    : [
                             __appname__+' = calibre.gui2.main:main',
@@ -196,7 +197,8 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
         from calibre.ebooks.mobi.from_any import option_parser as any2mobi
         from calibre.ebooks.mobi.writer import option_parser as oeb2mobi
-        from calibre.gui2.main import option_parser as guiop 
+        from calibre.gui2.main import option_parser as guiop
+        from calibre.ebooks.metadata.google_books import option_parser as gbop
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
         f = open_file('/etc/bash_completion.d/libprs500')
@@ -244,6 +246,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write(opts_and_words('feeds2epub', feeds2epub, feed_titles))
         f.write(opts_and_words('feeds2mobi', feeds2mobi, feed_titles))
+        f.write(opts_and_words('google-books', gbop, []))
         f.write(opts_and_exts('html2epub', html2epub, ['html', 'htm', 'xhtm', 'xhtml', 'opf']))
         f.write(opts_and_exts('html2oeb', html2oeb, ['html', 'htm', 'xhtm', 'xhtml']))
         f.write(opts_and_exts('odt2oeb', odt2oeb, ['odt']))
