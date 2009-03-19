@@ -108,7 +108,7 @@ def find_html_index(files):
     html_files = [f[0] for f in html_files]
     for q in ('toc', 'index'):
         for f in html_files:
-            if os.path.splitext(f)[0].lower() == q:
+            if os.path.splitext(os.path.basename(f))[0].lower() == q:
                 return f, os.path.splitext(f)[1].lower()[1:]
     return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
 
