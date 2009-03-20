@@ -8,10 +8,11 @@ import time
 
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, QThread, \
                          QAbstractTableModel, QCoreApplication, QTimer
-from PyQt4.QtGui import QDialog, QItemSelectionModel, QWidget, QLabel, QMovie
+from PyQt4.QtGui import QDialog, QItemSelectionModel
 
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from calibre.gui2 import error_dialog, NONE, info_dialog, warning_dialog
+from calibre.gui2.widgets import ProgressIndicator
 from calibre.utils.config import prefs
 
 class Fetcher(QThread):
@@ -30,41 +31,7 @@ class Fetcher(QThread):
                                                self.publisher, self.isbn, 
                                                self.key if self.key else None)
 
-class ProgressIndicator(QWidget):
-    
-    def __init__(self, *args):
-        QWidget.__init__(self, *args)
-        self.setGeometry(0, 0, 300, 350)
-        self.movie = QMovie(':/images/jobs-animated.mng')
-        self.ml = QLabel(self)
-        self.ml.setMovie(self.movie)
-        self.movie.start()
-        self.movie.setPaused(True)
-        self.status = QLabel(self)
-        self.status.setWordWrap(True)
-        self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
-        self.status.font().setBold(True)
-        self.status.font().setPointSize(self.font().pointSize()+6)
-        self.setVisible(False)
-        
-    def start(self, msg=''):
-        view = self.parent()
-        pwidth, pheight = view.size().width(), view.size().height()
-        self.resize(pwidth, min(pheight, 250))
-        self.move(0, (pheight-self.size().height())/2.)
-        self.ml.resize(self.ml.sizeHint())
-        self.ml.move(int((self.size().width()-self.ml.size().width())/2.), 0)
-        self.status.resize(self.size().width(), self.size().height()-self.ml.size().height()-10)
-        self.status.move(0, self.ml.size().height()+10)
-        self.status.setText(msg)
-        self.setVisible(True)
-        self.movie.setPaused(False)
-        
-    def stop(self):
-        if self.movie.state() == self.movie.Running:
-            self.movie.setPaused(True)
-            self.setVisible(False)
-            
+           
 class Matches(QAbstractTableModel):
     
     def __init__(self, matches):
@@ -173,7 +140,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self._hangcheck = QTimer(self)
         self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
         self.start_time = time.time()
-        self._hangcheck.start()
+        self._hangcheck.start(100)
         
     def hangcheck(self):
         if not (self.fetcher.isFinished() or time.time() - self.start_time > 75):

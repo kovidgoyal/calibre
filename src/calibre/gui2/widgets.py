@@ -7,9 +7,9 @@ import re, os, traceback
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
-                        QPixmap
+                        QPixmap, QMovie
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
-                         QObject, QRegExp, QString, QSettings, QSize
+                         QObject, QRegExp, QSettings, QSize
 
 from calibre.gui2.jobs2 import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, \
@@ -20,6 +20,42 @@ from calibre.utils.fontconfig import find_font_families
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
 from calibre.gui2.dialogs.warning_ui import Ui_Dialog as Ui_WarningDialog
+
+class ProgressIndicator(QWidget):
+    
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        self.setGeometry(0, 0, 300, 350)
+        self.movie = QMovie(':/images/jobs-animated.mng')
+        self.ml = QLabel(self)
+        self.ml.setMovie(self.movie)
+        self.movie.start()
+        self.movie.setPaused(True)
+        self.status = QLabel(self)
+        self.status.setWordWrap(True)
+        self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+        self.status.font().setBold(True)
+        self.status.font().setPointSize(self.font().pointSize()+6)
+        self.setVisible(False)
+        
+    def start(self, msg=''):
+        view = self.parent()
+        pwidth, pheight = view.size().width(), view.size().height()
+        self.resize(pwidth, min(pheight, 250))
+        self.move(0, (pheight-self.size().height())/2.)
+        self.ml.resize(self.ml.sizeHint())
+        self.ml.move(int((self.size().width()-self.ml.size().width())/2.), 0)
+        self.status.resize(self.size().width(), self.size().height()-self.ml.size().height()-10)
+        self.status.move(0, self.ml.size().height()+10)
+        self.status.setText(msg)
+        self.setVisible(True)
+        self.movie.setPaused(False)
+        
+    def stop(self):
+        if self.movie.state() == self.movie.Running:
+            self.movie.setPaused(True)
+            self.setVisible(False)
+ 
 
 class WarningDialog(QDialog, Ui_WarningDialog):
     

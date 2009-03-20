@@ -4,9 +4,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 The dialog used to edit meta information for a book as well as 
 add/remove formats
 '''
-import os
+import os, time, traceback
 
-from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
+from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompleter
 
 
@@ -16,13 +16,34 @@ from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.password import PasswordDialog
+from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
-from calibre.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
+from calibre.ebooks.metadata.library_thing import login, cover_from_isbn
 from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
 from calibre.customize.ui import run_plugins_on_import
+
+class CoverFetcher(QThread):
+    
+    def __init__(self, username, password, isbn, timeout):
+        self.username = username
+        self.password = password
+        self.timeout = timeout
+        self.isbn = isbn
+        QThread.__init__(self)
+        self.exception = self.traceback = self.cover_data = None
+        
+    def run(self):
+        try:
+            login(self.username, self.password, force=False)
+            self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout)[0]
+        except Exception, e:
+            self.exception = e
+            self.traceback = traceback.format_exc()
+        
+        
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, size, path=None):
@@ -172,6 +193,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
+        self.pi = ProgressIndicator(self)
         self.accepted_callback = accepted_callback
         self.id = db.id(row)
         self.row = row
@@ -338,32 +360,51 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     return
             self.fetch_cover_button.setEnabled(False)
             self.setCursor(Qt.WaitCursor)
-            QCoreApplication.instance().processEvents()
-            try:
-                login(d.username(), d.password(), force=False)
-                cover_data = cover_from_isbn(isbn, timeout=self.timeout)[0]
-            
-                pix = QPixmap()
-                pix.loadFromData(cover_data)
-                if pix.isNull():
-                    error_dialog(self.window, _('Bad cover'), 
-                                 _('The cover is not a valid picture')).exec_()
-                else:
-                    self.cover.setPixmap(pix)
-                    self.cover_changed = True
-                    self.cpixmap = pix
-            except LibraryThingError, err:
-                error_dialog(self, _('Cannot fetch cover'), 
-                    _('<b>Could not fetch cover.</b><br/>')+repr(err)).exec_()
-            finally:
-                self.fetch_cover_button.setEnabled(True)
-                self.unsetCursor()
-                
+            self.cover_fetcher = CoverFetcher(d.username(), d.password(), isbn,
+                                              self.timeout)
+            self.cover_fetcher.start()
+            self._hangcheck = QTimer(self)
+            self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
+            self.cf_start_time = time.time()
+            self.pi.start(_('Downloading cover...'))
+            self._hangcheck.start(100)
         else:
             error_dialog(self, _('Cannot fetch cover'), 
-                _('You must specify the ISBN identifier for this book.')).exec_()
-                
+            _('You must specify the ISBN identifier for this book.')).exec_()
     
+    def hangcheck(self):
+        if not (self.cover_fetcher.isFinished() or time.time()-self.cf_start_time > 150):
+            return
+        
+        self._hangcheck.stop()
+        try:
+            if self.cover_fetcher.isRunning():
+                self.cover_fetcher.terminate()
+                error_dialog(self, _('Cannot fetch cover'), 
+                    _('<b>Could not fetch cover.</b><br/>')+
+                    _('The download timed out.')).exec_()
+                return
+            if self.cover_fetcher.exception is not None:
+                err = self.cover_fetcher.exception
+                error_dialog(self, _('Cannot fetch cover'), 
+                    _('<b>Could not fetch cover.</b><br/>')+repr(err)).exec_()
+                return
+            
+            pix = QPixmap()
+            pix.loadFromData(self.cover_fetcher.cover_data)
+            if pix.isNull():
+                error_dialog(self.window, _('Bad cover'), 
+                             _('The cover is not a valid picture')).exec_()
+            else:
+                self.cover.setPixmap(pix)
+                self.cover_changed = True
+                self.cpixmap = pix
+        finally:
+            self.fetch_cover_button.setEnabled(True)
+            self.unsetCursor()
+            self.pi.stop()
+                
+        
     def fetch_metadata(self):
         isbn   = qstring_to_unicode(self.isbn.text())
         title  = qstring_to_unicode(self.title.text())
