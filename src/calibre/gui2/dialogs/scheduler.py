@@ -219,6 +219,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 return QVariant(category + ' [%d]'%num)
             elif role == Qt.FontRole:
                 return self.bold_font
+            elif role == Qt.ForegroundRole and category == _('Scheduled'):
+                return QVariant(QColor(0, 255, 0))
         return NONE
     
     def update_recipe_schedule(self, recipe):

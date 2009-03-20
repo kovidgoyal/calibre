@@ -138,7 +138,9 @@ class Splitter(object):
         split_point, before = self.find_split_point(root)
         if split_point is None or self.split_size > 6*self.orig_size:
             if not self.always_remove:
-                self.log_warn(_('\t\tToo much markup. Re-splitting without structure preservation. This may cause incorrect rendering.'))
+                self.log_warn(_('\t\tToo much markup. Re-splitting without '
+                                'structure preservation. This may cause '
+                                'incorrect rendering.'))
             raise SplitError(self.path, root)
         
         for t in self.do_split(tree, split_point, before):
@@ -149,7 +151,8 @@ class Splitter(object):
             if size <= self.opts.profile.flow_size:
                 self.trees.append(t)
                 #print tostring(t.getroot(), pretty_print=True)
-                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', len(self.trees), size/1024.)
+                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', 
+                               len(self.trees), size/1024.)
                 self.split_size += size
             else:
                 self.split_to_size(t)
@@ -329,10 +332,12 @@ class Splitter(object):
                      '//pre',
                      '//hr', 
                      '//p',
+                     '//div',
                      '//br',
                      '//li',
                      ):
-            elems = root.xpath(path, namespaces={'re':'http://exslt.org/regular-expressions'})
+            elems = root.xpath(path, 
+                    namespaces={'re':'http://exslt.org/regular-expressions'})
             elem = pick_elem(elems)
             if elem is not None:
                 try:

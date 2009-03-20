@@ -205,6 +205,9 @@ class Server(object):
         ax.set_xlabel('Days ago')
         ax.set_ylabel('Income ($)')
         ax.hlines([stats.daily_average], 0, days-1)
+        ax.hlines([stats.daily_average+stats.daily_deviation,
+                   stats.daily_average-stats.daily_deviation], 0, days-1,
+                   linestyle=':',color='r')
         ax.set_xlim([0, days-1])
         text = u'''\
 Total: $%(total).2f

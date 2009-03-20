@@ -19,7 +19,7 @@ from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
 from cssutils.profiles import profiles as cssprofiles
 from lxml import etree
-from lxml.cssselect import css_to_xpath, ExpressionError
+from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
@@ -159,7 +159,9 @@ class Stylizer(object):
         for _, _, cssdict, text, _ in rules:
             try:
                 selector = CSSSelector(text)
-            except (AssertionError, ExpressionError, etree.XPathSyntaxError):
+            except (AssertionError, ExpressionError, etree.XPathSyntaxError,\
+                NameError, # gets thrown on OS X instead of SelectorSyntaxError
+                SelectorSyntaxError):
                 continue
             for elem in selector(tree):
                 self.style(elem)._update_cssdict(cssdict)
