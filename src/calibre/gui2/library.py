@@ -823,7 +823,7 @@ class DeviceBooksModel(BooksModel):
 
 
     def search(self, text, refinement, reset=True):
-        if not text:
+        if not text or not text.strip():
             self.map = list(range(len(self.db)))
         else:
             matches = self.search_engine.parse(text)

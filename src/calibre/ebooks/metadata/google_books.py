@@ -90,7 +90,7 @@ class ResultList(list):
         try:
             desc = description(entry)
             if desc:
-                return desc[0].text
+                return 'SUMMARY:\n'+desc[0].text
         except:
             report(verbose)
     
@@ -200,9 +200,6 @@ def search(title=None, author=None, publisher=None, isbn=None,
     
     ans = ResultList()
     ans.populate(entries, br, verbose)
-    ans.sort(cmp=lambda x, y:cmp(len(x.comments if x.comments else ''),
-                                 len(x.comments if x.comments else '')), 
-                                 reverse=True)
     return ans
 
 def option_parser():
