@@ -13,8 +13,11 @@ from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
+import logging
 from lxml import etree, html
 import calibre
+from cssutils import CSSParser
+from cssutils.css import CSSStyleSheet
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
@@ -98,6 +101,8 @@ JPEG_MIME      = types_map['.jpeg']
 PNG_MIME       = types_map['.png']
 SVG_MIME       = types_map['.svg']
 BINARY_MIME    = 'application/octet-stream'
+
+XHTML_CSS_NAMESPACE = u'@namespace "%s";\n' % XHTML_NS
 
 OEB_STYLES        = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
 OEB_DOCS          = set([XHTML_MIME, 'text/html', OEB_DOC_MIME,
@@ -565,7 +570,7 @@ class Manifest(object):
             return 'Item(id=%r, href=%r, media_type=%r)' \
                 % (self.id, self.href, self.media_type)
 
-        def _force_xhtml(self, data):
+        def _parse_xhtml(self, data):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = XMLDECL_RE.sub('', data)
@@ -645,6 +650,27 @@ class Manifest(object):
                     'File %r missing <body/> element' % self.href)
                 etree.SubElement(data, XHTML('body'))
             return data
+
+        def _parse_css(self, data):
+            data = self.oeb.decode(data)
+            data = XHTML_CSS_NAMESPACE + data
+            parser = CSSParser(log=self.oeb.logger, loglevel=logging.WARNING,
+                               fetcher=self._fetch_css)
+            data = parser.parseString(data, href=self.href)
+            data.namespaces['h'] = XHTML_NS
+            return data
+        
+        def _fetch_css(self, path):
+            hrefs = self.oeb.manifest.hrefs
+            if path not in hrefs:
+                self.oeb.logger.warn('CSS import of missing file %r' % path)
+                return (None, None)
+            item = hrefs[path]
+            if item.media_type not in OEB_STYLES:
+                self.oeb.logger.warn('CSS import of non-CSS file %r' % path)
+                return (None, None)
+            data = item.data.cssText
+            return ('utf-8', data)
         
         @dynamic_property
         def data(self):
@@ -661,15 +687,19 @@ class Manifest(object):
               special parsing.
             """
             def fget(self):
-                if self._data is not None:
-                    return self._data
-                data = self._loader(self.href)
-                if self.media_type in OEB_DOCS:
-                    data = self._force_xhtml(data)
+                data = self._data
+                if data is None:
+                    if self._loader is None:
+                        return None
+                    data = self._loader(self.href)
+                if not isinstance(data, basestring):
+                    pass # already parsed
+                elif self.media_type in OEB_DOCS:
+                    data = self._parse_xhtml(data)
                 elif self.media_type[-4:] in ('+xml', '/xml'):
                     data = etree.fromstring(data)
                 elif self.media_type in OEB_STYLES:
-                    data = self.oeb.decode(data)
+                    data = self._parse_css(data)
                 self._data = data
                 return data
             def fset(self, value):
@@ -677,7 +707,7 @@ class Manifest(object):
             def fdel(self):
                 self._data = None
             return property(fget, fset, fdel, doc=doc)
-                
+        
         def __str__(self):
             data = self.data
             if isinstance(data, etree._Element):
@@ -726,7 +756,7 @@ class Manifest(object):
             if frag:
                 relhref = '#'.join((relhref, frag))
             return relhref
-
+        
         def abshref(self, href):
             """Convert the URL provided in :param:`href` from a reference
             relative to this manifest item to a book-absolute reference.
@@ -748,7 +778,7 @@ class Manifest(object):
         self.items = set()
         self.ids = {}
         self.hrefs = {}
-
+    
     def add(self, id, href, media_type, fallback=None, loader=None, data=None):
         """Add a new item to the book manifest.
 
@@ -765,7 +795,7 @@ class Manifest(object):
         self.ids[item.id] = item
         self.hrefs[item.href] = item
         return item
-
+    
     def remove(self, item):
         """Removes :param:`item` from the manifest."""
         if item in self.ids:
@@ -775,7 +805,7 @@ class Manifest(object):
         self.items.remove(item)
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
-
+    
     def generate(self, id=None, href=None):
         """Generate a new unique identifier and/or internal path for use in
         creating a new manifest item, using the provided :param:`id` and/or
@@ -803,13 +833,13 @@ class Manifest(object):
     def __iter__(self):
         for item in self.items:
             yield item
-
+    
     def values(self):
         return list(self.items)
     
     def __contains__(self, item):
         return item in self.items
-
+    
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
         for item in self.items:
