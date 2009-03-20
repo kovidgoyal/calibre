@@ -4,10 +4,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Interface to isbndb.com. My key HLLXQX2A.
 '''
 
-import sys, logging, re, socket
+import sys, re, socket
 from urllib import urlopen, quote
 
-from calibre import setup_cli_handlers
 from calibre.utils.config import OptionParser
 from calibre.ebooks.metadata import MetaInformation, authors_to_sort_string
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
@@ -63,9 +62,10 @@ class ISBNDBMetadata(MetaInformation):
             
         try:
             self.author_sort = book.find('authors').find('person').string
+            if self.authors and self.author_sort == self.authors[0]:
+                self.author_sort = None
         except:
-            if self.authors:
-                self.author_sort = authors_to_sort_string(self.authors)
+            pass
         self.publisher = book.find('publishertext').string
         
         summ = book.find('summary')
@@ -118,19 +118,15 @@ key is the account key you generate after signing up for a free account from isb
     return parser
     
 
-def create_books(opts, args, logger=None, timeout=5.):
-    if logger is None:
-        level = logging.DEBUG if opts.verbose else logging.INFO
-        logger = logging.getLogger('isbndb')
-        setup_cli_handlers(logger, level)
-    
+def create_books(opts, args, timeout=5.):
     base_url = BASE_URL%dict(key=args[1])
     if opts.isbn is not None:
         url = build_isbn(base_url, opts)
     else:
         url = build_combined(base_url, opts)
-        
-    logger.info('ISBNDB query: '+url)
+    
+    if opts.verbose:
+        print ('ISBNDB query: '+url)
     
     return [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
 
@@ -139,7 +135,7 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()
-        print('You must supply the isbndb.com key')
+        print ('You must supply the isbndb.com key')
         return 1
     
     for book in create_books(opts, args):

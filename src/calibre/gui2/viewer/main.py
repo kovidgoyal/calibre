@@ -92,7 +92,6 @@ class ProgressIndicator(QWidget):
         
     def stop(self):
         if self.movie.state() == self.movie.Running:
-            #self.movie.jumpToFrame(0)
             self.movie.setPaused(True)
             self.setVisible(False)
 

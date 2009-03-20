@@ -229,7 +229,8 @@ class MetaInformation(object):
         if mi.authors and mi.authors[0] != _('Unknown'):
             self.authors = mi.authors
 
-        for attr in ('author_sort', 'title_sort', 'comments', 'category',
+            
+        for attr in ('author_sort', 'title_sort', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
@@ -244,7 +245,16 @@ class MetaInformation(object):
 
         if getattr(mi, 'cover_data', None) and mi.cover_data[0] is not None:
             self.cover_data = mi.cover_data
-
+            
+        my_comments = getattr(self, 'comments', '')
+        other_comments = getattr(mi, 'comments', '')
+        if not my_comments:
+            my_comments = ''
+        if not other_comments:
+            other_comments = ''
+        if len(other_comments.strip()) > len(my_comments.strip()):
+            self.comments = other_comments
+            
     def format_series_index(self):
         try:
             x = float(self.series_index)

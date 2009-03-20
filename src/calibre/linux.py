@@ -40,6 +40,7 @@ entry_points = {
              'calibre-parallel   = calibre.parallel:main',
              'calibre-customize  = calibre.customize.ui:main',
              'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
+             'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
         ],
         'gui_scripts'    : [
             __appname__+' = calibre.gui2.main:main',
@@ -157,6 +158,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
         from calibre.ebooks.mobi.from_feeds import option_parser as feeds2mobi
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
+        from calibre.ebooks.metadata.fetch import option_parser as fem_op
         from calibre.gui2.main import option_parser as guiop
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt']
@@ -191,6 +193,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write(opts_and_words('feeds2epub', feeds2epub, feed_titles))
         f.write(opts_and_words('feeds2mobi', feeds2mobi, feed_titles))
+        f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
         f.write('''
 _prs500_ls()
 {

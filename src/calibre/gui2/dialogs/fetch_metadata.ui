@@ -23,20 +23,13 @@
    <item>
     <widget class="QLabel" name="tlabel" >
      <property name="text" >
-      <string>Fetching metadata for &lt;b>%1&lt;/b></string>
+      <string>&lt;p>calibre can find metadata for your books from two locations: &lt;b>Google Books&lt;/b> and &lt;b>isbndb.com&lt;/b>. &lt;p>To use isbndb.com you must sign up for a &lt;a href="http://www.isbndb.com">free account&lt;/a> and exter you access key below.</string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label" >
-     <property name="text" >
-      <string>Sign up for a free account from &lt;a href="http://www.isbndb.com">ISBNdb.com&lt;/a> to get an access key.</string>
-     </property>
-     <property name="alignment" >
-      <set>Qt::AlignCenter</set>
+     <property name="wordWrap" >
+      <bool>true</bool>
      </property>
      <property name="openExternalLinks" >
       <bool>true</bool>
