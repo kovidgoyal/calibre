@@ -70,14 +70,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             pub = qstring_to_unicode(self.publisher.text())
             if pub:
                 self.db.set_publisher(id, pub, notify=False)
-            tags = qstring_to_unicode(self.tags.text()).strip()
-            if tags:
-                tags = map(lambda x: x.strip(), tags.split(','))
-                self.db.set_tags(id, tags, append=True, notify=False)
             remove_tags = qstring_to_unicode(self.remove_tags.text()).strip()
             if remove_tags:
                 remove_tags = [i.strip() for i in remove_tags.split(',')]
                 self.db.unapply_tags(id, remove_tags, notify=False)
+            tags = qstring_to_unicode(self.tags.text()).strip()
+            if tags:
+                tags = map(lambda x: x.strip(), tags.split(','))
+                self.db.set_tags(id, tags, append=True, notify=False)
             if self.write_series:
                 self.db.set_series(id, qstring_to_unicode(self.series.currentText()), notify=False)
                 
