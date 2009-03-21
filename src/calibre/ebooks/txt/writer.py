@@ -68,6 +68,9 @@ class TXTWriter(object):
             for tag in ['script', 'style']:
                 text = re.sub('(?imu)<[ ]*%s[ ]*.*?>(.*)</[ ]*%s[ ]*>' % (tag, tag), '', text)
             text = re.sub('<!--.*-->', '', text)
+            text = re.sub('<\?.*?\?>', '', text)
+            text = re.sub('<@.*?@>', '', text)
+            text = re.sub('<%.*?%>', '', text)
 
             # Headings usually indicate Chapters.
             # We are going to use a marker to insert the proper number of
@@ -107,7 +110,6 @@ class TXTWriter(object):
         text = text.replace(u'\xa0', ' ')
     
         # Replace tabs, vertical tags and form feeds with single space.
-        #text = re.sub('\xc2\xa0', '', text)
         text = text.replace('\t+', ' ')
         text = text.replace('\v+', ' ')
         text = text.replace('\f+', ' ')
@@ -122,8 +124,6 @@ class TXTWriter(object):
         
         # Remove multiple spaces.
         text = re.sub('[  ]+', ' ', text)
-        text = re.sub('(?imu)^[ ]+', '', text)
-        text = re.sub('(?imu)[ ]+$', '', text)
         
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)
@@ -132,6 +132,10 @@ class TXTWriter(object):
         # Replace markers with the proper characters.
         text = text.replace('-vzxedxy-', '\n\n\n\n\n')
         text = text.replace('-vlgzxey-', '\n\n\n')
+        
+        # Replace spaces at the beginning and end of lines
+        text = re.sub('(?imu)^[ ]+', '', text)
+        text = re.sub('(?imu)[ ]+$', '', text)
         
         return text
 
