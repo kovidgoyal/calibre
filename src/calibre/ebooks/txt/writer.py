@@ -53,7 +53,8 @@ class TXTWriter(object):
             for i in range(3 - end.count(self.newline)):
                 tmpout = tmpout + self.newline
 
-        os.remove(path)
+        if os.path.exists(path):
+            os.remove(path)
         with open(path, 'w+b') as out:
             out.write(tmpout.encode('utf-8'))
             
