@@ -132,7 +132,7 @@ def rescale_image(data, maxsizeb, dimen=None):
 
 class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
-    
+
     def __init__(self, oeb, images):
         self.oeb = oeb
         self.images = images
@@ -192,7 +192,7 @@ class Serializer(object):
         self.href_offsets[href].append(buffer.tell())
         buffer.write('0000000000')
         return True
-        
+
     def serialize_body(self):
         buffer = self.buffer
         self.anchor_offset = buffer.tell()
@@ -290,10 +290,10 @@ class Serializer(object):
                 buffer.seek(hoff)
                 buffer.write('%010d' % ioff)
 
-    
+
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
-    
+
     def __init__(self, compression=None, imagemax=None,
                  prefer_author_sort=False):
         self._compression = compression or UNCOMPRESSED
@@ -305,11 +305,11 @@ class MobiWriter(object):
             return self._dump_stream(oeb, path)
         with open(path, 'w+b') as stream:
             return self._dump_stream(oeb, stream)
-    
+
     def _write(self, *data):
         for datum in data:
             self._stream.write(datum)
-    
+
     def _tell(self):
         return self._stream.tell()
 
@@ -364,7 +364,7 @@ class MobiWriter(object):
         overlap = text.read(extra)
         text.seek(npos)
         return data, overlap
-                
+
     def _generate_text(self):
         self._oeb.logger.info('Serializing markup content...')
         serializer = Serializer(self._oeb, self._images)
@@ -405,7 +405,7 @@ class MobiWriter(object):
             offset += RECORD_SIZE
             data, overlap = self._read_text_record(text)
         self._text_nrecords = nrecords
-    
+
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
@@ -418,7 +418,7 @@ class MobiWriter(object):
                 self._oeb.logger.warn('Bad image file %r' % item.href)
                 continue
             self._records.append(data)
-    
+
     def _generate_record0(self):
         metadata = self._oeb.metadata
         exth = self._build_exth()
@@ -510,7 +510,7 @@ class MobiWriter(object):
         self._images[href] = index
         self._records.append(data)
         return index
-    
+
     def _write_header(self):
         title = str(self._oeb.metadata.title[0])
         title = re.sub('[^-A-Za-z0-9]+', '_', title)[:32]
@@ -537,14 +537,14 @@ def config(defaults=None):
         c = Config('mobi', desc)
     else:
         c = StringConfig(defaults, desc)
-        
+
     mobi = c.add_group('mobipocket', _('Mobipocket-specific options.'))
     mobi('compress', ['--compress'], default=False,
          help=_('Compress file text using PalmDOC compression. '
                'Results in smaller files, but takes a long time to run.'))
-    mobi('rescale_images', ['--rescale-images'], default=False, 
+    mobi('rescale_images', ['--rescale-images'], default=False,
         help=_('Modify images to meet Palm device size limitations.'))
-    mobi('toc_title', ['--toc-title'], default=None, 
+    mobi('toc_title', ['--toc-title'], default=None,
          help=_('Title for any generated in-line table of contents.'))
     mobi('ignore_tables', ['--ignore-tables'], default=False,
          help=_('Render HTML tables as blocks of text instead of actual '
@@ -565,13 +565,13 @@ def config(defaults=None):
     c.add_opt('encoding', ['--encoding'], default=None,
               help=_('Character encoding for HTML files. Default is to auto detect.'))
     return c
-    
+
 
 def option_parser():
     c = config()
     parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
     parser.add_option(
-        '-o', '--output', default=None, 
+        '-o', '--output', default=None,
         help=_('Output file. Default is derived from input filename.'))
     parser.add_option(
         '-v', '--verbose', default=0, action='count',
@@ -617,7 +617,7 @@ def oeb2mobi(opts, inpath):
     writer.dump(oeb, outpath)
     run_plugins_on_postprocess(outpath, 'mobi')
     logger.info(_('Output written to ') + outpath)
-    
+
 def main(argv=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(argv[1:])
