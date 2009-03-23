@@ -24,6 +24,8 @@ class Device(object):
     # it can be a list of the BCD numbers of all devices supported by this driver.
     BCD         = None
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
+    # Whether the metadata on books can be set via the GUI.
+    CAN_SET_METADATA = True
     
     def __init__(self, key='-1', log_packets=False, report_progress=None) :
         """ 

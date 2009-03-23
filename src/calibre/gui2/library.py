@@ -708,6 +708,9 @@ class BooksView(TableView):
 
     def close(self):
         self._model.close()
+        
+    def set_editable(self, editable):
+        self._model.set_editable(editable)
 
     def connect_to_search_box(self, sb):
         QObject.connect(sb, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
@@ -785,14 +788,13 @@ class DeviceBooksModel(BooksModel):
         self.unknown = str(self.trUtf8('Unknown'))
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
-
+        self.editable = True
 
     def mark_for_deletion(self, job, rows):
         self.marked_for_deletion[job] = self.indices(rows)
         for row in rows:
             indices = self.row_indices(row)
             self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
-
 
     def deletion_done(self, job, succeeded=True):
         if not self.marked_for_deletion.has_key(job):
@@ -818,7 +820,7 @@ class DeviceBooksModel(BooksModel):
         if self.map[index.row()] in self.indices_to_be_deleted():
             return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
         flags = QAbstractTableModel.flags(self, index)
-        if index.isValid():
+        if index.isValid() and self.editable:
             if index.column() in [0, 1] or (index.column() == 4 and self.db.supports_tags()):
                 flags |= Qt.ItemIsEditable
         return flags
@@ -999,6 +1001,10 @@ class DeviceBooksModel(BooksModel):
                 self.sort(col, self.sorted_on[1])
             done = True
         return done
+        
+    def set_editable(self, editable):
+        self.editable = editable
+        
 
 class SearchBox(QLineEdit):
 

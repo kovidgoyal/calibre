@@ -585,7 +585,9 @@ class Main(MainWindow, Ui_MainWindow):
             return
         mainlist, cardlist = job.result
         self.memory_view.set_database(mainlist)
+        self.memory_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
         self.card_view.set_database(cardlist)
+        self.card_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
         for view in (self.memory_view, self.card_view):
             view.sortByColumn(3, Qt.DescendingOrder)
             if not view.restore_column_widths():
