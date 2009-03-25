@@ -9,6 +9,7 @@ import sys, struct, os, cStringIO, re, functools
 
 try:
     from PIL import Image as PILImage
+    PILImage
 except ImportError:
     import Image as PILImage
 
@@ -50,6 +51,8 @@ class EXTHHeader(object):
                     self.cover_offset = co
             elif id == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
+            elif id == 503 and (not title or title == _('Unknown')):
+                title = content
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
