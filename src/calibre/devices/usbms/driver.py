@@ -35,6 +35,7 @@ class USBMS(Device):
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD = ''
     SUPPORTS_SUB_DIRS = False
+    CAN_SET_METADATA = False
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
         Device.__init__(self, key=key, log_packets=log_packets, 
