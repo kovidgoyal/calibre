@@ -42,9 +42,9 @@ def report(verbose):
 
 
 class Query(object):
-    
+
     BASE_URL = 'http://books.google.com/books/feeds/volumes?'
-    
+
     def __init__(self, title=None, author=None, publisher=None, isbn=None,
                  max_results=20, min_viewability='none', start_index=1):
         assert not(title is None and author is None and publisher is None and \
@@ -63,14 +63,16 @@ class Query(object):
                 q += build_term('author', author.split())
             if publisher is not None:
                 q += build_term('publisher', publisher.split())
-        
+
+        if isinstance(q, unicode):
+            q = q.encode('utf-8')
         self.url = self.BASE_URL+urlencode({
             'q':q,
             'max-results':max_results,
             'start-index':start_index,
             'min-viewability':min_viewability,
             })
-        
+
     def __call__(self, browser, verbose):
         if verbose:
             print 'Query:', self.url
@@ -85,7 +87,7 @@ class Query(object):
 
 
 class ResultList(list):
-    
+
     def get_description(self, entry, verbose):
         try:
             desc = description(entry)
@@ -93,7 +95,7 @@ class ResultList(list):
                 return 'SUMMARY:\n'+desc[0].text
         except:
             report(verbose)
-    
+
     def get_language(self, entry, verbose):
         try:
             l = language(entry)
@@ -101,27 +103,27 @@ class ResultList(list):
                 return l[0].text
         except:
             report(verbose)
-    
-                
-    
+
+
+
     def get_title(self, entry):
         candidates = [x.text for x in title(entry)]
         candidates.sort(cmp=lambda x,y: cmp(len(x), len(y)), reverse=True)
         return candidates[0]
-    
+
     def get_authors(self, entry):
         m = creator(entry)
         if not m:
             m = []
         m = [x.text for x in m]
         return m
-    
+
     def get_author_sort(self, entry, verbose):
         for x in creator(entry):
             for key, val in x.attrib.items():
                 if key.endswith('file-as'):
                     return val
-    
+
     def get_identifiers(self, entry, mi):
         isbns = []
         for x in identifier(entry):
@@ -131,7 +133,7 @@ class ResultList(list):
                     isbns.append(t[5:])
         if isbns:
             mi.isbn = sorted(isbns, cmp=lambda x,y:cmp(len(x), len(y)))[-1]
-    
+
     def get_tags(self, entry, verbose):
         try:
             tags = [x.text for x in subject(entry)]
@@ -139,14 +141,14 @@ class ResultList(list):
             report(verbose)
             tags = []
         return tags
-    
+
     def get_publisher(self, entry, verbose):
         try:
             pub = publisher(entry)[0].text
         except:
             pub = None
         return pub
-    
+
     def get_date(self, entry, verbose):
         try:
             d = date(entry)
@@ -158,7 +160,7 @@ class ResultList(list):
             report(verbose)
             d = None
         return d
-    
+
     def populate(self, entries, browser, verbose=False):
         for x in entries:
             try:
@@ -175,7 +177,7 @@ class ResultList(list):
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e
-            mi.author_sort = self.get_author_sort(x, verbose) 
+            mi.author_sort = self.get_author_sort(x, verbose)
             mi.comments = self.get_description(x, verbose)
             self.get_identifiers(x, mi)
             mi.tags = self.get_tags(x, verbose)
@@ -190,14 +192,14 @@ def search(title=None, author=None, publisher=None, isbn=None,
     br   = browser()
     start, entries = 1, []
     while start > 0 and len(entries) <= max_results:
-        new, start = Query(title=title, author=author, publisher=publisher, 
+        new, start = Query(title=title, author=author, publisher=publisher,
                        isbn=isbn, min_viewability=min_viewability)(br, verbose)
         if not new:
             break
         entries.extend(new)
-    
+
     entries = entries[:max_results]
-    
+
     ans = ResultList()
     ans.populate(entries, br, verbose)
     return ans
@@ -206,18 +208,18 @@ def option_parser():
     parser = OptionParser(textwrap.dedent(
         '''\
         %prog [options]
-        
+
         Fetch book metadata from Google. You must specify one of title, author,
-        publisher or ISBN. If you specify ISBN the others are ignored. Will 
-        fetch a maximum of 100 matches, so you should make your query as 
-        specific as possible. 
+        publisher or ISBN. If you specify ISBN the others are ignored. Will
+        fetch a maximum of 100 matches, so you should make your query as
+        specific as possible.
         '''
     ))
     parser.add_option('-t', '--title', help='Book title')
     parser.add_option('-a', '--author', help='Book author(s)')
     parser.add_option('-p', '--publisher', help='Book publisher')
     parser.add_option('-i', '--isbn', help='Book ISBN')
-    parser.add_option('-m', '--max-results', default=10, 
+    parser.add_option('-m', '--max-results', default=10,
                       help='Maximum number of results to fetch')
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help='Be more verbose about errors')
@@ -236,6 +238,6 @@ def main(args=sys.argv):
     for result in results:
         print unicode(result).encode(preferred_encoding)
         print
-    
+
 if __name__ == '__main__':
     sys.exit(main())
