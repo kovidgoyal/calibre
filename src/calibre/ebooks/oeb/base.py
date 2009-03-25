@@ -282,17 +282,17 @@ class Metadata(object):
     OPF1_NSMAP    = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
     OPF2_NSMAP    = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                      'xsi': XSI_NS, 'calibre': CALIBRE_NS}
-    
+
     class Item(object):
-        
+
         class Attribute(object):
-            
+
             def __init__(self, attr, allowed=None):
                 if not callable(attr):
                     attr_, attr = attr, lambda term: attr_
                 self.attr = attr
                 self.allowed = allowed
-            
+
             def term_attr(self, obj):
                 term = obj.term
                 if namespace(term) != DC11_NS:
@@ -303,14 +303,14 @@ class Metadata(object):
                         'attribute %r not valid for metadata term %r' \
                             % (self.attr(term), barename(obj.term)))
                 return self.attr(term)
-            
+
             def __get__(self, obj, cls):
                 if obj is None: return None
                 return obj.attrib.get(self.term_attr(obj), '')
-            
+
             def __set__(self, obj, value):
                 obj.attrib[self.term_attr(obj)] = value
-        
+
         def __init__(self, term, value, attrib={}, nsmap={}, **kwargs):
             self.attrib = attrib = dict(attrib)
             self.nsmap = nsmap = dict(nsmap)
@@ -336,8 +336,8 @@ class Metadata(object):
                     nsattr = 'scheme'
                 if attr != nsattr:
                     attrib[nsattr] = attrib.pop(attr)
-        
-        scheme  = Attribute(lambda term : 'scheme' if term == OPF('meta') else OPF('scheme'), 
+
+        scheme  = Attribute(lambda term : 'scheme' if term == OPF('meta') else OPF('scheme'),
                            [DC('identifier'), OPF('meta')])
         file_as = Attribute(OPF('file-as'), [DC('creator'), DC('contributor')])
         role    = Attribute(OPF('role'), [DC('creator'), DC('contributor')])
@@ -349,19 +349,19 @@ class Metadata(object):
                                        DC('relation'), DC('rights'),
                                        DC('source'), DC('subject'),
                                        OPF('meta')])
-        
+
         def __getitem__(self, key):
             return self.attrib[key]
-        
+
         def __setitem__(self, key, value):
             self.attrib[key] = value
-        
+
         def __contains__(self, key):
             return key in self.attrib
-        
+
         def get(self, key, default=None):
             return self.attrib.get(key, default)
-        
+
         def __repr__(self):
             return 'Item(term=%r, value=%r, attrib=%r)' \
                 % (barename(self.term), self.value, self.attrib)
@@ -387,7 +387,7 @@ class Metadata(object):
                 elem.attrib['name'] = prefixname(self.term, nsrmap)
                 elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
-        
+
         def to_opf2(self, parent=None, nsrmap={}):
             attrib = {}
             for key, value in self.attrib.items():
@@ -400,7 +400,7 @@ class Metadata(object):
                 elem.attrib['name'] = prefixname(self.term, nsrmap)
                 elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
-    
+
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = defaultdict(list)
@@ -434,7 +434,7 @@ class Metadata(object):
                     nsmap.update(item.nsmap)
             return nsmap
         return property(fget=fget)
-    
+
     @apply
     def _opf1_nsmap():
         def fget(self):
@@ -444,8 +444,8 @@ class Metadata(object):
                     del nsmap[key]
             return nsmap
         return property(fget=fget)
-    
-    
+
+
     @apply
     def _opf2_nsmap():
         def fget(self):
@@ -453,8 +453,8 @@ class Metadata(object):
             nsmap.update(self.OPF2_NSMAP)
             return nsmap
         return property(fget=fget)
-    
-    
+
+
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
         nsrmap = dict((value, key) for key, value in nsmap.items())
@@ -468,7 +468,7 @@ class Metadata(object):
             chaptertour = self.Item('ms-chaptertour', 'chaptertour')
             chaptertour.to_opf1(dcmeta, xmeta, nsrmap=nsrmap)
         return elem
-        
+
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
         nsrmap = dict((value, key) for key, value in nsmap.items())
@@ -480,12 +480,12 @@ class Metadata(object):
 
 
 class Manifest(object):
-    
+
     class Item(object):
-    
+
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
         META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
-    
+
         def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
             self.oeb = oeb
@@ -543,7 +543,11 @@ class Manifest(object):
             elif not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
-                data = etree.fromstring(data)
+                try:
+                    data = etree.fromstring(data)
+                except:
+                    data=data.replace(':=', '=').replace(':>', '>')
+                    data = etree.fromstring(data)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
                 ns = namespace(data.tag)
@@ -584,7 +588,7 @@ class Manifest(object):
                     'File %r missing <body/> element' % self.href)
                 etree.SubElement(data, XHTML('body'))
             return data
-        
+
         @apply
         def data():
             def fget(self):
@@ -604,7 +608,7 @@ class Manifest(object):
             def fdel(self):
                 self._data = None
             return property(fget, fset, fdel)
-                
+
         def __str__(self):
             data = self.data
             if isinstance(data, etree._Element):
@@ -612,13 +616,13 @@ class Manifest(object):
             if isinstance(data, unicode):
                 return data.encode('utf-8')
             return str(data)
-        
+
         def __eq__(self, other):
             return id(self) == id(other)
-        
+
         def __ne__(self, other):
             return not self.__eq__(other)
-        
+
         def __cmp__(self, other):
             result = cmp(self.spine_position, other.spine_position)
             if result != 0:
@@ -632,7 +636,7 @@ class Manifest(object):
             onum = float(omatch.group(2)) if omatch else 0.0
             okey = (oref, onum, other.id)
             return cmp(skey, okey)
-        
+
         def relhref(self, href):
             if urlparse(href).scheme:
                 return href
@@ -663,7 +667,7 @@ class Manifest(object):
             href = os.path.join(dirname, href)
             href = os.path.normpath(href).replace('\\', '/')
             return href
-    
+
     def __init__(self, oeb):
         self.oeb = oeb
         self.ids = {}
@@ -714,7 +718,7 @@ class Manifest(object):
     def items(self):
         for id, item in self.ids.items():
             yield id, item
-    
+
     def __contains__(self, key):
         return key in self.ids
 
@@ -732,7 +736,7 @@ class Manifest(object):
                 attrib['fallback'] = item.fallback
             element(elem, 'item', attrib=attrib)
         return elem
-    
+
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
         for item in self.ids.values():
@@ -750,7 +754,7 @@ class Manifest(object):
 
 
 class Spine(object):
-    
+
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = []
@@ -763,13 +767,13 @@ class Spine(object):
         elif linear in ('no', 'false'):
             linear = False
         return linear
-        
+
     def add(self, item, linear=None):
         item.linear = self._linear(linear)
         item.spine_position = len(self.items)
         self.items.append(item)
         return item
-    
+
     def insert(self, index, item, linear):
         item.linear = self._linear(linear)
         item.spine_position = index
@@ -777,14 +781,14 @@ class Spine(object):
         for i in xrange(index, len(self.items)):
             self.items[i].spine_position = i
         return item
-    
+
     def remove(self, item):
         index = item.spine_position
         self.items.pop(index)
         for i in xrange(index, len(self.items)):
             self.items[i].spine_position = i
         item.spine_position = None
-    
+
     def __iter__(self):
         for item in self.items:
             yield item
@@ -816,9 +820,9 @@ class Spine(object):
 
 
 class Guide(object):
-    
+
     class Reference(object):
-        
+
         _TYPES_TITLES = [('cover', __('Cover')),
                          ('title-page', __('Title Page')),
                          ('toc', __('Table of Contents')),
@@ -839,7 +843,7 @@ class Guide(object):
         TYPES = set(t for t, _ in _TYPES_TITLES)
         TITLES = dict(_TYPES_TITLES)
         ORDER = dict((t, i) for (t, _), i in izip(_TYPES_TITLES, count(0)))
-        
+
         def __init__(self, oeb, type, title, href):
             self.oeb = oeb
             if type.lower() in self.TYPES:
@@ -852,22 +856,22 @@ class Guide(object):
             self.type = type
             self.title = title
             self.href = urlnormalize(href)
-        
+
         def __repr__(self):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
-        
+
         @apply
         def _order():
             def fget(self):
                 return self.ORDER.get(self.type, self.type)
             return property(fget=fget)
-        
+
         def __cmp__(self, other):
             if not isinstance(other, Guide.Reference):
                 return NotImplemented
             return cmp(self._order, other._order)
-        
+
         @apply
         def item():
             def fget(self):
@@ -875,40 +879,40 @@ class Guide(object):
                 hrefs = self.oeb.manifest.hrefs
                 return hrefs.get(path, None)
             return property(fget=fget)
-    
+
     def __init__(self, oeb):
         self.oeb = oeb
         self.refs = {}
-    
+
     def add(self, type, title, href):
         ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
-    
+
     def iterkeys(self):
         for type in self.refs:
             yield type
     __iter__ = iterkeys
-    
+
     def values(self):
         return sorted(self.refs.values())
-    
+
     def items(self):
         for type, ref in self.refs.items():
             yield type, ref
-    
+
     def __getitem__(self, key):
         return self.refs[key]
-    
+
     def __delitem__(self, key):
         del self.refs[key]
-    
+
     def __contains__(self, key):
         return key in self.refs
-    
+
     def __len__(self):
         return len(self.refs)
-    
+
     def to_opf1(self, parent=None):
         elem = element(parent, 'guide')
         for ref in self.refs.values():
@@ -917,7 +921,7 @@ class Guide(object):
                 attrib['title'] = ref.title
             element(elem, 'reference', attrib=attrib)
         return elem
-    
+
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('guide'))
         for ref in self.refs.values():
@@ -936,7 +940,7 @@ class TOC(object):
         self.klass = klass
         self.id = id
         self.nodes = []
-    
+
     def add(self, title, href, klass=None, id=None):
         node = TOC(title, href, klass, id)
         self.nodes.append(node)
@@ -947,11 +951,11 @@ class TOC(object):
             yield node
             for child in node.iterdescendants():
                 yield child
-    
+
     def __iter__(self):
         for node in self.nodes:
             yield node
-    
+
     def __getitem__(self, index):
         return self.nodes[index]
 
@@ -963,7 +967,7 @@ class TOC(object):
                 prev.nodes.append(node)
             else:
                 prev = node
-    
+
     def depth(self, level=0):
         if self.nodes:
             return self.nodes[0].depth(level+1)
@@ -975,7 +979,7 @@ class TOC(object):
                 'title': node.title, 'href': node.href})
             node.to_opf1(tour)
         return tour
-    
+
     def to_ncx(self, parent, depth=1):
         for node in self.nodes:
             id = node.id or unicode(uuid.uuid4())
@@ -992,7 +996,7 @@ class TOC(object):
 
 
 class PageList(object):
-    
+
     class Page(object):
         def __init__(self, name, href, type='normal', klass=None, id=None):
             self.name = name
@@ -1000,10 +1004,10 @@ class PageList(object):
             self.type = type
             self.id = id
             self.klass = klass
-    
+
     def __init__(self):
         self.pages = []
-    
+
     def add(self, name, href, type='normal', klass=None, id=None):
         page = self.Page(name, href, type, klass, id)
         self.pages.append(page)
@@ -1011,14 +1015,14 @@ class PageList(object):
 
     def __len__(self):
         return len(self.pages)
-    
+
     def __iter__(self):
         for page in self.pages:
             yield page
-    
+
     def __getitem__(self, index):
         return self.pages[index]
-    
+
     def to_ncx(self, parent=None):
         plist = element(parent, NCX('pageList'), id=str(uuid.uuid4()))
         values = dict((t, count(1)) for t in ('front', 'normal', 'special'))
@@ -1034,7 +1038,7 @@ class PageList(object):
             element(label, NCX('text')).text = page.name
             element(ptarget, NCX('content'), src=page.href)
         return plist
-    
+
     def to_page_map(self):
         pmap = etree.Element(OPF('page-map'), nsmap={None: OPF2_NS})
         for page in self.pages:
@@ -1043,7 +1047,7 @@ class PageList(object):
 
 
 class OEBBook(object):
-    
+
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
@@ -1058,7 +1062,7 @@ class OEBBook(object):
         if opfpath or container:
             opf = self._read_opf(opfpath)
             self._all_from_opf(opf)
-    
+
     def _clean_opf(self, opf):
         nsmap = {}
         for elem in opf.iter(tag=etree.Element):
@@ -1085,7 +1089,7 @@ class OEBBook(object):
             for element in xpath(opf, tag):
                 nroot.append(element)
         return nroot
-    
+
     def _read_opf(self, opfpath):
         data = self.container.read(opfpath)
         data = self.decode(data)
@@ -1102,7 +1106,7 @@ class OEBBook(object):
             raise OEBError('Invalid namespace %r for OPF document' % ns)
         opf = self._clean_opf(opf)
         return opf
-    
+
     def _metadata_from_opf(self, opf):
         uid = opf.get('unique-identifier', None)
         self.uid = None
@@ -1190,7 +1194,7 @@ class OEBBook(object):
                 media_type = guessed or BINARY_MIME
                 added = manifest.add(id, href, media_type)
                 unchecked.add(added)
-    
+
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
@@ -1214,7 +1218,7 @@ class OEBBook(object):
                 id, href = manifest.generate(id, href)
             manifest.add(id, href, media_type, fallback)
         self._manifest_add_missing()
-    
+
     def _spine_add_extra(self):
         manifest = self.manifest
         spine = self.spine
@@ -1247,7 +1251,7 @@ class OEBBook(object):
                 self.logger.warn(
                     'Spine-referenced file %r not in spine' % item.href)
             spine.add(item, linear=False)
-    
+
     def _spine_from_opf(self, opf):
         self.spine = spine = Spine(self)
         for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
@@ -1260,7 +1264,7 @@ class OEBBook(object):
         if len(spine) == 0:
             raise OEBError("Spine is empty")
         self._spine_add_extra()
-    
+
     def _guide_from_opf(self, opf):
         self.guide = guide = Guide(self)
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
@@ -1270,7 +1274,7 @@ class OEBBook(object):
                 self.logger.warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
-    
+
     def _find_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')
         if result:
@@ -1283,9 +1287,9 @@ class OEBBook(object):
         for item in self.manifest.values():
             if item.media_type == NCX_MIME:
                 self.manifest.remove(item)
-                return item                
+                return item
         return None
-    
+
     def _toc_from_navpoint(self, item, toc, navpoint):
         children = xpath(navpoint, 'ncx:navPoint')
         for child in children:
@@ -1303,7 +1307,7 @@ class OEBBook(object):
             klass = child.get('class')
             node = toc.add(title, href, id=id, klass=klass)
             self._toc_from_navpoint(item, node, child)
-    
+
     def _toc_from_ncx(self, item):
         if item is None:
             return False
@@ -1316,7 +1320,7 @@ class OEBBook(object):
         for navmap in navmaps:
             self._toc_from_navpoint(item, toc, navmap)
         return True
-    
+
     def _toc_from_tour(self, opf):
         result = xpath(opf, 'o2:tours/o2:tour')
         if not result:
@@ -1332,11 +1336,11 @@ class OEBBook(object):
             path, _ = urldefrag(urlnormalize(href))
             if path not in self.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
-                continue            
+                continue
             id = site.get('id')
             toc.add(title, href, id=id)
         return True
-    
+
     def _toc_from_html(self, opf):
         if 'toc' not in self.guide:
             return False
@@ -1368,7 +1372,7 @@ class OEBBook(object):
         for href in order:
             toc.add(' '.join(titles[href]), href)
         return True
-    
+
     def _toc_from_spine(self, opf):
         self.toc = toc = TOC()
         titles = []
@@ -1395,14 +1399,14 @@ class OEBBook(object):
             if not item.linear: continue
             toc.add(title, item.href)
         return True
-    
+
     def _toc_from_opf(self, opf, item):
         if self._toc_from_ncx(item): return
         if self._toc_from_tour(opf): return
         self.logger.warn('No metadata table of contents found')
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
-    
+
     def _pages_from_ncx(self, opf, item):
         if item is None:
             return False
@@ -1423,7 +1427,7 @@ class OEBBook(object):
             klass = ptarget.get('class')
             pages.add(name, href, type=type, id=id, klass=klass)
         return True
-    
+
     def _find_page_map(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@page-map')
         if result:
@@ -1438,7 +1442,7 @@ class OEBBook(object):
                 self.manifest.remove(item)
                 return item
         return None
-    
+
     def _pages_from_page_map(self, opf):
         item = self._find_page_map(opf)
         if item is None:
@@ -1459,13 +1463,13 @@ class OEBBook(object):
                 type = 'front'
             pages.add(name, href, type=type)
         return True
-    
+
     def _pages_from_opf(self, opf, item):
         if self._pages_from_ncx(opf, item): return
         if self._pages_from_page_map(opf): return
         self.pages = PageList()
         return
-    
+
     def _cover_from_html(self, hcover):
         with TemporaryDirectory('_html_cover') as tdir:
             writer = DirWriter()
@@ -1476,7 +1480,7 @@ class OEBBook(object):
         id, href = self.manifest.generate('cover', 'cover.jpeg')
         item = self.manifest.add(id, href, JPEG_MIME, data=data)
         return item
-        
+
     def _locate_cover_image(self):
         if self.metadata.cover:
             id = str(self.metadata.cover[0])
@@ -1513,14 +1517,14 @@ class OEBBook(object):
             if item is not None and item.media_type in OEB_IMAGES:
                 return item
         return self._cover_from_html(hcover)
-        
+
     def _ensure_cover_image(self):
         cover = self._locate_cover_image()
         if self.metadata.cover:
             self.metadata.cover[0].value = cover.id
             return
         self.metadata.add('cover', cover.id)
-    
+
     def _all_from_opf(self, opf):
         self.version = opf.get('version', '1.2')
         self._metadata_from_opf(opf)
@@ -1531,12 +1535,12 @@ class OEBBook(object):
         self._toc_from_opf(opf, item)
         self._pages_from_opf(opf, item)
         self._ensure_cover_image()
-    
+
     def translate(self, text):
         lang = str(self.metadata.language[0])
         lang = lang.split('-', 1)[0].lower()
         return translate(lang, text)
-    
+
     def decode(self, data):
         if isinstance(data, unicode):
             return data
@@ -1558,7 +1562,7 @@ class OEBBook(object):
         data = data.replace('\r\n', '\n')
         data = data.replace('\r', '\n')
         return data
-    
+
     def to_opf1(self):
         package = etree.Element('package',
             attrib={'unique-identifier': self.uid.id})
@@ -1600,7 +1604,7 @@ class OEBBook(object):
             order = playorder.get(href, 0)
             elem.attrib['playOrder'] = str(order)
         return
-    
+
     def _to_ncx(self):
         lang = unicode(self.metadata.language[0])
         ncx = etree.Element(NCX('ncx'),
@@ -1629,7 +1633,7 @@ class OEBBook(object):
             maxpnum.attrib['content'] = str(value)
         self._update_playorder(ncx)
         return ncx
-    
+
     def to_opf2(self, page_map=False):
         results = {}
         package = etree.Element(OPF('package'),
