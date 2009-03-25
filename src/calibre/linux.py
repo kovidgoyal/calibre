@@ -61,14 +61,15 @@ entry_points = {
                              'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
                              'comic2epub = calibre.ebooks.epub.from_comic:main',
                              'comic2mobi = calibre.ebooks.mobi.from_comic:main',
-       			             'comic2pdf  = calibre.ebooks.pdf.from_comic:main',
+                             'comic2pdf  = calibre.ebooks.pdf.from_comic:main',
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
                              'calibre-parallel   = calibre.parallel:main',
-                             'calibre-customize  = calibre.customize.ui:main',                             
-			                 'pdftrim = calibre.ebooks.pdf.pdftrim:main' ,
+                             'calibre-customize  = calibre.customize.ui:main',
+                             'pdftrim = calibre.ebooks.pdf.pdftrim:main' ,
                              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
+                             'calibre-smtp = calibre.utils.smtp:main',
                            ],
         'gui_scripts'    : [
                             __appname__+' = calibre.gui2.main:main',
@@ -198,6 +199,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.metadata.fetch import option_parser as fem_op
         from calibre.ebooks.mobi.writer import option_parser as oeb2mobi
         from calibre.gui2.main import option_parser as guiop
+        from calibre.utils.email import option_parser as smtp_op
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
         f = open_file('/etc/bash_completion.d/libprs500')
@@ -246,6 +248,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_words('feeds2epub', feeds2epub, feed_titles))
         f.write(opts_and_words('feeds2mobi', feeds2mobi, feed_titles))
         f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
+        f.write(opts_and_words('calibre-smtp', smtp_op, []))
         f.write(opts_and_exts('html2epub', html2epub, ['html', 'htm', 'xhtm', 'xhtml', 'opf']))
         f.write(opts_and_exts('html2oeb', html2oeb, ['html', 'htm', 'xhtm', 'xhtml']))
         f.write(opts_and_exts('odt2oeb', odt2oeb, ['odt']))

@@ -43,6 +43,5 @@ class SpeigelOnline(BasicNewsRecipe):
             for y in reversed(soup.contents):
                 x.contents[0].insert(0, y)
             soup = x
-            print 1111111
 
         return soup

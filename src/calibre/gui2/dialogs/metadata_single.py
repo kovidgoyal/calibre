@@ -428,7 +428,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             prefix += '\n'
                         self.comments.setText(prefix + summ)
         else:
-            error_dialog(self, 'Cannot fetch metadata', 'You must specify at least one of ISBN, Title, Authors or Publisher')
+            error_dialog(self, _('Cannot fetch metadata'), 
+                         _('You must specify at least one of ISBN, Title, '
+                           'Authors or Publisher'))
              
     def enable_series_index(self, *args):
         self.series_index.setEnabled(True)

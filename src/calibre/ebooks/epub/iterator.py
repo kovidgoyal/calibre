@@ -38,8 +38,10 @@ class UnsupportedFormatError(Exception):
 class SpineItem(unicode):
 
     def __new__(cls, *args):
+        args = list(args)
+        args[0] = args[0].partition('#')[0]
         obj = super(SpineItem, cls).__new__(cls, *args)
-        path = args[0].partition('#')[0]
+        path = args[0]
         raw = open(path, 'rb').read()
         raw, obj.encoding = xml_to_unicode(raw)
         obj.character_count = character_count(raw)
@@ -67,6 +69,7 @@ class EbookIterator(object):
     CHARACTERS_PER_PAGE = 1000
 
     def __init__(self, pathtoebook):
+        pathtoebook = pathtoebook.strip()
         self.pathtoebook = os.path.abspath(pathtoebook)
         self.config = DynamicConfig(name='iterator')
         ext = os.path.splitext(pathtoebook)[1].replace('.', '').lower()

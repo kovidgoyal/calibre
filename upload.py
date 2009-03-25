@@ -40,11 +40,11 @@ except:
         HOST=get_ip_address('wlan0')
     except:
         HOST='unknown'
-    
+
 def newer(targets, sources):
     '''
     Return True is sources is newer that targets or if targets
-    does not exist. 
+    does not exist.
     '''
     for f in targets:
         if not os.path.exists(f):
@@ -53,22 +53,22 @@ def newer(targets, sources):
     stimes = map(lambda x: os.stat(x).st_mtime, sources)
     newest_source, oldest_target = max(stimes), min(ttimes)
     return newest_source > oldest_target
- 
+
 
 class OptionlessCommand(Command):
     user_options = []
     def initialize_options(self): pass
     def finalize_options(self): pass
-    
+
     def run(self):
         for cmd_name in self.get_sub_commands():
             self.run_command(cmd_name)
 
 
 class sdist(OptionlessCommand):
-    
+
     description = 'Create a source distribution using bzr'
-    
+
     def run(self):
         name = os.path.join('dist', '%s-%s.tar.gz'%(__appname__, __version__))
         check_call(('bzr export '+name).split())
@@ -77,9 +77,9 @@ class sdist(OptionlessCommand):
 
 class pot(OptionlessCommand):
     description = '''Create the .pot template for all translatable strings'''
-    
+
     PATH = os.path.join('src', __appname__, 'translations')
-    
+
     def source_files(self):
         ans = []
         for root, _, files in os.walk(os.path.dirname(self.PATH)):
@@ -88,7 +88,7 @@ class pot(OptionlessCommand):
                     ans.append(os.path.abspath(os.path.join(root, name)))
         return ans
 
-    
+
     def run(self):
         sys.path.insert(0, os.path.abspath(self.PATH))
         try:
@@ -109,7 +109,7 @@ class pot(OptionlessCommand):
             sys.path.remove(os.path.abspath(self.PATH))
 
 class manual(OptionlessCommand):
-    
+
     description='''Build the User Manual '''
 
     def run(self):
@@ -122,20 +122,20 @@ class manual(OptionlessCommand):
                 os.makedirs(d)
             if not os.path.exists('.build'+os.sep+'html'):
                 os.makedirs('.build'+os.sep+'html')
-            check_call(['sphinx-build', '-b', 'custom', '-d', 
+            check_call(['sphinx-build', '-b', 'custom', '-d',
                                    '.build/doctrees', '.', '.build/html'])
         finally:
             os.chdir(cwd)
-        
+
     @classmethod
     def clean(cls):
         path = os.path.join('src', 'calibre', 'manual', '.build')
         if os.path.exists(path):
             shutil.rmtree(path)
-        
+
 class resources(OptionlessCommand):
     description='''Compile various resource files used in calibre. '''
-    
+
     RESOURCES = dict(
         opf_template    = 'ebooks/metadata/opf.xml',
         ncx_template    = 'ebooks/metadata/ncx.xml',
@@ -145,9 +145,9 @@ class resources(OptionlessCommand):
         jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
         html_css        = 'ebooks/oeb/html.css',
     )
-    
+
     DEST = os.path.join('src', __appname__, 'resources.py')
-    
+
     def get_qt_translations(self):
         data = {}
         translations_found = False
@@ -162,7 +162,7 @@ class resources(OptionlessCommand):
         if not translations_found:
             print 'WARNING: Could not find Qt transations'
         return data
-    
+
     def get_static_resources(self):
         sdir = os.path.join('src', 'calibre', 'library', 'static')
         resources, max = {}, 0
@@ -171,7 +171,7 @@ class resources(OptionlessCommand):
             mtime = os.stat(os.path.join(sdir, f)).st_mtime
             max = mtime if mtime > max else max
         return resources, max
-    
+
     def get_recipes(self):
         sdir = os.path.join('src', 'calibre', 'web', 'feeds', 'recipes')
         resources, max = {}, 0
@@ -181,7 +181,7 @@ class resources(OptionlessCommand):
                 mtime = os.stat(os.path.join(sdir, f)).st_mtime
                 max = mtime if mtime > max else max
         return resources, max
-    
+
     def run(self):
         data, dest, RESOURCES = {}, self.DEST, self.RESOURCES
         for key in RESOURCES:
@@ -204,7 +204,7 @@ class resources(OptionlessCommand):
                 f.write('build_time = "%s"\n\n'%time.strftime('%d %m %Y %H%M%S'))
         else:
             print 'Resources are up to date'
-    
+
     @classmethod
     def clean(cls):
         path = cls.DEST
@@ -216,7 +216,7 @@ class translations(OptionlessCommand):
     description='''Compile the translations'''
     PATH = os.path.join('src', __appname__, 'translations')
     DEST = os.path.join(PATH, 'compiled.py')
-    
+
     def run(self):
         sys.path.insert(0, os.path.abspath(self.PATH))
         try:
@@ -236,21 +236,21 @@ class translations(OptionlessCommand):
                 print 'Translations up to date'
         finally:
             sys.path.remove(os.path.abspath(self.PATH))
-    
-            
+
+
     @classmethod
     def clean(cls):
         path = cls.DEST
         if os.path.exists(path):
             os.remove(path)
-        
+
 
 class gui(OptionlessCommand):
     description='''Compile all GUI forms and images'''
     PATH  = os.path.join('src', __appname__, 'gui2')
     IMAGES_DEST = os.path.join(PATH, 'images_rc.py')
     QRC = os.path.join(PATH, 'images.qrc')
-    
+
     @classmethod
     def find_forms(cls):
         forms = []
@@ -258,17 +258,17 @@ class gui(OptionlessCommand):
             for name in files:
                 if name.endswith('.ui'):
                     forms.append(os.path.abspath(os.path.join(root, name)))
-            
+
         return forms
-    
+
     @classmethod
     def form_to_compiled_form(cls, form):
         return form.rpartition('.')[0]+'_ui.py'
-    
+
     def run(self):
         self.build_forms()
         self.build_images()
-    
+
     def build_images(self):
         cwd, images = os.getcwd(), os.path.basename(self.IMAGES_DEST)
         try:
@@ -296,13 +296,13 @@ class gui(OptionlessCommand):
                 print 'Images are up to date'
         finally:
             os.chdir(cwd)
-        
-    
+
+
     def build_forms(self):
         from PyQt4.uic import compileUi
         forms = self.find_forms()
         for form in forms:
-            compiled_form = self.form_to_compiled_form(form) 
+            compiled_form = self.form_to_compiled_form(form)
             if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
                 print 'Compiling form', form
                 buf = cStringIO.StringIO()
@@ -313,21 +313,21 @@ class gui(OptionlessCommand):
                 dat = dat.replace('from library import', 'from calibre.gui2.library import')
                 dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
                 dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
-                
+
                 # Workaround bug in Qt 4.4 on Windows
                 if form.endswith('dialogs%sconfig.ui'%os.sep) or form.endswith('dialogs%slrf_single.ui'%os.sep):
                     print 'Implementing Workaround for buggy pyuic in form', form
-                    dat = re.sub(r'= QtGui\.QTextEdit\(self\..*?\)', '= QtGui.QTextEdit()', dat) 
+                    dat = re.sub(r'= QtGui\.QTextEdit\(self\..*?\)', '= QtGui.QTextEdit()', dat)
                     dat = re.sub(r'= QtGui\.QListWidget\(self\..*?\)', '= QtGui.QListWidget()', dat)
-                
+
                 if form.endswith('viewer%smain.ui'%os.sep):
                     print 'Promoting WebView'
                     dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
                     dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
-                
+
                 open(compiled_form, 'wb').write(dat)
 
-            
+
     @classmethod
     def clean(cls):
         forms = cls.find_forms()
@@ -340,16 +340,16 @@ class gui(OptionlessCommand):
                 os.remove(x)
 
 class clean(OptionlessCommand):
-    
+
     description='''Delete all computer generated files in the source tree'''
-    
+
     def run(self):
         print 'Cleaning...'
         manual.clean()
         gui.clean()
         translations.clean()
         resources.clean()
-        
+
         for f in glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
             os.remove(f)
         for root, _, files in os.walk('.'):
@@ -358,12 +358,12 @@ class clean(OptionlessCommand):
                     if name.endswith(t):
                         os.remove(os.path.join(root, name))
                         break
-                    
+
         for dir in ('build', 'dist', os.path.join('src', 'calibre.egg-info')):
             shutil.rmtree(dir, ignore_errors=True)
 
 class build_py(_build_py):
-        
+
     def find_data_files(self, package, src_dir):
         """
         Return filenames for package's data files in 'src_dir'
@@ -377,11 +377,11 @@ class build_py(_build_py):
             pattern = os.path.join(src_dir, convert_path(pattern))
             next = glob.glob(pattern)
             files.extend(next if next else [pattern])
-            
+
         return self.exclude_data_files(package, src_dir, files)
 
 class build(_build):
-    
+
     sub_commands = [
                      ('resources',    lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
                      ('translations', lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
@@ -391,13 +391,13 @@ class build(_build):
                      ('build_clib',    _build.has_c_libraries),
                      ('build_scripts', _build.has_scripts),
                    ]
-     
+
 
 class update(OptionlessCommand):
-    
+
     description = 'Rebuild plugins and run develop. Should be called after ' +\
                   ' a version update.'
-    
+
     def run(self):
         for x in ['build', 'dist', 'docs'] + \
             glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
@@ -407,24 +407,24 @@ class update(OptionlessCommand):
                     os.mkdir(x)
                 else:
                     os.remove(x)
-        
+
         check_call('python setup.py build_ext build'.split())
         check_call('sudo python setup.py develop'.split())
-    
+
 class tag_release(OptionlessCommand):
-    
+
     description = 'Tag a new release in bzr'
-    
+
     def run(self):
         print 'Tagging release'
         check_call(('bzr tag '+__version__).split())
         check_call('bzr commit --unchanged -m'.split() + ['IGN:Tag release'])
-    
-    
+
+
 class upload_demo(OptionlessCommand):
-    
+
     description = 'Rebuild and upload various demos'
-    
+
     def run(self):
         check_call(
            '''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' '''
@@ -432,23 +432,23 @@ class upload_demo(OptionlessCommand):
            '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
            '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
            ''''''%(HTML2LRF,), shell=True)
-        
+
         check_call(
             'cd src/calibre/ebooks/lrf/html/demo/ && '
             'zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf', shell=True)
-        
+
         check_call('scp /tmp/html-demo.zip divok:%s/'%(DOWNLOADS,), shell=True)
-        
+
         check_call(
            '''txt2lrf -t 'Demonstration of txt2lrf' -a 'Kovid Goyal' '''
            '''--header -o /tmp/txt2lrf.lrf %s/demo.txt'''%(TXT2LRF,), shell=True)
-        
+
         check_call('cd src/calibre/ebooks/lrf/txt/demo/ && '
                    'zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf', shell=True)
-        
+
         check_call('''scp /tmp/txt-demo.zip divok:%s/'''%(DOWNLOADS,), shell=True)
-        
-    
+
+
 def installer_name(ext):
     if ext in ('exe', 'dmg'):
         return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
@@ -467,14 +467,14 @@ class build_linux(OptionlessCommand):
         return os.path.basename(installer)
 
 class VMInstaller(OptionlessCommand):
-    
+
     user_options = [('dont-shutdown', 'd', 'Dont shutdown Vm after build')]
     boolean_options = ['dont-shutdown']
-    
+
     def initialize_options(self):
         self.dont_shutdown = False
-    
-    BUILD_SCRIPT = textwrap.dedent('''\     
+
+    BUILD_SCRIPT = textwrap.dedent('''\
         #!/bin/bash
         export CALIBRE_BUILDBOT=1
         cd ~/build && \
@@ -488,10 +488,10 @@ class VMInstaller(OptionlessCommand):
         rm -rf build/* dist/* && \
         %%s %%s
         '''%dict(host=HOST, project=__appname__))
-    
+
     def get_build_script(self, subs):
         return self.BUILD_SCRIPT%subs
-    
+
     def start_vm(self, ssh_host, build_script, sleep=75):
         build_script = self.get_build_script(build_script)
         vmware = ('vmware', '-q', '-x', '-n', self.VM)
@@ -500,7 +500,7 @@ class VMInstaller(OptionlessCommand):
         t.write(build_script)
         t.flush()
         print 'Waiting for VM to startup'
-        while call('ping -q -c1 '+ssh_host, shell=True, 
+        while call('ping -q -c1 '+ssh_host, shell=True,
                    stdout=open('/dev/null', 'w')) != 0:
             time.sleep(5)
         time.sleep(20)
@@ -513,10 +513,10 @@ class build_windows(VMInstaller):
     VM = '/mnt/backup/calibre_windows_xp_home/calibre_windows_xp_home.vmx'
     if not os.path.exists(VM):
         VM = '/home/kovid/calibre_windows_xp_home/calibre_windows_xp_home.vmx'
-    
+
     def run(self):
         installer = installer_name('exe')
-        self.start_vm('windows', ('python setup.py develop', 
+        self.start_vm('windows', ('python setup.py develop',
                                   'python',
                                   r'installer\\windows\\freeze.py'))
         if os.path.exists('build/py2exe'):
@@ -529,7 +529,7 @@ class build_windows(VMInstaller):
             Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
         self.run_windows_install_jammer(installer)
         return os.path.basename(installer)
-    
+
     def run_windows_install_jammer(self, installer):
         ibp = os.path.abspath('installer/windows')
         sys.path.insert(0, ibp)
@@ -546,14 +546,14 @@ class build_osx(VMInstaller):
     VM = '/vmware/Mac OSX/Mac OSX.vmx'
     if not os.path.exists(VM):
         VM = '/home/kovid/calibre_os_x/Mac OSX.vmx'
-    
+
     def get_build_script(self, subs):
         return (self.BUILD_SCRIPT%subs).replace('rm ', 'sudo rm ')
-    
+
     def run(self):
         installer = installer_name('dmg')
         python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
-        self.start_vm('osx', ('sudo %s setup.py develop'%python, python, 
+        self.start_vm('osx', ('sudo %s setup.py develop'%python, python,
                               'installer/osx/freeze.py'))
         check_call(('scp', 'osx:build/calibre/dist/*.dmg', 'dist'))
         if not os.path.exists(installer):
@@ -579,7 +579,7 @@ class upload_installers(OptionlessCommand):
         c.perform()
         c.close()
         return b.getvalue().split() if listonly else b.getvalue().splitlines()
-    
+
     def curl_delete_file(self, path, url=MOBILEREAD):
         import pycurl
         c = pycurl.Curl()
@@ -590,8 +590,8 @@ class upload_installers(OptionlessCommand):
         c.setopt(c.QUOTE, ['dele '+ path])
         c.perform()
         c.close()
-    
-    
+
+
     def curl_upload_file(self, stream, url):
         import pycurl
         c = pycurl.Curl()
@@ -618,7 +618,7 @@ class upload_installers(OptionlessCommand):
                 stream.seek(0,2)
                 if size != stream.tell():
                     raise RuntimeError('curl failed to upload %s correctly'%getattr(stream, 'name', ''))
-    
+
     def upload_installer(self, name):
         if not os.path.exists(name):
             return
@@ -633,19 +633,19 @@ class upload_installers(OptionlessCommand):
         print 'Uploading installers...'
         for i in ('dmg', 'exe', 'tar.bz2'):
             self.upload_installer(installer_name(i))
-    
+
         check_call('''ssh divok echo %s \\> %s/latest_version'''\
                    %(__version__, DOWNLOADS), shell=True)
 
 class upload_user_manual(OptionlessCommand):
     description = 'Build and upload the User Manual'
     sub_commands = [('manual', None)]
-    
+
     def run(self):
         OptionlessCommand.run(self)
         check_call(' '.join(['scp', '-r', 'src/calibre/manual/.build/html/*',
                     'divok:%s'%USER_MANUAL]), shell=True)
-        
+
 class upload_to_pypi(OptionlessCommand):
     description = 'Upload eggs and source to PyPI'
     def run(self):
@@ -658,7 +658,7 @@ class upload_to_pypi(OptionlessCommand):
         os.mkdir('build')
         check_call('python setup.py build_ext bdist_egg --exclude-source-files upload'.split())
         check_call('python setup.py sdist upload'.split())
-        
+
 class stage3(OptionlessCommand):
     description = 'Stage 3 of the build process'
     sub_commands = [
@@ -667,7 +667,7 @@ class stage3(OptionlessCommand):
                     ('upload_to_pypi', None),
                     ('upload_rss', None),
                     ]
-    
+
     @classmethod
     def misc(cls):
         check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS, shell=True)
@@ -675,23 +675,23 @@ class stage3(OptionlessCommand):
         check_call('''rm -rf dist/* build/*''', shell=True)
         check_call('ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/',
                    shell=True)
-    
+
     def run(self):
         OptionlessCommand.run(self)
         self.misc()
-        
+
 class stage2(OptionlessCommand):
-    description = 'Stage 2 of the build process' 
+    description = 'Stage 2 of the build process'
     sub_commands = [
                     ('build_linux', None),
                     ('build_windows', None),
                     ('build_osx', None)
                     ]
-    
+
     def run(self):
         check_call('rm -rf dist/*', shell=True)
         OptionlessCommand.run(self)
-        
+
 class stage1(OptionlessCommand):
     description = 'Stage 1 of the build process'
     sub_commands = [
@@ -699,10 +699,10 @@ class stage1(OptionlessCommand):
                 ('tag_release', None),
                 ('upload_demo', None),
                 ]
-    
+
 class upload(OptionlessCommand):
     description = 'Build and upload calibre to the servers'
-    
+
     sub_commands = [
             ('stage1', None),
             ('stage2', None),
@@ -711,13 +711,13 @@ class upload(OptionlessCommand):
 
 try:
     class upload_rss(OptionlessCommand):
-    
+
         from bzrlib import log as blog
-            
+
         class ChangelogFormatter(blog.LogFormatter):
             supports_tags = True
             supports_merge_revisions = False
-            
+
             def __init__(self, num_of_versions=20):
                 from calibre.utils.rss_gen import RSS2
                 self.num_of_versions = num_of_versions
@@ -727,21 +727,21 @@ try:
                                 description = 'Latest release of calibre',
                                 lastBuildDate = datetime.utcnow()
                                 )
-                self.current_entry = None 
-                
+                self.current_entry = None
+
             def log_revision(self, r):
                 from calibre.utils.rss_gen import RSSItem, Guid
                 if len(self.rss.items) > self.num_of_versions-1:
                     return
                 msg = r.rev.message
                 match = re.match(r'version\s+(\d+\.\d+.\d+)', msg)
-                 
+
                 if match:
                     if self.current_entry is not None:
                         mkup = '<div><ul>%s</ul></div>'
                         self.current_entry.description = mkup%(''.join(
                                     self.current_entry.description))
-                        
+
                         self.rss.items.append(self.current_entry)
                     timestamp = r.rev.timezone + r.rev.timestamp
                     self.current_entry = RSSItem(
@@ -755,13 +755,13 @@ try:
                     if re.search(r'[a-zA-Z]', msg) and len(msg.strip()) > 5:
                         if 'translation' not in msg and not msg.startswith('IGN'):
                             msg = msg.replace('<', '&lt;').replace('>', '&gt;')
-                            msg = re.sub('#(\d+)', r'<a href="http://calibre.kovidgoyal.net/ticket/\1">#\1</a>', 
+                            msg = re.sub('#(\d+)', r'<a href="http://calibre.kovidgoyal.net/ticket/\1">#\1</a>',
                                          msg)
-                            
+
                             self.current_entry.description.append(
                                             '<li>%s</li>'%msg.strip())
-         
-            
+
+
         def run(self):
             from bzrlib import log, branch
             bzr_path = os.path.expanduser('~/work/calibre')
@@ -771,5 +771,5 @@ try:
             lf.rss.write_xml(open('/tmp/releases.xml', 'wb'))
             subprocess.check_call('scp /tmp/releases.xml divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads'.split())
 except ImportError:
-    upload_rss = None         
+    upload_rss = None
 

@@ -25,7 +25,8 @@ if iswindows:
 else:
     Structure = _Structure
 if hasattr(sys, 'frozen') and iswindows:
-    _libunrar = cdll.LoadLibrary(os.path.join(os.path.dirname(sys.executable), 'unrar.dll'))
+    _libunrar = cdll.LoadLibrary(os.path.join(os.path.dirname(sys.executable),
+        'unrar.dll'))
 _libunrar = load_library(_librar_name, cdll)
 
 RAR_OM_LIST    = 0
@@ -95,7 +96,7 @@ class RARHeaderDataEx(Structure):
 
 # Define a callback function
 #CALLBACK_FUNC = CFUNCTYPE(c_int, c_uint, c_long, c_char_p, c_long)
-#def py_callback_func(msg, user_data, p1, p2):    
+#def py_callback_func(msg, user_data, p1, p2):
 #    return 0
 
 #callback_func = CALLBACK_FUNC(py_callback_func)
@@ -123,7 +124,7 @@ def _interpret_open_error(code, path):
     elif code == ERAR_EOPEN:
         msg = 'Cannot open ' + path
     return msg
-    
+
 def _interpret_process_file_error(code):
     msg = 'Unknown Error'
     if code == ERAR_UNKNOWN_FORMAT:
@@ -145,7 +146,7 @@ def _interpret_process_file_error(code):
     elif  code == ERAR_MISSING_PASSWORD:
         msg = 'Password is required.'
     return msg
-        
+
 def get_archive_info(flags):
     ios = StringIO()
     print >>ios, 'Volume:\t\t', 'yes' if (flags & 1) else 'no'
@@ -162,7 +163,7 @@ def get_archive_info(flags):
 def extract(path, dir):
     """
     Extract archive C{filename} into directory C{dir}
-    """    
+    """
     open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_EXTRACT, CmtBuf=None)
     arc_data = _libunrar.RAROpenArchiveEx(byref(open_archive_data))
     cwd = os.getcwd()
@@ -173,7 +174,7 @@ def extract(path, dir):
         if open_archive_data.OpenResult != 0:
             raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
         print 'Archive:', path
-        #print get_archive_info(open_archive_data.Flags)        
+        #print get_archive_info(open_archive_data.Flags)
         header_data = RARHeaderDataEx(CmtBuf=None)
         #_libunrar.RARSetCallback(arc_data, callback_func, mode)
         while True:
@@ -240,5 +241,5 @@ def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), na
                                 open(os.path.join(dir, *header_data.FileNameW.split('/')), 'rb').read()
             finally:
                 _libunrar.RARCloseArchive(arc_data)
-            
-    
+
+

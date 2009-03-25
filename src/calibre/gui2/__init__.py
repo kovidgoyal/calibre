@@ -1,16 +1,15 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import sys, os, re, StringIO, traceback, time
+import os
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
-                         QByteArray, QLocale, QUrl, QTranslator, QCoreApplication, \
-                         QModelIndex
+                         QByteArray, QUrl, QTranslator, QCoreApplication
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QTableView, QDialogButtonBox, QApplication, QDialog
+                        QIcon, QTableView, QApplication, QDialog
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import __author__, islinux, iswindows, isosx
+from calibre import islinux, iswindows
 from calibre.startup import get_lang
 from calibre.utils.config import Config, ConfigProxy, dynamic
 import calibre.resources as resources
@@ -32,7 +31,7 @@ def _config():
               help=_('The format to use when saving single files to disk'))
     c.add_opt('confirm_delete', default=False,
               help=_('Confirm before deleting'))
-    c.add_opt('toolbar_icon_size', default=QSize(48, 48), 
+    c.add_opt('toolbar_icon_size', default=QSize(48, 48),
               help=_('Toolbar icon size')) # value QVariant.toSize
     c.add_opt('show_text_in_toolbar', default=True,
               help=_('Show button labels in the toolbar'))
@@ -57,16 +56,19 @@ def _config():
     c.add_opt('autolaunch_server', default=False, help=_('Automatically launch content server on application startup'))
     c.add_opt('oldest_news', default=60, help=_('Oldest news kept in database'))
     c.add_opt('systray_icon', default=True, help=_('Show system tray icon'))
-    c.add_opt('upload_news_to_device', default=True, 
+    c.add_opt('upload_news_to_device', default=True,
               help=_('Upload downloaded news to device'))
-    c.add_opt('delete_news_from_library_on_upload', default=False, 
+    c.add_opt('delete_news_from_library_on_upload', default=False,
               help=_('Delete books from library after uploading to device'))
-    c.add_opt('separate_cover_flow', default=False, 
+    c.add_opt('separate_cover_flow', default=False,
               help=_('Show the cover flow in a separate window instead of in the main calibre window'))
-    c.add_opt('disable_tray_notification', default=False, 
+    c.add_opt('disable_tray_notification', default=False,
               help=_('Disable notifications from the system tray icon'))
+    c.add_opt('default_send_to_device_action', default=None,
+            help=_('Default action to perform when send to device button is '
+                'clicked'))
     return ConfigProxy(c)
-    
+
 config = _config()
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:
@@ -139,16 +141,16 @@ def human_readable(size):
 
 class Dispatcher(QObject):
     '''Convenience class to ensure that a function call always happens in the GUI thread'''
-    
+    SIGNAL = SIGNAL('dispatcher(PyQt_PyObject,PyQt_PyObject)')
+
     def __init__(self, func):
         QObject.__init__(self)
         self.func = func
-        self.connect(self, SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject)'), 
-                     self.dispatch, Qt.QueuedConnection)
-        
+        self.connect(self, self.SIGNAL, self.dispatch, Qt.QueuedConnection)
+
     def __call__(self, *args, **kwargs):
-        self.emit(SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject)'), args, kwargs)
-        
+        self.emit(self.SIGNAL, args, kwargs)
+
     def dispatch(self, args, kwargs):
         self.func(*args, **kwargs)
 
@@ -157,29 +159,29 @@ class GetMetadata(QObject):
     Convenience class to ensure that metadata readers are used only in the
     GUI thread. Must be instantiated in the GUI thread.
     '''
-    
+
     def __init__(self):
         QObject.__init__(self)
         self.connect(self, SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                      self._get_metadata, Qt.QueuedConnection)
         self.connect(self, SIGNAL('idispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                      self._from_formats, Qt.QueuedConnection)
-        
+
     def __call__(self, id, *args, **kwargs):
         self.emit(SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                   id, args, kwargs)
-    
+
     def from_formats(self, id, *args, **kwargs):
         self.emit(SIGNAL('idispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                   id, args, kwargs)
-    
+
     def _from_formats(self, id, args, kwargs):
         try:
             mi = metadata_from_formats(*args, **kwargs)
         except:
             mi = MetaInformation('', [_('Unknown')])
         self.emit(SIGNAL('metadataf(PyQt_PyObject, PyQt_PyObject)'), id, mi)
-    
+
     def _get_metadata(self, id, args, kwargs):
         try:
             mi = get_metadata(*args, **kwargs)
@@ -191,27 +193,27 @@ class TableView(QTableView):
     def __init__(self, parent):
         QTableView.__init__(self, parent)
         self.read_settings()
-        
+
     def read_settings(self):
         self.cw = dynamic[self.__class__.__name__+'column widths']
-    
+
     def write_settings(self):
         dynamic[self.__class__.__name__+'column widths'] = \
          tuple([int(self.columnWidth(i)) for i in range(self.model().columnCount(None))])
-    
+
     def restore_column_widths(self):
         if self.cw and len(self.cw):
             for i in range(len(self.cw)):
                 self.setColumnWidth(i, self.cw[i])
             return True
-    
+
 class FileIconProvider(QFileIconProvider):
-    
+
     ICONS = {
              'default' : 'unknown',
              'dir'     : 'dir',
              'zero'    : 'zero',
-             
+
              'jpeg'    : 'jpeg',
              'jpg'     : 'jpeg',
              'gif'     : 'gif',
@@ -234,7 +236,7 @@ class FileIconProvider(QFileIconProvider):
              'mobi'    : 'mobi',
              'epub'    : 'epub',
              }
-    
+
     def __init__(self):
         QFileIconProvider.__init__(self)
         self.icons = {}
@@ -242,14 +244,14 @@ class FileIconProvider(QFileIconProvider):
             self.icons[key] = ':/images/mimetypes/'+self.__class__.ICONS[key]+'.svg'
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
-    
+
     def key_from_ext(self, ext):
         key = ext if ext in self.icons.keys() else 'default'
         if key == 'default' and ext.count('.') > 0:
             ext = ext.rpartition('.')[2]
             key = ext if ext in self.icons.keys() else 'default'
         return key
-    
+
     def cached_icon(self, key):
         candidate = self.icons[key]
         if isinstance(candidate, QIcon):
@@ -257,11 +259,11 @@ class FileIconProvider(QFileIconProvider):
         icon = QIcon(candidate)
         self.icons[key] = icon
         return icon
-    
+
     def icon_from_ext(self, ext):
         key = self.key_from_ext(ext.lower() if ext else '')
         return self.cached_icon(key)
-    
+
     def load_icon(self, fileinfo):
         key = 'default'
         icons = self.icons
@@ -275,7 +277,7 @@ class FileIconProvider(QFileIconProvider):
             ext = qstring_to_unicode(fileinfo.completeSuffix()).lower()
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
-    
+
     def icon(self, arg):
         if isinstance(arg, QFileInfo):
             return self.load_icon(arg)
@@ -284,13 +286,13 @@ class FileIconProvider(QFileIconProvider):
         if arg == QFileIconProvider.File:
             return self.icons['default']
         return QFileIconProvider.icon(self, arg)
-        
+
 _file_icon_provider = None
 def initialize_file_icon_provider():
     global _file_icon_provider
     if _file_icon_provider is None:
         _file_icon_provider = FileIconProvider()
-        
+
 def file_icon_provider():
     global _file_icon_provider
     return _file_icon_provider
@@ -299,13 +301,13 @@ _sidebar_directories = []
 def set_sidebar_directories(dirs):
     global _sidebar_directories
     if dirs is None:
-        dirs = config['frequently_used_directories']        
+        dirs = config['frequently_used_directories']
     _sidebar_directories = [QUrl.fromLocalFile(i) for i in dirs]
-        
+
 class FileDialog(QObject):
-    def __init__(self, title='Choose Files', 
+    def __init__(self, title='Choose Files',
                        filters=[],
-                       add_all_files_filter=True, 
+                       add_all_files_filter=True,
                        parent=None,
                        modal = True,
                        name = '',
@@ -321,16 +323,16 @@ class FileDialog(QObject):
                 ftext += '%s (%s);;'%(text, ' '.join(extensions))
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'
-        
+
         self.dialog_name = name if name else 'dialog_' + title
         self.selected_files = None
         self.fd = None
-        
+
         if islinux:
             self.fd = QFileDialog(parent)
-            self.fd.setFileMode(mode)  
+            self.fd.setFileMode(mode)
             self.fd.setIconProvider(_file_icon_provider)
-            self.fd.setModal(modal)            
+            self.fd.setModal(modal)
             self.fd.setNameFilter(ftext)
             self.fd.setWindowTitle(title)
             state = dynamic[self.dialog_name]
@@ -347,7 +349,7 @@ class FileDialog(QObject):
                 f = qstring_to_unicode(
                     QFileDialog.getSaveFileName(parent, title, dir, ftext, ""))
                 if os.path.exists(f):
-                    self.selected_files.append(f)                
+                    self.selected_files.append(f)
             elif mode == QFileDialog.ExistingFile:
                 f = qstring_to_unicode(
                     QFileDialog.getOpenFileName(parent, title, dir, ftext, ""))
@@ -367,44 +369,44 @@ class FileDialog(QObject):
             if self.selected_files:
                 self.selected_files = [qstring_to_unicode(q) for q in self.selected_files]
                 dynamic[self.dialog_name] =  os.path.dirname(self.selected_files[0])
-            self.accepted = bool(self.selected_files)        
-        
-        
-    
+            self.accepted = bool(self.selected_files)
+
+
+
     def get_files(self):
         if islinux and self.fd.result() != self.fd.Accepted:
-            return tuple() 
-        if self.selected_files is None:       
+            return tuple()
+        if self.selected_files is None:
             return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.fd.selectedFiles())
         return tuple(self.selected_files)
-    
+
     def save_dir(self):
         if self.fd:
             dynamic[self.dialog_name] =  self.fd.saveState()
-        
+
 
 def choose_dir(window, name, title):
-    fd = FileDialog(title, [], False, window, name=name, 
+    fd = FileDialog(title, [], False, window, name=name,
                     mode=QFileDialog.DirectoryOnly)
     dir = fd.get_files()
     if dir:
         return dir[0]
 
-def choose_files(window, name, title,  
+def choose_files(window, name, title,
                  filters=[], all_files=True, select_only_single_file=False):
     '''
     Ask user to choose a bunch of files.
     @param name: Unique dialog name used to store the opened directory
     @param title: Title to show in dialogs titlebar
     @param filters: list of allowable extensions. Each element of the list
-                     must be a 2-tuple with first element a string describing 
+                     must be a 2-tuple with first element a string describing
                      the type of files to be filtered and second element a list
-                     of extensions. 
+                     of extensions.
     @param all_files: If True add All files to filters.
-    @param select_only_single_file: If True only one file can be selected  
+    @param select_only_single_file: If True only one file can be selected
     '''
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
-    fd = FileDialog(title=title, name=name, filters=filters, 
+    fd = FileDialog(title=title, name=name, filters=filters,
                     parent=window, add_all_files_filter=all_files, mode=mode,
                     )
     if fd.accepted:
@@ -413,8 +415,8 @@ def choose_files(window, name, title,
 
 def choose_images(window, name, title, select_only_single_file=True):
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
-    fd = FileDialog(title=title, name=name, 
-                    filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])], 
+    fd = FileDialog(title=title, name=name,
+                    filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])],
                     parent=window, add_all_files_filter=False, mode=mode,
                     )
     if fd.accepted:
@@ -432,7 +434,7 @@ def pixmap_to_data(pixmap, format='JPEG'):
     return str(ba.data())
 
 class ResizableDialog(QDialog):
-    
+
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
         self.setupUi(self)
@@ -444,14 +446,15 @@ class ResizableDialog(QDialog):
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
         self.resize(nw, nh)
-        
+
 try:
     from calibre.utils.single_qt_application import SingleApplication
+    SingleApplication
 except:
     SingleApplication = None
-    
+
 class Application(QApplication):
-    
+
     def __init__(self, args):
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
@@ -462,6 +465,6 @@ class Application(QApplication):
             if data:
                 self.translator.loadFromData(data)
                 self.installTranslator(self.translator)
-                
-         
-        
+
+
+

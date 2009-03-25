@@ -9,7 +9,7 @@ lxml based OPF parser.
 
 import sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO
 from urllib import unquote
-from urlparse import urlparse
+from urlparse import urlparse, urldefrag
 
 from lxml import etree
 from dateutil import parser
@@ -444,7 +444,7 @@ class OPF(object):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
         self.basedir  = self.base_dir = basedir
-        self.path_to_html_toc = None
+        self.path_to_html_toc = self.html_toc_fragment = None
         raw, self.encoding = xml_to_unicode(stream.read(), strip_encoding_pats=True, resolve_entities=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
@@ -496,7 +496,8 @@ class OPF(object):
                     if f:
                         self.toc.read_ncx_toc(f[0])
             else:
-                self.path_to_html_toc = toc
+                self.path_to_html_toc, self.html_toc_fragment = \
+                    toc.partition('#')[0], toc.partition('#')[-1]
                 self.toc.read_html_toc(toc)
         except:
             pass
@@ -627,7 +628,7 @@ class OPF(object):
                 attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
                 elem = self.create_metadata_element('creator', attrib=attrib)
                 self.set_text(elem, author.strip())
-            
+
         return property(fget=fget, fset=fset)
 
     @apply

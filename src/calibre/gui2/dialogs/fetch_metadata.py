@@ -104,14 +104,15 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.author = author.strip()
         self.publisher = publisher
         self.previous_row = None
+        self.warning.setVisible(False)
         self.connect(self.matches, SIGNAL('activated(QModelIndex)'), self.chosen)
         self.connect(self.matches, SIGNAL('entered(QModelIndex)'), 
-                     lambda index:self.matches.setCurrentIndex(index))
+                     self.show_summary)
         self.matches.setMouseTracking(True)
         self.fetch_metadata()
         
         
-    def show_summary(self, current, previous):
+    def show_summary(self, current, *args):
         row  = current.row()
         if row != self.previous_row:
             summ =  self.model.summary(row)
@@ -119,6 +120,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             self.previous_row = row
         
     def fetch_metadata(self):
+        self.warning.setVisible(False)
         key = str(self.key.text())
         if key:
             prefs['isbndb_com_key'] =  key
@@ -158,14 +160,14 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
                             self.fetcher.exceptions if x[1] is not None]
             if warnings:
                 warnings='<br>'.join(['<b>%s</b>: %s'%(name, exc) for name,exc in warnings])
-                warning_dialog(self, _('Warning'),
-                               '<p>'+_('Could not fetch metadata from:')+\
-                               '<br><br>'+warnings+'</p>').exec_()
+                self.warning.setText('<p><b>'+ _('Warning')+':</b>'+\
+                               _('Could not fetch metadata from:')+\
+                               '<br>'+warnings+'</p>')
+                self.warning.setVisible(True)
             if self.model.rowCount() < 1:
                 info_dialog(self, _('No metadata found'),
                      _('No metadata found, try adjusting the title and author '
                        'or the ISBN key.')).exec_()
-                self.reject()
                 return
             
             self.matches.setModel(self.model)
