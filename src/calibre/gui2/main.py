@@ -1255,7 +1255,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def show_book_info(self, *args):
         if self.current_view() is not self.library_view:
             error_dialog(self, _('No detailed info available'),
-                _('No detailed information is available for books'
+                _('No detailed information is available for books '
                   'on the device.')).exec_()
             return
         index = self.library_view.currentIndex()
