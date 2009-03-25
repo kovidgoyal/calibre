@@ -8,19 +8,20 @@ joelonsoftware.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Joelonsoftware(BasicNewsRecipe):
-    
+
     title       = 'Joel on Software'
     __author__  = 'Darko Miletic'
     description = 'Painless Software Management'
     language = _('English')
     no_stylesheets = True
     use_embedded_content  = True
-    
+    oldest_article = 60
+
     cover_url = 'http://www.joelonsoftware.com/RssJoelOnSoftware.jpg'
-    
+
     html2lrf_options = [  '--comment'       , description
                         , '--category'      , 'blog,software,news'
                         , '--author'        , 'Joel Spolsky'
                        ]
-    
+
     feeds = [(u'Articles', u'http://www.joelonsoftware.com/rss.xml')]

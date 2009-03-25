@@ -954,6 +954,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         dynamic.set('news_to_be_synced', sync)
         callback(recipe)
         self.status_bar.showMessage(recipe.title + _(' fetched.'), 3000)
+        self.email_news(id)
         self.sync_news()
 
     ############################################################################

@@ -505,6 +505,37 @@ class DeviceGUI(object):
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             return (p.width(), p.height(), pixmap_to_data(p))
 
+    def email_news(self, id):
+        opts = email_config().parse()
+        accounts = [(account, [x.strip().lower() for x in x[0].split(',')])
+                for account, x in opts.accounts.items() if x[1]]
+        sent_mails = []
+        for account, fmts in accounts:
+            files = self.library_view.model().\
+                    get_preferred_formats_from_ids([id], fmts)
+            files = [f.name for f in files if f is not None]
+            if not files:
+                continue
+            attachment = files[0]
+            mi = self.library_view.model().db.get_metadata(id,
+                    index_is_id=True)
+            to_s = [account]
+            subjects = [_('News:')+' '+mi.title]
+            texts    = [_('Attached is the')+' '+mi.title]
+            attachment_names = [mi.title+os.path.splitext(attachment)[1]]
+            attachments = [attachment]
+            jobnames = ['%s:%s'%(id, mi.title)]
+            remove = [id] if config['delete_news_from_library_on_upload']\
+                    else []
+            self.emailer.send_mails(jobnames,
+                    Dispatcher(partial(self.emails_sent, remove=remove)),
+                    attachments, to_s, subjects, texts, attachment_names)
+            sent_mails.append(to_s[0])
+        if sent_mails:
+            self.status_bar.showMessage(_('Sent news to')+' '+\
+                    ', '.join(sent_mails),  3000)
+
+
     def sync_news(self):
         if self.device_connected:
             ids = list(dynamic.get('news_to_be_synced', set([])))
