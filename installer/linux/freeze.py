@@ -9,7 +9,7 @@ Create linux binary.
 '''
 
 def freeze():
-    import glob, sys, subprocess, tarfile, os, re, textwrap, shutil, cStringIO, bz2, codecs
+    import glob, sys, tarfile, os, textwrap, shutil
     from contextlib import closing
     from cx_Freeze import Executable, setup
     from calibre.constants import __version__, __appname__
@@ -18,13 +18,13 @@ def freeze():
     from calibre.web.feeds.recipes import recipe_modules
     from calibre.ebooks.lrf.fonts import FONT_MAP
     import calibre
-    
+
 
     QTDIR          = '/usr/lib/qt4'
     QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit')
-    
+
     binary_excludes = ['libGLcore*', 'libGL*', 'libnvidia*']
-    
+
     binary_includes = [
                        '/usr/bin/pdftohtml',
                        '/usr/lib/libunrar.so',
@@ -48,58 +48,60 @@ def freeze():
                        '/usr/lib/libMagickWand.so',
                        '/usr/lib/libMagickCore.so',
                        ]
-    
+
     binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
-    
-    
+
+
     d = os.path.dirname
     CALIBRESRC = d(d(d(os.path.abspath(calibre.__file__))))
     CALIBREPLUGINS = os.path.join(CALIBRESRC, 'src', 'calibre', 'plugins')
     FREEZE_DIR = os.path.join(CALIBRESRC, 'build', 'cx_freeze')
     DIST_DIR   = os.path.join(CALIBRESRC, 'dist')
-    
+
     os.chdir(CALIBRESRC)
-    
+
     print 'Freezing calibre located at', CALIBRESRC
-    
+
     sys.path.insert(0, os.path.join(CALIBRESRC, 'src'))
-    
+
     entry_points = entry_points['console_scripts'] + entry_points['gui_scripts']
-    entry_points = ['calibre_postinstall=calibre.linux:binary_install', 
+    entry_points = ['calibre_postinstall=calibre.linux:binary_install',
                     'calibre-parallel=calibre.parallel:main'] + entry_points
     executables = {}
     for ep in entry_points:
         executables[ep.split('=')[0].strip()] = (ep.split('=')[1].split(':')[0].strip(),
                                                  ep.split(':')[-1].strip())
-    
+
     if os.path.exists(FREEZE_DIR):
         shutil.rmtree(FREEZE_DIR)
     os.makedirs(FREEZE_DIR)
-    
+
     if not os.path.exists(DIST_DIR):
         os.makedirs(DIST_DIR)
-    
+
     includes = [x[0] for x in executables.values()]
     includes += ['calibre.ebooks.lrf.fonts.prs500.'+x for x in FONT_MAP.values()]
-    
-    excludes = ['matplotlib', "Tkconstants", "Tkinter", "tcl", "_imagingtk", 
-                "ImageTk", "FixTk", 'wx', 'PyQt4.QtAssistant', 'PyQt4.QtOpenGL.so', 
+    includes += ['email.iterators', 'email.generator']
+
+
+    excludes = ['matplotlib', "Tkconstants", "Tkinter", "tcl", "_imagingtk",
+                "ImageTk", "FixTk", 'wx', 'PyQt4.QtAssistant', 'PyQt4.QtOpenGL.so',
                 'PyQt4.QtScript.so', 'PyQt4.QtSql.so', 'PyQt4.QtTest.so', 'qt',
                 'glib', 'gobject']
-    
-    packages = ['calibre', 'encodings', 'cherrypy', 'cssutils', 'xdg', 
-                'dateutil']
-    
+
+    packages = ['calibre', 'encodings', 'cherrypy', 'cssutils', 'xdg',
+                'dateutil', 'dns', 'email']
+
     includes += ['calibre.web.feeds.recipes.'+r for r in recipe_modules]
-    
+
     LOADER = '/tmp/loader.py'
     open(LOADER, 'wb').write('# This script is never actually used.\nimport sys')
-    
+
     INIT_SCRIPT = '/tmp/init.py'
     open(INIT_SCRIPT, 'wb').write(textwrap.dedent('''
     ## Load calibre module specified in the environment variable CALIBRE_CX_EXE
     ## Also restrict sys.path to the executables' directory and add the
-    ## executables directory to LD_LIBRARY_PATH 
+    ## executables directory to LD_LIBRARY_PATH
     import encodings
     import os
     import sys
@@ -107,26 +109,26 @@ def freeze():
     import zipimport
     import locale
     import codecs
-    
+
     enc = locale.getdefaultlocale()[1]
     if not enc:
         enc = locale.nl_langinfo(locale.CODESET)
     enc = codecs.lookup(enc if enc else 'UTF-8').name
     sys.setdefaultencoding(enc)
-    
+
     paths = os.environ.get('LD_LIBRARY_PATH', '').split(os.pathsep)
     if DIR_NAME not in paths or not sys.getfilesystemencoding():
         paths.insert(0, DIR_NAME)
         os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
         os.environ['PYTHONIOENCODING'] = enc
         os.execv(sys.executable, sys.argv)
-    
+
     sys.path = sys.path[:3]
     sys.frozen = True
     sys.frozen_path = DIR_NAME
-    
+
     executables = %(executables)s
-    
+
     exe = os.environ.get('CALIBRE_CX_EXE', False)
     ret = 1
     if not exe:
@@ -141,7 +143,7 @@ def freeze():
         module = __import__(module, fromlist=[1])
         func = getattr(module, func)
         ret = func()
-    
+
     module = sys.modules.get("threading")
     if module is not None:
         module._shutdown()
@@ -162,35 +164,35 @@ def freeze():
                           'init_script'     : INIT_SCRIPT,
                           'copy_dependent_files' : True,
                           'create_shared_zip'    : False,
-                          } 
+                          }
                          }
           )
-    
+
     def copy_binary(src, dest_dir):
         dest = os.path.join(dest_dir, os.path.basename(src))
         if not os.path.exists(dest_dir):
             os.makedirs(dest_dir)
         shutil.copyfile(os.path.realpath(src), dest)
         shutil.copymode(os.path.realpath(src), dest)
-    
+
     for f in binary_includes:
         copy_binary(f, FREEZE_DIR)
-    
+
     for pat in binary_excludes:
         matches = glob.glob(os.path.join(FREEZE_DIR, pat))
         for f in matches:
             os.remove(f)
-            
+
     print 'Adding calibre plugins...'
-    os.makedirs(os.path.join(FREEZE_DIR, 'plugins'))    
+    os.makedirs(os.path.join(FREEZE_DIR, 'plugins'))
     for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so')):
         copy_binary(f, os.path.join(FREEZE_DIR, 'plugins'))
-        
+
     print 'Adding Qt plugins...'
     plugdir = os.path.join(QTDIR, 'plugins')
     for dirpath, dirnames, filenames in os.walk(plugdir):
         for f in filenames:
-            if not f.endswith('.so') or 'designer' in dirpath or 'codecs' in dirpath or 'sqldrivers' in dirpath: 
+            if not f.endswith('.so') or 'designer' in dirpath or 'codecs' in dirpath or 'sqldrivers' in dirpath:
                 continue
             f = os.path.join(dirpath, f)
             dest_dir = dirpath.replace(plugdir, os.path.join(FREEZE_DIR, 'qtplugins'))
@@ -198,7 +200,7 @@ def freeze():
 
     print 'Creating launchers'
     for exe in executables:
-        path = os.path.join(FREEZE_DIR, exe) 
+        path = os.path.join(FREEZE_DIR, exe)
         open(path, 'wb').write(textwrap.dedent('''\
         #!/bin/sh
         export CALIBRE_CX_EXE=%s
@@ -209,15 +211,15 @@ def freeze():
         $loader "$@"
         ''')%exe)
         os.chmod(path, 0755)
-    
+
     exes = list(executables.keys())
     exes.remove('calibre_postinstall')
     exes.remove('calibre-parallel')
     open(os.path.join(FREEZE_DIR, 'manifest'), 'wb').write('\n'.join(exes))
-            
+
     print 'Creating archive...'
     dist = open(os.path.join(DIST_DIR, 'calibre-%s-i686.tar.bz2'%__version__), 'wb')
-    with closing(tarfile.open(fileobj=dist, mode='w:bz2', 
+    with closing(tarfile.open(fileobj=dist, mode='w:bz2',
                               format=tarfile.PAX_FORMAT)) as tf:
         for f in walk(FREEZE_DIR):
             name = f.replace(FREEZE_DIR, '')[1:]

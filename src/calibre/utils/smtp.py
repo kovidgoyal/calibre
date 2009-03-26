@@ -32,7 +32,10 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     if attachment_data is not None:
         from email.mime.base import MIMEBase
         assert attachment_data and attachment_name
-        maintype, subtype = attachment_type.split('/', 1)
+        try:
+            maintype, subtype = attachment_type.split('/', 1)
+        except AttributeError:
+            maintype, subtype = 'application', 'octet-stream'
         msg = MIMEBase(maintype, subtype)
         msg.set_payload(attachment_data)
         encoders.encode_base64(msg)
@@ -50,9 +53,11 @@ def get_mx(host):
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
     import smtplib
+    hosts = get_mx(to.split('@')[-1].strip())
+    if 'darwin' in sys.platform:
+        timeout=None # Non blocking sockets dont work on OS X
     s = smtplib.SMTP(timeout=timeout, local_hostname=localhost)
     s.set_debuglevel(verbose)
-    hosts = get_mx(to.split('@')[-1].strip())
     if not hosts:
         raise ValueError('No mail server found for address: %s'%to)
     last_error = last_traceback = None
@@ -76,6 +81,8 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
     import smtplib
     cls = smtplib.SMTP if encryption == 'TLS' else smtplib.SMTP_SSL
+    if 'darwin' in sys.platform:
+        timeout = None # Non-blocking sockets in OS X don't work
     s = cls(timeout=timeout, local_hostname=localhost)
     s.set_debuglevel(verbose)
     if port < 0:

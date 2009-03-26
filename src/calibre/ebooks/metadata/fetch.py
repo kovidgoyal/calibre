@@ -59,8 +59,8 @@ class FetchISBNDB(Thread):
                 args.extend(['--author', self.author])
             if self.publisher:
                 args.extend(['--publisher', self.publisher])
-            if self.verbose:
-                args.extend(['--verbose'])
+        if self.verbose:
+            args.extend(['--verbose'])
         args.append(self.key)
         try:
             opts, args = option_parser().parse_args(args)

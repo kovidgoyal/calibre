@@ -28,7 +28,8 @@ def fetch_metadata(url, max=100, timeout=5.):
                 raw = urlopen(url).read()
             except Exception, err:
                 raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
-            soup = BeautifulStoneSoup(raw)
+            soup = BeautifulStoneSoup(raw,
+                    convertEntities=BeautifulStoneSoup.XML_ENTITIES)
             book_list = soup.find('booklist')
             if book_list is None:
                 errmsg = soup.find('errormessage').string
@@ -41,13 +42,13 @@ def fetch_metadata(url, max=100, timeout=5.):
         return books
     finally:
         socket.setdefaulttimeout(timeout)
-    
+
 
 class ISBNDBMetadata(MetaInformation):
-    
+
     def __init__(self, book):
         MetaInformation.__init__(self, None, [])
-        
+
         self.isbn = book['isbn']
         self.title = book.find('titlelong').string
         if not self.title:
@@ -59,7 +60,7 @@ class ISBNDBMetadata(MetaInformation):
         for au in temp:
             if not au: continue
             self.authors.extend([a.strip() for a in au.split('&amp;')])
-            
+
         try:
             self.author_sort = book.find('authors').find('person').string
             if self.authors and self.author_sort == self.authors[0]:
@@ -67,12 +68,12 @@ class ISBNDBMetadata(MetaInformation):
         except:
             pass
         self.publisher = book.find('publishertext').string
-        
+
         summ = book.find('summary')
         if summ and hasattr(summ, 'string') and summ.string:
             self.comments = 'SUMMARY:\n'+summ.string
-        
-        
+
+
 
 def build_isbn(base_url, opts):
     return base_url + 'index1=isbn&value1='+opts.isbn
@@ -85,11 +86,11 @@ def build_combined(base_url, opts):
     query = query.strip()
     if len(query) == 0:
         raise ISBNDBError('You must specify at least one of --author, --title or --publisher')
-    
+
     query = re.sub(r'\s+', '+', query)
     if isinstance(query, unicode):
         query = query.encode('utf-8')
-    return base_url+'index1=combined&value1='+quote(query, '+')    
+    return base_url+'index1=combined&value1='+quote(query, '+')
 
 
 def option_parser():
@@ -97,7 +98,7 @@ def option_parser():
 _('''
 %prog [options] key
 
-Fetch metadata for books from isndb.com. You can specify either the 
+Fetch metadata for books from isndb.com. You can specify either the
 books ISBN ID or its title and author. If you specify the title and author,
 then more than one book may be returned.
 
@@ -112,11 +113,11 @@ key is the account key you generate after signing up for a free account from isb
                       default=None, help=_('The title of the book to search for.'))
     parser.add_option('-p', '--publisher', default=None, dest='publisher',
                       help=_('The publisher of the book to search for.'))
-    parser.add_option('-v', '--verbose', default=False, 
+    parser.add_option('-v', '--verbose', default=False,
                       action='store_true', help=_('Verbose processing'))
-    
+
     return parser
-    
+
 
 def create_books(opts, args, timeout=5.):
     base_url = BASE_URL%dict(key=args[1])
@@ -124,10 +125,10 @@ def create_books(opts, args, timeout=5.):
         url = build_isbn(base_url, opts)
     else:
         url = build_combined(base_url, opts)
-    
+
     if opts.verbose:
         print ('ISBNDB query: '+url)
-    
+
     return [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
 
 def main(args=sys.argv):
@@ -137,10 +138,10 @@ def main(args=sys.argv):
         parser.print_help()
         print ('You must supply the isbndb.com key')
         return 1
-    
+
     for book in create_books(opts, args):
         print unicode(book).encode('utf-8')
-            
+
     return 0
 
 if __name__ == '__main__':

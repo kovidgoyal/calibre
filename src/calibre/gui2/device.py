@@ -337,7 +337,7 @@ class DeviceMenu(QMenu):
 
 class Emailer(Thread):
 
-    def __init__(self, timeout=10):
+    def __init__(self, timeout=60):
         Thread.__init__(self)
         self.setDaemon(True)
         self.job_lock = RLock()
@@ -369,6 +369,7 @@ class Emailer(Thread):
     def _send_mails(self, jobnames, callback, attachments,
                     to_s, subjects, texts, attachment_names):
         opts = email_config().parse()
+        opts.verbose = 3 if os.environ.get('CALIBRE_DEBUG_EMAIL', False) else 0
         from_ = opts.from_
         if not from_:
             from_ = 'calibre <calibre@'+socket.getfqdn()+'>'
@@ -380,7 +381,8 @@ class Emailer(Thread):
                         attachment_name = attachment_names[i])
                 efrom, eto = map(extract_email_address, (from_, to_s[i]))
                 eto = [eto]
-                sendmail(msg, efrom, eto, localhost=None, verbose=0,
+                sendmail(msg, efrom, eto, localhost=None,
+                            verbose=opts.verbose,
                             timeout=self.timeout, relay=opts.relay_host,
                             username=opts.relay_username,
                             password=opts.relay_password, port=opts.relay_port,

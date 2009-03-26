@@ -651,11 +651,6 @@ class upload_to_pypi(OptionlessCommand):
     def run(self):
         check_call('python setup.py register'.split())
         check_call('rm -f dist/*', shell=True)
-        check_call('sudo rm -rf build src/calibre/plugins/*', shell=True)
-        os.mkdir('build')
-        check_call('python2.5 setup.py build_ext bdist_egg --exclude-source-files upload'.split())
-        check_call('sudo rm -rf build src/calibre/plugins/*', shell=True)
-        os.mkdir('build')
         check_call('python setup.py build_ext bdist_egg --exclude-source-files upload'.split())
         check_call('python setup.py sdist upload'.split())
 

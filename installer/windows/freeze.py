@@ -14,12 +14,11 @@ IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
 VC90             = r'C:\VC90.CRT'
 
-import sys, os, py2exe, shutil, zipfile, glob, subprocess, re
+import sys, os, py2exe, shutil, zipfile, glob, re
 from distutils.core import setup
-from distutils.filelist import FileList
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, BASE_DIR)
-from setup import VERSION, APPNAME, entry_points, scripts, basenames
+from setup import VERSION, APPNAME, scripts, basenames
 sys.path.remove(BASE_DIR)
 
 ICONS = [os.path.abspath(os.path.join(BASE_DIR, 'icons', i)) for i in ('library.ico', 'viewer.ico')]
@@ -33,7 +32,7 @@ WINVER = VERSION+'.0'
 PY2EXE_DIR = os.path.join(BASE_DIR, 'build','py2exe')
 
 class BuildEXE(py2exe.build_exe.py2exe):
-    
+
     def run(self):
         py2exe.build_exe.py2exe.run(self)
         print 'Adding plugins...'
@@ -61,19 +60,19 @@ class BuildEXE(py2exe.build_exe.py2exe):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
-            
-        print 
+
+        print
         print 'Adding main scripts'
         f = zipfile.ZipFile(os.path.join(PY2EXE_DIR, 'library.zip'), 'a', zipfile.ZIP_DEFLATED)
         for i in scripts['console'] + scripts['gui']:
             f.write(i, i.partition('\\')[-1])
         f.close()
-        
+
         print
         print 'Copying icons'
         for icon in ICONS:
             shutil.copyfile(icon, os.path.join(PY2EXE_DIR, os.path.basename(icon)))
-        
+
         print
         print 'Adding third party dependencies'
         print '\tAdding devcon'
@@ -96,18 +95,18 @@ class BuildEXE(py2exe.build_exe.py2exe):
                 shutil.copytree(f, tgt)
             else:
                 shutil.copyfile(f, tgt)
-                
-        print 
+
+        print
         print 'Doing DLL redirection' # See http://msdn.microsoft.com/en-us/library/ms682600(VS.85).aspx
         for f in glob.glob(os.path.join(PY2EXE_DIR, '*.exe')):
             open(f + '.local', 'w').write('\n')
-        
+
         print
         print 'Adding Windows runtime dependencies...'
         for f in glob.glob(os.path.join(VC90, '*')):
             shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
-        
-    
+
+
 def exe_factory(dest_base, script, icon_resources=None):
     exe = {
            'dest_base'       : dest_base,
@@ -144,7 +143,9 @@ def main(args=sys.argv):
                                   'includes'  : [
                                              'sip', 'pkg_resources', 'PyQt4.QtSvg',
                                              'mechanize', 'ClientForm', 'wmi',
-                                             'win32file', 'pythoncom', 
+                                             'win32file', 'pythoncom',
+                                             'email.iterators',
+                                             'email.generator',
                                              'win32process', 'win32api', 'msvcrt',
                                              'win32event', 'calibre.ebooks.lrf.any.*',
                                              'calibre.ebooks.lrf.feeds.*',
@@ -155,14 +156,14 @@ def main(args=sys.argv):
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],
                                   'packages'  : ['PIL', 'lxml', 'cherrypy',
-                                                 'dateutil'],
+                                                 'dateutil', 'dns'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],
                                   'dll_excludes' : ['mswsock.dll'],
                                  },
                     },
-          
+
           )
     return 0
 
