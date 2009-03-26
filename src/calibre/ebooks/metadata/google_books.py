@@ -60,9 +60,9 @@ class Query(object):
             if title is not None:
                 q += build_term('title', title.split())
             if author is not None:
-                q += build_term('author', author.split())
+                q += ('+' if q else '')+build_term('author', author.split())
             if publisher is not None:
-                q += build_term('publisher', publisher.split())
+                q += ('+' if q else '')+build_term('publisher', publisher.split())
 
         if isinstance(q, unicode):
             q = q.encode('utf-8')
