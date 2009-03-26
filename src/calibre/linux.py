@@ -199,9 +199,9 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.metadata.fetch import option_parser as fem_op
         from calibre.ebooks.mobi.writer import option_parser as oeb2mobi
         from calibre.gui2.main import option_parser as guiop
-        from calibre.utils.email import option_parser as smtp_op
+        from calibre.utils.smtp import option_parser as smtp_op
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
+             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt']
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
@@ -448,7 +448,7 @@ def post_install():
     if opts.no_root or os.geteuid() == 0:
         manifest += install_man_pages(opts.fatal_errors, use_destdir)
         manifest += setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
-        manifest += setup_completion(opts.fatal_errors)        
+        manifest += setup_completion(opts.fatal_errors)
     else:
         print "Skipping udev, completion, and man-page install for non-root user."
 
@@ -461,7 +461,7 @@ def post_install():
 
     if opts.save_manifest_to:
         open(opts.save_manifest_to, 'wb').write('\n'.join(manifest)+'\n')
-        
+
     from calibre.utils.config import config_dir
     if os.path.exists(config_dir):
         os.chdir(config_dir)
@@ -574,7 +574,7 @@ def setup_desktop_integration(fatal_errors):
             check_call('xdg-icon-resource install --size 128 calibre-gui.png calibre-gui', shell=True)
             render_svg(QFile(':/images/viewer.svg'), os.path.join(tdir, 'calibre-viewer.png'))
             check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-            
+
             f = open('calibre-lrfviewer.desktop', 'wb')
             f.write(VIEWER)
             f.close()
