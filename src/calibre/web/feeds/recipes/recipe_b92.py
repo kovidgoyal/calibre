@@ -5,7 +5,6 @@ __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 b92.net
 '''
-
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -13,57 +12,53 @@ class B92(BasicNewsRecipe):
     title                 = 'B92'
     __author__            = 'Darko Miletic'
     description           = 'Dnevne vesti iz Srbije i sveta'    
-    oldest_article        = 2
-    publisher             = 'B92.net'
-    category              = 'news, politics, Serbia'    
+    publisher             = 'B92'
+    category              = 'news, politics, Serbia'
+    oldest_article        = 1
     max_articles_per_feed = 100
-    remove_javascript     = True
     no_stylesheets        = True
     use_embedded_content  = False
-    cover_url = 'http://static.b92.net/images/fp/logo.gif'
+    remove_javascript     = True
+    encoding              = 'cp1250'
     language              = _('Serbian')
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
+    extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
     
     html2lrf_options = [
-                          '--comment'  , description
-                        , '--category' , category
+                          '--comment', description
+                        , '--category', category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
-
-    keep_only_tags = [ dict(name='div', attrs={'class':'sama_vest'}) ]
-        
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em}"' 
+    
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    
+    keep_only_tags     = [dict(name='table', attrs={'class':'maindocument'})]
+
+    remove_tags = [
+                     dict(name='ul', attrs={'class':'comment-nav'})
+                    ,dict(name=['embed','link','base']            )
+                  ]
 
     feeds          = [
                         (u'Vesti', u'http://www.b92.net/info/rss/vesti.xml')
                        ,(u'Biz'  , u'http://www.b92.net/info/rss/biz.xml'  )
-                       ,(u'Zivot', u'http://www.b92.net/info/rss/zivot.xml')
-                       ,(u'Sport', u'http://www.b92.net/info/rss/sport.xml')
                      ]
 
     def print_version(self, url):
-        main, sep, article_id = url.partition('nav_id=')
-        rmain, rsep, rrest = main.partition('.php?')
-        mrmain , rsepp, nnt = rmain.rpartition('/')
-        mprmain, rrsep, news_type = mrmain.rpartition('/')
-        nurl = 'http://www.b92.net/mobilni/' + news_type + '/index.php?nav_id=' + article_id
-        brbiz, biz, bizrest = rmain.partition('/biz/')
-        if biz:
-            nurl = 'http://www.b92.net/mobilni/biz/index.php?nav_id=' + article_id
-        return nurl
+        return url + '&version=print'
 
     def preprocess_html(self, soup):
-        lng = 'sr-Latn-RS'
-        soup.html['xml:lang'] = lng
-        soup.html['lang']     = lng
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
-        soup.head.insert(0,mtag)    
+        del soup.body['onload']
+        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>'
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
-        for item in soup.findAll(name='img',align=True):
+        for item in soup.findAll(align=True):
             del item['align']
-            item.insert(0,'<br /><br />')
+        for item in soup.findAll('font'):
+            item.name='p'
+            if item.has_key('size'):
+               del item['size']
         return soup
