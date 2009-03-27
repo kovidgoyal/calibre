@@ -387,7 +387,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.relay_use_gmail, SIGNAL('clicked(bool)'),
                      self.create_gmail_relay)
         self.connect(self.relay_show_password, SIGNAL('stateChanged(int)'),
-         lambda state:self.relay_password.setEchoMode(self.relay_password.Password))
+         lambda
+         state:self.relay_password.setEchoMode(self.relay_password.Password if
+             state == 0 else self.relay_password.Normal))
         self.connect(self.email_add, SIGNAL('clicked(bool)'),
                      self.add_email_account)
         self.connect(self.email_make_default, SIGNAL('clicked(bool)'),

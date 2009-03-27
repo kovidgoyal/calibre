@@ -118,12 +118,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
-        self.connect(self.restore_action, SIGNAL('triggered(bool)'),
-                lambda c : self.show())
+        self.connect(self.restore_action, SIGNAL('triggered()'),
+                self.show)
         self.connect(self.action_show_book_details,
                 SIGNAL('triggered(bool)'), self.show_book_info)
-        self.connect(self.action_restart, SIGNAL('triggered(bool)'),
-                     lambda c : self.quit(None, restart=True))
+        self.connect(self.action_restart, SIGNAL('triggered()'),
+                     self.restart)
         self.connect(self.system_tray_icon,
                 SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
                 self.system_tray_icon_activated)
@@ -290,7 +290,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.action_books_in_this_series, SIGNAL('triggered()'),
                      lambda : self.show_similar_books('series'))
         self.connect(self.action_books_with_the_same_tags,
-                SIGNAL('triggered()'),
+                     SIGNAL('triggered()'),
                      lambda : self.show_similar_books('tag'))
         self.connect(self.action_books_by_this_publisher, SIGNAL('triggered()'),
                      lambda : self.show_similar_books('publisher'))
@@ -490,6 +490,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
 
+    def uncheck_cover_button(self, *args):
+        self.status_bar.cover_flow_button.setChecked(False)
+
     def toggle_cover_flow(self, show):
         if config['separate_cover_flow']:
             if show:
@@ -505,8 +508,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.library_view.scrollTo(self.library_view.currentIndex())
                 d.show()
                 self.connect(d, SIGNAL('finished(int)'),
-                    lambda x: self.status_bar.\
-                            cover_flow_button.setChecked(False))
+                    self.uncheck_cover_button)
                 self.cf_dialog = d
             else:
                 cfd = getattr(self, 'cf_dialog', None)
@@ -1395,7 +1397,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if self.device_connected:
             self.memory_view.write_settings()
 
-    def quit(self, checked, restart=False):
+    def restart(self):
+        self.quit(restart=True)
+
+    def quit(self, checked=True, restart=False):
         if not self.confirm_quit():
             return
         try:
@@ -1596,5 +1601,5 @@ if __name__ == '__main__':
         if os.path.exists(logfile):
             log = open(logfile).read().decode('utf-8', 'ignore')
             d = QErrorMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
-                '%s<b>Log:</b><br>')%(unicode(err), unicode(tb), log))
+                '%s<b>Log:</b><br>%s')%(unicode(err), unicode(tb), log))
             d.exec_()

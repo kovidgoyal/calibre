@@ -54,8 +54,7 @@ def get_mx(host):
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
     import smtplib
     hosts = get_mx(to.split('@')[-1].strip())
-    if 'darwin' in sys.platform:
-        timeout=None # Non blocking sockets dont work on OS X
+    timeout=None # Non blocking sockets sometimes don't work
     s = smtplib.SMTP(timeout=timeout, local_hostname=localhost)
     s.set_debuglevel(verbose)
     if not hosts:
@@ -81,8 +80,8 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
     import smtplib
     cls = smtplib.SMTP if encryption == 'TLS' else smtplib.SMTP_SSL
-    if 'darwin' in sys.platform:
-        timeout = None # Non-blocking sockets in OS X don't work
+    timeout = None # Non-blocking sockets sometimes don't work
+    port = int(port)
     s = cls(timeout=timeout, local_hostname=localhost)
     s.set_debuglevel(verbose)
     if port < 0:

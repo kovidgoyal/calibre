@@ -5,6 +5,7 @@ import os, traceback, Queue, time, socket
 from threading import Thread, RLock
 from itertools import repeat
 from functools import partial
+from binascii import unhexlify
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
                      Qt
@@ -385,7 +386,7 @@ class Emailer(Thread):
                             verbose=opts.verbose,
                             timeout=self.timeout, relay=opts.relay_host,
                             username=opts.relay_username,
-                            password=opts.relay_password, port=opts.relay_port,
+                            password=unhexlify(opts.relay_password), port=opts.relay_port,
                             encryption=opts.encryption)
                 results.append([jobname, None, None])
             except Exception, e:
