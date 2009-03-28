@@ -1,6 +1,6 @@
 body {
     font-family: sansserif;
-    background-color: #f6f6f6;
+    background-color: #f1fff1;
 }
 
 img {
@@ -12,7 +12,7 @@ img {
     border-bottom: 1px solid black;
     margin-bottom: 20px;
     height: 100px;
-    background-color: #d6d6d6;
+    background-color: #A2B964;
     overflow: hidden;
 }
 
