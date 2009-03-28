@@ -7,7 +7,7 @@ import re, os, traceback
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
-                        QPixmap, QMovie
+                        QPixmap, QMovie, QPalette
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
                          QRegExp, QSettings, QSize, QModelIndex
 
@@ -204,6 +204,13 @@ class LocationModel(QAbstractListModel):
             font = QFont('monospace')
             font.setBold(row == self.highlight_row)
             data = QVariant(font)
+        elif role == Qt.ForegroundRole and row == self.highlight_row:
+            return QVariant(QApplication.palette().brush(
+                QPalette.HighlightedText))
+        elif role == Qt.BackgroundRole and row == self.highlight_row:
+            return QVariant(QApplication.palette().brush(
+                QPalette.Highlight))
+
         return data
 
     def headerData(self, section, orientation, role):
