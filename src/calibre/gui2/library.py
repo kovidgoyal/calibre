@@ -93,7 +93,7 @@ class DateDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat('MM/dd/yyyy')
+        qde.setDisplayFormat(unicode(qde.displayFormat()).replace('yy', 'yyyy'))
         qde.setMinimumDate(QDate(101,1,1))
         qde.setCalendarPopup(True)
         return qde
@@ -635,7 +635,8 @@ class BooksView(TableView):
 
     def columns_sorted(self, rating_col, timestamp_col):
         for i in range(self.model().columnCount(None)):
-            if self.itemDelegateForColumn(i) == self.rating_delegate:
+            if self.itemDelegateForColumn(i) in (self.rating_delegate,
+                    self.timestamp_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
         if rating_col > -1:
             self.setItemDelegateForColumn(rating_col, self.rating_delegate)
@@ -706,7 +707,7 @@ class BooksView(TableView):
 
     def close(self):
         self._model.close()
-        
+
     def set_editable(self, editable):
         self._model.set_editable(editable)
 
@@ -999,10 +1000,10 @@ class DeviceBooksModel(BooksModel):
                 self.sort(col, self.sorted_on[1])
             done = True
         return done
-        
+
     def set_editable(self, editable):
         self.editable = editable
-        
+
 
 class SearchBox(QLineEdit):
 
