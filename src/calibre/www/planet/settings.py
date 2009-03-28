@@ -2,7 +2,7 @@
 
 from calibre.www.settings import DEBUG, TEMPLATE_DEBUG, ADMINS, MANAGERS, \
         TEMPLATE_LOADERS, TEMPLATE_DIRS, MIDDLEWARE_CLASSES, MEDIA_ROOT, \
-        MEDIA_URL, ADMIN_MEDIA_PREFIX
+        MEDIA_URL, ADMIN_MEDIA_PREFIX, TEMPLATE_CONTEXT_PROCESSORS
 
 if not DEBUG:
     MEDIA_URL = 'http://planet.calibre-ebook.com/site_media/'

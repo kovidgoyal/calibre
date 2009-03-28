@@ -4,8 +4,8 @@
 {% block header_text %}Planet{% endblock %}
 
 {% block extra_header %}
-<link rel="stylesheet" type="text/css" href="{{ media_url }}/styles/planet.css" /> 
-<link rel="stylesheet" type="text/css" href="{{ media_url }}/styles/codebox.css" /> 
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/styles/planet.css" /> 
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/styles/codebox.css" /> 
 {% endblock %}
 
 {% block content %}
@@ -31,10 +31,10 @@
 </div> <!-- end paginate -->
 
 <div id="buttons">
-      <a href="{{ site.url }}/feed/rss/" title="RSS 2.0 feed"><img src="{{ media_url }}/img/button-rss.png"/></a> &bull;   
-      <a href="{{ site.url }}/feed/atom/" title="Atom 1.0 feed"><img src="{{ media_url }}/img/button-atom.png"/></a> &bull; 
-      <a href="{{ site.url }}/opml/" title="OPML"><img src="{{ media_url }}/img/button-opml.png"/></a> &bull; 
-      <a href="{{ site.url }}/foaf/" title="FOAF"><img src="{{ media_url }}/img/button-foaf.png"/></a>
+      <a href="{{ site.url }}/feed/rss/" title="RSS 2.0 feed"><img src="{{ MEDIA_URL }}/img/button-rss.png"/></a> &bull;   
+      <a href="{{ site.url }}/feed/atom/" title="Atom 1.0 feed"><img src="{{ MEDIA_URL }}/img/button-atom.png"/></a> &bull; 
+      <a href="{{ site.url }}/opml/" title="OPML"><img src="{{ MEDIA_URL }}/img/button-opml.png"/></a> &bull; 
+      <a href="{{ site.url }}/foaf/" title="FOAF"><img src="{{ MEDIA_URL }}/img/button-foaf.png"/></a>
 </div> <!-- end buttons -->
 
 <div id="post_list">
@@ -50,7 +50,7 @@
   <div class="avatar">
     <a href="{{ item.feed.link }}">
         <img 
-        src="{{ media_url }}/img/faces/{{ item.subscriber.shortname}}.png" alt="" />
+        src="{{ MEDIA_URL }}/img/faces/{{ item.subscriber.shortname}}.png" alt="" />
         <br/>
         <span class="url">{{ item.feed.title }}</span>
     </a>
@@ -90,7 +90,7 @@
 Planet Calibre is a window into the world, work and lives of Calibre developers and contributors.
 </p>
 <p style="text-align:left">
-If you have a question or would like your blog added to the feed. Please email 
+If you have a question or would like your blog added to the planet, please email 
 <a href="mailto:kovid@kovidgoyal.net">Kovid Goyal</a>.
 </p>
 
@@ -151,7 +151,7 @@ title="feed (last modified: {{ feed.feed.last_modified }})"
 title="feed"
 {% endif %}
 >
-<img src="{{ media_url }}/img/feed.png" alt="feed"></a>
+<img src="{{ MEDIA_URL }}/img/feed.png" alt="feed"></a>
 <a class="nombre" href="{{ site.url }}/user/{{ feed.feed.id }}"
 title="{{ feed.feed.title }}">{{ feed.name }}</a></li>
 {% endfor %}

@@ -7,14 +7,15 @@
  -->
 <head>
     <title>{% block title %}calibre - E-book management{% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="{{ media_url }}/styles/base.css" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/styles/base.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     {% block extra_header %} {% endblock %}
 </head>
 
 <body>
     <div id="_header">
         <h1>
-            <img id="_logo" alt="calibre" src="{{ media_url }}/img/logo.png" />
+            <img id="_logo" alt="calibre" src="{{ MEDIA_URL }}/img/logo.png" />
             {% block header_text %}e-book management{% endblock %}
         </h1>
     </div>
@@ -26,7 +27,7 @@
         {% block footer_text %}
         Created by Kovid Goyal. 
         Powered by <a href="http://www.djangoproject.com">
-            <img alt="Django" src="{{ media_url }}/img/button-django.png"/>
+            <img alt="Django" src="{{ MEDIA_URL }}/img/button-django.png"/>
         </a>&nbsp;&nbsp;
         {% endblock %}
     </div>

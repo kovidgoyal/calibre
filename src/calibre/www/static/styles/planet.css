@@ -117,9 +117,8 @@ div.post-content {
     border-right: 1px dotted #ccc;
 }
 div.post-content li {
-    margin: 0;
-    padding: 0;
     line-height: 130%;
+    margin-bottom: 0.6em;
 }
 div.post-content table{
     border: 0;

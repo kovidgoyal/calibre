@@ -11,7 +11,7 @@ from django.utils import feedgenerator
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.utils.cache import patch_vary_headers
-from django.template import Context, loader
+from django.template import RequestContext, loader
 
 from calibre.www.apps.feedjack import models, fjlib, fjcache
 
@@ -58,7 +58,7 @@ def blogroll(request, btype):
     template = loader.get_template('feedjack/%s.xml' % btype)
     ctx = {}
     fjlib.get_extra_content(site, sfeeds_ids, ctx)
-    ctx = Context(ctx)
+    ctx = RequestContext(request, ctx)
     response = HttpResponse(template.render(ctx) , \
       mimetype='text/xml; charset=utf-8')
 
@@ -138,7 +138,7 @@ def mainview(request, tag=None, user=None):
       sfeeds_ids))
 
     response = render_to_response('feedjack/%s/post_list.html' % \
-      (site.template), ctx)
+      (site.template), ctx, context_instance=RequestContext(request))
 
     # per host caching, in case the cache middleware is enabled
     patch_vary_headers(response, ['Host'])

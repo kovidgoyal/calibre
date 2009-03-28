@@ -6,7 +6,6 @@ Gustavo Picón
 fjlib.py
 """
 
-from django.conf import settings
 from django.db import connection
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
@@ -125,7 +124,6 @@ def get_extra_content(site, sfeeds_ids, ctx):
         ctx['feeds'] = []
         ctx['last_modified'] = '??'
     ctx['site'] = site
-    ctx['media_url'] = settings.MEDIA_URL
 
 def get_posts_tags(object_list, sfeeds_obj, user_id, tag_name):
     """ Adds a qtags property in every post object in a page.
