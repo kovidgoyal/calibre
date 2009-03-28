@@ -86,15 +86,15 @@ class LibraryDelegate(QItemDelegate):
         return sb
 
 class DateDelegate(QStyledItemDelegate):
-    
+
     def displayText(self, val, locale):
         d = val.toDate()
         return d.toString('dd MMM yyyy')
-        
+
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
         qde.setDisplayFormat('MM/dd/yyyy')
-        qde.setMinimumDate(QDate(-4000,1,1))
+        qde.setMinimumDate(QDate(101,1,1))
         qde.setCalendarPopup(True)
         return qde
 
@@ -103,7 +103,7 @@ class BooksModel(QAbstractTableModel):
     [1000,900,500,400,100,90,50,40,10,9,5,4,1],
     ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
     )
-    
+
     headers = {
                         'title'     : _("Title"),
                         'authors'   : _("Author(s)"),
@@ -114,7 +114,7 @@ class BooksModel(QAbstractTableModel):
                         'tags'      : _("Tags"),
                         'series'    : _("Series"),
                         }
-            
+
     @classmethod
     def roman(cls, num):
         if num <= 0 or num >= 4000 or int(num) != num:
@@ -130,7 +130,7 @@ class BooksModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.column_map = config['column_map']
-        self.editable_cols = ['title', 'authors', 'rating', 'publisher', 
+        self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp']
         self.default_image = QImage(':/images/book.svg')
         self.sorted_on = ('timestamp', Qt.AscendingOrder)
@@ -157,10 +157,10 @@ class BooksModel(QAbstractTableModel):
                 tidx = self.column_map.index('timestamp')
             except ValueError:
                 tidx = -1
-            
+
             self.emit(SIGNAL('columns_sorted(int,int)'), idx, tidx)
-        
-    
+
+
     def set_database(self, db):
         self.db = db
         self.build_data_convertors()
@@ -169,7 +169,7 @@ class BooksModel(QAbstractTableModel):
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
-            
+
     def refresh_rows(self, rows, current_row=-1):
         for row in rows:
             if self.cover_cache:
@@ -191,12 +191,12 @@ class BooksModel(QAbstractTableModel):
                                  add_duplicates=add_duplicates)
         self.count_changed()
         return ret
-        
+
     def add_news(self, path, recipe):
         ret = self.db.add_news(path, recipe)
         self.count_changed()
         return ret
-    
+
     def count_changed(self, *args):
         self.emit(SIGNAL('count_changed(int)'), self.db.count())
 
@@ -208,12 +208,12 @@ class BooksModel(QAbstractTableModel):
                      callback=None):
         rows = [row.row() for row in rows]
         if single_format is None:
-            return self.db.export_to_dir(path, rows, 
-                                         self.sorted_on[0] == 'authors', 
-                                         single_dir=single_dir, 
+            return self.db.export_to_dir(path, rows,
+                                         self.sorted_on[0] == 'authors',
+                                         single_dir=single_dir,
                                          callback=callback)
         else:
-            return self.db.export_single_format_to_dir(path, rows, 
+            return self.db.export_single_format_to_dir(path, rows,
                                                        single_format,
                                                        callback=callback)
 
@@ -225,8 +225,8 @@ class BooksModel(QAbstractTableModel):
         self.count_changed()
         self.clear_caches()
         self.reset()
-        
-        
+
+
     def delete_books_by_id(self, ids):
         for id in ids:
             try:
@@ -263,18 +263,18 @@ class BooksModel(QAbstractTableModel):
             self.clear_caches()
             self.reset()
         self.sorted_on = (self.column_map[col], order)
-        
-    
+
+
     def refresh(self, reset=True):
         try:
             col = self.column_map.index(self.sorted_on[0])
         except:
             col = 0
-        self.db.refresh(field=self.column_map[col], 
+        self.db.refresh(field=self.column_map[col],
                         ascending=self.sorted_on[1]==Qt.AscendingOrder)
         if reset:
             self.reset()
-    
+
     def resort(self, reset=True):
         try:
             col = self.column_map.index(self.sorted_on[0])
@@ -412,14 +412,14 @@ class BooksModel(QAbstractTableModel):
             if format is None:
                 ans.append(format)
             else:
-                f = self.db.format(id, format, index_is_id=True, as_file=True, 
+                f = self.db.format(id, format, index_is_id=True, as_file=True,
                                    mode=mode)
                 ans.append(f)
         return ans
-                     
-            
-    
-    def get_preferred_formats(self, rows, formats, paths=False, 
+
+
+
+    def get_preferred_formats(self, rows, formats, paths=False,
                               set_metadata=False, specific_format=None):
         ans = []
         need_auto = []
@@ -431,7 +431,7 @@ class BooksModel(QAbstractTableModel):
             if not fmts:
                 fmts = ''
             db_formats = set(fmts.lower().split(','))
-            available_formats = set([f.lower() for f in formats]) 
+            available_formats = set([f.lower() for f in formats])
             u = available_formats.intersection(db_formats)
             for f in formats:
                 if f.lower() in u:
@@ -471,7 +471,7 @@ class BooksModel(QAbstractTableModel):
                 data = self.db.cover(row_number)
         except IndexError: # Happens if database has not yet been refreshed
             pass
-        
+
         if not data:
             return self.default_image
         img = QImage()
@@ -481,7 +481,7 @@ class BooksModel(QAbstractTableModel):
         return img
 
     def build_data_convertors(self):
-        
+
         tidx = FIELD_MAP['title']
         aidx = FIELD_MAP['authors']
         sidx = FIELD_MAP['size']
@@ -491,44 +491,44 @@ class BooksModel(QAbstractTableModel):
         srdx = FIELD_MAP['series']
         tgdx = FIELD_MAP['tags']
         siix = FIELD_MAP['series_index']
-        
+
         def authors(r):
             au = self.db.data[r][aidx]
             if au:
                 au = [a.strip().replace('|', ',') for a in au.split(',')]
                 return ' & '.join(au)
-            
+
         def timestamp(r):
             dt = self.db.data[r][tmdx]
             if dt:
                 dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
                 return QDate(dt.year, dt.month, dt.day)
-        
+
         def rating(r):
             r = self.db.data[r][ridx]
             r = r/2 if r else 0
             return r
-            
+
         def publisher(r):
             pub = self.db.data[r][pidx]
             if pub:
                 return pub
-        
+
         def tags(r):
             tags = self.db.data[r][tgdx]
             if tags:
                 return ', '.join(tags.split(','))
-        
+
         def series(r):
             series = self.db.data[r][srdx]
             if series:
                 return series  + ' [%d]'%self.db.data[r][siix]
-            
+
         def size(r):
             size = self.db.data[r][sidx]
             if size:
                 return '%.1f'%(float(size)/(1024*1024))
-        
+
         self.dc = {
                    'title'    : lambda r : self.db.data[r][tidx],
                    'authors'  : authors,
@@ -537,7 +537,7 @@ class BooksModel(QAbstractTableModel):
                    'rating'   : rating,
                    'publisher': publisher,
                    'tags'     : tags,
-                   'series'   : series,                                                                       
+                   'series'   : series,
                    }
 
     def data(self, index, role):
@@ -575,7 +575,7 @@ class BooksModel(QAbstractTableModel):
             val = int(value.toInt()[0]) if column == 'rating' else \
                   value.toDate() if column == 'timestamp' else \
                   unicode(value.toString())
-            id = self.db.id(row)  
+            id = self.db.id(row)
             if column == 'rating':
                 val = 0 if val < 0 else 5 if val > 5 else val
                 val *= 2
@@ -600,7 +600,7 @@ class BooksModel(QAbstractTableModel):
                                 index, index)
             if column == self.sorted_on[0]:
                 self.resort()
-            
+
         return True
 
 class BooksView(TableView):
@@ -634,7 +634,7 @@ class BooksView(TableView):
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
         self.connect(self._model, SIGNAL('columns_sorted(int, int)'), self.columns_sorted, Qt.QueuedConnection)
-        
+
     def columns_sorted(self, rating_col, timestamp_col):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) == self.rating_delegate:
@@ -643,8 +643,8 @@ class BooksView(TableView):
             self.setItemDelegateForColumn(rating_col, self.rating_delegate)
         if timestamp_col > -1:
             self.setItemDelegateForColumn(timestamp_col, self.timestamp_delegate)
-            
-    def set_context_menu(self, edit_metadata, send_to_device, convert, view, 
+
+    def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, similar_menu=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = QMenu(self)
@@ -662,18 +662,18 @@ class BooksView(TableView):
             self.context_menu.addAction(book_details)
         if similar_menu is not None:
             self.context_menu.addMenu(similar_menu)
-        
+
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
         event.accept()
-    
+
     def sortByColumn(self, colname, order):
         try:
             idx = self._model.column_map.index(colname)
         except ValueError:
             idx = 0
         TableView.sortByColumn(self, idx, order)
-    
+
     @classmethod
     def paths_from_event(cls, event):
         '''
@@ -708,6 +708,9 @@ class BooksView(TableView):
 
     def close(self):
         self._model.close()
+        
+    def set_editable(self, editable):
+        self._model.set_editable(editable)
 
     def connect_to_search_box(self, sb):
         QObject.connect(sb, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
@@ -736,23 +739,23 @@ class DeviceBooksView(BooksView):
 
     def connect_dirtied_signal(self, slot):
         QObject.connect(self._model, SIGNAL('booklist_dirtied()'), slot)
-        
+
     def sortByColumn(self, col, order):
         TableView.sortByColumn(self, col, order)
-        
+
     def dropEvent(self, *args):
-        error_dialog(self, _('Not allowed'), 
+        error_dialog(self, _('Not allowed'),
         _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec_()
 
 class OnDeviceSearch(SearchQueryParser):
-    
+
     def __init__(self, model):
         SearchQueryParser.__init__(self)
         self.model = model
-        
+
     def universal_set(self):
         return set(range(0, len(self.model.db)))
-    
+
     def get_matches(self, location, query):
         location = location.lower().strip()
         query = query.lower().strip()
@@ -773,7 +776,7 @@ class OnDeviceSearch(SearchQueryParser):
                     matches.add(i)
                     break
         return matches
-        
+
 
 class DeviceBooksModel(BooksModel):
 
@@ -785,14 +788,13 @@ class DeviceBooksModel(BooksModel):
         self.unknown = str(self.trUtf8('Unknown'))
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
-
+        self.editable = True
 
     def mark_for_deletion(self, job, rows):
         self.marked_for_deletion[job] = self.indices(rows)
         for row in rows:
             indices = self.row_indices(row)
             self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
-
 
     def deletion_done(self, job, succeeded=True):
         if not self.marked_for_deletion.has_key(job):
@@ -818,7 +820,7 @@ class DeviceBooksModel(BooksModel):
         if self.map[index.row()] in self.indices_to_be_deleted():
             return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
         flags = QAbstractTableModel.flags(self, index)
-        if index.isValid():
+        if index.isValid() and self.editable:
             if index.column() in [0, 1] or (index.column() == 4 and self.db.supports_tags()):
                 flags |= Qt.ItemIsEditable
         return flags
@@ -837,10 +839,10 @@ class DeviceBooksModel(BooksModel):
         if reset:
             self.reset()
         self.last_search = text
-    
+
     def resort(self, reset):
         self.sort(self.sorted_on[0], self.sorted_on[1], reset=reset)
-    
+
     def sort(self, col, order, reset=True):
         descending = order != Qt.AscendingOrder
         def strcmp(attr):
@@ -959,7 +961,7 @@ class DeviceBooksModel(BooksModel):
                 return QVariant('Marked for deletion')
             col = index.column()
             if col in [0, 1] or (col == 4 and self.db.supports_tags()):
-                return QVariant("Double click to <b>edit</b> me<br><br>")
+                return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         return NONE
 
     def headerData(self, section, orientation, role):
@@ -999,6 +1001,10 @@ class DeviceBooksModel(BooksModel):
                 self.sort(col, self.sorted_on[1])
             done = True
         return done
+        
+    def set_editable(self, editable):
+        self.editable = editable
+        
 
 class SearchBox(QLineEdit):
 
@@ -1062,11 +1068,11 @@ class SearchBox(QLineEdit):
         if not all:
             ans = '[' + ans + ']'
         self.set_search_string(ans)
-        
+
     def search_from_tags(self, tags, all):
         joiner = ' and ' if all else ' or '
         self.set_search_string(joiner.join(tags))
-    
+
     def set_search_string(self, txt):
         self.normalize_state()
         self.setText(txt)

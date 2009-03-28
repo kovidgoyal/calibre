@@ -57,7 +57,7 @@ r'''
 def _check_symlinks_prescript():
     import os, tempfile, traceback, sys
     from Authorization import Authorization, kAuthorizationFlagDestroyRights
-    
+
     AUTHTOOL="""#!%(sp)s
 import os
 scripts = %(sp)s
@@ -71,13 +71,13 @@ for s, l in zip(scripts, links):
     os.symlink(s, l)
     os.umask(omask)
 """
-    
+
     dest_path = %(dest_path)s
     resources_path = os.environ['RESOURCEPATH']
-    scripts = %(scripts)s    
+    scripts = %(scripts)s
     links   = [os.path.join(dest_path, i) for i in scripts]
     scripts = [os.path.join(resources_path, 'loaders', i) for i in scripts]
-    
+
     bad = False
     for s, l in zip(scripts, links):
         if os.path.exists(l) and os.path.exists(os.path.realpath(l)):
@@ -111,22 +111,22 @@ _check_symlinks_prescript()
             packages=self.packages,
             excludes=self.excludes,
             debug=debug)
-        
+
     @classmethod
-    def makedmg(cls, d, volname, 
-                destdir='dist', 
+    def makedmg(cls, d, volname,
+                destdir='dist',
                 internet_enable=True,
                 format='UDBZ'):
         ''' Copy a directory d into a dmg named volname '''
         dmg = os.path.join(destdir, volname+'.dmg')
         if os.path.exists(dmg):
             os.unlink(dmg)
-        subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', os.path.abspath(d), 
+        subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', os.path.abspath(d),
                                '-volname', volname, '-format', format, dmg])
         if internet_enable:
            subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
         return dmg
-        
+
     @classmethod
     def qt_dependencies(cls, path):
         pipe = subprocess.Popen('/usr/bin/otool -L '+path, shell=True, stdout=subprocess.PIPE).stdout
@@ -134,12 +134,12 @@ _check_symlinks_prescript()
         for l in pipe.readlines():
             match = re.search(r'(.*)\(', l)
             if not match:
-                continue 
+                continue
             lib = match.group(1).strip()
             if lib.startswith(BuildAPP.QT_PREFIX):
                 deps.append(lib)
         return deps
-    
+
     @classmethod
     def fix_qt_dependencies(cls, path, deps):
         fp = '@executable_path/../Frameworks/'
@@ -155,8 +155,8 @@ _check_symlinks_prescript()
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
             cmd = ' '.join(['/usr/bin/install_name_tool', '-change', dep, newpath, path])
             subprocess.check_call(cmd, shell=True)
-        
-    
+
+
     def add_qt_plugins(self):
         macos_dir = os.path.join(self.dist_dir, APPNAME + '.app', 'Contents', 'MacOS')
         for root, dirs, files in os.walk(BuildAPP.QT_PREFIX+'/plugins'):
@@ -172,14 +172,14 @@ _check_symlinks_prescript()
                     shutil.copymode(path, target)
                     deps = BuildAPP.qt_dependencies(target)
                     BuildAPP.fix_qt_dependencies(target, deps)
-                                            
-            
+
+
         #deps = BuildAPP.qt_dependencies(path)
-    
+
     def fix_python_dependencies(self, files):
         for f in files:
             subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/Library/Frameworks/Python.framework/Versions/2.6/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.6/Python', f])
-            
+
     def fix_misc_dependencies(self, files):
         for path in files:
             frameworks_dir = os.path.join(self.dist_dir, APPNAME + '.app', 'Contents', 'Frameworks')
@@ -195,15 +195,15 @@ _check_symlinks_prescript()
                     if os.path.exists(bundle):
                         subprocess.check_call(['/usr/bin/install_name_tool', '-change', dep,
                                 '@executable_path/../Frameworks/'+name, path])
-                    
-    
+
+
     def add_plugins(self):
         self.add_qt_plugins()
         frameworks_dir = os.path.join(self.dist_dir, APPNAME + '.app', 'Contents', 'Frameworks')
         plugins_dir = os.path.join(frameworks_dir, 'plugins')
         if not os.path.exists(plugins_dir):
             os.mkdir(plugins_dir)
-        
+
         maps = {}
         for f in glob.glob('src/calibre/plugins/*'):
             tgt = plugins_dir
@@ -217,8 +217,8 @@ _check_symlinks_prescript()
             deps.append(dst)
         self.fix_python_dependencies(deps)
         self.fix_misc_dependencies(deps)
-        
-    
+
+
     def run(self):
         py2app.run(self)
         resource_dir = os.path.join(self.dist_dir,
@@ -242,8 +242,8 @@ _check_symlinks_prescript()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
         self.add_plugins()
-        
-            
+
+
         print
         print 'Adding pdftohtml'
         os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
@@ -259,21 +259,21 @@ _check_symlinks_prescript()
         if os.path.exists(dst):
             shutil.rmtree(dst)
         shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
-        
+
         print
         print 'Adding IPython'
         dst = os.path.join(resource_dir, 'lib', 'python2.6', 'IPython')
         if os.path.exists(dst): shutil.rmtree(dst)
         shutil.copytree(os.path.expanduser('~/build/ipython/IPython'), dst)
-        
-        print 
+
+        print
         print 'Adding ImageMagick'
         dest = os.path.join(frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
-            sutil.rmtree(dest)
+            shutil.rmtree(dest)
         shutil.copytree(os.path.expanduser('~/ImageMagick'), dest, True)
         shutil.copyfile('/usr/local/lib/libpng12.0.dylib', os.path.join(dest, 'lib', 'libpng12.0.dylib'))
-        
+
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]
@@ -293,13 +293,13 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         print >>f, 'import sys, os'
         f.write(src)
         f.close()
-        print 
+        print
         print 'Adding main scripts to site-packages'
         f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python'+sys.version[:3], 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
         for script in scripts['gui']+scripts['console']:
             f.write(script, script.partition('/')[-1])
         f.close()
-        print 
+        print
         print 'Creating console.app'
         contents_dir = os.path.dirname(resource_dir)
         cc_dir = os.path.join(contents_dir, 'console.app', 'Contents')
@@ -312,7 +312,7 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
                 plist['LSUIElement'] = '1'
                 plistlib.writePlist(plist, os.path.join(cc_dir, x))
             else:
-                os.symlink(os.path.join('../..', x), 
+                os.symlink(os.path.join('../..', x),
                            os.path.join(cc_dir, x))
         print
         print 'Building disk image'
@@ -343,9 +343,10 @@ def main():
                                        'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
                                        'keyword', 'codeop', 'pydoc', 'readline',
                                        'BeautifulSoup', 'calibre.ebooks.lrf.fonts.prs500.*',
-                                       'dateutil',
+                                       'dateutil', 'email.iterators',
+                                       'email.generator',
                                        ],
-                         'packages' : ['PIL', 'Authorization', 'lxml'],
+                         'packages' : ['PIL', 'Authorization', 'lxml', 'dns'],
                          'excludes' : ['IPython'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
                                         ''' Visit http://calibre.kovidgoyal.net for details.''',

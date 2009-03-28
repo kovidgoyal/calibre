@@ -7,9 +7,9 @@ import re, os, traceback
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
-                        QPixmap
+                        QPixmap, QMovie, QPalette
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
-                         QObject, QRegExp, QString, QSettings, QSize
+                         QRegExp, QSettings, QSize, QModelIndex
 
 from calibre.gui2.jobs2 import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, \
@@ -21,8 +21,44 @@ from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
 from calibre.gui2.dialogs.warning_ui import Ui_Dialog as Ui_WarningDialog
 
+class ProgressIndicator(QWidget):
+
+    def __init__(self, *args):
+        QWidget.__init__(self, *args)
+        self.setGeometry(0, 0, 300, 350)
+        self.movie = QMovie(':/images/jobs-animated.mng')
+        self.ml = QLabel(self)
+        self.ml.setMovie(self.movie)
+        self.movie.start()
+        self.movie.setPaused(True)
+        self.status = QLabel(self)
+        self.status.setWordWrap(True)
+        self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+        self.status.font().setBold(True)
+        self.status.font().setPointSize(self.font().pointSize()+6)
+        self.setVisible(False)
+
+    def start(self, msg=''):
+        view = self.parent()
+        pwidth, pheight = view.size().width(), view.size().height()
+        self.resize(pwidth, min(pheight, 250))
+        self.move(0, (pheight-self.size().height())/2.)
+        self.ml.resize(self.ml.sizeHint())
+        self.ml.move(int((self.size().width()-self.ml.size().width())/2.), 0)
+        self.status.resize(self.size().width(), self.size().height()-self.ml.size().height()-10)
+        self.status.move(0, self.ml.size().height()+10)
+        self.status.setText(msg)
+        self.setVisible(True)
+        self.movie.setPaused(False)
+
+    def stop(self):
+        if self.movie.state() == self.movie.Running:
+            self.movie.setPaused(True)
+            self.setVisible(False)
+
+
 class WarningDialog(QDialog, Ui_WarningDialog):
-    
+
     def __init__(self, title, msg, details, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -31,20 +67,20 @@ class WarningDialog(QDialog, Ui_WarningDialog):
         self.details.setText(details)
 
 class FilenamePattern(QWidget, Ui_Form):
-    
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-        
+
         self.connect(self.test_button, SIGNAL('clicked()'), self.do_test)
         self.connect(self.re, SIGNAL('returnPressed()'), self.do_test)
         self.re.setText(prefs['filename_pattern'])
-        
+
     def do_test(self):
         try:
             pat = self.pattern()
         except Exception, err:
-            error_dialog(self, _('Invalid regular expression'), 
+            error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
         mi = metadata_from_filename(qstring_to_unicode(self.filename.text()), pat)
@@ -56,49 +92,49 @@ class FilenamePattern(QWidget, Ui_Form):
             self.authors.setText(', '.join(mi.authors))
         else:
             self.authors.setText(_('No match'))
-            
+
         if mi.series:
             self.series.setText(mi.series)
         else:
             self.series.setText(_('No match'))
-            
+
         if mi.series_index is not None:
             self.series_index.setText(str(mi.series_index))
         else:
             self.series_index.setText(_('No match'))
-            
+
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
-            
-    
+
+
     def pattern(self):
         pat = qstring_to_unicode(self.re.text())
         return re.compile(pat)
-    
+
     def commit(self):
         pat = self.pattern().pattern
         prefs['filename_pattern'] = pat
         return pat
-         
-            
-        
+
+
+
 
 class ImageView(QLabel):
-    
+
     MAX_WIDTH  = 400
     MAX_HEIGHT = 300
     DROPABBLE_EXTENSIONS = ('jpg', 'jpeg', 'gif', 'png', 'bmp')
-    
+
     @classmethod
     def paths_from_event(cls, event):
-        ''' 
-        Accept a drop event and return a list of paths that can be read from 
+        '''
+        Accept a drop event and return a list of paths that can be read from
         and represent files with extensions.
         '''
         if event.mimeData().hasFormat('text/uri-list'):
             urls = [qstring_to_unicode(u.toLocalFile()) for u in event.mimeData().urls()]
             urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
             return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
-        
+
     def dragEnterEvent(self, event):
         if int(event.possibleActions() & Qt.CopyAction) + \
            int(event.possibleActions() & Qt.MoveAction) == 0:
@@ -106,7 +142,7 @@ class ImageView(QLabel):
         paths = self.paths_from_event(event)
         if paths:
             event.acceptProposedAction()
-            
+
     def dropEvent(self, event):
         paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
@@ -118,19 +154,19 @@ class ImageView(QLabel):
                 event.accept()
                 self.emit(SIGNAL('cover_changed()'), paths, Qt.QueuedConnection)
                 break
-    
+
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
-    
+
     def setPixmap(self, pixmap):
         QLabel.setPixmap(self, pixmap)
         width, height = fit_image(pixmap.width(), pixmap.height(), self.MAX_WIDTH, self.MAX_HEIGHT)[1:]
         self.setMaximumWidth(width)
-        self.setMaximumHeight(height) 
+        self.setMaximumHeight(height)
 
-        
+
 class LocationModel(QAbstractListModel):
-    
+
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
         self.icons = [QVariant(QIcon(':/library')),
@@ -146,19 +182,19 @@ class LocationModel(QAbstractListModel):
                          _('Click to see the list of books available on your computer'),
                          _('Click to see the list of books in the main memory of your reader'),
                          _('Click to see the list of books on the storage card in your reader')
-                         ]            
-        
+                         ]
+
     def rowCount(self, parent):
         return 1 + sum([1 for i in self.free if i >= 0])
-    
+
     def data(self, index, role):
-        row = index.row()    
+        row = index.row()
         data = NONE
         if role == Qt.DisplayRole:
             text = self.text[row]%(human_readable(self.free[row-1])) if row > 0 \
                             else self.text[row]%self.count
             data = QVariant(text)
-        elif role == Qt.DecorationRole:                
+        elif role == Qt.DecorationRole:
             data = self.icons[row]
         elif role == Qt.ToolTipRole:
             data = QVariant(self.tooltips[row])
@@ -168,60 +204,70 @@ class LocationModel(QAbstractListModel):
             font = QFont('monospace')
             font.setBold(row == self.highlight_row)
             data = QVariant(font)
+        elif role == Qt.ForegroundRole and row == self.highlight_row:
+            return QVariant(QApplication.palette().brush(
+                QPalette.HighlightedText))
+        elif role == Qt.BackgroundRole and row == self.highlight_row:
+            return QVariant(QApplication.palette().brush(
+                QPalette.Highlight))
+
         return data
-    
+
     def headerData(self, section, orientation, role):
         return NONE
-    
+
     def update_devices(self, cp=None, fs=[-1, -1, -1]):
         self.free[0] = fs[0]
         self.free[1] = max(fs[1:])
         if cp == None:
             self.free[1] = -1
-        self.reset()        
-        
-    def location_changed(self, row):
-        self.highlight_row = row
         self.reset()
 
+    def location_changed(self, row):
+        self.highlight_row = row
+        self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
+                self.index(0), self.index(self.rowCount(QModelIndex())-1))
+
 class LocationView(QListView):
-        
+
     def __init__(self, parent):
         QListView.__init__(self, parent)
         self.setModel(LocationModel(self))
         self.reset()
-        QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)
-        self.setCursor(Qt.PointingHandCursor)      
-    
+        self.setCursor(Qt.PointingHandCursor)
+        self.currentChanged = self.current_changed
+
     def count_changed(self, new_count):
         self.model().count = new_count
         self.model().reset()
-    
+
     def current_changed(self, current, previous):
-        i = current.row()
-        location = 'library' if i == 0 else 'main' if i == 1 else 'card'
-        self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
-        
+        if current.isValid():
+            i = current.row()
+            location = 'library' if i == 0 else 'main' if i == 1 else 'card'
+            self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
+            self.model().location_changed(i)
+
     def location_changed(self, row):
         if 0 <= row and row <= 2:
             self.model().location_changed(row)
-                        
+
 class JobsView(TableView):
-    
+
     def __init__(self, parent):
         TableView.__init__(self, parent)
         self.connect(self, SIGNAL('doubleClicked(QModelIndex)'), self.show_details)
-        
+
     def show_details(self, index):
         row = index.row()
         job = self.model().row_to_job(row)
         d = DetailView(self, job)
         self.connect(self.model(), SIGNAL('output_received()'), d.update)
         d.exec_()
-            
+
 
 class FontFamilyModel(QAbstractListModel):
-    
+
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
         try:
@@ -232,10 +278,10 @@ class FontFamilyModel(QAbstractListModel):
             traceback.print_exc()
         self.families.sort()
         self.families[:0] = ['None']
-        
+
     def rowCount(self, *args):
         return len(self.families)
-    
+
     def data(self, index, role):
         try:
             family = self.families[index.row()]
@@ -247,52 +293,52 @@ class FontFamilyModel(QAbstractListModel):
         if role == Qt.FontRole:
             return QVariant(QFont(family))
         return NONE
-    
+
     def index_of(self, family):
         return self.families.index(family.strip())
-    
+
 
 class BasicListItem(QListWidgetItem):
-    
+
     def __init__(self, text, user_data=None):
         QListWidgetItem.__init__(self, text)
         self.user_data = user_data
-        
+
     def __eq__(self, other):
         if hasattr(other, 'text'):
             return self.text() == other.text()
         return False
 
 class BasicList(QListWidget):
-    
+
     def add_item(self, text, user_data=None, replace=False):
         item = BasicListItem(text, user_data)
-        
+
         for oitem in self.items():
             if oitem == item:
                 if replace:
                     self.takeItem(self.row(oitem))
                 else:
                     raise ValueError('Item already in list')
-            
+
         self.addItem(item)
-    
+
     def remove_selected_items(self, *args):
         for item in self.selectedItems():
             self.takeItem(self.row(item))
-    
+
     def items(self):
         for i in range(self.count()):
             yield self.item(i)
 
 
-            
+
 class PythonHighlighter(QSyntaxHighlighter):
 
     Rules = []
     Formats = {}
     Config = {}
-    
+
     KEYWORDS = ["and", "as", "assert", "break", "class", "continue", "def",
         "del", "elif", "else", "except", "exec", "finally", "for", "from",
         "global", "if", "import", "in", "is", "lambda", "not", "or",
@@ -308,7 +354,7 @@ class PythonHighlighter(QSyntaxHighlighter):
         "open", "ord", "pow", "property", "range", "reduce", "repr",
         "reversed", "round", "set", "setattr", "slice", "sorted",
         "staticmethod", "str", "sum", "super", "tuple", "type", "unichr",
-        "unicode", "vars", "xrange", "zip"] 
+        "unicode", "vars", "xrange", "zip"]
 
     CONSTANTS = ["False", "True", "None", "NotImplemented", "Ellipsis"]
 
@@ -317,7 +363,7 @@ class PythonHighlighter(QSyntaxHighlighter):
         super(PythonHighlighter, self).__init__(parent)
         if not self.Config:
             self.loadConfig()
-        
+
 
         self.initializeFormats()
 
@@ -356,7 +402,7 @@ class PythonHighlighter(QSyntaxHighlighter):
             if value.isEmpty():
                 value = default
             Config[name] = value
-    
+
         for name in ("window", "shell"):
             Config["%swidth" % name] = settings.value("%swidth" % name,
                     QVariant(QApplication.desktop() \
@@ -385,9 +431,9 @@ class PythonHighlighter(QSyntaxHighlighter):
     sys.stdout = codecs.getwriter("UTF8")(sys.stdout)""")
         setDefaultString("newfile", """\
     #!/usr/bin/env python
-    
+
     from __future__ import division
-    
+
     import sys
     """)
         Config["backupsuffix"] = settings.value("backupsuffix",
@@ -399,7 +445,7 @@ class PythonHighlighter(QSyntaxHighlighter):
                 QVariant(150)).toInt()[0]
         Config["maxlinestoscan"] = settings.value("maxlinestoscan",
                 QVariant(5000)).toInt()[0]
-        Config["pythondocpath"] = settings.value("pythondocpath", 
+        Config["pythondocpath"] = settings.value("pythondocpath",
                 QVariant("http://docs.python.org")).toString()
         Config["autohidefinddialog"] = settings.value("autohidefinddialog",
                 QVariant(True)).toBool()
@@ -512,7 +558,7 @@ class PythonHighlighter(QSyntaxHighlighter):
                 if i == -1:
                     i = text.length()
                     self.setCurrentBlockState(state)
-                self.setFormat(0, i + 3,     
+                self.setFormat(0, i + 3,
                                PythonHighlighter.Formats["string"])
             elif i > -1:
                 self.setCurrentBlockState(state)

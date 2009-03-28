@@ -13,7 +13,7 @@ def cleanup(path):
     try:
         import os
         if os.path.exists(path):
-            os.remove(path)            
+            os.remove(path)
     except:
         pass   
     

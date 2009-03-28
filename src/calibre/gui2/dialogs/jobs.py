@@ -10,10 +10,10 @@ from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__
 
 class ProgressBarDelegate(QAbstractItemDelegate):
-    
+
     def sizeHint(self, option, index):
         return QSize(120, 30)
-    
+
     def paint(self, painter, option, index):
         opts = QStyleOptionProgressBarV2()
         opts.rect = option.rect
@@ -44,20 +44,23 @@ class JobsDialog(QDialog, Ui_JobsDialog):
                         self.jobs_view.model().kill_job)
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
-        
+
         self.running_time_timer = QTimer(self)
         self.connect(self.running_time_timer, SIGNAL('timeout()'), self.update_running_time)
         self.running_time_timer.start(1000)
-        
+
     def update_running_time(self, *args):
-        self.model.running_time_updated()
-    
+        try:
+            self.model.running_time_updated()
+        except: # Raises random exceptions on OS X
+            pass
+
     def kill_job(self):
         for index in self.jobs_view.selectedIndexes():
             row = index.row()
             self.model.kill_job(row, self)
             return
-    
+
     def closeEvent(self, e):
         self.jobs_view.write_settings()
         e.accept()

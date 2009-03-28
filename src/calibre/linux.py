@@ -41,6 +41,8 @@ entry_points = {
              'calibre-customize  = calibre.customize.ui:main',
              'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
+             'calibre-smtp = calibre.utils.smtp:main',
+
         ],
         'gui_scripts'    : [
             __appname__+' = calibre.gui2.main:main',
@@ -160,6 +162,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
         from calibre.ebooks.metadata.fetch import option_parser as fem_op
         from calibre.gui2.main import option_parser as guiop
+        from calibre.utils.smtp import option_parser as smtp_op
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt']
         f = open_file('/etc/bash_completion.d/libprs500')
@@ -194,6 +197,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_words('feeds2epub', feeds2epub, feed_titles))
         f.write(opts_and_words('feeds2mobi', feeds2mobi, feed_titles))
         f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
+        f.write(opts_and_words('calibre-smtp', smtp_op, []))
         f.write('''
 _prs500_ls()
 {
@@ -403,7 +407,7 @@ def post_install():
 
     if opts.save_manifest_to:
         open(opts.save_manifest_to, 'wb').write('\n'.join(manifest)+'\n')
-        
+
     from calibre.utils.config import config_dir
     if os.path.exists(config_dir):
         os.chdir(config_dir)
@@ -516,7 +520,7 @@ def setup_desktop_integration(fatal_errors):
             check_call('xdg-icon-resource install --size 128 calibre-gui.png calibre-gui', shell=True)
             render_svg(QFile(':/images/viewer.svg'), os.path.join(tdir, 'calibre-viewer.png'))
             check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-            
+
             f = open('calibre-lrfviewer.desktop', 'wb')
             f.write(VIEWER)
             f.close()

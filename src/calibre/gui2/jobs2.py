@@ -18,27 +18,27 @@ from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 NONE = QVariant()
 
 class JobManager(QAbstractTableModel):
-    
+
     def __init__(self):
         QAbstractTableModel.__init__(self)
         self.wait_icon     = QVariant(QIcon(':/images/jobs.svg'))
         self.running_icon  = QVariant(QIcon(':/images/exec.svg'))
         self.error_icon    = QVariant(QIcon(':/images/dialog_error.svg'))
         self.done_icon     = QVariant(QIcon(':/images/ok.svg'))
-    
+
         self.jobs          = []
         self.server        = Server()
         self.add_job       = Dispatcher(self._add_job)
         self.status_update = Dispatcher(self._status_update)
         self.start_work    = Dispatcher(self._start_work)
         self.job_done      = Dispatcher(self._job_done)
-        
+
     def columnCount(self, parent=QModelIndex()):
         return 4
-    
+
     def rowCount(self, parent=QModelIndex()):
         return len(self.jobs)
-    
+
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return NONE
@@ -50,14 +50,14 @@ class JobManager(QAbstractTableModel):
             return QVariant(text)
         else:
             return QVariant(section+1)
-        
+
     def data(self, index, role):
         try:
             if role not in (Qt.DisplayRole, Qt.DecorationRole):
                 return NONE
             row, col = index.row(), index.column()
             job = self.jobs[row]
-            
+
             if role == Qt.DisplayRole:
                 if col == 0:
                     desc = job.description
@@ -102,31 +102,31 @@ class JobManager(QAbstractTableModel):
             import traceback
             traceback.print_exc()
         return NONE
-        
+
     def _add_job(self, job):
         self.emit(SIGNAL('layoutAboutToBeChanged()'))
         self.jobs.append(job)
         self.jobs.sort()
         self.emit(SIGNAL('job_added(int)'), self.rowCount())
         self.emit(SIGNAL('layoutChanged()'))
-        
+
     def done_jobs(self):
         return [j for j in self.jobs if j.status() in ['DONE', 'ERROR']]
-    
+
     def row_to_job(self, row):
         return self.jobs[row]
-    
+
     def _start_work(self, job):
         self.emit(SIGNAL('layoutAboutToBeChanged()'))
         self.jobs.sort()
         self.emit(SIGNAL('layoutChanged()'))
-    
+
     def _job_done(self, job):
         self.emit(SIGNAL('layoutAboutToBeChanged()'))
         self.jobs.sort()
         self.emit(SIGNAL('job_done(int)'), len(self.jobs) - len(self.done_jobs()))
         self.emit(SIGNAL('layoutChanged()'))
-    
+
     def _status_update(self, job):
         try:
             row = self.jobs.index(job)
@@ -134,38 +134,38 @@ class JobManager(QAbstractTableModel):
             return
         self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
                   self.index(row, 0), self.index(row, 3))
-        
-    def running_time_updated(self):
+
+    def running_time_updated(self, *args):
         for job in self.jobs:
             if not job.is_running:
                 continue
             row = self.jobs.index(job)
             self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
-                      self.index(row, 3), self.index(row, 3))
-            
+                        self.index(row, 3), self.index(row, 3))
+
     def has_device_jobs(self):
         for job in self.jobs:
             if job.is_running and isinstance(job, DeviceJob):
                 return True
         return False
-    
+
     def has_jobs(self):
         for job in self.jobs:
             if job.is_running:
                 return True
         return False
-    
+
     def run_job(self, done, func, args=[], kwargs={},
                            description=None):
         job = ParallelJob(func, done, self, args=args, kwargs=kwargs,
                           description=description)
         self.server.add_job(job)
         return job
-        
-    
+
+
     def output(self, job):
         self.emit(SIGNAL('output_received()'))
-    
+
     def kill_job(self, row, view):
         job = self.jobs[row]
         if isinstance(job, DeviceJob):
@@ -183,20 +183,20 @@ class JobManager(QAbstractTableModel):
 
 
         self.server.kill(job)
-    
+
     def terminate_all_jobs(self):
         pass
-    
+
 class DetailView(QDialog, Ui_Dialog):
-    
+
     def __init__(self, parent, job):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle(job.description)
         self.job = job
         self.update()
-        
-            
+
+
     def update(self):
         self.log.setPlainText(self.job.console_text())
         vbar = self.log.verticalScrollBar()

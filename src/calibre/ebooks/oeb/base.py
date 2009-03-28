@@ -17,7 +17,6 @@ import logging
 from lxml import etree, html
 import calibre
 from cssutils import CSSParser
-from cssutils.css import CSSStyleSheet
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
@@ -239,7 +238,7 @@ class DirContainer(object):
         for path in self.namelist():
             ext = os.path.splitext(path)[1].lower()
             if ext == '.opf':
-                self.opfname = fname
+                self.opfname = path
                 return
         self.opfname = None
 
@@ -280,7 +279,7 @@ class Metadata(object):
     syntax.  Return an empty list for any terms with no currently associated
     metadata items.
     """
-    
+
     DC_TERMS      = set(['contributor', 'coverage', 'creator', 'date',
                          'description', 'format', 'identifier', 'language',
                          'publisher', 'relation', 'rights', 'source',
@@ -289,7 +288,10 @@ class Metadata(object):
     OPF_ATTRS     = {'role': OPF('role'), 'file-as': OPF('file-as'),
                      'scheme': OPF('scheme'), 'event': OPF('event'),
                      'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}
-    
+    OPF1_NSMAP    = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
+    OPF2_NSMAP    = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
+                     'xsi': XSI_NS, 'calibre': CALIBRE_NS}
+
     class Item(object):
         """An item of OEB data model metadata.
 
@@ -305,13 +307,13 @@ class Metadata(object):
         """
         class Attribute(object):
             """Smart accessor for allowed OEB metadata item attributes."""
-            
+
             def __init__(self, attr, allowed=None):
                 if not callable(attr):
                     attr_, attr = attr, lambda term: attr_
                 self.attr = attr
                 self.allowed = allowed
-            
+
             def term_attr(self, obj):
                 term = obj.term
                 if namespace(term) != DC11_NS:
@@ -322,14 +324,14 @@ class Metadata(object):
                         'attribute %r not valid for metadata term %r' \
                             % (self.attr(term), barename(obj.term)))
                 return self.attr(term)
-            
+
             def __get__(self, obj, cls):
                 if obj is None: return None
                 return obj.attrib.get(self.term_attr(obj), '')
-            
+
             def __set__(self, obj, value):
                 obj.attrib[self.term_attr(obj)] = value
-        
+
         def __init__(self, term, value, attrib={}, nsmap={}, **kwargs):
             self.attrib = attrib = dict(attrib)
             self.nsmap = nsmap = dict(nsmap)
@@ -369,7 +371,7 @@ class Metadata(object):
             def fset(self, value):
                 self.value = value
             return property(fget=fget, fset=fset)
-                    
+
         scheme  = Attribute(lambda term: 'scheme' if \
                                 term == OPF('meta') else OPF('scheme'),
                             [DC('identifier'), OPF('meta')])
@@ -384,19 +386,19 @@ class Metadata(object):
                                           DC('relation'), DC('rights'),
                                           DC('source'), DC('subject'),
                                           OPF('meta')])
-        
+
         def __getitem__(self, key):
             return self.attrib[key]
-        
+
         def __setitem__(self, key, value):
             self.attrib[key] = value
-        
+
         def __contains__(self, key):
             return key in self.attrib
-        
+
         def get(self, key, default=None):
             return self.attrib.get(key, default)
-        
+
         def __repr__(self):
             return 'Item(term=%r, value=%r, attrib=%r)' \
                 % (barename(self.term), self.value, self.attrib)
@@ -422,7 +424,7 @@ class Metadata(object):
                 elem.attrib['name'] = prefixname(self.term, nsrmap)
                 elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
-        
+
         def to_opf2(self, parent=None, nsrmap={}):
             attrib = {}
             for key, value in self.attrib.items():
@@ -435,7 +437,7 @@ class Metadata(object):
                 elem.attrib['name'] = prefixname(self.term, nsrmap)
                 elem.attrib['content'] = prefixname(self.value, nsrmap)
             return elem
-    
+
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = defaultdict(list)
@@ -470,7 +472,7 @@ class Metadata(object):
                     nsmap.update(item.nsmap)
             return nsmap
         return property(fget=fget)
-    
+
     @dynamic_property
     def _opf1_nsmap(self):
         def fget(self):
@@ -480,7 +482,7 @@ class Metadata(object):
                     del nsmap[key]
             return nsmap
         return property(fget=fget)
-    
+
     @dynamic_property
     def _opf2_nsmap(self):
         def fget(self):
@@ -488,7 +490,7 @@ class Metadata(object):
             nsmap.update(OPF2_NSMAP)
             return nsmap
         return property(fget=fget)
-    
+
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
         nsrmap = dict((value, key) for key, value in nsmap.items())
@@ -502,7 +504,7 @@ class Metadata(object):
             chaptertour = self.Item('ms-chaptertour', 'chaptertour')
             chaptertour.to_opf1(dcmeta, xmeta, nsrmap=nsrmap)
         return elem
-        
+
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
         nsrmap = dict((value, key) for key, value in nsmap.items())
@@ -528,7 +530,7 @@ class Manifest(object):
     :attr:`hrefs`: A dictionary in which the keys are the internal paths of the
         manifest items and the values are the items themselves.
     """
-    
+
     class Item(object):
         """An OEB data model book content file.
 
@@ -548,10 +550,10 @@ class Manifest(object):
             which are not (such as footnotes).  Meaningless for items which
             have a :attr:`spine_position` of `None`.
         """
-    
+
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
         META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
-    
+
         def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
             self.oeb = oeb
@@ -609,7 +611,11 @@ class Manifest(object):
             elif not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
-                data = etree.fromstring(data)
+                try:
+                    data = etree.fromstring(data)
+                except:
+                    data=data.replace(':=', '=').replace(':>', '>')
+                    data = etree.fromstring(data)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
                 ns = namespace(data.tag)
@@ -659,7 +665,7 @@ class Manifest(object):
             data = parser.parseString(data, href=self.href)
             data.namespaces['h'] = XHTML_NS
             return data
-        
+
         def _fetch_css(self, path):
             hrefs = self.oeb.manifest.hrefs
             if path not in hrefs:
@@ -671,7 +677,7 @@ class Manifest(object):
                 return (None, None)
             data = item.data.cssText
             return ('utf-8', data)
-        
+
         @dynamic_property
         def data(self):
             doc = """Provides MIME type sensitive access to the manifest
@@ -707,7 +713,7 @@ class Manifest(object):
             def fdel(self):
                 self._data = None
             return property(fget, fset, fdel, doc=doc)
-        
+
         def __str__(self):
             data = self.data
             if isinstance(data, etree._Element):
@@ -715,13 +721,13 @@ class Manifest(object):
             if isinstance(data, unicode):
                 return data.encode('utf-8')
             return str(data)
-        
+
         def __eq__(self, other):
             return id(self) == id(other)
-        
+
         def __ne__(self, other):
             return not self.__eq__(other)
-        
+
         def __cmp__(self, other):
             result = cmp(self.spine_position, other.spine_position)
             if result != 0:
@@ -735,7 +741,7 @@ class Manifest(object):
             onum = float(omatch.group(2)) if omatch else 0.0
             okey = (oref, onum, other.id)
             return cmp(skey, okey)
-        
+
         def relhref(self, href):
             """Convert the URL provided in :param:`href` from a book-absolute
             reference to a reference relative to this manifest item.
@@ -756,7 +762,7 @@ class Manifest(object):
             if frag:
                 relhref = '#'.join((relhref, frag))
             return relhref
-        
+
         def abshref(self, href):
             """Convert the URL provided in :param:`href` from a reference
             relative to this manifest item to a book-absolute reference.
@@ -772,13 +778,13 @@ class Manifest(object):
             href = os.path.join(dirname, href)
             href = os.path.normpath(href).replace('\\', '/')
             return href
-    
+
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = set()
         self.ids = {}
         self.hrefs = {}
-    
+
     def add(self, id, href, media_type, fallback=None, loader=None, data=None):
         """Add a new item to the book manifest.
 
@@ -795,7 +801,7 @@ class Manifest(object):
         self.ids[item.id] = item
         self.hrefs[item.href] = item
         return item
-    
+
     def remove(self, item):
         """Removes :param:`item` from the manifest."""
         if item in self.ids:
@@ -805,7 +811,7 @@ class Manifest(object):
         self.items.remove(item)
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
-    
+
     def generate(self, id=None, href=None):
         """Generate a new unique identifier and/or internal path for use in
         creating a new manifest item, using the provided :param:`id` and/or
@@ -833,13 +839,13 @@ class Manifest(object):
     def __iter__(self):
         for item in self.items:
             yield item
-    
+
     def values(self):
         return list(self.items)
-    
+
     def __contains__(self, item):
         return item in self.items
-    
+
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
         for item in self.items:
@@ -854,7 +860,7 @@ class Manifest(object):
                 attrib['fallback'] = item.fallback
             element(elem, 'item', attrib=attrib)
         return elem
-    
+
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
         for item in self.items:
@@ -891,14 +897,14 @@ class Spine(object):
         elif linear in ('no', 'false'):
             linear = False
         return linear
-        
+
     def add(self, item, linear=None):
         """Append :param:`item` to the end of the `Spine`."""
         item.linear = self._linear(linear)
         item.spine_position = len(self.items)
         self.items.append(item)
         return item
-    
+
     def insert(self, index, item, linear):
         """Insert :param:`item` at position :param:`index` in the `Spine`."""
         item.linear = self._linear(linear)
@@ -907,7 +913,7 @@ class Spine(object):
         for i in xrange(index, len(self.items)):
             self.items[i].spine_position = i
         return item
-    
+
     def remove(self, item):
         """Remove :param:`item` from the `Spine`."""
         index = item.spine_position
@@ -915,7 +921,7 @@ class Spine(object):
         for i in xrange(index, len(self.items)):
             self.items[i].spine_position = i
         item.spine_position = None
-    
+
     def __iter__(self):
         for item in self.items:
             yield item
@@ -953,7 +959,7 @@ class Guide(object):
     Provides dictionary-like access, in which the keys are the OEB reference
     type identifiers and the values are `Reference` objects.
     """
-    
+
     class Reference(object):
         """Reference to a standard book section.
 
@@ -985,7 +991,7 @@ class Guide(object):
         TYPES = set(t for t, _ in _TYPES_TITLES)
         TITLES = dict(_TYPES_TITLES)
         ORDER = dict((t, i) for i, (t, _) in enumerate(_TYPES_TITLES))
-        
+
         def __init__(self, oeb, type, title, href):
             self.oeb = oeb
             if type.lower() in self.TYPES:
@@ -998,22 +1004,22 @@ class Guide(object):
             self.type = type
             self.title = title
             self.href = urlnormalize(href)
-        
+
         def __repr__(self):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
-        
+
         @dynamic_property
         def _order(self):
             def fget(self):
                 return self.ORDER.get(self.type, self.type)
             return property(fget=fget)
-        
+
         def __cmp__(self, other):
             if not isinstance(other, Guide.Reference):
                 return NotImplemented
             return cmp(self._order, other._order)
-        
+
         @dynamic_property
         def item(self):
             doc = """The manifest item associated with this reference."""
@@ -1022,41 +1028,41 @@ class Guide(object):
                 hrefs = self.oeb.manifest.hrefs
                 return hrefs.get(path, None)
             return property(fget=fget, doc=doc)
-    
+
     def __init__(self, oeb):
         self.oeb = oeb
         self.refs = {}
-    
+
     def add(self, type, title, href):
         """Add a new reference to the `Guide`."""
         ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
-    
+
     def iterkeys(self):
         for type in self.refs:
             yield type
     __iter__ = iterkeys
-    
+
     def values(self):
         return sorted(self.refs.values())
-    
+
     def items(self):
         for type, ref in self.refs.items():
             yield type, ref
-    
+
     def __getitem__(self, key):
         return self.refs[key]
-    
+
     def __delitem__(self, key):
         del self.refs[key]
-    
+
     def __contains__(self, key):
         return key in self.refs
-    
+
     def __len__(self):
         return len(self.refs)
-    
+
     def to_opf1(self, parent=None):
         elem = element(parent, 'guide')
         for ref in self.refs.values():
@@ -1065,7 +1071,7 @@ class Guide(object):
                 attrib['title'] = ref.title
             element(elem, 'reference', attrib=attrib)
         return elem
-    
+
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('guide'))
         for ref in self.refs.values():
@@ -1095,7 +1101,7 @@ class TOC(object):
         self.klass = klass
         self.id = id
         self.nodes = []
-    
+
     def add(self, title, href, klass=None, id=None):
         """Create and return a new sub-node of this node."""
         node = TOC(title, href, klass, id)
@@ -1108,18 +1114,18 @@ class TOC(object):
         for child in self.nodes:
             for node in child.iter():
                 yield node
-    
+
     def iterdescendants(self):
         """Iterate over all descendant nodes in depth-first order."""
         for child in self.nodes:
             for node in child.iter():
                 yield node
-    
+
     def __iter__(self):
         """Iterate over all immediate child nodes."""
         for node in self.nodes:
             yield node
-    
+
     def __getitem__(self, index):
         return self.nodes[index]
 
@@ -1134,7 +1140,7 @@ class TOC(object):
                 prev.nodes.append(node)
             else:
                 prev = node
-    
+
     def depth(self):
         """The maximum depth of the navigation tree rooted at this node."""
         try:
@@ -1148,7 +1154,7 @@ class TOC(object):
                 'title': node.title, 'href': node.href})
             node.to_opf1(tour)
         return tour
-    
+
     def to_ncx(self, parent):
         for node in self.nodes:
             id = node.id or unicode(uuid.uuid4())
@@ -1169,7 +1175,7 @@ class PageList(object):
 
     Provides list-like access to the pages.
     """
-    
+
     class Page(object):
         """Represents a mapping between a page name and a position within
         the book content.
@@ -1187,17 +1193,17 @@ class PageList(object):
         :attr:`id`: Optional unique identifier for this page.
         """
         TYPES = set(['front', 'normal', 'special'])
-        
+
         def __init__(self, name, href, type='normal', klass=None, id=None):
             self.name = unicode(name)
             self.href = urlnormalize(href)
             self.type = type if type in self.TYPES else 'normal'
             self.id = id
             self.klass = klass
-    
+
     def __init__(self):
         self.pages = []
-    
+
     def add(self, name, href, type='normal', klass=None, id=None):
         """Create a new page and add it to the `PageList`."""
         page = self.Page(name, href, type, klass, id)
@@ -1206,11 +1212,11 @@ class PageList(object):
 
     def __len__(self):
         return len(self.pages)
-    
+
     def __iter__(self):
         for page in self.pages:
             yield page
-    
+
     def __getitem__(self, index):
         return self.pages[index]
 
@@ -1219,7 +1225,7 @@ class PageList(object):
 
     def remove(self, page):
         return self.pages.remove(page)
-    
+
     def to_ncx(self, parent=None):
         plist = element(parent, NCX('pageList'), id=str(uuid.uuid4()))
         values = dict((t, count(1)) for t in ('front', 'normal', 'special'))
@@ -1235,7 +1241,7 @@ class PageList(object):
             element(label, NCX('text')).text = page.name
             element(ptarget, NCX('content'), src=page.href)
         return plist
-    
+
     def to_page_map(self):
         pmap = etree.Element(OPF('page-map'), nsmap={None: OPF2_NS})
         for page in self.pages:
@@ -1245,11 +1251,14 @@ class PageList(object):
 
 class OEBBook(object):
     """Representation of a book in the IDPF OEB data model."""
-    
-    def __init__(self, logger, parse_cache={}, encoding='utf-8', 
+
+    COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
+    COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
+
+    def __init__(self, logger, parse_cache={}, encoding='utf-8',
                  pretty_print=False):
         """Create empty book.  Optional arguments:
-        
+
         :param parse_cache: A cache of parsed XHTML/CSS. Keys are absolute
             paths to te cached files and values are lxml root objects and
             cssutils stylesheets.
@@ -1260,10 +1269,10 @@ class OEBBook(object):
         :param:`logger`: A Log object to use for logging all messages
             related to the processing of this book.  It is accessible
             via the instance data members :attr:`logger,log`.
-        
+
         It provides the following public instance data members for
         accessing various parts of the OEB data model:
-        
+
         :attr:`metadata`: Metadata such as title, author name(s), etc.
         :attr:`manifest`: Manifest of all files included in the book,
             including MIME types and fallback information.
@@ -1275,6 +1284,7 @@ class OEBBook(object):
         :attr:`pages`: List of "pages," such as indexed to a print edition of
             the same text.
         """
+
         self.encoding = encoding
         self.pretty_print = pretty_print
         self.logger = self.log = logger
@@ -1294,13 +1304,13 @@ class OEBBook(object):
         encoding = opts.encoding
         pretty_print = opts.pretty_print
         return cls(encoding=encoding, pretty_print=pretty_print)
-    
+
     def translate(self, text):
         """Translate :param:`text` into the book's primary language."""
         lang = str(self.metadata.language[0])
         lang = lang.split('-', 1)[0].lower()
         return translate(lang, text)
-    
+
     def decode(self, data):
         """Automatically decode :param:`data` into a `unicode` object."""
         if isinstance(data, unicode):
@@ -1323,7 +1333,7 @@ class OEBBook(object):
         data = data.replace('\r\n', '\n')
         data = data.replace('\r', '\n')
         return data
-    
+
     def to_opf1(self):
         """Produce OPF 1.2 representing the book's metadata and structure.
 
@@ -1370,7 +1380,7 @@ class OEBBook(object):
             order = playorder.get(href, 0)
             elem.attrib['playOrder'] = str(order)
         return
-    
+
     def _to_ncx(self):
         lang = unicode(self.metadata.language[0])
         ncx = etree.Element(NCX('ncx'),
@@ -1399,10 +1409,10 @@ class OEBBook(object):
             maxpnum.attrib['content'] = str(value)
         self._update_playorder(ncx)
         return ncx
-    
+
     def to_opf2(self, page_map=False):
         """Produce OPF 2.0 representing the book's metadata and structure.
-        
+
         Returns a dictionary in which the keys are MIME types and the values
         are tuples of (default) filenames and lxml.etree element structures.
         """
