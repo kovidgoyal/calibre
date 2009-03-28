@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time, textwrap
+import os, re, time, textwrap, sys, cStringIO
 from binascii import hexlify, unhexlify
 
 from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
@@ -11,6 +11,7 @@ from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
+from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files
 from calibre.utils.config import prefs
@@ -134,6 +135,33 @@ class CategoryModel(QStringListModel):
             return self.icons[index.row()]
         return QStringListModel.data(self, index, role)
 
+class TestEmail(QDialog, TE_Dialog):
+
+    def __init__(self, accounts, parent):
+        QDialog.__init__(self, parent)
+        TE_Dialog.__init__(self)
+        self.setupUi(self)
+        opts = smtp_prefs().parse()
+        self.test_func = parent.test_email_settings
+        self.connect(self.test_button, SIGNAL('clicked(bool)'), self.test)
+        self.from_.setText(unicode(self.from_.text())%opts.from_)
+        if accounts:
+            self.to.setText(list(accounts.keys())[0])
+        if opts.relay_host:
+            self.label.setText(_('Using: %s:%s@%s:%s and %s encryption')%
+                    (opts.relay_username, unhexlify(opts.relay_password),
+                        opts.relay_host, opts.relay_port, opts.encryption))
+
+    def test(self):
+        self.log.setPlainText(_('Sending...'))
+        self.test_button.setEnabled(False)
+        try:
+            tb = self.test_func(unicode(self.to.text()))
+            if not tb:
+                tb = _('Mail successfully sent')
+            self.log.setPlainText(tb)
+        finally:
+            self.test_button.setEnabled(True)
 
 class EmailAccounts(QAbstractTableModel):
 
@@ -395,6 +423,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.email_make_default, SIGNAL('clicked(bool)'),
              lambda c: self._email_accounts.make_default(self.email_view.currentIndex()))
         self.email_view.resizeColumnsToContents()
+        self.connect(self.test_email_button, SIGNAL('clicked(bool)'),
+                self.test_email)
 
     def add_email_account(self, checked):
         index = self._email_accounts.add()
@@ -437,6 +467,33 @@ class ConfigDialog(QDialog, Ui_Dialog):
         conf.set('relay_password', hexlify(password))
         conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL')
         return True
+
+    def test_email(self, *args):
+        if self.set_email_settings():
+          TestEmail(self._email_accounts.accounts, self).exec_()
+
+    def test_email_settings(self, to):
+        opts = smtp_prefs().parse()
+        from calibre.utils.smtp import sendmail, create_mail
+        buf = cStringIO.StringIO()
+        oout, oerr = sys.stdout, sys.stderr
+        sys.stdout = sys.stderr = buf
+        tb = None
+        try:
+            msg = create_mail(opts.from_, to, 'Test mail from calibre',
+                    'Test mail from calibre')
+            sendmail(msg, from_=opts.from_, to=[to],
+                verbose=3, timeout=30, relay=opts.relay_host,
+                username=opts.relay_username,
+                password=unhexlify(opts.relay_password),
+                encryption=opts.encryption, port=opts.relay_port)
+        except:
+            import traceback
+            tb = traceback.format_exc()
+            tb += '\n\nLog:\n' + buf.getvalue()
+        finally:
+            sys.stdout, sys.stderr = oout, oerr
+        return tb
 
     def add_plugin(self):
         path = unicode(self.plugin_path.text())

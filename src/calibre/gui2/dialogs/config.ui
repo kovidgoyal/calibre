@@ -1,117 +1,118 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <author>Kovid Goyal</author>
  <class>Dialog</class>
- <widget class="QDialog" name="Dialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>789</width>
+    <width>800</width>
     <height>557</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Configuration</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../images.qrc">
     <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" >
-    <layout class="QHBoxLayout" >
+  <layout class="QGridLayout">
+   <item row="0" column="0">
+    <layout class="QHBoxLayout">
      <item>
-      <widget class="QListView" name="category_view" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Expanding" hsizetype="MinimumExpanding" >
+      <widget class="QListView" name="category_view">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
          <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font" >
+       <property name="font">
         <font>
          <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
-       <property name="tabKeyNavigation" >
+       <property name="tabKeyNavigation">
         <bool>true</bool>
        </property>
-       <property name="showDropIndicator" stdset="0" >
+       <property name="showDropIndicator" stdset="0">
         <bool>false</bool>
        </property>
-       <property name="iconSize" >
+       <property name="iconSize">
         <size>
          <width>48</width>
          <height>48</height>
         </size>
        </property>
-       <property name="verticalScrollMode" >
+       <property name="verticalScrollMode">
         <enum>QAbstractItemView::ScrollPerItem</enum>
        </property>
-       <property name="horizontalScrollMode" >
+       <property name="horizontalScrollMode">
         <enum>QAbstractItemView::ScrollPerPixel</enum>
        </property>
-       <property name="flow" >
+       <property name="flow">
         <enum>QListView::TopToBottom</enum>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>20</number>
        </property>
-       <property name="viewMode" >
+       <property name="viewMode">
         <enum>QListView::ListMode</enum>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QStackedWidget" name="stackedWidget" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+      <widget class="QStackedWidget" name="stackedWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>100</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="currentIndex" >
+       <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="page_3" >
-        <layout class="QVBoxLayout" name="verticalLayout" >
+       <widget class="QWidget" name="page_3">
+        <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <layout class="QVBoxLayout" name="_2" >
+          <layout class="QVBoxLayout" name="_2">
            <item>
-            <widget class="QLabel" name="label" >
-             <property name="maximumSize" >
+            <widget class="QLabel" name="label">
+             <property name="maximumSize">
               <size>
                <width>16777215</width>
                <height>70</height>
               </size>
              </property>
-             <property name="text" >
+             <property name="text">
               <string>&amp;Location of ebooks (The ebooks are stored in folders sorted by author and metadata is stored in the file metadata.db)</string>
              </property>
-             <property name="wordWrap" >
+             <property name="wordWrap">
               <bool>true</bool>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>location</cstring>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="_3" >
+            <layout class="QHBoxLayout" name="_3">
              <item>
-              <widget class="QLineEdit" name="location" />
+              <widget class="QLineEdit" name="location"/>
              </item>
              <item>
-              <widget class="QToolButton" name="browse_button" >
-               <property name="toolTip" >
+              <widget class="QToolButton" name="browse_button">
+               <property name="toolTip">
                 <string>Browse for the new database location</string>
                </property>
-               <property name="text" >
+               <property name="text">
                 <string>...</string>
                </property>
-               <property name="icon" >
-                <iconset resource="../images.qrc" >
+               <property name="icon">
+                <iconset resource="../images.qrc">
                  <normaloff>:/images/mimetypes/dir.svg</normaloff>:/images/mimetypes/dir.svg</iconset>
                </property>
               </widget>
@@ -121,107 +122,107 @@
           </layout>
          </item>
          <item>
-          <widget class="QCheckBox" name="new_version_notification" >
-           <property name="text" >
+          <widget class="QCheckBox" name="new_version_notification">
+           <property name="text">
             <string>Show notification when &amp;new version is available</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="pdf_metadata" >
-           <property name="toolTip" >
+          <widget class="QCheckBox" name="pdf_metadata">
+           <property name="toolTip">
             <string>If you disable this setting, metadata is guessed from the filename instead. This can be configured in the Advanced section.</string>
            </property>
-           <property name="text" >
+           <property name="text">
             <string>Read &amp;metadata from files</string>
            </property>
-           <property name="checked" >
+           <property name="checked">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_2" >
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_5" >
-             <property name="text" >
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
               <string>Format for &amp;single file save:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>single_format</cstring>
              </property>
             </widget>
            </item>
-           <item row="0" column="1" >
-            <widget class="QComboBox" name="single_format" />
+           <item row="0" column="1">
+            <widget class="QComboBox" name="single_format"/>
            </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="label_2" >
-             <property name="text" >
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
               <string>Default network &amp;timeout:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>timeout</cstring>
              </property>
             </widget>
            </item>
-           <item row="1" column="1" >
-            <widget class="QSpinBox" name="timeout" >
-             <property name="toolTip" >
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="timeout">
+             <property name="toolTip">
               <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
              </property>
-             <property name="suffix" >
+             <property name="suffix">
               <string> seconds</string>
              </property>
-             <property name="minimum" >
+             <property name="minimum">
               <number>2</number>
              </property>
-             <property name="maximum" >
+             <property name="maximum">
               <number>120</number>
              </property>
-             <property name="value" >
+             <property name="value">
               <number>5</number>
              </property>
             </widget>
            </item>
-           <item row="2" column="1" >
-            <widget class="QComboBox" name="language" />
+           <item row="2" column="1">
+            <widget class="QComboBox" name="language"/>
            </item>
-           <item row="2" column="0" >
-            <widget class="QLabel" name="label_7" >
-             <property name="text" >
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
               <string>Choose &amp;language (requires restart):</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>language</cstring>
              </property>
             </widget>
            </item>
-           <item row="3" column="1" >
-            <widget class="QComboBox" name="priority" >
+           <item row="3" column="1">
+            <widget class="QComboBox" name="priority">
              <item>
-              <property name="text" >
+              <property name="text">
                <string>Normal</string>
               </property>
              </item>
              <item>
-              <property name="text" >
+              <property name="text">
                <string>High</string>
               </property>
              </item>
              <item>
-              <property name="text" >
+              <property name="text">
                <string>Low</string>
               </property>
              </item>
             </widget>
            </item>
-           <item row="3" column="0" >
-            <widget class="QLabel" name="priority_label" >
-             <property name="text" >
+           <item row="3" column="0">
+            <widget class="QLabel" name="priority_label">
+             <property name="text">
               <string>Job &amp;priority:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>priority</cstring>
              </property>
             </widget>
@@ -229,19 +230,19 @@
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="dirs_box" >
-           <property name="title" >
+          <widget class="QGroupBox" name="dirs_box">
+           <property name="title">
             <string>Frequently used directories</string>
            </property>
-           <layout class="QGridLayout" name="_5" >
-            <item row="0" column="0" >
-             <layout class="QHBoxLayout" name="_6" >
+           <layout class="QGridLayout" name="_5">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="_6">
               <item>
-               <widget class="QListWidget" name="directory_list" >
-                <property name="alternatingRowColors" >
+               <widget class="QListWidget" name="directory_list">
+                <property name="alternatingRowColors">
                  <bool>true</bool>
                 </property>
-                <property name="iconSize" >
+                <property name="iconSize">
                  <size>
                   <width>22</width>
                   <height>22</height>
@@ -250,13 +251,13 @@
                </widget>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="_7" >
+               <layout class="QVBoxLayout" name="_7">
                 <item>
                  <spacer>
-                  <property name="orientation" >
+                  <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
                     <height>40</height>
@@ -265,25 +266,25 @@
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QToolButton" name="add_button" >
-                  <property name="toolTip" >
+                 <widget class="QToolButton" name="add_button">
+                  <property name="toolTip">
                    <string>Add a directory to the frequently used directories list</string>
                   </property>
-                  <property name="text" >
+                  <property name="text">
                    <string>...</string>
                   </property>
-                  <property name="icon" >
-                   <iconset resource="../images.qrc" >
+                  <property name="icon">
+                   <iconset resource="../images.qrc">
                     <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <spacer>
-                  <property name="orientation" >
+                  <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
                     <height>40</height>
@@ -292,25 +293,25 @@
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QToolButton" name="remove_button" >
-                  <property name="toolTip" >
+                 <widget class="QToolButton" name="remove_button">
+                  <property name="toolTip">
                    <string>Remove a directory from the frequently used directories list</string>
                   </property>
-                  <property name="text" >
+                  <property name="text">
                    <string>...</string>
                   </property>
-                  <property name="icon" >
-                   <iconset resource="../images.qrc" >
+                  <property name="icon">
+                   <iconset resource="../images.qrc">
                     <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <spacer>
-                  <property name="orientation" >
+                  <property name="orientation">
                    <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
                     <height>40</height>
@@ -327,111 +328,111 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page" >
-        <layout class="QVBoxLayout" name="verticalLayout_4" >
+       <widget class="QWidget" name="page">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QCheckBox" name="roman_numerals" >
-           <property name="text" >
+          <widget class="QCheckBox" name="roman_numerals">
+           <property name="text">
             <string>Use &amp;Roman numerals for series number</string>
            </property>
-           <property name="checked" >
+           <property name="checked">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="systray_icon" >
-           <property name="text" >
+          <widget class="QCheckBox" name="systray_icon">
+           <property name="text">
             <string>Enable system &amp;tray icon (needs restart)</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="systray_notifications" >
-           <property name="text" >
+          <widget class="QCheckBox" name="systray_notifications">
+           <property name="text">
             <string>Show &amp;notifications in system tray</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="separate_cover_flow" >
-           <property name="text" >
+          <widget class="QCheckBox" name="separate_cover_flow">
+           <property name="text">
             <string>Show cover &amp;browser in a separate window (needs restart)</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="sync_news" >
-           <property name="text" >
+          <widget class="QCheckBox" name="sync_news">
+           <property name="text">
             <string>Automatically send downloaded &amp;news to ebook reader</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="delete_news" >
-           <property name="text" >
+          <widget class="QCheckBox" name="delete_news">
+           <property name="text">
             <string>&amp;Delete news from library when it is sent to reader</string>
            </property>
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout" >
+          <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QLabel" name="label_6" >
-             <property name="text" >
+            <widget class="QLabel" name="label_6">
+             <property name="text">
               <string>&amp;Number of covers to show in browse mode (needs restart):</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>cover_browse</cstring>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="cover_browse" />
+            <widget class="QSpinBox" name="cover_browse"/>
            </item>
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_2" >
-           <property name="title" >
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
             <string>Toolbar</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout" >
-            <item row="0" column="1" >
-             <widget class="QComboBox" name="toolbar_button_size" >
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="1">
+             <widget class="QComboBox" name="toolbar_button_size">
               <item>
-               <property name="text" >
+               <property name="text">
                 <string>Large</string>
                </property>
               </item>
               <item>
-               <property name="text" >
+               <property name="text">
                 <string>Medium</string>
                </property>
               </item>
               <item>
-               <property name="text" >
+               <property name="text">
                 <string>Small</string>
                </property>
               </item>
              </widget>
             </item>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="label_4" >
-              <property name="text" >
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
                <string>&amp;Button size in toolbar</string>
               </property>
-              <property name="buddy" >
+              <property name="buddy">
                <cstring>toolbar_button_size</cstring>
               </property>
              </widget>
             </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="show_toolbar_text" >
-              <property name="text" >
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="show_toolbar_text">
+              <property name="text">
                <string>Show &amp;text in toolbar buttons</string>
               </property>
-              <property name="checked" >
+              <property name="checked">
                <bool>true</bool>
               </property>
              </widget>
@@ -440,44 +441,44 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7" >
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
-            <widget class="QGroupBox" name="groupBox" >
-             <property name="title" >
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
               <string>Select visible &amp;columns in library view</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7" >
+             <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_3" >
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
                 <item>
-                 <widget class="QListWidget" name="columns" >
-                  <property name="alternatingRowColors" >
+                 <widget class="QListWidget" name="columns">
+                  <property name="alternatingRowColors">
                    <bool>true</bool>
                   </property>
-                  <property name="selectionBehavior" >
+                  <property name="selectionBehavior">
                    <enum>QAbstractItemView::SelectRows</enum>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_3" >
+                 <layout class="QVBoxLayout" name="verticalLayout_3">
                   <item>
-                   <widget class="QToolButton" name="column_up" >
-                    <property name="text" >
+                   <widget class="QToolButton" name="column_up">
+                    <property name="text">
                      <string>...</string>
                     </property>
-                    <property name="icon" >
-                     <iconset resource="../images.qrc" >
+                    <property name="icon">
+                     <iconset resource="../images.qrc">
                       <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="verticalSpacer_2" >
-                    <property name="orientation" >
+                   <spacer name="verticalSpacer_2">
+                    <property name="orientation">
                      <enum>Qt::Vertical</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>20</width>
                       <height>40</height>
@@ -486,12 +487,12 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QToolButton" name="column_down" >
-                    <property name="text" >
+                   <widget class="QToolButton" name="column_down">
+                    <property name="text">
                      <string>...</string>
                     </property>
-                    <property name="icon" >
-                     <iconset resource="../images.qrc" >
+                    <property name="icon">
+                     <iconset resource="../images.qrc">
                       <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                     </property>
                    </widget>
@@ -504,17 +505,17 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_3" >
-             <property name="title" >
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="title">
               <string>Use internal &amp;viewer for:</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout_4" >
-              <item row="0" column="0" >
-               <widget class="QListWidget" name="viewer" >
-                <property name="alternatingRowColors" >
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="0" column="0">
+               <widget class="QListWidget" name="viewer">
+                <property name="alternatingRowColors">
                  <bool>true</bool>
                 </property>
-                <property name="selectionMode" >
+                <property name="selectionMode">
                  <enum>QAbstractItemView::NoSelection</enum>
                 </property>
                </widget>
@@ -535,99 +536,99 @@
         <zorder></zorder>
         <zorder></zorder>
        </widget>
-       <widget class="QWidget" name="page_6" >
-        <layout class="QVBoxLayout" name="verticalLayout_9" >
-         <item>
-          <widget class="QLabel" name="label_22" >
-           <property name="text" >
+       <widget class="QWidget" name="page_6">
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="label_22">
+           <property name="text">
             <string>calibre can send your books to you (or your reader) by email</string>
            </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_9" >
+         <item row="1" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
            <item>
-            <widget class="QLabel" name="label_15" >
-             <property name="text" >
+            <widget class="QLabel" name="label_15">
+             <property name="text">
               <string>Send email &amp;from:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>email_from</cstring>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="email_from" >
-             <property name="toolTip" >
-              <string>&lt;p>This is what will be present in the From: field of emails sent by calibre.&lt;br> Set it to your email address</string>
+            <widget class="QLineEdit" name="email_from">
+             <property name="toolTip">
+              <string>&lt;p&gt;This is what will be present in the From: field of emails sent by calibre.&lt;br&gt; Set it to your email address</string>
              </property>
             </widget>
            </item>
           </layout>
          </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_8" >
+         <item row="2" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
-            <widget class="QTableView" name="email_view" >
-             <property name="selectionMode" >
+            <widget class="QTableView" name="email_view">
+             <property name="selectionMode">
               <enum>QAbstractItemView::SingleSelection</enum>
              </property>
-             <property name="selectionBehavior" >
+             <property name="selectionBehavior">
               <enum>QAbstractItemView::SelectRows</enum>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_8" >
+            <layout class="QVBoxLayout" name="verticalLayout_8">
              <item>
-              <widget class="QToolButton" name="email_add" >
-               <property name="toolTip" >
+              <widget class="QToolButton" name="email_add">
+               <property name="toolTip">
                 <string>Add an email address to which to send books</string>
                </property>
-               <property name="text" >
+               <property name="text">
                 <string>&amp;Add email</string>
                </property>
-               <property name="icon" >
-                <iconset resource="../images.qrc" >
+               <property name="icon">
+                <iconset resource="../images.qrc">
                  <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                </property>
-               <property name="iconSize" >
+               <property name="iconSize">
                 <size>
                  <width>24</width>
                  <height>24</height>
                 </size>
                </property>
-               <property name="toolButtonStyle" >
+               <property name="toolButtonStyle">
                 <enum>Qt::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="email_make_default" >
-               <property name="text" >
+              <widget class="QPushButton" name="email_make_default">
+               <property name="text">
                 <string>Make &amp;default</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QToolButton" name="email_remove" >
-               <property name="text" >
+              <widget class="QToolButton" name="email_remove">
+               <property name="text">
                 <string>&amp;Remove email</string>
                </property>
-               <property name="icon" >
-                <iconset resource="../images.qrc" >
+               <property name="icon">
+                <iconset resource="../images.qrc">
                  <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
                </property>
-               <property name="iconSize" >
+               <property name="iconSize">
                 <size>
                  <width>24</width>
                  <height>24</height>
                 </size>
                </property>
-               <property name="toolButtonStyle" >
+               <property name="toolButtonStyle">
                 <enum>Qt::ToolButtonTextUnderIcon</enum>
                </property>
               </widget>
@@ -636,171 +637,191 @@
            </item>
           </layout>
          </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_10" >
-           <item>
-            <widget class="QGroupBox" name="groupBox_5" >
-             <property name="toolTip" >
-              <string>&lt;p>A mail server is useful if the service you are sending mail to only accepts email from well know mail services.</string>
-             </property>
-             <property name="title" >
-              <string>Mail &amp;Server</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_3" >
-              <item row="0" column="0" colspan="4" >
-               <widget class="QLabel" name="label_16" >
-                <property name="text" >
-                 <string>calibre can &lt;b>optionally&lt;/b> use a server to send mail</string>
+         <item row="3" column="0">
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="toolTip">
+            <string>&lt;p&gt;A mail server is useful if the service you are sending mail to only accepts email from well know mail services.</string>
+           </property>
+           <property name="title">
+            <string>Mail &amp;Server</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0" colspan="4">
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>calibre can &lt;b&gt;optionally&lt;/b&gt; use a server to send mail</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_17">
+              <property name="text">
+               <string>&amp;Hostname:</string>
+              </property>
+              <property name="buddy">
+               <cstring>relay_host</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" colspan="2">
+             <widget class="QLineEdit" name="relay_host">
+              <property name="toolTip">
+               <string>The hostname of your mail server. For e.g. smtp.gmail.com</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>&amp;Port:</string>
                 </property>
-                <property name="wordWrap" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" >
-               <widget class="QLabel" name="label_17" >
-                <property name="text" >
-                 <string>&amp;Hostname:</string>
-                </property>
-                <property name="buddy" >
-                 <cstring>relay_host</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" colspan="2" >
-               <widget class="QLineEdit" name="relay_host" >
-                <property name="toolTip" >
-                 <string>The hostname of your mail server. For e.g. smtp.gmail.com</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="3" >
-               <layout class="QHBoxLayout" name="horizontalLayout_11" >
-                <item>
-                 <widget class="QLabel" name="label_18" >
-                  <property name="text" >
-                   <string>&amp;Port:</string>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>relay_port</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="relay_port" >
-                  <property name="toolTip" >
-                   <string>The port your mail server listens for connections on. The default is 25</string>
-                  </property>
-                  <property name="minimum" >
-                   <number>1</number>
-                  </property>
-                  <property name="maximum" >
-                   <number>65555</number>
-                  </property>
-                  <property name="value" >
-                   <number>25</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="2" column="0" >
-               <widget class="QLabel" name="label_19" >
-                <property name="text" >
-                 <string>&amp;Username:</string>
-                </property>
-                <property name="buddy" >
-                 <cstring>relay_username</cstring>
+                <property name="buddy">
+                 <cstring>relay_port</cstring>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1" colspan="2" >
-               <widget class="QLineEdit" name="relay_username" >
-                <property name="toolTip" >
-                 <string>Your username on the mail server</string>
+              <item>
+               <widget class="QSpinBox" name="relay_port">
+                <property name="toolTip">
+                 <string>The port your mail server listens for connections on. The default is 25</string>
                 </property>
-               </widget>
-              </item>
-              <item row="3" column="0" >
-               <widget class="QLabel" name="label_20" >
-                <property name="text" >
-                 <string>&amp;Password:</string>
+                <property name="minimum">
+                 <number>1</number>
                 </property>
-                <property name="buddy" >
-                 <cstring>relay_password</cstring>
+                <property name="maximum">
+                 <number>65555</number>
                 </property>
-               </widget>
-              </item>
-              <item row="3" column="1" colspan="2" >
-               <widget class="QLineEdit" name="relay_password" >
-                <property name="toolTip" >
-                 <string>Your password on the mail server</string>
-                </property>
-                <property name="echoMode" >
-                 <enum>QLineEdit::Password</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="3" >
-               <widget class="QCheckBox" name="relay_show_password" >
-                <property name="text" >
-                 <string>&amp;Show</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0" >
-               <widget class="QLabel" name="label_21" >
-                <property name="text" >
-                 <string>&amp;Encryption:</string>
-                </property>
-                <property name="buddy" >
-                 <cstring>relay_tls</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1" >
-               <widget class="QRadioButton" name="relay_tls" >
-                <property name="toolTip" >
-                 <string>Use TLS encryption when connecting to the mail server. This is the most common.</string>
-                </property>
-                <property name="text" >
-                 <string>&amp;TLS</string>
-                </property>
-                <property name="checked" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="2" colspan="2" >
-               <widget class="QRadioButton" name="relay_ssl" >
-                <property name="toolTip" >
-                 <string>Use SSL encryption when connecting to the mail server.</string>
-                </property>
-                <property name="text" >
-                 <string>&amp;SSL</string>
+                <property name="value">
+                 <number>25</number>
                 </property>
                </widget>
               </item>
              </layout>
-            </widget>
-           </item>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_19">
+              <property name="text">
+               <string>&amp;Username:</string>
+              </property>
+              <property name="buddy">
+               <cstring>relay_username</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" colspan="2">
+             <widget class="QLineEdit" name="relay_username">
+              <property name="toolTip">
+               <string>Your username on the mail server</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>&amp;Password:</string>
+              </property>
+              <property name="buddy">
+               <cstring>relay_password</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" colspan="2">
+             <widget class="QLineEdit" name="relay_password">
+              <property name="toolTip">
+               <string>Your password on the mail server</string>
+              </property>
+              <property name="echoMode">
+               <enum>QLineEdit::Password</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="QCheckBox" name="relay_show_password">
+              <property name="text">
+               <string>&amp;Show</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_21">
+              <property name="text">
+               <string>&amp;Encryption:</string>
+              </property>
+              <property name="buddy">
+               <cstring>relay_tls</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QRadioButton" name="relay_tls">
+              <property name="toolTip">
+               <string>Use TLS encryption when connecting to the mail server. This is the most common.</string>
+              </property>
+              <property name="text">
+               <string>&amp;TLS</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2" colspan="2">
+             <widget class="QRadioButton" name="relay_ssl">
+              <property name="toolTip">
+               <string>Use SSL encryption when connecting to the mail server.</string>
+              </property>
+              <property name="text">
+               <string>&amp;SSL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="4">
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
-            <widget class="QToolButton" name="relay_use_gmail" >
-             <property name="text" >
+            <widget class="QToolButton" name="relay_use_gmail">
+             <property name="text">
               <string>Use Gmail</string>
              </property>
-             <property name="icon" >
-              <iconset resource="../images.qrc" >
+             <property name="icon">
+              <iconset resource="../images.qrc">
                <normaloff>:/images/gmail_logo.png</normaloff>:/images/gmail_logo.png</iconset>
              </property>
-             <property name="iconSize" >
+             <property name="iconSize">
               <size>
                <width>48</width>
                <height>48</height>
               </size>
              </property>
-             <property name="toolButtonStyle" >
+             <property name="toolButtonStyle">
               <enum>Qt::ToolButtonTextUnderIcon</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="test_email_button">
+             <property name="text">
+              <string>&amp;Test email</string>
              </property>
             </widget>
            </item>
@@ -808,16 +829,16 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_2" >
-        <layout class="QVBoxLayout" >
+       <widget class="QWidget" name="page_2">
+        <layout class="QVBoxLayout">
          <item>
-          <layout class="QHBoxLayout" >
+          <layout class="QHBoxLayout">
            <item>
             <spacer>
-             <property name="orientation" >
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>40</width>
                <height>20</height>
@@ -826,21 +847,21 @@
             </spacer>
            </item>
            <item>
-            <widget class="QToolButton" name="compact_button" >
-             <property name="toolTip" >
+            <widget class="QToolButton" name="compact_button">
+             <property name="toolTip">
               <string>Free unused diskspace from the database</string>
              </property>
-             <property name="text" >
+             <property name="text">
               <string>&amp;Compact database</string>
              </property>
             </widget>
            </item>
            <item>
             <spacer>
-             <property name="orientation" >
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>40</width>
                <height>20</height>
@@ -851,17 +872,17 @@
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="metadata_box" >
-           <property name="title" >
+          <widget class="QGroupBox" name="metadata_box">
+           <property name="title">
             <string>&amp;Metadata from file name</string>
            </property>
-           <layout class="QVBoxLayout" >
+           <layout class="QVBoxLayout">
             <item>
              <spacer>
-              <property name="orientation" >
+              <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
+              <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -874,96 +895,96 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_4" >
-        <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <widget class="QWidget" name="page_4">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QLabel" name="label_9" >
-           <property name="text" >
+          <widget class="QLabel" name="label_9">
+           <property name="text">
             <string>calibre contains a network server that allows you to access your book collection using a browser from anywhere in the world. Any changes to the settings will only take effect after a server restart.</string>
            </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_5" >
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_10" >
-             <property name="text" >
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
               <string>Server &amp;port:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>port</cstring>
              </property>
             </widget>
            </item>
-           <item row="0" column="1" >
-            <widget class="QSpinBox" name="port" >
-             <property name="minimum" >
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="port">
+             <property name="minimum">
               <number>1025</number>
              </property>
-             <property name="maximum" >
+             <property name="maximum">
               <number>16000</number>
              </property>
-             <property name="value" >
+             <property name="value">
               <number>8080</number>
              </property>
             </widget>
            </item>
-           <item row="1" column="0" >
-            <widget class="QLabel" name="label_11" >
-             <property name="text" >
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
               <string>&amp;Username:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>username</cstring>
              </property>
             </widget>
            </item>
-           <item row="1" column="1" >
-            <widget class="QLineEdit" name="username" />
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="username"/>
            </item>
-           <item row="2" column="0" >
-            <widget class="QLabel" name="label_12" >
-             <property name="text" >
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_12">
+             <property name="text">
               <string>&amp;Password:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>password</cstring>
              </property>
             </widget>
            </item>
-           <item row="2" column="1" >
-            <widget class="QLineEdit" name="password" >
-             <property name="toolTip" >
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="password">
+             <property name="toolTip">
               <string>If you leave the password blank, anyone will be able to access your book collection using the web interface.</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1" >
-            <widget class="QCheckBox" name="show_server_password" >
-             <property name="text" >
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="show_server_password">
+             <property name="text">
               <string>&amp;Show password</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1" >
-            <widget class="QLineEdit" name="max_cover_size" >
-             <property name="toolTip" >
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="max_cover_size">
+             <property name="toolTip">
               <string>The maximum size (widthxheight) for displayed covers. Larger covers are resized. </string>
              </property>
-             <property name="text" >
+             <property name="text">
               <string/>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" >
-            <widget class="QLabel" name="label_3" >
-             <property name="text" >
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
               <string>Max. &amp;cover size:</string>
              </property>
-             <property name="buddy" >
+             <property name="buddy">
               <cstring>max_cover_size</cstring>
              </property>
             </widget>
@@ -971,27 +992,27 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2" >
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="QPushButton" name="start" >
-             <property name="text" >
+            <widget class="QPushButton" name="start">
+             <property name="text">
               <string>&amp;Start Server</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="stop" >
-             <property name="text" >
+            <widget class="QPushButton" name="stop">
+             <property name="text">
               <string>St&amp;op Server</string>
              </property>
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer" >
-             <property name="orientation" >
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>40</width>
                <height>20</height>
@@ -1000,8 +1021,8 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="test" >
-             <property name="text" >
+            <widget class="QPushButton" name="test">
+             <property name="text">
               <string>&amp;Test Server</string>
              </property>
             </widget>
@@ -1009,25 +1030,25 @@
           </layout>
          </item>
          <item>
-          <widget class="QCheckBox" name="auto_launch" >
-           <property name="text" >
+          <widget class="QCheckBox" name="auto_launch">
+           <property name="text">
             <string>Run server &amp;automatically on startup</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="view_logs" >
-           <property name="text" >
+          <widget class="QPushButton" name="view_logs">
+           <property name="text">
             <string>View &amp;server logs</string>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer_3" >
-           <property name="orientation" >
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
              <height>40</height>
@@ -1036,21 +1057,21 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_13" >
-           <property name="text" >
+          <widget class="QLabel" name="label_13">
+           <property name="text">
             <string>If you want to use the content server to access your ebook collection on your iphone with Stanza, you will need to add the URL http://myhostname:8080/stanza as a new catalog in the stanza reader on your iphone. Here myhostname should be the fully qualified hostname or the IP address of this computer.</string>
            </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="verticalSpacer" >
-           <property name="orientation" >
+          <spacer name="verticalSpacer">
+           <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" stdset="0" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
              <height>40</height>
@@ -1060,53 +1081,53 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_5" >
-        <layout class="QVBoxLayout" name="verticalLayout_6" >
+       <widget class="QWidget" name="page_5">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
-          <widget class="QLabel" name="label_8" >
-           <property name="text" >
+          <widget class="QLabel" name="label_8">
+           <property name="text">
             <string>Here you can customize the behavior of Calibre by controlling what plugins it uses.</string>
            </property>
-           <property name="wordWrap" >
+           <property name="wordWrap">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QTreeView" name="plugin_view" >
-           <property name="iconSize" >
+          <widget class="QTreeView" name="plugin_view">
+           <property name="iconSize">
             <size>
              <width>32</width>
              <height>32</height>
             </size>
            </property>
-           <property name="animated" >
+           <property name="animated">
             <bool>true</bool>
            </property>
-           <property name="headerHidden" >
+           <property name="headerHidden">
             <bool>true</bool>
            </property>
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6" >
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
-            <widget class="QPushButton" name="toggle_plugin" >
-             <property name="text" >
+            <widget class="QPushButton" name="toggle_plugin">
+             <property name="text">
               <string>Enable/&amp;Disable plugin</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="customize_plugin" >
-             <property name="text" >
+            <widget class="QPushButton" name="customize_plugin">
+             <property name="text">
               <string>&amp;Customize plugin</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="remove_plugin" >
-             <property name="text" >
+            <widget class="QPushButton" name="remove_plugin">
+             <property name="text">
               <string>&amp;Remove plugin</string>
              </property>
             </widget>
@@ -1114,33 +1135,33 @@
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_4" >
-           <property name="title" >
+          <widget class="QGroupBox" name="groupBox_4">
+           <property name="title">
             <string>Add new plugin</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_5" >
+           <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_5" >
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
-               <widget class="QLabel" name="label_14" >
-                <property name="text" >
+               <widget class="QLabel" name="label_14">
+                <property name="text">
                  <string>Plugin &amp;file:</string>
                 </property>
-                <property name="buddy" >
+                <property name="buddy">
                  <cstring>plugin_path</cstring>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="plugin_path" />
+               <widget class="QLineEdit" name="plugin_path"/>
               </item>
               <item>
-               <widget class="QToolButton" name="button_plugin_browse" >
-                <property name="text" >
+               <widget class="QToolButton" name="button_plugin_browse">
+                <property name="text">
                  <string>...</string>
                 </property>
-                <property name="icon" >
-                 <iconset resource="../images.qrc" >
+                <property name="icon">
+                 <iconset resource="../images.qrc">
                   <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
                 </property>
                </widget>
@@ -1148,13 +1169,13 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4" >
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <spacer name="horizontalSpacer_2" >
-                <property name="orientation" >
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeHint" stdset="0" >
+                <property name="sizeHint" stdset="0">
                  <size>
                   <width>40</width>
                   <height>20</height>
@@ -1163,8 +1184,8 @@
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="button_plugin_add" >
-                <property name="text" >
+               <widget class="QPushButton" name="button_plugin_add">
+                <property name="text">
                  <string>&amp;Add</string>
                 </property>
                </widget>
@@ -1180,12 +1201,12 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
@@ -1193,7 +1214,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../images.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -1202,11 +1223,11 @@
    <receiver>Dialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>239</x>
      <y>558</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -1218,11 +1239,11 @@
    <receiver>Dialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>307</x>
      <y>558</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
