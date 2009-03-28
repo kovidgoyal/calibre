@@ -9,7 +9,7 @@ lxml based OPF parser.
 
 import sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO
 from urllib import unquote
-from urlparse import urlparse, urldefrag
+from urlparse import urlparse
 
 from lxml import etree
 from dateutil import parser
@@ -258,6 +258,11 @@ class Manifest(ResourceCollection):
             if i.id == id:
                 return i.path
 
+    def type_for_id(self, id):
+        for i in self:
+            if i.id == id:
+                return i.mime_type
+
 class Spine(ResourceCollection):
 
     class Item(Resource):
@@ -487,7 +492,10 @@ class OPF(object):
 
             if toc is None: return
             self.toc = TOC(base_path=self.base_dir)
-            if toc.lower() in ('ncx', 'ncxtoc'):
+            is_ncx = getattr(self, 'manifest', None) is not None and \
+                     self.manifest.type_for_id(toc) is not None and \
+                     'dtbncx' in self.manifest.type_for_id(toc)
+            if is_ncx or toc.lower() in ('ncx', 'ncxtoc'):
                 path = self.manifest.path_for_id(toc)
                 if path:
                     self.toc.read_ncx_toc(path)
