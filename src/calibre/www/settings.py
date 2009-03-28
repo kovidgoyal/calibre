@@ -72,6 +72,7 @@ if DEBUG:
     )
 else:
     TEMPLATE_DIRS = (
+            '/usr/local/calibre/src/calibre/www/templates',
     )
 
 

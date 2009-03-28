@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls.defaults import patterns, include, handler404, handler500
 from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
@@ -7,7 +7,6 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 
-        #(r'^admin/', include('django.contrib.admin.urls')),
         (r'^admin/(.*)', admin.site.root),
 
 

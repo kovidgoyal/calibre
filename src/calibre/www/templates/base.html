@@ -23,10 +23,12 @@
     </div>
 
     <div id="_footer">
+        {% block footer_text %}
         Created by Kovid Goyal. 
         Powered by <a href="http://www.djangoproject.com">
             <img alt="Django" src="{{ media_url }}/img/button-django.png"/>
         </a>&nbsp;&nbsp;
+        {% endblock %}
     </div>
 </body>
 </html>
