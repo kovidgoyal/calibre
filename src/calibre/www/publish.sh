@@ -1,4 +1,4 @@
 #!/bin/sh
 
-ssh divok bzr up /usr/local/calibre
+ssh divok "cd /usr/local/calibre && bzr pull"
 ssh divok /etc/init.d/apache2 graceful
