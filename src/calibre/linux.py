@@ -39,7 +39,8 @@ entry_points = {
              'calibre-fontconfig = calibre.utils.fontconfig:main',
              'calibre-parallel   = calibre.parallel:main',
              'calibre-customize  = calibre.customize.ui:main',
-             'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
+             'pdftrim            = calibre.ebooks.pdf.pdftrim:main',
+             'pdfmerge           = calibre.ebooks.pdf.pdfmerge:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
         ],
         'gui_scripts'    : [
