@@ -41,7 +41,6 @@ def freeze():
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libgthread-2.0.so.0',
-                       '/usr/lib/libglib-2.0.so.0',
                        '/usr/lib/gcc/i686-pc-linux-gnu/4.3.3/libstdc++.so.6',
                        '/usr/lib/libpng12.so.0',
                        '/usr/lib/libexslt.so.0',

@@ -1,0 +1,314 @@
+/*
+ * Feedjack LostWoods theme
+ **************************
+ * Simple and green (where's the brown? -brown doesn't count)
+ *
+ * Copyright Diego Escalante Urrelo <diegoe@gnome.org>
+ *
+ */
+body {
+    font-size: 0.8em;
+    font-family: verdana;
+    margin: 0;
+}
+div {
+    /*border: 1px solid blue;
+    padding: 5px;
+    margin: 5px;*/
+}
+/*
+ * Structure
+ */
+#logo {
+    padding-top: 3px;
+    padding-left: 1em;
+}
+#tags {
+    overflow: auto;
+    padding: 5px;
+    text-align: right;
+}
+#paginate {
+    margin-bottom: 15px;
+    margin-left: 0px;
+    margin-top: 5px;
+    padding-left: 0;
+    text-align: left;
+    vertical-align: middle;
+    float: left;
+    width: 60%;
+    color: black;
+}
+#buttons {
+    text-align: right;
+    float: right;
+    vertical-align: middle;
+    color: #aaa;
+    width: 40%;
+    line-height: 1.7em;
+    padding:0;
+    padding-bottom: 10px;
+}
+#usertags {
+    clear: both;
+    margin: 5px;
+    padding: 5px;
+    width: 75%;
+    text-align: center;
+}
+#post_list {  
+    clear : both;
+    width: 75%;
+}
+#sidebar {
+    width: 20%;
+    position: absolute;
+    right:0;
+    top: 170px;
+    border-left: 10px outset #6E9C60;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+div.date {
+    font-size: x-large;
+    text-align: center;
+    font-style: italic;
+    padding: 5px;
+    color: black;
+    border: 2px solid #6E9C60; 
+    border-right: 0;
+    border-left: 0;
+    margin-bottom: 10px;
+    
+}
+/*
+ * Post structure
+ */
+div.post {
+    overflow: auto;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 12px solid #6E9C60;
+    border-right: 1px inset #6E9C60;
+    padding-right: 10px;
+}
+div.avatar {
+    float: right;
+    width: 15%;
+    text-align: center;
+}
+div.post-title {
+    text-align: left;
+    
+    font-size: 180%;
+    font-family: trebuchet ms;
+    font-weight: bold;
+    padding: 5px;
+    width: 75%;
+}
+div.post-content {
+    width: 72%;
+    overflow: auto;
+    text-align: justify;
+    font-size: 90%;
+    line-height: 1.8em;
+    padding-left: 4em;
+    padding-right: 4em;
+    border-right: 1px dotted #ccc;
+}
+div.post-content li {
+    margin: 0;
+    padding: 0;
+    line-height: 130%;
+}
+div.post-content table{
+    border: 0;
+    margin-left: 50px;
+
+}
+div.post-content td {
+    border: 2px solid #ccc;
+}
+div.post-meta {
+    color: #666;
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    width: 100%;
+    text-align: right;
+}
+div.tags {
+    margin-top: 10px;
+}
+
+/* 
+ * Elements
+ */
+blockquote {
+	color: 				#777;
+	margin:				15px	30px 0px	10px;
+	padding: 20px;
+	border: 1px solid #ddd;
+	border-left:		7px	solid	#ddd;
+	
+}
+a:link {
+    color: #4C6B46;
+}
+a:hover {
+    color: #33408A;
+}
+h1 a:link {
+    text-decoration: none;
+    color: inherit;
+}
+#buttons img {
+    vertical-align: middle;
+}
+#head h1 {
+    font-style: italic;
+    font-size: xx-large;
+    border-bottom: 3px solid #6E9C60;
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+#head a:link, a:visited, #head a:active { 
+    color: inherit;
+}
+.love_feedjack {
+    font-size: 145%;
+    font-weight: bold;
+    font-style: italic;
+}
+.cloud_1 {
+    font-size: 50%;
+}
+.cloud_2 {
+    font-size: 100%;
+}
+.cloud_3 {
+    font-size: 120%;
+    font-weight: bold;
+}
+.cloud_4 {
+    font-size: 140%;
+    font-weight: bold;
+}
+.cloud_5 {
+    font-size: 160%;
+    font-weight: bold;
+}
+#paginate ul {
+    margin:0;
+    padding:0;
+}
+#paginate li { 
+    display: inline;
+    margin: 2px;
+    padding: 10px;
+    background-color: #fbfbfb;
+    border: 2px solid #ddd;
+    line-height: 1.7em;
+    margin-left: 3px;
+    margin-right: 3px;
+    text-align: center;
+    vertical-align: middle;
+}
+#paginate li.tagname {
+    font-weight: bold;
+    font-size: 140%;
+}
+#paginate a:link {
+    color: #4C6B46;
+}
+
+#paginate a { text-decoration: none; }
+
+img {
+    border: 0;
+}
+#sidebar ul {
+    list-style-type:	none;
+    padding: 0;
+    margin: 0;
+}
+#sidebar li {
+    display: block;
+    clear: both;
+    line-height: 25px;
+}
+#sidebar a.nombre {
+    display: inline;
+    color: #33408A;
+    vertical-align: middle;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+#sidebar img.face {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+#sidebar h4 {
+    font-style: italic;
+    border-bottom: 1px solid #ccc;
+}
+
+#sidebar h4 + p {
+    text-align: justify;
+}
+#tags ul, #usertags ul {
+    background-color: #fbfbfb;
+    padding: 5px;
+    border: 2px solid #ddd;
+    margin:0;
+    text-align: center;
+}
+#tags li, #usertags li { 
+    display: inline;
+    margin: 0;
+    line-height: 1.7em;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+#tags a:link, #usertags a:link {
+    color: #4C6B46;
+}
+span.name {
+    color: #333;
+}
+span.nick {
+    color: #555;
+}
+span.url a {
+    color: #bbb;
+}
+span.url a:hover {
+    color: #777;
+}
+
+div.tags ul {
+    background-color: #fbfbfb;
+    padding: 5px;
+    border: 2px solid #ddd;
+    margin:0;
+    text-align: center;
+}
+div.tags li { 
+    display: inline;
+    margin: 0;
+    line-height: 1.7em;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#planet_donate
+{
+    text-align: center;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    padding-top: 5px; padding-bottom: 5px;
+}
+
+#planet_ads {
+    text-align: center;
+}
+
