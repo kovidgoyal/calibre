@@ -51,8 +51,9 @@
     <a href="{{ item.feed.link }}">
         <img 
         src="{{ MEDIA_URL }}/img/faces/{{ item.subscriber.shortname}}.png" alt="" />
-        <br/>
-        <span class="url">{{ item.feed.title }}</span>
+        <div class="url">
+            {{ item.feed.title|safe }}
+        </div>
     </a>
   </div>
   {% endifchanged %}
