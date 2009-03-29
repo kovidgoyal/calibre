@@ -508,6 +508,7 @@ class OPF(object):
                     toc.partition('#')[0], toc.partition('#')[-1]
                 self.toc.read_html_toc(toc)
         except:
+            raise
             pass
 
 
