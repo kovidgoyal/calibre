@@ -10,9 +10,10 @@ __docformat__ = 'restructuredtext en'
 import string, sys
 
 from calibre.utils.config import Config, StringConfig
-from calibre.ebooks.pdf import merge, split, trim
+from calibre.ebooks.pdf import info, merge, split, trim
 
 COMMANDS = {
+             'info'  : info,
              'merge' : merge,
              'split' : split,
              'trim'  : trim,
