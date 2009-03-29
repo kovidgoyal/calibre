@@ -52,29 +52,29 @@ def config(defaults=None):
         c = Config('viewer', desc)
     else:
         c = StringConfig(defaults, desc)
-    
+
     c.add_opt('user_css', default='',
               help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
-    
+
     fonts = c.add_group('FONTS', _('Font options'))
-    fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif', 
+    fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
           help=_('The serif font family'))
-    fonts('sans_family', default='Verdana' if iswindows else 'Liberation Sans', 
+    fonts('sans_family', default='Verdana' if iswindows else 'Liberation Sans',
           help=_('The sans-serif font family'))
-    fonts('mono_family', default='Courier New' if iswindows else 'Liberation Mono', 
+    fonts('mono_family', default='Courier New' if iswindows else 'Liberation Mono',
           help=_('The monospaced font family'))
     fonts('default_font_size', default=20, help=_('The standard font size in px'))
     fonts('mono_font_size', default=16, help=_('The monospaced font size in px'))
     fonts('standard_font', default='serif', help=_('The standard font type'))
-    
+
     return c
 
 class ConfigDialog(QDialog, Ui_Dialog):
-    
+
     def __init__(self, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        
+
         opts = config().parse()
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
@@ -84,7 +84,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
-        
+
     def accept(self, *args):
         c = config()
         c.set('serif_family', unicode(self.serif_family.currentFont().family()))
@@ -95,10 +95,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[self.standard_font.currentIndex()])
         c.set('user_css', unicode(self.css.toPlainText()))
         return QDialog.accept(self, *args)
-        
+
 
 class Document(QWebPage):
-    
+
     def set_font_settings(self):
         opts = config().parse()
         settings = self.settings()
@@ -110,14 +110,14 @@ class Document(QWebPage):
         settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
         settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
         settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
-        
+
     def do_config(self, parent=None):
         d = ConfigDialog(parent)
         if d.exec_() == QDialog.Accepted:
             self.set_font_settings()
             self.set_user_stylesheet()
             self.triggerAction(QWebPage.Reload)
-    
+
     def __init__(self, *args):
         QWebPage.__init__(self, *args)
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
@@ -125,53 +125,53 @@ class Document(QWebPage):
         pal = self.palette()
         pal.setBrush(QPalette.Background, QColor(0xee, 0xee, 0xee))
         self.setPalette(pal)
-        
+
         settings = self.settings()
-        
+
         # Fonts
         load_builtin_fonts()
         self.set_font_settings()
-        
+
         # Security
         settings.setAttribute(QWebSettings.JavaEnabled, False)
         settings.setAttribute(QWebSettings.PluginsEnabled, False)
         settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
         settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
-        
+
         # Miscellaneous
         settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
         self.set_user_stylesheet()
-        
+
         # Load jQuery
-        self.connect(self.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'), 
+        self.connect(self.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'),
                      self.load_javascript_libraries)
-    
+
     def set_user_stylesheet(self):
         raw = config().parse().user_css
         pt = PersistentTemporaryFile('_user_stylesheet.css')
         pt.write(raw.encode('utf-8'))
         pt.close()
         self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile(pt.name))
-    
+
     def load_javascript_libraries(self):
         from calibre.resources import jquery, jquery_scrollTo
         self.javascript(jquery)
         self.javascript(jquery_scrollTo)
         self.javascript(bookmarks)
         self.javascript(referencing)
-    
+
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
-        
+
     def set_reference_prefix(self, prefix):
         self.javascript('reference_prefix = "%s"'%prefix)
-        
+
     def goto(self, ref):
         self.javascript('goto_reference("%s")'%ref)
-    
+
     def goto_bookmark(self, bm):
         self.javascript('scroll_to_bookmark("%s")'%bm)
-    
+
     def javascript(self, string, typ=None):
         ans = self.mainFrame().evaluateJavaScript(string)
         if typ == 'int':
@@ -182,65 +182,65 @@ class Document(QWebPage):
         if typ == 'string':
             return unicode(ans.toString())
         return ans
-    
+
     def scroll_by(self, x=0, y=0):
         self.javascript('window.scrollBy(%d, %d)'%(x, y))
-        
+
     def scroll_to(self, x=0, y=0):
         self.javascript('window.scrollTo(%d, %d)'%(x, y))
-        
+
     def jump_to_anchor(self, anchor):
         self.javascript('document.location.hash = "%s"'%anchor)
-        
+
     def quantize(self):
         if self.height > self.window_height:
             r = self.height%self.window_height
             if r > 0:
                 self.javascript('document.body.style.paddingBottom = "%dpx"'%r)
-    
+
     def bookmark(self):
         return self.javascript('calculate_bookmark(%d)'%(self.ypos+25), 'string')
-    
+
     @apply
     def at_bottom():
         def fget(self):
             return self.height - self.ypos <= self.window_height
         return property(fget=fget)
-    
+
     @apply
     def at_top():
         def fget(self):
             return self.ypos <= 0
         return property(fget=fget)
-    
-    
+
+
     def test(self):
         pass
-    
+
     @apply
     def ypos():
         def fget(self):
             return self.javascript('window.pageYOffset', 'int')
         return property(fget=fget)
-    
+
     @apply
     def window_height():
         def fget(self):
             return self.javascript('window.innerHeight', 'int')
         return property(fget=fget)
-    
+
     @apply
     def window_width():
         def fget(self):
             return self.javascript('window.innerWidth', 'int')
         return property(fget=fget)
-        
+
     @apply
     def xpos():
         def fget(self):
             return self.javascript('window.pageXOffset', 'int')
         return property(fget=fget)
-    
+
     @apply
     def scroll_fraction():
         def fget(self):
@@ -249,19 +249,19 @@ class Document(QWebPage):
             except ZeroDivisionError:
                 return 0.
         return property(fget=fget)
-    
+
     @apply
     def hscroll_fraction():
         def fget(self):
             return float(self.xpos)/self.width
         return property(fget=fget)
-    
+
     @apply
     def height():
         def fget(self):
             return self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
         return property(fget=fget)
-    
+
     @apply
     def width():
         def fget(self):
@@ -269,7 +269,7 @@ class Document(QWebPage):
         return property(fget=fget)
 
 class EntityDeclarationProcessor(object):
-    
+
     def __init__(self, html):
         self.declared_entities = {}
         for match in re.finditer(r'<!\s*ENTITY\s+([^>]+)>', html):
@@ -281,9 +281,9 @@ class EntityDeclarationProcessor(object):
             self.processed_html = self.processed_html.replace('&%s;'%key, val)
 
 class DocumentView(QWebView):
-    
-    DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern) 
-    
+
+    DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
+
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
@@ -299,83 +299,83 @@ class DocumentView(QWebView):
         self.connect(self.document, SIGNAL('linkClicked(QUrl)'), self.link_clicked)
         self.connect(self.document, SIGNAL('linkHovered(QString,QString,QString)'), self.link_hovered)
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
-    
+
     def reference_mode(self, enable):
         self._reference_mode = enable
         self.document.reference_mode(enable)
-    
+
     def goto(self, ref):
         self.document.goto(ref)
-        
+
     def goto_bookmark(self, bm):
         self.document.goto_bookmark(bm)
-    
+
     def config(self, parent=None):
         self.document.do_config(parent)
-        
+
     def bookmark(self):
         return self.document.bookmark()
-        
+
     def selection_changed(self):
         if self.manager is not None:
             self.manager.selection_changed(unicode(self.document.selectedText()))
-    
+
     def set_manager(self, manager):
         self.manager = manager
         self.scrollbar = manager.horizontal_scrollbar
         self.connect(self.scrollbar, SIGNAL('valueChanged(int)'), self.scroll_horizontally)
-        
+
     def scroll_horizontally(self, amount):
         self.document.scroll_to(y=self.document.ypos, x=amount)
-        
+
     def link_hovered(self, link, text, context):
         link, text = unicode(link), unicode(text)
         if link:
             self.setCursor(Qt.PointingHandCursor)
         else:
-            self.unsetCursor() 
-    
+            self.unsetCursor()
+
     def link_clicked(self, url):
         if self.manager is not None:
             self.manager.link_clicked(url)
-    
+
     def sizeHint(self):
         return self._size_hint
-    
+
     @apply
     def scroll_fraction():
         def fget(self):
             return self.document.scroll_fraction
         return property(fget=fget)
-    
+
     @apply
     def hscroll_fraction():
         def fget(self):
             return self.document.hscroll_fraction
         return property(fget=fget)
-    
+
     @apply
     def content_size():
         def fget(self):
             return self.document.width, self.document.height
         return property(fget=fget)
-    
+
     def search(self, text):
         return self.findText(text)
-    
+
     def path(self):
         return os.path.abspath(unicode(self.url().toLocalFile()))
-    
+
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
-        html = open(path, 'rb').read().decode(path.encoding)
+        html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
         self.setHtml(html, QUrl.fromLocalFile(path))
-        
+
     def load_started(self):
         if self.manager is not None:
             self.manager.load_started()
-            
+
     def initialize_scrollbar(self):
         if getattr(self, 'scrollbar', None) is not None:
             delta = self.document.width - self.size().width()
@@ -387,7 +387,7 @@ class DocumentView(QWebView):
                 self.scrollbar.setPageStep(int(delta/10.))
                 self.scrollbar.blockSignals(False)
             self.scrollbar.setVisible(delta > 0)
-        
+
     def load_finished(self, ok):
         self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
         self.document.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
@@ -409,8 +409,8 @@ class DocumentView(QWebView):
                 self.document.set_reference_prefix('%d.'%(spine_index+1))
             if scrolled:
                 self.manager.scrolled(self.document.scroll_fraction)
-        
-        
+
+
     @classmethod
     def test_line(cls, img, y):
         start = img.pixel(0, y)
@@ -418,7 +418,7 @@ class DocumentView(QWebView):
             if img.pixel(i, y) != start:
                 return False
         return True
-    
+
     def find_next_blank_line(self, overlap):
         img = QImage(self.width(), overlap, QImage.Format_ARGB32)
         painter = QPainter(img)
@@ -428,8 +428,8 @@ class DocumentView(QWebView):
             if self.test_line(img, i):
                 self.scroll_by(y=i, notify=False)
                 return
-        self.scroll_by(y=overlap)                         
-    
+        self.scroll_by(y=overlap)
+
     def previous_page(self):
         if self.document.at_top:
             if self.manager is not None:
@@ -448,12 +448,12 @@ class DocumentView(QWebView):
                     break
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
-            
+
     def wheel_event(self, down=True):
-        QWebView.wheelEvent(self, 
-            QWheelEvent(QPoint(100, 100), (-120 if down else 120), 
+        QWebView.wheelEvent(self,
+            QWheelEvent(QPoint(100, 100), (-120 if down else 120),
                         Qt.NoButton, Qt.NoModifier))
-    
+
     def next_page(self):
         if self.document.at_bottom:
             if self.manager is not None:
@@ -472,14 +472,14 @@ class DocumentView(QWebView):
             self.find_next_blank_line( self.height() - (self.document.ypos-opos) )
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
-        
-            
+
+
     def scroll_by(self, x=0, y=0, notify=True):
         old_pos = self.document.ypos
         self.document.scroll_by(x, y)
         if notify and self.manager is not None and self.document.ypos != old_pos:
             self.manager.scrolled(self.scroll_fraction)
-    
+
     def scroll_to(self, pos, notify=True):
         old_pos = self.document.ypos
         if isinstance(pos, basestring):
@@ -492,30 +492,30 @@ class DocumentView(QWebView):
                         pos*(self.document.height-self.document.window_height))))
         if notify and self.manager is not None and self.document.ypos != old_pos:
             self.manager.scrolled(self.scroll_fraction)
-    
+
     def multiplier(self):
         return self.document.mainFrame().textSizeMultiplier()
-        
+
     def magnify_fonts(self):
         self.document.mainFrame().setTextSizeMultiplier(self.multiplier()+0.2)
         return self.document.scroll_fraction
-    
+
     def shrink_fonts(self):
         self.document.mainFrame().setTextSizeMultiplier(max(self.multiplier()-0.2, 0))
         return self.document.scroll_fraction
-    
+
     def changeEvent(self, event):
         if event.type() == event.EnabledChange:
             self.update()
         return QWebView.changeEvent(self, event)
-    
+
     def paintEvent(self, event):
         painter = QPainter(self)
         self.document.mainFrame().render(painter, event.region())
         if not self.isEnabled():
             painter.fillRect(event.region().boundingRect(), self.DISABLED_BRUSH)
         painter.end()
-        
+
     def wheelEvent(self, event):
         if event.delta() < -14:
             if self.document.at_bottom:
@@ -533,7 +533,7 @@ class DocumentView(QWebView):
         if self.manager is not None:
             self.manager.scrolled(self.scroll_fraction)
         return ret
-    
+
     def keyPressEvent(self, event):
         key = event.key()
         if key in [Qt.Key_PageDown, Qt.Key_Space, Qt.Key_Down]:
@@ -562,14 +562,14 @@ class DocumentView(QWebView):
             self.scroll_by(x=15)
         else:
             return QWebView.keyPressEvent(self, event)
-        
+
     def resizeEvent(self, event):
         ret = QWebView.resizeEvent(self, event)
         QTimer.singleShot(10, self.initialize_scrollbar)
         if self.manager is not None:
             self.manager.viewport_resized(self.scroll_fraction)
         return ret
-    
+
     def mouseReleaseEvent(self, ev):
         opos = self.document.ypos
         ret = QWebView.mouseReleaseEvent(self, ev)
@@ -578,4 +578,4 @@ class DocumentView(QWebView):
             self.manager.scrolled(self.scroll_fraction)
         return ret
 
-    
+
