@@ -35,6 +35,7 @@ def print_info(pdf_path):
         pdf = PdfFileReader(pdf_file)
         print _('Title:                 %s' % pdf.documentInfo.title)
         print _('Author:                %s' % pdf.documentInfo.author)
+        print _('Subject:               %s' % pdf.documentInfo.subject)
         print _('Creator:               %s' % pdf.documentInfo.creator)
         print _('Producer:              %s' % pdf.documentInfo.producer)
         print _('Creation Date:         %s' % time.strftime('%a %b %d %H:%M:%S %Y', time.gmtime(os.path.getctime(pdf_path))))
