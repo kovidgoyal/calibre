@@ -24,7 +24,7 @@ class File(object):
             path = path[:-1]
         self.path = path
         self.name = os.path.basename(path)
-        
+
 
 class PRS505(Device):
     VENDOR_ID    = 0x054c   #: SONY Vendor Id
@@ -33,17 +33,17 @@ class PRS505(Device):
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
-    
+
     MEDIA_XML    = 'database/cache/media.xml'
     CACHE_XML    = 'Sony Reader/database/cache.xml'
-    
+
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
-    
+
     OSX_NAME                  = 'Sony PRS-505'
-    
+
     CARD_PATH_PREFIX          = __appname__
-    
+
     FDI_TEMPLATE = \
 '''
   <device>
@@ -75,11 +75,11 @@ class PRS505(Device):
       </match>
   </device>
 '''.replace('%(app)s', __appname__)
-    
-    
+
+
     def __init__(self, log_packets=False):
         self._main_prefix = self._card_prefix = None
-        
+
     @classmethod
     def get_fdi(cls):
         return cls.FDI_TEMPLATE%dict(
@@ -90,7 +90,7 @@ class PRS505(Device):
                                      main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                      storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                      )
-    
+
     @classmethod
     def is_device(cls, device_id):
         device_id = device_id.upper()
@@ -104,7 +104,7 @@ class PRS505(Device):
                'PID_'+pid in device_id:
             return True
         return False
-    
+
     @classmethod
     def get_osx_mountpoints(cls, raw=None):
         if raw is None:
@@ -112,7 +112,7 @@ class PRS505(Device):
             if not os.access(ioreg, os.X_OK):
                 ioreg = 'ioreg'
             raw = subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
-                                   stdout=subprocess.PIPE).stdout.read()
+                                   stdout=subprocess.PIPE).communicate()[0]
         lines = raw.splitlines()
         names = {}
         for i, line in enumerate(lines):
@@ -130,9 +130,9 @@ class PRS505(Device):
                 break
         return names
 
-    
+
     def open_osx(self):
-        mount = subprocess.Popen('mount', shell=True, 
+        mount = subprocess.Popen('mount', shell=True,
                                  stdout=subprocess.PIPE).stdout.read()
         names = self.get_osx_mountpoints()
         dev_pat = r'/dev/%s(\w*)\s+on\s+([^\(]+)\s+'
@@ -144,12 +144,12 @@ class PRS505(Device):
         if card_pat is not None:
             card_pat = dev_pat%card_pat
             self._card_prefix = re.search(card_pat, mount).group(2) + os.sep
-            
-    
+
+
     def open_windows(self):
         time.sleep(6)
         drives = []
-        wmi = __import__('wmi', globals(), locals(), [], -1) 
+        wmi = __import__('wmi', globals(), locals(), [], -1)
         c = wmi.WMI()
         for drive in c.Win32_DiskDrive():
             if self.__class__.is_device(str(drive.PNPDeviceID)):
@@ -162,22 +162,22 @@ class PRS505(Device):
                     drives.append((drive.Index, prefix))
                 except IndexError:
                     continue
-                
-                
+
+
         if not drives:
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
-        
+
         drives.sort(cmp=lambda a, b: cmp(a[0], b[0]))
         self._main_prefix = drives[0][1]
         if len(drives) > 1:
             self._card_prefix = drives[1][1]
-            
-    
+
+
     def open_linux(self):
         import dbus
-        bus = dbus.SystemBus() 
+        bus = dbus.SystemBus()
         hm  = dbus.Interface(bus.get_object("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager"), "org.freedesktop.Hal.Manager")
-        
+
         def conditional_mount(dev, main_mem=True):
             mmo = bus.get_object("org.freedesktop.Hal", dev)
             label = mmo.GetPropertyString('volume.label', dbus_interface='org.freedesktop.Hal.Device')
@@ -186,11 +186,11 @@ class PRS505(Device):
             fstype = mmo.GetPropertyString('volume.fstype', dbus_interface='org.freedesktop.Hal.Device')
             if is_mounted:
                 return str(mount_point)
-            mmo.Mount(label, fstype, ['umask=077', 'uid='+str(os.getuid()), 'sync'], 
+            mmo.Mount(label, fstype, ['umask=077', 'uid='+str(os.getuid()), 'sync'],
                           dbus_interface='org.freedesktop.Hal.Device.Volume')
             return os.path.normpath('/media/'+label)+'/'
-    
-        
+
+
         mm = hm.FindDeviceStringMatch(__appname__+'.mainvolume', self.__class__.__name__)
         if not mm:
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%(self.__class__.__name__,))
@@ -201,21 +201,21 @@ class PRS505(Device):
                 break
             except dbus.exceptions.DBusException:
                 continue
-            
-            
+
+
         if not self._main_prefix:
             raise DeviceError('Could not open device for reading. Try a reboot.')
-            
+
         self._card_prefix = None
         cards = hm.FindDeviceStringMatch(__appname__+'.cardvolume', self.__class__.__name__)
         keys = []
         for card in cards:
             keys.append(int('UC_SD' in bus.get_object("org.freedesktop.Hal", card).GetPropertyString('info.parent', dbus_interface='org.freedesktop.Hal.Device')))
-            
+
         cards = zip(cards, keys)
         cards.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         cards = [i[0] for i in cards]
-        
+
         for dev in cards:
             try:
                 self._card_prefix = conditional_mount(dev, False)+os.sep
@@ -224,8 +224,8 @@ class PRS505(Device):
                 import traceback
                 print traceback
                 continue
-            
-    
+
+
     def open(self):
         time.sleep(5)
         self._main_prefix = self._card_prefix = None
@@ -262,16 +262,16 @@ class PRS505(Device):
                 self._card_prefix = None
                 import traceback
                 traceback.print_exc()
-            
+
     def set_progress_reporter(self, pr):
         self.report_progress = pr
-        
+
     def get_device_information(self, end_session=True):
         return (self.__class__.__name__, '', '', '')
-    
+
     def card_prefix(self, end_session=True):
         return self._card_prefix
-    
+
     @classmethod
     def _windows_space(cls, prefix):
         if prefix is None:
@@ -288,7 +288,7 @@ class PRS505(Device):
             else: raise
         mult = sectors_per_cluster * bytes_per_sector
         return total_clusters * mult, free_clusters * mult
-    
+
     def total_space(self, end_session=True):
         msz = csz = 0
         if not iswindows:
@@ -301,9 +301,9 @@ class PRS505(Device):
         else:
             msz = self._windows_space(self._main_prefix)[0]
             csz = self._windows_space(self._card_prefix)[0]
-                
+
         return (msz, 0, csz)
-    
+
     def free_space(self, end_session=True):
         msz = csz = 0
         if not iswindows:
@@ -316,9 +316,9 @@ class PRS505(Device):
         else:
             msz = self._windows_space(self._main_prefix)[1]
             csz = self._windows_space(self._card_prefix)[1]
-                
+
         return (msz, 0, csz)
-                
+
     def books(self, oncard=False, end_session=True):
         if oncard and self._card_prefix is None:
             return []
@@ -331,7 +331,7 @@ class PRS505(Device):
             if os.path.exists(path):
                 os.unlink(path)
         return bl
-    
+
     def munge_path(self, path):
         if path.startswith('/') and not (path.startswith(self._main_prefix) or \
             (self._card_prefix and path.startswith(self._card_prefix))):
@@ -339,12 +339,12 @@ class PRS505(Device):
         elif path.startswith('card:'):
             path = path.replace('card:', self._card_prefix[:-1])
         return path
-            
+
     def mkdir(self, path, end_session=True):
         """ Make directory """
         path = self.munge_path(path)
         os.mkdir(path)
-        
+
     def list(self, path, recurse=False, end_session=True, munge=True):
         if munge:
             path = self.munge_path(path)
@@ -356,12 +356,12 @@ class PRS505(Device):
             if recurse and _file.is_dir:
                 dirs[len(dirs):] = self.list(_file.path, recurse=True, munge=False)
         return dirs
-    
+
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)
         src = open(path, 'rb')
         shutil.copyfileobj(src, outfile, 10*1024*1024)
-                 
+
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
         if os.path.isdir(path):
@@ -372,25 +372,25 @@ class PRS505(Device):
         shutil.copyfileobj(infile, dest, 10*1024*1024)
         dest.flush()
         dest.close()
-        
+
     def rm(self, path, end_session=True):
         path = self.munge_path(path)
         os.unlink(path)
-        
+
     def touch(self, path, end_session=True):
         path = self.munge_path(path)
         if not os.path.exists(path):
             open(path, 'w').close()
         if not os.path.isdir(path):
             os.utime(path, None)
-            
-    def upload_books(self, files, names, on_card=False, end_session=True, 
+
+    def upload_books(self, files, names, on_card=False, end_session=True,
                      metadata=None):
         if on_card and not self._card_prefix:
             raise ValueError(_('The reader has no storage card connected.'))
         path = os.path.join(self._card_prefix, self.CARD_PATH_PREFIX) if on_card \
                else os.path.join(self._main_prefix, 'database', 'media', 'books')
-               
+
         def get_size(obj):
             if hasattr(obj, 'seek'):
                 obj.seek(0, 2)
@@ -398,27 +398,27 @@ class PRS505(Device):
                 obj.seek(0)
                 return size
             return os.path.getsize(obj)
-        
+
         sizes = map(get_size, files)
         size = sum(sizes)
         space = self.free_space()
         mspace = space[0]
         cspace = space[2]
-        if on_card and size > cspace - 1024*1024: 
+        if on_card and size > cspace - 1024*1024:
             raise FreeSpaceError("There is insufficient free space "+\
                                           "on the storage card")
-        if not on_card and size > mspace - 2*1024*1024: 
+        if not on_card and size > mspace - 2*1024*1024:
             raise FreeSpaceError("There is insufficient free space " +\
                                          "in main memory")
-            
+
         paths, ctimes = [], []
-        
+
         names = iter(names)
         for infile in files:
             close = False
             if not hasattr(infile, 'read'):
                 infile, close = open(infile, 'rb'), True
-            infile.seek(0)            
+            infile.seek(0)
             name = names.next()
             paths.append(os.path.join(path, name))
             if not os.path.exists(os.path.dirname(paths[-1])):
@@ -428,7 +428,7 @@ class PRS505(Device):
                 infile.close()
             ctimes.append(os.path.getctime(paths[-1]))
         return zip(paths, sizes, ctimes, cycle([on_card]))
-    
+
     @classmethod
     def add_books_to_metadata(cls, locations, metadata, booklists):
         metadata = iter(metadata)
@@ -441,12 +441,12 @@ class PRS505(Device):
             name = name.replace('//', '/')
             booklists[on_card].add_book(info, name, *location[1:-1])
         fix_ids(*booklists)
-        
+
     def delete_books(self, paths, end_session=True):
         for path in paths:
             if os.path.exists(path):
                 os.unlink(path)
-            
+
     @classmethod
     def remove_books_from_metadata(cls, paths, booklists):
         for path in paths:
@@ -454,7 +454,7 @@ class PRS505(Device):
                 if hasattr(bl, 'remove_book'):
                     bl.remove_book(path)
         fix_ids(*booklists)
-        
+
     def sync_booklists(self, booklists, end_session=True):
         fix_ids(*booklists)
         if not os.path.exists(self._main_prefix):
@@ -468,9 +468,9 @@ class PRS505(Device):
             f = open(self._card_prefix + self.__class__.CACHE_XML, 'wb')
             booklists[1].write(f)
             f.close()
-            
-    
-     
+
+
+
 
 def main(args=sys.argv):
     return 0

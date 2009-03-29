@@ -79,7 +79,7 @@ class FormatState(object):
 class MobiMLizer(object):
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables
-    
+
     @classmethod
     def config(cls, cfg):
         group = cfg.add_group('mobiml', _('Mobipocket markup options.'))
@@ -92,7 +92,7 @@ class MobiMLizer(object):
     @classmethod
     def generate(cls, opts):
         return cls(ignore_tables=opts.ignore_tables)
-    
+
     def __call__(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
@@ -111,10 +111,10 @@ class MobiMLizer(object):
         del oeb.guide['cover']
         item = oeb.manifest.hrefs[href]
         if item.spine_position is not None:
-            oeb.spine.remove(item)                
+            oeb.spine.remove(item)
             if item.media_type in OEB_DOCS:
                 self.oeb.manifest.remove(item)
-    
+
     def mobimlize_spine(self):
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.profile)
@@ -147,7 +147,7 @@ class MobiMLizer(object):
             if line:
                 result.append(line)
         return result
-    
+
     def mobimlize_content(self, tag, text, bstate, istates):
         if text or tag != 'br':
             bstate.content = True
@@ -252,7 +252,7 @@ class MobiMLizer(object):
                     last.tail = (last.tail or '') + item
             else:
                 inline.append(item)
-    
+
     def mobimlize_elem(self, elem, stylizer, bstate, istates):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:

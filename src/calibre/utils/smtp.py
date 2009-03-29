@@ -45,15 +45,17 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 
     return outer.as_string()
 
-def get_mx(host):
+def get_mx(host, verbose=0):
     import dns.resolver
+    if verbose:
+        print 'Find mail exchanger for', host
     answers = list(dns.resolver.query(host, 'MX'))
     answers.sort(cmp=lambda x, y: cmp(int(x.preference), int(y.preference)))
     return [str(x.exchange) for x in answers]
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose):
     import smtplib
-    hosts = get_mx(to.split('@')[-1].strip())
+    hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None # Non blocking sockets sometimes don't work
     s = smtplib.SMTP(timeout=timeout, local_hostname=localhost)
     s.set_debuglevel(verbose)

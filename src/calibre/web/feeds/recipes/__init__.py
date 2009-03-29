@@ -37,6 +37,7 @@ recipe_modules = ['recipe_' + r for r in (
            'new_york_review_of_books_no_sub', 'politico', 'adventuregamers',
            'mondedurable', 'instapaper', 'dnevnik_cro', 'vecernji_list',
            'nacional_cro', '24sata', 'dnevni_avaz', 'glas_srpske', '24sata_rs',
+           'krstarica', 'krstarica_en', 'tanjug',
           )]
 
 import re, imp, inspect, time, os
