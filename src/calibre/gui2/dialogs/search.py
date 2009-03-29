@@ -33,7 +33,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         if all:
             ans += (' and ' if ans else '') + all
         if none:
-            ans += (' and not ' if ans else 'not') + none
+            ans += (' and not ' if ans else 'not ') + none
         if any:
             ans += (' or ' if ans else '') + any
         return ans
