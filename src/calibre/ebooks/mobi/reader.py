@@ -51,6 +51,12 @@ class EXTHHeader(object):
                     self.cover_offset = co
             elif id == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
+            elif id == 501:
+                # cdetype
+                pass
+            elif id == 502:
+                # last update time
+                pass
             elif id == 503 and (not title or title == _('Unknown')):
                 title = content
             #else:
@@ -79,8 +85,8 @@ class EXTHHeader(object):
                         content, '%Y-%m-%d',).date()
             except:
                 pass
-        else:
-            print 'unhandled metadata record', id, repr(content)
+        #else:
+        #    print 'unhandled metadata record', id, repr(content)
 
 
 class BookHeader(object):
