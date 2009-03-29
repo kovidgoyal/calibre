@@ -33,16 +33,16 @@ def config(defaults=None):
     return c
 
 
-def option_parser():
+def option_parser(name):
     c = config()
     return c.option_parser(usage=_('''\
-	%prog [options] file.pdf
+	%prog %%name [options] file.pdf
 
 	Crops a pdf. 
-	'''))
+	'''.replace('%%name', name)))
 
-def main(args=sys.argv):
-    parser = option_parser()
+def main(args=sys.argv, name=''):
+    parser = option_parser(name)
     opts, args = parser.parse_args(args)
     try:
         source = os.path.abspath(args[1])

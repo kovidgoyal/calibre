@@ -17,9 +17,8 @@ from pyPdf import PdfFileWriter, PdfFileReader
 
 def config(defaults=None):
     desc = _('Options to control the transformation of pdf')
-    default_crop=10
     if defaults is None:
-        c = Config('trimpdf', desc)
+        c = Config('mergepdf', desc)
     else:
         c = StringConfig(defaults, desc)
     c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
@@ -28,13 +27,13 @@ def config(defaults=None):
           help=_('Path to output file. By default a file is created in the current directory.'))
     return c
 
-def option_parser():
+def option_parser(name):
     c = config()
     return c.option_parser(usage=_('''\
-	%prog [options] file1.pdf file2.pdf ...
+	%prog %%name [options] file1.pdf file2.pdf ...
 
 	Merges individual PDFs. Metadata will be used from the first PDF specified.
-	'''))
+	'''.replace('%%name', name)))
 
 def merge_files(in_paths, out_path, metadata=None):
     if metadata == None:
@@ -67,8 +66,8 @@ def verify_files(files):
             invalid.append(pdf_path)
     return invalid
 
-def main(args=sys.argv):
-    parser = option_parser()
+def main(args=sys.argv, name=''):
+    parser = option_parser(name)
     opts, args = parser.parse_args(args)
     args = args[1:]
     

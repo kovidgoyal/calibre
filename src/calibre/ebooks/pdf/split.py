@@ -17,9 +17,8 @@ from pyPdf import PdfFileWriter, PdfFileReader
 
 def config(defaults=None):
     desc = _('Options to control the transformation of pdf')
-    default_crop=10
     if defaults is None:
-        c = Config('trimpdf', desc)
+        c = Config('splitpdf', desc)
     else:
         c = StringConfig(defaults, desc)
     c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
@@ -29,21 +28,21 @@ def config(defaults=None):
             The file name will be the base name for the output.'))
     return c
 
-def option_parser():
+def option_parser(name):
     c = config()
     return c.option_parser(usage=_('''\
     
-	%prog [options] file.pdf page_to_split_on ...
-	%prog [options] file.pdf page_range_to_split_on ...
+	%prog %%name [options] file.pdf page_to_split_on ...
+	%prog %%name [options] file.pdf page_range_to_split_on ...
 	
 	Ex.
 	
-	%prog file.pdf 6
-	%prog file.pdf 6-12
-	%prog file.pdf 6-12 8 10 9-20
+	%prog %%name file.pdf 6
+	%prog %%name file.pdf 6-12
+	%prog %%name file.pdf 6-12 8 10 9-20
 
 	Split a PDF.
-	'''))
+	'''.replace('%%name', name)))
 
 def split_pdf(in_path, pages, page_ranges, out_name, metadata=None):
     pdf = PdfFileReader(open(os.path.abspath(in_path), 'rb'))
@@ -155,8 +154,8 @@ def valid_pdf(pdf_path):
         return False
     return True
 
-def main(args=sys.argv):
-    parser = option_parser()
+def main(args=sys.argv, name=''):
+    parser = option_parser(name)
     opts, args = parser.parse_args(args)
     
     pdf, pages, page_ranges, unknown = split_args(args[1:])
