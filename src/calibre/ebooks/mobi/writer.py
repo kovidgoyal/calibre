@@ -211,13 +211,14 @@ class Serializer(object):
 
     def serialize_item(self, item):
         buffer = self.buffer
-        buffer.write('<mbp:section>')
+        #buffer.write('<mbp:section>')
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
         self.id_offsets[item.href] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
-        buffer.write('</mbp:section></mbp:pagebreak>')
+        #buffer.write('</mbp:section>')
+        buffer.write('</mbp:pagebreak>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer

@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import sys, struct, os, cStringIO, re, functools
+import sys, struct, os, cStringIO, re, functools, datetime
 
 try:
     from PIL import Image as PILImage
@@ -73,8 +73,14 @@ class EXTHHeader(object):
             if not self.mi.tags:
                 self.mi.tags = []
             self.mi.tags.append(content.decode(codec, 'ignore'))
-        #else:
-        #    print 'unhandled metadata record', id, repr(content), codec
+        elif id == 106:
+            try:
+                self.mi.publish_date = datetime.datetime.strptime(
+                        content, '%Y-%m-%d',).date()
+            except:
+                pass
+        else:
+            print 'unhandled metadata record', id, repr(content)
 
 
 class BookHeader(object):
@@ -305,8 +311,8 @@ class MobiReader(object):
         mobi_version = self.book_header.mobi_version
         for tag in root.iter(etree.Element):
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                           'state', 'city', 'street', 'address'):
-                tag.tag = 'span'
+                           'state', 'city', 'street', 'address', 'content'):
+                tag.tag = 'div' if tag.tag == 'content' else 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
                 continue
