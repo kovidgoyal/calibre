@@ -16,8 +16,6 @@ def config(defaults=None):
         c = Config('trimpdf', desc)
     else:
         c = StringConfig(defaults, desc)
-    c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
-          help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
     c.add_opt('output', ['-o', '--output'],default='cropped.pdf',
           help=_('Path to output file. By default a file is created in the current directory.'))
     c.add_opt('bottom_left_x', [ '-x', '--leftx'], default=default_crop,

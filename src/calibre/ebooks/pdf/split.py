@@ -21,8 +21,6 @@ def config(defaults=None):
         c = Config('splitpdf', desc)
     else:
         c = StringConfig(defaults, desc)
-    c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
-          help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
     c.add_opt('output', ['-o', '--output'], default='split.pdf',
           help=_('Path to output file. By default a file is created in the current directory. \
             The file name will be the base name for the output.'))

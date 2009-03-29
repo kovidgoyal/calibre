@@ -21,7 +21,7 @@ COMMANDS = {
 def config(defaults=None):
     desc = _('Options to control the transformation of pdf')
     if defaults is None:
-        c = Config('trimpdf', desc)
+        c = Config('manipulatepdf', desc)
     else:
         c = StringConfig(defaults, desc)
     return c
