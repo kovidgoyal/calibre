@@ -41,6 +41,7 @@ entry_points = {
              'calibre-customize  = calibre.customize.ui:main',
              'pdftrim            = calibre.ebooks.pdf.pdftrim:main',
              'pdfmerge           = calibre.ebooks.pdf.pdfmerge:main',
+             'pdfsplit           = calibre.ebooks.pdf.pdfsplit:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
         ],
         'gui_scripts'    : [

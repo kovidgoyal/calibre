@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, re
+import os, sys
 
 from calibre.ebooks.metadata.meta import metadata_from_formats
 from calibre.ebooks.metadata import authors_to_string
@@ -24,7 +24,7 @@ def config(defaults=None):
         c = StringConfig(defaults, desc)
     c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
           help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
-    c.add_opt('output', ['-o', '--output'],default='merged.pdf',
+    c.add_opt('output', ['-o', '--output'], default='merged.pdf',
           help=_('Path to output file. By default a file is created in the current directory.'))
     return c
 
@@ -33,7 +33,7 @@ def option_parser():
     return c.option_parser(usage=_('''\
 	%prog [options] file1.pdf file2.pdf ...
 
-	Merges individual pdfs. Metadata will be used from the first PDF specified.
+	Merges individual PDFs. Metadata will be used from the first PDF specified.
 	'''))
 
 def merge_files(in_paths, out_path, metadata=None):
