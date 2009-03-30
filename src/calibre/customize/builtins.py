@@ -159,6 +159,16 @@ class ODTMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.odt import get_metadata
         return get_metadata(stream)
+        
+class TXTMetadataReader(MetaReaderPlugin):
+    
+    name        = 'Read TXT metadata'
+    file_types  = set(['txt'])
+    description = _('Read metadata from %s files') % 'TXT'
+    
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.txt import get_metadata
+        return get_metadata(stream)
 
 class LRXMetadataReader(MetadataReaderPlugin):
     
