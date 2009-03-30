@@ -201,6 +201,9 @@ def urlnormalize(href):
 class OEBError(Exception):
     pass
 
+class NotHTML(OEBError):
+    pass
+
 
 class FauxLogger(object):
     def __getattr__(self, name):
@@ -538,7 +541,7 @@ class Manifest(object):
                         data = etree.fromstring(data, parser=RECOVER_PARSER)
             # Force into the XHTML namespace
             if barename(data.tag) != 'html':
-                raise OEBError(
+                raise NotHTML(
                     'File %r does not appear to be (X)HTML' % self.href)
             elif not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS

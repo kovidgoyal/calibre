@@ -508,10 +508,7 @@ class OPF(object):
                     toc.partition('#')[0], toc.partition('#')[-1]
                 self.toc.read_html_toc(toc)
         except:
-            raise
             pass
-
-
 
     def get_text(self, elem):
         return u''.join(self.CONTENT(elem) or self.TEXT(elem))
