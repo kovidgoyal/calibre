@@ -8,6 +8,7 @@ import os
 from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import input_profiles, output_profiles, \
         plugin_for_input_format, plugin_for_output_format
+from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 
 class OptionValues(object):
     pass
@@ -258,16 +259,17 @@ OptionRecommendation(name='language',
         # heavy lifting.
         from calibre.ebooks.oeb.reader import OEBReader
         from calibre.ebooks.oeb.base import OEBBook
-        parse_cache, accelerators = {}, {}
+        accelerators = {}
 
         opfpath = self.input_plugin(open(self.input, 'rb'), self.opts,
-                                    self.input_fmt, parse_cache, self.log,
+                                    self.input_fmt, self.log,
                                     accelerators)
-
+        html_preprocessor = HTMLPreProcessor()
         self.reader = OEBReader()
-        self.oeb = OEBBook(self.log, parse_cache=parse_cache)
+        self.oeb = OEBBook(self.log, html_preprocessor=html_preprocessor)
         # Read OEB Book into OEBBook
         self.reader(self.oeb, opfpath)
+
 
 
 

@@ -20,6 +20,8 @@ from cssutils import CSSParser
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
+from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, \
+        CSSPreProcessor
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -205,6 +207,10 @@ def urlnormalize(href):
 
 class OEBError(Exception):
     """Generic OEB-processing error."""
+    pass
+
+class NotHTML(OEBError):
+    '''Raised when a file that should be HTML (as per manifest) is not'''
     pass
 
 class NullContainer(object):
@@ -575,14 +581,7 @@ class Manifest(object):
         def _parse_xhtml(self, data):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
-            data = XMLDECL_RE.sub('', data)
-            # Handle broken XHTML w/ SVG (ugh)
-            if 'svg:' in data and SVG_NS not in data:
-                data = data.replace(
-                    '<html', '<html xmlns:svg="%s"' % SVG_NS, 1)
-            if 'xlink:' in data and XLINK_NS not in data:
-                data = data.replace(
-                    '<html', '<html xmlns:xlink="%s"' % XLINK_NS, 1)
+            data = self.oeb.html_preprocessor(data)
             # Try with more & more drastic measures to parse
             try:
                 data = etree.fromstring(data)
@@ -606,7 +605,7 @@ class Manifest(object):
                         data = etree.fromstring(data, parser=RECOVER_PARSER)
             # Force into the XHTML namespace
             if barename(data.tag) != 'html':
-                raise OEBError(
+                raise NotHTML(
                     'File %r does not appear to be (X)HTML' % self.href)
             elif not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
@@ -659,6 +658,7 @@ class Manifest(object):
 
         def _parse_css(self, data):
             data = self.oeb.decode(data)
+            data = self.CSSPreProcessor(data)
             data = XHTML_CSS_NAMESPACE + data
             parser = CSSParser(log=self.oeb.logger, loglevel=logging.WARNING,
                                fetcher=self._fetch_css)
@@ -793,7 +793,7 @@ class Manifest(object):
         MIME type which is not one of the OPS core media types.  Either the
         item's data itself may be provided with :param:`data`, or a loader
         function for the data may be provided with :param:`loader`, or the
-        item's data may latter be set manually via the :attr:`data` attribute.
+        item's data may later be set manually via the :attr:`data` attribute.
         """
         item = self.Item(
             self.oeb, id, href, media_type, fallback, loader, data)
@@ -839,6 +839,9 @@ class Manifest(object):
     def __iter__(self):
         for item in self.items:
             yield item
+
+    def __len__(self):
+        return len(self.items)
 
     def values(self):
         return list(self.items)
@@ -1255,17 +1258,22 @@ class OEBBook(object):
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
-    def __init__(self, logger, parse_cache={}, encoding='utf-8',
-                 pretty_print=False):
-        """Create empty book.  Optional arguments:
+    def __init__(self, logger,
+            html_preprocessor=HTMLPreProcessor(),
+            css_preprocessor=CSSPreProcessor(),
+            encoding='utf-8', pretty_print=False):
+        """Create empty book.  Arguments:
 
-        :param parse_cache: A cache of parsed XHTML/CSS. Keys are absolute
-            paths to the cached files and values are lxml root objects and
-            cssutils stylesheets.
         :param:`encoding`: Default encoding for textual content read
             from an external container.
         :param:`pretty_print`: Whether or not the canonical string form
             of XML markup is pretty-printed.
+        :param html_preprocessor: A callable that takes a unicode object
+            and returns a unicode object. Will be called on all html files
+            before they are parsed.
+        :param css_preprocessor: A callable that takes a unicode object
+            and returns a unicode object. Will be called on all CSS files
+            before they are parsed.
         :param:`logger`: A Log object to use for logging all messages
             related to the processing of this book.  It is accessible
             via the instance data members :attr:`logger,log`.
@@ -1286,6 +1294,8 @@ class OEBBook(object):
         """
 
         self.encoding = encoding
+        self.html_preprocessor = html_preprocessor
+        self.css_preprocessor = css_preprocessor
         self.pretty_print = pretty_print
         self.logger = self.log = logger
         self.version = '2.0'

@@ -4,8 +4,6 @@ Defines the plugin system for conversions.
 '''
 import re, os, shutil
 
-from lxml import html
-
 from calibre import CurrentDir
 from calibre.customize import Plugin
 
@@ -121,7 +119,7 @@ class InputFormatPlugin(Plugin):
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set([])
 
-    def convert(self, stream, options, file_ext, parse_cache, log, accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         '''
         This method must be implemented in sub-classes. It must return
         the path to the created OPF file. All output should be contained in
@@ -144,17 +142,6 @@ class InputFormatPlugin(Plugin):
                          is guaranteed to be one of the `file_types` supported
                          by this plugin.
 
-        :param parse_cache:    A dictionary that maps absolute file paths to
-                               parsed representations of their contents. For
-                               HTML the representation is an lxml element of
-                               the root of the tree. For CSS it is a cssutils
-                               stylesheet. If this plugin parses any of the
-                               output files, it should add them to the cache
-                               so that later stages of the conversion wont
-                               have to re-parse them. If a parsed representation
-                               is in the cache, there is no need to actually
-                               write the file to disk.
-
         :param log: A :class:`calibre.utils.logging.Log` object. All output
                     should use this object.
 
@@ -165,7 +152,7 @@ class InputFormatPlugin(Plugin):
         '''
         raise NotImplementedError
 
-    def __call__(self, stream, options, file_ext, parse_cache, log,
+    def __call__(self, stream, options, file_ext, log,
                  accelerators, output_dir):
         log('InputFormatPlugin: %s running'%self.name, end=' ')
         if hasattr(stream, 'name'):
@@ -176,32 +163,14 @@ class InputFormatPlugin(Plugin):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
 
 
-            ret = self.convert(stream, options, file_ext, parse_cache,
+            ret = self.convert(stream, options, file_ext,
                                log, accelerators)
-            for key in list(parse_cache.keys()):
-                if os.path.abspath(key) != key:
-                    log.warn(('InputFormatPlugin: %s returned a '
-                             'relative path: %s')%(self.name, key)
-                             )
-                    parse_cache[os.path.abspath(key)] = parse_cache.pop(key)
-
         if options.debug_input is not None:
             options.debug_input = os.path.abspath(options.debug_input)
             if not os.path.exists(options.debug_input):
                 os.makedirs(options.debug_input)
             shutil.rmtree(options.debug_input)
-            for f, obj in parse_cache.items():
-                if hasattr(obj, 'cssText'):
-                    raw = obj.cssText
-                else:
-                    raw = html.tostring(obj, encoding='utf-8', method='xml',
-                         include_meta_content_type=True, pretty_print=True)
-                if isinstance(raw, unicode):
-                    raw = raw.encode('utf-8')
-                open(f, 'wb').write(raw)
             shutil.copytree('.', options.debug_input)
-
-
 
         return ret
 

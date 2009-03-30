@@ -32,13 +32,13 @@ __all__ = ['OEBReader']
 
 class OEBReader(object):
     """Read an OEBPS 1.x or OPF/OPS 2.0 file collection."""
-    
+
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
     Container = DirContainer
     """Container type used to access book files.  Override in sub-classes."""
-    
+
     DEFAULT_PROFILE = 'PRS505'
     """Default renderer profile for content read with this Reader."""
 
@@ -67,7 +67,7 @@ class OEBReader(object):
         opf = self._read_opf()
         self._all_from_opf(opf)
         return oeb
-    
+
     def _clean_opf(self, opf):
         nsmap = {}
         for elem in opf.iter(tag=etree.Element):
@@ -94,7 +94,7 @@ class OEBReader(object):
             for element in xpath(opf, tag):
                 nroot.append(element)
         return nroot
-    
+
     def _read_opf(self):
         data = self.oeb.container.read(None)
         data = self.oeb.decode(data)
@@ -111,7 +111,7 @@ class OEBReader(object):
             raise OEBError('Invalid namespace %r for OPF document' % ns)
         opf = self._clean_opf(opf)
         return opf
-    
+
     def _metadata_from_opf(self, opf):
         uid = opf.get('unique-identifier', None)
         self.oeb.uid = None
@@ -161,10 +161,30 @@ class OEBReader(object):
             self.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
 
-    def _manifest_add_missing(self):
+    def _manifest_prune_invalid(self):
+        '''
+        Remove items from manifest that contain invalid data. This prevents
+        catastrophic conversion failure, when a few files contain corrupted
+        data.
+        '''
+        bad = []
+        check = OEB_DOCS+OEB_STYLES
+        for item in list(self.oeb.manifest.values()):
+            if item.media_type in check:
+                try:
+                    item.data
+                except:
+                    self.logger.exception('Failed to parse content in %s'%
+                            item.href)
+                    bad.append(item)
+                    self.oeb.manifest.remove(item)
+        return bad
+
+    def _manifest_add_missing(self, invalid):
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())
+        bad = []
         while unchecked:
             new = set()
             for item in unchecked:
@@ -190,6 +210,13 @@ class OEBReader(object):
             unchecked.clear()
             for href in new:
                 known.add(href)
+                is_invalid = False
+                for item in invalid:
+                    if href == item.abshref(urlnormalize(href)):
+                        is_invalid = True
+                        break
+                if is_invalid:
+                    continue
                 if not self.oeb.container.exists(href):
                     self.logger.warn('Referenced file %r not found' % href)
                     continue
@@ -199,7 +226,7 @@ class OEBReader(object):
                 media_type = guessed or BINARY_MIME
                 added = manifest.add(id, href, media_type)
                 unchecked.add(added)
-    
+
     def _manifest_from_opf(self, opf):
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
@@ -222,8 +249,9 @@ class OEBReader(object):
                 self.logger.warn(u'Duplicate manifest id %r' % id)
                 id, href = manifest.generate(id, href)
             manifest.add(id, href, media_type, fallback)
-        self._manifest_add_missing()
-    
+        invalid = self._manifest_prune_invalid()
+        self._manifest_add_missing(invalid)
+
     def _spine_add_extra(self):
         manifest = self.oeb.manifest
         spine = self.oeb.spine
@@ -256,7 +284,7 @@ class OEBReader(object):
                 self.logger.warn(
                     'Spine-referenced file %r not in spine' % item.href)
             spine.add(item, linear=False)
-    
+
     def _spine_from_opf(self, opf):
         spine = self.oeb.spine
         manifest = self.oeb.manifest
@@ -270,7 +298,7 @@ class OEBReader(object):
         if len(spine) == 0:
             raise OEBError("Spine is empty")
         self._spine_add_extra()
-    
+
     def _guide_from_opf(self, opf):
         guide = self.oeb.guide
         manifest = self.oeb.manifest
@@ -281,7 +309,7 @@ class OEBReader(object):
                 self.logger.warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
-    
+
     def _find_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')
         if result:
@@ -294,9 +322,9 @@ class OEBReader(object):
         for item in self.oeb.manifest.values():
             if item.media_type == NCX_MIME:
                 self.oeb.manifest.remove(item)
-                return item                
+                return item
         return None
-    
+
     def _toc_from_navpoint(self, item, toc, navpoint):
         children = xpath(navpoint, 'ncx:navPoint')
         for child in children:
@@ -314,7 +342,7 @@ class OEBReader(object):
             klass = child.get('class')
             node = toc.add(title, href, id=id, klass=klass)
             self._toc_from_navpoint(item, node, child)
-    
+
     def _toc_from_ncx(self, item):
         if item is None:
             return False
@@ -328,7 +356,7 @@ class OEBReader(object):
         for navmap in navmaps:
             self._toc_from_navpoint(item, toc, navmap)
         return True
-    
+
     def _toc_from_tour(self, opf):
         result = xpath(opf, 'o2:tours/o2:tour')
         if not result:
@@ -345,11 +373,11 @@ class OEBReader(object):
             path, _ = urldefrag(urlnormalize(href))
             if path not in self.oeb.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
-                continue            
+                continue
             id = site.get('id')
             toc.add(title, href, id=id)
         return True
-    
+
     def _toc_from_html(self, opf):
         if 'toc' not in self.oeb.guide:
             return False
@@ -381,7 +409,7 @@ class OEBReader(object):
         for href in order:
             toc.add(' '.join(titles[href]), href)
         return True
-    
+
     def _toc_from_spine(self, opf):
         toc = self.oeb.toc
         titles = []
@@ -408,14 +436,14 @@ class OEBReader(object):
             if not item.linear: continue
             toc.add(title, item.href)
         return True
-    
+
     def _toc_from_opf(self, opf, item):
         if self._toc_from_ncx(item): return
         if self._toc_from_tour(opf): return
         self.logger.warn('No metadata table of contents found')
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
-    
+
     def _pages_from_ncx(self, opf, item):
         if item is None:
             return False
@@ -436,7 +464,7 @@ class OEBReader(object):
             klass = ptarget.get('class')
             pages.add(name, href, type=type, id=id, klass=klass)
         return True
-    
+
     def _find_page_map(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@page-map')
         if result:
@@ -451,7 +479,7 @@ class OEBReader(object):
                 self.oeb.manifest.remove(item)
                 return item
         return None
-    
+
     def _pages_from_page_map(self, opf):
         item = self._find_page_map(opf)
         if item is None:
@@ -472,12 +500,12 @@ class OEBReader(object):
                 type = 'front'
             pages.add(name, href, type=type)
         return True
-    
+
     def _pages_from_opf(self, opf, item):
         if self._pages_from_ncx(opf, item): return
         if self._pages_from_page_map(opf): return
         return
-    
+
     def _cover_from_html(self, hcover):
         with TemporaryDirectory('_html_cover') as tdir:
             writer = OEBWriter()
@@ -488,7 +516,7 @@ class OEBReader(object):
         id, href = self.oeb.manifest.generate('cover', 'cover.jpeg')
         item = self.oeb.manifest.add(id, href, JPEG_MIME, data=data)
         return item
-        
+
     def _locate_cover_image(self):
         if self.oeb.metadata.cover:
             id = str(self.oeb.metadata.cover[0])
@@ -525,14 +553,14 @@ class OEBReader(object):
             if item is not None and item.media_type in OEB_IMAGES:
                 return item
         return self._cover_from_html(hcover)
-        
+
     def _ensure_cover_image(self):
         cover = self._locate_cover_image()
         if self.oeb.metadata.cover:
             self.oeb.metadata.cover[0].value = cover.id
             return
         self.oeb.metadata.add('cover', cover.id)
-    
+
     def _all_from_opf(self, opf):
         self.oeb.version = opf.get('version', '1.2')
         self._metadata_from_opf(opf)
@@ -543,7 +571,7 @@ class OEBReader(object):
         self._toc_from_opf(opf, item)
         self._pages_from_opf(opf, item)
         self._ensure_cover_image()
-    
+
 
 def main(argv=sys.argv):
     reader = OEBReader()

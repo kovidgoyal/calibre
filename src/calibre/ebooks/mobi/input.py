@@ -6,25 +6,28 @@ __docformat__ = 'restructuredtext en'
 from calibre.customize.conversion import InputFormatPlugin
 
 class MOBIInput(InputFormatPlugin):
-    
+
     name        = 'MOBI Input'
     author      = 'Kovid Goyal'
     description = 'Convert MOBI files (.mobi, .prc, .azw) to HTML'
     file_types  = set(['mobi', 'prc', 'azw'])
-    
-    def convert(self, stream, options, file_ext, parse_cache, log, 
+
+    def convert(self, stream, options, file_ext, log,
                 accelerators):
         from calibre.ebooks.mobi.reader import MobiReader
-        mr = MobiReader(stream, log, options.input_encoding, 
+        from lxml import html
+        mr = MobiReader(stream, log, options.input_encoding,
                         options.debug_input)
+        parse_cache = {}
         mr.extract_content('.', parse_cache)
-        raw = parse_cache.get('calibre_raw_mobi_markup', False)
+        raw = parse_cache.pop('calibre_raw_mobi_markup', False)
         if raw:
             if isinstance(raw, unicode):
                 raw = raw.encode('utf-8')
             open('debug-raw.html', 'wb').write(raw)
         for f, root in parse_cache.items():
-            if '.' in f:
-                accelerators[f] = {'pagebreaks':root.xpath(
-                                            '//div[@class="mbp_pagebreak"]')}
+            with open(f, 'wb') as q:
+                q.write(html.tostring(root, encoding='utf-8', method='xml',
+                    include_meta_content_type=False))
+            accelerators['pagebreaks'] = {f: '//div[@class="mbp_pagebreak"]'}
         return mr.created_opf_path
