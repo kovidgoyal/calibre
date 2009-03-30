@@ -226,7 +226,11 @@ class ResultCache(SearchQueryParser):
         Returns a list of affected rows or None if the rows are filtered.
         '''
         for id in ids:
-            self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
+            try:
+                self._data[id] = conn.get('SELECT * from meta WHERE id=?',
+                        (id,))[0]
+            except IndexError:
+                return None
         try:
             return map(self.row, ids)
         except ValueError:
@@ -269,7 +273,7 @@ class ResultCache(SearchQueryParser):
             ans = cmp(self._data[x][9], self._data[y][9])
         if ans != 0: return ans
         return cmp(self._data[x][10], self._data[y][10])
-    
+
     def cmp(self, loc, x, y, str=True, subsort=False):
         try:
             ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if str else\
@@ -279,7 +283,7 @@ class ResultCache(SearchQueryParser):
         if subsort and ans == 0:
             return cmp(self._data[x][11].lower(), self._data[y][11].lower())
         return ans
-    
+
     def sort(self, field, ascending, subsort=False):
         field = field.lower().strip()
         if field in ('author', 'tag', 'comment'):
@@ -733,7 +737,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
-        
+
     def delete_book(self, id, notify=True):
         '''
         Removes book from the result cache and the underlying database.
@@ -751,7 +755,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_deleted([id])
         if notify:
             self.notify('delete', [id])
-    
+
     def remove_format(self, index, format, index_is_id=False, notify=True):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, *self.path(id, index_is_id=True).split(os.sep))
@@ -925,14 +929,14 @@ class LibraryDatabase2(LibraryDatabase):
                                    (id, aid))
             except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
-        ss = authors_to_sort_string(authors)    
+        ss = authors_to_sort_string(authors)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
         self.conn.commit()
         self.data.set(id, FIELD_MAP['authors'],
-                      ','.join([a.replace(',', '|') for a in authors]), 
+                      ','.join([a.replace(',', '|') for a in authors]),
                       row_is_id=True)
-        self.data.set(id, FIELD_MAP['author_sort'], ss, row_is_id=True) 
+        self.data.set(id, FIELD_MAP['author_sort'], ss, row_is_id=True)
         self.set_path(id, True)
         if notify:
             self.notify('metadata', [id])
@@ -1159,7 +1163,7 @@ class LibraryDatabase2(LibraryDatabase):
         else:
             path = path_or_stream
         return run_plugins_on_import(path, format)
-    
+
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. The result cache is not updated.
@@ -1219,7 +1223,7 @@ class LibraryDatabase2(LibraryDatabase):
             aus = aus.decode(preferred_encoding, 'replace')
         title = mi.title if isinstance(mi.title, unicode) else \
                 mi.title.decode(preferred_encoding, 'replace')
-        obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
+        obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
                           (title, None, series_index, aus))
         id = obj.lastrowid
         self.data.books_added([id], self.conn)
@@ -1567,4 +1571,5 @@ books_series_link      feeds
                     break
 
         return duplicates
+
 

@@ -30,7 +30,7 @@ options. the available options depend on the input and output file types. \
 To get help on them specify the input and output file and then use the -h \
 option.
 
-For full documentation of the conversion system see 
+For full documentation of the conversion system see
 ''') + 'http://calibre.kovidgoyal.net/user_manual/conversion.html'
 
 import sys, os
@@ -50,22 +50,22 @@ def check_command_line_options(parser, args, log):
         print_help(parser)
         log.error('\n\nYou must specify the input AND output files')
         raise SystemExit(1)
-    
+
     input = os.path.abspath(args[1])
     if not os.access(input, os.R_OK):
         log.error('Cannot read from', input)
         raise SystemExit(1)
-    
+
     output = args[2]
     if output.startswith('.'):
         output = os.path.splitext(os.path.basename(input))[0]+output
     output = os.path.abspath(output)
-    
+
     if '.' in output:
         if os.path.exists(output):
             log.warn('WARNING:', output, 'exists. Deleting.')
             os.remove(output)
-        
+
     return input, output
 
 def option_recommendation_to_cli_option(add_option, rec):
@@ -79,18 +79,18 @@ def option_recommendation_to_cli_option(add_option, rec):
 def add_input_output_options(parser, plumber):
     input_options, output_options = \
                                 plumber.input_options, plumber.output_options
-    
+
     def add_options(group, options):
         for opt in options:
             option_recommendation_to_cli_option(group, opt)
-            
+
     if input_options:
         title = _('INPUT OPTIONS')
         io = OptionGroup(parser, title, _('Options to control the processing'
                           ' of the input %s file')%plumber.input_fmt)
         add_options(io.add_option, input_options)
         parser.add_option_group(io)
-        
+
     if output_options:
         title = plumber.output_fmt.upper() + ' ' + _('OPTIONS')
         oo = OptionGroup(parser, title, _('Options to control the processing'
@@ -106,7 +106,7 @@ def add_pipeline_options(parser, plumber):
                      'output_profile',
                      ]
                     ),
-              
+
               'METADATA' : (_('Options to set metadata in the output'),
                             plumber.metadata_option_names,
                             ),
@@ -114,19 +114,19 @@ def add_pipeline_options(parser, plumber):
                         [
                          'verbose',
                          ]),
-                         
-                
+
+
               }
-    
+
     group_order = ['', 'METADATA', 'DEBUG']
-    
+
     for group in group_order:
         desc, options = groups[group]
         if group:
             group = OptionGroup(parser, group, desc)
             parser.add_option_group(group)
         add_option = group.add_option if group != '' else parser.add_option
-        
+
         for name in options:
             rec = plumber.get_option_by_name(name)
             if rec.level < rec.HIGH:
@@ -141,27 +141,27 @@ def main(args=sys.argv):
     if len(args) < 3:
         print_help(parser, log)
         return 1
-    
+
     input, output = check_command_line_options(parser, args, log)
-    
+
     from calibre.ebooks.conversion.plumber import Plumber
-    
+
     plumber = Plumber(input, output, log)
     add_input_output_options(parser, plumber)
     add_pipeline_options(parser, plumber)
-    
+
     opts = parser.parse_args(args)[0]
-    recommendations = [(n.dest, getattr(opts, n.dest), 
+    recommendations = [(n.dest, getattr(opts, n.dest),
                         OptionRecommendation.HIGH) \
                                         for n in parser.options_iter()
                                         if n.dest]
     plumber.merge_ui_recommendations(recommendations)
-    
+
     plumber.run()
-    
+
     log(_('Output saved to'), ' ', plumber.output)
-    
+
     return 0
-    
+
 if __name__ == '__main__':
     sys.exit(main())

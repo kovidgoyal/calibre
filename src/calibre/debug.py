@@ -17,22 +17,25 @@ def option_parser():
 
 Run an embedded python interpreter.
 ''')
-    parser.add_option('--update-module', help='Update the specified module in the frozen library. '+
-    'Module specifications are of the form full.name.of.module,path_to_module.py', default=None
+    parser.add_option('--update-module',
+            help='Update the specified module in the frozen library. '+
+    'Module specifications are of the form full.name.of.module,path_to_module.py',
+    default=None
     )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
-    parser.add_option('-d', '--debug-device-driver', default=False, action='store_true', 
+    parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI',)
-    parser.add_option('--migrate', action='store_true', default=False, 
-                      help='Migrate old database. Needs two arguments. Path to library1.db and path to new library folder.')
+    parser.add_option('--migrate', action='store_true', default=False,
+                      help='Migrate old database. Needs two arguments. Path '
+                           'to library1.db and path to new library folder.')
     return parser
 
 def update_zipfile(zipfile, mod, path):
     if 'win32' in sys.platform:
-        print 'WARNING: On Windows Vista using this option may cause windows to put library.zip into the Virtual Store (typically located in c:\Users\username\AppData\Local\VirtualStore). If it does this you must delete it from there after you\'re done debugging).' 
+        print 'WARNING: On Windows Vista using this option may cause windows to put library.zip into the Virtual Store (typically located in c:\Users\username\AppData\Local\VirtualStore). If it does this you must delete it from there after you\'re done debugging).'
     pat = re.compile(mod.replace('.', '/')+r'\.py[co]*')
     name = mod.replace('.', '/') + os.path.splitext(path)[-1]
     update(zipfile, [pat], [path], [name])
@@ -46,8 +49,8 @@ def update_module(mod, path):
         zp = os.path.join(os.path.dirname(sys.executable), 'library.zip')
     elif isosx:
         zp = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')),
-                            'Resources', 'lib', 
-                            'python'+'.'.join(map(str, sys.version_info[:2])), 
+                            'Resources', 'lib',
+                            'python'+'.'.join(map(str, sys.version_info[:2])),
                             'site-packages.zip')
     else:
         zp = os.path.join(getattr(sys, 'frozen_path'), 'loader.zip')
@@ -71,23 +74,23 @@ def migrate(old, new):
             self.max = max
         def setValue(self, val):
             self.update(float(val)/getattr(self, 'max', 1))
-            
+
     db = LibraryDatabase(old)
     db2 = LibraryDatabase2(new)
     db2.migrate_old(db, Dummy(terminal_controller, 'Migrating database...'))
     prefs['library_path'] = os.path.abspath(new)
     print 'Database migrated to', os.path.abspath(new)
-    
+
 def debug_device_driver():
     from calibre.devices.scanner import DeviceScanner
     s = DeviceScanner()
     s.scan()
     print 'USB devices on system:', repr(s.devices)
     if iswindows:
-        wmi = __import__('wmi', globals(), locals(), [], -1) 
+        wmi = __import__('wmi', globals(), locals(), [], -1)
         drives = []
         print 'Drives detected:'
-        print '\t', '(ID, Partitions, Drive letter)' 
+        print '\t', '(ID, Partitions, Drive letter)'
         for drive in wmi.WMI().Win32_DiskDrive():
             if drive.Partitions == 0:
                 continue
@@ -111,7 +114,7 @@ def debug_device_driver():
             d.open()
             print 'Total space:', d.total_space()
             break
-        
+
 
 def main(args=sys.argv):
     opts, args = option_parser().parse_args(args)

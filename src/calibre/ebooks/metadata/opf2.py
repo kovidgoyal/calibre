@@ -258,6 +258,11 @@ class Manifest(ResourceCollection):
             if i.id == id:
                 return i.path
 
+    def type_for_id(self, id):
+        for i in self:
+            if i.id == id:
+                return i.mime_type
+
 class Spine(ResourceCollection):
 
     class Item(Resource):
@@ -444,7 +449,7 @@ class OPF(object):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
         self.basedir  = self.base_dir = basedir
-        self.path_to_html_toc = None
+        self.path_to_html_toc = self.html_toc_fragment = None
         raw, self.encoding = xml_to_unicode(stream.read(), strip_encoding_pats=True, resolve_entities=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
@@ -487,7 +492,10 @@ class OPF(object):
 
             if toc is None: return
             self.toc = TOC(base_path=self.base_dir)
-            if toc.lower() in ('ncx', 'ncxtoc'):
+            is_ncx = getattr(self, 'manifest', None) is not None and \
+                     self.manifest.type_for_id(toc) is not None and \
+                     'dtbncx' in self.manifest.type_for_id(toc)
+            if is_ncx or toc.lower() in ('ncx', 'ncxtoc'):
                 path = self.manifest.path_for_id(toc)
                 if path:
                     self.toc.read_ncx_toc(path)
@@ -496,7 +504,8 @@ class OPF(object):
                     if f:
                         self.toc.read_ncx_toc(f[0])
             else:
-                self.path_to_html_toc = toc
+                self.path_to_html_toc, self.html_toc_fragment = \
+                    toc.partition('#')[0], toc.partition('#')[-1]
                 self.toc.read_html_toc(toc)
         except:
             pass
@@ -627,7 +636,7 @@ class OPF(object):
                 attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
                 elem = self.create_metadata_element('creator', attrib=attrib)
                 self.set_text(elem, author.strip())
-            
+
         return property(fget=fget, fset=fset)
 
     @dynamic_property

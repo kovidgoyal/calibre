@@ -36,7 +36,8 @@ recipe_modules = ['recipe_' + r for r in (
            'el_universal', 'mediapart', 'wikinews_en', 'ecogeek', 'daily_mail',
            'new_york_review_of_books_no_sub', 'politico', 'adventuregamers',
            'mondedurable', 'instapaper', 'dnevnik_cro', 'vecernji_list',
-           'nacional_cro', '24sata',
+           'nacional_cro', '24sata', 'dnevni_avaz', 'glas_srpske', '24sata_rs',
+           'krstarica', 'krstarica_en', 'tanjug',
           )]
 
 import re, imp, inspect, time, os
@@ -95,7 +96,7 @@ def compile_recipe(src):
     src = 'from %s.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile\n'%__appname__ + src
     src = '# coding: utf-8\n' + src
     src = 'from __future__ import with_statement\n' + src
-    
+
     src = src.replace('from libprs500', 'from calibre').encode('utf-8')
     f.write(src)
     f.close()

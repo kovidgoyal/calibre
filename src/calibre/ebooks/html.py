@@ -354,7 +354,10 @@ class PreProcessor(object):
                   (re.compile(r'-\n\r?'), lambda match: ''),
                   
                   # Remove gray background
-                  (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>')
+                  (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
+                  
+                  # Remove non breaking spaces
+                  (re.compile(ur'\u00a0'), lambda match : ' '),
                   
                   ]
     

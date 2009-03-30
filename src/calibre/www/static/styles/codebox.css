@@ -1,0 +1,115 @@
+/* codebox header */
+.wp_codebox_msgheader {
+	width: 100%;
+	border: 1px solid #DEDEB8;
+	border-bottom: 0;
+	font-weight: bold;
+	background: #F3F8D7 url(../images/arrow-square.gif) no-repeat right 5px;
+	color: #000000;
+}
+
+.wp_codebox_msgheader.active {
+	background-position: right -51px;
+}
+
+.wp_codebox_msgheader .right {
+	float: right;
+	text-align: right;
+	padding: 5px;
+	margin-right: 20px;
+}
+
+.wp_codebox_msgheader .right a {
+	font: 12px Arial, Tahoma !important;
+	font: 11px Arial, Tahoma;
+}
+
+.wp_codebox_msgheader .left,.wp_codebox_msgheader .left2 {
+	float: left;
+	/*	background-color:#FFFFFF; 
+	border:1px solid #DCDCDC;
+	padding:8px 0px 2px 8px;*/
+	font-family: tahoma, arial, verdana;
+	/*	display: block;
+	width:50%;
+	margin: 0 auto;*/
+	padding: 5px 5px 5px 20px;
+	margin-left: 5px;
+}
+
+.wp_codebox_msgheader .left {
+	background: url(../images/view_code.png) no-repeat left;
+}
+
+.wp_codebox_msgheader .left2 {
+	background: url(../images/down.gif) no-repeat left;
+}
+
+.wp_codebox_msgheader .left a { /*	margin:0px 5px 0px 10px;*/
+	font-weight: bold;
+}
+
+.wp_codebox_msgheader .left2 a { /*	margin:0px 5px 0px 5px;*/
+	font-weight: bold;
+}
+
+.wp_codebox_msgheader .codebox_clear {
+	clear: both;
+}
+
+/* codebox */
+.wp_codebox {
+	color: #100;
+	background-color: #f9f9f9;
+	border: 1px solid silver;
+	margin: 0 0 1.5em 0;
+	overflow: auto;
+}
+
+/* IE FIX */
+.wp_codebox {
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding-bottom: expression(this.scrollWidth >   this.offsetWidth ?   15 :   0)
+		;
+	width: 100%;
+}
+
+.wp_codebox table {
+	border-collapse: collapse;
+	border: none;
+	margin: 0px;
+}
+
+.wp_codebox div,.wp_codebox td {
+	vertical-align: top;
+	padding: 2px 4px;
+}
+
+.wp_codebox td.line_numbers {
+	text-align: right;
+	background-color: #def;
+	color: #666;
+	overflow: visible;
+	border-right: 1px solid #B0BEC7;
+	table-layout: auto;
+	width: 15px;
+}
+
+/* potential overrides for other styles */
+.wp_codebox pre {
+	border: none;
+	background: none;
+	margin: 0;
+	padding: 0;
+	width: auto;
+	float: none;
+	clear: none;
+	overflow: visible;
+	font-size: 12px;
+	line-height: 1.333;
+}
+
+.line_numbers pre {
+	padding-left: 10px;
+}

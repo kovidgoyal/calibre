@@ -1,0 +1,10 @@
+changes:
+  date: 2008-05-18
+    change: Converted everything to 4 space tabs and made a few other changes to comply with Python Style Guide.
+    
+  date: 2008-04-23
+    change: Added a mode called InlineType and a template tag that returns this models objects. 
+      
+  date: 2008-04-22
+    change: Added an 'extract_inlines' filter so you can loop over a list of inlines in a body of text.
+    change: Creating new inlines app.

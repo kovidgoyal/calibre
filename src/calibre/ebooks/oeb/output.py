@@ -6,12 +6,12 @@ __docformat__ = 'restructuredtext en'
 from calibre.customize.conversion import OutputFormatPlugin
 
 class OEBOutput(OutputFormatPlugin):
-    
+
     name = 'OEB Output'
     author = 'Kovid Goyal'
     file_type = 'oeb'
-    
-    
-    def convert(self, oeb_book, input_plugin, options, parse_cache, log):
-        pass
-    
+
+
+    def convert(self, oeb_book, input_plugin, options, context, log):
+       pass
+

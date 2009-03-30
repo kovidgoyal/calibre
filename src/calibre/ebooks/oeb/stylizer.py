@@ -115,8 +115,7 @@ class Stylizer(object):
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [HTML_CSS_STYLESHEET]
         head = xpath(tree, '/h:html/h:head')[0]
-        parser = cssutils.CSSParser()
-        parser.setFetcher(self._fetch_css_file)
+        parser = cssutils.CSSParser(fetcher=self._fetch_css_file)
         for elem in head:
             if elem.tag == XHTML('style') and elem.text \
                and elem.get('type', CSS_MIME) in OEB_STYLES:
@@ -135,14 +134,7 @@ class Stylizer(object):
                         'Stylesheet %r referenced by file %r not in manifest' %
                         (path, item.href))
                     continue
-                if sitem in self.STYLESHEETS:
-                    stylesheet = self.STYLESHEETS[sitem]
-                else:
-                    data = self._fetch_css_file(path)[1]
-                    stylesheet = parser.parseString(data, href=path)
-                    stylesheet.namespaces['h'] = XHTML_NS
-                    self.STYLESHEETS[sitem] = stylesheet
-                stylesheets.append(stylesheet)
+                stylesheets.append(sitem.data)
         rules = []
         index = 0
         self.stylesheets = set()
@@ -159,9 +151,9 @@ class Stylizer(object):
         for _, _, cssdict, text, _ in rules:
             try:
                 selector = CSSSelector(text)
-            except (AssertionError, ExpressionError, etree.XPathSyntaxError,\
-                NameError, # gets thrown on OS X instead of SelectorSyntaxError
-                SelectorSyntaxError):
+            except (AssertionError, ExpressionError, etree.XPathSyntaxError,
+                    NameError, # thrown on OS X instead of SelectorSyntaxError
+                    SelectorSyntaxError):
                 continue
             for elem in selector(tree):
                 self.style(elem)._update_cssdict(cssdict)
@@ -171,9 +163,13 @@ class Stylizer(object):
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
         if path not in hrefs:
+            self.logger.warn('CSS import of missing file %r' % path)
             return (None, None)
-        data = hrefs[path].data
-        data = XHTML_CSS_NAMESPACE + data
+        item = hrefs[path]
+        if item.media_type not in OEB_STYLES:
+            self.logger.warn('CSS import of non-CSS file %r' % path)
+            return (None, None)
+        data = item.data.cssText
         return ('utf-8', data)
     
     def flatten_rule(self, rule, href, index):

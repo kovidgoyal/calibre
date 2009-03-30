@@ -190,7 +190,7 @@ class Device(_Device):
 
         self._main_prefix = drives.get('main')
         self._card_prefix = drives.get('card')
-        
+
         if not self._main_prefix:
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.') % self.__class__.__name__)
 
@@ -200,7 +200,7 @@ class Device(_Device):
             if not os.access(ioreg, os.X_OK):
                 ioreg = 'ioreg'
             raw = subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
-                                   stdout=subprocess.PIPE).stdout.read()
+                                   stdout=subprocess.PIPE).communicate()[0]
         lines = raw.splitlines()
         names = {}
 

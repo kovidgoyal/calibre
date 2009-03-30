@@ -8,6 +8,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, os, logging
 from itertools import chain
+import calibre
 from calibre.ebooks.oeb.base import OEBError
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks.oeb.writer import OEBWriter
@@ -15,7 +16,7 @@ from calibre.ebooks.lit.reader import LitReader
 from calibre.ebooks.lit.writer import LitWriter
 from calibre.ebooks.mobi.reader import MobiReader
 from calibre.ebooks.mobi.writer import MobiWriter
-from calibre.ebooks.oeb.base import Logger, OEBBook
+from calibre.ebooks.oeb.base import OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.utils.config import Config
 
@@ -77,8 +78,8 @@ def main(argv=sys.argv):
     if len(args) != 0:
         parser.print_help()
         return 1
-    logger = Logger(logging.getLogger('ebook-convert'))
-    logger.setup_cli_handler(opts.verbose)
+    logger = logging.getLogger('ebook-convert')
+    calibre.setup_cli_handlers(logger, logging.DEBUG)
     encoding = opts.encoding
     pretty_print = opts.pretty_print
     oeb = OEBBook(encoding=encoding, pretty_print=pretty_print, logger=logger)

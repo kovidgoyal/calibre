@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:rss="http://purl.org/rss/1.0/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+<!-- based on http://www-128.ibm.com/developerworks/xml/library/x-pblog/ -->
+<foaf:Group>
+
+  <foaf:name>{{ site.title }}</foaf:name>
+  <foaf:homepage>{{ site.url }}</foaf:homepage>
+  <rdfs:seeAlso rdf:resource="{{ site.url }}/foaf/" />
+
+  {% for feed in feeds %}
+  <foaf:member>
+    <foaf:Person>
+      <foaf:name>{{ feed.name }}</foaf:name>
+      <foaf:weblog>
+        <foaf:Document rdf:about="{{ feed.link }}">
+          <dc:title>{{ feed.title }}</dc:title>
+          <rdfs:seeAlso>
+            <rss:channel rdf:about="{{ feed.feed_url }}" />
+          </rdfs:seeAlso>
+        </foaf:Document>
+      </foaf:weblog>
+    </foaf:Person>
+  </foaf:member>
+  {% endfor %}
+
+</foaf:Group>
+</rdf:RDF>
+

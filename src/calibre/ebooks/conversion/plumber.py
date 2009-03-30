@@ -5,31 +5,44 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OptionRecommendation 
+from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import input_profiles, output_profiles, \
         plugin_for_input_format, plugin_for_output_format
+from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 
 class OptionValues(object):
     pass
 
 class Plumber(object):
-    
+    '''
+    The `Plumber` manages the conversion pipeline. An UI should call the methods
+    :method:`merge_ui_recommendations` and then :method:`run`. The plumber will
+    take care of the rest.
+    '''
+
     metadata_option_names = [
-        'title', 'authors', 'title_sort', 'author_sort', 'cover', 'comments', 
-        'publisher', 'series', 'series_index', 'rating', 'isbn', 
+        'title', 'authors', 'title_sort', 'author_sort', 'cover', 'comments',
+        'publisher', 'series', 'series_index', 'rating', 'isbn',
         'tags', 'book_producer', 'language'
         ]
-    
+
     def __init__(self, input, output, log):
+        '''
+        :param input: Path to input file.
+        :param output: Path to output file/directory
+        '''
         self.input = input
         self.output = output
         self.log = log
-        
+
+        # Initialize the conversion options that are independent of input and
+        # output formats. The input and output plugins can still disable these
+        # options via recommendations.
         self.pipeline_options = [
 
-OptionRecommendation(name='verbose', 
+OptionRecommendation(name='verbose',
             recommended_value=0, level=OptionRecommendation.LOW,
-            short_switch='v', 
+            short_switch='v',
             help=_('Level of verbosity. Specify multiple times for greater '
                    'verbosity.')
         ),
@@ -54,15 +67,15 @@ OptionRecommendation(name='output_profile',
                    'will work on a device. For example EPUB on the SONY reader.'
                    )
         ),
-        
-OptionRecommendation(name='read_metadata_from_opf', 
+
+OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
-            short_switch='m', 
+            short_switch='m',
             help=_('Read metadata from the specified OPF file. Metadata read '
-                   'from this file will override any metadata in the source ' 
+                   'from this file will override any metadata in the source '
                    'file.')
         ),
-        
+
 OptionRecommendation(name='title',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the title.')),
@@ -120,57 +133,70 @@ OptionRecommendation(name='language',
     help=_('Set the language.')),
 ]
 
-        
+
         input_fmt = os.path.splitext(input)[1]
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
-        
+
         output_fmt = os.path.splitext(output)[1]
         if not output_fmt:
             output_fmt = '.oeb'
         output_fmt = output_fmt[1:].lower()
-        
+
         self.input_plugin = plugin_for_input_format(input_fmt)
         self.output_plugin = plugin_for_output_format(output_fmt)
-        
+
         if self.input_plugin is None:
             raise ValueError('No plugin to handle input format: '+input_fmt)
-        
+
         if self.output_plugin is None:
             raise ValueError('No plugin to handle output format: '+output_fmt)
-        
+
         self.input_fmt = input_fmt
         self.output_fmt = output_fmt
-        
+
+        # Build set of all possible options. Two options are equal iff their
+        # names are the same.
         self.input_options  = self.input_plugin.options.union(
                                     self.input_plugin.common_options)
         self.output_options = self.output_plugin.options.union(
-                                    self.output_plugin.common_options)  
-    
+                                    self.output_plugin.common_options)
+
+        # Remove the options that have been disabled by recommendations from the
+        # plugins.
         self.merge_plugin_recommendations()
 
     def get_option_by_name(self, name):
-        for group in (self.input_options, self.pipeline_options, 
+        for group in (self.input_options, self.pipeline_options,
                       self.output_options):
             for rec in group:
                 if rec.option == name:
                     return rec
-        
+
     def merge_plugin_recommendations(self):
         for source in (self.input_plugin, self.output_plugin):
             for name, val, level in source.recommendations:
                 rec = self.get_option_by_name(name)
                 if rec is not None and rec.level <= level:
                     rec.recommended_value = val
-    
+
     def merge_ui_recommendations(self, recommendations):
+        '''
+        Merge recommendations from the UI. As long as the UI recommendation
+        level is >= the baseline recommended level, the UI value is used,
+        *except* if the baseline has a recommendation level of `HIGH`.
+        '''
         for name, val, level in recommendations:
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level and rec.level < rec.HIGH:
                 rec.recommended_value = val
-    
+
     def read_user_metadata(self):
+        '''
+        Read all metadata specified by the user. Command line options override
+        metadata from a specified OPF file.
+        '''
         from calibre.ebooks.metadata import MetaInformation, string_to_authors
         from calibre.ebooks.metadata.opf2 import OPF
         mi = MetaInformation(None, [])
@@ -194,43 +220,56 @@ OptionRecommendation(name='language',
             mi.cover_data = ('', open(mi.cover, 'rb').read())
             mi.cover = None
         self.user_metadata = mi
-            
-    
+
+
     def setup_options(self):
+        '''
+        Setup the `self.opts` object.
+        '''
         self.opts = OptionValues()
-        for group in (self.input_options, self.pipeline_options, 
+        for group in (self.input_options, self.pipeline_options,
                   self.output_options):
             for rec in group:
                 setattr(self.opts, rec.option.name, rec.recommended_value)
-                
+
         for x in input_profiles():
             if x.short_name == self.opts.input_profile:
                 self.opts.input_profile = x
                 break
-            
+
         for x in output_profiles():
             if x.short_name == self.opts.output_profile:
                 self.opts.output_profile = x
                 break
-            
+
         self.read_user_metadata()
-    
+
     def run(self):
+        '''
+        Run the conversion pipeline
+        '''
+        # Setup baseline option values
         self.setup_options()
+
+        # Run any preprocess plugins
         from calibre.customize.ui import run_plugins_on_preprocess
         self.input = run_plugins_on_preprocess(self.input)
-        
+
+        # Create an OEBBook from the input file. The input plugin does all the
+        # heavy lifting.
         from calibre.ebooks.oeb.reader import OEBReader
         from calibre.ebooks.oeb.base import OEBBook
-        parse_cache, accelerators = {}, {}
-        
-        opfpath = self.input_plugin(open(self.input, 'rb'), self.opts, 
-                                    self.input_fmt, parse_cache, self.log,
+        accelerators = {}
+
+        opfpath = self.input_plugin(open(self.input, 'rb'), self.opts,
+                                    self.input_fmt, self.log,
                                     accelerators)
-        
+        html_preprocessor = HTMLPreProcessor()
         self.reader = OEBReader()
-        self.oeb = OEBBook(self.log, parse_cache=parse_cache) 
+        self.oeb = OEBBook(self.log, html_preprocessor=html_preprocessor)
+        # Read OEB Book into OEBBook
         self.reader(self.oeb, opfpath)
-        
-    
-        
+
+
+
+

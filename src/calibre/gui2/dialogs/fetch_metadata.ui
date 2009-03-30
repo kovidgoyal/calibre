@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="tlabel" >
      <property name="text" >
-      <string>&lt;p>calibre can find metadata for your books from two locations: &lt;b>Google Books&lt;/b> and &lt;b>isbndb.com&lt;/b>. &lt;p>To use isbndb.com you must sign up for a &lt;a href="http://www.isbndb.com">free account&lt;/a> and exter you access key below.</string>
+      <string>&lt;p>calibre can find metadata for your books from two locations: &lt;b>Google Books&lt;/b> and &lt;b>isbndb.com&lt;/b>. &lt;p>To use isbndb.com you must sign up for a &lt;a href="http://www.isbndb.com">free account&lt;/a> and enter your access key below.</string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
@@ -59,6 +59,16 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="warning" >
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="wordWrap" >
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox" >

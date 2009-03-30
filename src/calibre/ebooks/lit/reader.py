@@ -129,8 +129,6 @@ class UnBinary(object):
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.is_html = map is HTML_MAP
         self.tag_atoms, self.attr_atoms = atoms
-        self.opf = map is OPF_MAP
-        self.bin = bin
         self.dir = os.path.dirname(path)
         buf = StringIO()
         self.binary_to_text(bin, buf)
@@ -210,7 +208,8 @@ class UnBinary(object):
                         continue
                     if flags & FLAG_ATOM:
                         if not self.tag_atoms or tag not in self.tag_atoms:
-                            raise LitError("atom tag %d not in atom tag list" % tag)
+                            raise LitError(
+                                "atom tag %d not in atom tag list" % tag)
                         tag_name = self.tag_atoms[tag]
                         current_map = self.attr_atoms
                     elif tag < len(self.tag_map):
@@ -295,7 +294,7 @@ class UnBinary(object):
                             c = '&quot;'
                         elif c == '<':
                             c = '&lt;'
-                        self.buf.write(c.encode('ascii', 'xmlcharrefreplace'))
+                        buf.write(c.encode('ascii', 'xmlcharrefreplace'))
                     count -= 1
                 if count == 0:
                     if not in_censorship:
@@ -841,24 +840,7 @@ class LitFile(object):
         if len(attrs) != nentries:
             self._warn("damaged or invalid atoms attributes table")
         return (tags, attrs)
-    
-    def get_entry_content(self, entry, pretty_print=False):
-        if 'spine' in entry.state:
-            name = '/'.join(('/data', entry.internal, 'content'))
-            path = entry.path
-            raw = self.get_file(name)
-            decl, map = (OPF_DECL, OPF_MAP) \
-                if name == '/meta' else (HTML_DECL, HTML_MAP)
-            atoms = self.get_atoms(entry)
-            content = decl + unicode(UnBinary(raw, path, self.manifest, map, atoms))
-            if pretty_print:
-                content = self._pretty_print(content)
-            content = content.encode('utf-8')
-        else:
-            internal = '/'.join(('/data', entry.internal))
-            content = self._litfile.get_file(internal)
-        return content
- 
+
 
 class LitContainer(object):
     """Simple Container-interface, read-only accessor for LIT files."""
@@ -879,9 +861,15 @@ class LitContainer(object):
         elif 'spine' in entry.state:
             internal = '/'.join(('/data', entry.internal, 'content'))
             raw = self._litfile.get_file(internal)
-            unbin = UnBinary(raw, name, self._litfile.manifest, HTML_MAP)
+            manifest = self._litfile.manifest
+            atoms = self._litfile.get_atoms(entry)
+            unbin = UnBinary(raw, name, manifest, HTML_MAP, atoms)
             content = HTML_DECL + str(unbin)
-   
+        else:
+            internal = '/'.join(('/data', entry.internal))
+            content = self._litfile.get_file(internal)
+        return content
+    
     def _read_meta(self):
         path = 'content.opf'
         raw = self._litfile.get_file('/meta')
