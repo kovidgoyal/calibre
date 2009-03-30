@@ -68,6 +68,45 @@ OptionRecommendation(name='output_profile',
                    )
         ),
 
+OptionRecommendation(name='base_font_size',
+            recommended_value=0, level=OptionRecommendation.LOW,
+            help=_('The base font size in pts. All font sizes in the produced book '
+                   'will be rescaled based on this size. By choosing a larger '
+                   'size you can make the fonts in the output bigger and vice '
+                   'versa. By default, the base font size is chosen based on '
+                   'the output profile you chose.'
+                   )
+        ),
+
+OptionRecommendation(name='font_size_mapping',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('Mapping from CSS font names to font sizes in pts. '
+                   'An example setting is 12,12,14,16,18,20,22,24. '
+                   'These are the mappings for the sizes xx-small to xx-large, '
+                   'with the final size being for huge fonts. The font '
+                   'rescaling algorithm uses these sizes to intelligently '
+                   'rescale fonts. The default is to use a mapping based on '
+                   'the output profile you chose.'
+                   )
+        ),
+
+OptionRecommendation(name='line_height',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('The line height in pts. Controls spacing between consecutive '
+                   'lines of text. By default ??'
+                   )
+        ),
+
+OptionRecommendation(name='linearize_tables',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Some badly designed documents use tables to control the '
+                'layout of text on the page. When converted these documents '
+                'often have text that runs of the page and other artifacts. '
+                'This option will extract the content from the tables and '
+                'present it in a linear fashion.'
+                )
+        ),
+
 OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
             short_switch='m',
@@ -268,8 +307,34 @@ OptionRecommendation(name='language',
         self.reader = OEBReader()
         self.oeb = OEBBook(self.log, html_preprocessor=html_preprocessor)
         # Read OEB Book into OEBBook
+        self.log.info('Parsing all content...')
         self.reader(self.oeb, opfpath)
 
+        self.opts.source = self.opts.input_profile
+        self.opts.dest = self.opts.output_profile
 
+        from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
+        fbase = self.opts.base_font_size
+        if fbase == 0:
+            fbase = self.opts.dest.fbase
+        fkey = self.opts.font_size_mapping
+        if fkey is None:
+            fkey = self.opts.dest.fsizes
+
+        flattener = CSSFlattener(fbase=fbase, fkey=fkey,
+                lineh=self.opts.line_height,
+                untable=self.opts.linearize_tables)
+        self.log.info('Flattening CSS...')
+        flattener(self.oeb, self.opts)
+
+        from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
+
+        self.log.info('Cleaning up manifest...')
+        trimmer = ManifestTrimmer()
+        trimmer(self.oeb, self.opts)
+
+        self.log.info('Creating %s output...'%self.output_plugin.name)
+        self.output_plugin(self.oeb, self.output, self.input_plugin, self.opts,
+                self.log)
 
 

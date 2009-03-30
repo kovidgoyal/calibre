@@ -205,6 +205,23 @@ class OutputFormatPlugin(Plugin):
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set([])
 
-    def convert(self, oeb_book, input_plugin, options, context, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        '''
+        Render the contents of `oeb_book` (which is an instance of
+        :class:`calibre.ebooks.oeb.OEBBook` to the file specified by output.
+
+        :param output: Either a file like object or a string. If it is a string
+        it is the path to a directory that may or may not exist. The output
+        plugin should write its output into that directory. If it is a file like
+        object, the output plugin should write its output into the file.
+
+        :param input_plugin: The input plugin that was used at the beginning of
+        the conversion pipeline.
+
+        :param opts: Conversion options. Guaranteed to have attributes
+        corresponding to the OptionRecommendations of this plugin.
+
+        :param log: The logger. Print debug/info messages etc. using this.
+        '''
         raise NotImplementedError
 

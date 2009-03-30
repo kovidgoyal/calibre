@@ -106,6 +106,15 @@ def add_pipeline_options(parser, plumber):
                      'output_profile',
                      ]
                     ),
+              'LOOK AND FEEL' : (
+                  _('Options to control the look and feel of the output'),
+                  [
+                      'base_font_size',
+                      'font_size_mapping',
+                      'line_height',
+                      'linearize_tables',
+                  ]
+                  ),
 
               'METADATA' : (_('Options to set metadata in the output'),
                             plumber.metadata_option_names,
@@ -118,7 +127,7 @@ def add_pipeline_options(parser, plumber):
 
               }
 
-    group_order = ['', 'METADATA', 'DEBUG']
+    group_order = ['', 'LOOK AND FEEL', 'METADATA', 'DEBUG']
 
     for group in group_order:
         desc, options = groups[group]
