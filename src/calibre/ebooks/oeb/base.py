@@ -1260,7 +1260,7 @@ class OEBBook(object):
         """Create empty book.  Optional arguments:
 
         :param parse_cache: A cache of parsed XHTML/CSS. Keys are absolute
-            paths to te cached files and values are lxml root objects and
+            paths to the cached files and values are lxml root objects and
             cssutils stylesheets.
         :param:`encoding`: Default encoding for textual content read
             from an external container.

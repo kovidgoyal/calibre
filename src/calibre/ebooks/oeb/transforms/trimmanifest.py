@@ -20,11 +20,10 @@ class ManifestTrimmer(object):
     @classmethod
     def generate(cls, opts):
         return cls()
-    
+
     def __call__(self, oeb, context):
         oeb.logger.info('Trimming unused files from manifest...')
         used = set()
-        hrefs = oeb.manifest.hrefs
         for term in oeb.metadata:
             for item in oeb.metadata[term]:
                 if item.value in oeb.manifest.hrefs:
@@ -42,7 +41,7 @@ class ManifestTrimmer(object):
         while unchecked:
             new = set()
             for item in unchecked:
-                if (item.media_type in OEB_DOCS or 
+                if (item.media_type in OEB_DOCS or
                     item.media_type[-4:] in ('/xml', '+xml')) and \
                    item.data is not None:
                     hrefs = [sel(item.data) for sel in LINK_SELECTORS]
