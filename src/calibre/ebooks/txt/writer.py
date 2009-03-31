@@ -1,34 +1,26 @@
 # -*- coding: utf-8 -*-
+from __future__ import with_statement
 '''
 Write content to TXT.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
 
-import os, logging, re, sys
+import os, re, sys
+
+from calibre.ebooks.htmlsymbols import HTML_SYMBOLS
 
 from BeautifulSoup import BeautifulSoup
 
-from calibre import LoggingInterface
-from calibre.ebooks.htmlsymbols import HTML_SYMBOLS
-from calibre.ebooks.epub.iterator import SpineItem
-from calibre.ebooks.metadata import authors_to_string
-from calibre.ebooks.metadata.meta import metadata_from_formats
-from calibre.ebooks.metadata.opf2 import OPF
-from calibre.customize.ui import run_plugins_on_postprocess
-from calibre.utils.config import Config, StringConfig
-
-class TXTWriter(object):
-    def __init__(self, newline):
+class TxtWriter(object):
+    def __init__(self, newline, log):
         self.newline = newline
+        self.log = log
 
-    def dump(self, oebpath, path, metadata):
-        opf = OPF(oebpath, os.path.dirname(oebpath))
-        spine = [SpineItem(i.path) for i in opf.spine]
-
-        tmpout = ''
+    def dump(self, spine, metadata):
+        out = u''
         for item in spine:
             with open(item, 'r') as itemf:
                 content = itemf.read().decode(item.encoding)
@@ -39,25 +31,21 @@ class TXTWriter(object):
                 content = self.replace_html_symbols(content)
                 content = self.cleanup_text(content)
                 content = self.specified_newlines(content)
-                tmpout = tmpout + content
+                out += content
 
         # Prepend metadata
         if metadata.author != None and metadata.author != '':
-            tmpout = (u'%s%s%s%s' % (metadata.author.upper(), self.newline, self.newline, self.newline)) + tmpout
+            out = (u'%s%s%s%s' % (metadata.author.upper(), self.newline, self.newline, self.newline)) + out
         if metadata.title != None and metadata.title != '':
-            tmpout = (u'%s%s%s%s' % (metadata.title.upper(), self.newline, self.newline, self.newline)) + tmpout
+            out = (u'%s%s%s%s' % (metadata.title.upper(), self.newline, self.newline, self.newline)) + out
 
             # Put two blank lines at end of file
-
-            end = tmpout[-3 * len(self.newline):]
+            end = out[-3 * len(self.newline):]
             for i in range(3 - end.count(self.newline)):
-                tmpout = tmpout + self.newline
+                out += self.newline
 
-        if os.path.exists(path):
-            os.remove(path)
-        with open(path, 'w+b') as out:
-            out.write(tmpout.encode('utf-8'))
-            
+        return out
+
     def strip_html(self, html):
         stripped = u''
         
@@ -149,14 +137,8 @@ class TXTWriter(object):
         if self.newline == '\n':
             return text
         
-        return text.replace('\n', self.newline)
-        
-class TxtMetadata(object):
-    def __init__(self):
-        self.author = None
-        self.title = None
-        self.series = None
-        
+        return text.replace('\n', self.newline)        
+
 
 class TxtNewlines(object):
     NEWLINE_TYPES = {
@@ -170,73 +152,7 @@ class TxtNewlines(object):
         self.newline = self.NEWLINE_TYPES.get(newline_type.lower(), os.linesep)
 
 
-def config(defaults=None):
-    desc = _('Options to control the conversion to TXT')
-    if defaults is None:
-        c = Config('txt', desc)
-    else:
-        c = StringConfig(defaults, desc)
-        
-    txt = c.add_group('TXT', _('TXT options.'))
-            
-    txt('newline', ['--newline'], default='system',
-        help=_('Type of newline to use. Options are %s. Default is \'system\'. '
-            'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
-            'For Mac OS X use \'unix\'. \'system\' will default to the newline '
-            'type used by this OS.' % sorted(TxtNewlines.NEWLINE_TYPES.keys())))
-    txt('prepend_author', ['--prepend-author'], default='true',
-        help=_('Write the author to the beginning of the file. '
-            'Default is \'true\'. Use \'false\' to disable.'))
-    txt('prepend_title', ['--prepend-title'], default='true',
-        help=_('Write the title to the beginning of the file. '
-            'Default is \'true\'. Use \'false\' to disable.'))
-        
-    return c
-
-def option_parser():
-    c = config()
-    parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
-    parser.add_option(
-        '-o', '--output', default=None, 
-        help=_('Output file. Default is derived from input filename.'))
-    parser.add_option(
-        '-v', '--verbose', default=0, action='count',
-        help=_('Useful for debugging.'))        
-    return parser
-
-def oeb2txt(opts, inpath):
-    logger = LoggingInterface(logging.getLogger('oeb2txt'))
-    logger.setup_cli_handler(opts.verbose)
-    
-    outpath = opts.output
-    if outpath is None:
-        outpath = os.path.basename(inpath)
-        outpath = os.path.splitext(outpath)[0] + '.txt'
-
-    mi = metadata_from_formats([inpath])
-    metadata = TxtMetadata()
-    if opts.prepend_author.lower() == 'true':
-        metadata.author = opts.authors if opts.authors else authors_to_string(mi.authors)
-    if opts.prepend_title.lower() == 'true':
-        metadata.title = opts.title if opts.title else mi.title
-
-    newline = TxtNewlines(opts.newline)
-    
-    writer = TXTWriter(newline.newline)
-    writer.dump(inpath, outpath, metadata)
-    run_plugins_on_postprocess(outpath, 'txt')
-    logger.log_info(_('Output written to ') + outpath)
-    
-def main(argv=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(argv[1:])
-    if len(args) != 1:
-        parser.print_help()
-        return 1
-    inpath = args[0]
-    retval = oeb2txt(opts, inpath)
-    return retval
-
-if __name__ == '__main__':
-    sys.exit(main())
-
+class TxtMetadata(object):
+    def __init__(self):
+        self.title = None
+        self.author = None

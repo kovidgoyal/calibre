@@ -160,7 +160,7 @@ class ODTMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.odt import get_metadata
         return get_metadata(stream)
         
-class TXTMetadataReader(MetaReaderPlugin):
+class TXTMetadataReader(MetadataReaderPlugin):
     
     name        = 'Read TXT metadata'
     file_types  = set(['txt'])
@@ -266,9 +266,10 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.oeb.output import OEBOutput
+from calibre.ebooks.txt.output import TXTOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
-plugins = [HTML2ZIP, EPUBInput, MOBIInput, OEBOutput]
+plugins = [HTML2ZIP, EPUBInput, MOBIInput, OEBOutput, TXTOutput]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
