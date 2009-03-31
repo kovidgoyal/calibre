@@ -6,7 +6,7 @@ from PyQt4.QtCore import Qt, QByteArray, SIGNAL
 from PyQt4.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
                         QBrush, QColor, QFontDatabase, \
                         QGraphicsItem, QGraphicsLineItem
-                        
+
 from calibre.gui2.lrf_renderer.text import TextBlock, FontLoader, COLOR, PixmapItem
 
 
@@ -25,17 +25,17 @@ class Pen(QPen):
 
 
 class ContentObject(object):
-    
+
     has_content = True
-            
+
     def reset(self):
         self.has_content = True
 
 
 class RuledLine(QGraphicsLineItem, ContentObject):
-    
+
     map = {'solid': Qt.SolidLine, 'dashed': Qt.DashLine, 'dotted': Qt.DotLine, 'double': Qt.DashDotLine}
-    
+
     def __init__(self, rl):
         QGraphicsLineItem.__init__(self, 0, 0, rl.linelength, 0)
         ContentObject.__init__(self)
@@ -43,7 +43,7 @@ class RuledLine(QGraphicsLineItem, ContentObject):
 
 
 class ImageBlock(PixmapItem, ContentObject):
-    
+
     def __init__(self, obj):
         ContentObject.__init__(self)
         x0, y0, x1, y1 = obj.attrs['x0'], obj.attrs['y0'], obj.attrs['x1'], obj.attrs['y1']
@@ -51,26 +51,26 @@ class ImageBlock(PixmapItem, ContentObject):
         data, encoding = refstream.stream, refstream.encoding
         PixmapItem.__init__(self, data, encoding, x0, y0, x1, y1, xsize, ysize)
         self.block_id = obj.id
-        
+
 
 def object_factory(container, obj, respect_max_y=False):
     if hasattr(obj, 'name'):
         if obj.name.endswith('TextBlock'):
-            
+
             return TextBlock(obj, container.font_loader, respect_max_y, container.text_width,
-                             container.logger, container.opts, container.ruby_tags, 
+                             container.logger, container.opts, container.ruby_tags,
                              container.link_activated)
         elif obj.name.endswith('ImageBlock'):
             return ImageBlock(obj)
     elif isinstance(obj, _RuledLine):
         return RuledLine(obj)
     elif isinstance(obj, __Canvas):
-        return Canvas(container.font_loader, obj, container.logger, container.opts, 
-                      container.ruby_tags, container.link_activated)        
-    return None    
+        return Canvas(container.font_loader, obj, container.logger, container.opts,
+                      container.ruby_tags, container.link_activated)
+    return None
 
 class _Canvas(QGraphicsRectItem):
-    
+
     def __init__(self, font_loader, logger, opts, width=0, height=0, parent=None, x=0, y=0):
         QGraphicsRectItem.__init__(self, x, y, width, height, parent)
         self.font_loader, self.logger, self.opts = font_loader, logger, opts
@@ -79,7 +79,7 @@ class _Canvas(QGraphicsRectItem):
         pen = QPen()
         pen.setStyle(Qt.NoPen)
         self.setPen(pen)
-        
+
     def layout_block(self, block, x, y):
         if isinstance(block, TextBlock):
             self.layout_text_block(block, x, y)
@@ -89,17 +89,17 @@ class _Canvas(QGraphicsRectItem):
             self.layout_image_block(block, x, y)
         elif isinstance(block, Canvas):
             self.layout_canvas(block, x, y)
-            
+
     def layout_canvas(self, canvas, x, y):
         if canvas.max_y + y > self.max_y and y > 0:
             self.is_full = True
-            return 
+            return
         canvas.setParentItem(self)
         canvas.setPos(x, y)
         canvas.has_content = False
         canvas.put_objects()
         self.current_y += canvas.max_y
-            
+
     def layout_text_block(self, block, x, y):
         textwidth = block.bs.blockwidth - block.bs.sidemargin
         if block.max_y == 0 or not block.lines: # Empty block skipping
@@ -128,15 +128,15 @@ class _Canvas(QGraphicsRectItem):
                 line = block.peek()
         self.current_y = y
         self.is_full = not block_consumed
-        
+
     def layout_ruled_line(self, rl, x, y):
         br = rl.boundingRect()
         rl.setParentItem(self)
         rl.setPos(x, y+1)
         self.current_y = y + br.height() + 1
         self.is_full = y > self.max_y-5
-        rl.has_content = False 
-             
+        rl.has_content = False
+
     def layout_image_block(self, ib, x, y):
         mw, mh = self.max_x - x, self.max_y - y
         if self.current_y + ib.height > self.max_y-y and self.current_y > 5:
@@ -161,8 +161,8 @@ class _Canvas(QGraphicsRectItem):
                 print
                 print ib.block_id, ib.has_content, self.is_full
                 print self.current_y, self.max_y, y, br.height()
-                print 
-            
+                print
+
     def search(self, phrase):
         matches = []
         for child in self.children():
@@ -174,11 +174,11 @@ class _Canvas(QGraphicsRectItem):
                     else:
                         matches.append(res)
         return matches
-                
-            
-    
+
+
+
 class Canvas(_Canvas, ContentObject):
-    
+
     def __init__(self, font_loader, canvas, logger, opts, ruby_tags, link_activated, width=0, height=0):
         if hasattr(canvas, 'canvaswidth'):
             width, height = canvas.canvaswidth, canvas.canvasheight
@@ -198,11 +198,11 @@ class Canvas(_Canvas, ContentObject):
             item = object_factory(self, obj, respect_max_y=True)
             if item:
                 self.items.append((item, po.x1, po.y1))
-                
+
     def put_objects(self):
         for block, x, y in self.items:
             self.layout_block(block, x, y)
-    
+
     def layout_block(self, block, x, y):
         block.reset()
         _Canvas.layout_block(self, block, x, y)
@@ -212,17 +212,17 @@ class Header(Canvas):
         Canvas.__init__(self, font_loader, header, logger, opts, ruby_tags, link_activated,
                         page_style.textwidth,  page_style.headheight)
         if opts.visual_debug:
-            self.setPen(QPen(Qt.blue, 1, Qt.DashLine))    
+            self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
 
 class Footer(Canvas):
     def __init__(self, font_loader, footer, page_style, logger, opts, ruby_tags, link_activated):
         Canvas.__init__(self, font_loader, footer, logger, opts, ruby_tags, link_activated,
                         page_style.textwidth, page_style.footheight)
         if opts.visual_debug:
-            self.setPen(QPen(Qt.blue, 1, Qt.DashLine))    
+            self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
 
 class Screen(_Canvas):
-    
+
     def __init__(self, font_loader, chapter, odd, logger, opts, ruby_tags, link_activated):
         self.logger, self.opts = logger, opts
         page_style = chapter.style
@@ -231,11 +231,11 @@ class Screen(_Canvas):
         self.content_x = 0 + sidemargin
         self.text_width = page_style.textwidth
         self.header_y = page_style.topmargin
-        
+
         self.text_y = self.header_y + page_style.headheight + page_style.headsep
         self.text_height = page_style.textheight
         self.footer_y = self.text_y + self.text_height + (page_style.footspace - page_style.footheight)
-        
+
         _Canvas.__init__(self, font_loader, logger, opts, width=width, height=self.footer_y+page_style.footheight)
         if opts.visual_debug:
             self.setPen(QPen(Qt.red, 1, Qt.SolidLine))
@@ -256,57 +256,57 @@ class Screen(_Canvas):
         if footer:
             footer = Footer(font_loader, footer, page_style, logger, opts, ruby_tags, link_activated)
             self.layout_canvas(footer, self.content_x, self.header_y)
-            
+
         self.page = None
-        
+
     def set_page(self, page):
         if self.page is not None and self.page.scene():
-            self.scene().removeItem(self.page)       
+            self.scene().removeItem(self.page)
         self.page = page
         self.page.setPos(self.content_x, self.text_y)
         self.scene().addItem(self.page)
-        
+
     def remove(self):
         if self.scene():
             if self.page is not None and self.page.scene():
                 self.scene().removeItem(self.page)
             self.scene().removeItem(self)
-            
-        
+
+
 class Page(_Canvas):
-    
+
     def __init__(self, font_loader, logger, opts, width, height):
         _Canvas.__init__(self, font_loader, logger, opts, width, height)
         if opts.visual_debug:
             self.setPen(QPen(Qt.cyan, 1, Qt.DashLine))
-            
+
     def id(self):
         for child in self.children():
             if hasattr(child, 'block_id'):
                 return child.block_id
-        
+
     def add_block(self, block):
         self.layout_block(block, 0, self.current_y)
-    
-        
-    
+
+
+
 class Chapter(object):
-    
+
     num_of_pages = property(fget=lambda self: len(self.pages))
-        
+
     def __init__(self, oddscreen, evenscreen, pages, object_to_page_map):
         self.oddscreen, self.evenscreen, self.pages, self.object_to_page_map = \
             oddscreen, evenscreen, pages, object_to_page_map
-            
+
     def page_of_object(self, id):
         return self.object_to_page_map[id]
-    
+
     def page(self, num):
         return self.pages[num-1]
-    
+
     def screen(self, odd):
         return self.oddscreen if odd else self.evenscreen
-    
+
     def search(self, phrase):
         pages = []
         for i in range(len(self.pages)):
@@ -314,36 +314,36 @@ class Chapter(object):
             if matches:
                 pages.append([i, matches])
         return pages
-            
+
 
 class History(collections.deque):
-    
+
     def __init__(self):
         collections.deque.__init__(self)
         self.pos = 0
-        
+
     def back(self):
         if self.pos - 1 < 0: return None
         self.pos -= 1
         return self[self.pos]
-    
+
     def forward(self):
         if self.pos + 1 >= len(self): return None
         self.pos += 1
         return self[self.pos]
-    
+
     def add(self, item):
         while len(self) > self.pos+1:
             self.pop()
         self.append(item)
         self.pos += 1
-            
-        
+
+
 
 class Document(QGraphicsScene):
-    
+
     num_of_pages = property(fget=lambda self: sum(self.chapter_layout))
-    
+
     def __init__(self, logger, opts):
         QGraphicsScene.__init__(self)
         self.logger, self.opts = logger, opts
@@ -358,23 +358,23 @@ class Document(QGraphicsScene):
         self.last_search = iter([])
         if not opts.white_background:
             self.setBackgroundBrush(QBrush(QColor(0xee, 0xee, 0xee)))
-    
+
     def page_of(self, oid):
         for chapter in self.chapters:
             if oid in chapter.object_to_page_map:
                 return  chapter.object_to_page_map[oid]
-    
+
     def get_page_num(self, chapterid, objid):
         cnum = self.chapter_map[chapterid]
         page = self.chapters[cnum].object_to_page_map[objid]
         return sum(self.chapter_layout[:cnum])+page
-    
+
     def add_to_history(self):
         page = self.chapter_page(self.current_page)[1]
         page_id = page.id()
         if page_id is not None:
             self.history.add(page_id)
-    
+
     def link_activated(self, objid, on_creation=None):
         if on_creation is None:
             cid, oid = self.link_map[objid]
@@ -385,30 +385,30 @@ class Document(QGraphicsScene):
         else:
             jb = self.objects[objid]
             self.link_map[objid] = (jb.refpage, jb.refobj)
-        
-            
+
+
     def back(self):
         oid = self.history.back()
         if oid is not None:
             page = self.page_of(oid)
             self.show_page(page)
-        
+
     def forward(self):
         oid = self.history.forward()
         if oid is not None:
             page = self.page_of(oid)
             self.show_page(page)
-            
-    
+
+
     def load_fonts(self, lrf, load_substitutions=True):
         font_map = {}
-        
+
         for font in lrf.font_map:
             fdata = QByteArray(lrf.font_map[font].data)
             id = QFontDatabase.addApplicationFontFromData(fdata)
             if id != -1:
                 font_map[font] = [str(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
-        
+
         if load_substitutions:
             from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
             QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_BoldItalic.font_data))
@@ -434,10 +434,10 @@ class Document(QGraphicsScene):
             QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_BoldItalic.font_data))
             from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Regular
             QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Regular.font_data))
-        
+
         self.font_loader = FontLoader(font_map, self.dpi)
-    
-    
+
+
     def render_chapter(self, chapter, lrf):
         oddscreen, evenscreen = Screen(self.font_loader, chapter, True, self.logger, self.opts, self.ruby_tags, self.link_activated), \
                                 Screen(self.font_loader, chapter, False, self.logger, self.opts, self.ruby_tags, self.link_activated)
@@ -459,36 +459,36 @@ class Document(QGraphicsScene):
         if current_page:
             pages.append(current_page)
         self.chapters.append(Chapter(oddscreen, evenscreen, pages, object_to_page_map))
-        self.chapter_map[chapter.id] = len(self.chapters)-1    
-            
-    
+        self.chapter_map[chapter.id] = len(self.chapters)-1
+
+
     def render(self, lrf, load_substitutions=True):
         self.dpi = lrf.device_info.dpi/10.
         self.ruby_tags = dict(**lrf.ruby_tags)
         self.load_fonts(lrf, load_substitutions)
         self.objects = lrf.objects
-        
+
         num_chaps = 0
         for pt in lrf.page_trees:
             for chapter in pt:
                 num_chaps += 1
         self.emit(SIGNAL('chapter_rendered(int)'), num_chaps)
-        
+
         for pt in lrf.page_trees:
             for chapter in pt:
                 self.render_chapter(chapter, lrf)
-                
+
                 self.emit(SIGNAL('chapter_rendered(int)'), -1)
         self.chapter_layout = [i.num_of_pages for i in self.chapters]
         self.objects = None
-    
+
     def chapter_page(self, num):
         for chapter in self.chapters:
             if num <= chapter.num_of_pages:
                 break
             num -= chapter.num_of_pages
         return chapter, chapter.page(num)
-    
+
     def show_page(self, num):
         if num < 1 or num > self.num_of_pages or num == self.current_page:
             return
@@ -496,33 +496,33 @@ class Document(QGraphicsScene):
         self.current_page = num
         chapter, page = self.chapter_page(num)
         screen = chapter.screen(odd)
-        
+
         if self.current_screen is not None and self.current_screen is not screen:
             self.current_screen.remove()
         self.current_screen = screen
         if self.current_screen.scene() is None:
             self.addItem(self.current_screen)
-        
+
         self.current_screen.set_page(page)
         self.emit(SIGNAL('page_changed(PyQt_PyObject)'), self.current_page)
-        
-        
+
+
     def next(self):
         self.next_by(1)
-        
+
     def previous(self):
         self.previous_by(1)
-        
+
     def next_by(self, num):
         self.show_page(self.current_page + num)
-        
+
     def previous_by(self, num):
         self.show_page(self.current_page - num)
-        
+
     def show_page_at_percent(self, p):
         num = self.num_of_pages*(p/100.)
         self.show_page(num)
-        
+
     def search(self, phrase):
         if not phrase:
             return
@@ -534,7 +534,7 @@ class Document(QGraphicsScene):
             matches += cmatches
         self.last_search = itertools.cycle(matches)
         self.next_match()
-        
+
     def next_match(self):
         page_num = self.last_search.next()[0]
         if self.current_page == page_num:
@@ -542,4 +542,4 @@ class Document(QGraphicsScene):
         else:
             self.add_to_history()
             self.show_page(page_num)
-        
+

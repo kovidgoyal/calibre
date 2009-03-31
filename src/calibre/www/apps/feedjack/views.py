@@ -26,7 +26,8 @@ def initview(request):
     5. The feeds for the site (ids)
     """
 
-    site_id, cachekey = fjlib.getcurrentsite(request.META['HTTP_HOST'], \
+    site_id, cachekey = fjlib.getcurrentsite(request.META.get('HTTP_HOST',
+    'planet.calibre-ebook.com'), \
       request.META.get('REQUEST_URI', request.META.get('PATH_INFO', '/')), \
       request.META['QUERY_STRING'])
     response = fjcache.cache_get(site_id, cachekey)
