@@ -92,9 +92,9 @@ def add_input_output_options(parser, plumber):
         parser.add_option_group(io)
 
     if output_options:
-        title = plumber.output_fmt.upper() + ' ' + _('OPTIONS')
+        title = _('OUTPUT OPTIONS')
         oo = OptionGroup(parser, title, _('Options to control the processing'
-                          ' of the output %s file')%plumber.input_fmt)
+                          ' of the output %s')%plumber.output_fmt)
         add_options(oo.add_option, output_options)
         parser.add_option_group(oo)
 

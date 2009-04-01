@@ -25,7 +25,7 @@ class OEBOutput(OutputFormatPlugin):
         with CurrentDir(output_path):
             results = oeb_book.to_opf2(page_map=True)
             for key in (OPF_MIME, NCX_MIME, PAGE_MAP_MIME):
-                href, root = results.pop(key, None)
+                href, root = results.pop(key, [None, None])
                 if root is not None:
                     raw = etree.tostring(root, pretty_print=True,
                             encoding='utf-8')
@@ -33,6 +33,21 @@ class OEBOutput(OutputFormatPlugin):
                         f.write(raw)
 
             for item in oeb_book.manifest:
-                print item.href
+                path = os.path.abspath(item.href)
+                dir = os.path.dirname(path)
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                raw = item.data
+                if not isinstance(raw, basestring):
+                    if hasattr(raw, 'cssText'):
+                        raw = raw.cssText
+                    else:
+                        raw = etree.tostring(raw, encoding='utf-8',
+                                pretty_print=opts.pretty_print)
+                        raw = raw + '<?xml version="1.0" encoding="utf-8" ?>\n'
+                if isinstance(raw, unicode):
+                    raw = raw.encode('utf-8')
+                with open(path, 'wb') as f:
+                    f.write(raw)
 
 

@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import struct, os, cStringIO, re, functools, datetime
+import struct, os, cStringIO, re, functools, datetime, textwrap
 
 try:
     from PIL import Image as PILImage
@@ -162,7 +162,7 @@ class MobiReader(object):
         self.log = log
         self.debug = debug
         self.embedded_mi = None
-        self.base_css_rules = '''
+        self.base_css_rules = textwrap.dedent('''
                 blockquote { margin: 0em 0em 0em 1.25em; text-align: justify }
 
                 p { margin: 0em; text-align: justify }
@@ -174,7 +174,7 @@ class MobiReader(object):
                 .mbp_pagebreak {
                     page-break-after: always; margin: 0; display: block
                 }
-                '''
+                ''')
         self.tag_css_rules = []
 
         if hasattr(filename_or_stream, 'read'):
@@ -223,7 +223,7 @@ class MobiReader(object):
 
         processed_records = self.extract_text()
         if self.debug is not None:
-            self.parse_cache['calibre_raw_mobi_markup'] = self.mobi_html
+            parse_cache['calibre_raw_mobi_markup'] = self.mobi_html
         self.add_anchors()
         self.processed_html = self.processed_html.decode(self.book_header.codec,
                                                           'ignore')
@@ -265,7 +265,6 @@ class MobiReader(object):
             pass
         parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
-        self.log.debug('Creating OPF...')
         ncx = cStringIO.StringIO()
         opf = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0]+'.opf'
@@ -283,8 +282,7 @@ class MobiReader(object):
 
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
-            if self.verbose:
-                print 'Creating OPF...'
+            self.log.debug('Creating OPF...')
             ncx = cStringIO.StringIO()
             opf = self.create_opf(htmlfile, guide, root)
             opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)

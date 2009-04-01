@@ -25,9 +25,11 @@ class Plugin(_Plugin):
     screen_size = (800, 600)
     dpi = 100
 
-    def initialize(self):
+    def __init__(self, *args, **kwargs):
+        _Plugin.__init__(self, *args, **kwargs)
         self.width, self.height = self.screen_size
         fsizes = list(self.fsizes)
+        self.fkey = list(self.fsizes)
         self.fsizes = []
         for (name, num), size in izip(FONT_SIZES, fsizes):
             self.fsizes.append((name, num, float(size)))

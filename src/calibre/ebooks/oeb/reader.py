@@ -168,7 +168,7 @@ class OEBReader(object):
         data.
         '''
         bad = []
-        check = OEB_DOCS+OEB_STYLES
+        check = OEB_DOCS.union(OEB_STYLES)
         for item in list(self.oeb.manifest.values()):
             if item.media_type in check:
                 try:
