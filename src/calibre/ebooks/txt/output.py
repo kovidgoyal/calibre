@@ -56,6 +56,7 @@ class TXTOutput(OutputFormatPlugin):
             out_stream = output_path
         
         out_stream.seek(0)
+        out_stream.truncate()
         out_stream.write(txt)
         
         if close:

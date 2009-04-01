@@ -1,20 +1,17 @@
-'''
-Write content to PDF.
-'''
+# -*- coding: utf-8 -*-
 from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
 
-import os, logging, shutil, sys
+'''
+Write content to PDF.
+'''
 
-from calibre import LoggingInterface
-from calibre.ebooks.epub.iterator import SpineItem
-from calibre.ebooks.metadata.opf2 import OPF
+import os, shutil, sys
+
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.customize.ui import run_plugins_on_postprocess
-from calibre.utils.config import Config, StringConfig
-
 from PyQt4 import QtCore
 from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, QApplication, QPrinter, \
     QMetaObject, Qt
@@ -29,13 +26,14 @@ class PDFMargins:
         self.left   = margin
         self.right  = margin
         
+        
 class PDFWriter(QObject):
-    def __init__(self, margins=PDFMargins()):
+    def __init__(self, log, margins=PDFMargins()):
         if QApplication.instance() is None:
             QApplication([])
         QObject.__init__(self)
         
-        self.logger = logging.getLogger('oeb2pdf')
+        self.logger = log
         
         self.loop = QEventLoop()
         self.view = QWebView()
@@ -45,13 +43,12 @@ class PDFWriter(QObject):
         self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
         self.margins = margins
 
-    def dump(self, oebpath, path):
+    def dump(self, spine, out_stream):
         self._delete_tmpdir()
         
-        opf = OPF(oebpath, os.path.dirname(oebpath))
-        self.render_queue = [SpineItem(i.path) for i in opf.spine]
+        self.render_queue = spine[:]
         self.combine_queue = []
-        self.path = path
+        self.out_stream = out_stream
         
         QMetaObject.invokeMethod(self, "_render_book", Qt.QueuedConnection)
         self.loop.exec_()
@@ -98,75 +95,7 @@ class PDFWriter(QObject):
                 inputPDF = PdfFileReader(file(item, 'rb'))
                 for page in inputPDF.pages:
                     outPDF.addPage(page)
-            outputStream = file(self.path, 'wb')
-            outPDF.write(outputStream)
-            outputStream.close()
+            outPDF.write(self.out_stream)
         finally:
             self._delete_tmpdir()
             self.loop.exit(0)
-
-
-def config(defaults=None):
-    desc = _('Options to control the conversion to PDF')
-    if defaults is None:
-        c = Config('pdf', desc)
-    else:
-        c = StringConfig(defaults, desc)
-        
-    pdf = c.add_group('PDF', _('PDF options.'))
-            
-    pdf('margin_top', ['--margin_top'], default=1,
-         help=_('The top margin around the document in inches.'))
-    pdf('margin_bottom', ['--margin_bottom'], default=1,
-         help=_('The bottom margin around the document in inches.'))
-    pdf('margin_left', ['--margin_left'], default=1,
-         help=_('The left margin around the document in inches.'))
-    pdf('margin_right', ['--margin_right'], default=1,
-         help=_('The right margin around the document in inches.'))
-    
-    return c
-
-def option_parser():
-    c = config()
-    parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
-    parser.add_option(
-        '-o', '--output', default=None, 
-        help=_('Output file. Default is derived from input filename.'))
-    parser.add_option(
-        '-v', '--verbose', default=0, action='count',
-        help=_('Useful for debugging.'))        
-    return parser
-
-def oeb2pdf(opts, inpath):
-    logger = LoggingInterface(logging.getLogger('oeb2pdf'))
-    logger.setup_cli_handler(opts.verbose)
-    
-    outpath = opts.output
-    if outpath is None:
-        outpath = os.path.basename(inpath)
-        outpath = os.path.splitext(outpath)[0] + '.pdf'
-
-    margins = PDFMargins()
-    margins.top = opts.margin_top
-    margins.bottom = opts.margin_bottom
-    margins.left = opts.margin_left
-    margins.right = opts.margin_right
-
-    writer = PDFWriter(margins)
-    writer.dump(inpath, outpath)
-    run_plugins_on_postprocess(outpath, 'pdf')
-    logger.log_info(_('Output written to ') + outpath)
-    
-def main(argv=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(argv[1:])
-    if len(args) != 1:
-        parser.print_help()
-        return 1
-    inpath = args[0]
-    retval = oeb2pdf(opts, inpath)
-    return retval
-
-if __name__ == '__main__':
-    sys.exit(main())
-    

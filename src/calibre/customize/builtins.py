@@ -267,9 +267,10 @@ from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.oeb.output import OEBOutput
 from calibre.ebooks.txt.output import TXTOutput
+from calibre.ebooks.pdf.output import PDFOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
-plugins = [HTML2ZIP, EPUBInput, MOBIInput, OEBOutput, TXTOutput]
+plugins = [HTML2ZIP, EPUBInput, MOBIInput, OEBOutput, TXTOutput, PDFOutput]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
