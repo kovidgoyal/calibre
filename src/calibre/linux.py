@@ -39,10 +39,9 @@ entry_points = {
              'calibre-fontconfig = calibre.utils.fontconfig:main',
              'calibre-parallel   = calibre.parallel:main',
              'calibre-customize  = calibre.customize.ui:main',
-             'pdftrim            = calibre.ebooks.pdf.pdftrim:main' ,
+             'pdfmanipulate      = calibre.ebooks.pdf.manipulate:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
              'calibre-smtp = calibre.utils.smtp:main',
-
         ],
         'gui_scripts'    : [
             __appname__+' = calibre.gui2.main:main',
@@ -547,7 +546,4 @@ def setup_desktop_integration(fatal_errors):
 main = post_install
 if __name__ == '__main__':
     post_install()
-
-
-
 

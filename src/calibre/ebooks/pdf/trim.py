@@ -16,8 +16,6 @@ def config(defaults=None):
         c = Config('trimpdf', desc)
     else:
         c = StringConfig(defaults, desc)
-    c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
-          help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
     c.add_opt('output', ['-o', '--output'],default='cropped.pdf',
           help=_('Path to output file. By default a file is created in the current directory.'))
     c.add_opt('bottom_left_x', [ '-x', '--leftx'], default=default_crop,
@@ -33,16 +31,16 @@ def config(defaults=None):
     return c
 
 
-def option_parser():
+def option_parser(name):
     c = config()
     return c.option_parser(usage=_('''\
-	%prog [options] file.pdf
+	%prog %%name [options] file.pdf
 
 	Crops a pdf. 
-	'''))
+	'''.replace('%%name', name)))
 
-def main(args=sys.argv):
-    parser = option_parser()
+def main(args=sys.argv, name=''):
+    parser = option_parser(name)
     opts, args = parser.parse_args(args)
     try:
         source = os.path.abspath(args[1])

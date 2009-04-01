@@ -196,7 +196,7 @@ OptionRecommendation(name='language',
         self.input_fmt = input_fmt
         self.output_fmt = output_fmt
 
-        # Build set of all possible options. Two options are equal iff their
+        # Build set of all possible options. Two options are equal if their
         # names are the same.
         self.input_options  = self.input_plugin.options.union(
                                     self.input_plugin.common_options)
