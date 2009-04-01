@@ -12,23 +12,17 @@ Write content to PDF.
 import os, shutil, sys
 
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ebooks.pdf.pageoptions import PageOptions
+
 from PyQt4 import QtCore
 from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, QApplication, QPrinter, \
     QMetaObject, Qt
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
-    
-class PDFMargins:
-    def __init__(self, margin=1):
-        self.top    = margin
-        self.bottom = margin
-        self.left   = margin
-        self.right  = margin
-        
         
 class PDFWriter(QObject):
-    def __init__(self, log, margins=PDFMargins()):
+    def __init__(self, log, popts=PageOptions()):
         if QApplication.instance() is None:
             QApplication([])
         QObject.__init__(self)
@@ -41,7 +35,7 @@ class PDFWriter(QObject):
         self.render_queue = []
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
-        self.margins = margins
+        self.popts = popts
 
     def dump(self, spine, out_stream):
         self._delete_tmpdir()
@@ -75,7 +69,9 @@ class PDFWriter(QObject):
             self.logger.debug('\tRendering item as %s' % item_path)
         
             printer = QPrinter(QPrinter.HighResolution)
-            printer.setPageMargins(self.margins.left, self.margins.top, self.margins.right, self.margins.bottom, QPrinter.Inch)
+            printer.setPageMargins(self.popts.margin_left, self.popts.margin_top, self.popts.margin_right, self.popts.margin_bottom, self.popts.unit)
+            printer.setPaperSize(self.popts.paper_size)
+            printer.setOrientation(self.popts.orientation)
             printer.setOutputFormat(QPrinter.PdfFormat)
             printer.setOutputFileName(item_path)
             self.view.print_(printer)

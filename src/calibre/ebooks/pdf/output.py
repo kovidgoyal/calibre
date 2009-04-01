@@ -13,7 +13,9 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.pdf.writer import PDFWriter, PDFMargins
+from calibre.ebooks.pdf.writer import PDFWriter
+from calibre.ebooks.pdf.pageoptions import UNITS, unit, PAPER_SIZES, \
+    paper_size, ORIENTATIONS, orientation, PageOptions
 
 class PDFOutput(OutputFormatPlugin):
 
@@ -34,16 +36,37 @@ class PDFOutput(OutputFormatPlugin):
                     OptionRecommendation(name='margin_right', recommended_value='1',
                         level=OptionRecommendation.LOW, long_switch='margin_right',
                         help=_('The right margin around the document.')),
+                        
+                    OptionRecommendation(name='unit', recommended_value='inch',
+                        level=OptionRecommendation.LOW, short_switch='u',
+                        long_switch='unit', choices=UNITS.keys(),
+                        help=_('The unit of measure. Default is inch. Choices '
+                        'are %s' % UNITS.keys())),
+                    OptionRecommendation(name='paper_size', recommended_value='letter',
+                        level=OptionRecommendation.LOW,
+                        long_switch='paper_size', choices=PAPER_SIZES.keys(),
+                        help=_('The size of the paper. Default is letter. Choices '
+                        'are %s' % PAPER_SIZES.keys())),
+                    OptionRecommendation(name='orientation', recommended_value='portrait',
+                        level=OptionRecommendation.LOW,
+                        long_switch='orientation', choices=ORIENTATIONS.keys(),
+                        help=_('The orientation of the page. Default is portrait. Choices '
+                        'are %s' % ORIENTATIONS.keys())),
                  ])
                  
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        margins = PDFMargins()
-        margins.top = opts.margin_top
-        margins.bottom = opts.margin_bottom
-        margins.left = opts.margin_left
-        margins.right = opts.margin_right
+        popts = PageOptions()
+        
+        popts.set_margin_top(opts.margin_top)
+        popts.set_margin_bottom(opts.margin_bottom)
+        popts.set_margin_left(opts.margin_left)
+        popts.set_margin_right(opts.margin_right)
+        
+        popts.unit = unit(opts.unit)
+        popts.paper_size = paper_size(opts.paper_size)
+        popts.orientation = orientation(opts.orientation)
     
-        writer = PDFWriter(log, margins)
+        writer = PDFWriter(log, popts)
         
         close = False
         if not hasattr(output_path, 'write'):
