@@ -9,6 +9,7 @@ from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import input_profiles, output_profiles, \
         plugin_for_input_format, plugin_for_output_format
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
+from calibre.ptempfile import PersistentTemporaryDirectory
 
 class OptionValues(object):
     pass
@@ -289,6 +290,8 @@ OptionRecommendation(name='language',
         '''
         # Setup baseline option values
         self.setup_options()
+        if self.opts.verbose:
+            self.log.filter_level = self.log.DEBUG
 
         # Run any preprocess plugins
         from calibre.customize.ui import run_plugins_on_preprocess
@@ -300,9 +303,11 @@ OptionRecommendation(name='language',
         from calibre.ebooks.oeb.base import OEBBook
         accelerators = {}
 
+        tdir = PersistentTemporaryDirectory('_plumber')
+
         opfpath = self.input_plugin(open(self.input, 'rb'), self.opts,
                                     self.input_fmt, self.log,
-                                    accelerators)
+                                    accelerators, tdir)
         html_preprocessor = HTMLPreProcessor()
         self.reader = OEBReader()
         self.oeb = OEBBook(self.log, html_preprocessor=html_preprocessor)
@@ -316,15 +321,16 @@ OptionRecommendation(name='language',
         from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
         fbase = self.opts.base_font_size
         if fbase == 0:
-            fbase = self.opts.dest.fbase
+            fbase = float(self.opts.dest.fbase)
         fkey = self.opts.font_size_mapping
         if fkey is None:
-            fkey = self.opts.dest.fsizes
+            fkey = self.opts.dest.fkey
+        else:
+            fkey = map(float, fkey.split(','))
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=self.opts.line_height,
                 untable=self.opts.linearize_tables)
-        self.log.info('Flattening CSS...')
         flattener(self.oeb, self.opts)
 
         from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
@@ -334,7 +340,7 @@ OptionRecommendation(name='language',
         trimmer(self.oeb, self.opts)
 
         self.log.info('Creating %s output...'%self.output_plugin.name)
-        self.output_plugin(self.oeb, self.output, self.input_plugin, self.opts,
+        self.output_plugin.convert(self.oeb, self.output, self.input_plugin, self.opts,
                 self.log)
 
 

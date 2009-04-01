@@ -658,9 +658,9 @@ class Manifest(object):
 
         def _parse_css(self, data):
             data = self.oeb.decode(data)
-            data = self.CSSPreProcessor(data)
+            data = self.oeb.css_preprocessor(data)
             data = XHTML_CSS_NAMESPACE + data
-            parser = CSSParser(log=self.oeb.logger, loglevel=logging.WARNING,
+            parser = CSSParser(loglevel=logging.WARNING,
                                fetcher=self._fetch_css)
             data = parser.parseString(data, href=self.href)
             data.namespaces['h'] = XHTML_NS

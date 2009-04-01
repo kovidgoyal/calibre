@@ -170,7 +170,8 @@ class InputFormatPlugin(Plugin):
             if not os.path.exists(options.debug_input):
                 os.makedirs(options.debug_input)
             shutil.rmtree(options.debug_input)
-            shutil.copytree('.', options.debug_input)
+            shutil.copytree(output_dir, options.debug_input)
+            log.info('Input debug saved to:', options.debug_input)
 
         return ret
 
@@ -195,7 +196,14 @@ class OutputFormatPlugin(Plugin):
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :member:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
-    common_options = set([])
+    common_options = set([
+        OptionRecommendation(name='pretty_print',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('If specified, the output plugin will try to create output '
+            'that is as human readable as possible. May not have any effect '
+            'for some output plugins.')
+        ),
+        ])
 
     #: Options to customize the behavior of this plugin. Every option must be an
     #: instance of :class:`OptionRecommendation`.

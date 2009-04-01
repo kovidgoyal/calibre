@@ -263,7 +263,7 @@ class EmailAccounts(QAbstractTableModel):
 
     def remove(self, index):
         if index.isValid():
-            row = self.index.row()
+            row = index.row()
             account = self.account_order[row]
             self.accounts.pop(account)
             self.account_order = sorted(self.accounts.keys())
@@ -425,12 +425,18 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.email_view.resizeColumnsToContents()
         self.connect(self.test_email_button, SIGNAL('clicked(bool)'),
                 self.test_email)
+        self.connect(self.email_remove, SIGNAL('clicked()'),
+                self.remove_email_account)
 
     def add_email_account(self, checked):
         index = self._email_accounts.add()
         self.email_view.setCurrentIndex(index)
         self.email_view.resizeColumnsToContents()
         self.email_view.edit(index)
+
+    def remove_email_account(self, *args):
+        idx = self.email_view.currentIndex()
+        self._email_accounts.remove(idx)
 
     def create_gmail_relay(self, *args):
         self.relay_username.setText('@gmail.com')

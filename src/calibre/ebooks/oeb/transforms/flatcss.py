@@ -44,7 +44,7 @@ class KeyMapper(object):
         logb = abs(base - endp)
         result = sign * math.log(diff, logb)
         return result
-        
+
     def __getitem__(self, ssize):
         ssize = asfloat(ssize, 0)
         if ssize in self.cache:
@@ -75,7 +75,7 @@ class NullMapper(object):
 
     def __getitem__(self, ssize):
         return ssize
-    
+
 def FontMapper(sbase=None, dbase=None, dkey=None):
     if sbase and dbase and dkey:
         return KeyMapper(sbase, dbase, dkey)
@@ -101,7 +101,7 @@ class CSSFlattener(object):
     @classmethod
     def generate(cls, opts):
         return cls()
-    
+
     def __call__(self, oeb, context):
         oeb.logger.info('Flattening CSS and remapping font sizes...')
         self.oeb = oeb
@@ -127,7 +127,7 @@ class CSSFlattener(object):
             self.baseline_node(child, stylizer, sizes, csize)
             if child.tail:
                 sizes[csize] += len(COLLAPSE.sub(' ', child.tail))
-    
+
     def baseline_spine(self):
         sizes = defaultdict(float)
         for item in self.oeb.spine:
@@ -157,7 +157,7 @@ class CSSFlattener(object):
                 else:
                     value = round(value / slineh) * dlineh
                     cssdict[property] = "%0.5fem" % (value / fsize)
-    
+
     def flatten_node(self, node, stylizer, names, styles, psize, left=0):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
@@ -267,7 +267,7 @@ class CSSFlattener(object):
                 manifest.remove(item)
         item = manifest.add(id, href, CSS_MIME, data=css)
         return href
-            
+
     def flatten_spine(self):
         names = defaultdict(int)
         styles = {}

@@ -1,0 +1,96 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+laprensa.com.ni
+'''
+
+import locale
+import time
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LaPrensa_ni(BasicNewsRecipe):
+    title                 = 'La Prensa - Nicaragua'
+    __author__            = 'Darko Miletic'
+    description           = 'LA PRENSA - EL Diario de los Nicaraguenses'
+    publisher             = 'La Prensa'
+    category              = 'Nicaragua, nicaragua, la prensa, La Prensa, prensa, Prensa, diario, Diario, periodico, noticias, internacional, economia, dinero, opinion, ultimas noticias, deportes, politica, managua, Managua, ultima hora, daily, newspaper, news, breaking news, urgente, tecnologia, tiempo, weather, buscador, magazine, Magazine, nosotras, Nosotras, journalism, clasificados, avisos, classified, ads, media, publicidad, arroba, arroba de oro'
+    oldest_article        = 1
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1252'
+    remove_javascript     = True
+    language              = _('Spanish')
+
+    #Locale setting to get appropriate date/month values in Spanish
+    try:
+      #Windows seting for locale
+      locale.setlocale(locale.LC_TIME,'Spanish_Nicaragua')
+    except locale.Error:
+      #Linux setting for locale -- choose one appropriate for your distribution
+      try:
+        locale.setlocale(locale.LC_TIME,'es_NI')
+      except locale.Error:
+          try:
+              locale.setlocale(locale.LC_TIME,'es_ES')
+          except:
+              pass
+
+
+    current_index         = time.strftime("http://www.laprensa.com.ni/archivo/%Y/%B/%d/noticias/")
+
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        , '--ignore-tables'
+                        ]
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
+
+    feeds = [(u'Portada', current_index + 'portada/')]
+
+    def print_version(self, url):
+        return url.replace('.shtml','_print.shtml')
+
+    def preprocess_html(self, soup):
+        del soup.body['onload']
+        mtag = '<meta http-equiv="Content-Language" content="es-NI"/>'
+        soup.head.insert(0,mtag)
+        atag = soup.find('span',attrs={'class':'mas_noticias'})
+        if atag:
+           atag.extract()
+        btag = soup.find('a',attrs={'href':'/archivo'})
+        if btag:
+           btag.extract()
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for item in soup.findAll('a', attrs={'class':['titular','titulonotamed']}):
+                description = ''
+                url         = feedurl + item['href']
+                title       = self.tag_to_string(item)
+                date        = time.strftime(self.timefmt)
+                articles.append({
+                                  'title'      :title
+                                 ,'date'       :date
+                                 ,'url'        :url
+                                 ,'description':description
+                                })
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds
+
+    def cleanup(self):
+        #Going back to the default locale
+        locale.setlocale(locale.LC_TIME,'')
