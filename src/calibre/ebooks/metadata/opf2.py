@@ -510,8 +510,6 @@ class OPF(object):
         except:
             pass
 
-
-
     def get_text(self, elem):
         return u''.join(self.CONTENT(elem) or self.TEXT(elem))
 

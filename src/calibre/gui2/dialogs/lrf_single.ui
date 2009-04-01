@@ -727,7 +727,7 @@
               <string> px</string>
              </property>
              <property name="maximum" >
-              <number>200</number>
+              <number>250</number>
              </property>
              <property name="value" >
               <number>20</number>
@@ -750,7 +750,7 @@
               <string> px</string>
              </property>
              <property name="maximum" >
-              <number>200</number>
+              <number>250</number>
              </property>
              <property name="value" >
               <number>20</number>
@@ -773,7 +773,7 @@
               <string> px</string>
              </property>
              <property name="maximum" >
-              <number>200</number>
+              <number>250</number>
              </property>
              <property name="value" >
               <number>10</number>
@@ -796,7 +796,7 @@
               <string> px</string>
              </property>
              <property name="maximum" >
-              <number>200</number>
+              <number>250</number>
              </property>
              <property name="value" >
               <number>0</number>

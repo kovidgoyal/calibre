@@ -18,7 +18,7 @@ function find_enclosing_block(y) {
         if (min != 0 && min.height() < 200) break;
     }
     if (y <= 0) return document.body;
-    if (min == 0) { return find_enclosing_block(x, y-20); }
+    if (min == 0) { return find_enclosing_block(y-20); }
     return min;
 }
 
@@ -93,7 +93,7 @@ function enter_reference_mode() {
 }
 
 function leave_reference_mode() {
-    $("p").unbind("mouseenter mouseleave", toggle_reference);    
+    $("p").unbind("mouseenter mouseleave", toggle_reference);
 }
 
 function goto_reference(ref) {

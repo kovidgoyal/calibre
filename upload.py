@@ -667,9 +667,16 @@ class stage3(OptionlessCommand):
     def misc(cls):
         check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS, shell=True)
         check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS, shell=True)
+        check_call('gpg --armor --detach-sign dist/calibre-*.tar.gz',
+                shell=True)
+        check_call('scp dist/calibre-*.tar.gz.asc divok:%s/signatures/'%DOWNLOADS,
+                shell=True)
         check_call('''rm -rf dist/* build/*''', shell=True)
         check_call('ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/',
                    shell=True)
+        check_call('ssh divok bzr update /usr/local/calibre',
+                   shell=True)
+
 
     def run(self):
         OptionlessCommand.run(self)
