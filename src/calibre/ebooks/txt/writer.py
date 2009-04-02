@@ -22,16 +22,15 @@ class TxtWriter(object):
     def dump(self, spine, metadata):
         out = u''
         for item in spine:
-            with open(item, 'r') as itemf:
-                content = itemf.read().decode(item.encoding)
-                # Convert newlines to unix style \n for processing. These
-                # will be changed to the specified type later in the process.
-                content = self.unix_newlines(content)
-                content = self.strip_html(content)
-                content = self.replace_html_symbols(content)
-                content = self.cleanup_text(content)
-                content = self.specified_newlines(content)
-                out += content
+            content = unicode(item)
+            # Convert newlines to unix style \n for processing. These
+            # will be changed to the specified type later in the process.
+            content = self.unix_newlines(content)
+            content = self.strip_html(content)
+            content = self.replace_html_symbols(content)
+            content = self.cleanup_text(content)
+            content = self.specified_newlines(content)
+            out += content
 
         # Prepend metadata
         if metadata.author != None and metadata.author != '':
