@@ -24,23 +24,17 @@ class TXTOutput(OutputFormatPlugin):
                             'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
                             'For Mac OS X use \'unix\'. \'system\' will default to the newline '
                             'type used by this OS.' % sorted(TxtNewlines.NEWLINE_TYPES.keys()))),
-                    OptionRecommendation(name='prepend_author', recommended_value='true',
-                        level=OptionRecommendation.LOW, long_switch='prepend_author',
+                    OptionRecommendation(name='prepend_metadata', recommended_value='false',
+                        level=OptionRecommendation.LOW, long_switch='prepend_metadata',
                         choices=['true', 'false'],
-                        help=_('Write the author to the beginning of the file. '
+                        help=_('Write the title and author to the beginning of the file. '
                             'Default is \'true\'. Use \'false\' to disable.')),
-                    OptionRecommendation(name='prepend_title', recommended_value='true',
-                        choices=['true', 'false'],
-                        level=OptionRecommendation.LOW, long_switch='prepend_title',
-                        help=_('Write the title to the beginning of the file. '
-                            'Default is \'true\'. Use \'false\' to disable.'))
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         metadata = TxtMetadata()
-        if opts.prepend_author.lower() == 'true':
+        if opts.prepend_metadata.lower() == 'true':
             metadata.author = opts.authors if opts.authors else authors_to_string(oeb_book.metadata.authors.value) if oeb_book.metadata.authors != [] else _('Unknown')
-        if opts.prepend_title.lower() == 'true':
             metadata.title = opts.title if opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
             
         writer = TxtWriter(TxtNewlines(opts.newline).newline, log)
