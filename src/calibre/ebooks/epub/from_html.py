@@ -8,24 +8,24 @@ Conversion of HTML/OPF files follows several stages:
 
     * All links in the HTML files or in the OPF manifest are
     followed to build up a list of HTML files to be converted.
-    This stage is implemented by 
+    This stage is implemented by
     :function:`calibre.ebooks.html.traverse` and
     :class:`calibre.ebooks.html.HTMLFile`.
 
-    * The HTML is pre-processed to make it more semantic. 
+    * The HTML is pre-processed to make it more semantic.
     All links in the HTML files to other resources like images,
-    stylesheets, etc. are relativized. The resources are copied 
+    stylesheets, etc. are relativized. The resources are copied
     into the `resources` sub directory. This is accomplished by
-    :class:`calibre.ebooks.html.PreProcessor` and 
+    :class:`calibre.ebooks.html.PreProcessor` and
     :class:`calibre.ebooks.html.Parser`.
 
     * The HTML is processed. Various operations are performed.
-    All style declarations are extracted and consolidated into 
+    All style declarations are extracted and consolidated into
     a single style sheet. Chapters are auto-detected and marked.
     Various font related manipulations are performed. See
     :class:`HTMLProcessor`.
 
-    * The processed HTML is saved and the 
+    * The processed HTML is saved and the
     :module:`calibre.ebooks.epub.split` module is used to split up
     large HTML files into smaller chunks.
 
@@ -64,7 +64,7 @@ def remove_bad_link(element, attribute, link, pos):
 
 def check_links(opf_path, pretty_print):
     '''
-    Find and remove all invalid links in the HTML files 
+    Find and remove all invalid links in the HTML files
     '''
     logger = logging.getLogger('html2epub')
     logger.info('\tChecking files for bad links...')
@@ -78,7 +78,7 @@ def check_links(opf_path, pretty_print):
                 if isinstance(f, str):
                     f = f.decode('utf-8')
                 html_files.append(os.path.abspath(content(f)))
-        
+
         for path in html_files:
             if not os.access(path, os.R_OK):
                 continue
@@ -113,27 +113,27 @@ def find_html_index(files):
     return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
 
 class HTMLProcessor(Processor, Rationalizer):
-    
+
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, stylesheets):
-        Processor.__init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, 
+        Processor.__init__(self, htmlfile, opts, tdir, resource_map, htmlfiles,
                            name='html2epub')
         if opts.verbose > 2:
             self.debug_tree('parsed')
         self.detect_chapters()
-        
+
         self.extract_css(stylesheets)
         if self.opts.base_font_size2 > 0:
-            self.font_css = self.rationalize(self.external_stylesheets+[self.stylesheet], 
+            self.font_css = self.rationalize(self.external_stylesheets+[self.stylesheet],
                                              self.root, self.opts)
         if opts.verbose > 2:
             self.debug_tree('nocss')
-            
+
         if hasattr(self.body, 'xpath'):
             for script in list(self.body.xpath('descendant::script')):
                 script.getparent().remove(script)
-                
+
         self.fix_markup()
-            
+
     def convert_image(self, img):
         rpath = img.get('src', '')
         path = os.path.join(os.path.dirname(self.save_path()), *rpath.split('/'))
@@ -150,10 +150,10 @@ class HTMLProcessor(Processor, Rationalizer):
                     if val == rpath:
                         self.resource_map[key] = rpath+'_calibre_converted.jpg'
         img.set('src', rpath+'_calibre_converted.jpg')
-        
+
     def fix_markup(self):
         '''
-        Perform various markup transforms to get the output to render correctly 
+        Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
         '''
         # Replace <br> that are children of <body> as ADE doesn't handle them
@@ -179,8 +179,8 @@ class HTMLProcessor(Processor, Rationalizer):
                         if not br.tail:
                             br.tail = ''
                         br.tail += sibling.tail
-                
-                
+
+
         if self.opts.profile.remove_object_tags:
             for tag in self.root.xpath('//embed'):
                 tag.getparent().remove(tag)
@@ -188,42 +188,46 @@ class HTMLProcessor(Processor, Rationalizer):
                 if tag.get('type', '').lower().strip() in ('image/svg+xml',):
                     continue
                 tag.getparent().remove(tag)
-                
-        
+
+
         for tag in self.root.xpath('//title|//style'):
             if not tag.text:
                 tag.getparent().remove(tag)
         for tag in self.root.xpath('//script'):
             if not tag.text and not tag.get('src', False):
                 tag.getparent().remove(tag)
-                
+
         for tag in self.root.xpath('//form'):
             tag.getparent().remove(tag)
-            
+
         for tag in self.root.xpath('//center'):
             tag.tag = 'div'
             tag.set('style', 'text-align:center')
-                
+
         if self.opts.linearize_tables:
             for tag in self.root.xpath('//table | //tr | //th | //td'):
                 tag.tag = 'div'
-            
-    
+
+        # ADE can't handle &amp; in an img url
+        for tag in self.root.xpath('//img[@src]'):
+            tag.set('src', tag.get('src', '').replace('&', ''))
+
+
     def save(self):
         for meta in list(self.root.xpath('//meta')):
             meta.getparent().remove(meta)
         # Strip all comments since Adobe DE is petrified of them
         Processor.save(self, strip_comments=True)
-        
+
     def remove_first_image(self):
         images = self.root.xpath('//img')
         if images:
             images[0].getparent().remove(images[0])
             return True
         return False
-        
-    
-            
+
+
+
 
 def config(defaults=None):
     return common_config(defaults=defaults)
@@ -235,7 +239,7 @@ def option_parser():
 
 Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML file.
 If you specify an OPF file instead of an HTML file, the list of links is takes from
-the <spine> element of the OPF file.  
+the <spine> element of the OPF file.
 '''))
 
 def parse_content(filelist, opts, tdir):
@@ -246,7 +250,7 @@ def parse_content(filelist, opts, tdir):
     first_image_removed = False
     for htmlfile in filelist:
         logging.getLogger('html2epub').debug('Processing %s...'%htmlfile)
-        hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
+        hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'),
                            resource_map, filelist, stylesheets)
         if not first_image_removed and opts.remove_first_image:
             first_image_removed = hp.remove_first_image()
@@ -254,7 +258,7 @@ def parse_content(filelist, opts, tdir):
         hp.save()
         stylesheet_map[os.path.basename(hp.save_path())] = \
             [s for s in hp.external_stylesheets + [hp.stylesheet, hp.font_css, hp.override_css] if s is not None]
-    
+
     logging.getLogger('html2epub').debug('Saving stylesheets...')
     if opts.base_font_size2 > 0:
         Rationalizer.remove_font_size_information(stylesheets.values())
@@ -268,7 +272,7 @@ def parse_content(filelist, opts, tdir):
     if toc.count('chapter') + toc.count('file') > opts.toc_threshold:
         toc.purge(['link', 'unknown'])
     toc.purge(['link'], max=opts.max_toc_links)
-    
+
     return resource_map, hp.htmlfile_map, toc, stylesheet_map
 
 TITLEPAGE = '''\
@@ -325,26 +329,26 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     metadata_cover = mi.cover
     if metadata_cover and not os.path.exists(metadata_cover):
         metadata_cover = None
-        
+
     cpath = '/'.join(('resources', '_cover_.jpg'))
     cover_dest = os.path.join(tdir, 'content', *cpath.split('/'))
     if metadata_cover is not None:
-        if not create_cover_image(metadata_cover, cover_dest, 
+        if not create_cover_image(metadata_cover, cover_dest,
                                   opts.profile.screen_size):
             metadata_cover = None
     specified_cover = opts.cover
     if specified_cover and not os.path.exists(specified_cover):
         specified_cover = None
     if specified_cover is not None:
-        if not create_cover_image(specified_cover, cover_dest, 
+        if not create_cover_image(specified_cover, cover_dest,
                                   opts.profile.screen_size):
             specified_cover = None
-            
+
     cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
 
     if cover is not None:
         titlepage = TITLEPAGE%cpath
-        tp = 'calibre_title_page.html' if old_title_page is None else old_title_page 
+        tp = 'calibre_title_page.html' if old_title_page is None else old_title_page
         tppath = os.path.join(tdir, 'content', tp)
         with open(tppath, 'wb') as f:
             f.write(titlepage)
@@ -370,7 +374,7 @@ def condense_ncx(ncx_path):
     compressed = etree.tostring(tree.getroot(), encoding='utf-8')
     open(ncx_path, 'wb').write(compressed)
 
-def convert(htmlfile, opts, notification=None, create_epub=True, 
+def convert(htmlfile, opts, notification=None, create_epub=True,
             oeb_cover=False, extract_to=None):
     htmlfile = os.path.abspath(htmlfile)
     if opts.output is None:
@@ -399,16 +403,16 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
     else:
         opf, filelist = get_filelist(htmlfile, opts)
         mi = merge_metadata(htmlfile, opf, opts)
-    opts.chapter = XPath(opts.chapter, 
+    opts.chapter = XPath(opts.chapter,
                     namespaces={'re':'http://exslt.org/regular-expressions'})
     for x in (1, 2, 3):
         attr = 'level%d_toc'%x
         if getattr(opts, attr):
-            setattr(opts, attr, XPath(getattr(opts, attr), 
+            setattr(opts, attr, XPath(getattr(opts, attr),
                       namespaces={'re':'http://exslt.org/regular-expressions'}))
         else:
-            setattr(opts, attr, None) 
-    
+            setattr(opts, attr, None)
+
     with TemporaryDirectory(suffix='_html2epub', keep=opts.keep_intermediate) as tdir:
         if opts.keep_intermediate:
             print 'Intermediate files in', tdir
@@ -416,16 +420,16 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
                                         parse_content(filelist, opts, tdir)
         logger = logging.getLogger('html2epub')
         resources = [os.path.join(tdir, 'content', f) for f in resource_map.values()]
-        
-        
+
+
         title_page, has_title_page = process_title_page(mi, filelist, htmlfile_map, opts, tdir)
         spine = [htmlfile_map[f.path] for f in filelist]
         if not oeb_cover and title_page is not None:
             spine = [title_page] + spine
         mi.cover = None
         mi.cover_data = (None, None)
-            
-            
+
+
         mi = create_metadata(tdir, mi, spine, resources)
         buf = cStringIO.StringIO()
         if mi.toc:
@@ -453,7 +457,7 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             logger.info('\tBuilding page map...')
             add_page_map(opf_path, opts)
         check_links(opf_path, opts.pretty_print)
-        
+
         opf = OPF(opf_path, tdir)
         opf.remove_guide()
         oeb_cover_file = None
@@ -465,7 +469,7 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
                 opf.add_guide_item('cover', 'Cover', 'content/'+spine[0])
             if oeb_cover and oeb_cover_file:
                 opf.add_guide_item('cover', 'Cover', 'content/'+oeb_cover_file)
-        
+
         cpath = os.path.join(tdir, 'content', 'resources', '_cover_.jpg')
         if os.path.exists(cpath):
             opf.add_path_to_manifest(cpath, 'image/jpeg')
@@ -477,29 +481,29 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             condense_ncx(ncx_path)
             if os.stat(ncx_path).st_size > opts.profile.flow_size:
                 logger.warn('NCX still larger than allowed size at %d bytes. Menu based Table of Contents may not work on device.'%os.stat(ncx_path).st_size)
-            
+
         if create_epub:
             epub = initialize_container(opts.output)
             epub.add_dir(tdir)
             epub.close()
             run_plugins_on_postprocess(opts.output, 'epub')
             logger.info(_('Output written to ')+opts.output)
-        
+
         if opts.show_opf:
             print open(opf_path, 'rb').read()
-        
+
         if opts.extract_to is not None:
             if os.path.exists(opts.extract_to):
                 shutil.rmtree(opts.extract_to)
             shutil.copytree(tdir, opts.extract_to)
-            
+
         if extract_to is not None:
             if os.path.exists(extract_to):
                 shutil.rmtree(extract_to)
             shutil.copytree(tdir, extract_to)
-            
-        
-            
+
+
+
 def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
@@ -509,6 +513,6 @@ def main(args=sys.argv):
         return 1
     convert(args[1], opts)
     return 0
-    
+
 if __name__ == '__main__':
     sys.exit(main())
