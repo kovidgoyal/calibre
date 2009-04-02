@@ -6,7 +6,7 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 laprensa.com.ni
 '''
 
-import locale
+import datetime
 import time
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -23,23 +23,9 @@ class LaPrensa_ni(BasicNewsRecipe):
     encoding              = 'cp1252'
     remove_javascript     = True
     language              = _('Spanish')
-
-    #Locale setting to get appropriate date/month values in Spanish
-    try:
-      #Windows seting for locale
-      locale.setlocale(locale.LC_TIME,'Spanish_Nicaragua')
-    except locale.Error:
-      #Linux setting for locale -- choose one appropriate for your distribution
-      try:
-        locale.setlocale(locale.LC_TIME,'es_NI')
-      except locale.Error:
-          try:
-              locale.setlocale(locale.LC_TIME,'es_ES')
-          except:
-              pass
-
-
-    current_index         = time.strftime("http://www.laprensa.com.ni/archivo/%Y/%B/%d/noticias/")
+    months_es             = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+    current_month         = months_es[datetime.date.today().month - 1]
+    current_index         = time.strftime("http://www.laprensa.com.ni/archivo/%Y/" + current_month + "/%d/noticias/")
 
     html2lrf_options = [
                           '--comment', description
@@ -91,6 +77,3 @@ class LaPrensa_ni(BasicNewsRecipe):
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
 
-    def cleanup(self):
-        #Going back to the default locale
-        locale.setlocale(locale.LC_TIME,'')

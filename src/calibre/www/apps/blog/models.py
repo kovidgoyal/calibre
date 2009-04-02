@@ -2,10 +2,10 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import permalink
 from django.contrib.auth.models import User
-from calibre.www.apps.tagging.fields import TagField
+from tagging.fields import TagField
 from calibre.www.apps.blog.managers import PublicManager
 
-import calibre.www.apps.tagging as tagging
+import tagging
 
 class Category(models.Model):
     """Category model."""

@@ -13,7 +13,6 @@ class Exiled(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = "Mankind's only alternative since 1997 - Formerly known as The eXile"
     publisher             = 'Exiled Online'
-    language              = _('English')
     category              = 'news, politics, international'
     oldest_article        = 15
     max_articles_per_feed = 100
@@ -21,16 +20,18 @@ class Exiled(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     remove_javascript     = True
+    language              = _('English')
     cover_url             = 'http://exiledonline.com/wp-content/themes/exiledonline_theme/images/header-sm.gif'
 
     html2lrf_options = [
                           '--comment'       , description
+                        , '--base-font-size', '10'
                         , '--category'      , category
                         , '--publisher'     , publisher
                         ]
-    
+
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-    
+
     keep_only_tags = [dict(name='div', attrs={'id':'main'})]
 
     remove_tags = [
@@ -39,8 +40,8 @@ class Exiled(BasicNewsRecipe):
                     ,dict(name='div', attrs={'id':['comments','navig']})
                   ]
 
-                        
-    feeds = [(u'Articles', u'http://exiledonline.com/feed/' )]
+
+    feeds = [(u'Articles', u'http://exiledonline.com/feed/')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
@@ -48,4 +49,9 @@ class Exiled(BasicNewsRecipe):
         mtag = '\n<meta http-equiv="Content-Language" content="en"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n'
         soup.head.insert(0,mtag)
         return soup
-    
+
+    def get_article_url(self, article):
+        raw = article.get('link',  None)
+        final = raw + 'all/1/'
+        return final
+
