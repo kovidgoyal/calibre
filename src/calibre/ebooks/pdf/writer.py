@@ -82,7 +82,7 @@ class PDFWriter(QObject):
     def _delete_tmpdir(self):
         if os.path.exists(self.tmp_path):
             shutil.rmtree(self.tmp_path, True)
-            self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
+            self.tmp_path = PersistentTemporaryDirectory('_pdf_out_parts')
 
     def _write(self):
         self.logger.info('Combining individual PDF parts...')

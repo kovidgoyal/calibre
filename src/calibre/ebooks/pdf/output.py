@@ -70,7 +70,7 @@ class PDFOutput(OutputFormatPlugin):
         popts.paper_size = paper_size(opts.paper_size)
         popts.orientation = orientation(opts.orientation)
 
-        with TemporaryDirectory('_any2pdf') as oebdir:
+        with TemporaryDirectory('_pdf_out') as oebdir:
             OEBOutput(None).convert(oeb_book, oebdir, input_plugin, opts, log)
 
             opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
