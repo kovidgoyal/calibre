@@ -40,10 +40,10 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.comments',
+    'django.contrib.markup',
     'calibre.www.apps.inlines',
-    'calibre.www.apps.tagging',
+    'tagging',
     'calibre.www.apps.blog',
-
 )
 
 

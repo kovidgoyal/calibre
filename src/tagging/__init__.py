@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext as _
 
-from calibre.www.apps.tagging.managers import ModelTaggedItemManager, TagDescriptor
+from tagging.managers import ModelTaggedItemManager, TagDescriptor
 
 VERSION = (0, 3, 'pre')
 
