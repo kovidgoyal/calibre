@@ -266,12 +266,14 @@ class MobiReader(object):
         parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
         ncx = cStringIO.StringIO()
-        opf = self.create_opf(htmlfile, guide, root)
+        opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0]+'.opf'
-        opf.render(open(self.created_opf_path, 'wb'), ncx)
+        opf.render(open(self.created_opf_path, 'wb'), ncx,
+                ncx_manifest_entry=ncx_manifest_entry)
         ncx = ncx.getvalue()
         if ncx:
-            open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
+            ncx_path = os.path.join(os.path.dirname(htmlfile), 'toc.ncx')
+            open(ncx_path, 'wb').write(ncx)
 
         with open('styles.css', 'wb') as s:
             s.write(self.base_css_rules+'\n\n')
@@ -284,8 +286,9 @@ class MobiReader(object):
         if self.book_header.exth is not None or self.embedded_mi is not None:
             self.log.debug('Creating OPF...')
             ncx = cStringIO.StringIO()
-            opf = self.create_opf(htmlfile, guide, root)
-            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)
+            opf, ncx_manifest_entry  = self.create_opf(htmlfile, guide, root)
+            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx,
+                    ncx_manifest_entry )
             ncx = ncx.getvalue()
             if ncx:
                 open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
@@ -434,7 +437,10 @@ class MobiReader(object):
             for ref in opf.guide:
                 if ref.type.lower() == 'toc':
                     toc = ref.href()
+
+        ncx_manifest_entry = None
         if toc:
+            ncx_manifest_entry = 'toc.ncx'
             elems = root.xpath('//*[@id="%s"]'%toc.partition('#')[-1])
             tocobj = None
             ent_pat = re.compile(r'&(\S+?);')
@@ -461,7 +467,7 @@ class MobiReader(object):
             if tocobj is not None:
                 opf.set_toc(tocobj)
 
-        return opf
+        return opf, ncx_manifest_entry
 
 
     def sizeof_trailing_entries(self, data):
@@ -589,7 +595,7 @@ def get_metadata(stream):
     if mr.book_header.exth is None:
         mi = MetaInformation(mr.name, [_('Unknown')])
     else:
-        mi = mr.create_opf('dummy.html')
+        mi = mr.create_opf('dummy.html')[0]
         try:
             if hasattr(mr.book_header.exth, 'cover_offset'):
                 cover_index = mr.book_header.first_image_index + \
