@@ -39,10 +39,10 @@ class TXTOutput(OutputFormatPlugin):
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         metadata = TxtMetadata()
         if opts.prepend_author.lower() == 'true':
-            metadata.author = opts.authors if opts.authors else authors_to_string(oeb_book.metadata.authors)
+            metadata.author = opts.authors if opts.authors else authors_to_string(oeb_book.metadata.authors.value) if oeb_book.metadata.authors != [] else _('Unknown')
         if opts.prepend_title.lower() == 'true':
-            metadata.title = opts.title if opts.title else oeb_book.metadata.title
-
+            metadata.title = opts.title if opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
+            
         writer = TxtWriter(TxtNewlines(opts.newline).newline, log)
         txt = writer.dump(oeb_book.spine, metadata)
 
