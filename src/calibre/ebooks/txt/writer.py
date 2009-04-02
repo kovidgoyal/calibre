@@ -34,9 +34,9 @@ class TxtWriter(object):
 
         # Prepend metadata
         if metadata.author != None and metadata.author != '':
-            out = (u'%s%s%s%s' % (metadata.author.upper(), self.newline, self.newline, self.newline)) + out
-        if metadata.title != None and metadata.title != '':
-            out = (u'%s%s%s%s' % (metadata.title.upper(), self.newline, self.newline, self.newline)) + out
+            if metadata.title != None and metadata.title != '':
+                out = (u'%s%s%s%s' % (metadata.author.upper(), self.newline, self.newline, self.newline)) + out
+                out = (u'%s%s%s%s' % (metadata.title.upper(), self.newline, self.newline, self.newline)) + out
 
             # Put two blank lines at end of file
             end = out[-3 * len(self.newline):]

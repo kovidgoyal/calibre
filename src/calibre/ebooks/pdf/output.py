@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import with_statement
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -9,10 +11,12 @@ Convert OEB ebook format to PDF.
 
 #unit, papersize, orientation, custom_size, profile
 
-import os
+import os, glob
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
+from calibre.ebooks.oeb.output import OEBOutput
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.pdf.writer import PDFWriter
 from calibre.ebooks.pdf.pageoptions import UNITS, unit, PAPER_SIZES, \
     paper_size, ORIENTATIONS, orientation, PageOptions
@@ -65,21 +69,26 @@ class PDFOutput(OutputFormatPlugin):
         popts.unit = unit(opts.unit)
         popts.paper_size = paper_size(opts.paper_size)
         popts.orientation = orientation(opts.orientation)
-    
-        writer = PDFWriter(log, popts)
+
+        with TemporaryDirectory('_pdf_out') as oebdir:
+            OEBOutput(None).convert(oeb_book, oebdir, input_plugin, opts, log)
+
+            opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
+
+            writer = PDFWriter(log, popts)
         
-        close = False
-        if not hasattr(output_path, 'write'):
-            close = True
-            if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
-                os.makedirs(os.path.dirname(output_path))
-            out_stream = open(output_path, 'wb')
-        else:
-            out_stream = output_path
-        
-        out_stream.seek(0)
-        out_stream.truncate()
-        writer.dump(oeb_book.spine, out_stream)
-        
-        if close:
-            out_stream.close()
+            close = False
+            if not hasattr(output_path, 'write'):
+                close = True
+                if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
+                    os.makedirs(os.path.dirname(output_path))
+                out_stream = open(output_path, 'wb')
+            else:
+                out_stream = output_path
+            
+            out_stream.seek(0)
+            out_stream.truncate()
+            writer.dump(opf, out_stream)
+            
+            if close:
+                out_stream.close()

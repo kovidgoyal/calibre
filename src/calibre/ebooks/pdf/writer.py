@@ -13,6 +13,7 @@ import os, shutil, sys
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import PageOptions
+from calibre.ebooks.metadata.opf2 import OPF
 
 from PyQt4 import QtCore
 from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, QApplication, QPrinter, \
@@ -37,10 +38,11 @@ class PDFWriter(QObject):
         self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
         self.popts = popts
 
-    def dump(self, spine, out_stream):
+    def dump(self, opfpath, out_stream):
         self._delete_tmpdir()
         
-        self.render_queue = spine[:]
+        opf = OPF(opfpath, os.path.dirname(opfpath))
+        self.render_queue = [i.path for i in opf.spine]
         self.combine_queue = []
         self.out_stream = out_stream
         
@@ -56,7 +58,7 @@ class PDFWriter(QObject):
             
     def _render_next(self):
         item = str(self.render_queue.pop(0))
-        self.combine_queue.append(os.path.join(self.tmp_path, '%s_%i.pdf' % (os.path.basename(item), len(self.combine_queue))))
+        self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
         
         self.logger.info('Processing %s...' % item)
     
@@ -64,9 +66,9 @@ class PDFWriter(QObject):
 
     def _render_html(self, ok):
         if ok:
-            item_path = os.path.join(self.tmp_path, '%s_%i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue) - 1))
+            item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
             
-            self.logger.debug('\tRendering item as %s' % item_path)
+            self.logger.debug('\tRendering item %s as %i' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
         
             printer = QPrinter(QPrinter.HighResolution)
             printer.setPageMargins(self.popts.margin_left, self.popts.margin_top, self.popts.margin_right, self.popts.margin_bottom, self.popts.unit)
@@ -80,7 +82,7 @@ class PDFWriter(QObject):
     def _delete_tmpdir(self):
         if os.path.exists(self.tmp_path):
             shutil.rmtree(self.tmp_path, True)
-            self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
+            self.tmp_path = PersistentTemporaryDirectory('_pdf_out_parts')
 
     def _write(self):
         self.logger.info('Combining individual PDF parts...')
