@@ -51,7 +51,7 @@ class TXTOutput(OutputFormatPlugin):
         
         out_stream.seek(0)
         out_stream.truncate()
-        out_stream.write(txt)
+        out_stream.write(txt.encode('utf-8'))
         
         if close:
             out_stream.close()
