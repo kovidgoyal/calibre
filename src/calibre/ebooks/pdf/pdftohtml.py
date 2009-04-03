@@ -68,8 +68,8 @@ def pdftohtml(pdf_path):
                 raise DRMError()
         
             with open(index, 'rb') as i:
-                raw = i.read().decode('latin-1')
+                raw = i.read()
             if not '<br' in raw[:4000]:
                 raise ConversionError(os.path.basename(pdf_path) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'), True)
 
-            return u'<!-- created by calibre\'s pdftohtml -->\n' + raw
+            return '<!-- created by calibre\'s pdftohtml -->\n' + raw

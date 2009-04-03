@@ -25,7 +25,7 @@ class PDFInput(InputFormatPlugin):
         html = pdftohtml(stream.name)
         
         with open('index.html', 'wb') as index:
-            index.write(html.encode('utf-8'))
+            index.write(html)
             
         #mi = metadata_from_formats([stream.name])
         mi = MetaInformation(_('Unknown'), _('Unknown'))
