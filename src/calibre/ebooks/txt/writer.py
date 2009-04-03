@@ -102,12 +102,7 @@ class TxtWriter(object):
         text = text.replace('\f+', ' ')
     
         # Single line paragraph.
-        r = re.compile('.\n.')
-        while True:
-            mo = r.search(text)
-            if mo == None:
-                break
-            text = '%s %s' % (text[:mo.start()+1], text[mo.end()-1:])
+        text = re.sub('(?<=.)\n(?=.)', ' ', text)
         
         # Remove multiple spaces.
         text = re.sub('[  ]+', ' ', text)

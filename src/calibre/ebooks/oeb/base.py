@@ -173,6 +173,9 @@ def xml2str(root, pretty_print=False):
     return etree.tostring(root, encoding='utf-8', xml_declaration=True,
                           pretty_print=pretty_print)
 
+def xml2unicode(root, pretty_print=False):
+    return etree.tostring(root, pretty_print=pretty_print)
+
 ASCII_CHARS   = set(chr(x) for x in xrange(128))
 UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
 URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -721,6 +724,14 @@ class Manifest(object):
             if isinstance(data, unicode):
                 return data.encode('utf-8')
             return str(data)
+            
+        def __unicode__(self):
+            data = self.data
+            if isinstance(data, etree._Element):
+                return xml2unicode(data, pretty_print=self.oeb.pretty_print)
+            if isinstance(data, unicode):
+                return data
+            return unicode(data)
 
         def __eq__(self, other):
             return id(self) == id(other)
