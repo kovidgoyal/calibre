@@ -254,16 +254,31 @@ def plugin_for_input_format(fmt):
         if fmt.lower() in plugin.file_types:
             return plugin
 
+def available_input_formats():
+    formats = []
+    for plugin in input_format_plugins():
+        if not is_disabled(plugin):
+            for format in plugin.file_types:
+                formats.append(format)
+    return formats
+
 def output_format_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, OutputFormatPlugin):
-            yield plugin
+            yield plugin.file_type
 
 def plugin_for_output_format(fmt):
     for plugin in output_format_plugins():
         if fmt.lower() == plugin.file_type:
             return plugin
-        
+
+def available_output_formats():
+    formats = []
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, OutputFormatPlugin):
+            if not is_disabled(plugin):
+                formats.append(plugin.file_type)
+    return formats
 
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)
