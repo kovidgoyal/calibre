@@ -265,7 +265,7 @@ def available_input_formats():
 def output_format_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, OutputFormatPlugin):
-            yield plugin.file_type
+            yield plugin
 
 def plugin_for_output_format(fmt):
     for plugin in output_format_plugins():
@@ -274,10 +274,9 @@ def plugin_for_output_format(fmt):
 
 def available_output_formats():
     formats = []
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, OutputFormatPlugin):
-            if not is_disabled(plugin):
-                formats.append(plugin.file_type)
+    for plugin in output_format_plugins():
+        if not is_disabled(plugin):
+            formats.append(plugin.file_type)
     return formats
 
 def disable_plugin(plugin_or_name):

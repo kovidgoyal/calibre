@@ -39,7 +39,7 @@ def pdftohtml(pdf_path):
         index = os.path.join(tdir, 'index.html')
         # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
         pdf_path = os.path.abspath(pdf_path)
-        cmd = (PDFTOHTML, '-noframes',  '-p',  '-nomerge', pdf_path, os.path.basename(index))
+        cmd = (PDFTOHTML, '-enc', 'UTF-8', '-noframes', '-p', '-nomerge', '-i', '-q', pdf_path, os.path.basename(index))
         cwd = os.getcwd()
 
         with CurrentDir(tdir):
