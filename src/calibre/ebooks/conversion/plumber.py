@@ -339,7 +339,7 @@ OptionRecommendation(name='language',
         trimmer = ManifestTrimmer()
         trimmer(self.oeb, self.opts)
 
-        self.log.info('Creating %s output...'%self.output_plugin.name)
+        self.log.info('Creating %s...'%self.output_plugin.name)
         self.output_plugin.convert(self.oeb, self.output, self.input_plugin, self.opts,
                 self.log)
 

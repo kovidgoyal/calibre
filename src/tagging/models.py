@@ -13,9 +13,9 @@ from django.db import connection, models
 from django.db.models.query import QuerySet
 from django.utils.translation import ugettext_lazy as _
 
-from calibre.www.apps.tagging import settings
-from calibre.www.apps.tagging.utils import calculate_cloud, get_tag_list, get_queryset_and_model, parse_tag_input
-from calibre.www.apps.tagging.utils import LOGARITHMIC
+from tagging import settings
+from tagging.utils import calculate_cloud, get_tag_list, get_queryset_and_model, parse_tag_input
+from tagging.utils import LOGARITHMIC
 
 qn = connection.ops.quote_name
 

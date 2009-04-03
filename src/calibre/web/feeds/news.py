@@ -7,14 +7,12 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import logging, os, cStringIO, time, traceback, re, urlparse, sys, tempfile, functools
+import logging, os, cStringIO, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
 
-from PyQt4.Qt import QApplication, QFile, Qt, QPalette, QSize, QImage, QPainter, \
-                     QBuffer, QByteArray, SIGNAL, QUrl, QEventLoop, QIODevice
-from PyQt4.QtWebKit import QWebPage
+from PyQt4.Qt import QApplication, QFile, QIODevice
 
 
 from calibre import browser, __appname__, iswindows, \
@@ -22,14 +20,15 @@ from calibre import browser, __appname__, iswindows, \
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
+from calibre.ebooks import render_html
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.gui2 import images_rc # Needed for default cover
+from calibre.ptempfile import PersistentTemporaryFile, \
+                              PersistentTemporaryDirectory
 
 
 class BasicNewsRecipe(object):
@@ -787,15 +786,18 @@ class BasicNewsRecipe(object):
         '''
         Create a generic cover for recipes that dont have a cover
         '''
+        from calibre.gui2 import images_rc # Needed for access to logo
+        images_rc
         if QApplication.instance() is None: QApplication([])
         f = QFile(':/library')
         f.open(QIODevice.ReadOnly)
-        img = str(f.readAll())
+        img_data = str(f.readAll())
+        tdir = PersistentTemporaryDirectory('_default_cover')
+        img = os.path.join(tdir, 'logo.png')
+        with open(img, 'wb') as g:
+            g.write(img_data)
         f.close()
-        f = tempfile.NamedTemporaryFile(suffix='library.png')
-        f.write(img)
-        f.flush()
-        img = f.name
+        img = os.path.basename(img)
         html= u'''\
         <html>
             <head>
@@ -834,38 +836,16 @@ class BasicNewsRecipe(object):
                  date=strftime(self.timefmt),
                  app=__appname__ +' '+__version__,
                  img=img)
-        f2 = tempfile.NamedTemporaryFile(suffix='cover.html')
-        f2.write(html.encode('utf-8'))
-        f2.flush()
-        page = QWebPage()
-        pal = page.palette()
-        pal.setBrush(QPalette.Background, Qt.white)
-        page.setPalette(pal)
-        page.setViewportSize(QSize(590, 750))
-        page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
-        loop = QEventLoop()
-        def render_html(page, loop, ok):
-            try:
-                image = QImage(page.viewportSize(), QImage.Format_ARGB32)
-                image.setDotsPerMeterX(96*(100/2.54))
-                image.setDotsPerMeterY(96*(100/2.54))
-                painter = QPainter(image)
-                page.mainFrame().render(painter)
-                painter.end()
-                ba = QByteArray()
-                buf = QBuffer(ba)
-                buf.open(QBuffer.WriteOnly)
-                image.save(buf, 'JPEG')
-                image_data = str(ba.data())
-                cover_file.write(image_data)
-                cover_file.flush()
-            finally:
-                loop.exit(0)
-
-        page.connect(page, SIGNAL('loadFinished(bool)'), functools.partial(render_html, page, loop))
-        page.mainFrame().load(QUrl.fromLocalFile(f2.name))
-        loop.exec_()
+        hf = os.path.join(tdir, 'cover.htm')
+        with open(hf, 'wb') as f:
+            f.write(html.encode('utf-8'))
+        renderer = render_html(hf)
+        if renderer.tb is not None:
+            self.logger.warning('Failed to render default cover')
+            self.logger.debug(renderer.tb)
+        else:
+            cover_file.write(renderer.data)
+            cover_file.flush()
 
 
     def create_opf(self, feeds, dir=None):

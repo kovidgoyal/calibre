@@ -44,7 +44,7 @@ class OEBOutput(OutputFormatPlugin):
                     else:
                         raw = etree.tostring(raw, encoding='utf-8',
                                 pretty_print=opts.pretty_print)
-                        raw = raw + '<?xml version="1.0" encoding="utf-8" ?>\n'
+                        raw = '<?xml version="1.0" encoding="utf-8" ?>\n'+raw
                 if isinstance(raw, unicode):
                     raw = raw.encode('utf-8')
                 with open(path, 'wb') as f:

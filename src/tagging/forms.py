@@ -4,9 +4,9 @@ Tagging components for Django's form library.
 from django import forms
 from django.utils.translation import ugettext as _
 
-from calibre.www.apps.tagging import settings
-from calibre.www.apps.tagging.models import Tag
-from calibre.www.apps.tagging.utils import parse_tag_input
+from tagging import settings
+from tagging.models import Tag
+from tagging.utils import parse_tag_input
 
 class AdminTagForm(forms.ModelForm):
     class Meta:
