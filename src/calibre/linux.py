@@ -39,7 +39,7 @@ entry_points = {
              'calibre-fontconfig = calibre.utils.fontconfig:main',
              'calibre-parallel   = calibre.parallel:main',
              'calibre-customize  = calibre.customize.ui:main',
-             'pdfmanipulate      = calibre.ebooks.pdf.manipulate:main',
+             'pdfmanipulate      = calibre.ebooks.pdf.manipulate.cli:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
              'calibre-smtp = calibre.utils.smtp:main',
         ],

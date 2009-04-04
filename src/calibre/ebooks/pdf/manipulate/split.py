@@ -1,46 +1,69 @@
-'''
-Split PDF file into multiple PDF documents.
-'''
+# -*- coding: utf-8 -*-
 from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+'''
+Split PDF file into multiple PDF documents.
+'''
+
 import os, sys, re
+from optparse import OptionGroup, Option
 
 from calibre.ebooks.metadata.meta import metadata_from_formats
 from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.config import Config, StringConfig
+from calibre.utils.config import OptionParser
+from calibre.utils.logging import Log
+from calibre.constants import preferred_encoding
+from calibre.customize.conversion import OptionRecommendation
+from calibre.ebooks.pdf.verify import is_valid_pdf
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
-def config(defaults=None):
-    desc = _('Options to control the transformation of pdf')
-    if defaults is None:
-        c = Config('splitpdf', desc)
-    else:
-        c = StringConfig(defaults, desc)
-    c.add_opt('output', ['-o', '--output'], default='split.pdf',
-          help=_('Path to output file. By default a file is created in the current directory. \
-            The file name will be the base name for the output.'))
-    return c
+USAGE = _('''
+%prog %%name [options] file.pdf page_to_split_on ...
+%prog %%name [options] file.pdf page_range_to_split_on ...
+	
+Ex.
+	
+%prog %%name file.pdf 6
+%prog %%name file.pdf 6-12
+%prog %%name file.pdf 6-12 8 10 9-20
+
+Split a PDF.
+''')
+
+OPTIONS = set([
+    OptionRecommendation(name='output', recommended_value='split.pdf',
+        level=OptionRecommendation.HIGH, long_switch='output', short_switch='o',
+        help=_('Path to output file. By default a file is created in the current directory.')),
+])
+
+def print_help(parser, log):
+    help = parser.format_help().encode(preferred_encoding, 'replace')
+    log(help)
 
 def option_parser(name):
-    c = config()
-    return c.option_parser(usage=_('''\
-    
-	%prog %%name [options] file.pdf page_to_split_on ...
-	%prog %%name [options] file.pdf page_range_to_split_on ...
-	
-	Ex.
-	
-	%prog %%name file.pdf 6
-	%prog %%name file.pdf 6-12
-	%prog %%name file.pdf 6-12 8 10 9-20
+    usage = USAGE.replace('%%name', name)
+    return OptionParser(usage=usage)
 
-	Split a PDF.
-	'''.replace('%%name', name)))
+def option_recommendation_to_cli_option(add_option, rec):
+    opt = rec.option
+    switches = ['-'+opt.short_switch] if opt.short_switch else []
+    switches.append('--'+opt.long_switch)
+    attrs = dict(dest=opt.name, help=opt.help,
+                     choices=opt.choices, default=rec.recommended_value)
+    add_option(Option(*switches, **attrs))
+
+def add_options(parser):
+    group = OptionGroup(parser, _('Split Options:'), _('Options to control the transformation of pdf'))
+    parser.add_option_group(group)
+    add_option = group.add_option
+    
+    for rec in OPTIONS:
+        option_recommendation_to_cli_option(add_option, rec)
 
 def split_pdf(in_path, pages, page_ranges, out_name, metadata=None):
     pdf = PdfFileReader(open(os.path.abspath(in_path), 'rb'))
@@ -141,37 +164,29 @@ def clean_page_list(pdf_path, pages, page_ranges):
     
     return pages, page_ranges
 
-# Return True if the pdf is valid.
-def valid_pdf(pdf_path):
-    try:
-        with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
-            pdf = PdfFileReader(pdf_file)
-            if pdf.isEncrypted or pdf.numPages <= 0:
-                raise Exception
-    except:
-        return False
-    return True
-
 def main(args=sys.argv, name=''):
+    log = Log()
     parser = option_parser(name)
+    add_options(parser)
+    
     opts, args = parser.parse_args(args)
     
     pdf, pages, page_ranges, unknown = split_args(args[1:])
     
     if pdf == '' and (pages == [] or page_ranges == []):
-        print 'Error: PDF and where to split is required.\n\n'
-        print parser.get_usage()
-        return 2
+        print 'Error: PDF and where to split is required.\n'
+        print_help(parser, log)
+        return 1
     
     if unknown != []:
         for arg in unknown:
             print 'Error: Unknown argument `%s`' % arg
-        print parser.get_usage()
-        return 2
+        print_help(parser, log)
+        return 1
     
-    if not valid_pdf(pdf):
+    if not is_valid_pdf(pdf):
         print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % pdf
-        return 2
+        return 1
         
     pages, page_ranges = clean_page_list(pdf, pages, page_ranges)
         
@@ -183,4 +198,3 @@ def main(args=sys.argv, name=''):
 
 if __name__ == '__main__':
     sys.exit(main())
-

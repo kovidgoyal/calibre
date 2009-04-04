@@ -1,34 +1,38 @@
-'''
-Merge PDF files into a single PDF document.
-'''
 from __future__ import with_statement
+# -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, sys, time
+'''
+Merge PDF files into a single PDF document.
+'''
 
-from calibre.utils.config import Config, StringConfig
+import os, re, sys, time
+from optparse import OptionGroup, Option
+
+from calibre.utils.config import OptionParser
+from calibre.utils.logging import Log
+from calibre.constants import preferred_encoding
+from calibre.customize.conversion import OptionRecommendation
+from calibre.ebooks.pdf.verify import is_valid_pdfs
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
+USAGE = '%prog %%name ' + _('''
+file.pdf ...
 
-def config(defaults=None):
-    desc = _('Options to control the transformation of pdf')
-    if defaults is None:
-        c = Config('manipulatepdf', desc)
-    else:
-        c = StringConfig(defaults, desc)
-    return c
+Get info about a PDF.
+''')
+
+def print_help(parser, log):
+    help = parser.format_help().encode(preferred_encoding, 'replace')
+    log(help)
 
 def option_parser(name):
-    c = config()
-    return c.option_parser(usage=_('''\
-	%prog %%name [options] file.pdf ...
-
-	Get info about a PDF.
-	'''.replace('%%name', name)))
+    usage = USAGE.replace('%%name', name)
+    return OptionParser(usage=usage)
 
 def print_info(pdf_path):
     with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
@@ -53,32 +57,23 @@ def print_info(pdf_path):
                 print _('PDF Version:           %s' % mo.group('version'))
         except: pass
 
-def verify_files(files):
-    invalid = []
-
-    for pdf_path in files:
-        try:
-            with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
-                pdf = PdfFileReader(pdf_file)
-        except:
-            invalid.append(pdf_path)
-    return invalid
-
 def main(args=sys.argv, name=''):
+    log = Log()
     parser = option_parser(name)
+    
     opts, args = parser.parse_args(args)
     args = args[1:]
     
     if len(args) < 1:
         print 'Error: No PDF sepecified.\n'
-        print parser.get_usage()
-        return 2
+        print_help(parser, log)
+        return 1
     
-    bad_pdfs = verify_files(args)
+    bad_pdfs = is_valid_pdfs(args)
     if bad_pdfs != []:
         for pdf in bad_pdfs:
             print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % pdf
-        return 2
+        return 1
         
     for pdf in args:
         print_info(pdf)
@@ -87,4 +82,3 @@ def main(args=sys.argv, name=''):
 
 if __name__ == '__main__':
     sys.exit(main())
-
