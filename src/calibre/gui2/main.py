@@ -979,7 +979,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 comics.append(r)
             else:
                 others.append(r)
-
         jobs, changed, bad_rows = auto_convert_ebook(format, self, self.library_view.model().db, comics, others)
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad_rows:

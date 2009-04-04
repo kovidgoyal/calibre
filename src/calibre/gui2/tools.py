@@ -505,11 +505,7 @@ def fetch_scheduled_recipe(recipe, script):
     return 'feeds2'+fmt, [args], _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
             
 def auto_convert_ebook(*args):
-    fmt = args[0] if args[0] else 'epub'
-    if fmt == 'lrf':
-        return auto_convert_lrf()
-    elif fmt in ('epub', 'mobi'):
-        return auto_convert(*args)
+    return auto_convert(*args)
 
 def convert_single_ebook(*args):
     fmt = prefs['output_format'].lower()

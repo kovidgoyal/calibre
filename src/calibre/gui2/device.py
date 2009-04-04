@@ -10,12 +10,14 @@ from binascii import unhexlify
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
                      Qt
 
+from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.devices import devices
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.parallel import Job
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-                                   pixmap_to_data, warning_dialog
+                                   pixmap_to_data, warning_dialog, \
+                                   info_dialog
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.devices.interface import Device
@@ -575,10 +577,17 @@ class DeviceGUI(object):
 
 
     def sync_to_device(self, on_card, delete_from_library,
-            specific_format=None):
-        rows = self.library_view.selectionModel().selectedRows()
+            specific_format=None, send_rows=None, auto_convert=True):
+        rows = self.library_view.selectionModel().selectedRows() if send_rows is None else send_rows
         if not self.device_manager or not rows or len(rows) == 0:
             return
+            
+        _files, _auto_rows = self.library_view.model().get_preferred_formats(rows,
+                                    self.device_manager.device_class.FORMATS,
+                                    paths=True, set_metadata=True,
+                                    specific_format=specific_format)
+        rows = list(set(rows).difference(_auto_rows))
+        
         ids = iter(self.library_view.model().id(r) for r in rows)
         metadata = self.library_view.model().get_metadata(rows)
         for mi in metadata:
@@ -586,10 +595,7 @@ class DeviceGUI(object):
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
-        _files   = self.library_view.model().get_preferred_formats(rows,
-                                    self.device_manager.device_class.FORMATS,
-                                    paths=True, set_metadata=True,
-                                    specific_format=specific_format)
+        
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
@@ -615,6 +621,35 @@ class DeviceGUI(object):
         remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
+        
+        auto = []
+        if _auto_rows != []:
+            for row in _auto_rows:
+                if specific_format == None:
+                    formats = self.library_view.model().db.formats(row).split(',')
+                    formats = formats if formats != None else []
+                    if set(formats).intersection(available_input_formats()) is not None and set(self.device_manager.device_class.FORMATS).intersection(available_output_formats()) is not None:
+                        auto.append(row)
+                    else:
+                        bad.append(self.library_view.model().title(row))
+                else:
+                    if specific_format in available_output_formats():
+                        auto.append(row)
+                    else:
+                        bad.append(self.library_view.model().title(row))
+                        
+        if auto != []:
+            autos = [self.library_view.model().title(row) for row in auto]
+            autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
+            d = info_dialog(self, _('No suitable formats'),
+                    _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
+            for fmt in self.device_manager.device_class.FORMATS:
+                if fmt in list(set(self.device_manager.device_class.FORMATS).intersection(set(available_output_formats()))):
+                    format = fmt
+                    break                        
+            self.auto_convert(_auto_rows, on_card, format)
+            d.exec_()
+                        
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
             d = warning_dialog(self, _('No suitable formats'),
