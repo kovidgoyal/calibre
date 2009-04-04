@@ -10,30 +10,52 @@ Reverse content of PDF.
 '''
 
 import os, sys
+from optparse import OptionGroup, Option
 
 from calibre.ebooks.metadata.meta import metadata_from_formats
 from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.config import Config, StringConfig
+from calibre.utils.config import OptionParser
+from calibre.utils.logging import Log
+from calibre.constants import preferred_encoding
+from calibre.customize.conversion import OptionRecommendation
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
-def config(defaults=None):
-    desc = _('Options to control the transformation of pdf')
-    if defaults is None:
-        c = Config('reversepdf', desc)
-    else:
-        c = StringConfig(defaults, desc)
-    c.add_opt('output', ['-o', '--output'], default='reversed.pdf',
-          help=_('Path to output file. By default a file is created in the current directory.'))
-    return c
+USAGE = '%prog %%name ' + _('''
+[options] file.pdf
+
+Reverse PDF.
+''')
+
+OPTIONS = set([
+    OptionRecommendation(name='output', recommended_value='reversed.pdf',
+        level=OptionRecommendation.HIGH, long_switch='output', short_switch='o',
+        help=_('Path to output file. By default a file is created in the current directory.')),
+])
+
+def print_help(parser, log):
+    help = parser.format_help().encode(preferred_encoding, 'replace')
+    log(help)
 
 def option_parser(name):
-    c = config()
-    return c.option_parser(usage=_('''\
-	%prog %%name [options] file1.pdf
+    usage = USAGE.replace('%%name', name)
+    return OptionParser(usage=usage)
 
-	Reverse PDF.
-	'''.replace('%%name', name)))
+def option_recommendation_to_cli_option(add_option, rec):
+    opt = rec.option
+    switches = ['-'+opt.short_switch] if opt.short_switch else []
+    switches.append('--'+opt.long_switch)
+    attrs = dict(dest=opt.name, help=opt.help,
+                     choices=opt.choices, default=rec.recommended_value)
+    add_option(Option(*switches, **attrs))
+
+def add_options(parser):
+    group = OptionGroup(parser, _('Reverse Options:'), _('Options to control the transformation of pdf'))
+    parser.add_option_group(group)
+    add_option = group.add_option
+    
+    for rec in OPTIONS:
+        option_recommendation_to_cli_option(add_option, rec)
 
 def reverse(pdf_path, out_path, metadata=None):
     if metadata == None:
@@ -63,20 +85,22 @@ def valid_pdf(pdf_path):
         return False
     return True
 
-
 def main(args=sys.argv, name=''):
+    log = Log()
     parser = option_parser(name)
+    add_options(parser)
+    
     opts, args = parser.parse_args(args)
     args = args[1:]
     
     if len(args) < 1:
-        print 'Error: A PDF file is required.\n\n'
-        print parser.get_usage()
-        return 2
+        print 'Error: A PDF file is required.\n'
+        print_help(parser, log)
+        return 1
     
     if not valid_pdf(args[0]):
         print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % args[0]
-        return 2
+        return 1
     
     mi = metadata_from_formats([args[0]])
 
