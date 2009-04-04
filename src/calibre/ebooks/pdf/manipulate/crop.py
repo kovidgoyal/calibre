@@ -19,6 +19,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
+from calibre.ebooks.pdf.verify import is_valid_pdf
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
@@ -116,17 +117,6 @@ def crop_pdf(pdf_path, opts, metadata=None):
         
     with open(opts.output, 'wb') as output_file:
         output_pdf.write(output_file)
-
-# Return True if the pdf is valid.
-def valid_pdf(pdf_path):
-    try:
-        with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
-            pdf = PdfFileReader(pdf_file)
-            if pdf.isEncrypted or pdf.numPages <= 0:
-                raise Exception
-    except:
-        return False
-    return True
     
 def main(args=sys.argv, name=''):
     log = Log()
@@ -141,7 +131,7 @@ def main(args=sys.argv, name=''):
         print_help(parser, log)
         return 1
     
-    if not valid_pdf(args[0]):
+    if not is_valid_pdf(args[0]):
         print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % args[0]
         return 1
     

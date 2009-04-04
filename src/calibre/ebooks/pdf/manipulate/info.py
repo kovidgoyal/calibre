@@ -16,6 +16,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
+from calibre.ebooks.pdf.verify import is_valid_pdfs
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
@@ -56,17 +57,6 @@ def print_info(pdf_path):
                 print _('PDF Version:           %s' % mo.group('version'))
         except: pass
 
-def verify_files(files):
-    invalid = []
-
-    for pdf_path in files:
-        try:
-            with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
-                pdf = PdfFileReader(pdf_file)
-        except:
-            invalid.append(pdf_path)
-    return invalid
-
 def main(args=sys.argv, name=''):
     log = Log()
     parser = option_parser(name)
@@ -79,7 +69,7 @@ def main(args=sys.argv, name=''):
         print_help(parser, log)
         return 1
     
-    bad_pdfs = verify_files(args)
+    bad_pdfs = is_valid_pdfs(args)
     if bad_pdfs != []:
         for pdf in bad_pdfs:
             print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % pdf

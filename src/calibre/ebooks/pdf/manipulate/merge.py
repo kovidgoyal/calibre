@@ -18,6 +18,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
+from calibre.ebooks.pdf.verify import is_valid_pdfs
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
@@ -76,19 +77,6 @@ def merge_files(in_paths, out_path, metadata=None):
 
     with open(out_path, 'wb') as out_file:
         out_pdf.write(out_file)
-    
-def verify_files(files):
-    invalid = []
-
-    for pdf_path in files:
-        try:
-            with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
-                pdf = PdfFileReader(pdf_file)
-                if pdf.isEncrypted or pdf.numPages <= 0:
-                    raise Exception
-        except:
-            invalid.append(pdf_path)
-    return invalid
 
 def main(args=sys.argv, name=''):
     log = Log()
@@ -103,7 +91,7 @@ def main(args=sys.argv, name=''):
         print_help(parser, log)
         return 1
     
-    bad_pdfs = verify_files(args)
+    bad_pdfs = is_valid_pdfs(args)
     if bad_pdfs != []:
         for pdf in bad_pdfs:
             print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % pdf
