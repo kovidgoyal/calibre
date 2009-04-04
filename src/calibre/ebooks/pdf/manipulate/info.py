@@ -16,11 +16,11 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
-from calibre.ebooks.pdf.verify import is_valid_pdfs
+from calibre.ebooks.pdf.verify import is_valid_pdfs, is_encrypted
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
-USAGE = '%prog %%name ' + _('''
+USAGE = '\n%prog %%name ' + _('''\
 file.pdf ...
 
 Get info about a PDF.
@@ -72,9 +72,17 @@ def main(args=sys.argv, name=''):
     bad_pdfs = is_valid_pdfs(args)
     if bad_pdfs != []:
         for pdf in bad_pdfs:
-            print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % pdf
+            print 'Error: Could not read file `%s`.' % pdf
         return 1
-        
+
+    enc = False
+    for pdf in args:
+        if is_encrypted(pdf):
+            enc = True
+            print 'Error: file `%s` is encrypted. Please decrypt first.' % pdf
+    if enc:
+        return 1
+
     for pdf in args:
         print_info(pdf)
     

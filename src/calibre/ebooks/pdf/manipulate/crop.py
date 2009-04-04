@@ -25,7 +25,7 @@ from pyPdf import PdfFileWriter, PdfFileReader
 
 DEFAULT_CROP = '10'
 
-USAGE = '%prog %%name ' + _('''
+USAGE = '\n%prog %%name ' + _('''\
 [options] file.pdf
 
 Crop a PDF file.
@@ -132,7 +132,11 @@ def main(args=sys.argv, name=''):
         return 1
     
     if not is_valid_pdf(args[0]):
-        print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % args[0]
+        print 'Error: Could not read file `%s`.' % args[0]
+        return 1
+        
+    if is_encrypted(args[0]):
+        print 'Error: file `%s` is encrypted.' % args[0]
         return 1
     
     mi = metadata_from_formats([args[0]])

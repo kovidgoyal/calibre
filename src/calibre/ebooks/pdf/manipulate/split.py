@@ -185,7 +185,11 @@ def main(args=sys.argv, name=''):
         return 1
     
     if not is_valid_pdf(pdf):
-        print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % pdf
+        print 'Error: Could not read file `%s`.' % pdf
+        return 1
+        
+    if is_encrypted(args[0]):
+        print 'Error: file `%s` is encrypted.' % args[0]
         return 1
         
     pages, page_ranges = clean_page_list(pdf, pages, page_ranges)

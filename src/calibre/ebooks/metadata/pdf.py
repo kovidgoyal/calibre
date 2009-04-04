@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, re, StringIO
 
-from calibre.ebooks.metadata import MetaInformation, authors_to_string, get_parser
+from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from pyPdf import PdfFileReader, PdfFileWriter
 import Image
@@ -96,40 +96,3 @@ def get_cover(stream):
         traceback.print_exc()
         
     return data.getvalue()
-
-def option_parser():
-    p = get_parser('pdf')
-    p.remove_option('--category')
-    p.remove_option('--comment')
-    p.add_option('--get-cover', default=False, action='store_true',
-                      help=_('Extract the cover'))
-    return p
-            
-def main(args=sys.argv):
-    p = option_parser()
-    opts, args = p.parse_args(args)
-
-    with open(os.path.abspath(os.path.expanduser(args[1])), 'r+b') as stream:
-        mi = get_metadata(stream, extract_cover=opts.get_cover)
-        changed = False
-        if opts.title:
-            mi.title = opts.title
-            changed = True
-        if opts.authors:
-            mi.authors = opts.authors.split(',')
-            changed = True
-        
-        if changed:
-            set_metadata(stream, mi)
-        print unicode(get_metadata(stream, extract_cover=False)).encode('utf-8')
-        
-    if mi.cover_data[1] is not None:
-        cpath = os.path.splitext(os.path.basename(args[1]))[0] + '_cover.jpg'
-        with open(cpath, 'wb') as f:
-            f.write(mi.cover_data[1])
-            print 'Cover saved to', f.name
-        
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

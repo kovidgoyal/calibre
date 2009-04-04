@@ -22,7 +22,7 @@ from calibre.ebooks.pdf.verify import is_valid_pdfs
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
-USAGE = '%prog %%name ' + _('''
+USAGE = '\n%prog %%name ' + _('''\
 [options] file1.pdf file2.pdf ...
 
 Metadata will be used from the first PDF specified.
@@ -94,9 +94,17 @@ def main(args=sys.argv, name=''):
     bad_pdfs = is_valid_pdfs(args)
     if bad_pdfs != []:
         for pdf in bad_pdfs:
-            print 'Error: Could not read file `%s`. Is it a vaild PDF file or is it encrypted/DRMed?.' % pdf
+            print 'Error: Could not read file `%s`.' % pdf
         return 1
-        
+
+    enc = False
+    for pdf in args:
+        if is_encrypted(pdf):
+            enc = True
+            print 'Error: file `%s` is encrypted.' % pdf
+    if enc:
+        return 1
+    
     mi = metadata_from_formats([args[0]])
 
     merge_files(args, opts.output, mi)

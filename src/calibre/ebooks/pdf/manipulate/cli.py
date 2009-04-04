@@ -15,10 +15,13 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
-from calibre.ebooks.pdf.manipulate import crop, info, merge, reverse, split
+from calibre.ebooks.pdf.manipulate import crop, decrypt, encrypt, \
+    info, merge, reverse, split
 
 COMMANDS = {
              'crop'    : crop,
+             'decrypt' : decrypt,
+             'encrypt' : encrypt,
              'info'    : info,
              'merge'   : merge,
              'reverse' : reverse,

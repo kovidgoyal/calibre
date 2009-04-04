@@ -10,7 +10,6 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf import OPFCreator
-from calibre.ebooks.metadata import MetaInformation
 #from calibre.ebooks.metadata.meta import metadata_from_formats
 
 class TXTInput(InputFormatPlugin):
@@ -32,7 +31,7 @@ class TXTInput(InputFormatPlugin):
             index.write(html.encode('utf-8'))
             
         #mi = metadata_from_formats([stream.name])
-        mi = MetaInformation(_('Unknown'), _('Unknown'))
+        mi = None
         opf = OPFCreator(os.getcwd(), mi)
         opf.create_manifest([('index.html', None)])
         opf.create_spine(['index.html'])
