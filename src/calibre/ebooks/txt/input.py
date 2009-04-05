@@ -21,7 +21,10 @@ class TXTInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        txt = stream.read()
+        ienc = stream.encoding if stream.encoding else 'utf-8'
+        if options.input_encoding:
+            ienc = options.input_encoding
+        txt = stream.read().decode(ienc)
         
         md = markdown.Markdown(
             extensions=['footnotes', 'tables', 'toc'],

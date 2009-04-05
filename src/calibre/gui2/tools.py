@@ -70,35 +70,6 @@ def auto_convert(fmt, parent, db, rows):
             else:
                 bad_rows.append(row)
                 continue
-    
-#        defaults = db.conversion_options(db.id(row), fmt)
-#        defaults = defaults if defaults else ''
-#        options = get_config(fmt)(defaults=defaults).parse()
-        
-#        mi = db.get_metadata(row)
-#        opf = OPFCreator(os.getcwdu(), mi)
-#        opf_file = PersistentTemporaryFile('.opf')
-#        opf.render(opf_file)
-#        opf_file.close()
-#        pt = PersistentTemporaryFile('.'+_fmt.lower())
-#        pt.write(data)
-#        pt.close()
-#        of = PersistentTemporaryFile('.'+fmt)
-#        of.close()
-#        cover = db.cover(row)
-#        cf = None
-#        if cover:
-#            cf = PersistentTemporaryFile('.jpeg')
-#            cf.write(cover)
-#            cf.close()
-#            options.cover = cf.name
-#        options.output = of.name
-#        options.from_opf = opf_file.name
-#        args = [options, pt.name]
-#        desc = _('Auto convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-#        temp_files = [cf] if cf is not None else []
-#        temp_files.extend([opf_file, pt, of])
-#        jobs.append(('any2'+fmt, args, desc, fmt.upper(), row_id, temp_files))
 
         mi = db.get_metadata(row)
         in_file = db.format_abspath(row, data)
