@@ -17,7 +17,7 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.oeb.output import OEBOutput
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.pdf.writer import PDFWriter
+from calibre.ebooks.pdf.writer import PDFWriter, PDFMetadata
 from calibre.ebooks.pdf.pageoptions import UNITS, unit, PAPER_SIZES, \
     paper_size, ORIENTATIONS, orientation, PageOptions
 
@@ -88,7 +88,7 @@ class PDFOutput(OutputFormatPlugin):
             
             out_stream.seek(0)
             out_stream.truncate()
-            writer.dump(opf, out_stream)
+            writer.dump(opf, out_stream, PDFMetadata(oeb_book.metadata))
             
             if close:
                 out_stream.close()

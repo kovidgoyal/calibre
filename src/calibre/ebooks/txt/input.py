@@ -10,7 +10,7 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf import OPFCreator
-#from calibre.ebooks.metadata.meta import metadata_from_formats
+from calibre.customize.builtins import TXTMetadataReader
 
 class TXTInput(InputFormatPlugin):
     
@@ -26,12 +26,11 @@ class TXTInput(InputFormatPlugin):
         md = markdown.Markdown(
             extensions=['footnotes', 'tables', 'toc'],
             safe_mode=False,)
-        html = '<html><body>'+md.convert(txt)+'</body></html>'
+        html = '<html><head><title /></head><body>'+md.convert(txt)+'</body></html>'
         with open('index.html', 'wb') as index:
             index.write(html.encode('utf-8'))
             
-        #mi = metadata_from_formats([stream.name])
-        mi = None
+        mi = TXTMetadataReader(None).get_metadata(stream, 'txt')
         opf = OPFCreator(os.getcwd(), mi)
         opf.create_manifest([('index.html', None)])
         opf.create_spine(['index.html'])

@@ -13,6 +13,7 @@ import os, shutil, sys
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import PageOptions
+from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import OPF
 
 from PyQt4 import QtCore
@@ -22,6 +23,18 @@ from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
         
+class PDFMetadata(object):
+    def __init__(self, oeb_metadata=None):
+        self.title = _('Unknown')
+        self.author = _('Unknown')
+        
+        if oeb_metadata != None:
+            if len(oeb_metadata.title) >= 1:
+                self.title = oeb_metadata.title[0].value
+            if len(oeb_metadata.creator) >= 1:
+                self.author = authors_to_string([x.value for x in oeb_metadata.creator])
+
+
 class PDFWriter(QObject):
     def __init__(self, log, popts=PageOptions()):
         if QApplication.instance() is None:
@@ -37,8 +50,9 @@ class PDFWriter(QObject):
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
         self.popts = popts
-
-    def dump(self, opfpath, out_stream):
+        
+    def dump(self, opfpath, out_stream, pdf_metadata):
+        self.metadata = pdf_metadata
         self._delete_tmpdir()
         
         opf = OPF(opfpath, os.path.dirname(opfpath))
@@ -88,7 +102,7 @@ class PDFWriter(QObject):
         self.logger.info('Combining individual PDF parts...')
     
         try:
-            outPDF = PdfFileWriter()
+            outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
             for item in self.combine_queue:
                 inputPDF = PdfFileReader(file(item, 'rb'))
                 for page in inputPDF.pages:
