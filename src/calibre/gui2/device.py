@@ -577,7 +577,7 @@ class DeviceGUI(object):
 
 
     def sync_to_device(self, on_card, delete_from_library,
-            specific_format=None, send_rows=None, auto_convert=True):
+            specific_format=None, send_rows=None, do_auto_convert=True):
         rows = self.library_view.selectionModel().selectedRows() if send_rows is None else send_rows
         if not self.device_manager or not rows or len(rows) == 0:
             return
@@ -585,8 +585,12 @@ class DeviceGUI(object):
         _files, _auto_rows = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS,
                                     paths=True, set_metadata=True,
-                                    specific_format=specific_format)
-        rows = list(set(rows).difference(_auto_rows))
+                                    specific_format=specific_format,
+                                    exclude_auto=do_auto_convert)
+        if do_auto_convert:
+            rows = list(set(rows).difference(_auto_rows))
+        else:
+            _auto_rows = []
         
         ids = iter(self.library_view.model().id(r) for r in rows)
         metadata = self.library_view.model().get_metadata(rows)
@@ -626,9 +630,9 @@ class DeviceGUI(object):
         if _auto_rows != []:
             for row in _auto_rows:
                 if specific_format == None:
-                    formats = self.library_view.model().db.formats(row).split(',')
-                    formats = formats if formats != None else []
-                    if set(formats).intersection(available_input_formats()) is not None and set(self.device_manager.device_class.FORMATS).intersection(available_output_formats()) is not None:
+                    formats = [f.lower() for f in self.library_view.model().db.formats(row).split(',')]
+                    formats = formats if formats != None else [] 
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.FORMATS).intersection(available_output_formats())) != []:
                         auto.append(row)
                     else:
                         bad.append(self.library_view.model().title(row))
@@ -646,10 +650,10 @@ class DeviceGUI(object):
             for fmt in self.device_manager.device_class.FORMATS:
                 if fmt in list(set(self.device_manager.device_class.FORMATS).intersection(set(available_output_formats()))):
                     format = fmt
-                    break                        
+                    break
+            d.exec_()                        
             self.auto_convert(_auto_rows, on_card, format)
-            d.exec_()
-                        
+
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
             d = warning_dialog(self, _('No suitable formats'),

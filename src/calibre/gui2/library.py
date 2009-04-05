@@ -420,7 +420,8 @@ class BooksModel(QAbstractTableModel):
 
 
     def get_preferred_formats(self, rows, formats, paths=False,
-                              set_metadata=False, specific_format=None):
+                              set_metadata=False, specific_format=None,
+                              exclude_auto=False):
         ans = []
         need_auto = []
         if specific_format is not None:
@@ -448,7 +449,8 @@ class BooksModel(QAbstractTableModel):
                 ans.append(pt)
             else:
                 need_auto.append(row)
-                ans.append(None)
+                if not exclude_auto:
+                    ans.append(None)
         return ans, need_auto
 
     def id(self, row):
