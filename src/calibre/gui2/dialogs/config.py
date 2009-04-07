@@ -397,6 +397,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.separate_cover_flow.setChecked(config['separate_cover_flow'])
         self.setup_email_page()
         self.category_view.setCurrentIndex(self.category_view.model().index(0))
+        self.delete_news.setEnabled(bool(self.sync_news.isChecked()))
+        self.connect(self.sync_news, SIGNAL('toggled(bool)'),
+                self.delete_news.setEnabled)
 
     def setup_email_page(self):
         opts = smtp_prefs().parse()
