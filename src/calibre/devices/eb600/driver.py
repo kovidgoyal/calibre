@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 '''
-Device driver for Amazon's Kindle
+Device driver for the Netronix EB600
 '''
 
 from calibre.devices.usbms.driver import USBMS
