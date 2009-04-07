@@ -622,7 +622,11 @@ class LibraryDatabase2(LibraryDatabase):
         if title:
             if not isinstance(title, unicode):
                 title = title.decode(preferred_encoding, 'replace')
-            return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
+            tf = FIELD_MAP['title']
+            q = title.lower()
+            for record in self.data._data:
+                if record is not None and record[tf].lower() == q:
+                    return True
         return False
 
     def has_cover(self, index, index_is_id=False):
