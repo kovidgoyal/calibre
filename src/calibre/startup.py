@@ -24,7 +24,7 @@ from calibre.translations.msgfmt import make
 _run_once = False
 if not _run_once:
     _run_once = True
-    
+
     ################################################################################
     # Setup translations
 
@@ -32,7 +32,8 @@ if not _run_once:
         lang = prefs['language']
         if lang is not None:
             return lang
-        lang = locale.getdefaultlocale()[0]
+        lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
+                                       'LC_MESSAGES', 'LANG'])[0]
         if lang is None and os.environ.has_key('LANG'): # Needed for OS X
             try:
                 lang = os.environ['LANG']
