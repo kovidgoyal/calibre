@@ -15,6 +15,7 @@ from calibre import terminal_controller, preferred_encoding
 from calibre.utils.config import OptionParser, prefs
 try:
     from calibre.utils.single_qt_application import send_message
+    send_message
 except:
     send_message = None
 from calibre.ebooks.metadata.meta import get_metadata
@@ -55,7 +56,7 @@ XML_TEMPLATE = '''\
         </py:for>
         </formats>
     </record>
-</py:for> 
+</py:for>
 </calibredb>
 '''
 
@@ -114,7 +115,7 @@ def get_db(dbpath, options):
     dbpath = os.path.abspath(dbpath)
     return LibraryDatabase2(dbpath)
 
-def do_list(db, fields, sort_by, ascending, search_text, line_width, separator, 
+def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
             prefix, output_format, subtitle='Books in the calibre database'):
     if sort_by:
         db.sort(sort_by, ascending)
@@ -134,13 +135,13 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         for i in data:
             for j, field in enumerate(fields):
                 widths[j] = max(widths[j], len(unicode(i[str(field)])))
-        
+
         screen_width = terminal_controller.COLS if line_width < 0 else line_width
         if not screen_width:
             screen_width = 80
         field_width = screen_width//len(fields)
         base_widths = map(lambda x: min(x+1, field_width), widths)
-    
+
         while sum(base_widths) < screen_width:
             adjusted = False
             for i in range(len(widths)):
@@ -150,14 +151,14 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
                     break
             if not adjusted:
                 break
-    
+
         widths = list(base_widths)
         titles = map(lambda x, y: '%-*s'%(x, y), widths, fields)
         print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
-    
+
         wrappers = map(lambda x: TextWrapper(x-1), widths)
         o = cStringIO.StringIO()
-    
+
         for record in data:
             text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
             lines = max(map(len, text))
@@ -178,9 +179,9 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
             if isinstance(x['fmt_epub'], unicode):
                 x['fmt_epub'] = x['fmt_epub'].encode('utf-8')
         template = MarkupTemplate(STANZA_TEMPLATE)
-        return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle, 
+        return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle,
                 sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
-            
+
 
 
 def command_list(args, dbpath):
@@ -199,7 +200,7 @@ List the books available in the calibre database.
                       help=_('Sort results in ascending order'))
     parser.add_option('-s', '--search', default=None,
                       help=_('Filter the results by the search query. For the format of the search query, please see the search related documentation in the User Manual. Default is to do no filtering.'))
-    parser.add_option('-w', '--line-width', default=-1, type=int, 
+    parser.add_option('-w', '--line-width', default=-1, type=int,
                       help=_('The maximum width of a single line in the output. Defaults to detecting screen size.'))
     parser.add_option('--separator', default=' ', help=_('The string used to separate fields. Default is a space.'))
     parser.add_option('--prefix', default=None, help=_('The prefix for all file paths. Default is the absolute path to the library folder.'))
@@ -264,14 +265,14 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
 
             formats.append(format)
             metadata.append(mi)
-        
+
         file_duplicates = []
         if files:
-            file_duplicates = db.add_books(files, formats, metadata, 
+            file_duplicates = db.add_books(files, formats, metadata,
                                            add_duplicates=add_duplicates)
             if file_duplicates:
                 file_duplicates = file_duplicates[0]
-                
+
 
         dir_dups = []
         for dir in dirs:

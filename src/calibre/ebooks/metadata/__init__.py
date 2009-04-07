@@ -207,9 +207,9 @@ class MetaInformation(object):
             title = mi.title
             authors = mi.authors
         self.title = title
-        self.author = list(authors) # Needed for backward compatibility
+        self.author = list(authors) if authors else []# Needed for backward compatibility
         #: List of strings or []
-        self.authors = list(authors)
+        self.authors = list(authors) if authors else []
         self.tags = getattr(mi, 'tags', [])
         #: mi.cover_data = (ext, data)
         self.cover_data   = getattr(mi, 'cover_data', (None, None))
