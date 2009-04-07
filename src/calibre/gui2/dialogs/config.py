@@ -199,7 +199,7 @@ class EmailAccounts(QAbstractTableModel):
             return (account, self.accounts[account])
         if role == Qt.ToolTipRole:
             return self.tooltips[col]
-        if role == Qt.DisplayRole:
+        if role in [Qt.DisplayRole, Qt.EditRole]:
             if col == 0:
                 return QVariant(account)
             if col ==  1:
