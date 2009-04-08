@@ -22,6 +22,7 @@ class OEBOutput(OutputFormatPlugin):
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         from calibre.ebooks.oeb.base import OPF_MIME, NCX_MIME, PAGE_MAP_MIME
+        from calibre.ebooks.html import tostring as html_tostring
         with CurrentDir(output_path):
             results = oeb_book.to_opf2(page_map=True)
             for key in (OPF_MIME, NCX_MIME, PAGE_MAP_MIME):
@@ -42,9 +43,8 @@ class OEBOutput(OutputFormatPlugin):
                     if hasattr(raw, 'cssText'):
                         raw = raw.cssText
                     else:
-                        raw = etree.tostring(raw, encoding='utf-8',
+                        raw = html_tostring(raw,
                                 pretty_print=opts.pretty_print)
-                        raw = '<?xml version="1.0" encoding="utf-8" ?>\n'+raw
                 if isinstance(raw, unicode):
                     raw = raw.encode('utf-8')
                 with open(path, 'wb') as f:
