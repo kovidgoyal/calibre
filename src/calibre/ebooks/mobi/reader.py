@@ -494,6 +494,7 @@ class MobiReader(object):
             raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
+        self.mobi_html = self.mobi_html.replace('\0', '')
         return processed_records
 
 
