@@ -6,9 +6,9 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, os, logging
+import os
 from calibre.ebooks.oeb.base import OPF_MIME, xml2str
-from calibre.ebooks.oeb.base import DirContainer, OEBBook
+from calibre.ebooks.oeb.base import DirContainer, OEBError
 
 __all__ = ['OEBWriter']
 
@@ -18,7 +18,7 @@ class OEBWriter(object):
 
     TRANSFORMS = []
     """List of transforms to apply to content written with this Writer."""
-    
+
     def __init__(self, version='2.0', page_map=False, pretty_print=False):
         self.version = version
         self.page_map = page_map
@@ -46,7 +46,7 @@ class OEBWriter(object):
         pretty_print = opts.pretty_print
         return cls(version=version, page_map=page_map,
                    pretty_print=pretty_print)
-    
+
     def __call__(self, oeb, path):
         """Read the book in the :class:`OEBBook` object :param:`oeb` to a file
         at :param:`path`.

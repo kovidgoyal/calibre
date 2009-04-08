@@ -7,18 +7,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, os, uuid, copy
-from itertools import izip, chain
+from itertools import izip
 from urlparse import urldefrag, urlparse
 from urllib import unquote as urlunquote
 from mimetypes import guess_type
 from collections import defaultdict
+
 from lxml import etree
+import cssutils
+
 from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
     DC_NSES, OPF
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
     PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
-from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, CSSURL_RE, \
-    ENTITY_RE, LINK_SELECTORS, MS_COVER_TYPE
+from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, \
+    ENTITY_RE, MS_COVER_TYPE, iterlinks
 from calibre.ebooks.oeb.base import namespace, barename, qname, XPath, xpath, \
                                     urlnormalize, BINARY_MIME, \
                                     OEBError, OEBBook, DirContainer
@@ -191,8 +194,8 @@ class OEBReader(object):
                 if (item.media_type in OEB_DOCS or
                     item.media_type[-4:] in ('/xml', '+xml')) and \
                    item.data is not None:
-                    hrefs = [sel(item.data) for sel in LINK_SELECTORS]
-                    for href in chain(*hrefs):
+                    hrefs = [r[2] for r in iterlinks(item.data)]
+                    for href in hrefs:
                         href, _ = urldefrag(href)
                         if not href:
                             continue
@@ -201,8 +204,8 @@ class OEBReader(object):
                         if not scheme and href not in known:
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
-                    for match in CSSURL_RE.finditer(item.data.cssText):
-                        href, _ = urldefrag(match.group('url'))
+                    for url in cssutils.getUrls(item.data):
+                        href, _ = urldefrag(url)
                         href = item.abshref(urlnormalize(href))
                         scheme = urlparse(href).scheme
                         if not scheme and href not in known:

@@ -7,14 +7,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, uuid
+import os, re, uuid, logging
 from mimetypes import types_map
 from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
-import logging
+from urlparse import urljoin
+
 from lxml import etree, html
+
 import calibre
 from cssutils import CSSParser
 from calibre.translations.dynamic import translate
@@ -77,16 +79,117 @@ def XLINK(name):
 def CALIBRE(name):
     return '{%s}%s' % (CALIBRE_NS, name)
 
-def LINK_SELECTORS():
-    results = []
-    for expr in ('h:head/h:link/@href', 'h:body//h:a/@href',
-                 'h:body//h:img/@src', 'h:body//h:object/@data',
-                 'h:body//*/@xl:href', '//ncx:content/@src',
-                 'o2:page/@href'):
-        results.append(etree.XPath(expr, namespaces=XPNSMAP))
-    return results
+_css_url_re = re.compile(r'url\((.*?)\)', re.I)
+_css_import_re = re.compile(r'@import "(.*?)"')
+_archive_re = re.compile(r'[^ ]+')
 
-LINK_SELECTORS = LINK_SELECTORS()
+def iterlinks(root):
+    '''
+    Iterate over all links in a OEB Document.
+
+    :param root: A valid lxml.etree element.
+    '''
+    assert etree.iselement(root)
+    link_attrs = set(html.defs.link_attrs)
+    link_attrs.add(XLINK('href'))
+
+    for el in root.iter():
+        attribs = el.attrib
+
+        if el.tag == XHTML('object'):
+            codebase = None
+            ## <object> tags have attributes that are relative to
+            ## codebase
+            if 'codebase' in attribs:
+                codebase = el.get('codebase')
+                yield (el, 'codebase', codebase, 0)
+            for attrib in 'classid', 'data':
+                if attrib in attribs:
+                    value = el.get(attrib)
+                    if codebase is not None:
+                        value = urljoin(codebase, value)
+                    yield (el, attrib, value, 0)
+            if 'archive' in attribs:
+                for match in _archive_re.finditer(el.get('archive')):
+                    value = match.group(0)
+                    if codebase is not None:
+                        value = urljoin(codebase, value)
+                    yield (el, 'archive', value, match.start())
+        else:
+            for attr in attribs:
+                if attr in link_attrs:
+                    yield (el, attr, attribs[attr], 0)
+
+
+        if el.tag == XHTML('style') and el.text:
+            for match in _css_url_re.finditer(el.text):
+                yield (el, None, match.group(1), match.start(1))
+            for match in _css_import_re.finditer(el.text):
+                yield (el, None, match.group(1), match.start(1))
+        if 'style' in attribs:
+            for match in _css_url_re.finditer(attribs['style']):
+                yield (el, 'style', match.group(1), match.start(1))
+
+def make_links_absolute(root, base_url):
+    '''
+    Make all links in the document absolute, given the
+    ``base_url`` for the document (the full URL where the document
+    came from)
+    '''
+    def link_repl(href):
+        return urljoin(base_url, href)
+    rewrite_links(root, link_repl)
+
+def resolve_base_href(root):
+    base_href = None
+    basetags = root.xpath('//base[@href]|//h:base[@href]',
+            namespaces=XPNSMAP)
+    for b in basetags:
+        base_href = b.get('href')
+        b.drop_tree()
+    if not base_href:
+        return
+    make_links_absolute(root, base_href, resolve_base_href=False)
+
+def rewrite_links(root, link_repl_func, resolve_base_href=True):
+    '''
+    Rewrite all the links in the document.  For each link
+    ``link_repl_func(link)`` will be called, and the return value
+    will replace the old link.
+
+    Note that links may not be absolute (unless you first called
+    ``make_links_absolute()``), and may be internal (e.g.,
+    ``'#anchor'``).  They can also be values like
+    ``'mailto:email'`` or ``'javascript:expr'``.
+
+    If the ``link_repl_func`` returns None, the attribute or
+    tag text will be removed completely.
+    '''
+    if resolve_base_href:
+        resolve_base_href(root)
+    for el, attrib, link, pos in iterlinks(root):
+        new_link = link_repl_func(link.strip())
+        if new_link == link:
+            continue
+        if new_link is None:
+            # Remove the attribute or element content
+            if attrib is None:
+                el.text = ''
+            else:
+                del el.attrib[attrib]
+            continue
+        if attrib is None:
+            new = el.text[:pos] + new_link + el.text[pos+len(link):]
+            el.text = new
+        else:
+            cur = el.attrib[attrib]
+            if not pos and len(cur) == len(link):
+                # Most common case
+                el.attrib[attrib] = new_link
+            else:
+                new = cur[:pos] + new_link + cur[pos+len(link):]
+                el.attrib[attrib] = new
+
 
 EPUB_MIME      = types_map['.epub']
 XHTML_MIME     = types_map['.xhtml']
@@ -199,7 +302,7 @@ def urlnormalize(href):
     characters URL quoted.
     """
     parts = urlparse(href)
-    if not parts.scheme:
+    if not parts.scheme or parts.scheme == 'file':
         path, frag = urldefrag(href)
         parts = ('', '', path, '', '', frag)
     parts = (part.replace('\\', '/') for part in parts)
@@ -724,7 +827,7 @@ class Manifest(object):
             if isinstance(data, unicode):
                 return data.encode('utf-8')
             return str(data)
-            
+
         def __unicode__(self):
             data = self.data
             if isinstance(data, etree._Element):
@@ -778,8 +881,13 @@ class Manifest(object):
             """Convert the URL provided in :param:`href` from a reference
             relative to this manifest item to a book-absolute reference.
             """
-            if urlparse(href).scheme:
+            purl = urlparse(href)
+            scheme = purl.scheme
+            if scheme and scheme != 'file':
                 return href
+            purl = list(purl)
+            purl[0] = ''
+            href = urlunparse(purl)
             path, frag = urldefrag(href)
             if not path:
                 return '#'.join((self.href, frag))
