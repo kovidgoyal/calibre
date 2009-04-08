@@ -192,7 +192,7 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language',
-                     'book_producer', 'timestamp'):
+                     'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
 
@@ -217,7 +217,7 @@ class MetaInformation(object):
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer', 'timestamp'
+                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'
                   ):
             setattr(self, x, getattr(mi, x, None))
 
@@ -236,7 +236,7 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
-                     'timestamp'):
+                     'timestamp', 'lccn', 'lcc', 'ddc'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
@@ -287,7 +287,13 @@ class MetaInformation(object):
         if self.language:
             ans += u'Language : '     + unicode(self.language) + u'\n'
         if self.timestamp is not None:
-            ans += u'Timestamp : ' + self.timestamp.isoformat(' ')
+            ans += u'Timestamp : ' + self.timestamp.isoformat(' ') + u'\n'
+        if self.lccn:
+            ans += u'LCCN : ' + unicode(self.lccn) + u'\n'
+        if self.lcc:
+            ans += u'LCC : ' + unicode(self.lcc) + u'\n'
+        if self.ddc:
+            ans += u'DDC : ' + unicode(self.ddc) + u'\n'
         return ans.strip()
 
     def to_html(self):
@@ -297,6 +303,12 @@ class MetaInformation(object):
         ans += [(_('Producer'), unicode(self.book_producer))]
         ans += [(_('Comments'), unicode(self.comments))]
         ans += [('ISBN', unicode(self.isbn))]
+        if self.lccn:
+            ans += [('LCCN', unicode(self.lccn))]
+        if self.lcc:
+            ans += [('LCC', unicode(self.lcc))]
+        if self.ddc:
+            ans += [('DDC', unicode(self.ddc))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
             ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]

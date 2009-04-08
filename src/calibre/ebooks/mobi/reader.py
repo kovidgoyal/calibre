@@ -59,8 +59,8 @@ class EXTHHeader(object):
                 pass
             elif id == 503 and (not title or title == _('Unknown')):
                 title = content
-            #else:
-            #    print 'unknown record', id, repr(content)
+            else:
+                print 'unknown record', id, repr(content)
         if title:
             self.mi.title = title
 
@@ -85,8 +85,8 @@ class EXTHHeader(object):
                         content, '%Y-%m-%d',).date()
             except:
                 pass
-        #else:
-        #    print 'unhandled metadata record', id, repr(content)
+        else:
+            print 'unhandled metadata record', id, repr(content)
 
 
 class BookHeader(object):
