@@ -72,11 +72,11 @@ class HTMLPreProcessor(object):
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   
-                  # Re wrap lines
+                  # Un wrap lines
                   (re.compile(r'(?<=\w)\s*</i>\s*<p.*?>\s*<i>\s*(?=\w)'), lambda match: ' '),
                   (re.compile(r'(?<=\w)\s*<p.*?>\s*(?=\w)', re.UNICODE), lambda match: ' '),
                   # Clean up spaces
-                  (re.compile(ru'(?<=\.|,|:|;|\?|!|”|"|\')[\s^ ]*(?=<)'), lambda match: ' '),
+                  (re.compile(u'(?<=\.|,|:|;|\?|!|”|"|\')[\s^ ]*(?=<)'), lambda match: ' '),
                   ]
 
     # Fix Book Designer markup
