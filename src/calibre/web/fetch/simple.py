@@ -28,10 +28,10 @@ class closing(object):
 
     def __init__(self, thing):
         self.thing = thing
-    
+
     def __enter__(self):
         return self.thing
-    
+
     def __exit__(self, *exc_info):
         try:
             self.thing.close()
@@ -55,43 +55,43 @@ def save_soup(soup, target):
     for meta in metas:
         if 'charset' in meta.get('content', '').lower():
             meta.replaceWith(nm)
-    
+
     selfdir = os.path.dirname(target)
-    
+
     for tag in soup.findAll(['img', 'link', 'a']):
         for key in ('src', 'href'):
             path = tag.get(key, None)
             if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
                 tag[key] = unicode_path(relpath(path, selfdir).replace(os.sep, '/'))
-    
+
     html = unicode(soup)
     with open(target, 'wb') as f:
         f.write(html.encode('utf-8'))
-    
+
 class response(str):
-    
+
     def __new__(cls, *args):
         obj = super(response, cls).__new__(cls, *args)
         obj.newurl = None
         return obj
-        
+
 class DummyLock(object):
-    
+
     def __enter__(self, *args): return self
     def __exit__(self, *args): pass
 
 class RecursiveFetcher(object, LoggingInterface):
-    LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in 
+    LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
                 ('.exe\s*$', '.mp3\s*$', '.ogg\s*$', '^\s*mailto:', '^\s*$'))
     #ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
     #                       (
-    #                        
+    #
     #                        )
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     default_timeout = socket.getdefaulttimeout() # Needed here as it is used in __del__
     DUMMY_LOCK = DummyLock()
-    
+
     def __init__(self, options, logger, image_map={}, css_map={}, job_info=None):
         LoggingInterface.__init__(self, logger)
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
@@ -123,19 +123,19 @@ class RecursiveFetcher(object, LoggingInterface):
         self.remove_tags_after   = getattr(options, 'remove_tags_after', None)
         self.remove_tags_before  = getattr(options, 'remove_tags_before', None)
         self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
-        self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup) 
+        self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup)
         self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []
         self.job_info = job_info
-        
+
     def get_soup(self, src):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
         nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL), lambda m: '')] # Some websites have buggy doctype declarations that mess up beautifulsoup
         soup = BeautifulSoup(xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
-         
+
         if self.keep_only_tags:
             body = Tag(soup, 'body')
             try:
@@ -147,7 +147,7 @@ class RecursiveFetcher(object, LoggingInterface):
                 soup.find('body').replaceWith(body)
             except AttributeError: # soup has no body element
                 pass
-            
+
         def remove_beyond(tag, next):
             while tag is not None and tag.name != 'body':
                 after = getattr(tag, next)
@@ -156,31 +156,34 @@ class RecursiveFetcher(object, LoggingInterface):
                     after.extract()
                     after = ns
                 tag = tag.parent
-        
+
         if self.remove_tags_after is not None:
             rt = [self.remove_tags_after] if isinstance(self.remove_tags_after, dict) else self.remove_tags_after
             for spec in rt:
                 tag = soup.find(**spec)
                 remove_beyond(tag, 'nextSibling')
-            
+
         if self.remove_tags_before is not None:
             tag = soup.find(**self.remove_tags_before)
             remove_beyond(tag, 'previousSibling')
-            
+
         for kwds in self.remove_tags:
             for tag in soup.findAll(**kwds):
                 tag.extract()
         return self.preprocess_html_ext(soup)
-        
-    
+
+
     def fetch_url(self, url):
         data = None
         self.log_debug('Fetching %s', url)
-        delta = time.time() - self.last_fetch_at 
+        delta = time.time() - self.last_fetch_at
         if  delta < self.delay:
             time.sleep(delta)
-        if re.search(r'\s+', url) is not None:
-            url = quote(url)
+        if re.search(r'\s+|,', url) is not None:
+            purl = list(urlparse.urlparse(url))
+            for i in range(2, 6):
+                purl[i] = quote(purl[i])
+            url = urlparse.urlunparse(purl)
         with self.browser_lock:
             try:
                 with closing(self.browser.open(url)) as f:
@@ -196,38 +199,38 @@ class RecursiveFetcher(object, LoggingInterface):
                     with closing(self.browser.open(url)) as f:
                         data = response(f.read()+f.read())
                         data.newurl = f.geturl()
-                else: 
+                else:
                     raise err
             finally:
                 self.last_fetch_at = time.time()
             return data
 
-        
+
     def start_fetch(self, url):
         soup = BeautifulSoup(u'<a href="'+url+'" />')
         self.log_info('Downloading')
         res = self.process_links(soup, url, 0, into_dir='')
         self.log_info('%s saved to %s', url, res)
         return res
-    
+
     def is_link_ok(self, url):
         for i in self.__class__.LINK_FILTER:
             if i.search(url):
                 return False
         return True
-        
+
     def is_link_wanted(self, url):
         if self.filter_regexps:
             for f in self.filter_regexps:
                 if f.search(url):
-                    return False            
+                    return False
         if self.match_regexps:
             for m in self.match_regexps:
                 if m.search(url):
                     return True
             return False
         return True
-        
+
     def process_stylesheets(self, soup, baseurl):
         diskpath = unicode_path(os.path.join(self.current_dir, 'stylesheets'))
         if not os.path.exists(diskpath):
@@ -254,7 +257,7 @@ class RecursiveFetcher(object, LoggingInterface):
                     x.write(data)
                 tag['href'] = stylepath
             else:
-                for ns in tag.findAll(text=True):                    
+                for ns in tag.findAll(text=True):
                     src = str(ns)
                     m = self.__class__.CSS_IMPORT_PATTERN.search(src)
                     if m:
@@ -278,9 +281,9 @@ class RecursiveFetcher(object, LoggingInterface):
                         with open(stylepath, 'wb') as x:
                             x.write(data)
                         ns.replaceWith(src.replace(m.group(1), stylepath))
-                        
-                        
-    
+
+
+
     def process_images(self, soup, baseurl):
         diskpath = unicode_path(os.path.join(self.current_dir, 'images'))
         if not os.path.exists(diskpath):
@@ -323,7 +326,7 @@ class RecursiveFetcher(object, LoggingInterface):
                 traceback.print_exc()
                 continue
 
-    def absurl(self, baseurl, tag, key, filter=True): 
+    def absurl(self, baseurl, tag, key, filter=True):
         iurl = tag[key]
         parts = urlparse.urlsplit(iurl)
         if not parts.netloc and not parts.path:
@@ -337,26 +340,26 @@ class RecursiveFetcher(object, LoggingInterface):
             self.log_debug('Filtered link: '+iurl)
             return None
         return iurl
-    
+
     def normurl(self, url):
         parts = list(urlparse.urlsplit(url))
         parts[4] = ''
         return urlparse.urlunsplit(parts)
-                
+
     def localize_link(self, tag, key, path):
         parts = urlparse.urlsplit(tag[key])
         suffix = '#'+parts.fragment if parts.fragment else ''
         tag[key] = path+suffix
-    
+
     def process_return_links(self, soup, baseurl):
         for tag in soup.findAll(lambda tag: tag.name.lower()=='a' and tag.has_key('href')):
-            iurl = self.absurl(baseurl, tag, 'href')            
+            iurl = self.absurl(baseurl, tag, 'href')
             if not iurl:
                 continue
             nurl = self.normurl(iurl)
             if self.filemap.has_key(nurl):
                 self.localize_link(tag, 'href', self.filemap[nurl])
-    
+
     def process_links(self, soup, baseurl, recursion_level, into_dir='links'):
         res = ''
         diskpath = os.path.join(self.current_dir, into_dir)
@@ -366,7 +369,7 @@ class RecursiveFetcher(object, LoggingInterface):
         try:
             self.current_dir = diskpath
             tags = list(soup.findAll('a', href=True))
-            
+
             for c, tag in enumerate(tags):
                 if self.show_progress:
                     print '.',
@@ -396,9 +399,9 @@ class RecursiveFetcher(object, LoggingInterface):
                         dsrc = dsrc.decode(self.encoding, 'ignore')
                     else:
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
-                    
+
                     soup = self.get_soup(dsrc)
-                    
+
                     base = soup.find('base', href=True)
                     if base is not None:
                         newbaseurl = base['href']
@@ -406,7 +409,7 @@ class RecursiveFetcher(object, LoggingInterface):
                     self.process_images(soup, newbaseurl)
                     if self.download_stylesheets:
                         self.process_stylesheets(soup, newbaseurl)
-                    
+
                     _fname = basename(iurl)
                     if not isinstance(_fname, unicode):
                         _fname.decode('latin1', 'replace')
@@ -420,17 +423,17 @@ class RecursiveFetcher(object, LoggingInterface):
                         self.log_debug('Processing links...')
                         self.process_links(soup, newbaseurl, recursion_level+1)
                     else:
-                        self.process_return_links(soup, newbaseurl) 
+                        self.process_return_links(soup, newbaseurl)
                         self.log_debug('Recursion limit reached. Skipping links in %s', iurl)
-                    
+
                     if callable(self.postprocess_html_ext):
-                        soup = self.postprocess_html_ext(soup, 
+                        soup = self.postprocess_html_ext(soup,
                                 c==0 and recursion_level==0 and not getattr(self, 'called_first', False),
                                 self.job_info)
-                        
+
                         if c==0 and recursion_level == 0:
                             self.called_first = True
-                    
+
                     save_soup(soup, res)
                     self.localize_link(tag, 'href', res)
                 except Exception, err:
@@ -439,34 +442,34 @@ class RecursiveFetcher(object, LoggingInterface):
                     self.log_debug('Error: %s', str(err), exc_info=True)
                 finally:
                     self.current_dir = diskpath
-                    self.files += 1                
+                    self.files += 1
         finally:
             self.current_dir = prev_dir
         if self.show_progress:
             print
         return res
-    
+
     def __del__(self):
         dt = getattr(self, 'default_timeout', None)
         if dt is not None:
             socket.setdefaulttimeout(dt)
-        
+
 def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.com')):
     parser = OptionParser(usage=usage)
-    parser.add_option('-d', '--base-dir', 
+    parser.add_option('-d', '--base-dir',
                       help=_('Base directory into which URL is saved. Default is %default'),
                       default='.', type='string', dest='dir')
-    parser.add_option('-t', '--timeout', 
+    parser.add_option('-t', '--timeout',
                       help=_('Timeout in seconds to wait for a response from the server. Default: %default s'),
                       default=10.0, type='float', dest='timeout')
-    parser.add_option('-r', '--max-recursions', default=1, 
+    parser.add_option('-r', '--max-recursions', default=1,
                       help=_('Maximum number of levels to recurse i.e. depth of links to follow. Default %default'),
                       type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=sys.maxint, type='int', dest='max_files',
                       help=_('The maximum number of files to download. This only applies to files from <a href> tags. Default is %default'))
     parser.add_option('--delay', default=0, dest='delay', type='int',
                       help=_('Minimum interval in seconds between consecutive fetches. Default is %default s'))
-    parser.add_option('--encoding', default=None, 
+    parser.add_option('--encoding', default=None,
                       help=_('The character encoding for the websites you are trying to download. The default is to try and guess the encoding.'))
     parser.add_option('--match-regexp', default=[], action='append', dest='match_regexps',
                       help=_('Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.'))
@@ -487,15 +490,15 @@ def create_fetcher(options, logger=None, image_map={}):
     return RecursiveFetcher(options, logger, image_map={})
 
 def main(args=sys.argv):
-    parser = option_parser()    
+    parser = option_parser()
     options, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()
         return 1
-    
-    fetcher = create_fetcher(options) 
-    fetcher.start_fetch(args[1])
-    
 
-if __name__ == '__main__':    
+    fetcher = create_fetcher(options)
+    fetcher.start_fetch(args[1])
+
+
+if __name__ == '__main__':
     sys.exit(main())
