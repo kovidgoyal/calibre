@@ -24,32 +24,6 @@ if iswindows and hasattr(sys, 'frozen'):
 if islinux and getattr(sys, 'frozen_path', False):
     PDFTOHTML = os.path.join(getattr(sys, 'frozen_path'), 'pdftohtml')
 
-# Fix pdftohtml markup
-PDFTOHTML_RULES  = [
-                # Remove <hr> tags
-                (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
-                # Remove page numbers
-                (re.compile(r'\d+<br>', re.IGNORECASE), lambda match: ''),
-                # Remove <br> and replace <br><br> with <p>
-                (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
-                (re.compile(r'(.*)<br.*?>', re.IGNORECASE), 
-                lambda match: match.group() if re.match('<', match.group(1).lstrip()) or len(match.group(1)) < 40 
-                            else match.group(1)),
-                # Remove hyphenation
-                (re.compile(r'-\n\r?'), lambda match: ''),
-                
-                # Remove gray background
-                (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
-                
-                # Remove non breaking spaces
-                (re.compile(ur'\u00a0'), lambda match : ' '),
-                
-                # Add second <br /> after first to allow paragraphs to show better
-                (re.compile(r'<br.*?>'), lambda match : '<br /><br />'),
-                
-                ]
-
-
 def pdftohtml(pdf_path):
     '''
     Convert the pdf into html using the pdftohtml app.
@@ -98,9 +72,4 @@ def pdftohtml(pdf_path):
             if not '<br' in raw[:4000]:
                 raise ConversionError(os.path.basename(pdf_path) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'), True)
 
-            return '<!-- created by calibre\'s pdftohtml -->\n' + processed_html(raw)
-
-def processed_html(html):
-    for rule in PDFTOHTML_RULES:
-        html = rule[0].sub(rule[1], html)
-    return html
+            return '<!-- created by calibre\'s pdftohtml -->\n' + raw
