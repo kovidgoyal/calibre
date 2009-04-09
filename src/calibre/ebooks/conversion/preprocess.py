@@ -66,7 +66,9 @@ class HTMLPreProcessor(object):
 
                   # Remove non breaking spaces
                   (re.compile(ur'\u00a0'), lambda match : ' '),
-
+                  
+                  # Have paragraphs show better
+                  (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   ]
 
     # Fix Book Designer markup

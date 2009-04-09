@@ -9,6 +9,7 @@ Logic for setting up conversion jobs
 import os
 from PyQt4.Qt import QDialog
 
+from calibre.customize.ui import available_input_formats
 from calibre.utils.config import prefs
 from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from calibre.gui2.dialogs.epub import Config as EPUBConvert
@@ -22,6 +23,11 @@ from calibre.ebooks.epub.from_any import SOURCE_FORMATS as EPUB_PREFERRED_SOURCE
 from calibre.ebooks.mobi.from_any import config as mobiconfig
 from calibre.ebooks.lrf.comic.convert_from import config as comicconfig
 
+# Ordered list of source formats. Items closer to the beginning are
+# preferred for conversion over those toward the end.
+PREFERRED_SOURCE_FORMATS = ['epub', 'lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf', 
+                  'txt', 'pdf', 'oebzip', 'htm', 'html']
+
 def get_dialog(fmt):
     return {
               'epub':EPUBConvert,
@@ -34,101 +40,48 @@ def get_config(fmt):
               'mobi':mobiconfig,
            }[fmt]
 
-def auto_convert(fmt, parent, db, comics, others):
+def auto_convert(fmt, parent, db, rows):
     changed = False
     jobs = []
     
-    total = sum(map(len, (others, comics)))
+    total = len(rows)
     if total == 0:
-        return
+        return None, None, None
     parent.status_bar.showMessage(_('Starting auto conversion of %d books')%total, 2000)
     
     i = 0
     bad_rows = []
     
-    for i, row in enumerate(others+comics):
+    for i, row in enumerate(rows):
         row_id = db.id(row)
         
-        if row in others:
-            temp_files = []
-            
-            data = None
-            for _fmt in EPUB_PREFERRED_SOURCE_FORMATS:
-                try:
-                    data = db.format(row, _fmt.upper())
-                    if data is not None:
-                        break
-                except:
-                    continue
-            if data is None:
-                bad_rows.append(row)
-                continue
+        temp_files = []
         
-            defaults = db.conversion_options(db.id(row), fmt)
-            defaults = defaults if defaults else ''
-            options = get_config(fmt)(defaults=defaults).parse()
-            
-            mi = db.get_metadata(row)
-            opf = OPFCreator(os.getcwdu(), mi)
-            opf_file = PersistentTemporaryFile('.opf')
-            opf.render(opf_file)
-            opf_file.close()
-            pt = PersistentTemporaryFile('.'+_fmt.lower())
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.'+fmt)
-            of.close()
-            cover = db.cover(row)
-            cf = None
-            if cover:
-                cf = PersistentTemporaryFile('.jpeg')
-                cf.write(cover)
-                cf.close()
-                options.cover = cf.name
-            options.output = of.name
-            options.from_opf = opf_file.name
-            args = [options, pt.name]
-            desc = _('Auto convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            temp_files = [cf] if cf is not None else []
-            temp_files.extend([opf_file, pt, of])
-            jobs.append(('any2'+fmt, args, desc, fmt.upper(), row_id, temp_files))
-
-            changed = True
-        else:
-            defaults = db.conversion_options(db.id(row), fmt)
-            defaults = defaults if defaults else ''
-            options = comicconfig(defaults=defaults).parse()
-            
-            mi = db.get_metadata(row)
-            if mi.title:
-                options.title = mi.title
-            if mi.authors:
-                options.author =  ','.join(mi.authors)
-            data = None
-            for _fmt in ['cbz', 'cbr']:
-                try:
-                    data = db.format(row, _fmt.upper())
-                    if data is not None:
-                        break                    
-                except:
-                    continue
-            
-            if data is None:
+        data = None
+        in_formats = [f.lower() for f in db.formats(row).split(',')]
+        in_formats = list(set(in_formats).intersection(available_input_formats()))
+        for _fmt in PREFERRED_SOURCE_FORMATS:
+            if _fmt in in_formats:
+                data = _fmt
+                break
+        if data is None:
+            if in_formats != []:
+                data = list(in_formats)[0]
+            else:
                 bad_rows.append(row)
                 continue
-            
-            pt = PersistentTemporaryFile('.'+_fmt.lower())
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.'+fmt)
-            of.close()
-            setattr(options, 'output', of.name)
-            options.verbose = 1
-            args = [pt.name, options]
-            desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            jobs.append(('comic2'+fmt, args, desc, fmt.upper(), row_id, [pt, of]))
-                
-            changed = True
+
+        mi = db.get_metadata(row)
+        in_file = db.format_abspath(row, data)
+        out_file = PersistentTemporaryFile('.'+fmt.lower())
+        out_file.write(data)
+        out_file.close()
+        desc = _('Auto convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
+        args = [['', in_file, out_file.name]]
+        temp_files = [out_file]
+        jobs.append(('ebook-convert', args, desc, fmt.upper(), row_id, temp_files))
+
+        changed = True
 
     if bad_rows:
         res = []
@@ -140,9 +93,6 @@ def auto_convert(fmt, parent, db, comics, others):
         warning_dialog(parent, _('Could not convert some books'), msg).exec_()
         
     return jobs, changed, bad_rows
-
-def auto_convert_lrf(fmt, parent, db, comics, others):
-    pass
 
 def convert_single(fmt, parent, db, comics, others):
     changed = False
@@ -505,11 +455,7 @@ def fetch_scheduled_recipe(recipe, script):
     return 'feeds2'+fmt, [args], _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
             
 def auto_convert_ebook(*args):
-    fmt = args[0] if args[0] else 'epub'
-    if fmt == 'lrf':
-        return auto_convert_lrf()
-    elif fmt in ('epub', 'mobi'):
-        return auto_convert(*args)
+    return auto_convert(*args)
 
 def convert_single_ebook(*args):
     fmt = prefs['output_format'].lower()

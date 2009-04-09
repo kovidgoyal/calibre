@@ -10,8 +10,7 @@ import os
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.pdf.pdftohtml import pdftohtml
 from calibre.ebooks.metadata.opf import OPFCreator
-from calibre.ebooks.metadata import MetaInformation
-#from calibre.ebooks.metadata.meta import metadata_from_formats
+from calibre.customize.builtins import PDFMetadataReader
 
 class PDFInput(InputFormatPlugin):
     
@@ -27,8 +26,7 @@ class PDFInput(InputFormatPlugin):
         with open('index.html', 'wb') as index:
             index.write(html)
             
-        #mi = metadata_from_formats([stream.name])
-        mi = MetaInformation(_('Unknown'), _('Unknown'))
+        mi = PDFMetadataReader(None).get_metadata(stream, 'pdf')
         opf = OPFCreator(os.getcwd(), mi)
         opf.create_manifest([('index.html', None)])
         opf.create_spine(['index.html'])

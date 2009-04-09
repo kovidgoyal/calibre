@@ -35,3 +35,10 @@ def is_valid_pdfs(pdf_paths):
         if not is_valid_pdf(pdf_path):
             invalid.append(pdf_path)
     return invalid
+
+def is_encrypted(pdf_path):
+    with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
+        pdf = PdfFileReader(pdf_file)
+        if pdf.isEncrypted:
+            return True
+    return False

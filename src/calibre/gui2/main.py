@@ -969,18 +969,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def auto_convert(self, rows, on_card, format):
         previous = self.library_view.currentIndex()
 
-        comics, others = [], []
-        db = self.library_view.model().db
-        for r in rows:
-            formats = db.formats(r)
-            if not formats: continue
-            formats = formats.lower().split(',')
-            if 'cbr' in formats or 'cbz' in formats:
-                comics.append(r)
-            else:
-                others.append(r)
-
-        jobs, changed, bad_rows = auto_convert_ebook(format, self, self.library_view.model().db, comics, others)
+        jobs, changed, bad_rows = auto_convert_ebook(format, self, self.library_view.model().db, rows)
+        if jobs is None:
+            return
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad_rows:
                 job = self.job_manager.run_job(Dispatcher(self.book_auto_converted),
@@ -1064,7 +1055,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if job.exception is not None:
                 self.job_exception(job)
                 return
-            data = open(temp_files[-1].name, 'rb')
+            data = open(temp_files[0].name, 'rb')
             self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
             data.close()
             self.status_bar.showMessage(job.description + (' completed'), 2000)
@@ -1081,7 +1072,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().current_changed(current, QModelIndex())
 
         r = self.library_view.model().index(self.library_view.model().db.row(book_id), 0)
-        self.sync_to_device(on_card, False, specific_format=fmt, send_rows=[r], auto_convert=False)
+        self.sync_to_device(on_card, False, specific_format=fmt, send_rows=[r], do_auto_convert=False)
 
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
