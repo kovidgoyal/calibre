@@ -16,7 +16,7 @@ from calibre.ebooks.epub import config
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.html import create_dir
+from calibre.ebooks.html_old import create_dir
 from calibre.utils.zipfile import safe_replace, ZipFile
 from calibre.utils.config import DynamicConfig
 

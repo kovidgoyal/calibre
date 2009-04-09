@@ -6,11 +6,12 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from itertools import chain
 from urlparse import urldefrag
+
+import cssutils
+
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS
-from calibre.ebooks.oeb.base import LINK_SELECTORS, CSSURL_RE
-from calibre.ebooks.oeb.base import urlnormalize
+from calibre.ebooks.oeb.base import urlnormalize, iterlinks
 
 class ManifestTrimmer(object):
     @classmethod
@@ -44,16 +45,15 @@ class ManifestTrimmer(object):
                 if (item.media_type in OEB_DOCS or
                     item.media_type[-4:] in ('/xml', '+xml')) and \
                    item.data is not None:
-                    hrefs = [sel(item.data) for sel in LINK_SELECTORS]
-                    for href in chain(*hrefs):
+                    hrefs = [r[2] for r in iterlinks(item.data)]
+                    for href in hrefs:
                         href = item.abshref(urlnormalize(href))
                         if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]
                             if found not in used:
                                 new.add(found)
                 elif item.media_type == CSS_MIME:
-                    for match in CSSURL_RE.finditer(item.data.cssText):
-                        href = match.group('url')
+                    for href in cssutils.getUrls(item.data):
                         href = item.abshref(urlnormalize(href))
                         if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]

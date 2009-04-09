@@ -38,7 +38,7 @@ from lxml.etree import XPath
 from lxml import html, etree
 from PyQt4.Qt import QApplication, QPixmap
 
-from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
+from calibre.ebooks.html_old import Processor, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc, Link, parser
 from calibre.ebooks.epub import config as common_config, tostring
 from calibre.ptempfile import TemporaryDirectory

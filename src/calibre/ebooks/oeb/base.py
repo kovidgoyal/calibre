@@ -151,7 +151,7 @@ def resolve_base_href(root):
         return
     make_links_absolute(root, base_href, resolve_base_href=False)
 
-def rewrite_links(root, link_repl_func, resolve_base_href=True):
+def rewrite_links(root, link_repl_func, resolve_base_href=False):
     '''
     Rewrite all the links in the document.  For each link
     ``link_repl_func(link)`` will be called, and the return value

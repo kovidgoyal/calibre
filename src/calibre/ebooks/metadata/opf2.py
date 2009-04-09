@@ -684,26 +684,6 @@ class OPF(object):
         return property(fget=fget, fset=fset)
 
     @dynamic_property
-    def title_sort(self):
-
-        def fget(self):
-            matches = self.title_path(self.metadata)
-            if matches:
-                for match in matches:
-                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
-                    if not ans:
-                        ans = match.get('file-as', None)
-                    if ans:
-                        return ans
-
-        def fset(self, val):
-            matches = self.title_path(self.metadata)
-            if matches:
-                matches[0].set('file-as', unicode(val))
-
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
     def tags(self):
 
         def fget(self):
@@ -943,9 +923,10 @@ class OPFCreator(MetaInformation):
         from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
         template = MarkupTemplate(opf_template)
+        toc = getattr(self, 'toc', None)
         if self.manifest:
             self.manifest.set_basedir(self.base_path)
-            if ncx_manifest_entry is not None:
+            if ncx_manifest_entry is not None and toc is not None:
                 if not os.path.isabs(ncx_manifest_entry):
                     ncx_manifest_entry = os.path.join(self.base_path, ncx_manifest_entry)
                 remove = [i for i in self.manifest if i.id == 'ncx']
@@ -965,7 +946,6 @@ class OPFCreator(MetaInformation):
         opf = template.generate(__appname__=__appname__, mi=self, __version__=__version__).render('xml')
         opf_stream.write(opf)
         opf_stream.flush()
-        toc = getattr(self, 'toc', None)
         if toc is not None and ncx_stream is not None:
             toc.render(ncx_stream, self.application_id)
             ncx_stream.flush()
@@ -1028,17 +1008,6 @@ class OPFTest(unittest.TestCase):
 
     def testSmartUpdate(self):
         self.opf.smart_update(MetaInformation(self.opf))
-        self.testReading()
-
-    def testCreator(self):
-        opf = OPFCreator(os.getcwd(), self.opf)
-        buf = cStringIO.StringIO()
-        opf.render(buf)
-        raw = buf.getvalue()
-        self.testReading(opf=OPF(cStringIO.StringIO(raw), os.getcwd()))
-
-    def testSmartUpdate(self):
-        self.opf.smart_update(self.opf)
         self.testReading()
 
 def suite():
