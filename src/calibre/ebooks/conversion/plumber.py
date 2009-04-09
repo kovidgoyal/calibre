@@ -299,21 +299,15 @@ OptionRecommendation(name='language',
 
         # Create an OEBBook from the input file. The input plugin does all the
         # heavy lifting.
-        from calibre.ebooks.oeb.reader import OEBReader
-        from calibre.ebooks.oeb.base import OEBBook
         accelerators = {}
 
         tdir = PersistentTemporaryDirectory('_plumber')
 
-        opfpath = self.input_plugin(open(self.input, 'rb'), self.opts,
+        self.oeb = self.input_plugin(open(self.input, 'rb'), self.opts,
                                     self.input_fmt, self.log,
                                     accelerators, tdir)
-        html_preprocessor = HTMLPreProcessor()
-        self.reader = OEBReader()
-        self.oeb = OEBBook(self.log, html_preprocessor=html_preprocessor)
-        # Read OEB Book into OEBBook
-        self.log.info('Parsing all content...')
-        self.reader(self.oeb, opfpath)
+        if not hasattr(self.oeb, 'manifest'):
+            self.oeb = create_oebbook(self.log, self.oeb)
 
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
@@ -340,7 +334,20 @@ OptionRecommendation(name='language',
         trimmer(self.oeb, self.opts)
 
         self.log.info('Creating %s...'%self.output_plugin.name)
-        self.output_plugin.convert(self.oeb, self.output, self.input_plugin, self.opts,
-                self.log)
+        self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
+                self.opts, self.log)
 
+def create_oebbook(log, opfpath):
+    '''
+    Create an OEBBook from an OPF file.
+    '''
+    from calibre.ebooks.oeb.reader import OEBReader
+    from calibre.ebooks.oeb.base import OEBBook
+    html_preprocessor = HTMLPreProcessor()
+    reader = OEBReader()
+    oeb = OEBBook(log, html_preprocessor=html_preprocessor)
+    # Read OEB Book into OEBBook
+    log.info('Parsing all content...')
+    reader(oeb, opfpath)
+    return oeb
 

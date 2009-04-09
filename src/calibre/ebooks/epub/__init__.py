@@ -10,23 +10,23 @@ import sys, textwrap, re, os, uuid
 from itertools import cycle
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
-from calibre.ebooks.html import config as common_config, tostring
+from calibre.ebooks.html import tostring
 from lxml import etree
 
 class DefaultProfile(object):
-    
+
     flow_size            = sys.maxint
     screen_size          = None
     remove_special_chars = False
     remove_object_tags   = False
-    
+
 class PRS505(DefaultProfile):
-    
+
     flow_size            = 270000
     screen_size          = (590, 765)
     remove_special_chars = re.compile(u'[\u200b\u00ad]')
     remove_object_tags   = True
-        
+
 
 PROFILES = {
             'PRS505' : PRS505,
@@ -64,11 +64,11 @@ def config(defaults=None, name='epub'):
         c = Config(name, desc)
     else:
         c = StringConfig(defaults, desc)
-    
+
     c.update(common_config())
     c.remove_opt('output')
     c.remove_opt('zip')
-    
+
     c.add_opt('output', ['-o', '--output'], default=None,
              help=_('The output EPUB file. If not specified, it is '
                     'derived from the input file name.'))
@@ -81,22 +81,22 @@ def config(defaults=None, name='epub'):
               help=_('Either the path to a CSS stylesheet or raw CSS. '
                      'This CSS will override any existing CSS '
                      'declarations in the source files.'))
-    structure = c.add_group('structure detection', 
+    structure = c.add_group('structure detection',
                             _('Control auto-detection of document structure.'))
-    structure('chapter', ['--chapter'], 
+    structure('chapter', ['--chapter'],
               default="//*[re:match(name(), 'h[1-2]') and "
               "re:test(., 'chapter|book|section|part', 'i')] | "
               "//*[@class = 'chapter']",
             help=_('''\
 An XPath expression to detect chapter titles. The default is to consider <h1> or
-<h2> tags that contain the words "chapter","book","section" or "part" as chapter titles as 
-well as any tags that have class="chapter". 
+<h2> tags that contain the words "chapter","book","section" or "part" as chapter titles as
+well as any tags that have class="chapter".
 The expression used must evaluate to a list of elements. To disable chapter detection,
 use the expression "/". See the XPath Tutorial in the calibre User Manual for further
 help on using this feature.
 ''').replace('\n', ' '))
     structure('chapter_mark', ['--chapter-mark'], choices=['pagebreak', 'rule', 'both', 'none'],
-              default='pagebreak', 
+              default='pagebreak',
               help=_('Specify how to mark detected chapters. A value of '
                      '"pagebreak" will insert page breaks before chapters. '
                      'A value of "rule" will insert a line before chapters. '
@@ -129,13 +129,13 @@ help on using this feature.
               help=_('XPath expression to find the name of each page in the '
                      'pagination map relative to its boundary element. '
                      'Default is to number all pages staring with 1.'))
-    toc = c.add_group('toc', 
+    toc = c.add_group('toc',
         _('''\
 Control the automatic generation of a Table of Contents. If an OPF file is detected
 and it specifies a Table of Contents, then that will be used rather than trying
 to auto-generate a Table of Contents.
 ''').replace('\n', ' '))
-    toc('max_toc_links', ['--max-toc-links'], default=50, 
+    toc('max_toc_links', ['--max-toc-links'], default=50,
         help=_('Maximum number of links to insert into the TOC. Set to 0 '
                'to disable. Default is: %default. Links are only added to the '
                'TOC if less than the --toc-threshold number of chapters were detected.'))
@@ -166,15 +166,15 @@ to auto-generate a Table of Contents.
         help=_('Normally, if the source file already has a Table of Contents, '
                'it is used in preference to the auto-generated one. '
                'With this option, the auto-generated one is always used.'))
-    
+
     layout = c.add_group('page layout', _('Control page layout'))
-    layout('margin_top', ['--margin-top'], default=5.0, 
+    layout('margin_top', ['--margin-top'], default=5.0,
            help=_('Set the top margin in pts. Default is %default'))
-    layout('margin_bottom', ['--margin-bottom'], default=5.0, 
+    layout('margin_bottom', ['--margin-bottom'], default=5.0,
            help=_('Set the bottom margin in pts. Default is %default'))
-    layout('margin_left', ['--margin-left'], default=5.0, 
+    layout('margin_left', ['--margin-left'], default=5.0,
            help=_('Set the left margin in pts. Default is %default'))
-    layout('margin_right', ['--margin-right'], default=5.0, 
+    layout('margin_right', ['--margin-right'], default=5.0,
            help=_('Set the right margin in pts. Default is %default'))
     layout('base_font_size2', ['--base-font-size'], default=12.0,
            help=_('The base font size in pts. Default is %defaultpt. '
@@ -195,12 +195,12 @@ to auto-generate a Table of Contents.
                   'This is only neccessary if the HTML files contain CSS that '
                   'uses sibling selectors. Enabling this greatly slows down '
                   'processing of large HTML files.'))
-    
+
     c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
               help=_('Print generated OPF file to stdout'))
     c.add_opt('show_ncx', ['--show-ncx'], default=False, group='debug',
               help=_('Print generated NCX file to stdout'))
-    c.add_opt('keep_intermediate', ['--keep-intermediate-files'], group='debug', 
+    c.add_opt('keep_intermediate', ['--keep-intermediate-files'], group='debug',
               default=False,
               help=_('Keep intermediate files during processing by html2epub'))
     c.add_opt('extract_to', ['--extract-to'], group='debug', default=None,

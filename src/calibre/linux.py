@@ -22,9 +22,6 @@ entry_points = {
              'web2disk           = calibre.web.fetch.simple:main',
              'feeds2disk         = calibre.web.feeds.main:main',
              'calibre-server     = calibre.library.server:main',
-             'feeds2lrf          = calibre.ebooks.lrf.feeds.convert_from:main',
-             'feeds2epub         = calibre.ebooks.epub.from_feeds:main',
-             'feeds2mobi         = calibre.ebooks.mobi.from_feeds:main',
              'web2lrf            = calibre.ebooks.lrf.web.convert_from:main',
              'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',
@@ -154,10 +151,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
         from calibre.web.feeds.main import option_parser as feeds2disk
         from calibre.web.feeds.recipes import titles as feed_titles
-        from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
-        from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
-        from calibre.ebooks.mobi.from_feeds import option_parser as feeds2mobi
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
         from calibre.ebooks.metadata.fetch import option_parser as fem_op
         from calibre.gui2.main import option_parser as guiop
@@ -192,9 +186,6 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('comic2mobi', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2pdf', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
-        f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
-        f.write(opts_and_words('feeds2epub', feeds2epub, feed_titles))
-        f.write(opts_and_words('feeds2mobi', feeds2mobi, feed_titles))
         f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
         f.write(opts_and_words('calibre-smtp', smtp_op, []))
         f.write('''

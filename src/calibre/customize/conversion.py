@@ -122,8 +122,9 @@ class InputFormatPlugin(Plugin):
     def convert(self, stream, options, file_ext, log, accelerators):
         '''
         This method must be implemented in sub-classes. It must return
-        the path to the created OPF file. All output should be contained in
-        the current directory. If this plugin creates files outside the current
+        the path to the created OPF file or an :class:`OEBBook` instance.
+        All output should be contained in the current directory.
+        If this plugin creates files outside the current
         directory they must be deleted/marked for deletion before this method
         returns.
 
