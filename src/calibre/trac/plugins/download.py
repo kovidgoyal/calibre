@@ -38,6 +38,7 @@ def get_linux_data(version='1.0.0'):
                         ('exherbo', 'Exherbo'),
                         ('foresight', 'Foresight 2.1'),
                         ('ubuntu', 'Ubuntu Jaunty Jackalope'),
+                        ('linux_mint', 'Linux Mint Gloria'),
                         ]:
         data['supported'].append(CoolDistro(name, title,
                                         prefix='http://calibre.kovidgoyal.net'))

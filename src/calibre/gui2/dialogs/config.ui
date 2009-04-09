@@ -371,7 +371,7 @@
          <item>
           <widget class="QCheckBox" name="delete_news">
            <property name="text">
-            <string>&amp;Delete news from library when it is sent to reader</string>
+            <string>&amp;Delete news from library when it is automatically sent to reader</string>
            </property>
           </widget>
          </item>

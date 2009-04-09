@@ -59,8 +59,9 @@ class EXTHHeader(object):
             elif id == 502:
                 # last update time
                 pass
-            elif id == 503 and (not title or title == _('Unknown')):
-                title = content
+            elif id == 503: # Long title
+                if not title or title == _('Unknown'):
+                    title = content
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
@@ -87,6 +88,8 @@ class EXTHHeader(object):
                         content, '%Y-%m-%d',).date()
             except:
                 pass
+        elif id == 108:
+            pass # Producer
         #else:
         #    print 'unhandled metadata record', id, repr(content)
 
@@ -522,7 +525,8 @@ class MobiReader(object):
         else:
             raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
-            self.mobi_html = self.mobi_html.replace('\r ', '\n\n').replace('\0', '')
+            self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
+        self.mobi_html = self.mobi_html.replace('\0', '')
         return processed_records
 
 

@@ -11,9 +11,7 @@ from urllib import unquote, quote
 from urlparse import urlparse
 
 
-from calibre.constants import __version__ as VERSION
 from calibre import relpath
-from calibre.utils.config import OptionParser
 
 def string_to_authors(raw):
     raw = raw.replace('&&', u'\uffff')
@@ -189,11 +187,11 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language',
-                     'book_producer', 'timestamp'):
+                     'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
 
-    def __init__(self, title, authors=[_('Unknown')]):
+    def __init__(self, title, authors=(_('Unknown'),)):
         '''
         @param title: title or ``_('Unknown')`` or a MetaInformation object
         @param authors: List of strings or []
@@ -204,9 +202,9 @@ class MetaInformation(object):
             title = mi.title
             authors = mi.authors
         self.title = title
-        self.author = authors # Needed for backward compatibility
+        self.author = list(authors) if authors else []# Needed for backward compatibility
         #: List of strings or []
-        self.authors = authors
+        self.authors = list(authors) if authors else []
         self.tags = getattr(mi, 'tags', [])
         #: mi.cover_data = (ext, data)
         self.cover_data   = getattr(mi, 'cover_data', (None, None))
@@ -214,7 +212,7 @@ class MetaInformation(object):
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer', 'timestamp'
+                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'
                   ):
             setattr(self, x, getattr(mi, x, None))
 
@@ -229,15 +227,15 @@ class MetaInformation(object):
         if mi.authors and mi.authors[0] != _('Unknown'):
             self.authors = mi.authors
 
-            
         for attr in ('author_sort', 'title_sort', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
-                     'timestamp'):
-            val = getattr(mi, attr, None)
-            if val is not None:
-                setattr(self, attr, val)
+                     'timestamp', 'lccn', 'lcc', 'ddc'):
+            if hasattr(mi, attr):
+                val = getattr(mi, attr)
+                if val is not None:
+                    setattr(self, attr, val)
 
         if mi.tags:
             self.tags += mi.tags
@@ -245,7 +243,7 @@ class MetaInformation(object):
 
         if getattr(mi, 'cover_data', None) and mi.cover_data[0] is not None:
             self.cover_data = mi.cover_data
-            
+
         my_comments = getattr(self, 'comments', '')
         other_comments = getattr(mi, 'comments', '')
         if not my_comments:
@@ -254,7 +252,7 @@ class MetaInformation(object):
             other_comments = ''
         if len(other_comments.strip()) > len(my_comments.strip()):
             self.comments = other_comments
-            
+
     def format_series_index(self):
         try:
             x = float(self.series_index)
@@ -293,6 +291,13 @@ class MetaInformation(object):
             fmt('Rating', self.rating)
         if self.timestamp is not None:
             fmt('Timestamp', self.timestamp.isoformat(' '))
+        if self.lccn:
+            fmt('LCCN', unicode(self.lccn))
+        if self.lcc:
+            fmt('LCC', unicode(self.lcc))
+        if self.ddc:
+            fmt('DDC', unicode(self.ddc))
+
         return u'\n'.join(ans)
 
     def to_html(self):
@@ -302,6 +307,12 @@ class MetaInformation(object):
         ans += [(_('Producer'), unicode(self.book_producer))]
         ans += [(_('Comments'), unicode(self.comments))]
         ans += [('ISBN', unicode(self.isbn))]
+        if self.lccn:
+            ans += [('LCCN', unicode(self.lccn))]
+        if self.lcc:
+            ans += [('LCC', unicode(self.lcc))]
+        if self.ddc:
+            ans += [('DDC', unicode(self.ddc))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
             ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]

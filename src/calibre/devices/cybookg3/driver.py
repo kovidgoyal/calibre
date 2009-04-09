@@ -11,37 +11,36 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
-from calibre.devices.errors import FreeSpaceError
 
 class CYBOOKG3(USBMS):
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
     FORMATS     = ['mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
-    
+
     VENDOR_ID   = [0x0bda, 0x3034]
     PRODUCT_ID  = [0x0703, 0x1795]
     BCD         = [0x110, 0x132]
-    
+
     VENDOR_NAME = 'BOOKEEN'
     WINDOWS_MAIN_MEM = 'CYBOOK_GEN3__-FD'
     WINDOWS_CARD_MEM = 'CYBOOK_GEN3__-SD'
-    
+
     OSX_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
     OSX_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
-    
+
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
-    
+
     EBOOK_DIR_MAIN = "eBooks"
     EBOOK_DIR_CARD = "eBooks"
     THUMBNAIL_HEIGHT = 144
     SUPPORTS_SUB_DIRS = True
-    
-    def upload_books(self, files, names, on_card=False, end_session=True, 
+
+    def upload_books(self, files, names, on_card=False, end_session=True,
                      metadata=None):
         if on_card and not self._card_prefix:
             raise ValueError(_('The reader has no storage card connected.'))
-            
+
         if not on_card:
             path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
         else:
@@ -66,7 +65,7 @@ class CYBOOKG3(USBMS):
         paths = []
         names = iter(names)
         metadata = iter(metadata)
-        
+
         for infile in files:
             newpath = path
             mdata = metadata.next()
@@ -83,20 +82,20 @@ class CYBOOKG3(USBMS):
                             newpath += tag
                             newpath = os.path.normpath(newpath)
                             break
-                            
+
                 if newpath == path:
                     newpath = os.path.join(newpath, authors_to_string(mdata.get('authors', '')))
                     newpath = os.path.join(newpath, mdata.get('title', ''))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
-            
+
             filepath = os.path.join(newpath, names.next())
             paths.append(filepath)
-            
+
             if hasattr(infile, 'read'):
                 infile.seek(0)
-                
+
                 dest = open(filepath, 'wb')
                 shutil.copyfileobj(infile, dest, 10*1024*1024)
 
@@ -104,33 +103,33 @@ class CYBOOKG3(USBMS):
                 dest.close()
             else:
                 shutil.copy2(infile, filepath)
-                
-            coverdata = None            
+
+            coverdata = None
             if 'cover' in mdata.keys():
                 if mdata['cover'] != None:
                     coverdata = mdata['cover'][2]
-            
+
             t2bfile = open('%s_6090.t2b' % (os.path.splitext(filepath)[0]), 'wb')
             t2b.write_t2b(t2bfile, coverdata)
             t2bfile.close()
-    
+
         return zip(paths, cycle([on_card]))
 
     def delete_books(self, paths, end_session=True):
         for path in paths:
             if os.path.exists(path):
                 os.unlink(path)
-                
+
                 filepath, ext = os.path.splitext(path)
-                
+
                 # Delete the ebook auxiliary file
                 if os.path.exists(filepath + '.mbp'):
                     os.unlink(filepath + '.mbp')
-                
+
                 # Delete the thumbnails file auto generated for the ebook
                 if os.path.exists(filepath + '_6090.t2b'):
                     os.unlink(filepath + '_6090.t2b')
-                    
+
                 try:
                     os.removedirs(os.path.dirname(path))
                 except:

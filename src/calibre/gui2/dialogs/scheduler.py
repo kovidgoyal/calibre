@@ -25,7 +25,7 @@ from calibre.gui2.dialogs.user_profiles import UserProfiles
 config = DynamicConfig('scheduler')
 
 class Recipe(object):
-    
+
     def __init__(self, id=None, recipe_class=None, builtin=True):
         self.id                 = id
         self.title              = getattr(recipe_class, 'title', None)
@@ -39,14 +39,14 @@ class Recipe(object):
         if self.author == _('Unknown') and not builtin:
             self.author = _('You')
         self.needs_subscription = getattr(recipe_class, 'needs_subscription', False)
-        
+
     def pickle(self):
         return self.__dict__.copy()
-    
+
     def unpickle(self, dict):
         self.__dict__.update(dict)
         return self
-        
+
     def __cmp__(self, other):
         if self.id == getattr(other, 'id', None):
             return 0
@@ -59,38 +59,39 @@ class Recipe(object):
         if not self.builtin and getattr(other, 'builtin', True):
             return -1
         return english_sort(self.title, getattr(other, 'title', ''))
-    
+
     def __hash__(self):
         return hash(self.id)
-    
+
     def __eq__(self, other):
         return self.id == getattr(other, 'id', None)
-    
+
     def __repr__(self):
         schedule = self.schedule
         if schedule and schedule > 1e5:
             schedule = decode_schedule(schedule)
         return u'%s|%s|%s|%s'%(self.id, self.title, self.last_downloaded.ctime(), schedule)
-    
+
 builtin_recipes = [Recipe(m, r, True) for r, m in zip(recipes, recipe_modules)]
 
 def save_recipes(recipes):
     config['scheduled_recipes'] = [r.pickle() for r in recipes]
-    
+
 def load_recipes():
     config.refresh()
     recipes = []
     for r in config.get('scheduled_recipes', []):
         r = Recipe().unpickle(r)
-        if r.builtin and not str(r.id).startswith('recipe_'):
+        if r.builtin and \
+            (not str(r.id).startswith('recipe_') or not str(r.id) in recipe_modules):
             continue
         recipes.append(r)
     return recipes
 
 class RecipeModel(QAbstractItemModel, SearchQueryParser):
-    
+
     LOCATIONS = ['all']
-    
+
     def __init__(self, db, *args):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self)
@@ -104,18 +105,18 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.bold_font = QFont()
         self.bold_font.setBold(True)
         self.bold_font = QVariant(self.bold_font)
-        
-    
+
+
     def refresh(self):
         sr = load_recipes()
         for recipe in self.recipes:
             if recipe in sr:
                 recipe.schedule = sr[sr.index(recipe)].schedule
                 recipe.last_downloaded = sr[sr.index(recipe)].last_downloaded
-        
+
         self.recipes.sort()
         self.num_of_recipes = len(self.recipes)
-        
+
         self.category_map = {}
         for r in self.recipes:
             category = getattr(r, 'language', _('Unknown'))
@@ -126,12 +127,12 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             if category not in self.category_map.keys():
                 self.category_map[category] = []
             self.category_map[category].append(r)
-            
+
         self.categories = sorted(self.category_map.keys(), cmp=self.sort_categories)
         self._map = dict(self.category_map)
-        
+
     def sort_categories(self, x, y):
-        
+
         def decorate(x):
             if x == _('Scheduled'):
                 x = '0' + x
@@ -140,13 +141,13 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             else:
                 x = '2' + x
             return x
-        
+
         return cmp(decorate(x), decorate(y))
-                
-    
+
+
     def universal_set(self):
         return set(self.recipes)
-    
+
     def get_matches(self, location, query):
         query = query.strip().lower()
         if not query:
@@ -154,9 +155,9 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         results = set([])
         for recipe in self.recipes:
             if query in recipe.title.lower() or query in recipe.description.lower():
-                results.add(recipe) 
+                results.add(recipe)
         return results
-    
+
     def search(self, query):
         try:
             results = self.parse(unicode(query))
@@ -170,24 +171,24 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                     if recipe in results:
                         self._map[category].append(recipe)
         self.reset()
-    
+
     def resort(self):
         self.recipes.sort()
         self.reset()
-    
+
     def index(self, row, column, parent):
         return self.createIndex(row, column, parent.row() if parent.isValid() else -1)
-    
+
     def parent(self, index):
         if index.internalId() == -1:
             return QModelIndex()
         return self.createIndex(index.internalId(), 0, -1)
-    
+
     def columnCount(self, parent):
         if not parent.isValid() or not parent.parent().isValid():
             return 1
         return 0
-    
+
     def rowCount(self, parent):
         if not parent.isValid():
             return len(self.categories)
@@ -195,7 +196,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             category = self.categories[parent.row()]
             return len(self._map[category])
         return 0
-        
+
     def data(self, index, role):
         if index.parent().isValid():
             category = self.categories[index.parent().row()]
@@ -206,7 +207,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 return recipe
             elif role == Qt.DecorationRole:
                 icon = self.default_icon
-                icon_path = (':/images/news/%s.png'%recipe.id).replace('recipe_', '') 
+                icon_path = (':/images/news/%s.png'%recipe.id).replace('recipe_', '')
                 if not recipe.builtin:
                     icon = self.custom_icon
                 elif QFile().exists(icon_path):
@@ -222,18 +223,18 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             elif role == Qt.ForegroundRole and category == _('Scheduled'):
                 return QVariant(QColor(0, 255, 0))
         return NONE
-    
+
     def update_recipe_schedule(self, recipe):
         for srecipe in self.recipes:
             if srecipe == recipe:
                 srecipe.schedule = recipe.schedule
-            
+
 
 class Search(QLineEdit):
-    
+
     HELP_TEXT = _('Search')
     INTERVAL = 500 #: Time to wait before emitting search signal
-    
+
     def __init__(self, *args):
         QLineEdit.__init__(self, *args)
         self.default_palette = QApplication.palette(self)
@@ -244,20 +245,20 @@ class Search(QLineEdit):
         self.clear_to_help_mode()
         self.timer = None
         self.connect(self, SIGNAL('textEdited(QString)'), self.text_edited_slot)
-            
+
     def focusInEvent(self, ev):
         self.setPalette(QApplication.palette(self))
         if self.in_help_mode():
             self.setText('')
         return QLineEdit.focusInEvent(self, ev)
-    
+
     def in_help_mode(self):
         return unicode(self.text()) == self.HELP_TEXT
-    
+
     def clear_to_help_mode(self):
         self.setPalette(self.gray)
         self.setText(self.HELP_TEXT)
-        
+
     def text_edited_slot(self, text):
         text = unicode(text)
         self.timer = self.startTimer(self.INTERVAL)
@@ -281,7 +282,7 @@ def decode_schedule(num):
     return day-1, hour-1, minute-1
 
 class SchedulerDialog(QDialog, Ui_Dialog):
-    
+
     def __init__(self, db, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
@@ -308,25 +309,25 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.search.setFocus(Qt.OtherFocusReason)
         self.old_news.setValue(gconf['oldest_news'])
         self.rnumber.setText(_('%d recipes')%self._model.num_of_recipes)
-        for day in (_('day'), _('Monday'), _('Tuesday'), _('Wednesday'), 
+        for day in (_('day'), _('Monday'), _('Tuesday'), _('Wednesday'),
                     _('Thursday'), _('Friday'), _('Saturday'), _('Sunday')):
             self.day.addItem(day)
-    
+
     def currentChanged(self, current, previous):
         if current.parent().isValid():
             self.show_recipe(current)
-        
+
     def download_now(self):
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)
         self.emit(SIGNAL('download_now(PyQt_PyObject)'), recipe)
-        
+
     def set_account_info(self, *args):
         username, password = map(unicode, (self.username.text(), self.password.text()))
         username, password = username.strip(), password.strip()
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)
         key = 'recipe_account_info_%s'%recipe.id
         config[key] = (username, password) if username and password else None
-        
+
     def do_schedule(self, *args):
         if not getattr(self, 'allow_scheduling', False):
             return
@@ -342,7 +343,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 recipe.last_downloaded = datetime.fromordinal(1)
                 recipes.append(recipe)
             if recipe.needs_subscription and not config['recipe_account_info_%s'%recipe.id]:
-                error_dialog(self, _('Must set account information'), 
+                error_dialog(self, _('Must set account information'),
                              _('This recipe requires a username and password')).exec_()
                 self.schedule.setCheckState(Qt.Unchecked)
                 return
@@ -364,7 +365,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         save_recipes(recipes)
         self._model.update_recipe_schedule(recipe)
         self.emit(SIGNAL('new_schedule(PyQt_PyObject)'), recipes)
-                
+
     def show_recipe(self, index):
         recipe = self._model.data(index, Qt.UserRole)
         self.current_recipe = recipe
@@ -395,7 +396,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.interval_button.setChecked(False)
             self.interval.setEnabled(False)
         self.schedule.setChecked(recipe.schedule is not None)
-        self.allow_scheduling = True    
+        self.allow_scheduling = True
         self.detail_box.setVisible(True)
         self.account.setVisible(recipe.needs_subscription)
         self.interval.setEnabled(self.schedule.checkState() == Qt.Checked)
@@ -417,11 +418,11 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.last_downloaded.setText(_('Last downloaded')+': '+tm)
         else:
             self.last_downloaded.setText(_('Last downloaded: never'))
-            
+
 class Scheduler(QObject):
-    
+
     INTERVAL = 1 # minutes
-    
+
     def __init__(self, main):
         self.main = main
         self.verbose = main.verbose
@@ -439,7 +440,7 @@ class Scheduler(QObject):
         self.oldest = gconf['oldest_news']
         self.oldest_timer.start(int(60 * 60000))
         self.oldest_check()
-        
+
         self.news_menu = QMenu()
         self.news_icon = QIcon(':/images/news.svg')
         self.scheduler_action = QAction(QIcon(':/images/scheduler.svg'), _('Schedule news download'), self)
@@ -448,27 +449,27 @@ class Scheduler(QObject):
         self.cac = QAction(QIcon(':/images/user_profile.svg'), _('Add a custom news source'), self)
         self.connect(self.cac, SIGNAL('triggered(bool)'), self.customize_feeds)
         self.news_menu.addAction(self.cac)
-        
+
     def oldest_check(self):
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
             ids = self.main.library_view.model().db.tags_older_than(_('News'), delta)
             if ids:
                 self.main.library_view.model().delete_books_by_id(ids)
-    
+
     def customize_feeds(self, *args):
         main = self.main
         d = UserProfiles(main, main.library_view.model().db.get_feeds())
         d.exec_()
         feeds = tuple(d.profiles())
         main.library_view.model().db.set_feeds(feeds)
-            
-    
+
+
     def debug(self, *args):
         if self.verbose:
             sys.stdout.write(' '.join(map(unicode, args))+'\n')
             sys.stdout.flush()
-    
+
     def check(self):
         if not self.lock.tryLock():
             return
@@ -494,15 +495,15 @@ class Scheduler(QObject):
                     matches = day_matches and (hour*60+minute) < tnow
                     if matches and recipe.last_downloaded.toordinal() < date.today().toordinal():
                         needs_downloading.add(recipe)
-                
+
             self.debug('Needs downloading:', needs_downloading)
-        
+
             needs_downloading = [r for r in needs_downloading if r not in self.queue]
             for recipe in needs_downloading:
                 self.do_download(recipe)
         finally:
             self.lock.unlock()
-            
+
     def do_download(self, recipe):
         try:
             id = int(recipe.id)
@@ -538,7 +539,7 @@ class Scheduler(QObject):
         finally:
             self.lock.unlock()
         self.debug('Downloaded:', recipe)
-            
+
     def download(self, recipe):
         self.lock.lock()
         try:
@@ -548,10 +549,10 @@ class Scheduler(QObject):
                 self.do_download(recipe)
         finally:
             self.lock.unlock()
-    
+
     def refresh_schedule(self, recipes):
         self.recipes = recipes
-    
+
     def show_dialog(self, *args):
         self.lock.lock()
         try:

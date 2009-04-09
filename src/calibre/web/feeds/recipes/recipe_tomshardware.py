@@ -1,38 +1,47 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
-tomshardware.com
+tomshardware.com/us
 '''
 
+import urllib
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class Tomshardware(BasicNewsRecipe):
+class Tomshardware(BasicNewsRecipe):    
+    title               = "Tom's Hardware US"
+    __author__          = 'Darko Miletic'
+    description         = 'Hardware reviews and News'
+    publisher           = "Tom's Hardware"
+    category            = 'news, IT, hardware, USA'        
+    no_stylesheets      = True
+    needs_subscription  = True
+    language            = _('English')    
+    INDEX               = 'http://www.tomshardware.com'
+    LOGIN               = INDEX + '/membres/'
+    remove_javascript   = True
+    use_embedded_content= False
     
-    title       = "Tom's Hardware US"
-    __author__  = 'Darko Miletic'
-    description = 'Hardware reviews and News'
-    no_stylesheets = True
-    needs_subscription = True
-    language = _('English')
-    INDEX = 'http://www.tomshardware.com'
-    LOGIN = 'http://www.tomshardware.com/membres/?r=%2Fus%2F#loginForm'
-    cover_url = 'http://img.bestofmedia.com/img/tomshardware/design/tomshardware.jpg'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        ]
     
-    html2lrf_options = [  '--comment'       , description
-                        , '--category'      , 'hardware,news'
-                        , '--base-font-size', '10'
-                       ]
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
+        br.open(self.INDEX+'/us/')
         if self.username is not None and self.password is not None:
-            br.open(self.LOGIN)
-            br.select_form(name='connexion')
-            br['login'] = self.username
-            br['mdp'  ] = self.password
-            br.submit()
+            data = urllib.urlencode({ 'action':'login_action'
+                                     ,'r':self.INDEX+'/us/'
+                                     ,'login':self.username
+                                     ,'mdp':self.password
+                                   })
+            br.open(self.LOGIN,data)
         return br
 
     remove_tags = [
@@ -41,17 +50,18 @@ class Tomshardware(BasicNewsRecipe):
                   ]
     
     feeds = [
-              (u'Latest Articles', u'http://www.tomshardware.com/feeds/atom/tom-s-hardware-us,18-2.xml')
+              (u'Latest Articles', u'http://www.tomshardware.com/feeds/atom/tom-s-hardware-us,18-2.xml'          )
              ,(u'Latest News'    , u'http://www.tomshardware.com/feeds/atom/tom-s-hardware-us,18-1.xml')
             ]
-                  
+
     def print_version(self, url):
         main, sep, rest = url.rpartition('.html')
         rmain, rsep, article_id = main.rpartition(',')
         tmain, tsep, trest = rmain.rpartition('/reviews/')
+        rind = 'http://www.tomshardware.com/news_print.php?p1='
         if tsep:
-            return 'http://www.tomshardware.com/review_print.php?p1=' + article_id
-        return 'http://www.tomshardware.com/news_print.php?p1=' + article_id        
+           rind = 'http://www.tomshardware.com/review_print.php?p1='
+        return rind + article_id        
 
     def preprocess_html(self, soup):
         del(soup.body['onload'])

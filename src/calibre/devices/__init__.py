@@ -13,12 +13,14 @@ def devices():
     from calibre.devices.kindle.driver import KINDLE
     from calibre.devices.kindle.driver import KINDLE2
     from calibre.devices.blackberry.driver import BLACKBERRY
-    return (PRS500, PRS505, PRS700, CYBOOKG3, KINDLE, KINDLE2, BLACKBERRY)
+    from calibre.devices.eb600.driver import EB600
+    return (PRS500, PRS505, PRS700, CYBOOKG3, KINDLE, KINDLE2,
+            BLACKBERRY, EB600)
 
 import time
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
-MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12) 
+MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
 INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
 INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
 

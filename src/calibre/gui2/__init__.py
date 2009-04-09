@@ -466,5 +466,3 @@ class Application(QApplication):
                 self.translator.loadFromData(data)
                 self.installTranslator(self.translator)
 
-
-
