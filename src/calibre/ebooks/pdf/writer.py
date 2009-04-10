@@ -12,13 +12,14 @@ Write content to PDF.
 import os, shutil, sys
 
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.customize.profiles import OutputProfile
 from calibre.ebooks.pdf.pageoptions import PageOptions
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import OPF
 
 from PyQt4 import QtCore
 from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, QApplication, QPrinter, \
-    QMetaObject, Qt
+    QMetaObject, QSizeF, Qt
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -36,7 +37,7 @@ class PDFMetadata(object):
 
 
 class PDFWriter(QObject):
-    def __init__(self, log, popts=PageOptions()):
+    def __init__(self, log, popts=PageOptions(), profile=OutputProfile(None)):
         if QApplication.instance() is None:
             QApplication([])
         QObject.__init__(self)
@@ -50,6 +51,7 @@ class PDFWriter(QObject):
         self.combine_queue = []
         self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
         self.popts = popts
+        self.profile = profile
         
     def dump(self, opfpath, out_stream, pdf_metadata):
         self.metadata = pdf_metadata
@@ -85,8 +87,14 @@ class PDFWriter(QObject):
             self.logger.debug('\tRendering item %s as %i' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
         
             printer = QPrinter(QPrinter.HighResolution)
+                        
+            if self.profile.short_name == 'default':
+                printer.setPaperSize(self.popts.paper_size)
+            else:
+                #printer.setResolution(self.profile.dpi)
+                printer.setPaperSize(QSizeF(self.profile.width / self.profile.dpi, self.profile.height / self.profile.dpi), QPrinter.Inch)
+                        
             printer.setPageMargins(self.popts.margin_left, self.popts.margin_top, self.popts.margin_right, self.popts.margin_bottom, self.popts.unit)
-            printer.setPaperSize(self.popts.paper_size)
             printer.setOrientation(self.popts.orientation)
             printer.setOutputFormat(QPrinter.PdfFormat)
             printer.setOutputFileName(item_path)

@@ -75,7 +75,7 @@ class PDFOutput(OutputFormatPlugin):
 
             opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
 
-            writer = PDFWriter(log, popts)
+            writer = PDFWriter(log, popts, opts.output_profile)
         
             close = False
             if not hasattr(output_path, 'write'):
