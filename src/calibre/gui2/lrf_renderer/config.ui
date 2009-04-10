@@ -1,72 +1,73 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>ViewerConfig</class>
- <widget class="QDialog" name="ViewerConfig" >
-  <property name="geometry" >
+ <widget class="QDialog" name="ViewerConfig">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>281</width>
-    <height>214</height>
+    <width>373</width>
+    <height>264</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Configure Viewer</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../images.qrc">
     <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" colspan="2" >
-    <widget class="QCheckBox" name="white_background" >
-     <property name="text" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="white_background">
+     <property name="text">
       <string>Use white background</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <widget class="QCheckBox" name="hyphenate" >
-     <property name="text" >
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="hyphenate">
+     <property name="text">
       <string>Hyphenate</string>
      </property>
-     <property name="checked" >
+     <property name="checked">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="3" column="1" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2" >
-    <widget class="QLabel" name="label" >
-     <property name="frameShape" >
+   <item row="2" column="0">
+    <widget class="QLabel" name="label">
+     <property name="frameShape">
       <enum>QFrame::Box</enum>
      </property>
-     <property name="text" >
+     <property name="text">
       <string>&lt;b&gt;Changes will only take effect after a restart.&lt;/b&gt;</string>
      </property>
-     <property name="textFormat" >
+     <property name="textFormat">
       <enum>Qt::RichText</enum>
      </property>
-     <property name="alignment" >
+     <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <property name="wordWrap" >
+     <property name="wordWrap">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../images.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -75,11 +76,11 @@
    <receiver>ViewerConfig</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -91,11 +92,11 @@
    <receiver>ViewerConfig</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
