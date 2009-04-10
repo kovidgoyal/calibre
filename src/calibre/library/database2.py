@@ -31,6 +31,21 @@ from calibre.customize.ui import run_plugins_on_import
 from calibre import sanitize_file_name
 from calibre.ebooks import BOOK_EXTENSIONS
 
+if iswindows:
+    import calibre.utils.winshell as winshell
+
+def delete_file(path):
+    try:
+        winshell.delete_file(path, silent=True, no_confirm=True)
+    except:
+        os.remove(path)
+
+def delete_tree(path):
+    try:
+        winshell.delete_file(path, silent=True, no_confirm=True)
+    except:
+        shutil.rmtree(path)
+
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5,
@@ -499,7 +514,7 @@ class LibraryDatabase2(LibraryDatabase):
 
     def rmtree(self, path):
         if not self.normpath(self.library_path).startswith(self.normpath(path)):
-            shutil.rmtree(path)
+            delete_tree(path)
 
     def normpath(self, path):
         path = os.path.abspath(os.path.realpath(path))
@@ -745,7 +760,10 @@ class LibraryDatabase2(LibraryDatabase):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         self.data.remove(id)
         if os.path.exists(path):
-            self.rmtree(path)
+            if iswindows:
+                winshell.delete_file(path, no_confirm=True, silent=True)
+            else:
+                self.rmtree(path)
             parent = os.path.dirname(path)
             if len(os.listdir(parent)) == 0:
                 self.rmtree(parent)
@@ -764,7 +782,7 @@ class LibraryDatabase2(LibraryDatabase):
             ext = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+ext)
             try:
-                os.remove(path)
+                delete_file(path)
             except:
                 traceback.print_exc()
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
