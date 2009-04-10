@@ -123,9 +123,11 @@ class CYBOOKG3(USBMS):
                 
                 filepath, ext = os.path.splitext(path)
                 
-                # Delete the ebook auxiliary file
+                # Delete the ebook auxiliary files
                 if os.path.exists(filepath + '.mbp'):
                     os.unlink(filepath + '.mbp')
+                if os.path.exists(filepath + '.dat'):
+                    os.unlink(filepath + '.dat')
                 
                 # Delete the thumbnails file auto generated for the ebook
                 if os.path.exists(filepath + '_6090.t2b'):
