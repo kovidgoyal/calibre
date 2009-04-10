@@ -63,6 +63,17 @@ class Tomshardware(BasicNewsRecipe):
            rind = 'http://www.tomshardware.com/review_print.php?p1='
         return rind + article_id        
 
+    def cleanup_image_tags(self,soup):
+        for item in soup.findAll('img'):
+            for attrib in ['height','width','border','align']:
+                if item.has_key(attrib):
+                   del item[attrib]
+        return soup
+
     def preprocess_html(self, soup):
         del(soup.body['onload'])
-        return soup
+        for item in soup.findAll(style=True):
+            del item['style']
+        for it in soup.findAll('span'):
+            it.name="div"
+        return self.cleanup_image_tags(soup)

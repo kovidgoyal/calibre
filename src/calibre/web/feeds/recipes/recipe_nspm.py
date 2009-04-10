@@ -8,9 +8,10 @@ nspm.rs
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Nspm(BasicNewsRecipe):
-    title                 = u'Nova srpska politicka misao'
+    title                 = 'Nova srpska politicka misao'
     __author__            = 'Darko Miletic'
     description           = 'Casopis za politicku teoriju i drustvena istrazivanja'    
     publisher             = 'NSPM'
@@ -36,7 +37,7 @@ class Nspm(BasicNewsRecipe):
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     remove_tags        = [
-                            dict(name=['a','img','link','object','embed'])
+                            dict(name=['link','object','embed'])
                            ,dict(name='td', attrs={'class':'buttonheading'})
                          ]
     
@@ -50,6 +51,21 @@ class Nspm(BasicNewsRecipe):
     def print_version(self, url):
         return url.replace('.html','/stampa.html')
 
+    def cleanup_image_tags(self,soup):
+        for item in soup.findAll('img'):
+            for attrib in ['height','width','border','align']:
+                if item.has_key(attrib):
+                   del item[attrib]
+            oldParent = item.parent
+            myIndex = oldParent.contents.index(item)
+            item.extract()
+            divtag = Tag(soup,'div')
+            brtag  = Tag(soup,'br')
+            oldParent.insert(myIndex,divtag)
+            divtag.append(item)
+            divtag.append(brtag)
+        return soup
+
     def preprocess_html(self, soup):
         lng = 'sr-Latn-RS'
         soup.html['xml:lang'] = lng
@@ -59,4 +75,4 @@ class Nspm(BasicNewsRecipe):
            ftag['content'] = lng
         for item in soup.findAll(style=True):
             del item['style']     
-        return soup
+        return self.cleanup_image_tags(soup)
