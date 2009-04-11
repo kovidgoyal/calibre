@@ -573,7 +573,7 @@ class OEBReader(object):
         item = self._find_ncx(opf)
         self._toc_from_opf(opf, item)
         self._pages_from_opf(opf, item)
-        self._ensure_cover_image()
+        #self._ensure_cover_image()
 
 
 def main(argv=sys.argv):
