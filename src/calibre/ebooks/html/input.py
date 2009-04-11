@@ -11,14 +11,12 @@ __docformat__ = 'restructuredtext en'
 Input plugin for HTML or OPF ebooks.
 '''
 
-import os, re, sys, cStringIO
+import os, re, sys
 from urlparse import urlparse, urlunparse
 from urllib import unquote
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.metadata.meta import get_metadata
-from calibre.ebooks.metadata.opf2 import OPF, OPFCreator
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
 from calibre import unicode_path
@@ -213,72 +211,21 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
         sys.setrecursionlimit(orec)
 
 
-def opf_traverse(opf_reader, verbose=0, encoding=None):
-    '''
-    Return a list of :class:`HTMLFile` objects in the order specified by the
-    `<spine>` element of the OPF.
-
-    :param opf_reader: An :class:`calibre.ebooks.metadata.opf2.OPF` instance.
-    :param encoding:   Specify character encoding of HTML files. If `None` it is
-                       auto-detected.
-    '''
-    if not opf_reader.spine:
-        raise ValueError('OPF does not have a spine')
-    flat = []
-    for path in opf_reader.spine.items():
-        path = os.path.abspath(path)
-        if path not in flat:
-            flat.append(os.path.abspath(path))
-    for item in opf_reader.manifest:
-        if 'html' in item.mime_type:
-            path = os.path.abspath(item.path)
-            if path not in flat:
-                flat.append(path)
-    for i, path in enumerate(flat):
-        if not os.path.exists(path):
-            path = path.replace('&', '%26')
-            if os.path.exists(path):
-                flat[i] = path
-                for item in opf_reader.itermanifest():
-                    item.set('href', item.get('href').replace('&', '%26'))
-    ans = []
-    for path in flat:
-        if os.path.exists(path):
-            ans.append(HTMLFile(path, 0, encoding, verbose))
-        else:
-            print 'WARNING: OPF spine item %s does not exist'%path
-    ans = [f for f in ans if not f.is_binary]
-    return ans
-
-def search_for_opf(dir):
-    for f in os.listdir(dir):
-        if f.lower().endswith('.opf'):
-            return OPF(open(os.path.join(dir, f), 'rb'), dir)
-
 def get_filelist(htmlfile, dir, opts, log):
     '''
     Build list of files referenced by html file or try to detect and use an
     OPF file instead.
     '''
-    print 'Building file list...'
-    opf = search_for_opf(dir)
-    filelist = None
-    if opf is not None:
-        try:
-            filelist = opf_traverse(opf, verbose=opts.verbose,
-                    encoding=opts.input_encoding)
-        except:
-            pass
-    if not filelist:
-        filelist = traverse(htmlfile, max_levels=int(opts.max_levels),
-                            verbose=opts.verbose,
-                            encoding=opts.input_encoding)\
-                    [0 if opts.breadth_first else 1]
+    log.info('Building file list...')
+    filelist = traverse(htmlfile, max_levels=int(opts.max_levels),
+                        verbose=opts.verbose,
+                        encoding=opts.input_encoding)\
+                [0 if opts.breadth_first else 1]
     if opts.verbose:
         log.debug('\tFound files...')
         for f in filelist:
             log.debug('\t\t', f)
-    return opf, filelist
+    return filelist
 
 
 class HTMLInput(InputFormatPlugin):
@@ -309,34 +256,32 @@ class HTMLInput(InputFormatPlugin):
 
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
+        from calibre.ebooks.metadata.meta import get_metadata
+
         basedir = os.getcwd()
+
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
         if file_ext == 'opf':
-            opf = OPF(stream, basedir)
-            filelist = opf_traverse(opf, verbose=opts.verbose,
-                    encoding=opts.input_encoding)
-            mi = MetaInformation(opf)
+            opfpath = stream.name
         else:
-            opf, filelist = get_filelist(stream.name, basedir, opts, log)
-            mi = MetaInformation(opf)
-            mi.smart_update(get_metadata(stream, 'html'))
+            filelist = get_filelist(stream.name, basedir, opts, log)
+            mi = get_metadata(stream, 'html')
+            mi = OPFCreator(os.getcwdu(), mi)
+            mi.guide = None
+            entries = [(f.path, 'application/xhtml+xml') for f in filelist]
+            mi.create_manifest(entries)
+            mi.create_spine([f.path for f in filelist])
 
-        mi = OPFCreator(os.getcwdu(), mi)
-        mi.guide = None
-        entries = [(f.path, 'application/xhtml+xml') for f in filelist]
-        mi.create_manifest(entries)
-        mi.create_spine([f.path for f in filelist])
-
-        tocbuf = cStringIO.StringIO()
-        mi.render(open('metadata.opf', 'wb'), tocbuf, 'toc.ncx')
-        toc = tocbuf.getvalue()
-        if toc:
-            open('toc.ncx', 'wb').write(toc)
+            mi.render(open('metadata.opf', 'wb'))
+            opfpath = os.path.abspath('metadata.opf')
 
         from calibre.ebooks.conversion.plumber import create_oebbook
-        return create_oebbook(log, os.path.abspath('metadata.opf'))
+        oeb = create_oebbook(log, opfpath)
 
+        from calibre.ebooks.oeb.transforms.package import Package
+        Package(os.getcwdu())(oeb, opts)
 
+        return oeb
 
 

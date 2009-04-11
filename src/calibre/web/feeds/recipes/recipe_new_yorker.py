@@ -9,11 +9,12 @@ newyorker.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NewYorker(BasicNewsRecipe):
+
     title                 = u'The New Yorker'
     __author__            = 'Darko Miletic'
-    description           = 'The best of US journalism'    
+    description           = 'The best of US journalism'
     oldest_article        = 7
-    language = _('English')
+    language              = _('English')
     max_articles_per_feed = 100
     no_stylesheets        = False
     use_embedded_content  = False
@@ -24,7 +25,7 @@ class NewYorker(BasicNewsRecipe):
     .calibre_recipe_title {font-size:normal}
     .calibre_feed_description {font-size:xx-small}
     '''
-                    
+
 
     keep_only_tags = [
                         dict(name='div'  , attrs={'id':'printbody'   })
@@ -41,3 +42,12 @@ class NewYorker(BasicNewsRecipe):
 
     def print_version(self, url):
         return url + '?printable=true'
+
+    def postprocess_html(self, soup, x):
+        body = soup.find('body')
+        if body:
+            html = soup.find('html')
+            if html:
+                body.extract()
+                html.insert(-1, body)
+        return soup

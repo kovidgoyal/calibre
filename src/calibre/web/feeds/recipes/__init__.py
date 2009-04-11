@@ -8,7 +8,7 @@ recipe_modules = ['recipe_' + r for r in (
            'newsweek', 'atlantic', 'economist', 'portfolio', 'the_register',
            'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
            'wired', 'globe_and_mail', 'smh', 'espn', 'business_week', 'miami_herald',
-           'ars_technica', 'upi', 'new_yorker', 'irish_times', 'iht', 'lanacion',
+           'ars_technica', 'upi', 'new_yorker', 'irish_times', 'lanacion',
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
            'daily_telegraph', 'guardian', 'el_pais', 'new_scientist', 'b92',
            'politika', 'moscow_times', 'latimes', 'japan_times', 'san_fran_chronicle',
@@ -37,7 +37,8 @@ recipe_modules = ['recipe_' + r for r in (
            'new_york_review_of_books_no_sub', 'politico', 'adventuregamers',
            'mondedurable', 'instapaper', 'dnevnik_cro', 'vecernji_list',
            'nacional_cro', '24sata', 'dnevni_avaz', 'glas_srpske', '24sata_rs',
-           'krstarica', 'krstarica_en', 'tanjug', 'laprensa_ni',
+           'krstarica', 'krstarica_en', 'tanjug', 'laprensa_ni', 'azstarnet',
+           'corriere_della_sera_it', 'corriere_della_sera_en', 'msdnmag_en',
           )]
 
 import re, imp, inspect, time, os

@@ -174,6 +174,14 @@ class Device(_Device):
 
         return prefix
 
+    def windows_sort_drives(self, drives):
+        '''
+        Called to disambiguate main memory and storage card for devices that
+        do not distinguish between them on the basis of `WINDOWS_CARD_NAME`.
+        For e.g.: The EB600
+        '''
+        return drives
+
     def open_windows(self):
         time.sleep(6)
         drives = {}
@@ -188,11 +196,14 @@ class Device(_Device):
             if 'main' in drives.keys() and 'card' in drives.keys():
                 break
 
+        drives = self.windows_sort_drives(drives)
         self._main_prefix = drives.get('main')
         self._card_prefix = drives.get('card')
 
         if not self._main_prefix:
-            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.') % self.__class__.__name__)
+            raise DeviceError(
+                _('Unable to detect the %s disk drive. Try rebooting.') %
+                self.__class__.__name__)
 
     def get_osx_mountpoints(self, raw=None):
         if raw is None:

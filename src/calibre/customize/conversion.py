@@ -163,9 +163,9 @@ class InputFormatPlugin(Plugin):
             for x in os.listdir('.'):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
 
-
             ret = self.convert(stream, options, file_ext,
                                log, accelerators)
+
         if options.debug_input is not None:
             options.debug_input = os.path.abspath(options.debug_input)
             if not os.path.exists(options.debug_input):

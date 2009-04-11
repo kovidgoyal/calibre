@@ -12,7 +12,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 class InternationalHeraldTribune(BasicNewsRecipe):
     title          = u'The International Herald Tribune'
     __author__     = 'Derry FitzGerald'
-    language = _('English')
+    language       = _('English')
     oldest_article = 1
     max_articles_per_feed = 10
     no_stylesheets = True
@@ -20,13 +20,13 @@ class InternationalHeraldTribune(BasicNewsRecipe):
     remove_tags    = [dict(name='div', attrs={'class':'footer'}),
                       dict(name=['form'])]
     preprocess_regexps = [
-            (re.compile(r'<!-- webtrends.*', re.DOTALL), 
+            (re.compile(r'<!-- webtrends.*', re.DOTALL),
              lambda m:'</body></html>')
                           ]
-    extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }' 
+    extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
 
     feeds          = [
-                      (u'Frontpage', u'http://www.iht.com/rss/frontpage.xml'), 
+                      (u'Frontpage', u'http://www.iht.com/rss/frontpage.xml'),
                       (u'Business', u'http://www.iht.com/rss/business.xml'),
                       (u'Americas', u'http://www.iht.com/rss/america.xml'),
                       (u'Europe', u'http://www.iht.com/rss/europe.xml'),
@@ -45,7 +45,7 @@ class InternationalHeraldTribune(BasicNewsRecipe):
                     ]
     temp_files = []
     articles_are_obfuscated = True
-    
+
     def get_obfuscated_article(self, url, logger):
         br = self.get_browser()
         br.open(url)

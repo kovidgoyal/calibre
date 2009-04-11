@@ -48,7 +48,8 @@ class OEBWriter(object):
                    pretty_print=pretty_print)
 
     def __call__(self, oeb, path):
-        """Read the book in the :class:`OEBBook` object :param:`oeb` to a file
+        """
+        Read the book in the :class:`OEBBook` object :param:`oeb` to a file
         at :param:`path`.
         """
         version = int(self.version[0])

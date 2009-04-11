@@ -17,7 +17,7 @@ def tostring(root, strip_comments=False, pretty_print=False):
     root.set('xmlns', 'http://www.w3.org/1999/xhtml')
     root.set('{http://www.w3.org/1999/xhtml}xlink', 'http://www.w3.org/1999/xlink')
     for x in root.iter():
-        if x.tag.rpartition('}')[-1].lower() == 'svg':
+        if hasattr(x.tag, 'rpartition') and x.tag.rpartition('}')[-1].lower() == 'svg':
             x.set('xmlns', 'http://www.w3.org/2000/svg')
 
     ans = _tostring(root, encoding='utf-8', pretty_print=pretty_print)

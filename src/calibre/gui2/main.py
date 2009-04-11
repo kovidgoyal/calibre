@@ -1110,26 +1110,29 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         self._view_file(job.result)
 
-    def _view_file(self, name):
+    def _launch_viewer(self, name=None, viewer='ebook-viewer', internal=True):
         self.setCursor(Qt.BusyCursor)
         try:
-            ext = os.path.splitext(name)[1].upper().replace('.', '')
-            if ext in config['internally_viewed_formats']:
-                if ext == 'LRF':
-                    args = ['lrfviewer', name]
-                    self.job_manager.server.run_free_job('lrfviewer',
-                                                        kwdargs=dict(args=args))
-                else:
-                    args = ['ebook-viewer', name]
-                    if isosx:
-                        args.append('--raise-window')
-                    self.job_manager.server.run_free_job('ebook-viewer',
-                                                        kwdargs=dict(args=args))
+            if internal:
+                args = [viewer]
+                if isosx and 'ebook' in viewer:
+                    args.append('--raise-window')
+                if name is not None:
+                    args.append(name)
+                self.job_manager.server.run_free_job(viewer,
+                        kwdargs=dict(args=args))
             else:
-                QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
+                QDesktopServices.openUrl(QUrl.fromLocalFile(name))#launch(name)
+
             time.sleep(5) # User feedback
         finally:
             self.unsetCursor()
+
+    def _view_file(self, name):
+        ext = os.path.splitext(name)[1].upper().replace('.', '')
+        viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
+        internal = ext in config['internally_viewed_formats']
+        self._launch_viewer(name, viewer, internal)
 
     def view_specific_format(self, triggered):
         rows = self.library_view.selectionModel().selectedRows()
@@ -1165,8 +1168,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         rows = self.current_view().selectionModel().selectedRows()
         if self.current_view() is self.library_view:
             if not rows or len(rows) == 0:
-                d = error_dialog(self, _('Cannot view'), _('No book selected'))
-                d.exec_()
+                self._launch_viewer()
                 return
 
             row = rows[0].row()
