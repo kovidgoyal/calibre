@@ -48,6 +48,8 @@ class HTMLPreProcessor(object):
 
     # Fix pdftohtml markup
     PDFTOHTML  = [
+                  # Remove page links
+                  (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
                   (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
                   # Remove page numbers
@@ -69,6 +71,12 @@ class HTMLPreProcessor(object):
                   
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
+                  
+                  # Un wrap lines
+                  (re.compile(r'(?<=\w)\s*</i>\s*<p.*?>\s*<i>\s*(?=\w)'), lambda match: ' '),
+                  (re.compile(r'(?<=\w)\s*<p.*?>\s*(?=\w)', re.UNICODE), lambda match: ' '),
+                  # Clean up spaces
+                  (re.compile(u'(?<=\.|,|:|;|\?|!|”|"|\')[\s^ ]*(?=<)'), lambda match: ' '),
                   ]
 
     # Fix Book Designer markup

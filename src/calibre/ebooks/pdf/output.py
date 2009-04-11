@@ -18,8 +18,8 @@ from calibre.customize.conversion import OutputFormatPlugin, \
 from calibre.ebooks.oeb.output import OEBOutput
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.pdf.writer import PDFWriter, PDFMetadata
-from calibre.ebooks.pdf.pageoptions import UNITS, unit, PAPER_SIZES, \
-    paper_size, ORIENTATIONS, orientation, PageOptions
+from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
+    ORIENTATIONS
 
 class PDFOutput(OutputFormatPlugin):
 
@@ -29,53 +29,43 @@ class PDFOutput(OutputFormatPlugin):
 
     options = set([
                     OptionRecommendation(name='margin_top', recommended_value='1',
-                        level=OptionRecommendation.LOW, long_switch='margin_top',
+                        level=OptionRecommendation.LOW,
                         help=_('The top margin around the document.')),
                     OptionRecommendation(name='margin_bottom', recommended_value='1',
-                        level=OptionRecommendation.LOW, long_switch='margin_bottom',
+                        level=OptionRecommendation.LOW,
                         help=_('The bottom margin around the document.')),
                     OptionRecommendation(name='margin_left', recommended_value='1',
-                        level=OptionRecommendation.LOW, long_switch='margin_left',
+                        level=OptionRecommendation.LOW,
                         help=_('The left margin around the document.')),
                     OptionRecommendation(name='margin_right', recommended_value='1',
-                        level=OptionRecommendation.LOW, long_switch='margin_right',
+                        level=OptionRecommendation.LOW,
                         help=_('The right margin around the document.')),
                         
                     OptionRecommendation(name='unit', recommended_value='inch',
-                        level=OptionRecommendation.LOW, short_switch='u',
-                        long_switch='unit', choices=UNITS.keys(),
+                        level=OptionRecommendation.LOW, short_switch='u', choices=UNITS.keys(),
                         help=_('The unit of measure. Default is inch. Choices '
                         'are %s' % UNITS.keys())),
                     OptionRecommendation(name='paper_size', recommended_value='letter',
-                        level=OptionRecommendation.LOW,
-                        long_switch='paper_size', choices=PAPER_SIZES.keys(),
+                        level=OptionRecommendation.LOW, choices=PAPER_SIZES.keys(),
                         help=_('The size of the paper. Default is letter. Choices '
                         'are %s' % PAPER_SIZES.keys())),
+                    OptionRecommendation(name='custom_size', recommended_value=None,
+                        help=_('Custom size of the document. Use the form widthxheight '
+                        'EG. `123x321` to specify the width and height. '
+                        'This overrides any specified paper-size.')),
                     OptionRecommendation(name='orientation', recommended_value='portrait',
-                        level=OptionRecommendation.LOW,
-                        long_switch='orientation', choices=ORIENTATIONS.keys(),
+                        level=OptionRecommendation.LOW, choices=ORIENTATIONS.keys(),
                         help=_('The orientation of the page. Default is portrait. Choices '
                         'are %s' % ORIENTATIONS.keys())),
                  ])
                  
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        popts = PageOptions()
-        
-        popts.set_margin_top(opts.margin_top)
-        popts.set_margin_bottom(opts.margin_bottom)
-        popts.set_margin_left(opts.margin_left)
-        popts.set_margin_right(opts.margin_right)
-        
-        popts.unit = unit(opts.unit)
-        popts.paper_size = paper_size(opts.paper_size)
-        popts.orientation = orientation(opts.orientation)
-
         with TemporaryDirectory('_pdf_out') as oebdir:
             OEBOutput(None).convert(oeb_book, oebdir, input_plugin, opts, log)
 
             opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
 
-            writer = PDFWriter(log, popts)
+            writer = PDFWriter(log, opts)
         
             close = False
             if not hasattr(output_path, 'write'):
