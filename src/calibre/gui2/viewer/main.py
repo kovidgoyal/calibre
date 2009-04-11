@@ -17,14 +17,14 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
                          info_dialog, error_dialog
-from calibre.ebooks.epub.iterator import EbookIterator
-from calibre.ebooks.epub.from_any import SOURCE_FORMATS
+from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.constants import islinux
 from calibre.utils.config import Config, StringConfig
 from calibre.gui2.library import SearchBox
 from calibre.ebooks.metadata import MetaInformation
+from calibre.customize.ui import available_input_formats
 
 class TOCItem(QStandardItem):
 
@@ -362,7 +362,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def open_ebook(self, checked):
         files = choose_files(self, 'ebook viewer open dialog',
                      _('Choose ebook'),
-                     [(_('Ebooks'), SOURCE_FORMATS)], all_files=False,
+                     [(_('Ebooks'), available_input_formats())],
+                     all_files=False,
                      select_only_single_file=True)
         if files:
             self.load_ebook(files[0])

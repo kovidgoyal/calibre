@@ -179,10 +179,13 @@ OptionRecommendation(name='language',
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
 
-        output_fmt = os.path.splitext(output)[1]
-        if not output_fmt:
-            output_fmt = '.oeb'
-        output_fmt = output_fmt[1:].lower()
+        if os.path.exists(output) and os.path.isdir(output):
+            output_fmt = 'oeb'
+        else:
+            output_fmt = os.path.splitext(output)[1]
+            if not output_fmt:
+                output_fmt = '.oeb'
+            output_fmt = output_fmt[1:].lower()
 
         self.input_plugin = plugin_for_input_format(input_fmt)
         self.output_plugin = plugin_for_output_format(output_fmt)
