@@ -107,6 +107,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.donate_action  = self.system_tray_menu.addAction(
                 QIcon(':/images/donate.svg'), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
+        if not config['show_donate_button']:
+            self.donate_button.setVisible(False)
         self.addAction(self.quit_action)
         self.action_restart = QAction(_('&Restart'), self)
         self.addAction(self.action_restart)
