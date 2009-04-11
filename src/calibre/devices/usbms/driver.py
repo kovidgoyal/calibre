@@ -57,12 +57,17 @@ class USBMS(Device):
         prefix = self._card_prefix if oncard else self._main_prefix
         ebook_dir = self.EBOOK_DIR_CARD if oncard else self.EBOOK_DIR_MAIN
 
-        # Get all books in all directories under the root ebook_dir directory
-        for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
-            # Filter out anything that isn't in the list of supported ebook
-            # types
-            for book_type in self.FORMATS:
-                for filename in fnmatch.filter(files, '*.%s' % (book_type)):
+        # Get all books in the ebook_dir directory
+        if self.SUPPORTS_SUB_DIRS:
+            for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
+                # Filter out anything that isn't in the list of supported ebook types
+                for book_type in self.FORMATS:
+                    for filename in fnmatch.filter(files, '*.%s' % (book_type)):
+                        bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
+        else:
+            path = os.path.join(prefix, ebook_dir)
+            for filename in os.listdir(path):
+                if path_to_ext(filename) in self.FORMATS:
                     bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
         return bl
 
