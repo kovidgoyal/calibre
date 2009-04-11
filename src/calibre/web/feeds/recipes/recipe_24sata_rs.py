@@ -9,6 +9,7 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Ser24Sata(BasicNewsRecipe):
     title                 = '24 Sata - Sr'
@@ -39,14 +40,30 @@ class Ser24Sata(BasicNewsRecipe):
 
     feeds = [(u'Vesti Dana', u'http://www.24sata.rs/rss.php')]
 
+    def cleanup_image_tags(self,soup):
+        for item in soup.findAll('img'):
+            for attrib in ['height','width','border','align']:
+                if item.has_key(attrib):
+                   del item[attrib]
+            oldParent = item.parent
+            myIndex = oldParent.contents.index(item)
+            item.extract()
+            divtag = Tag(soup,'div')
+            brtag  = Tag(soup,'br')
+            oldParent.insert(myIndex,divtag)
+            divtag.append(item)
+            divtag.append(brtag)
+        return soup
+
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = 'sr-Latn-RS'
         soup.html['lang']     = 'sr-Latn-RS'
         mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
         soup.head.insert(0,mtag)
-        return soup
+        return self.cleanup_image_tags(soup)
 
     def print_version(self, url):
         article, sep, rest = url.partition('#')
-        return article.replace('/show.php','/_print.php')
+        article_base, sep2, article_id = article.partition('id=')
+        return 'http://www.24sata.co.rs/_print.php?id=' + article_id
 

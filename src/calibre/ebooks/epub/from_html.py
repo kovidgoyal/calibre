@@ -36,7 +36,7 @@ import os, sys, cStringIO, logging, re, functools, shutil
 
 from lxml.etree import XPath
 from lxml import html, etree
-from PyQt4.Qt import QApplication, QPixmap
+from PyQt4.Qt import QApplication, QPixmap, Qt
 
 from calibre.ebooks.html_old import Processor, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc, Link, parser
@@ -50,7 +50,7 @@ from calibre.ebooks.epub.pages import add_page_map
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
 from calibre.customize.ui import run_plugins_on_postprocess
-from calibre import walk, CurrentDir, to_unicode
+from calibre import walk, CurrentDir, to_unicode, fit_image
 
 content = functools.partial(os.path.join, u'content')
 
@@ -111,6 +111,31 @@ def find_html_index(files):
             if os.path.splitext(os.path.basename(f))[0].lower() == q:
                 return f, os.path.splitext(f)[1].lower()[1:]
     return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
+
+def rescale_images(imgdir, screen_size, log):
+    pwidth, pheight = screen_size
+    if QApplication.instance() is None:
+        QApplication([])
+    for f in os.listdir(imgdir):
+        path = os.path.join(imgdir, f)
+        if os.path.splitext(f)[1] in ('.css', '.js'):
+            continue
+
+        p = QPixmap()
+        p.load(path)
+        if p.isNull():
+            continue
+        width, height = p.width(), p.height()
+        scaled, new_width, new_height = fit_image(width, height, pwidth,
+                pheight)
+        if scaled:
+            log.info('Rescaling image: '+f)
+            p.scaled(new_width, new_height, Qt.IgnoreAspectRatio,
+                    Qt.SmoothTransformation).save(path, 'JPEG')
+
+
+
+
 
 class HTMLProcessor(Processor, Rationalizer):
 
@@ -481,6 +506,10 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             condense_ncx(ncx_path)
             if os.stat(ncx_path).st_size > opts.profile.flow_size:
                 logger.warn('NCX still larger than allowed size at %d bytes. Menu based Table of Contents may not work on device.'%os.stat(ncx_path).st_size)
+
+        if opts.profile.screen_size is not None:
+            rescale_images(os.path.join(tdir, 'content', 'resources'),
+                    opts.profile.screen_size, logger)
 
         if create_epub:
             epub = initialize_container(opts.output)

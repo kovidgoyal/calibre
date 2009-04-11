@@ -1023,6 +1023,28 @@ class BasicNewsRecipe(object):
         nmassage.extend(entity_replace)
         return BeautifulSoup(raw, markupMassage=nmassage)
 
+    @classmethod
+    def adeify_images(cls, soup):
+         '''
+         If your recipe when converted to EPUB has problems with images when
+         viewed in Adobe Digital Editions, call this method from within
+         :method:`postprocess_html`.
+         '''
+         for item in soup.findAll('img'):
+             for attrib in ['height','width','border','align','style']:
+                 if item.has_key(attrib):
+                    del item[attrib]
+             oldParent = item.parent
+             myIndex = oldParent.contents.index(item)
+             item.extract()
+             divtag = Tag(soup,'div')
+             brtag  = Tag(soup,'br')
+             oldParent.insert(myIndex,divtag)
+             divtag.append(item)
+             divtag.append(brtag)
+         return soup
+
+
 class CustomIndexRecipe(BasicNewsRecipe):
 
     def custom_index(self):

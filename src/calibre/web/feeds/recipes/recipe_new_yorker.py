@@ -42,3 +42,12 @@ class NewYorker(BasicNewsRecipe):
 
     def print_version(self, url):
         return url + '?printable=true'
+
+    def postprocess_html(self, soup, x):
+        body = soup.find('body')
+        if body:
+            html = soup.find('html')
+            if html:
+                body.extract()
+                html.insert(-1, body)
+        return soup

@@ -14,7 +14,20 @@ IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
 VC90             = r'C:\VC90.CRT'
 
-import sys, os, py2exe, shutil, zipfile, glob, re
+# ModuleFinder can't handle runtime changes to __path__, but win32com uses them
+import sys
+import py2exe.mf as modulefinder
+import win32com
+for p in win32com.__path__[1:]:
+    modulefinder.AddPackagePath("win32com", p)
+for extra in ["win32com.shell"]: #,"win32com.mapi"
+    __import__(extra)
+    m = sys.modules[extra]
+    for p in m.__path__[1:]:
+        modulefinder.AddPackagePath(extra, p)
+
+
+import os, py2exe, shutil, zipfile, glob, re
 from distutils.core import setup
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, BASE_DIR)
