@@ -157,6 +157,62 @@ class BookHeader(object):
                 self.exth.mi.language = self.language
 
 
+class MetadataHeader(BookHeader):
+    def __init__(self, stream, log):
+        self.stream = stream
+        
+        self.ident = self.identity()
+        self.num_sections = self.section_count()
+        
+        if self.num_sections >= 2:
+            header = self.header()
+            BookHeader.__init__(self, header, self.ident, None, log)
+        else:
+            self.exth = None
+            
+    def identity(self):
+        self.stream.seek(60)
+        ident = self.stream.read(8).upper()
+        
+        if ident not in ['BOOKMOBI', 'TEXTREAD']:
+            raise MobiError('Unknown book type: %s' % ident)
+        return ident
+            
+    def section_count(self):
+        self.stream.seek(76)
+        return struct.unpack('>H', self.stream.read(2))[0]
+            
+    def section_offset(self, number):
+        self.stream.seek(78+number*8)
+        return struct.unpack('>LBBBB', self.stream.read(8))[0]
+        
+    def header(self):
+        section_headers = []
+            
+        # First section with the metadata
+        section_headers.append(self.section_offset(0))
+        # Second section used to get the lengh of the first
+        section_headers.append(self.section_offset(1))
+
+        end_off = section_headers[1]
+        off = section_headers[0]
+    
+        self.stream.seek(off)
+        return self.stream.read(end_off - off)
+
+    def section_data(self, number):
+        start = self.section_offset(number)
+        
+        if number == self.num_sections -1:
+            end = os.stat(self.stream.name).st_size
+        else:
+            end = self.section_offset(number + 1)
+            
+        self.stream.seek(start)
+        
+        return self.stream.read(end - start)
+
+
 class MobiReader(object):
     PAGE_BREAK_PAT = re.compile(r'(<[/]{0,1}mbp:pagebreak\s*[/]{0,1}>)+', re.IGNORECASE)
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
@@ -414,7 +470,7 @@ class MobiReader(object):
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
         if mi is None:
-            mi = MetaInformation(self.title, [_('Unknown')])
+            mi = MetaInformation(self.book_header.title, [_('Unknown')])
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
@@ -595,25 +651,26 @@ class MobiReader(object):
 def get_metadata(stream):
     from calibre.utils.logging import Log
     log = Log()
-    mr = MobiReader(stream, log)
-    if mr.book_header.exth is None:
-        mi = MetaInformation(mr.name, [_('Unknown')])
-    else:
-        mi = mr.create_opf('dummy.html')[0]
-        try:
-            if hasattr(mr.book_header.exth, 'cover_offset'):
-                cover_index = mr.book_header.first_image_index + \
-                              mr.book_header.exth.cover_offset
-                data  = mr.sections[int(cover_index)][0]
-            else:
-                data  = mr.sections[mr.book_header.first_image_index][0]
-            buf = cStringIO.StringIO(data)
-            im = PILImage.open(buf)
-            obuf = cStringIO.StringIO()
-            im.convert('RGBA').save(obuf, format='JPEG')
-            mi.cover_data = ('jpg', obuf.getvalue())
-        except:
-            log.exception()
+    
+    mi = MetaInformation(stream.name, [_('Unknown')])
+    try:
+        mh = MetadataHeader(stream, log)
+
+        if mh.exth is not None:
+            if mh.exth.mi is not None:
+                mi = mh.exth.mi
+            
+        if hasattr(mh.exth, 'cover_offset'):
+            cover_index = mh.first_image_index + mh.exth.cover_offset
+            data  = mh.section_data(int(cover_index))
+        else:
+            data  = mh.section_data(mh.first_image_index)
+        buf = cStringIO.StringIO(data)
+        im = PILImage.open(buf)
+        obuf = cStringIO.StringIO()
+        im.convert('RGBA').save(obuf, format='JPEG')
+        mi.cover_data = ('jpg', obuf.getvalue())
+    except:
+        log.exception()
+    
     return mi
-
-
