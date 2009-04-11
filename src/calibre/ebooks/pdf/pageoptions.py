@@ -63,36 +63,8 @@ ORIENTATIONS = {
 def orientation(orientation):
     return ORIENTATIONS.get(orientation, QPrinter.Portrait)
 
-
-class PageOptions(object):
-    margin_top = 1
-    margin_bottom = 1
-    margin_left = 1
-    margin_right = 1
-    unit = QPrinter.Inch
-    paper_size = QPrinter.Letter
-    orientation = QPrinter.Portrait
-    
-    def set_margin_top(self, size):
-        try:
-            self.margin_top = int(size)
-        except:
-            self.margin_top = 1
-    
-    def set_margin_bottom(self, size):
-        try:
-            self.margin_bottom = int(size)
-        except:
-            self.margin_bottom = 1
-    
-    def set_margin_left(self, size):
-        try:
-            self.margin_left = int(size)
-        except:
-            self.margin_left = 1
-    
-    def set_margin_right(self, size):
-        try:
-            self.margin_right = int(size)
-        except:
-            self.margin_right = 1
+def size(size):
+    try:
+        return int(size)
+    except:
+        return 1

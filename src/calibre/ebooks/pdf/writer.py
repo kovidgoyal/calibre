@@ -13,13 +13,14 @@ import os, shutil, sys
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.customize.profiles import OutputProfile
-from calibre.ebooks.pdf.pageoptions import PageOptions
+from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
+    orientation, size 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import OPF
 
 from PyQt4 import QtCore
-from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, QApplication, QPrinter, \
-    QMetaObject, QSizeF, Qt
+from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, \
+    QApplication, QPrinter, QMetaObject, QSizeF, Qt
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -37,7 +38,7 @@ class PDFMetadata(object):
 
 
 class PDFWriter(QObject):
-    def __init__(self, log, popts=PageOptions(), profile=OutputProfile(None)):
+    def __init__(self, log, opts):
         if QApplication.instance() is None:
             QApplication([])
         QObject.__init__(self)
@@ -49,9 +50,20 @@ class PDFWriter(QObject):
         self.connect(self.view, SIGNAL('loadFinished(bool)'), self._render_html)
         self.render_queue = []
         self.combine_queue = []
-        self.tmp_path = PersistentTemporaryDirectory('_any2pdf_parts')
-        self.popts = popts
-        self.profile = profile
+        self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
+        
+        self.custom_size = None
+        if opts.custom_size != None:
+            width, sep, height = opts.custom_size.partition('x')
+            if height != '':
+                try:
+                    width = int(width)
+                    height = int(height)
+                    self.custom_size = (width, height)
+                except:
+                    self.custom_size = None
+        
+        self.opts = opts
         
     def dump(self, opfpath, out_stream, pdf_metadata):
         self.metadata = pdf_metadata
@@ -88,14 +100,16 @@ class PDFWriter(QObject):
         
             printer = QPrinter(QPrinter.HighResolution)
                         
-            if self.profile.short_name == 'default':
-                printer.setPaperSize(self.popts.paper_size)
+            if self.opts.output_profile.short_name == 'default':
+                if self.custom_size == None:
+                    printer.setPaperSize(paper_size(self.opts.paper_size))
+                else:
+                    printer.setPaperSize(QSizeF(self.custom_size[0], self.custom_size[1]), unit(self.opts.unit))
             else:
-                #printer.setResolution(self.profile.dpi)
-                printer.setPaperSize(QSizeF(self.profile.width / self.profile.dpi, self.profile.height / self.profile.dpi), QPrinter.Inch)
+                printer.setPaperSize(QSizeF(self.opts.output_profile.width / self.opts.output_profile.dpi, self.opts.output_profile.height / self.opts.output_profile.dpi), QPrinter.Inch)
                         
-            printer.setPageMargins(self.popts.margin_left, self.popts.margin_top, self.popts.margin_right, self.popts.margin_bottom, self.popts.unit)
-            printer.setOrientation(self.popts.orientation)
+            printer.setPageMargins(size(self.opts.margin_left), size(self.opts.margin_top), size(self.opts.margin_right), size(self.opts.margin_bottom), unit(self.opts.unit))
+            printer.setOrientation(orientation(self.opts.orientation))
             printer.setOutputFormat(QPrinter.PdfFormat)
             printer.setOutputFileName(item_path)
             self.view.print_(printer)
@@ -104,7 +118,7 @@ class PDFWriter(QObject):
     def _delete_tmpdir(self):
         if os.path.exists(self.tmp_path):
             shutil.rmtree(self.tmp_path, True)
-            self.tmp_path = PersistentTemporaryDirectory('_pdf_out_parts')
+            self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
 
     def _write(self):
         self.logger.info('Combining individual PDF parts...')
