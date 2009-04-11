@@ -52,10 +52,10 @@ def convert_single(fmt, parent, db, comics, others):
                     temp_files.append(d.cover_file)
                     opts.cover = d.cover_file.name
                 temp_files.extend([d.opf_file, pt, of])
-                jobs.append(('any2'+fmt, args, _('Convert book: ')+d.mi.title, 
+                jobs.append(('any2'+fmt, args, _('Convert book: ')+d.mi.title,
                              fmt.upper(), row_id, temp_files))
                 changed = True
-                
+
     for row, row_id in zip(comics, comics_ids):
         mi = db.get_metadata(row)
         title = author = _('Unknown')
@@ -72,7 +72,7 @@ def convert_single(fmt, parent, db, comics, others):
             try:
                 data = db.format(row, _fmt.upper())
                 if data is not None:
-                    break                    
+                    break
             except:
                 continue
         pt = PersistentTemporaryFile('.'+_fmt)
@@ -84,12 +84,12 @@ def convert_single(fmt, parent, db, comics, others):
         opts.verbose = 2
         args = [pt.name, opts]
         changed = True
-        jobs.append(('comic2'+fmt, args, _('Convert comic: ')+opts.title, 
+        jobs.append(('comic2'+fmt, args, _('Convert comic: ')+opts.title,
                      fmt.upper(), row_id, [pt, of]))
-        
+
     return jobs, changed
-    
-    
+
+
 
 def convert_single_lrf(parent, db, comics, others):
     changed = False
@@ -114,10 +114,10 @@ def convert_single_lrf(parent, db, comics, others):
                 if d.cover_file:
                     temp_files.append(d.cover_file)
                 temp_files.extend([pt, of])
-                jobs.append(('any2lrf', [cmdline], _('Convert book: ')+d.title(), 
+                jobs.append(('any2lrf', [cmdline], _('Convert book: ')+d.title(),
                              'LRF', row_id, temp_files))
                 changed = True
-                
+
     for row, row_id in zip(comics, comics_ids):
         mi = db.get_metadata(row)
         title = author = _('Unknown')
@@ -134,7 +134,7 @@ def convert_single_lrf(parent, db, comics, others):
             try:
                 data = db.format(row, fmt.upper())
                 if data is not None:
-                    break                    
+                    break
             except:
                 continue
         if data is None:
@@ -148,19 +148,20 @@ def convert_single_lrf(parent, db, comics, others):
         opts.verbose = 1
         args = [pt.name, opts]
         changed = True
-        jobs.append(('comic2lrf', args, _('Convert comic: ')+opts.title, 
+        jobs.append(('comic2lrf', args, _('Convert comic: ')+opts.title,
                      'LRF', row_id, [pt, of]))
-        
+
     return jobs, changed
 
 def convert_bulk(fmt, parent, db, comics, others):
     if others:
         d = get_dialog(fmt)(parent, db)
         if d.exec_() != QDialog.Accepted:
-            others = []
+            others, user_mi = [], None
         else:
             opts = d.opts
             opts.verbose = 2
+            user_mi = d.user_mi
     if comics:
         comic_opts = ComicConf.get_bulk_conversion_options(parent)
         if not comic_opts:
@@ -171,7 +172,7 @@ def convert_bulk(fmt, parent, db, comics, others):
     if total == 0:
         return
     parent.status_bar.showMessage(_('Starting Bulk conversion of %d books')%total, 2000)
-    
+
     for i, row in enumerate(others+comics):
         row_id = db.id(row)
         if row in others:
@@ -188,6 +189,11 @@ def convert_bulk(fmt, parent, db, comics, others):
                 continue
             options = opts.copy()
             mi = db.get_metadata(row)
+            if user_mi is not None:
+                if user_mi.series_index == 1:
+                    user_mi.series_index = None
+                mi.smart_update(user_mi)
+            db.set_metadata(db.id(row), mi)
             opf = OPFCreator(os.getcwdu(), mi)
             opf_file = PersistentTemporaryFile('.opf')
             opf.render(opf_file)
@@ -223,10 +229,10 @@ def convert_bulk(fmt, parent, db, comics, others):
                 try:
                     data = db.format(row, _fmt.upper())
                     if data is not None:
-                        break                    
+                        break
                 except:
                     continue
-            
+
             pt = PersistentTemporaryFile('.'+_fmt.lower())
             pt.write(data)
             pt.close()
@@ -236,17 +242,17 @@ def convert_bulk(fmt, parent, db, comics, others):
             options.verbose = 1
             args = [pt.name, options]
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            jobs.append(('comic2'+fmt, args, desc, fmt.upper(), row_id, [pt, of]))        
-        
+            jobs.append(('comic2'+fmt, args, desc, fmt.upper(), row_id, [pt, of]))
+
     if bad_rows:
         res = []
         for row in bad_rows:
             title = db.title(row)
             res.append('<li>%s</li>'%title)
-        
+
         msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), total, '\n'.join(res))
         warning_dialog(parent, _('Could not convert some books'), msg).exec_()
-        
+
     return jobs, False
 
 
@@ -265,7 +271,7 @@ def convert_bulk_lrf(parent, db, comics, others):
     if total == 0:
         return
     parent.status_bar.showMessage(_('Starting Bulk conversion of %d books')%total, 2000)
-    
+
     for i, row in enumerate(others+comics):
         row_id = db.id(row)
         if row in others:
@@ -320,10 +326,10 @@ def convert_bulk_lrf(parent, db, comics, others):
                 try:
                     data = db.format(row, fmt.upper())
                     if data is not None:
-                        break                    
+                        break
                 except:
                     continue
-            
+
             pt = PersistentTemporaryFile('.'+fmt.lower())
             pt.write(data)
             pt.close()
@@ -333,17 +339,17 @@ def convert_bulk_lrf(parent, db, comics, others):
             options.verbose = 1
             args = [pt.name, options]
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            jobs.append(('comic2lrf', args, desc, 'LRF', row_id, [pt, of]))        
-        
+            jobs.append(('comic2lrf', args, desc, 'LRF', row_id, [pt, of]))
+
     if bad_rows:
         res = []
         for row in bad_rows:
             title = db.title(row)
             res.append('<li>%s</li>'%title)
-        
+
         msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), total, '\n'.join(res))
         warning_dialog(parent, _('Could not convert some books'), msg).exec_()
-        
+
     return jobs, False
 
 def set_conversion_defaults_lrf(comic, parent, db):
@@ -370,7 +376,7 @@ def _fetch_news(data, fmt):
         args.extend(['--password', data['password']])
     args.append(data['script'] if data['script'] else data['title'])
     return 'feeds2'+fmt.lower(), [args], _('Fetch news from ')+data['title'], fmt.upper(), [pt]
-    
+
 
 def fetch_scheduled_recipe(recipe, script):
     from calibre.gui2.dialogs.scheduler import config
@@ -385,7 +391,7 @@ def fetch_scheduled_recipe(recipe, script):
         args.extend(['--username', x[0], '--password', x[1]])
     args.append(script)
     return 'feeds2'+fmt, [args], _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
-            
+
 
 def convert_single_ebook(*args):
     fmt = prefs['output_format'].lower()
@@ -393,14 +399,14 @@ def convert_single_ebook(*args):
         return convert_single_lrf(*args)
     elif fmt in ('epub', 'mobi'):
         return convert_single(fmt, *args)
-    
+
 def convert_bulk_ebooks(*args):
     fmt = prefs['output_format'].lower()
     if fmt == 'lrf':
         return convert_bulk_lrf(*args)
     elif fmt in ('epub', 'mobi'):
         return convert_bulk(fmt, *args)
-    
+
 def set_conversion_defaults(comic, parent, db):
     fmt = prefs['output_format'].lower()
     if fmt == 'lrf':
