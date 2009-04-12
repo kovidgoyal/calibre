@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, traceback, functools, sys
+import os, shutil, traceback, functools, sys, re
 
 from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
                               MetadataWriterPlugin
@@ -55,7 +55,14 @@ def load_plugin(path_to_zip_file):
     for name in zf.namelist():
         if name.lower().endswith('plugin.py'):
             locals = {}
-            exec zf.read(name) in locals
+            raw = zf.read(name)
+            match = re.search(r'coding[:=]\s*([-\w.]+)', raw[:300])
+            encoding = 'utf-8'
+            if match is not None:
+                encoding = match.group(1)
+            raw = raw.decode(encoding)
+            raw = re.sub('\r\n', '\n', raw)
+            exec raw in locals
             for x in locals.values():
                 if isinstance(x, type) and issubclass(x, Plugin):
                     if x.minimum_calibre_version > version or \

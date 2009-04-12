@@ -176,19 +176,19 @@ class Config(ResizableDialog, Ui_Dialog):
     def get_metadata(self):
         title, authors = self.get_title_and_authors()
         mi = MetaInformation(title, authors)
-        publisher = unicode(self.publisher.text())
+        publisher = unicode(self.publisher.text()).strip()
         if publisher:
             mi.publisher = publisher
-        author_sort = unicode(self.author_sort.text())
+        author_sort = unicode(self.author_sort.text()).strip()
         if author_sort:
             mi.author_sort = author_sort
-        comments = unicode(self.comment.toPlainText())
+        comments = unicode(self.comment.toPlainText()).strip()
         if comments:
             mi.comments = comments
         mi.series_index = int(self.series_index.value())
         if self.series.currentIndex() > -1:
-            mi.series = unicode(self.series.currentText())
-        tags = [t.strip() for t in unicode(self.tags.text()).split(',')]
+            mi.series = unicode(self.series.currentText()).strip()
+        tags = [t.strip() for t in unicode(self.tags.text()).strip().split(',')]
         if tags:
             mi.tags = tags
 
@@ -267,6 +267,7 @@ class Config(ResizableDialog, Ui_Dialog):
                                  ).exec_()
                     return
         mi = self.get_metadata()
+        self.user_mi = mi
         self.read_settings()
         self.cover_file = None
         if self.row is not None:
