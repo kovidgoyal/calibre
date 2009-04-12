@@ -652,7 +652,7 @@ def get_metadata(stream):
     from calibre.utils.logging import Log
     log = Log()
     
-    mi = MetaInformation(stream.name, [_('Unknown')])
+    mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
     try:
         mh = MetadataHeader(stream, log)
 
