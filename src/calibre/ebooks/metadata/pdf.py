@@ -51,23 +51,18 @@ def get_metadata(stream, extract_cover=True):
 
 def set_metadata(stream, mi):
     stream.seek(0)
-
     # Use a StringIO object for the pdf because we will want to over
     # write it later and if we are working on the stream directly it
     # could cause some issues.
     raw = StringIO.StringIO(stream.read())
     orig_pdf = PdfFileReader(raw)
-
     title = mi.title if mi.title else orig_pdf.documentInfo.title
     author = authors_to_string(mi.authors) if mi.authors else orig_pdf.documentInfo.author
-
     out_pdf = PdfFileWriter(title=title, author=author)
     for page in orig_pdf.pages:
         out_pdf.addPage(page)
-
     out_str = StringIO.StringIO()
     out_pdf.write(out_str)
-
     stream.seek(0)
     stream.truncate()
     out_str.seek(0)

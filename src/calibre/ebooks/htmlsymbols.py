@@ -306,5 +306,7 @@ HTML_SYMBOLS = {
                 u'ý' : ['&#253;', '&yacute;'], # latin small letter y with acute
                 u'þ' : ['&#254;', '&thorn;'], # latin small letter thorn
                 u'ÿ' : ['&#255;', '&yuml;'], # latin small letter y with diaeresis
+                # More
+                u' ' : ['&#160;'],
                }
 

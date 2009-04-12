@@ -51,8 +51,7 @@ class EPUBInput(InputFormatPlugin):
             traceback.print_exc()
         return False
 
-    def convert(self, stream, options, file_ext, parse_cache, log, 
-                accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.utils.zipfile import ZipFile
         from calibre import walk
         from calibre.ebooks import DRMError
@@ -72,6 +71,5 @@ class EPUBInput(InputFormatPlugin):
         if os.path.exists(encfile):
             if not self.process_encryption(encfile, opf, log):
                 raise DRMError(os.path.basename(path))
-        
-        return opf
-        
+
+        return os.path.join(os.getcwd(), opf)

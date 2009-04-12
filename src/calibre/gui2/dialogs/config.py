@@ -18,7 +18,7 @@ from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.epub.iterator import is_supported
+from calibre.ebooks.oeb.iterator import is_supported
 from calibre.library import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
