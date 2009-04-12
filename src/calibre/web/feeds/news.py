@@ -445,6 +445,8 @@ class BasicNewsRecipe(object):
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
         self.log = Log()
+        if options.verbose:
+            self.log.filter_level = self.log.DEBUG
         if not isinstance(self.title, unicode):
             self.title = unicode(self.title, 'utf-8', 'replace')
 

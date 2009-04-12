@@ -5,20 +5,20 @@ __copyright__ = '2008 Kovid Goyal <kovid at kovidgoyal.net>'
 Iterate over the HTML files in an ebook. Useful for writing viewers.
 '''
 
-import re, os, math, copy
+import re, os, math
 from cStringIO import StringIO
 
 from PyQt4.Qt import QFontDatabase
 
-from calibre.ebooks.epub.from_any import MAP
+from calibre.customize.ui import available_input_formats
 from calibre.ebooks.epub.from_html import TITLEPAGE
-from calibre.ebooks.epub import config
-from calibre.ebooks.metadata.opf2 import OPF
+from calibre.ebooks.metadata.opf2 import OPF, OPFCreator
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.html_old import create_dir
 from calibre.utils.zipfile import safe_replace, ZipFile
 from calibre.utils.config import DynamicConfig
+from calibre.utils.logging import Log
+from calibre import CurrentDir
 
 def character_count(html):
     '''
@@ -50,11 +50,28 @@ class SpineItem(unicode):
         obj.max_page   = -1
         return obj
 
-def html2opf(path, tdir, opts):
-    opts = copy.copy(opts)
-    opts.output = tdir
-    create_dir(path, opts)
-    return os.path.join(tdir, 'metadata.opf')
+class FakeOpts(object):
+    verbose = 0
+    breadth_first = False
+    max_levels = 5
+    input_encoding = None
+
+def html2opf(path, tdir, log):
+    from calibre.ebooks.html.input import get_filelist
+    from calibre.ebooks.metadata.meta import get_metadata
+    with CurrentDir(tdir):
+        fl = get_filelist(path, tdir, FakeOpts(), log)
+        mi = get_metadata(open(path, 'rb'), 'html')
+        mi = OPFCreator(os.getcwdu(), mi)
+        mi.guide = None
+        entries = [(f.path, 'application/xhtml+xml') for f in fl]
+        mi.create_manifest(entries)
+        mi.create_spine([f.path for f in fl])
+
+        mi.render(open('metadata.opf', 'wb'))
+        opfpath = os.path.abspath('metadata.opf')
+
+    return opfpath
 
 def opf2opf(path, tdir, opts):
     return path
@@ -62,24 +79,22 @@ def opf2opf(path, tdir, opts):
 def is_supported(path):
     ext = os.path.splitext(path)[1].replace('.', '').lower()
     ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
-    return ext in list(MAP.keys())+['html', 'opf']
+    return ext in available_input_formats()
 
 class EbookIterator(object):
 
     CHARACTERS_PER_PAGE = 1000
 
-    def __init__(self, pathtoebook):
+    def __init__(self, pathtoebook, log=None):
+        self.log = log
+        if log is None:
+            self.log = Log()
         pathtoebook = pathtoebook.strip()
         self.pathtoebook = os.path.abspath(pathtoebook)
         self.config = DynamicConfig(name='iterator')
         ext = os.path.splitext(pathtoebook)[1].replace('.', '').lower()
         ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
-        map = dict(MAP)
-        map['html'] = html2opf
-        map['opf']  = opf2opf
-        if ext not in map.keys():
-            raise UnsupportedFormatError(ext)
-        self.to_opf = map[ext]
+        self.ebook_ext = ext
 
     def search(self, text, index):
         text = text.lower()
@@ -115,14 +130,24 @@ class EbookIterator(object):
     def __enter__(self):
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
-        opts = config('').parse()
-        self.pathtoopf = self.to_opf(self.pathtoebook, self.base, opts)
+        if self.ebook_ext == 'opf':
+            self.pathtoopf = self.pathtoebook
+        elif self.ebook_ext == 'html':
+            self.pathtoopf = html2opf(self.pathtoebook, self.base, self.log)
+        else:
+            from calibre.ebooks.conversion.plumber import Plumber
+            plumber = Plumber(self.pathtoebook, self.base, self.log)
+            plumber.setup_options()
+            self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
+                    plumber.opts, plumber.input_fmt, self.log,
+                    {}, self.base)
+
+
         self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
         self.spine = [SpineItem(i.path) for i in self.opf.spine]
 
         cover = self.opf.cover
-        if os.path.splitext(self.pathtoebook)[1].lower() in \
-                                    ('.lit', '.mobi', '.prc') and cover:
+        if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
             cfile = os.path.join(os.path.dirname(self.spine[0]), 'calibre_ei_cover.html')
             open(cfile, 'wb').write(TITLEPAGE%cover)
             self.spine[0:0] = [SpineItem(cfile)]
@@ -130,7 +155,6 @@ class EbookIterator(object):
         if self.opf.path_to_html_toc is not None and \
            self.opf.path_to_html_toc not in self.spine:
             self.spine.append(SpineItem(self.opf.path_to_html_toc))
-
 
         sizes = [i.character_count for i in self.spine]
         self.pages = [math.ceil(i/float(self.CHARACTERS_PER_PAGE)) for i in sizes]
