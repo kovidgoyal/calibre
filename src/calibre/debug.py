@@ -31,6 +31,11 @@ Run an embedded python interpreter.
     parser.add_option('--migrate', action='store_true', default=False,
                       help='Migrate old database. Needs two arguments. Path '
                            'to library1.db and path to new library folder.')
+    parser.add_option('--add-simple-plugin', default=None,
+            help='Add a simple plugin (i.e. a plugin that consists of only a '
+            '.py file), by specifying the path to the py file containing the '
+            'plugin code.')
+
     return parser
 
 def update_zipfile(zipfile, mod, path):
@@ -115,6 +120,22 @@ def debug_device_driver():
             print 'Total space:', d.total_space()
             break
 
+def add_simple_plugin(path_to_plugin):
+    import tempfile, zipfile, shutil
+    tdir = tempfile.mkdtemp()
+    open(os.path.join(tdir, 'custom_plugin.py'),
+            'wb').write(open(path_to_plugin, 'rb').read())
+    odir = os.getcwd()
+    os.chdir(tdir)
+    zf = zipfile.ZipFile('plugin.zip', 'w')
+    zf.write('custom_plugin.py')
+    zf.close()
+    from calibre.customize.ui import main
+    main(['calibre-customize', '-a', 'plugin.zip'])
+    os.chdir(odir)
+    shutil.rmtree(tdir)
+
+
 
 def main(args=sys.argv):
     opts, args = option_parser().parse_args(args)
@@ -137,6 +158,8 @@ def main(args=sys.argv):
             print 'You must specify the path to library1.db and the path to the new library folder'
             return 1
         migrate(args[1], args[2])
+    elif opts.add_simple_plugin is not None:
+        add_simple_plugin(opts.add_simple_plugin)
     else:
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed()

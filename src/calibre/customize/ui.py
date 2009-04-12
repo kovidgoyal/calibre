@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, traceback, functools, sys
+import os, shutil, traceback, functools, sys, re
 
 from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
                               MetadataWriterPlugin
@@ -29,7 +29,7 @@ def _config():
     c.add_opt('filetype_mapping', default={}, help=_('Mapping for filetype plugins'))
     c.add_opt('plugin_customization', default={}, help=_('Local plugin customization'))
     c.add_opt('disabled_plugins', default=set([]), help=_('Disabled plugins'))
-    
+
     return ConfigProxy(c)
 
 config = _config()
@@ -44,7 +44,7 @@ class PluginNotFound(ValueError):
 def load_plugin(path_to_zip_file):
     '''
     Load plugin from zip file or raise InvalidPlugin error
-    
+
     :return: A :class:`Plugin` instance.
     '''
     print 'Loading plugin from', path_to_zip_file
@@ -54,15 +54,22 @@ def load_plugin(path_to_zip_file):
     for name in zf.namelist():
         if name.lower().endswith('plugin.py'):
             locals = {}
-            exec zf.read(name) in locals
+            raw = zf.read(name)
+            match = re.search(r'coding[:=]\s*([-\w.]+)', raw[:300])
+            encoding = 'utf-8'
+            if match is not None:
+                encoding = match.group(1)
+            raw = raw.decode(encoding)
+            raw = re.sub('\r\n', '\n', raw)
+            exec raw in locals
             for x in locals.values():
                 if isinstance(x, type) and issubclass(x, Plugin):
                     if x.minimum_calibre_version > version or \
                         platform not in x.supported_platforms:
                         continue
-                    
+
                     return x
-            
+
     raise InvalidPlugin(_('No valid plugin found in ')+path_to_zip_file)
 
 _initialized_plugins = []
@@ -112,10 +119,10 @@ def reread_metadata_plugins():
             for ft in plugin.file_types:
                 if not _metadata_writers.has_key(ft):
                     _metadata_writers[ft] = []
-                _metadata_writers[ft].append(plugin) 
-                
-    
-                
+                _metadata_writers[ft].append(plugin)
+
+
+
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
     ftype = ftype.lower().strip()
@@ -141,21 +148,21 @@ def set_file_type_metadata(stream, mi, ftype):
                         plugin.set_metadata(stream, mi, ftype.lower().strip())
                         break
                     except:
-                        print 'Failed to set metadata for', repr(getattr(mi, 'title', ''))  
+                        print 'Failed to set metadata for', repr(getattr(mi, 'title', ''))
                         traceback.print_exc()
-    
-                
+
+
 def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
-    occasion = {'import':_on_import, 'preprocess':_on_preprocess, 
+    occasion = {'import':_on_import, 'preprocess':_on_preprocess,
                 'postprocess':_on_postprocess}[occasion]
     customization = config['plugin_customization']
     if ft is None:
-        ft = os.path.splitext(path_to_file)[-1].lower().replace('.', '')        
+        ft = os.path.splitext(path_to_file)[-1].lower().replace('.', '')
     nfp = path_to_file
     for plugin in occasion.get(ft, []):
         if is_disabled(plugin):
             continue
-        plugin.site_customization = customization.get(plugin.name, '') 
+        plugin.site_customization = customization.get(plugin.name, '')
         with plugin:
             try:
                 nfp = plugin.run(path_to_file)
@@ -168,13 +175,13 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
         nfp = path_to_file
     return nfp
 
-run_plugins_on_import      = functools.partial(_run_filetype_plugins, 
+run_plugins_on_import      = functools.partial(_run_filetype_plugins,
                                                occasion='import')
-run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins, 
+run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins,
                                                occasion='preprocess')
-run_plugins_on_postprocess = functools.partial(_run_filetype_plugins, 
+run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
                                                occasion='postprocess')
-                
+
 
 def initialize_plugin(plugin, path_to_zip_file):
     try:
@@ -184,7 +191,7 @@ def initialize_plugin(plugin, path_to_zip_file):
         tb = traceback.format_exc()
         raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
                             %tb) + '\n'+tb)
-    
+
 
 def add_plugin(path_to_zip_file):
     make_config_dir()
@@ -252,21 +259,21 @@ def initialize_plugins():
         except:
             print 'Failed to initialize plugin...'
             traceback.print_exc()
-    _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)    
+    _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()
-    
+
 initialize_plugins()
 
 def option_parser():
     parser = OptionParser(usage=_('''\
     %prog options
-    
+
     Customize calibre by loading external plugins.
     '''))
-    parser.add_option('-a', '--add-plugin', default=None, 
+    parser.add_option('-a', '--add-plugin', default=None,
                       help=_('Add a plugin by specifying the path to the zip file containing it.'))
-    parser.add_option('-r', '--remove-plugin', default=None, 
+    parser.add_option('-r', '--remove-plugin', default=None,
                       help=_('Remove a custom plugin by name. Has no effect on builtin plugins'))
     parser.add_option('--customize-plugin', default=None,
                       help=_('Customize plugin. Specify name of plugin and customization string separated by a comma.'))
@@ -320,16 +327,16 @@ def main(args=sys.argv):
         print
         for plugin in initialized_plugins():
             print fmt%(
-                                plugin.type, plugin.name, 
-                                plugin.version, is_disabled(plugin), 
+                                plugin.type, plugin.name,
+                                plugin.version, is_disabled(plugin),
                                 plugin_customization(plugin)
                                 )
             print '\t', plugin.description
             if plugin.is_customizable():
                 print '\t', plugin.customization_help()
             print
-        
+
     return 0
-    
+
 if __name__ == '__main__':
     sys.exit(main())
