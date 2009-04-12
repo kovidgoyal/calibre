@@ -15,7 +15,8 @@ except ImportError:
 
 from lxml import html, etree
 
-from calibre import entity_to_unicode
+from calibre import entity_to_unicode, sanitize_file_name
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
@@ -25,7 +26,6 @@ from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
-from calibre import sanitize_file_name
 
 class EXTHHeader(object):
 
@@ -152,6 +152,62 @@ class BookHeader(object):
                 self.exth = EXTHHeader(raw[16+self.length:], self.codec, self.title)
                 self.exth.mi.uid = self.unique_id
                 self.exth.mi.language = self.language
+
+
+class MetadataHeader(BookHeader):
+    def __init__(self, stream):
+        self.stream = stream
+        
+        self.ident = self.identity()
+        self.num_sections = self.section_count()
+        
+        if self.num_sections >= 2:
+            header = self.header()
+            BookHeader.__init__(self, header, self.ident, None)
+        else:
+            self.exth = None
+            
+    def identity(self):
+        self.stream.seek(60)
+        ident = self.stream.read(8).upper()
+        
+        if ident not in ['BOOKMOBI', 'TEXTREAD']:
+            raise MobiError('Unknown book type: %s' % ident)
+        return ident
+            
+    def section_count(self):
+        self.stream.seek(76)
+        return struct.unpack('>H', self.stream.read(2))[0]
+            
+    def section_offset(self, number):
+        self.stream.seek(78+number*8)
+        return struct.unpack('>LBBBB', self.stream.read(8))[0]
+        
+    def header(self):
+        section_headers = []
+            
+        # First section with the metadata
+        section_headers.append(self.section_offset(0))
+        # Second section used to get the lengh of the first
+        section_headers.append(self.section_offset(1))
+
+        end_off = section_headers[1]
+        off = section_headers[0]
+    
+        self.stream.seek(off)
+        return self.stream.read(end_off - off)
+
+    def section_data(self, number):
+        start = self.section_offset(number)
+        
+        if number == self.num_sections -1:
+            end = os.stat(self.stream.name).st_size
+        else:
+            end = self.section_offset(number + 1)
+            
+        self.stream.seek(start)
+        
+        return self.stream.read(end - start)
 
 
 class MobiReader(object):
@@ -562,26 +618,35 @@ class MobiReader(object):
             self.image_names.append(os.path.basename(path))
             im.convert('RGB').save(open(path, 'wb'), format='JPEG')
 
-def get_metadata(stream):
-    mr = MobiReader(stream)
-    if mr.book_header.exth is None:
-        mi = MetaInformation(mr.name, [_('Unknown')])
-    else:
-        mi = mr.create_opf('dummy.html')
-        try:
-            if hasattr(mr.book_header.exth, 'cover_offset'):
-                cover_index = mr.book_header.first_image_index + mr.book_header.exth.cover_offset
-                data  = mr.sections[int(cover_index)][0]
-            else:
-                data  = mr.sections[mr.book_header.first_image_index][0]
-            buf = cStringIO.StringIO(data)
-            im = PILImage.open(buf)
-            obuf = cStringIO.StringIO()
-            im.convert('RGBA').save(obuf, format='JPEG')
-            mi.cover_data = ('jpg', obuf.getvalue())
-        except:
-            import traceback
-            traceback.print_exc()
+def get_metadata(stream):    
+    mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
+    try:
+        mh = MetadataHeader(stream)
+
+        if mh.exth is not None:
+            if mh.exth.mi is not None:
+                mi = mh.exth.mi
+        else:
+            with TemporaryDirectory('_mobi_meta_reader') as tdir:
+                mr = MobiReader(stream)
+                mr.extract_content(tdir)
+                if mr.embedded_mi is not None:
+                    mi = mr.embedded_mi
+            
+        if hasattr(mh.exth, 'cover_offset'):
+            cover_index = mh.first_image_index + mh.exth.cover_offset
+            data  = mh.section_data(int(cover_index))
+        else:
+            data  = mh.section_data(mh.first_image_index)
+        buf = cStringIO.StringIO(data)
+        im = PILImage.open(buf)
+        obuf = cStringIO.StringIO()
+        im.convert('RGBA').save(obuf, format='JPEG')
+        mi.cover_data = ('jpg', obuf.getvalue())
+    except:
+        import traceback
+        traceback.print_exc()
+    
     return mi
 
 
