@@ -251,6 +251,17 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.mobi import set_metadata
         set_metadata(stream, mi)
+        
+class PDFMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set PDF metadata'
+    file_types  = set(['pdf'])
+    description = _('Set metadata in %s files') % 'PDF'
+    author      = 'John Schember'
+    
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.pdf import set_metadata
+        set_metadata(stream, mi)
 
 
 plugins = [HTML2ZIP]
