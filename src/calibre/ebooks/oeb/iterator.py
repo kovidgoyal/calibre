@@ -162,7 +162,6 @@ class EbookIterator(object):
             s.pages = p
         start = 1
 
-
         for s in self.spine:
             s.start_page = start
             start += s.pages
