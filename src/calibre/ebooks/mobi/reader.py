@@ -15,7 +15,8 @@ except ImportError:
 
 from lxml import html, etree
 
-from calibre import entity_to_unicode
+from calibre import entity_to_unicode, sanitize_file_name
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
@@ -25,7 +26,6 @@ from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
-from calibre import sanitize_file_name
 
 class EXTHHeader(object):
 
@@ -659,6 +659,13 @@ def get_metadata(stream):
         if mh.exth is not None:
             if mh.exth.mi is not None:
                 mi = mh.exth.mi
+        else:
+            with TemporaryDirectory('_mobi_meta_reader') as tdir:
+                mr = MobiReader(stream, log)
+                parse_cache = {}
+                mr.extract_content(tdir, parse_cache)
+                if mr.embedded_mi is not None:
+                    mi = mr.embedded_mi
             
         if hasattr(mh.exth, 'cover_offset'):
             cover_index = mh.first_image_index + mh.exth.cover_offset
