@@ -5,7 +5,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re, StringIO
+import sys, os, StringIO
 
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
@@ -52,18 +52,27 @@ def get_metadata(stream, extract_cover=True):
 
 def set_metadata(stream, mi):
     stream.seek(0)
-    raw = stream.read()
-    if mi.title:
-        tit = mi.title.encode('utf-8') if isinstance(mi.title, unicode) else mi.title
-        raw = re.compile(r'<<.*?/Title\((.+?)\)', re.DOTALL).sub(lambda m: m.group().replace(m.group(1), tit), raw)
-    if mi.authors:
-        au = authors_to_string(mi.authors)
-        if isinstance(au, unicode):
-            au = au.encode('utf-8')
-        raw = re.compile(r'<<.*?/Author\((.+?)\)', re.DOTALL).sub(lambda m: m.group().replace(m.group(1), au), raw)
+    
+    # Use a StringIO object for the pdf because we will want to over
+    # write it later and if we are working on the stream directly it
+    # could cause some issues.
+    raw = StringIO.StringIO(stream.read())
+    orig_pdf = PdfFileReader(raw)
+    
+    title = mi.title if mi.title else orig_pdf.documentInfo.title
+    author = authors_to_string(mi.authors) if mi.authors else orig_pdf.documentInfo.author
+    
+    out_pdf = PdfFileWriter(title=title, author=author)
+    for page in orig_pdf.pages:
+        out_pdf.addPage(page)
+        
+    out_str = StringIO.StringIO()
+    out_pdf.write(out_str)
+    
     stream.seek(0)
     stream.truncate()
-    stream.write(raw)
+    out_str.seek(0)
+    stream.write(out_str.read())
     stream.seek(0)
 
 def get_cover(stream):
