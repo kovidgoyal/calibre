@@ -39,7 +39,7 @@ recipe_modules = ['recipe_' + r for r in (
            'nacional_cro', '24sata', 'dnevni_avaz', 'glas_srpske', '24sata_rs',
            'krstarica', 'krstarica_en', 'tanjug', 'laprensa_ni', 'azstarnet',
            'corriere_della_sera_it', 'corriere_della_sera_en', 'msdnmag_en',
-           'moneynews',
+           'moneynews', 'der_standard',
           )]
 
 import re, imp, inspect, time, os
