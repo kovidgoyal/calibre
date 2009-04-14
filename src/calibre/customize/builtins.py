@@ -165,6 +165,7 @@ class TXTMetadataReader(MetadataReaderPlugin):
     name        = 'Read TXT metadata'
     file_types  = set(['txt'])
     description = _('Read metadata from %s files') % 'TXT'
+    author      = 'John Schember'
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.txt import get_metadata

@@ -18,16 +18,16 @@ class KINDLE(USBMS):
 
     VENDOR_NAME = 'KINDLE'
     WINDOWS_MAIN_MEM = 'INTERNAL_STORAGE'
-    WINDOWS_CARD_MEM = 'CARD_STORAGE'
+    WINDOWS_CARD_A_MEM = 'CARD_STORAGE'
 
     OSX_MAIN_MEM = 'Kindle Internal Storage Media'
-    OSX_CARD_MEM = 'Kindle Card Storage Media'
+    OSX_CARD_A_MEM = 'Kindle Card Storage Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Kindle Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Kindle Storage Card'
 
     EBOOK_DIR_MAIN = "documents"
-    EBOOK_DIR_CARD = "documents"
+    EBOOK_DIR_CARD_A = "documents"
     SUPPORTS_SUB_DIRS = True
 
     WIRELESS_FILE_NAME_PATTERN = re.compile(

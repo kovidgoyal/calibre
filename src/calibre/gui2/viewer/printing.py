@@ -8,7 +8,7 @@ import os, sys, traceback, urlparse
 
 from BeautifulSoup import BeautifulSoup, Tag
 
-from calibre.ebooks.epub.iterator import EbookIterator
+from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ptempfile import TemporaryDirectory
 
 from PyQt4 import QtCore

@@ -12,28 +12,19 @@ from itertools import cycle
 
 from calibre.ebooks.metadata.meta import metadata_from_formats, path_to_ext
 from calibre.ebooks.metadata import authors_to_string
+from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
-from calibre.devices.errors import FreeSpaceError, PathError
+from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.mime import mime_type_ext
 
-class File(object):
-    def __init__(self, path):
-        stats = os.stat(path)
-        self.is_dir = os.path.isdir(path)
-        self.is_readonly = not os.access(path, os.W_OK)
-        self.ctime = stats.st_ctime
-        self.wtime = stats.st_mtime
-        self.size  = stats.st_size
-        if path.endswith(os.sep):
-            path = path[:-1]
-        self.path = path
-        self.name = os.path.basename(path)
-
-class USBMS(Device):
+# CLI must come before Device as it implments the CLI functions that
+# are inherited from the device interface in Device. 
+class USBMS(CLI, Device):
     FORMATS = []
     EBOOK_DIR_MAIN = ''
-    EBOOK_DIR_CARD = ''
+    EBOOK_DIR_CARD_A = ''
+    EBOOK_DIR_CARD_B = ''
     SUPPORTS_SUB_DIRS = False
     CAN_SET_METADATA = False
 
@@ -48,14 +39,18 @@ class USBMS(Device):
         """
         return (self.__class__.__name__, '', '', '')
 
-    def books(self, oncard=False, end_session=True):
+    def books(self, oncard=None, end_session=True):
         bl = BookList()
 
-        if oncard and self._card_prefix is None:
+        if oncard == 'carda' and not self._card_a_prefix:
+            return bl
+        elif oncard == 'cardb' and not self._card_b_prefix:
+            return bl
+        elif oncard and oncard != 'carda' and oncard != 'cardb':
             return bl
 
-        prefix = self._card_prefix if oncard else self._main_prefix
-        ebook_dir = self.EBOOK_DIR_CARD if oncard else self.EBOOK_DIR_MAIN
+        prefix = self._card_a_prefix if oncard == 'carda' else self._card_b_prefix if oncard == 'cardb' else self._main_prefix
+        ebook_dir = self.EBOOK_DIR_CARD_A if oncard == 'carda' else self.EBOOK_DIR_CARD_B if oncard == 'cardb' else self.EBOOK_DIR_MAIN
 
         # Get all books in the ebook_dir directory
         if self.SUPPORTS_SUB_DIRS:
@@ -71,15 +66,21 @@ class USBMS(Device):
                     bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
         return bl
 
-    def upload_books(self, files, names, on_card=False, end_session=True,
+    def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-        if on_card and not self._card_prefix:
-            raise ValueError(_('The reader has no storage card connected.'))
+        if on_card == 'carda' and not self._card_a_prefix:
+            raise ValueError(_('The reader has no storage card in this slot.'))
+        elif on_card == 'cardb' and not self._card_b_prefix:
+            raise ValueError(_('The reader has no storage card in this slot.'))
+        elif on_card and on_card not in ('carda', 'cardb'):
+            raise DeviceError(_('The reader has no storage card in this slot.'))
 
-        if not on_card:
-            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
+        if on_card == 'carda':
+            path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
+        if on_card == 'cardb':
+            path = os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B)
         else:
-            path = os.path.join(self._card_prefix, self.EBOOK_DIR_CARD)
+            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
 
         def get_size(obj):
             if hasattr(obj, 'seek'):
@@ -92,10 +93,12 @@ class USBMS(Device):
         sizes = [get_size(f) for f in files]
         size = sum(sizes)
 
-        if on_card and size > self.free_space()[2] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024:
             raise FreeSpaceError(_("There is insufficient free space in main memory"))
+        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
+            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
+            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
 
         paths = []
         names = iter(names)
@@ -147,12 +150,12 @@ class USBMS(Device):
     def add_books_to_metadata(cls, locations, metadata, booklists):
         for location in locations:
             path = location[0]
-            on_card = 1 if location[1] else 0
+            blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
             book = cls.book_from_path(path)
 
-            if not book in booklists[on_card]:
-                booklists[on_card].append(book)
+            if not book in booklists[blist]:
+                booklists[blist].append(book)
 
 
     def delete_books(self, paths, end_session=True):
@@ -179,58 +182,6 @@ class USBMS(Device):
         # as a mass storage device and does not use a meta data xml file like
         # the Sony Readers.
         pass
-
-    def get_file(self, path, outfile, end_session=True):
-        path = self.munge_path(path)
-        with open(path, 'rb') as src:
-            shutil.copyfileobj(src, outfile, 10*1024*1024)
-
-    def put_file(self, infile, path, replace_file=False, end_session=True):
-        path = self.munge_path(path)
-        if os.path.isdir(path):
-            path = os.path.join(path, infile.name)
-        if not replace_file and os.path.exists(path):
-            raise PathError('File already exists: ' + path)
-        dest = open(path, 'wb')
-        shutil.copyfileobj(infile, dest, 10*1024*1024)
-        dest.flush()
-        dest.close()
-
-    def munge_path(self, path):
-        if path.startswith('/') and not (path.startswith(self._main_prefix) or \
-            (self._card_prefix and path.startswith(self._card_prefix))):
-            path = self._main_prefix + path[1:]
-        elif path.startswith('card:'):
-            path = path.replace('card:', self._card_prefix[:-1])
-        return path
-
-    def list(self, path, recurse=False, end_session=True, munge=True):
-        if munge:
-            path = self.munge_path(path)
-        if os.path.isfile(path):
-            return [(os.path.dirname(path), [File(path)])]
-        entries = [File(os.path.join(path, f)) for f in os.listdir(path)]
-        dirs = [(path, entries)]
-        for _file in entries:
-            if recurse and _file.is_dir:
-                dirs[len(dirs):] = self.list(_file.path, recurse=True, munge=False)
-        return dirs
-
-    def mkdir(self, path, end_session=True):
-        if self.SUPPORTS_SUB_DIRS:
-            path = self.munge_path(path)
-            os.mkdir(path)
-
-    def rm(self, path, end_session=True):
-        path = self.munge_path(path)
-        self.delete_books([path])
-
-    def touch(self, path, end_session=True):
-        path = self.munge_path(path)
-        if not os.path.exists(path):
-            open(path, 'w').close()
-        if not os.path.isdir(path):
-            os.utime(path, None)
 
     @classmethod
     def metadata_from_path(cls, path):

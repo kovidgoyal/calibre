@@ -303,7 +303,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                         similar_menu=similar_menu)
         self.memory_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None)
-        self.card_view.set_context_menu(None, None, None,
+        self.card_a_view.set_context_menu(None, None, None,
+                self.action_view, self.action_save, None, None)
+        self.card_b_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None)
         QObject.connect(self.library_view,
                 SIGNAL('files_dropped(PyQt_PyObject)'),
@@ -313,11 +315,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                              ('connect_to_book_display',
                                  self.status_bar.book_info.show_data),
                              ]:
-            for view in (self.library_view, self.memory_view, self.card_view):
+            for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(target)
 
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
-        self.card_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_a_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_b_view.connect_dirtied_signal(self.upload_booklists)
 
         self.show()
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
@@ -580,10 +583,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if idx == 1:
             return self.memory_view
         if idx == 2:
-            return self.card_view
+            return self.card_a_view
+        if idx == 3:
+            return self.card_b_view
 
     def booklists(self):
-        return self.memory_view.model().db, self.card_view.model().db
+        return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
 
 
@@ -645,12 +650,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             else:
                 self.device_job_exception(job)
             return
-        mainlist, cardlist = job.result
+        mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
         self.memory_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
-        self.card_view.set_database(cardlist)
-        self.card_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
-        for view in (self.memory_view, self.card_view):
+        self.card_a_view.set_database(cardalist)
+        self.card_a_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
+        self.card_b_view.set_database(cardblist)
+        self.card_b_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
+        for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
             if not view.restore_column_widths():
                 view.resizeColumnsToContents()
@@ -791,8 +798,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
             view.model().delete_books(rows)
         else:
-            view = self.memory_view if self.stack.currentIndex() == 1 \
-                    else self.card_view
+            if self.stack.currentIndex() == 1:
+                view = self.memory_view
+            elif self.stack.currentIndex() == 2:
+                view = self.card_a_view
+            else:
+                view = self.card_b_view
             paths = view.model().paths(rows)
             job = self.remove_paths(paths)
             self.delete_memory[job] = (paths, view.model())
@@ -807,7 +818,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once deletion is done on the device
         '''
-        for view in (self.memory_view, self.card_view):
+        for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.model().deletion_done(job, bool(job.exception))
         if job.exception is not None:
             self.device_job_exception(job)
@@ -1316,10 +1327,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called when a location icon is clicked (e.g. Library)
         '''
-        page = 0 if location == 'library' else 1 if location == 'main' else 2
+        page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
         view = self.memory_view if page == 1 else \
-                self.card_view if page == 2 else None
+                self.card_a_view if page == 2 else \
+                self.card_b_view if page == 3 else None
         if view:
             if view.resize_on_select:
                 view.resizeRowsToContents()
