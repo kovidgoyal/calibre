@@ -76,7 +76,7 @@ class TxtWriter(object):
                 text = re.sub('(?imu)</[ ]*%s[ ]*>' % tag, '\n\n', text)
             
             for tag in ['hr', 'br']:
-                text = re.sub('(?imu)<[ ]*%s[ ]*/*?>' % tag, '\n\n', text)
+                text = re.sub('(?imu)<[ ]*%s.*?>' % tag, '\n\n', text)
             
             # Remove any tags that do not need special processing.
             text = re.sub('<.*?>', '', text)
