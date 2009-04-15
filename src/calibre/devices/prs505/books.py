@@ -380,14 +380,16 @@ class BookList(_BookList):
                 item.setAttribute('id', str(map[id]))
                 pl.appendChild(item)
         
-def fix_ids(main, card):
+def fix_ids(main, carda, cardb):
     '''
     Adjust ids the XML databases.
     '''
     if hasattr(main, 'purge_empty_playlists'):
         main.purge_empty_playlists()
-    if hasattr(card, 'purge_empty_playlists'):
-        card.purge_empty_playlists()
+    if hasattr(carda, 'purge_empty_playlists'):
+        carda.purge_empty_playlists()
+    if hasattr(cardb, 'purge_empty_playlists'):
+        cardb.purge_empty_playlists()
     
     def regen_ids(db):
         if not hasattr(db, 'root_element'):
@@ -413,6 +415,7 @@ def fix_ids(main, card):
         db.reorder_playlists()
     
     regen_ids(main)
-    regen_ids(card)
+    regen_ids(carda)
+    regen_ids(cardb)
         
     main.set_next_id(str(main.max_id()+1))

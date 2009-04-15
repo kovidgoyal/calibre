@@ -8,7 +8,7 @@ import os, shutil
 from itertools import cycle
 
 from calibre.ebooks.metadata import authors_to_string
-from calibre.devices.errors import FreeSpaceError
+from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
 
@@ -23,28 +23,34 @@ class CYBOOKG3(USBMS):
 
     VENDOR_NAME = 'BOOKEEN'
     WINDOWS_MAIN_MEM = 'CYBOOK_GEN3__-FD'
-    WINDOWS_CARD_MEM = 'CYBOOK_GEN3__-SD'
+    WINDOWS_CARD_A_MEM = 'CYBOOK_GEN3__-SD'
 
     OSX_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
-    OSX_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
+    OSX_CARD_A_MEM = 'Bookeen Cybook Gen3 -SD Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
 
     EBOOK_DIR_MAIN = "eBooks"
-    EBOOK_DIR_CARD = "eBooks"
+    EBOOK_DIR_CARD_A = "eBooks"
     THUMBNAIL_HEIGHT = 144
     SUPPORTS_SUB_DIRS = True
 
-    def upload_books(self, files, names, on_card=False, end_session=True,
+    def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-        if on_card and not self._card_prefix:
-            raise ValueError(_('The reader has no storage card connected.'))
+        if on_card == 'carda' and not self._card_a_prefix:
+            raise ValueError(_('The reader has no storage card in this slot.'))
+        elif on_card == 'cardb' and not self._card_b_prefix:
+            raise ValueError(_('The reader has no storage card in this slot.'))
+        elif on_card and on_card not in ('carda', 'cardb'):
+            raise DeviceError(_('The reader has no storage card in this slot.'))
 
-        if not on_card:
-            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
+        if on_card == 'carda':
+            path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
+        if on_card == 'cardb':
+            path = os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B)
         else:
-            path = os.path.join(self._card_prefix, self.EBOOK_DIR_CARD)
+            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
 
         def get_size(obj):
             if hasattr(obj, 'seek'):
@@ -57,10 +63,12 @@ class CYBOOKG3(USBMS):
         sizes = [get_size(f) for f in files]
         size = sum(sizes)
 
-        if on_card and size > self.free_space()[2] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024:
             raise FreeSpaceError(_("There is insufficient free space in main memory"))
+        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
+            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
+            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
 
         paths = []
         names = iter(names)

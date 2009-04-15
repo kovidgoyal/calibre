@@ -87,7 +87,13 @@ class Device(object):
     
     def card_prefix(self, end_session=True):
         '''
-        Return prefix to paths on the card or '' if no cards present.
+        Return a 2 element list of the prefix to paths on the cards.
+        If no card is present None is set for the card's prefix.
+        E.G.
+        ('/place', '/place2')
+        (None, 'place2')
+        ('place', None)
+        (None, None)
         '''
         raise NotImplementedError()
     
@@ -95,8 +101,8 @@ class Device(object):
         """ 
         Get total space available on the mountpoints:
             1. Main memory
-            2. Memory Stick
-            3. SD Card
+            2. Memory Card A
+            3. Memory Card B
 
         @return: A 3 element list with total space in bytes of (1, 2, 3). If a
         particular device doesn't have any of these locations it should return 0.
@@ -115,24 +121,25 @@ class Device(object):
         """    
         raise NotImplementedError()
     
-    def books(self, oncard=False, end_session=True):
+    def books(self, oncard=None, end_session=True):
         """ 
         Return a list of ebooks on the device.
-        @param oncard:  If True return a list of ebooks on the storage card, 
-                        otherwise return list of ebooks in main memory of device.
-                        If True and no books on card return empty list. 
+        @param oncard:  If 'carda' or 'cardb' return a list of ebooks on the
+                        specific storage card, otherwise return list of ebooks
+                        in main memory of device. If a card is specified and no
+                        books are on the card return empty list. 
         @return: A BookList. 
         """    
         raise NotImplementedError()
     
-    def upload_books(self, files, names, on_card=False, end_session=True,
+    def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
         '''
         Upload a list of books to the device. If a file already
         exists on the device, it should be replaced.
         This method should raise a L{FreeSpaceError} if there is not enough
         free space on the device. The text of the FreeSpaceError must contain the
-        word "card" if C{on_card} is True otherwise it must contain the word "memory".
+        word "card" if C{on_card} is not None otherwise it must contain the word "memory".
         @param files: A list of paths and/or file-like objects.
         @param names: A list of file names that the books should have 
         once uploaded to the device. len(names) == len(files)
@@ -163,7 +170,8 @@ class Device(object):
         another dictionary that maps tag names to lists of book ids. The ids are
         ids from the book database.
         @param booklists: A tuple containing the result of calls to 
-                                (L{books}(oncard=False), L{books}(oncard=True)).
+                                (L{books}(oncard=None), L{books}(oncard='carda'),
+                                L{books}(oncard='cardb')).
         '''
         raise NotImplementedError
     
@@ -179,16 +187,18 @@ class Device(object):
         Remove books from the metadata list. This function must not communicate 
         with the device.
         @param paths: paths to books on the device.
-        @param booklists:  A tuple containing the result of calls to 
-                                (L{books}(oncard=False), L{books}(oncard=True)).
+        @param booklists:  A tuple containing the result of calls to
+                                (L{books}(oncard=None), L{books}(oncard='carda'),
+                                L{books}(oncard='cardb')).
         '''
         raise NotImplementedError()
         
     def sync_booklists(self, booklists, end_session=True):
         '''
         Update metadata on device.
-        @param booklists: A tuple containing the result of calls to 
-                                (L{books}(oncard=False), L{books}(oncard=True)).
+        @param booklists: A tuple containing the result of calls to
+                                (L{books}(oncard=None), L{books}(oncard='carda'),
+                                L{books}(oncard='cardb')).
         '''
         raise NotImplementedError()
     

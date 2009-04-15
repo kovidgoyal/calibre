@@ -139,9 +139,10 @@ class DeviceManager(Thread):
 
     def _books(self):
         '''Get metadata from device'''
-        mainlist = self.device.books(oncard=False, end_session=False)
-        cardlist = self.device.books(oncard=True)
-        return (mainlist, cardlist)
+        mainlist = self.device.books(oncard=None, end_session=False)
+        cardalist = self.device.books(oncard='carda')
+        cardblist = self.device.books(oncard='cardb')
+        return (mainlist, cardalist, cardblist)
 
     def books(self, done):
         '''Return callable that returns the list of books on device as two booklists'''
@@ -156,12 +157,12 @@ class DeviceManager(Thread):
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
-    def _upload_books(self, files, names, on_card=False, metadata=None):
+    def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
         return self.device.upload_books(files, names, on_card,
                                         metadata=metadata, end_session=False)
 
-    def upload_books(self, done, files, names, on_card=False, titles=None,
+    def upload_books(self, done, files, names, on_card=None, titles=None,
                      metadata=None):
         desc = _('Upload %d books to device')%len(names)
         if titles:
@@ -197,6 +198,7 @@ class DeviceManager(Thread):
 
     def _view_book(self, path, target):
         f = open(target, 'wb')
+        print self.device
         self.device.get_file(path, f)
         f.close()
         return target
@@ -256,24 +258,27 @@ class DeviceMenu(QMenu):
                 self.connect(action2, SIGNAL('a_s(QAction)'),
                             self.action_triggered)
 
-
-
-
         _actions = [
                 ('main:', False, False,  ':/images/reader.svg',
                     _('Send to main memory')),
-                ('card:0', False, False, ':/images/sd.svg',
-                    _('Send to storage card')),
+                ('carda:0', False, False, ':/images/sd.svg',
+                    _('Send to storage card A')),
+                ('cardb:0', False, False, ':/images/sd.svg',
+                    _('Send to storage card B')),
                 '-----',
                 ('main:', True, False,   ':/images/reader.svg',
                     _('Send to main memory')),
-                ('card:0', True, False,  ':/images/sd.svg',
-                    _('Send to storage card')),
+                ('carda:0', True, False,  ':/images/sd.svg',
+                    _('Send to storage card A')),
+                ('cardb:0', True, False,  ':/images/sd.svg',
+                    _('Send to storage card B')),
                 '-----',
                 ('main:', False, True,  ':/images/reader.svg',
                     _('Send specific format to main memory')),
-                ('card:0', False, True, ':/images/sd.svg',
-                    _('Send specific format to storage card')),
+                ('carda:0', False, True, ':/images/sd.svg',
+                    _('Send specific format to storage card A')),
+                ('cardb:0', False, True, ':/images/sd.svg',
+                    _('Send specific format to storage card B')),
 
                 ]
         if default_account is not None:
@@ -335,7 +340,7 @@ class DeviceMenu(QMenu):
 
     def enable_device_actions(self, enable):
         for action in self.actions:
-            if action.dest[:4] in ('main', 'card'):
+            if action.dest in ('main:', 'carda:0', 'cardb:0'):
                 action.setEnabled(enable)
 
 class Emailer(Thread):
@@ -412,16 +417,23 @@ class DeviceGUI(object):
             d.exec_()
             fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
-        if dest in ('main', 'card'):
+        if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
                 error_dialog(self, _('No device'),
                         _('Cannot send: No device is connected')).exec_()
                 return
-            on_card = dest == 'card'
-            if on_card and not self.device_manager.has_card():
+            if dest == 'carda' and not self.device_manager.has_card():
                 error_dialog(self, _('No card'),
                         _('Cannot send: Device has no storage card')).exec_()
                 return
+            if dest == 'cardb' and not self.device_manager.has_card():
+                error_dialog(self, _('No card'),
+                        _('Cannot send: Device has no storage card')).exec_()
+                return
+            if dest == 'main':
+                on_card = None
+            else:
+                on_card = dest
             self.sync_to_device(on_card, delete, fmt)
         elif dest == 'mail':
             to, fmts = sub_dest.split(';')
@@ -680,7 +692,7 @@ class DeviceGUI(object):
         cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
 
-    def upload_books(self, files, names, metadata, on_card=False, memory=None):
+    def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''
         Upload books to device.
         :param files: List of either paths to files or file like objects
@@ -719,7 +731,7 @@ class DeviceGUI(object):
 
         self.upload_booklists()
 
-        view = self.card_view if on_card else self.memory_view
+        view = self.card_a_view if on_card == 'carda' else self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
         for f in files:

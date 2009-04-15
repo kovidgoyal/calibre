@@ -171,17 +171,20 @@ class LocationModel(QAbstractListModel):
         QAbstractListModel.__init__(self, parent)
         self.icons = [QVariant(QIcon(':/library')),
                       QVariant(QIcon(':/images/reader.svg')),
+                      QVariant(QIcon(':/images/sd.svg')),
                       QVariant(QIcon(':/images/sd.svg'))]
         self.text = [_('Library\n%d\nbooks'),
                      _('Reader\n%s\navailable'),
-                     _('Card\n%s\navailable')]
-        self.free = [-1, -1]
+                     _('Card A\n%s\navailable'),
+                     _('Card B\n%s\navailable')]
+        self.free = [-1, -1, -1]
         self.count = 0
         self.highlight_row = 0
         self.tooltips = [
                          _('Click to see the list of books available on your computer'),
                          _('Click to see the list of books in the main memory of your reader'),
-                         _('Click to see the list of books on the storage card in your reader')
+                         _('Click to see the list of books on storage card A in your reader'),
+                         _('Click to see the list of books on storage card B in your reader')
                          ]
 
     def rowCount(self, parent):
@@ -218,9 +221,14 @@ class LocationModel(QAbstractListModel):
 
     def update_devices(self, cp=None, fs=[-1, -1, -1]):
         self.free[0] = fs[0]
-        self.free[1] = max(fs[1:])
-        if cp == None:
+        self.free[1] = fs[1]
+        self.free[2] = fs[2]
+        if cp != None:
+            self.free[1] = fs[1] if fs[1] else -1
+            self.free[2] = fs[2] if fs[2] else -1
+        else:
             self.free[1] = -1
+            self.free[2] = -1
         self.reset()
 
     def location_changed(self, row):
@@ -244,12 +252,12 @@ class LocationView(QListView):
     def current_changed(self, current, previous):
         if current.isValid():
             i = current.row()
-            location = 'library' if i == 0 else 'main' if i == 1 else 'card'
+            location = 'library' if i == 0 else 'main' if i == 1 else 'carda' if i == 2 else 'cardb'
             self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
             self.model().location_changed(i)
 
     def location_changed(self, row):
-        if 0 <= row and row <= 2:
+        if 0 <= row and row <= 3:
             self.model().location_changed(row)
 
 class JobsView(TableView):

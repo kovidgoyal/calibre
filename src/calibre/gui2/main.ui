@@ -288,7 +288,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex" >
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="library" >
        <layout class="QVBoxLayout" name="verticalLayout_2" >
@@ -417,10 +417,48 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page" >
+      <widget class="QWidget" name="card_a_memory" >
        <layout class="QGridLayout" >
         <item row="0" column="0" >
-         <widget class="DeviceBooksView" name="card_view" >
+         <widget class="DeviceBooksView" name="card_a_view" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+            <horstretch>10</horstretch>
+            <verstretch>10</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="acceptDrops" >
+           <bool>true</bool>
+          </property>
+          <property name="dragEnabled" >
+           <bool>true</bool>
+          </property>
+          <property name="dragDropOverwriteMode" >
+           <bool>false</bool>
+          </property>
+          <property name="dragDropMode" >
+           <enum>QAbstractItemView::DragDrop</enum>
+          </property>
+          <property name="alternatingRowColors" >
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior" >
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="showGrid" >
+           <bool>false</bool>
+          </property>
+          <property name="wordWrap" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="card_b_memory" >
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <widget class="DeviceBooksView" name="card_b_view" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
             <horstretch>10</horstretch>
