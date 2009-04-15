@@ -571,9 +571,6 @@ Condition 08195201-0797-932C-4B51-E5EF9D1D41BD -active Yes -parent 710F2507-2557
 Condition 2E18F4AE-F1BB-5C62-2900-73A576A49261 -active Yes -parent 710F2507-2557-652D-EA55-440D710EFDFA -title {String Is Condition} -component StringIsCondition -TreeObject::id 2E18F4AE-F1BB-5C62-2900-73A576A49261
 InstallComponent 21B897C4-24BE-70D1-58EA-DE78EFA60719 -setup Install -type action -conditions 76FA3CA2-1F09-75C5-C6CF-72719A8EC4A5 -title {Message Box} -component MessageBox -command insert -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
 Condition 76FA3CA2-1F09-75C5-C6CF-72719A8EC4A5 -active Yes -parent 21B897C4-24BE-70D1-58EA-DE78EFA60719 -title {String Is Condition} -component StringIsCondition -TreeObject::id 76FA3CA2-1F09-75C5-C6CF-72719A8EC4A5
-InstallComponent 5D20DD8D-064A-9922-29E1-A7FABEF3666A -setup Install -type action -conditions {E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C A8856922-E6C1-160B-E55C-5C1806A89136} -title {Launch Application Checkbutton} -component AddWidget -command insert -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
-Condition E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C -active Yes -parent 5D20DD8D-064A-9922-29E1-A7FABEF3666A -title {File Exists Condition} -component FileExistsCondition -TreeObject::id E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C
-Condition A8856922-E6C1-160B-E55C-5C1806A89136 -active Yes -parent 5D20DD8D-064A-9922-29E1-A7FABEF3666A -title {String Is Condition} -component StringIsCondition -TreeObject::id A8856922-E6C1-160B-E55C-5C1806A89136
 InstallComponent 940F7FED-7D20-7264-3BF9-ED78205A76B3 -setup Install -type action -conditions {96440B8B-C6D0-FCCA-6D3C-7ECE1C304CC0 FBA33088-C809-DD6B-D337-EADBF1CEE966} -title {Desktop Shortcut Checkbutton} -component AddWidget -command insert -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
 Condition 96440B8B-C6D0-FCCA-6D3C-7ECE1C304CC0 -active Yes -parent 940F7FED-7D20-7264-3BF9-ED78205A76B3 -title {File Exists Condition} -component FileExistsCondition -TreeObject::id 96440B8B-C6D0-FCCA-6D3C-7ECE1C304CC0
 Condition FBA33088-C809-DD6B-D337-EADBF1CEE966 -active Yes -parent 940F7FED-7D20-7264-3BF9-ED78205A76B3 -title {String Is Condition} -component StringIsCondition -TreeObject::id FBA33088-C809-DD6B-D337-EADBF1CEE966
@@ -630,7 +627,7 @@ Condition 03FA7EEF-F626-B69A-09C6-0AA7A54EE9E7 -active Yes -parent E32519F3-A540
 InstallComponent D86BBA5C-4903-33BA-59F8-4266A3D45896 -setup Install -type action -conditions {C4C0A903-CF2A-D25A-27AB-A64219FB7E70 5EC7056B-6F90-311E-2C6F-76E96164CFFD} -title {Install Quick Launch Shortcut} -component InstallWindowsShortcut -command insert -active Yes -parent 28BAE662-E103-4E3F-D298-C8FBA36361FC
 Condition C4C0A903-CF2A-D25A-27AB-A64219FB7E70 -active Yes -parent D86BBA5C-4903-33BA-59F8-4266A3D45896 -title {String Is Condition} -component StringIsCondition -TreeObject::id C4C0A903-CF2A-D25A-27AB-A64219FB7E70
 Condition 5EC7056B-6F90-311E-2C6F-76E96164CFFD -active Yes -parent D86BBA5C-4903-33BA-59F8-4266A3D45896 -title {File Exists Condition} -component FileExistsCondition -TreeObject::id 5EC7056B-6F90-311E-2C6F-76E96164CFFD
-InstallComponent 2A230259-3A6F-8669-8B8B-23C3E7C1BFC2 -setup Install -type action -conditions {4E5FC4FE-5D37-B216-CFFE-E046A2D6321E E560F3A1-208D-2B4F-2C87-E08595F8E1CD 9C1E4BD9-066D-ABCE-28D0-9E194B9F8475} -title {Launch Application} -component ExecuteExternalProgram -command insert -active Yes -parent 28BAE662-E103-4E3F-D298-C8FBA36361FC
+InstallComponent 2A230259-3A6F-8669-8B8B-23C3E7C1BFC2 -setup Install -type action -conditions {4E5FC4FE-5D37-B216-CFFE-E046A2D6321E E560F3A1-208D-2B4F-2C87-E08595F8E1CD 9C1E4BD9-066D-ABCE-28D0-9E194B9F8475} -title {Launch Application} -component ExecuteExternalProgram -command insert -active No -parent 28BAE662-E103-4E3F-D298-C8FBA36361FC
 Condition 4E5FC4FE-5D37-B216-CFFE-E046A2D6321E -active Yes -parent 2A230259-3A6F-8669-8B8B-23C3E7C1BFC2 -title {String Is Condition} -component StringIsCondition -TreeObject::id 4E5FC4FE-5D37-B216-CFFE-E046A2D6321E
 Condition E560F3A1-208D-2B4F-2C87-E08595F8E1CD -active Yes -parent 2A230259-3A6F-8669-8B8B-23C3E7C1BFC2 -title {String Is Condition} -component StringIsCondition -TreeObject::id E560F3A1-208D-2B4F-2C87-E08595F8E1CD
 Condition 9C1E4BD9-066D-ABCE-28D0-9E194B9F8475 -active Yes -parent 2A230259-3A6F-8669-8B8B-23C3E7C1BFC2 -title {File Exists Condition} -component FileExistsCondition -TreeObject::id 9C1E4BD9-066D-ABCE-28D0-9E194B9F8475
@@ -801,6 +798,9 @@ CreateQuickLaunchShortcut
 
 28FDA3F4-B799-901F-8A27-AA04F0C022AB,Title,subst
 1
+
+2A230259-3A6F-8669-8B8B-23C3E7C1BFC2,Active
+No
 
 2A230259-3A6F-8669-8B8B-23C3E7C1BFC2,Conditions
 {3 conditions}
@@ -975,27 +975,6 @@ disabled
 
 5C66451D-6042-DBDE-0D8C-31156EE244AD,Widget
 {Back Button;Next Button}
-
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,Background
-white
-
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,Conditions
-{2 conditions}
-
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,Text,subst
-1
-
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,Type
-checkbutton
-
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,VirtualText
-LaunchApplication
-
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,X
-185
-
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,Y
-130
 
 5EC7056B-6F90-311E-2C6F-76E96164CFFD,CheckCondition
 {Before Action is Executed}
@@ -1408,15 +1387,6 @@ disabled
 A75C97CC-01AC-C12A-D663-A54E3257F11B,Widget
 {Back Button;Next Button}
 
-A8856922-E6C1-160B-E55C-5C1806A89136,CheckCondition
-{Before Action is Executed}
-
-A8856922-E6C1-160B-E55C-5C1806A89136,Operator
-false
-
-A8856922-E6C1-160B-E55C-5C1806A89136,String
-<%InstallStopped%>
-
 AAEC34E6-7F02-18F2-30BB-744738192A3B,Conditions
 {2 conditions}
 
@@ -1729,12 +1699,6 @@ disabled
 
 E5CBB018-A89D-3145-CFF5-CFC3B62BEA97,Widget
 {NextButton; CancelButton}
-
-E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C,CheckCondition
-{Before Action is Executed}
-
-E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C,Filename
-<%ProgramExecutable%>
 
 E611105F-DC85-9E20-4F7B-E63C54E5DF06,Message,subst
 1
@@ -2340,9 +2304,6 @@ Please make sure that calibre is not running, as this will cause the install to 
 48E8A9D6-B57E-C506-680D-898C65DD2A1B,Title
 <%InstallApplicationText%>
 
-5D20DD8D-064A-9922-29E1-A7FABEF3666A,Text
-<%LaunchApplicationText%>
-
 64B8D0F3-4B11-DA22-D6E7-7248872D5FA7,Message
 <%UninstallStartupText%>
 
@@ -2356,7 +2317,7 @@ Please make sure that calibre is not running, as this will cause the install to 
 {<%AppName%> Installation complete}
 
 8A7FD0C2-F053-8764-F204-4BAE71E05708,Message
-{Installation of <%AppName%> was successful. Click Finish to quit the installer.}
+{Installation of <%AppName%> was successful. Click Finish to quit the installer. <%AppName%> can be launched from the start menu.}
 
 940F7FED-7D20-7264-3BF9-ED78205A76B3,Text
 <%CreateDesktopShortcutText%>

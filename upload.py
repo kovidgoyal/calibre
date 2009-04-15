@@ -530,6 +530,7 @@ class build_windows(VMInstaller):
         self.run_windows_install_jammer(installer)
         return os.path.basename(installer)
 
+    @classmethod
     def run_windows_install_jammer(self, installer):
         ibp = os.path.abspath('installer/windows')
         sys.path.insert(0, ibp)

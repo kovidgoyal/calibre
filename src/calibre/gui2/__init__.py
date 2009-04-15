@@ -69,6 +69,8 @@ def _config():
                 'clicked'))
     c.add_opt('show_donate_button', default=True,
             help='Show donation button')
+    c.add_opt('asked_library_thing_password', default=False,
+            help='Asked library thing password at least once.')
     return ConfigProxy(c)
 
 config = _config()
