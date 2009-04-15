@@ -25,24 +25,47 @@ from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
 from calibre.customize.ui import run_plugins_on_import
+from calibre.gui2 import config as gui_conf
 
 class CoverFetcher(QThread):
 
-    def __init__(self, username, password, isbn, timeout):
+    def __init__(self, username, password, isbn, timeout, title, author):
         self.username = username
         self.password = password
         self.timeout = timeout
         self.isbn = isbn
+        self.title = title
+        self.needs_isbn = False
+        self.author = author
         QThread.__init__(self)
         self.exception = self.traceback = self.cover_data = None
 
     def run(self):
         try:
+            if not self.isbn:
+                from calibre.ebooks.metadata.fetch import search
+                if not self.title:
+                    self.needs_isbn = True
+                    return
+                au = self.author if self.author else None
+                key = prefs['isbndb_com_key']
+                if not key:
+                    key = None
+                results = search(title=self.title, author=au,
+                        isbndb_key=key)[0]
+                results = sorted([x.isbn for x in results if x.isbn],
+                        cmp=lambda x,y:cmp(len(x),len(y)), reverse=True)
+                if not results:
+                    self.needs_isbn = True
+                    return
+                self.isbn = results[0]
+
             login(self.username, self.password, force=False)
             self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout)[0]
         except Exception, e:
             self.exception = e
             self.traceback = traceback.format_exc()
+            print self.traceback
 
 
 
@@ -63,6 +86,8 @@ class AuthorCompleter(QCompleter):
         QCompleter.__init__(self, [x[1] for x in all_authors])
 
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
+
+    COVER_FETCH_TIMEOUT = 240 # seconds
 
     def do_reset_cover(self, *args):
         pix = QPixmap(':/images/book.svg')
@@ -345,36 +370,39 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def lt_password_dialog(self):
         return PasswordDialog(self, 'LibraryThing account',
-                 _('<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you do not have one, you can <a href=\'http://www.librarything.com\'>register</a> for free!.</p>'))
+                 _('<p>Enter your username and password for '
+                   '<b>LibraryThing.com</b>. This is <b>optional</b>. It will '
+                   'make fetching of covers faster and more reliable.<br/>If '
+                   'you do not have an account, you can '
+                   '<a href=\'http://www.librarything.com\'>register</a> for '
+                   'free.</p>'))
 
     def change_password(self):
         d = self.lt_password_dialog()
         d.exec_()
 
     def fetch_cover(self):
-        isbn   = qstring_to_unicode(self.isbn.text())
-        if isbn:
-            d = self.lt_password_dialog()
-            if not d.username() or not d.password():
-                d.exec_()
-                if d.result() != PasswordDialog.Accepted:
-                    return
-            self.fetch_cover_button.setEnabled(False)
-            self.setCursor(Qt.WaitCursor)
-            self.cover_fetcher = CoverFetcher(d.username(), d.password(), isbn,
-                                              self.timeout)
-            self.cover_fetcher.start()
-            self._hangcheck = QTimer(self)
-            self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
-            self.cf_start_time = time.time()
-            self.pi.start(_('Downloading cover...'))
-            self._hangcheck.start(100)
-        else:
-            error_dialog(self, _('Cannot fetch cover'),
-            _('You must specify the ISBN identifier for this book.')).exec_()
+        isbn   = unicode(self.isbn.text()).strip()
+        d = self.lt_password_dialog()
+        if not gui_conf['asked_library_thing_password'] and \
+                (not d.username() or not d.password()):
+            d.exec_()
+            gui_conf['asked_library_thing_password'] = True
+        self.fetch_cover_button.setEnabled(False)
+        self.setCursor(Qt.WaitCursor)
+        title, author = map(unicode, (self.title.text(), self.authors.text()))
+        self.cover_fetcher = CoverFetcher(d.username(), d.password(), isbn,
+                                            self.timeout, title, author)
+        self.cover_fetcher.start()
+        self._hangcheck = QTimer(self)
+        self.connect(self._hangcheck, SIGNAL('timeout()'), self.hangcheck)
+        self.cf_start_time = time.time()
+        self.pi.start(_('Downloading cover...'))
+        self._hangcheck.start(100)
 
     def hangcheck(self):
-        if not (self.cover_fetcher.isFinished() or time.time()-self.cf_start_time > 150):
+        if not self.cover_fetcher.isFinished() and \
+            time.time()-self.cf_start_time < self.COVER_FETCH_TIMEOUT:
             return
 
         self._hangcheck.stop()
@@ -384,6 +412,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 error_dialog(self, _('Cannot fetch cover'),
                     _('<b>Could not fetch cover.</b><br/>')+
                     _('The download timed out.')).exec_()
+                return
+            if self.cover_fetcher.needs_isbn:
+                error_dialog(self, _('Cannot fetch cover'),
+                    _('Could not find cover for this book. Try '
+                      'specifying the ISBN first.')).exec_()
                 return
             if self.cover_fetcher.exception is not None:
                 err = self.cover_fetcher.exception
