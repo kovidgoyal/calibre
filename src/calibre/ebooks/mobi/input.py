@@ -29,5 +29,5 @@ class MOBIInput(InputFormatPlugin):
             with open(f, 'wb') as q:
                 q.write(html.tostring(root, encoding='utf-8', method='xml',
                     include_meta_content_type=False))
-            accelerators['pagebreaks'] = {f: '//*[@class="mbp_pagebreak"]'}
+                accelerators['pagebreaks'] = '//h:div[@class="mbp_pagebreak"]'
         return mr.created_opf_path
