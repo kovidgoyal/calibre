@@ -14,15 +14,15 @@ class Sueddeutsche(BasicNewsRecipe):
     description = 'News about Linux driven Hardware'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
-    timefmt = ' [%a, %d %b %Y]'
-    language = _('English')
+    timefmt = ' [%a %d %b %Y]'
     max_articles_per_feed = 50
     no_stylesheets = True
+    html2epub_options = 'linearize_tables = True\nbase_font_size2=14'
     encoding = 'latin1'
+
 
     remove_tags_after = [dict(id='nointelliTXT')]
     filter_regexps = [r'ad\.doubleclick\.net']
-
 
     remove_tags = [dict(name='div', attrs={'class':'bannerSuperBanner'}),
                    dict(name='div', attrs={'class':'bannerSky'}),
@@ -38,7 +38,6 @@ class Sueddeutsche(BasicNewsRecipe):
                    dict(name='table', attrs={'class':'artikelBox'}),
                    dict(name='table', attrs={'class':'kommentare'}),
                    dict(name='table', attrs={'class':'pageBoxBot'}),
-                   #dict(name='table', attrs={'with':'100%'}),
                    dict(name='td', attrs={'nowrap':'nowrap'}),
                    dict(name='td', attrs={'valign':'middle'}),
                    dict(name='td', attrs={'align':'left'}),
@@ -56,7 +55,6 @@ class Sueddeutsche(BasicNewsRecipe):
                    dict(name='a', attrs={'href':'/cgi-bin/board/UltraBoard.pl'}),
                    dict(name='iframe'),
                    dict(name='form'),
-                   #dict(name='tr', attrs={'td':'Click here to learn'}),
                    dict(name='span', attrs={'class':'hidePrint'}),
                    dict(id='headerLBox'),
                    dict(id='nointelliTXT'),
