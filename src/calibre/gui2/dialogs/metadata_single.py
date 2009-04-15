@@ -30,8 +30,8 @@ from calibre.gui2 import config as gui_conf
 class CoverFetcher(QThread):
 
     def __init__(self, username, password, isbn, timeout, title, author):
-        self.username = username
-        self.password = password
+        self.username = username.strip() if username else username
+        self.password = password.strip() if password else password
         self.timeout = timeout
         self.isbn = isbn
         self.title = title
@@ -60,7 +60,8 @@ class CoverFetcher(QThread):
                     return
                 self.isbn = results[0]
 
-            login(self.username, self.password, force=False)
+            if self.username and self.password:
+                login(self.username, self.password, force=False)
             self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout)[0]
         except Exception, e:
             self.exception = e

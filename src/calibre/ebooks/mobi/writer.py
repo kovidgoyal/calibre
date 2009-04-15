@@ -218,7 +218,7 @@ class Serializer(object):
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
         #buffer.write('</mbp:section>')
-        buffer.write('</mbp:pagebreak>')
+        buffer.write('<mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer
