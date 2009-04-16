@@ -11,6 +11,7 @@ from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
                      Qt
 
 from calibre.devices import devices
+from calibre.constants import iswindows
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.parallel import Job
 from calibre.devices.scanner import DeviceScanner
@@ -69,7 +70,14 @@ class DeviceManager(Thread):
             if connected and not device[1]:
                 try:
                     dev = device[0]()
-                    dev.open()
+                    if iswindows:
+                        import pythoncom
+                        pythoncom.CoInitialize()
+                    try:
+                        dev.open()
+                    finally:
+                        if iswindows:
+                            pythoncom.CoUninitialize()
                     self.device       = dev
                     self.device_class = dev.__class__
                     self.connected_slot(True)

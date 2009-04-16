@@ -150,7 +150,7 @@ class PRS505(Device):
         time.sleep(6)
         drives = []
         wmi = __import__('wmi', globals(), locals(), [], -1)
-        c = wmi.WMI()
+        c = wmi.WMI(find_classes=False)
         for drive in c.Win32_DiskDrive():
             if self.__class__.is_device(str(drive.PNPDeviceID)):
                 if drive.Partitions == 0:
