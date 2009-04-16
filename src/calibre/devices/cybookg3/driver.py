@@ -7,7 +7,6 @@ Device driver for Bookeen's Cybook Gen 3
 import os, shutil
 from itertools import cycle
 
-from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
@@ -92,8 +91,8 @@ class CYBOOKG3(USBMS):
                             break
 
                 if newpath == path:
-                    newpath = os.path.join(newpath, authors_to_string(mdata.get('authors', '')))
-                    newpath = os.path.join(newpath, mdata.get('title', ''))
+                    newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
+                    newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
