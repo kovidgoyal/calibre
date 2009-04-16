@@ -127,6 +127,12 @@ class BasicNewsRecipe(object, LoggingInterface):
     #:
     extra_css              = None
 
+    #: If True empty feeds are removed from the output.
+    #: This option has no effect if parse_index is overriden in
+    #: the sub class. It is meant only for recipes that return a list
+    #: of feeds using :member:`feeds` or :method:`get_feeds`.
+    remove_empty_feeds = False
+
     #: List of regular expressions that determines which links to follow
     #: If empty, it is ignored. For example::
     #:
@@ -993,6 +999,11 @@ class BasicNewsRecipe(object, LoggingInterface):
                 parsed_feeds.append(feed)
                 self.log_exception(msg)
 
+
+        remove = [f for f in parsed_feeds if len(f) == 0 and
+                self.remove_empty_feeds]
+        for f in remove:
+            parsed_feeds.remove(f)
 
         return parsed_feeds
 
