@@ -11,20 +11,23 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Vreme(BasicNewsRecipe):    
-    title          = 'Vreme'
-    __author__     = 'Darko Miletic'
-    description    = 'Politicki Nedeljnik Srbije'
-    publisher      = 'Vreme d.o.o.'
-    category       = 'news, politics, Serbia'    
-    no_stylesheets = True
-    remove_javascript  = True
-    needs_subscription = True    
-    INDEX = 'http://www.vreme.com'
-    LOGIN = 'http://www.vreme.com/account/index.php'
-    remove_javascript     = True
-    use_embedded_content  = False
-    language              = _('Serbian')
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: serif1, serif}' 
+    title                = 'Vreme'
+    __author__           = 'Darko Miletic'
+    description          = 'Politicki Nedeljnik Srbije'
+    publisher            = 'NP Vreme d.o.o.'
+    category             = 'news, politics, Serbia'
+    delay                = 1
+    no_stylesheets       = True
+    needs_subscription   = True    
+    INDEX                = 'http://www.vreme.com'
+    LOGIN                = 'http://www.vreme.com/account/login.php?url=%2F'
+    remove_javascript    = True
+    use_embedded_content = False
+    encoding             = 'utf-8'
+    language             = _('Serbian')
+    lang                 = 'sr-Latn-RS'
+    direction            = 'ltr'    
+    extra_css            = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: serif1, serif}' 
     
     html2lrf_options = [
                           '--comment'  , description
@@ -52,20 +55,11 @@ class Vreme(BasicNewsRecipe):
         articles = []
         soup = self.index_to_soup(self.INDEX)
         
-        for item in soup.findAll('span', attrs={'class':'toc2'}):
+        for item in soup.findAll(['h3','h4']):
             description = ''
             title_prefix = ''
-
-            descript_title_tag = item.findPreviousSibling('span', attrs={'class':'toc1'})
-            if descript_title_tag:
-               title_prefix = self.tag_to_string(descript_title_tag) + ' '
-
-            descript_tag = item.findNextSibling('span', attrs={'class':'toc3'})
-            if descript_tag:
-               description = self.tag_to_string(descript_tag)
-               
             feed_link = item.find('a')
-            if feed_link and feed_link.has_key('href'):
+            if feed_link and feed_link.has_key('href') and feed_link['href'].startswith('/cms/view.php'):
                 url   = self.INDEX + feed_link['href']
                 title = title_prefix + self.tag_to_string(feed_link)
                 date  = strftime(self.timefmt)                
@@ -93,14 +87,17 @@ class Vreme(BasicNewsRecipe):
             del item['face']
         for item in soup.findAll(size=True):
             del item['size']
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
-        soup.head.insert(0,mtag)
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction
+        mtag = '<meta http-equiv="Content-Language" content="' + self.lang + '"/>'
+        mtag += '\n<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '"/>'
+        soup.head.insert(0,mtag)    
         return soup
                 
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
-        cover_item = soup.find('img',attrs={'alt':'Naslovna strana broja'})
+        cover_item = soup.find('div',attrs={'id':'najava'})
         if cover_item:
-           cover_url = self.INDEX + cover_item['src']
+           cover_url = self.INDEX + cover_item.img['src']
         return cover_url
