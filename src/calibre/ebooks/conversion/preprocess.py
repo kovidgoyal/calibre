@@ -73,7 +73,7 @@ class HTMLPreProcessor(object):
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   
                   # Un wrap lines
-                  (re.compile(r'(?<=\w)\s*</i>\s*<p.*?>\s*<i>\s*(?=\w)'), lambda match: ' '),
+                  (re.compile(r'(?<=\w)\s*</(i|b|u)>\s*<p.*?>\s*<(i|b|u)>\s*(?=\w)'), lambda match: ' '),
                   (re.compile(r'(?<=\w)\s*<p.*?>\s*(?=\w)', re.UNICODE), lambda match: ' '),
                   # Clean up spaces
                   (re.compile(u'(?<=\.|,|:|;|\?|!|”|"|\')[\s^ ]*(?=<)'), lambda match: ' '),
