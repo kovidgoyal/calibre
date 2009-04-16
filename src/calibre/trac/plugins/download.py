@@ -68,7 +68,8 @@ else:
 
 
     DOWNLOAD_DIR = '/var/www/calibre.kovidgoyal.net/htdocs/downloads'
-    MOBILEREAD = 'https://dev.mobileread.com/dist/kovid/calibre/'
+    #MOBILEREAD = 'https://dev.mobileread.com/dist/kovid/calibre/'
+    MOBILEREAD = 'http://calibre.kovidgoyal.net/downloads/'
 
     class OS(dict):
         """Dictionary with a default value for unknown keys."""
@@ -196,7 +197,9 @@ else:
     LINUX_INSTALLER = textwrap.dedent(r'''
     import sys, os, shutil, tarfile, subprocess, tempfile, urllib2, re, stat
 
-    MOBILEREAD='https://dev.mobileread.com/dist/kovid/calibre/'
+    #MOBILEREAD='https://dev.mobileread.com/dist/kovid/calibre/'
+    MOBILEREAD='http://calibre.kovidgoyal.net/downloads/'
+
 
     class TerminalController:
         BOL = ''             #: Move the cursor to the beginning of the line
