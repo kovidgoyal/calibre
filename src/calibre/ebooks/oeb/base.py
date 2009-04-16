@@ -272,11 +272,26 @@ def XPath(expr):
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
-def xml2str(root, pretty_print=False):
-    return etree.tostring(root, encoding='utf-8', xml_declaration=True,
+def _prepare_xml_for_serialization(root):
+    root.set('xmlns', XHTML_NS)
+    root.set('{%s}xlink'%XHTML_NS, XLINK_NS)
+    for x in root.iter():
+        if hasattr(x.tag, 'rpartition') and x.tag.rpartition('}')[-1].lower() == 'svg':
+            x.set('xmlns', SVG_NS)
+
+def xml2str(root, pretty_print=False, strip_comments=False):
+    _prepare_xml_for_serialization(root)
+    ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
                           pretty_print=pretty_print)
 
+    if strip_comments:
+        ans = re.compile(r'<!--.*?-->', re.DOTALL).sub('', ans)
+
+    return ans
+
+
 def xml2unicode(root, pretty_print=False):
+    _prepare_xml_for_serialization(root)
     return etree.tostring(root, pretty_print=pretty_print)
 
 ASCII_CHARS   = set(chr(x) for x in xrange(128))
@@ -826,6 +841,11 @@ class Manifest(object):
                 return xml2str(data, pretty_print=self.oeb.pretty_print)
             if isinstance(data, unicode):
                 return data.encode('utf-8')
+            if hasattr(data, 'cssText'):
+                data = data.cssText
+                if isinstance(data, unicode):
+                    data = data.encode('utf-8')
+                return data
             return str(data)
 
         def __unicode__(self):
@@ -834,6 +854,8 @@ class Manifest(object):
                 return xml2unicode(data, pretty_print=self.oeb.pretty_print)
             if isinstance(data, unicode):
                 return data
+            if hasattr(data, 'cssText'):
+                return data.cssText
             return unicode(data)
 
         def __eq__(self, other):
@@ -1043,6 +1065,12 @@ class Spine(object):
         for i in xrange(index, len(self.items)):
             self.items[i].spine_position = i
         item.spine_position = None
+
+    def index(self, item):
+        for i, x in enumerate(self):
+            if item == x:
+                return i
+        return -1
 
     def __iter__(self):
         for item in self.items:

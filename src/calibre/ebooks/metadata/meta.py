@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, collections
 
 from calibre.utils.config import prefs
- 
+
 from calibre.ebooks.metadata.opf2 import OPF
 
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
@@ -37,18 +37,18 @@ def metadata_from_formats(formats):
         mi2 = opf_metadata(opf)
         if mi2 is not None and mi2.title:
             return mi2
-    
+
     for path, ext in zip(formats, extensions):
         with open(path, 'rb') as stream:
             try:
-                newmi = get_metadata(stream, stream_type=ext, 
+                newmi = get_metadata(stream, stream_type=ext,
                                      use_libprs_metadata=True)
                 mi.smart_update(newmi)
             except:
                 continue
             if getattr(mi, 'application_id', None) is not None:
                 return mi
-    
+
     if not mi.title:
         mi.title = _('Unknown')
     if not mi.authors:
@@ -64,20 +64,20 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
         stream_type = 'mobi'
     if stream_type in ('odt', 'ods', 'odp', 'odg', 'odf'):
         stream_type = 'odt'
-        
+
     opf = None
     if hasattr(stream, 'name'):
         c = os.path.splitext(stream.name)[0]+'.opf'
         if os.access(c, os.R_OK):
             opf = opf_metadata(os.path.abspath(c))
-        
+
     if use_libprs_metadata and getattr(opf, 'application_id', None) is not None:
         return opf
-    
+
     mi = MetaInformation(None, None)
     if prefs['read_file_metadata']:
         mi = get_file_type_metadata(stream, stream_type)
-        
+
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name)
     if base.title == os.path.splitext(name)[0] and base.authors is None:
@@ -98,17 +98,17 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     base.smart_update(mi)
     if opf is not None:
         base.smart_update(opf)
-        
+
     return base
 
 def set_metadata(stream, mi, stream_type='lrf'):
     if stream_type:
         stream_type = stream_type.lower()
     set_file_type_metadata(stream, mi, stream_type)
-    
-    
+
+
 def metadata_from_filename(name, pat=None):
-    name = os.path.splitext(name)[0]
+    name = name.rpartition('.')[0]
     mi = MetaInformation(None, None)
     if pat is None:
         pat = re.compile(prefs.get('filename_pattern'))
@@ -161,7 +161,7 @@ def opf_metadata(opfpath):
             mi = MetaInformation(opf)
             if hasattr(opf, 'cover') and opf.cover:
                 cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
-                if os.access(cpath, os.R_OK):                     
+                if os.access(cpath, os.R_OK):
                     fmt = cpath.rpartition('.')[-1]
                     data = open(cpath, 'rb').read()
                     mi.cover_data = (fmt, data)

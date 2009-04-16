@@ -160,35 +160,31 @@ class BookHeader(object):
 class MetadataHeader(BookHeader):
     def __init__(self, stream, log):
         self.stream = stream
-        
         self.ident = self.identity()
         self.num_sections = self.section_count()
-        
         if self.num_sections >= 2:
             header = self.header()
             BookHeader.__init__(self, header, self.ident, None, log)
         else:
             self.exth = None
-            
+
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8).upper()
-        
         if ident not in ['BOOKMOBI', 'TEXTREAD']:
             raise MobiError('Unknown book type: %s' % ident)
         return ident
-            
+
     def section_count(self):
         self.stream.seek(76)
         return struct.unpack('>H', self.stream.read(2))[0]
-            
+
     def section_offset(self, number):
         self.stream.seek(78+number*8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
-        
+
     def header(self):
         section_headers = []
-            
         # First section with the metadata
         section_headers.append(self.section_offset(0))
         # Second section used to get the lengh of the first
@@ -196,20 +192,16 @@ class MetadataHeader(BookHeader):
 
         end_off = section_headers[1]
         off = section_headers[0]
-    
         self.stream.seek(off)
         return self.stream.read(end_off - off)
 
     def section_data(self, number):
         start = self.section_offset(number)
-        
         if number == self.num_sections -1:
             end = os.stat(self.stream.name).st_size
         else:
             end = self.section_offset(number + 1)
-            
         self.stream.seek(start)
-        
         return self.stream.read(end - start)
 
 
@@ -651,7 +643,7 @@ class MobiReader(object):
 def get_metadata(stream):
     from calibre.utils.logging import Log
     log = Log()
-    
+
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
     try:
         mh = MetadataHeader(stream, log)
@@ -666,7 +658,6 @@ def get_metadata(stream):
                 mr.extract_content(tdir, parse_cache)
                 if mr.embedded_mi is not None:
                     mi = mr.embedded_mi
-            
         if hasattr(mh.exth, 'cover_offset'):
             cover_index = mh.first_image_index + mh.exth.cover_offset
             data  = mh.section_data(int(cover_index))
@@ -679,5 +670,4 @@ def get_metadata(stream):
         mi.cover_data = ('jpg', obuf.getvalue())
     except:
         log.exception()
-    
     return mi

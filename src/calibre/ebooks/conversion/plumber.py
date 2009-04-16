@@ -94,7 +94,8 @@ OptionRecommendation(name='font_size_mapping',
 OptionRecommendation(name='line_height',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('The line height in pts. Controls spacing between consecutive '
-                   'lines of text. By default ??'
+                   'lines of text. By default no line height manipulation is '
+                   'performed.'
                    )
         ),
 
@@ -102,11 +103,24 @@ OptionRecommendation(name='linearize_tables',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Some badly designed documents use tables to control the '
                 'layout of text on the page. When converted these documents '
-                'often have text that runs of the page and other artifacts. '
+                'often have text that runs off the page and other artifacts. '
                 'This option will extract the content from the tables and '
                 'present it in a linear fashion.'
                 )
         ),
+
+OptionRecommendation(name='dont_split_on_page_breaks',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Turn off splitting at page breaks. Normally, input '
+                    'files are automatically split at every page break into '
+                    'two files. This gives an output ebook that can be '
+                    'parsed faster and with less resources. However, '
+                    'splitting is slow and if your source file contains a '
+                    'very large number of page breaks, you should turn off '
+                    'splitting on page breaks.'
+                )
+        ),
+
 
 OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
@@ -329,6 +343,17 @@ OptionRecommendation(name='language',
                 lineh=self.opts.line_height,
                 untable=self.opts.linearize_tables)
         flattener(self.oeb, self.opts)
+
+        if self.opts.linearize_tables:
+            from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
+            LinearizeTables()(self.oeb, self.opts)
+
+        from calibre.ebooks.oeb.transforms.split import Split
+        pbx = accelerators.get('pagebreaks', None)
+        split = Split(not self.opts.dont_split_on_page_breaks,
+                max_flow_size=self.opts.output_profile.flow_size,
+                page_breaks_xpath=pbx)
+        split(self.oeb, self.opts)
 
         from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
 

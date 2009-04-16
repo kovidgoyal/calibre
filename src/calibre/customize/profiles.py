@@ -143,7 +143,7 @@ class OutputProfile(Plugin):
 
     # ADE dies an agonizing, long drawn out death if HTML files have more
     # bytes than this.
-    flow_size                 = sys.maxint
+    flow_size                 = -1
     # ADE runs screaming when it sees these characters
     remove_special_chars      = re.compile(u'[\u200b\u00ad]')
     # ADE falls to the ground in a dead faint when it sees an <object>

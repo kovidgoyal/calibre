@@ -25,7 +25,7 @@ def get_metadata(stream):
         for item in litfile.manifest.values():
             if item.path in candidates:
                 try:
-                    covers.append((litfile.get_file('/data/'+item.internal), 
+                    covers.append((litfile.get_file('/data/'+item.internal),
                                    ctype))
                 except:
                     pass
@@ -33,7 +33,7 @@ def get_metadata(stream):
     covers.sort(cmp=lambda x, y:cmp(len(x[0]), len(y[0])), reverse=True)
     idx = 0
     if len(covers) > 1:
-        if covers[1][1] == covers[1][0]+'-standard':
+        if covers[1][1] == covers[0][1]+'-standard':
             idx = 1
     mi.cover_data = ('jpg', covers[idx][0])
     return mi

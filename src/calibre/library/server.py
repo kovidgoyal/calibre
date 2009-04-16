@@ -30,31 +30,31 @@ build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
 server_resources['jquery.js'] = jquery
 
 def expose(func):
-    
+
     def do(self, *args, **kwargs):
         dict.update(cherrypy.response.headers, {'Server':self.server_name})
         return func(self, *args, **kwargs)
-    
+
     return cherrypy.expose(do)
 
 log_access_file = os.path.join(config_dir, 'server_access_log.txt')
 log_error_file = os.path.join(config_dir, 'server_error_log.txt')
-    
+
 
 class LibraryServer(object):
-    
+
     server_name = __appname__ + '/' + __version__
 
     BOOK = textwrap.dedent('''\
-        <book xmlns:py="http://genshi.edgewall.org/" 
-            id="${r[0]}" 
+        <book xmlns:py="http://genshi.edgewall.org/"
+            id="${r[0]}"
             title="${r[1]}"
             sort="${r[11]}"
             author_sort="${r[12]}"
-            authors="${authors}" 
+            authors="${authors}"
             rating="${r[4]}"
-            timestamp="${r[5].strftime('%Y/%m/%d %H:%M:%S')}" 
-            size="${r[6]}" 
+            timestamp="${r[5].strftime('%Y/%m/%d %H:%M:%S')}"
+            size="${r[6]}"
             isbn="${r[14] if r[14] else ''}"
             formats="${r[13] if r[13] else ''}"
             series = "${r[9] if r[9] else ''}"
@@ -63,7 +63,7 @@ class LibraryServer(object):
             publisher="${r[3] if r[3] else ''}">${r[8] if r[8] else ''}
             </book>
         ''')
-    
+
     LIBRARY = MarkupTemplate(textwrap.dedent('''\
     <?xml version="1.0" encoding="utf-8"?>
     <library xmlns:py="http://genshi.edgewall.org/" start="$start" num="${len(books)}" total="$total" updated="${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}">
@@ -72,7 +72,7 @@ class LibraryServer(object):
     </py:for>
     </library>
     '''))
-    
+
     STANZA_ENTRY=MarkupTemplate(textwrap.dedent('''\
     <entry xmlns:py="http://genshi.edgewall.org/">
         <title>${record[FM['title']]}</title>
@@ -87,7 +87,7 @@ class LibraryServer(object):
         </content>
     </entry>
     '''))
-    
+
     STANZA = MarkupTemplate(textwrap.dedent('''\
     <?xml version="1.0" encoding="utf-8"?>
     <feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
@@ -107,7 +107,7 @@ class LibraryServer(object):
     </feed>
     '''))
 
-    
+
     def __init__(self, db, opts, embedded=False, show_tracebacks=True):
         self.db = db
         for item in self.db:
@@ -116,7 +116,7 @@ class LibraryServer(object):
         self.opts = opts
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
-        
+
         cherrypy.config.update({
                                 'log.screen'             : opts.develop,
                                 'engine.autoreload_on'   : opts.develop,
@@ -141,10 +141,10 @@ class LibraryServer(object):
                       'tools.digest_auth.realm' : (_('Password to access your calibre library. Username is ') + opts.username.strip()).encode('ascii', 'replace'),
                       'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                       }
-            
+
         self.is_running = False
         self.exception = None
-        
+
     def setup_loggers(self):
         access_file = log_access_file
         error_file  = log_error_file
@@ -152,20 +152,20 @@ class LibraryServer(object):
 
         maxBytes = getattr(log, "rot_maxBytes", 10000000)
         backupCount = getattr(log, "rot_backupCount", 1000)
-        
+
         # Make a new RotatingFileHandler for the error log.
         h = RotatingFileHandler(error_file, 'a', maxBytes, backupCount)
         h.setLevel(logging.DEBUG)
         h.setFormatter(cherrypy._cplogging.logfmt)
         log.error_log.addHandler(h)
-        
+
         # Make a new RotatingFileHandler for the access log.
         h = RotatingFileHandler(access_file, 'a', maxBytes, backupCount)
         h.setLevel(logging.DEBUG)
         h.setFormatter(cherrypy._cplogging.logfmt)
         log.access_log.addHandler(h)
 
-    
+
     def start(self):
         self.is_running = False
         self.setup_loggers()
@@ -173,7 +173,7 @@ class LibraryServer(object):
         try:
             cherrypy.engine.start()
             self.is_running = True
-            publish_zeroconf('Books in calibre', '_stanza._tcp', 
+            publish_zeroconf('Books in calibre', '_stanza._tcp',
                              self.opts.port, {'path':'/stanza'})
             cherrypy.engine.block()
         except Exception, e:
@@ -181,10 +181,10 @@ class LibraryServer(object):
         finally:
             self.is_running = False
             stop_zeroconf()
-        
+
     def exit(self):
         cherrypy.engine.exit()
-    
+
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=False)
         if cover is None:
@@ -196,14 +196,14 @@ class LibraryServer(object):
         try:
             if QApplication.instance() is None:
                 QApplication([])
-            
+
             im = QImage()
             im.loadFromData(cover)
             if im.isNull():
                 raise cherrypy.HTTPError(404, 'No valid cover found')
             width, height = im.width(), im.height()
-            scaled, width, height = fit_image(width, height, 
-                60 if thumbnail else self.max_cover_width, 
+            scaled, width, height = fit_image(width, height,
+                60 if thumbnail else self.max_cover_width,
                 80 if thumbnail else self.max_cover_height)
             if not scaled:
                 return cover
@@ -217,7 +217,7 @@ class LibraryServer(object):
             import traceback
             traceback.print_exc()
             raise cherrypy.HTTPError(404, 'Failed to generate cover: %s'%err)
-        
+
     def get_format(self, id, format):
         format = format.upper()
         fmt = self.db.format(id, format, index_is_id=True, as_file=True, mode='rb')
@@ -232,7 +232,7 @@ class LibraryServer(object):
             updated = datetime.utcfromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         return fmt.read()
-    
+
     def sort(self, items, field, order):
         field = field.lower().strip()
         if field == 'author':
@@ -243,10 +243,23 @@ class LibraryServer(object):
             raise cherrypy.HTTPError(400, '%s is not a valid sort field'%field)
         cmpf = cmp if field in ('rating', 'size', 'timestamp') else \
                 lambda x, y: cmp(x.lower() if x else '', y.lower() if y else '')
-        field = FIELD_MAP[field]
-        getter = operator.itemgetter(field)
-        items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)), reverse=not order)
-    
+        if field == 'series':
+            items.sort(cmp=self.seriescmp, reverse=not order)
+        else:
+            field = FIELD_MAP[field]
+            getter = operator.itemgetter(field)
+            items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)), reverse=not order)
+
+    def seriescmp(self, x, y):
+        si = FIELD_MAP['series']
+        try:
+            ans = cmp(x[si].lower(), y[si].lower())
+        except AttributeError: # Some entries may be None
+            ans = cmp(x[si], y[si])
+        if ans != 0: return ans
+        return cmp(x[FIELD_MAP['series_index']], y[FIELD_MAP['series_index']])
+
+
     def last_modified(self, updated):
         lm = updated.strftime('day, %d month %Y %H:%M:%S GMT')
         day ={0:'Sun', 1:'Mon', 2:'Tue', 3:'Wed', 4:'Thu', 5:'Fri', 6:'Sat'}
@@ -254,8 +267,8 @@ class LibraryServer(object):
         month = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul',
                  8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
         return lm.replace('month', month[updated.month])
-        
-        
+
+
     @expose
     def stanza(self):
         ' Feeds to read calibre books on a ipod with stanza.'
@@ -264,7 +277,7 @@ class LibraryServer(object):
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
             if 'EPUB' in r or 'PDB' in r:
-                authors = ' & '.join([i.replace('|', ',') for i in 
+                authors = ' & '.join([i.replace('|', ',') for i in
                                       record[FIELD_MAP['authors']].split(',')])
                 extra = []
                 rating = record[FIELD_MAP['rating']]
@@ -276,7 +289,7 @@ class LibraryServer(object):
                     extra.append('TAGS: %s<br />'%', '.join(tags.split(',')))
                 series = record[FIELD_MAP['series']]
                 if series:
-                    extra.append('SERIES: %s [%d]<br />'%(series, 
+                    extra.append('SERIES: %s [%d]<br />'%(series,
                                             record[FIELD_MAP['series_index']]))
                 fmt = 'epub' if 'EPUB' in r else 'pdb'
                 mimetype = guess_type('dummy.'+fmt)[0]
@@ -288,24 +301,24 @@ class LibraryServer(object):
                                                 mimetype=mimetype,
                                                 fmt=fmt,
                                                 ).render('xml').decode('utf8'))
-        
+
         updated = self.db.last_modified()
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'text/xml'
-        
+
         return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
-    
+
     @expose
-    def library(self, start='0', num='50', sort=None, search=None, 
+    def library(self, start='0', num='50', sort=None, search=None,
                 _=None, order='ascending'):
         '''
         Serves metadata from the calibre database as XML.
-        
+
         :param sort: Sort results by ``sort``. Can be one of `title,author,rating`.
         :param search: Filter results by ``search`` query. See :class:`SearchQueryParser` for query syntax
         :param start,num: Return the slice `[start:start+num]` of the sorted and filtered results
-        :param _: Firefox seems to sometimes send this when using XMLHttpRequest with no caching 
+        :param _: Firefox seems to sometimes send this when using XMLHttpRequest with no caching
         '''
         try:
             start = int(start)
@@ -321,19 +334,19 @@ class LibraryServer(object):
         items = [r for r in iter(self.db) if r[0] in ids]
         if sort is not None:
             self.sort(items, sort, order)
-        
+
         book, books = MarkupTemplate(self.BOOK), []
         for record in items[start:start+num]:
             aus = record[2] if record[2] else _('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
             books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
-        
+
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        return self.LIBRARY.generate(books=books, start=start, updated=updated, 
+        return self.LIBRARY.generate(books=books, start=start, updated=updated,
                                      total=len(ids)).render('xml')
-    
+
     @expose
     def index(self, **kwargs):
         'The / URL'
@@ -341,8 +354,8 @@ class LibraryServer(object):
         if stanza == 919:
             return self.static('index.html')
         return self.stanza()
-        
-    
+
+
     @expose
     def get(self, what, id):
         'Serves files, covers, thumbnails from the calibre database'
@@ -361,7 +374,7 @@ class LibraryServer(object):
         if what == 'cover':
             return self.get_cover(id)
         return self.get_format(id, what)
-    
+
     @expose
     def static(self, name):
         'Serves static content'
@@ -392,11 +405,11 @@ def start_threaded_server(db, opts):
     server.thread.setDaemon(True)
     server.thread.start()
     return server
-    
+
 def stop_threaded_server(server):
     server.exit()
     server.thread = None
-    
+
 def option_parser():
     return config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
 
