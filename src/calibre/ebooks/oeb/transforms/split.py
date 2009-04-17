@@ -12,7 +12,7 @@ assumes a prior call to the flatcss transform.
 import os, math, functools, collections, re, copy
 
 from lxml.etree import XPath as _XPath
-from lxml import etree, html
+from lxml import etree
 from lxml.cssselect import CSSSelector
 
 from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP, urldefrag, \
@@ -96,24 +96,32 @@ class Split(object):
         page_breaks = set([])
         for selector, before in page_break_selectors:
             for elem in selector(item.data):
-                elem.pb_before = before
+                if before:
+                    elem.set('pb_before', '1')
                 page_breaks.add(elem)
 
         for i, elem in enumerate(item.data.iter()):
-            elem.pb_order = i
+            elem.set('pb_order', str(i))
 
         page_breaks = list(page_breaks)
-        page_breaks.sort(cmp=lambda x,y : cmp(x.pb_order, y.pb_order))
+        page_breaks.sort(cmp=
+              lambda x,y : cmp(int(x.get('pb_order')), int(y.get('pb_order'))))
         page_break_ids, page_breaks_ = [], []
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
             id = x.get('id')
-            page_breaks_.append((XPath('//*[@id="%s"]'%id), x.pb_before))
+            page_breaks_.append((XPath('//*[@id="%s"]'%id),
+                x.get('pb_before', False)))
             page_break_ids.append(id)
+
+        for elem in item.data.iter():
+            elem.attrib.pop('pb_order')
+            if elem.get('pb_before', False):
+                elem.attrib.pop('pb_before')
 
         return page_breaks_, page_break_ids
 
-    def fix_links(self, opf):
+    def fix_links(self):
         '''
         Fix references to the split files in other content files.
         '''
@@ -129,13 +137,14 @@ class Split(object):
             anchor_map = self.map[href]
             nhref = anchor_map[frag if frag else None]
             if frag:
-                nhref = '#'.joinn(href, frag)
+                nhref = '#'.join(href, frag)
             return nhref
         return url
 
 
 
 class FlowSplitter(object):
+    'The actual splitting logic'
 
     def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb):
         self.item           = item
@@ -149,10 +158,10 @@ class FlowSplitter(object):
         base, ext = os.path.splitext(self.base)
         self.base = base.replace('%', '%%')+'_split_%d'+ext
 
-        self.trees = [self.item.data]
+        self.trees = [self.item.data.getroottree()]
         self.splitting_on_page_breaks = True
         if self.page_breaks:
-            self.split_on_page_breaks(self.item.data)
+            self.split_on_page_breaks(self.trees[0])
         self.splitting_on_page_breaks = False
 
         if self.max_flow_size > 0:
@@ -192,6 +201,12 @@ class FlowSplitter(object):
         self.trees.append(tree)
         self.trees = [t for t in self.trees if not self.is_page_empty(t.getroot())]
 
+    def get_body(self, root):
+        body = root.xpath('//h:body', namespaces=NAMESPACES)
+        if not body:
+            return None
+        return body[0]
+
     def do_split(self, tree, split_point, before):
         '''
         Split ``tree`` into a *before* and *after* tree at ``split_point``,
@@ -206,7 +221,7 @@ class FlowSplitter(object):
         tree, tree2  = copy.deepcopy(tree), copy.deepcopy(tree)
         root         = tree.getroot()
         root2        = tree2.getroot()
-        body, body2  = root.body, root2.body
+        body, body2  = map(self.get_body, (root, root2))
         split_point  = root.xpath(path)[0]
         split_point2 = root2.xpath(path)[0]
 
@@ -262,13 +277,14 @@ class FlowSplitter(object):
         return tree, tree2
 
     def is_page_empty(self, root):
-        body = root.find('body')
+        body = self.get_body(root)
         if body is None:
             return False
-        txt = re.sub(r'\s+', '', html.tostring(body, method='text', encoding=unicode))
+        txt = re.sub(r'\s+', '',
+                etree.tostring(body, method='text', encoding=unicode))
         if len(txt) > 4:
             return False
-        for img in root.xpath('//img'):
+        for img in root.xpath('//h:img', namespaces=NAMESPACES):
             if img.get('style', '') != 'display:none':
                 return False
         return True
@@ -438,6 +454,3 @@ class FlowSplitter(object):
             fix_toc_entry(self.oeb.toc)
 
         self.oeb.manifest.remove(self.item)
-
-
-

@@ -273,11 +273,7 @@ def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
 def _prepare_xml_for_serialization(root):
-    root.set('xmlns', XHTML_NS)
-    root.set('{%s}xlink'%XHTML_NS, XLINK_NS)
-    for x in root.iter():
-        if hasattr(x.tag, 'rpartition') and x.tag.rpartition('}')[-1].lower() == 'svg':
-            x.set('xmlns', SVG_NS)
+    pass
 
 def xml2str(root, pretty_print=False, strip_comments=False):
     _prepare_xml_for_serialization(root)

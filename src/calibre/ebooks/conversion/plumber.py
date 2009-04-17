@@ -324,7 +324,7 @@ OptionRecommendation(name='language',
                                     self.input_fmt, self.log,
                                     accelerators, tdir)
         if not hasattr(self.oeb, 'manifest'):
-            self.oeb = create_oebbook(self.log, self.oeb)
+            self.oeb = create_oebbook(self.log, self.oeb, self.opts)
 
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
@@ -365,7 +365,7 @@ OptionRecommendation(name='language',
         self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
 
-def create_oebbook(log, opfpath):
+def create_oebbook(log, opfpath, opts):
     '''
     Create an OEBBook from an OPF file.
     '''
@@ -373,7 +373,8 @@ def create_oebbook(log, opfpath):
     from calibre.ebooks.oeb.base import OEBBook
     html_preprocessor = HTMLPreProcessor()
     reader = OEBReader()
-    oeb = OEBBook(log, html_preprocessor=html_preprocessor)
+    oeb = OEBBook(log, html_preprocessor=html_preprocessor,
+            pretty_print=opts.pretty_print)
     # Read OEB Book into OEBBook
     log.info('Parsing all content...')
     reader(oeb, opfpath)
