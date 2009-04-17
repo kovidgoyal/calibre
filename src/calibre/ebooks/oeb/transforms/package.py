@@ -128,6 +128,7 @@ class Package(object):
         self.log = oeb.log
         self.oeb = oeb
         self.old_base_path = os.path.abspath(oeb.container.rootdir)
+        self.log.info('Packaging HTML files...')
 
         hrefs = set([])
         for item in self.oeb.manifest:

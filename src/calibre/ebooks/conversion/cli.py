@@ -74,6 +74,9 @@ def option_recommendation_to_cli_option(add_option, rec):
     switches.append('--'+opt.long_switch)
     attrs = dict(dest=opt.name, help=opt.help,
                      choices=opt.choices, default=rec.recommended_value)
+    if isinstance(rec.recommended_value, type(True)):
+        attrs['action'] = 'store_false' if rec.recommended_value else \
+                          'store_true'
     add_option(Option(*switches, **attrs))
 
 def add_input_output_options(parser, plumber):
