@@ -18,14 +18,14 @@ class TXTOutput(OutputFormatPlugin):
 
     options = set([
                     OptionRecommendation(name='newline', recommended_value='system',
-                        level=OptionRecommendation.LOW, long_switch='newline',
+                        level=OptionRecommendation.LOW,
                         short_switch='n', choices=TxtNewlines.NEWLINE_TYPES.keys(),
                         help=_('Type of newline to use. Options are %s. Default is \'system\'. '
                             'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
                             'For Mac OS X use \'unix\'. \'system\' will default to the newline '
                             'type used by this OS.' % sorted(TxtNewlines.NEWLINE_TYPES.keys()))),
                     OptionRecommendation(name='prepend_metadata', recommended_value='false',
-                        level=OptionRecommendation.LOW, long_switch='prepend_metadata',
+                        level=OptionRecommendation.LOW,
                         choices=['true', 'false'],
                         help=_('Write the title and author to the beginning of the file. '
                             'Default is \'true\'. Use \'false\' to disable.')),
