@@ -246,6 +246,23 @@ class CurrentDir(object):
         os.chdir(self.cwd)
 
 
+class FileWrapper(object):
+    '''
+    Used primarily with pyPdf to ensure the stream is properly closed.
+    '''
+
+    def __init__(self, stream):
+        for x in ('read', 'seek', 'tell'):
+            setattr(self, x, getattr(stream, x))
+
+    def __exit__(self, *args):
+        for x in ('read', 'seek', 'tell'):
+            setattr(self, x, None)
+
+    def __enter__(self):
+        return self
+
+
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
     try:
