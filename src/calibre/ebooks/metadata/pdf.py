@@ -1,3 +1,4 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
@@ -5,6 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, cStringIO
 from threading import Thread
 
+from calibre import FileWrapper
 from calibre.ebooks.metadata import MetaInformation, authors_to_string, get_parser
 from pyPdf import PdfFileReader, PdfFileWriter
 
@@ -13,18 +15,19 @@ def get_metadata(stream):
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
     try:
-        info = PdfFileReader(stream).getDocumentInfo()
-        if info.title:
-            mi.title = info.title
-        if info.author:
-            src = info.author.split('&')
-            authors = []
-            for au in src:
-                authors += au.split(',')
-            mi.authors = authors
-            mi.author = info.author
-        if info.subject:
-            mi.category = info.subject
+        with FileWrapper(stream) as stream:
+            info = PdfFileReader(stream).getDocumentInfo()
+            if info.title:
+                mi.title = info.title
+            if info.author:
+                src = info.author.split('&')
+                authors = []
+                for au in src:
+                    authors += au.split(',')
+                mi.authors = authors
+                mi.author = info.author
+            if info.subject:
+                mi.category = info.subject
     except Exception, err:
         msg = u'Couldn\'t read metadata from pdf: %s with error %s'%(mi.title, unicode(err))
         print >>sys.stderr, msg.encode('utf8')
