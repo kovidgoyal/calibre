@@ -319,6 +319,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover_changed = True
 
     def initialize_series(self):
+        self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         series_id = self.db.series_id(self.row)
@@ -334,13 +335,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if idx is not None:
             self.series.setCurrentIndex(idx)
             self.enable_series_index()
-
-        pl = self.series.parentWidget().layout()
-        for i in range(pl.count()):
-            l =  pl.itemAt(i).layout()
-            if l:
-                l.invalidate()
-                l.activate()
 
     def initialize_series_and_publisher(self):
         self.initialize_series()
