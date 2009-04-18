@@ -23,6 +23,14 @@ def sanitize_head(match):
     x = _span_pat.sub('', x)
     return '<head>\n'+x+'\n</head>'
 
+def chap_head(match):
+    chap = match.group('chap')
+    title = match.group('title')
+    if not title: 
+               return '<h1>'+chap+'</h1><br/>'
+    else: 
+               return '<h1>'+chap+'<br/>'+title+'</h1><br/>'
+
 
 class CSSPreProcessor(object):
 
@@ -54,8 +62,9 @@ class HTMLPreProcessor(object):
                   (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
                   # Remove page numbers
                   (re.compile(r'\d+<br>', re.IGNORECASE), lambda match: ''),
-                  # Remove <br> and replace <br><br> with <p>
+                  # Replace <br><br> with <p>
                   (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
+                  # Remove <br>
                   (re.compile(r'(.*)<br.*?>', re.IGNORECASE),
                    lambda match: match.group() if \
                            re.match('<', match.group(1).lstrip()) or \
@@ -69,15 +78,22 @@ class HTMLPreProcessor(object):
                   # Remove non breaking spaces
                   (re.compile(ur'\u00a0'), lambda match : ' '),
                   
+                  # Detect Chapters to match default XPATH in GUI
+                  (re.compile(r'(<br[^>]*>)?(</?p[^>]*>)?s*(?P<chap>(Chapter|Epilogue|Prologue|Book|Part)\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?', re.IGNORECASE), chap_head),
+                  (re.compile(r'(<br[^>]*>)?(</?p[^>]*>)?s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+ 
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   
                   # Un wrap lines
-                  (re.compile(r'(?<=\w)\s*</(i|b|u)>\s*<p.*?>\s*<(i|b|u)>\s*(?=\w)'), lambda match: ' '),
-                  (re.compile(r'(?<=\w)\s*<p.*?>\s*(?=\w)', re.UNICODE), lambda match: ' '),
+                  (re.compile(r'(?<=[^\.^\^?^!^"^”])\s*(</(i|b|u)>)*\s*<p.*?>\s*(<(i|b|u)>)*\s*(?=[a-z0-9I])', re.UNICODE), lambda match: ' '),
+                  
                   # Clean up spaces
-                  (re.compile(u'(?<=\.|,|:|;|\?|!|”|"|\')[\s^ ]*(?=<)'), lambda match: ' '),
-                  ]
+                  (re.compile(u'(?<=[\.,:;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
+                  # Add space before and after italics
+                  (re.compile(r'(?<!“)<i>'), lambda match: ' <i>'),
+                  (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
+                 ]
 
     # Fix Book Designer markup
     BOOK_DESIGNER = [

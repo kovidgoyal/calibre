@@ -98,7 +98,7 @@ def get_cover(stream):
     data = cStringIO.StringIO()
 
     try:
-        StreamReadWrapper(stream) as stream:
+        with StreamReadWrapper(stream) as stream:
             pdf = PdfFileReader(stream)
             output = PdfFileWriter()
 
