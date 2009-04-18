@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, cStringIO
 from threading import Thread
 
-from calibre import FileWrapper
+from calibre import StreamReadWrapper
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from pyPdf import PdfFileReader, PdfFileWriter
@@ -34,7 +34,7 @@ def get_metadata(stream, extract_cover=True):
             traceback.print_exc()
 
     try:
-        with FileWrapper(stream) as stream:
+        with StreamReadWrapper(stream) as stream:
             info = PdfFileReader(stream).getDocumentInfo()
             if info.title:
                 mi.title = info.title
@@ -98,29 +98,39 @@ def get_cover(stream):
     data = cStringIO.StringIO()
 
     try:
-        pdf = PdfFileReader(stream)
-        output = PdfFileWriter()
+        StreamReadWrapper(stream) as stream:
+            pdf = PdfFileReader(stream)
+            output = PdfFileWriter()
 
-        if len(pdf.pages) >= 1:
-            output.addPage(pdf.getPage(0))
+            # We only need the first page of the pdf file as that will
+            # be used as the cover. Saving the first page into a new
+            # pdf will speed up processing with ImageMagick as it will
+            # try to create an image for every page in the document.
+            if len(pdf.pages) >= 1:
+                output.addPage(pdf.getPage(0))
 
-        with TemporaryDirectory('_pdfmeta') as tdir:
-            cover_path = os.path.join(tdir, 'cover.pdf')
+            # ImageMagick will only take a file path and save the
+            # image to a file path.
+            with TemporaryDirectory('_pdfmeta') as tdir:
+                cover_path = os.path.join(tdir, 'cover.pdf')
 
-            with open(cover_path, "wb") as outputStream:
-                output.write(outputStream)
+                with open(cover_path, "wb") as outputStream:
+                    output.write(outputStream)
                 
-            with ImageMagick():
-                wand = NewMagickWand()
-                MagickReadImage(wand, cover_path)
-                MagickSetImageFormat(wand, 'JPEG')
-                MagickWriteImage(wand, '%s.jpg' % cover_path)
-
+                # Use ImageMagick to turn the pdf into a Jpg image.
+                with ImageMagick():
+                    wand = NewMagickWand()
+                    MagickReadImage(wand, cover_path)
+                    MagickSetImageFormat(wand, 'JPEG')
+                    MagickWriteImage(wand, '%s.jpg' % cover_path)
+    
+                # We need the image as a stream so we can return the
+                # image as a string for use in a MetaInformation object.
                 img = Image.open('%s.jpg' % cover_path)
                 img.save(data, 'JPEG')
     except:
         import traceback
         traceback.print_exc()
 
+    # Return the string in the cStringIO object.
     return data.getvalue()
-
