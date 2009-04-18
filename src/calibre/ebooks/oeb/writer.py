@@ -49,7 +49,7 @@ class OEBWriter(object):
 
     def __call__(self, oeb, path):
         """
-        Read the book in the :class:`OEBBook` object :param:`oeb` to a file
+        Write the book in the :class:`OEBBook` object :param:`oeb` to a folder
         at :param:`path`.
         """
         version = int(self.version[0])

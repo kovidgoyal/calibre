@@ -252,6 +252,14 @@ class HTMLInput(InputFormatPlugin):
                    )
         ),
 
+        OptionRecommendation(name='dont_package',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Normally this input plugin re-arranges all the input '
+                'files into a standard folder hierarchy. Only use this option '
+                'if you know what you are doing as it can result in various '
+                'nasty side effects in the rest of of the conversion pipeline.'
+                )
+        ),
     ])
 
     def convert(self, stream, opts, file_ext, log,
@@ -275,6 +283,9 @@ class HTMLInput(InputFormatPlugin):
 
             mi.render(open('metadata.opf', 'wb'))
             opfpath = os.path.abspath('metadata.opf')
+
+        if opts.dont_package:
+            return opfpath
 
         from calibre.ebooks.conversion.plumber import create_oebbook
         oeb = create_oebbook(log, opfpath, opts)

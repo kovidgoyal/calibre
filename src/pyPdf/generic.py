@@ -299,7 +299,7 @@ def readStringFromStream(stream):
             elif tok == "t":
                 tok = "\t"
             elif tok == "b":
-                tok == "\b"
+                tok = "\b"
             elif tok == "f":
                 tok = "\f"
             elif tok == "(":
@@ -673,7 +673,7 @@ class RectangleObject(ArrayObject):
 
     def getUpperLeft_x(self):
         return self.getLowerLeft_x()
-    
+
     def getUpperLeft_y(self):
         return self.getUpperRight_y()
 

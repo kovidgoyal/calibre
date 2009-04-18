@@ -263,14 +263,14 @@ class MOBIMetadataWriter(MetadataWriterPlugin):
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.mobi import set_metadata
         set_metadata(stream, mi)
-        
+
 class PDFMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set PDF metadata'
     file_types  = set(['pdf'])
     description = _('Set metadata in %s files') % 'PDF'
     author      = 'John Schember'
-    
+
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.pdf import set_metadata
         set_metadata(stream, mi)
@@ -280,6 +280,7 @@ from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.pdf.input import PDFInput
 from calibre.ebooks.txt.input import TXTInput
+from calibre.ebooks.lit.input import LITInput
 from calibre.ebooks.html.input import HTMLInput
 from calibre.ebooks.oeb.output import OEBOutput
 from calibre.ebooks.txt.output import TXTOutput
@@ -287,7 +288,7 @@ from calibre.ebooks.pdf.output import PDFOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDFInput, HTMLInput,
-        TXTInput, OEBOutput, TXTOutput, PDFOutput]
+        TXTInput, OEBOutput, TXTOutput, PDFOutput, LITInput]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

@@ -32,8 +32,8 @@ class Plumber(object):
         :param input: Path to input file.
         :param output: Path to output file/directory
         '''
-        self.input = input
-        self.output = output
+        self.input = os.path.abspath(input)
+        self.output = os.path.abspath(output)
         self.log = log
 
         # Initialize the conversion options that are independent of input and
@@ -188,15 +188,15 @@ OptionRecommendation(name='language',
 ]
 
 
-        input_fmt = os.path.splitext(input)[1]
+        input_fmt = os.path.splitext(self.input)[1]
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
 
-        if os.path.exists(output) and os.path.isdir(output):
+        if os.path.exists(self.output) and os.path.isdir(self.output):
             output_fmt = 'oeb'
         else:
-            output_fmt = os.path.splitext(output)[1]
+            output_fmt = os.path.splitext(self.output)[1]
             if not output_fmt:
                 output_fmt = '.oeb'
             output_fmt = output_fmt[1:].lower()
@@ -323,6 +323,9 @@ OptionRecommendation(name='language',
         self.oeb = self.input_plugin(open(self.input, 'rb'), self.opts,
                                     self.input_fmt, self.log,
                                     accelerators, tdir)
+        if self.opts.debug_input is not None:
+            self.log('Debug input called, aborting the rest of the pipeline.')
+            return
         if not hasattr(self.oeb, 'manifest'):
             self.oeb = create_oebbook(self.log, self.oeb, self.opts)
 
@@ -365,18 +368,20 @@ OptionRecommendation(name='language',
         self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
 
-def create_oebbook(log, opfpath, opts):
+def create_oebbook(log, path_or_stream, opts, reader=None):
     '''
-    Create an OEBBook from an OPF file.
+    Create an OEBBook.
     '''
-    from calibre.ebooks.oeb.reader import OEBReader
     from calibre.ebooks.oeb.base import OEBBook
     html_preprocessor = HTMLPreProcessor()
-    reader = OEBReader()
     oeb = OEBBook(log, html_preprocessor=html_preprocessor,
             pretty_print=opts.pretty_print)
     # Read OEB Book into OEBBook
-    log.info('Parsing all content...')
-    reader(oeb, opfpath)
+    log('Parsing all content...')
+    if reader is None:
+        from calibre.ebooks.oeb.reader import OEBReader
+        reader = OEBReader
+
+    reader()(oeb, path_or_stream)
     return oeb
 
