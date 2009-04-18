@@ -119,19 +119,44 @@ class PRS505(CLI, Device):
         paths, ctimes = [], []
 
         names = iter(names)
+        metadata = iter(metadata)
         for infile in files:
             close = False
             if not hasattr(infile, 'read'):
                 infile, close = open(infile, 'rb'), True
             infile.seek(0)
-            name = names.next()
-            paths.append(os.path.join(path, name))
-            if not os.path.exists(os.path.dirname(paths[-1])):
-                os.makedirs(os.path.dirname(paths[-1]))
+            
+            newpath = path
+            mdata = metadata.next()
+
+            if 'tags' in mdata.keys():
+                for tag in mdata['tags']:
+                    if tag.startswith(_('News')):
+                        newpath = os.path.join(newpath, 'news')
+                        newpath = os.path.join(newpath, mdata.get('title', ''))
+                        newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                    elif tag.startswith('/'):
+                        newpath = path
+                        newpath += tag
+                        newpath = os.path.normpath(newpath)
+                        break
+
+            if newpath == path:
+                newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
+                newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
+
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+
+            filepath = os.path.join(newpath, names.next())
+            paths.append(filepath)
+
             self.put_file(infile, paths[-1], replace_file=True)
+            
             if close:
                 infile.close()
             ctimes.append(os.path.getctime(paths[-1]))
+            
         return zip(paths, sizes, ctimes, cycle([on_card]))
 
     @classmethod

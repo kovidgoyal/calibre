@@ -9,7 +9,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.pdf.pdftohtml import pdftohtml
-from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator
 
 class PDFInput(InputFormatPlugin):
     
