@@ -346,10 +346,25 @@ class DeviceMenu(QMenu):
                 self.action_triggered(action)
                 break
 
-    def enable_device_actions(self, enable):
+    def enable_device_actions(self, enable, card_prefix=(None, None)):
         for action in self.actions:
             if action.dest in ('main:', 'carda:0', 'cardb:0'):
-                action.setEnabled(enable)
+                if not enable:
+                    action.setEnabled(False)
+                else:
+                    if action.dest == 'main:':
+                        action.setEnabled(True)
+                    elif action.dest == 'carda:0':
+                        if card_prefix[0] != None:
+                            action.setEnabled(True)
+                        else:
+                            action.setEnabled(False)
+                    elif action.dest == 'cardb:0':
+                        if card_prefix[1] != None:
+                            action.setEnabled(True)
+                        else:
+                            action.setEnabled(False)
+
 
 class Emailer(Thread):
 
