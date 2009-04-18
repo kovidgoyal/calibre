@@ -10,7 +10,6 @@ from calibre import FileWrapper
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from pyPdf import PdfFileReader, PdfFileWriter
-#import Image
 try:
     from calibre.utils.PythonMagickWand import \
         NewMagickWand, MagickReadImage, MagickSetImageFormat, \
@@ -95,7 +94,6 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 def get_cover(stream):
-    data = cStringIO.StringIO()
 
     try:
         pdf = PdfFileReader(stream)
@@ -104,24 +102,21 @@ def get_cover(stream):
         if len(pdf.pages) >= 1:
             output.addPage(pdf.getPage(0))
 
-        with TemporaryDirectory('_pdfmeta') as tdir:
-            cover_path = os.path.join(tdir, 'cover.pdf')
+            with TemporaryDirectory('_pdfmeta') as tdir:
+                cover_path = os.path.join(tdir, 'cover.pdf')
 
-            outputStream = file(cover_path, "wb")
-            output.write(outputStream)
-            outputStream.close()
-            with ImageMagick():
-                wand = NewMagickWand()
-                MagickReadImage(wand, cover_path)
-                MagickSetImageFormat(wand, 'JPEG')
-                MagickWriteImage(wand, '%s.jpg' % cover_path)
+                with open(cover_path, "wb") as outputStream:
+                    output.write(outputStream)
+                with ImageMagick():
+                    wand = NewMagickWand()
+                    MagickReadImage(wand, cover_path)
+                    MagickSetImageFormat(wand, 'JPEG')
+                    MagickWriteImage(wand, '%s.jpg' % cover_path)
+                return open('%s.jpg' % cover_path, 'rb').read()
 
-                #img = Image.open('%s.jpg' % cover_path)
-
-                #img.save(data, 'JPEG')
     except:
         import traceback
         traceback.print_exc()
 
-    return data.getvalue()
+    return ''
 
