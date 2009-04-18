@@ -10,7 +10,6 @@ from calibre import StreamReadWrapper
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from pyPdf import PdfFileReader, PdfFileWriter
-import Image
 try:
     from calibre.utils.PythonMagickWand import \
         NewMagickWand, MagickReadImage, MagickSetImageFormat, \
@@ -95,42 +94,27 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 def get_cover(stream):
-    data = cStringIO.StringIO()
-
     try:
         with StreamReadWrapper(stream) as stream:
             pdf = PdfFileReader(stream)
             output = PdfFileWriter()
-
-            # We only need the first page of the pdf file as that will
-            # be used as the cover. Saving the first page into a new
-            # pdf will speed up processing with ImageMagick as it will
-            # try to create an image for every page in the document.
+    
             if len(pdf.pages) >= 1:
                 output.addPage(pdf.getPage(0))
-
-            # ImageMagick will only take a file path and save the
-            # image to a file path.
-            with TemporaryDirectory('_pdfmeta') as tdir:
-                cover_path = os.path.join(tdir, 'cover.pdf')
-
-                with open(cover_path, "wb") as outputStream:
-                    output.write(outputStream)
-                
-                # Use ImageMagick to turn the pdf into a Jpg image.
-                with ImageMagick():
-                    wand = NewMagickWand()
-                    MagickReadImage(wand, cover_path)
-                    MagickSetImageFormat(wand, 'JPEG')
-                    MagickWriteImage(wand, '%s.jpg' % cover_path)
     
-                # We need the image as a stream so we can return the
-                # image as a string for use in a MetaInformation object.
-                img = Image.open('%s.jpg' % cover_path)
-                img.save(data, 'JPEG')
+                with TemporaryDirectory('_pdfmeta') as tdir:
+                    cover_path = os.path.join(tdir, 'cover.pdf')
+    
+                    with open(cover_path, "wb") as outputStream:
+                        output.write(outputStream)
+                    with ImageMagick():
+                        wand = NewMagickWand()
+                        MagickReadImage(wand, cover_path)
+                        MagickSetImageFormat(wand, 'JPEG')
+                        MagickWriteImage(wand, '%s.jpg' % cover_path)
+                    return open('%s.jpg' % cover_path, 'rb').read()
     except:
         import traceback
         traceback.print_exc()
 
-    # Return the string in the cStringIO object.
-    return data.getvalue()
+    return ''
