@@ -10,10 +10,11 @@ from threading import Thread
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from pyPdf import PdfFileReader, PdfFileWriter
-import Image
+#import Image
 try:
     from calibre.utils.PythonMagickWand import \
-        NewMagickWand, MagickReadImage, MagickSetImageFormat, MagickWriteImage
+        NewMagickWand, MagickReadImage, MagickSetImageFormat, \
+        MagickWriteImage, ImageMagick
     _imagemagick_loaded = True
 except:
     _imagemagick_loaded = False
@@ -108,15 +109,15 @@ def get_cover(stream):
             outputStream = file(cover_path, "wb")
             output.write(outputStream)
             outputStream.close()
+            with ImageMagick():
+                wand = NewMagickWand()
+                MagickReadImage(wand, cover_path)
+                MagickSetImageFormat(wand, 'JPEG')
+                MagickWriteImage(wand, '%s.jpg' % cover_path)
 
-            wand = NewMagickWand()
-            MagickReadImage(wand, cover_path)
-            MagickSetImageFormat(wand, 'JPEG')
-            MagickWriteImage(wand, '%s.jpg' % cover_path)
+                #img = Image.open('%s.jpg' % cover_path)
 
-            img = Image.open('%s.jpg' % cover_path)
-
-            img.save(data, 'JPEG')
+                #img.save(data, 'JPEG')
     except:
         import traceback
         traceback.print_exc()
