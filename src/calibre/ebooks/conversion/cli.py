@@ -57,7 +57,7 @@ def check_command_line_options(parser, args, log):
         raise SystemExit(1)
 
     output = args[2]
-    if output.startswith('.'):
+    if output.startswith('.') and output != '.':
         output = os.path.splitext(os.path.basename(input))[0]+output
     output = os.path.abspath(output)
 
@@ -171,7 +171,8 @@ def main(args=sys.argv):
 
     plumber.run()
 
-    log(_('Output saved to'), ' ', plumber.output)
+    if plumber.opts.debug_input is None:
+        log(_('Output saved to'), ' ', plumber.output)
 
     return 0
 

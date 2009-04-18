@@ -51,8 +51,8 @@ class Split(object):
         self.log = oeb.log
         self.map = {}
         self.page_break_selectors = None
-        for item in self.oeb.manifest.items:
-            if etree.iselement(item.data):
+        for item in list(self.oeb.manifest.items):
+            if item.spine_position is not None and etree.iselement(item.data):
                 self.split_item(item)
 
         self.fix_links()
@@ -74,31 +74,34 @@ class Split(object):
             self.page_break_selectors = set([])
             stylesheets = [x.data for x in self.oeb.manifest if x.media_type in
                     OEB_STYLES]
-        page_break_selectors = set([])
-        for rule in rules(stylesheets):
-            before = getattr(rule.style.getPropertyCSSValue(
-                'page-break-before'), 'cssText', '').strip().lower()
-            after  = getattr(rule.style.getPropertyCSSValue(
-                'page-break-after'), 'cssText', '').strip().lower()
-            try:
-                if before and before != 'avoid':
-                    page_break_selectors.add((CSSSelector(rule.selectorText),
-                        True))
-            except:
-                pass
-            try:
-                if after and after != 'avoid':
-                    page_break_selectors.add((CSSSelector(rule.selectorText),
-                        False))
-            except:
-                pass
+            for rule in rules(stylesheets):
+                before = getattr(rule.style.getPropertyCSSValue(
+                    'page-break-before'), 'cssText', '').strip().lower()
+                after  = getattr(rule.style.getPropertyCSSValue(
+                    'page-break-after'), 'cssText', '').strip().lower()
+                try:
+                    if before and before != 'avoid':
+                        self.page_break_selectors.add((CSSSelector(rule.selectorText),
+                            True))
+                except:
+                    pass
+                try:
+                    if after and after != 'avoid':
+                        self.page_break_selectors.add((CSSSelector(rule.selectorText),
+                            False))
+                except:
+                    pass
 
         page_breaks = set([])
-        for selector, before in page_break_selectors:
-            for elem in selector(item.data):
-                if before:
-                    elem.set('pb_before', '1')
-                page_breaks.add(elem)
+        for selector, before in self.page_break_selectors:
+            body = item.data.xpath('//h:body', namespaces=NAMESPACES)
+            if not body:
+                continue
+            for elem in selector(body[0]):
+                if elem not in body:
+                    if before:
+                        elem.set('pb_before', '1')
+                    page_breaks.add(elem)
 
         for i, elem in enumerate(item.data.iter()):
             elem.set('pb_order', str(i))
@@ -136,8 +139,10 @@ class Split(object):
         if href in self.map:
             anchor_map = self.map[href]
             nhref = anchor_map[frag if frag else None]
+            nhref = self.current_item.relhref(nhref)
             if frag:
-                nhref = '#'.join(href, frag)
+                nhref = '#'.join((nhref, frag))
+
             return nhref
         return url
 
@@ -153,7 +158,7 @@ class FlowSplitter(object):
         self.page_breaks    = page_breaks
         self.page_break_ids = page_break_ids
         self.max_flow_size  = max_flow_size
-        self.base           = item.abshref(item.href)
+        self.base           = item.href
 
         base, ext = os.path.splitext(self.base)
         self.base = base.replace('%', '%%')+'_split_%d'+ext
@@ -192,9 +197,9 @@ class FlowSplitter(object):
         self.trees = []
         tree = orig_tree
         for pattern, before in ordered_ids:
-            self.log.debug('\t\tSplitting on page-break')
             elem = pattern(tree)
             if elem:
+                self.log.debug('\t\tSplitting on page-break')
                 before, after = self.do_split(tree, elem[0], before)
                 self.trees.append(before)
                 tree = after
@@ -414,13 +419,14 @@ class FlowSplitter(object):
                 elem.attrib.pop(SPLIT_ATTR, None)
                 elem.attrib.pop(SPLIT_POINT_ATTR, '0')
 
-        spine_pos = self.item.spine_pos
-        for current, tree in zip(map(reversed, (self.files, self.trees))):
+        spine_pos = self.item.spine_position
+        for current, tree in zip(*map(reversed, (self.files, self.trees))):
             for a in tree.getroot().xpath('//h:a[@href]', namespaces=NAMESPACES):
                 href = a.get('href').strip()
                 if href.startswith('#'):
                     anchor = href[1:]
                     file = self.anchor_map[anchor]
+                    file = self.item.relhref(file)
                     if file != current:
                         a.set('href', file+href)
 
@@ -430,12 +436,12 @@ class FlowSplitter(object):
             self.oeb.spine.insert(spine_pos, new_item, self.item.linear)
 
         if self.oeb.guide:
-            for ref in self.oeb.guide:
+            for ref in self.oeb.guide.values():
                 href, frag = urldefrag(ref.href)
                 if href == self.item.href:
                     nhref = self.anchor_map[frag if frag else None]
                     if frag:
-                        nhref = '#'.join(nhref, frag)
+                        nhref = '#'.join((nhref, frag))
                     ref.href = nhref
 
         def fix_toc_entry(toc):
@@ -444,7 +450,7 @@ class FlowSplitter(object):
                 if href == self.item.href:
                     nhref = self.anchor_map[frag if frag else None]
                     if frag:
-                        nhref = '#'.join(nhref, frag)
+                        nhref = '#'.join((nhref, frag))
                     toc.href = nhref
             for x in toc:
                 fix_toc_entry(x)

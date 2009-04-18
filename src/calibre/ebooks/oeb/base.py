@@ -272,11 +272,7 @@ def XPath(expr):
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
-def _prepare_xml_for_serialization(root):
-    pass
-
 def xml2str(root, pretty_print=False, strip_comments=False):
-    _prepare_xml_for_serialization(root)
     ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
                           pretty_print=pretty_print)
 
@@ -287,7 +283,6 @@ def xml2str(root, pretty_print=False, strip_comments=False):
 
 
 def xml2unicode(root, pretty_print=False):
-    _prepare_xml_for_serialization(root)
     return etree.tostring(root, pretty_print=pretty_print)
 
 ASCII_CHARS   = set(chr(x) for x in xrange(128))
@@ -321,6 +316,25 @@ def urlnormalize(href):
     parts = (urlquote(part) for part in parts)
     return urlunparse(parts)
 
+class DummyHandler(logging.Handler):
+
+    def __init__(self):
+        logging.Handler.__init__(self, logging.WARNING)
+        self.setFormatter(logging.Formatter('%(message)s'))
+        self.log = None
+
+    def emit(self, record):
+        if self.log is not None:
+            msg = self.format(record)
+            f = self.log.error if record.levelno >= logging.ERROR \
+                    else self.log.warn
+            f(msg)
+
+
+_css_logger = logging.getLogger('calibre.css')
+_css_logger.setLevel(logging.WARNING)
+_css_log_handler = DummyHandler()
+_css_logger.addHandler(_css_log_handler)
 
 class OEBError(Exception):
     """Generic OEB-processing error."""
@@ -778,7 +792,8 @@ class Manifest(object):
             data = self.oeb.css_preprocessor(data)
             data = XHTML_CSS_NAMESPACE + data
             parser = CSSParser(loglevel=logging.WARNING,
-                               fetcher=self._fetch_css)
+                               fetcher=self._fetch_css,
+                               log=_css_logger)
             data = parser.parseString(data, href=self.href)
             data.namespaces['h'] = XHTML_NS
             return data
@@ -1435,7 +1450,7 @@ class OEBBook(object):
         :attr:`pages`: List of "pages," such as indexed to a print edition of
             the same text.
         """
-
+        _css_log_handler.log = logger
         self.encoding = encoding
         self.html_preprocessor = html_preprocessor
         self.css_preprocessor = css_preprocessor
@@ -1450,6 +1465,7 @@ class OEBBook(object):
         self.guide = Guide(self)
         self.toc = TOC()
         self.pages = PageList()
+        self.auto_generated_toc = True
 
     @classmethod
     def generate(cls, opts):

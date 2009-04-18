@@ -13,13 +13,12 @@ from PyQt4.Qt import QFontDatabase
 
 from calibre.customize.ui import available_input_formats
 from calibre.ebooks.epub.from_html import TITLEPAGE
-from calibre.ebooks.metadata.opf2 import OPF, OPFCreator
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.zipfile import safe_replace, ZipFile
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
-from calibre import CurrentDir
 
 def character_count(html):
     '''
@@ -57,30 +56,20 @@ class FakeOpts(object):
     max_levels = 5
     input_encoding = None
 
-def html2opf(path, tdir, log):
-    from calibre.ebooks.html.input import get_filelist
-    from calibre.ebooks.metadata.meta import get_metadata
-    with CurrentDir(tdir):
-        fl = get_filelist(path, tdir, FakeOpts(), log)
-        mi = get_metadata(open(path, 'rb'), 'html')
-        mi = OPFCreator(os.getcwdu(), mi)
-        mi.guide = None
-        entries = [(f.path, 'application/xhtml+xml') for f in fl]
-        mi.create_manifest(entries)
-        mi.create_spine([f.path for f in fl])
-
-        mi.render(open('metadata.opf', 'wb'))
-        opfpath = os.path.abspath('metadata.opf')
-
-    return opfpath
-
-def opf2opf(path, tdir, opts):
-    return path
-
 def is_supported(path):
     ext = os.path.splitext(path)[1].replace('.', '').lower()
     ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
     return ext in available_input_formats()
+
+
+def write_oebbook(oeb, path):
+    from calibre.ebooks.oeb.writer import OEBWriter
+    from calibre import walk
+    w = OEBWriter()
+    w(oeb, path)
+    for f in walk(path):
+        if f.endswith('.opf'):
+            return f
 
 class EbookIterator(object):
 
@@ -131,17 +120,16 @@ class EbookIterator(object):
     def __enter__(self):
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
-        if self.ebook_ext == 'opf':
-            self.pathtoopf = self.pathtoebook
-        elif self.ebook_ext == 'html':
-            self.pathtoopf = html2opf(self.pathtoebook, self.base, self.log)
-        else:
-            from calibre.ebooks.conversion.plumber import Plumber
-            plumber = Plumber(self.pathtoebook, self.base, self.log)
-            plumber.setup_options()
-            self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
-                    plumber.opts, plumber.input_fmt, self.log,
-                    {}, self.base)
+        from calibre.ebooks.conversion.plumber import Plumber
+        plumber = Plumber(self.pathtoebook, self.base, self.log)
+        plumber.setup_options()
+        if hasattr(plumber.opts, 'dont_package'):
+            plumber.opts.dont_package = True
+        self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
+                plumber.opts, plumber.input_fmt, self.log,
+                {}, self.base)
+        if hasattr(self.pathtoopf, 'manifest'):
+            self.pathtoopf = write_oebbook(self.pathtoebook, self._tdir)
 
 
         self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))

@@ -16,7 +16,6 @@ class OEBOutput(OutputFormatPlugin):
     author = 'Kovid Goyal'
     file_type = 'oeb'
 
-
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         self.log, self.opts = log, opts
         if not os.path.exists(output_path):

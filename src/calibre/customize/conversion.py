@@ -41,6 +41,11 @@ class ConversionOption(object):
     def __eq__(self, other):
         return hash(self) == hash(other)
 
+    def clone(self):
+        return ConversionOption(name=self.name, help=self.help,
+                long_switch=self.long_switch, short_switch=self.short_switch,
+                choices=self.choices)
+
 class OptionRecommendation(object):
     LOW  = 1
     MED  = 2
@@ -58,6 +63,10 @@ class OptionRecommendation(object):
             self.option = ConversionOption(**kwargs)
 
         self.validate_parameters()
+
+    def clone(self):
+        return OptionRecommendation(recommended_value=self.recommended_value,
+                level=self.level, option=self.option.clone())
 
     def validate_parameters(self):
         if self.option.choices and self.recommended_value not in \
@@ -170,8 +179,14 @@ class InputFormatPlugin(Plugin):
             options.debug_input = os.path.abspath(options.debug_input)
             if not os.path.exists(options.debug_input):
                 os.makedirs(options.debug_input)
-            shutil.rmtree(options.debug_input)
-            shutil.copytree(output_dir, options.debug_input)
+            if isinstance(ret, basestring):
+                shutil.rmtree(options.debug_input)
+                shutil.copytree(output_dir, options.debug_input)
+            else:
+                from calibre.ebooks.oeb.writer import OEBWriter
+                w = OEBWriter(pretty_print=options.pretty_print)
+                w(ret, options.debug_input)
+
             log.info('Input debug saved to:', options.debug_input)
 
         return ret

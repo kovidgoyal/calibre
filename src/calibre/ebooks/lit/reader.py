@@ -7,13 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
     'and Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, struct, os
+import struct, os
 import functools
 import re
 from urlparse import urldefrag
 from cStringIO import StringIO
 from urllib import unquote as urlunquote
-from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
@@ -29,12 +28,12 @@ __all__ = ["LitReader"]
 XML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 """
 OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE package 
+<!DOCTYPE package
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
   "http://openebook.org/dtds/oeb-1.0.1/oebpkg101.dtd">
 """
 HTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC 
+<!DOCTYPE html PUBLIC
  "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Document//EN"
  "http://openebook.org/dtds/oeb-1.0.1/oebdoc101.dtd">
 """
@@ -73,7 +72,7 @@ def encint(bytes, remaining):
         val <<= 7
         val |= (b & 0x7f)
         if b & 0x80 == 0: break
-    return val, bytes[pos:], remaining 
+    return val, bytes[pos:], remaining
 
 def msguid(bytes):
     values = struct.unpack("<LHHBBBBBBBB", bytes[:16])
@@ -123,7 +122,7 @@ class UnBinary(object):
     CLOSE_ANGLE_RE = re.compile(r'(?<!--)>>(?=>>|[^>])')
     DOUBLE_ANGLE_RE = re.compile(r'([<>])\1')
     EMPTY_ATOMS = ({},{})
-    
+
     def __init__(self, bin, path, manifest={}, map=HTML_MAP, atoms=EMPTY_ATOMS):
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
@@ -143,7 +142,7 @@ class UnBinary(object):
         raw = self.CLOSE_ANGLE_RE.sub(r'&gt;', raw)
         raw = self.DOUBLE_ANGLE_RE.sub(r'\1', raw)
         self.raw = raw
-    
+
     def item_path(self, internal_id):
         try:
             target = self.manifest[internal_id].path
@@ -159,7 +158,7 @@ class UnBinary(object):
             index += 1
         relpath = (['..'] * (len(base) - index)) + target[index:]
         return '/'.join(relpath)
-    
+
     def __unicode__(self):
         return self.raw.decode('utf-8')
 
@@ -172,11 +171,11 @@ class UnBinary(object):
         in_censorship = is_goingdown = False
         state = 'text'
         flags = 0
-        
+
         while index < len(bin):
             c, index = read_utf8_char(bin, index)
             oc = ord(c)
-            
+
             if state == 'text':
                 if oc == 0:
                     state = 'get flags'
@@ -188,14 +187,14 @@ class UnBinary(object):
                 elif c == '<':
                     c = '<<'
                 buf.write(encode(c))
-            
+
             elif state == 'get flags':
                 if oc == 0:
                     state = 'text'
                     continue
                 flags = oc
                 state = 'get tag'
-            
+
             elif state == 'get tag':
                 state = 'text' if oc == 0 else 'get attr'
                 if flags & FLAG_OPENING:
@@ -226,7 +225,7 @@ class UnBinary(object):
                     if depth == 0:
                         raise LitError('Extra closing tag')
                     return index
-            
+
             elif state == 'get attr':
                 in_censorship = False
                 if oc == 0:
@@ -265,7 +264,7 @@ class UnBinary(object):
                         state = 'get href length'
                     else:
                         state = 'get value length'
-            
+
             elif state == 'get value length':
                 if not in_censorship:
                     buf.write('"')
@@ -281,7 +280,7 @@ class UnBinary(object):
                     continue
                 if count < 0 or count > (len(bin) - index):
                     raise LitError('Invalid character count %d' % count)
-            
+
             elif state == 'get value':
                 if count == 0xfffe:
                     if not in_censorship:
@@ -301,7 +300,7 @@ class UnBinary(object):
                         buf.write('"')
                     in_censorship = False
                     state = 'get attr'
-            
+
             elif state == 'get custom length':
                 count = oc - 1
                 if count <= 0 or count > len(bin)-index:
@@ -309,21 +308,21 @@ class UnBinary(object):
                 dynamic_tag += 1
                 state = 'get custom'
                 tag_name = ''
-            
+
             elif state == 'get custom':
                 tag_name += c
                 count -= 1
                 if count == 0:
                     buf.write(encode(tag_name))
                     state = 'get attr'
-            
+
             elif state == 'get attr length':
                 count = oc - 1
                 if count <= 0 or count > (len(bin) - index):
                     raise LitError('Invalid character count %d' % count)
                 buf.write(' ')
                 state = 'get custom attr'
-            
+
             elif state == 'get custom attr':
                 buf.write(encode(c))
                 count -= 1
@@ -337,7 +336,7 @@ class UnBinary(object):
                     raise LitError('Invalid character count %d' % count)
                 href = ''
                 state = 'get href'
-                    
+
             elif state == 'get href':
                 href += c
                 count -= 1
@@ -350,7 +349,7 @@ class UnBinary(object):
                     buf.write(encode(u'"%s"' % path))
                     state = 'get attr'
         return index
-    
+
 
 class DirectoryEntry(object):
     def __init__(self, name, section, offset, size):
@@ -358,11 +357,11 @@ class DirectoryEntry(object):
         self.section = section
         self.offset = offset
         self.size = size
-        
+
     def __repr__(self):
         return "DirectoryEntry(name=%s, section=%d, offset=%d, size=%d)" \
             % (repr(self.name), self.section, self.offset, self.size)
-        
+
     def __str__(self):
         return repr(self)
 
@@ -382,12 +381,12 @@ class ManifestItem(object):
         path = os.path.normpath(path).replace('\\', '/')
         while path.startswith('../'): path = path[3:]
         self.path = path
-        
+
     def __eq__(self, other):
         if hasattr(other, 'internal'):
             return self.internal == other.internal
         return self.internal == other
-    
+
     def __repr__(self):
         return "ManifestItem(internal=%r, path=%r, mime_type=%r, " \
             "offset=%d, root=%r, state=%r)" \
@@ -404,7 +403,7 @@ def preserve(function):
             self.stream.seek(opos)
     functools.update_wrapper(wrapper, function)
     return wrapper
-    
+
 class LitFile(object):
     PIECE_SIZE = 16
 
@@ -438,14 +437,14 @@ class LitFile(object):
             return self.stream.read(8)
         return property(fget=fget)
     magic = magic()
-    
+
     def version():
         def fget(self):
             self.stream.seek(8)
             return u32(self.stream.read(4))
         return property(fget=fget)
     version = version()
-    
+
     def hdr_len():
         @preserve
         def fget(self):
@@ -453,7 +452,7 @@ class LitFile(object):
             return int32(self.stream.read(4))
         return property(fget=fget)
     hdr_len = hdr_len()
-    
+
     def num_pieces():
         @preserve
         def fget(self):
@@ -461,7 +460,7 @@ class LitFile(object):
             return int32(self.stream.read(4))
         return property(fget=fget)
     num_pieces = num_pieces()
-    
+
     def sec_hdr_len():
         @preserve
         def fget(self):
@@ -469,7 +468,7 @@ class LitFile(object):
             return int32(self.stream.read(4))
         return property(fget=fget)
     sec_hdr_len = sec_hdr_len()
-    
+
     def guid():
         @preserve
         def fget(self):
@@ -477,7 +476,7 @@ class LitFile(object):
             return self.stream.read(16)
         return property(fget=fget)
     guid = guid()
-    
+
     def header():
         @preserve
         def fget(self):
@@ -488,7 +487,7 @@ class LitFile(object):
             return self.stream.read(size)
         return property(fget=fget)
     header = header()
-    
+
     @preserve
     def __len__(self):
         self.stream.seek(0, 2)
@@ -501,7 +500,7 @@ class LitFile(object):
 
     def read_content(self, offset, size):
         return self.read_raw(self.content_offset + offset, size)
-    
+
     def read_secondary_header(self):
         offset = self.hdr_len + (self.num_pieces * self.PIECE_SIZE)
         bytes = self.read_raw(offset, self.sec_hdr_len)
@@ -526,12 +525,12 @@ class LitFile(object):
                 if u32(bytes[offset+4+16:]):
                     raise LitError('This file has a 64bit content offset')
                 self.content_offset = u32(bytes[offset+16:])
-                self.timestamp      = u32(bytes[offset+24:]) 
+                self.timestamp      = u32(bytes[offset+24:])
                 self.language_id    = u32(bytes[offset+28:])
                 offset += 48
         if not hasattr(self, 'content_offset'):
             raise LitError('Could not figure out the content offset')
-    
+
     def read_header_pieces(self):
         src = self.header[self.hdr_len:]
         for i in xrange(self.num_pieces):
@@ -556,7 +555,7 @@ class LitFile(object):
                 self.piece3_guid = piece
             elif i == 4:
                 self.piece4_guid = piece
-                
+
     def read_directory(self, piece):
         if not piece.startswith('IFCM'):
             raise LitError('Header piece #1 is not main directory.')
@@ -760,9 +759,9 @@ class LitFile(object):
             raise LitError("Reset table is too short")
         if u32(reset_table[RESET_UCLENGTH + 4:]) != 0:
             raise LitError("Reset table has 64bit value for UCLENGTH")
-        
+
         result = []
-        
+
         window_size = 14
         u = u32(control[CONTROL_WINDOW_SIZE:])
         while u > 0:
@@ -847,13 +846,13 @@ class LitContainer(object):
 
     def __init__(self, filename_or_stream):
         self._litfile = LitFile(filename_or_stream)
-    
+
     def namelist(self):
         return self._litfile.paths.keys()
 
     def exists(self, name):
         return urlunquote(name) in self._litfile.paths
-    
+
     def read(self, name):
         entry = self._litfile.paths[urlunquote(name)] if name else None
         if entry is None:
@@ -869,7 +868,7 @@ class LitContainer(object):
             internal = '/'.join(('/data', entry.internal))
             content = self._litfile.get_file(internal)
         return content
-    
+
     def _read_meta(self):
         path = 'content.opf'
         raw = self._litfile.get_file('/meta')

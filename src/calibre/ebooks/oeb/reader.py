@@ -349,6 +349,7 @@ class OEBReader(object):
     def _toc_from_ncx(self, item):
         if item is None:
             return False
+        self.log.debug('Reading TOC from NCX...')
         ncx = item.data
         title = ''.join(xpath(ncx, 'ncx:docTitle/ncx:text/text()'))
         title = COLLAPSE_RE.sub(' ', title.strip())
@@ -364,6 +365,7 @@ class OEBReader(object):
         result = xpath(opf, 'o2:tours/o2:tour')
         if not result:
             return False
+        self.log.debug('Reading TOC from tour...')
         tour = result[0]
         toc = self.oeb.toc
         toc.title = tour.get('title')
@@ -384,6 +386,7 @@ class OEBReader(object):
     def _toc_from_html(self, opf):
         if 'toc' not in self.oeb.guide:
             return False
+        self.log.debug('Reading TOC from HTML...')
         itempath, frag = urldefrag(self.oeb.guide['toc'].href)
         item = self.oeb.manifest.hrefs[itempath]
         html = item.data
@@ -414,6 +417,7 @@ class OEBReader(object):
         return True
 
     def _toc_from_spine(self, opf):
+        self.log.warn('Generating default TOC from spine...')
         toc = self.oeb.toc
         titles = []
         headers = []
@@ -441,11 +445,14 @@ class OEBReader(object):
         return True
 
     def _toc_from_opf(self, opf, item):
+        self.oeb.auto_generated_toc = False
         if self._toc_from_ncx(item): return
-        if self._toc_from_tour(opf): return
-        self.logger.warn('No metadata table of contents found')
+        # Prefer HTML to tour based TOC, since several LIT files
+        # have good HTML TOCs but bad tour based TOCs
         if self._toc_from_html(opf): return
+        if self._toc_from_tour(opf): return
         self._toc_from_spine(opf)
+        self.oeb.auto_generated_toc = True
 
     def _pages_from_ncx(self, opf, item):
         if item is None:
