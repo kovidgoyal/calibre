@@ -21,6 +21,7 @@ def get_metadata(stream, extract_cover=True):
     """ Return metadata as a L{MetaInfo} object """
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
+    stream = StringIO.StringIO(stream.read())
 
     if extract_cover and _imagemagick_loaded:
         try:
@@ -70,6 +71,10 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 def get_cover(stream):
+    stream.seek(0)
+    if not isinstance(stream, StringIO.StringIO):
+        stream = StringIO.StringIO(stream.read())
+    
     data = StringIO.StringIO()
 
     try:
