@@ -589,7 +589,7 @@
                    <item>
                     <widget class="QPushButton" name="fetch_cover_button">
                      <property name="text">
-                      <string>Fetch &amp;cover image from server</string>
+                      <string>Download &amp;cover image</string>
                      </property>
                     </widget>
                    </item>

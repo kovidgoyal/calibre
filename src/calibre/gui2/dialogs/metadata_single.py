@@ -20,7 +20,7 @@ from calibre.gui2.dialogs.password import PasswordDialog
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
-from calibre.ebooks.metadata.library_thing import login, cover_from_isbn
+from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
@@ -60,9 +60,8 @@ class CoverFetcher(QThread):
                     return
                 self.isbn = results[0]
 
-            if self.username and self.password:
-                login(self.username, self.password, force=False)
-            self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout)[0]
+            self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout,
+                    username=self.username, password=self.password)[0]
         except Exception, e:
             self.exception = e
             self.traceback = traceback.format_exc()
