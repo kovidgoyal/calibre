@@ -246,7 +246,7 @@ class CurrentDir(object):
         os.chdir(self.cwd)
 
 
-class FileWrapper(object):
+class StreamReadWrapper(object):
     '''
     Used primarily with pyPdf to ensure the stream is properly closed.
     '''

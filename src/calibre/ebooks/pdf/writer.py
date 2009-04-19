@@ -126,7 +126,7 @@ class PDFWriter(QObject):
         try:
             outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
             for item in self.combine_queue:
-                inputPDF = PdfFileReader(file(item, 'rb'))
+                inputPDF = PdfFileReader(open(item, 'rb'))
                 for page in inputPDF.pages:
                     outPDF.addPage(page)
             outPDF.write(self.out_stream)

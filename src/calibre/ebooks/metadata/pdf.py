@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, cStringIO
 from threading import Thread
 
-from calibre import FileWrapper
+from calibre import StreamReadWrapper
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from pyPdf import PdfFileReader, PdfFileWriter
@@ -33,7 +33,7 @@ def get_metadata(stream, extract_cover=True):
             traceback.print_exc()
 
     try:
-        with FileWrapper(stream) as stream:
+        with StreamReadWrapper(stream) as stream:
             info = PdfFileReader(stream).getDocumentInfo()
             if info.title:
                 mi.title = info.title
@@ -94,29 +94,27 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 def get_cover(stream):
-
     try:
-        pdf = PdfFileReader(stream)
-        output = PdfFileWriter()
-
-        if len(pdf.pages) >= 1:
-            output.addPage(pdf.getPage(0))
-
-            with TemporaryDirectory('_pdfmeta') as tdir:
-                cover_path = os.path.join(tdir, 'cover.pdf')
-
-                with open(cover_path, "wb") as outputStream:
-                    output.write(outputStream)
-                with ImageMagick():
-                    wand = NewMagickWand()
-                    MagickReadImage(wand, cover_path)
-                    MagickSetImageFormat(wand, 'JPEG')
-                    MagickWriteImage(wand, '%s.jpg' % cover_path)
-                return open('%s.jpg' % cover_path, 'rb').read()
-
+        with StreamReadWrapper(stream) as stream:
+            pdf = PdfFileReader(stream)
+            output = PdfFileWriter()
+    
+            if len(pdf.pages) >= 1:
+                output.addPage(pdf.getPage(0))
+    
+                with TemporaryDirectory('_pdfmeta') as tdir:
+                    cover_path = os.path.join(tdir, 'cover.pdf')
+    
+                    with open(cover_path, "wb") as outputStream:
+                        output.write(outputStream)
+                    with ImageMagick():
+                        wand = NewMagickWand()
+                        MagickReadImage(wand, cover_path)
+                        MagickSetImageFormat(wand, 'JPEG')
+                        MagickWriteImage(wand, '%s.jpg' % cover_path)
+                    return open('%s.jpg' % cover_path, 'rb').read()
     except:
         import traceback
         traceback.print_exc()
 
     return ''
-

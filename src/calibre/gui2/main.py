@@ -608,7 +608,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.device_manager.device.__class__.__name__+\
                         _(' detected.'), 3000)
             self.device_connected = True
-            self._sync_menu.enable_device_actions(True)
+            self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix())
         else:
             self.device_connected = False
             self._sync_menu.enable_device_actions(False)
