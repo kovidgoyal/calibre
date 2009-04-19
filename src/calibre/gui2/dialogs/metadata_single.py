@@ -20,12 +20,11 @@ from calibre.gui2.dialogs.password import PasswordDialog
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
-from calibre.ebooks.metadata.library_thing import login, cover_from_isbn
+from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
 from calibre.customize.ui import run_plugins_on_import
-from calibre.gui2 import config as gui_conf
 
 class CoverFetcher(QThread):
 
@@ -60,9 +59,8 @@ class CoverFetcher(QThread):
                     return
                 self.isbn = results[0]
 
-            if self.username and self.password:
-                login(self.username, self.password, force=False)
-            self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout)[0]
+            self.cover_data = cover_from_isbn(self.isbn, timeout=self.timeout,
+                    username=self.username, password=self.password)[0]
         except Exception, e:
             self.exception = e
             self.traceback = traceback.format_exc()
@@ -290,7 +288,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.series_index.setValue(self.db.series_index(row))
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
-        QObject.connect(self.password_button, SIGNAL('clicked()'), self.change_password)
 
         self.show()
         height_of_rest = self.frameGeometry().height() - self.cover.height()
@@ -378,15 +375,15 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def fetch_cover(self):
         isbn   = unicode(self.isbn.text()).strip()
-        d = self.lt_password_dialog()
-        if not gui_conf['asked_library_thing_password'] and \
-                (not d.username() or not d.password()):
-            d.exec_()
-            gui_conf['asked_library_thing_password'] = True
+        #d = self.lt_password_dialog()
+        #if not gui_conf['asked_library_thing_password'] and \
+        #        (not d.username() or not d.password()):
+        #    d.exec_()
+        #    gui_conf['asked_library_thing_password'] = True
         self.fetch_cover_button.setEnabled(False)
         self.setCursor(Qt.WaitCursor)
         title, author = map(unicode, (self.title.text(), self.authors.text()))
-        self.cover_fetcher = CoverFetcher(d.username(), d.password(), isbn,
+        self.cover_fetcher = CoverFetcher(None, None, isbn,
                                             self.timeout, title, author)
         self.cover_fetcher.start()
         self._hangcheck = QTimer(self)

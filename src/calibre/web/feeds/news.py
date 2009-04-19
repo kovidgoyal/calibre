@@ -266,7 +266,7 @@ class BasicNewsRecipe(object):
 
     def get_feeds(self):
         '''
-        Return a list of :term:RSS feeds to fetch for this profile. Each element of the list
+        Return a list of :term:`RSS` feeds to fetch for this profile. Each element of the list
         must be a 2-element tuple of the form (title, url). If title is None or an
         empty string, the title from the feed is used. This method is useful if your recipe
         needs to do some processing to figure out the list of feeds to download. If
