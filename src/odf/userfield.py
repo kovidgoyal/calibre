@@ -31,11 +31,7 @@ import xml.sax.saxutils
 
 from odf.namespaces import OFFICENS, TEXTNS
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
+from cStringIO import StringIO
 
 OUTENCODING = "utf-8"
 
