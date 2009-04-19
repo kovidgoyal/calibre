@@ -29,12 +29,7 @@ from xml.sax.xmlreader import InputSource
 import xml.sax.saxutils
 from element import Element
 from namespaces import OFFICENS
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
+from cStringIO import StringIO
 
 #
 # Parse the XML files
@@ -70,7 +65,7 @@ class LoadParser(handler.ContentHandler):
         # Add any accumulated text content
         content = ''.join(self.data).strip()
         if len(content) > 0:
-            self.parent.addText(content)
+            self.parent.addText(content, check_grammar=False)
             self.data = []
         # Create the element
         attrdict = {}
@@ -109,7 +104,7 @@ class LoadParser(handler.ContentHandler):
         self.level = self.level - 1
         str = ''.join(self.data)
         if len(str.strip()) > 0:
-            self.curr.addText(str)
+            self.curr.addText(str, check_grammar=False)
         self.data = []
         self.curr = self.curr.parentNode
         self.parent = self.curr

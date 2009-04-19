@@ -27,3 +27,8 @@ from element import Element
 def Model(**args):
     return Element(qname = (XFORMSNS,'model'), **args)
 
+def Instance(**args):
+    return Element(qname = (XFORMSNS,'instance'), **args)
+
+def Bind(**args):
+    return Element(qname = (XFORMSNS,'bind'), **args)

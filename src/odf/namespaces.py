@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2006-2007 Søren Roug, European Environment Agency
+# Copyright (C) 2006-2009 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,7 @@
 #
 # Contributor(s):
 #
-TOOLSVERSION = u"ODFPY/0.8.2dev"
+TOOLSVERSION = u"ODFPY/0.9.1dev"
 
 ANIMNS         = u"urn:oasis:names:tc:opendocument:xmlns:animation:1.0"
 DBNS           = u"urn:oasis:names:tc:opendocument:xmlns:database:1.0"
@@ -71,7 +71,7 @@ nsdict = {
    OFFICENS: u'office',
    OOONS: u'ooo',
    OOOWNS: u'ooow',
-   OOOCNS: u'ooc',
+   OOOCNS: u'oooc',
    PRESENTATIONNS: u'presentation',
    RDFANS: u'rdfa',
    SCRIPTNS: u'script',

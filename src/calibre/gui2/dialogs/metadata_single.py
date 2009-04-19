@@ -16,7 +16,6 @@ from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.gui2.dialogs.password import PasswordDialog
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
@@ -360,26 +359,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
 
-    def lt_password_dialog(self):
-        return PasswordDialog(self, 'LibraryThing account',
-                 _('<p>Enter your username and password for '
-                   '<b>LibraryThing.com</b>. This is <b>optional</b>. It will '
-                   'make fetching of covers faster and more reliable.<br/>If '
-                   'you do not have an account, you can '
-                   '<a href=\'http://www.librarything.com\'>register</a> for '
-                   'free.</p>'))
-
-    def change_password(self):
-        d = self.lt_password_dialog()
-        d.exec_()
-
     def fetch_cover(self):
         isbn   = unicode(self.isbn.text()).strip()
-        #d = self.lt_password_dialog()
-        #if not gui_conf['asked_library_thing_password'] and \
-        #        (not d.username() or not d.password()):
-        #    d.exec_()
-        #    gui_conf['asked_library_thing_password'] = True
         self.fetch_cover_button.setEnabled(False)
         self.setCursor(Qt.WaitCursor)
         title, author = map(unicode, (self.title.text(), self.authors.text()))

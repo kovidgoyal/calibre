@@ -25,11 +25,7 @@ import xml.sax
 from xml.sax import handler, expatreader
 from xml.sax.xmlreader import InputSource
 from xml.sax.saxutils import escape, quoteattr
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from cStringIO import StringIO
 
 from namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
   FORMNS, MATHNS, METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, \

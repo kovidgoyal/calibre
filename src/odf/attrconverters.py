@@ -182,11 +182,6 @@ def cnv_points(attribute, arg, element):
             raise ValueError, "Points must be string or [(0,0),(1,1)] - not %s" % arg
         return strarg
 
-def cnv_position(attribute, arg, element):
-    if element == (STYLENS,u'tab-stop'):
-       return cnv_length(attribute, arg, element)
-    return cnv_string(attribute, arg, element)
-
 def cnv_positiveInteger(attribute, arg, element):
     return str(arg)
 
@@ -253,7 +248,7 @@ attrconverters = {
 	((CHARTNS,u'gap-width'), None): cnv_string,
 	((CHARTNS,u'interpolation'), None): cnv_string,
 	((CHARTNS,u'interval-major'), None): cnv_string,
-	((CHARTNS,u'interval-minor'), None): cnv_string,
+	((CHARTNS,u'interval-minor-divisor'), None): cnv_string,
 	((CHARTNS,u'japanese-candle-stick'), None): cnv_boolean,
 	((CHARTNS,u'label-arrangement'), None): cnv_string,
 	((CHARTNS,u'label-cell-address'), None): cnv_string,
@@ -352,6 +347,7 @@ attrconverters = {
 	((DRAWNS,u'caption-line-length'), None): cnv_length,
 	((DRAWNS,u'caption-point-x'), None): cnv_string,
 	((DRAWNS,u'caption-point-y'), None): cnv_string,
+	((DRAWNS,u'caption-id'), None): cnv_IDREF,
 	((DRAWNS,u'caption-type'), None): cnv_string,
 	((DRAWNS,u'chain-next-name'), None): cnv_string,
 	((DRAWNS,u'class-id'), None): cnv_string,
@@ -476,6 +472,7 @@ attrconverters = {
 	((DRAWNS,u'modifiers'), None): cnv_string,
 	((DRAWNS,u'name'), None): cnv_NCName,
 #	((DRAWNS,u'name'), None): cnv_string,
+	((DRAWNS,u'nav-order'), None): cnv_IDREF,
 	((DRAWNS,u'nohref'), None): cnv_string,
 	((DRAWNS,u'notify-on-update-of-ranges'), None): cnv_string,
 	((DRAWNS,u'object'), None): cnv_string,
@@ -683,7 +680,7 @@ attrconverters = {
 	((MANIFESTNS,'initialisation-vector'), None): cnv_string,
 	((MANIFESTNS,'iteration-count'), None): cnv_nonNegativeInteger,
 	((MANIFESTNS,'key-derivation-name'), None): cnv_string,
-	((MANIFESTNS,'manifest:media-type'), None): cnv_string,
+	((MANIFESTNS,'media-type'), None): cnv_string,
 	((MANIFESTNS,'salt'), None): cnv_string,
 	((MANIFESTNS,'size'), None): cnv_nonNegativeInteger,
 	((METANS,u'cell-count'), None): cnv_nonNegativeInteger,
@@ -746,6 +743,7 @@ attrconverters = {
 	((OFFICENS,u'target-frame'), None): cnv_string,
 	((OFFICENS,u'target-frame-name'), None): cnv_string,
 	((OFFICENS,u'time-value'), None): cnv_duration,
+	((OFFICENS,u'title'), None): cnv_string,
 	((OFFICENS,u'value'), None): cnv_double,
 	((OFFICENS,u'value-type'), None): cnv_string,
 	((OFFICENS,u'version'), None): cnv_string,
@@ -783,6 +781,7 @@ attrconverters = {
 	((PRESENTATIONNS,u'preset-id'), None): cnv_string,
 	((PRESENTATIONNS,u'preset-sub-type'), None): cnv_string,
 	((PRESENTATIONNS,u'show'), None): cnv_string,
+	((PRESENTATIONNS,u'show-end-of-presentation-slide'), None): cnv_boolean,
 	((PRESENTATIONNS,u'show-logo'), None): cnv_boolean,
 	((PRESENTATIONNS,u'source'), None): cnv_string,
 	((PRESENTATIONNS,u'speed'), None): cnv_string,
@@ -873,6 +872,8 @@ attrconverters = {
 	((STYLENS,u'flow-with-text'), None): cnv_boolean,
 	((STYLENS,u'font-adornments'), None): cnv_string,
 	((STYLENS,u'font-charset'), None): cnv_string,
+	((STYLENS,u'font-charset-asian'), None): cnv_string,
+	((STYLENS,u'font-charset-complex'), None): cnv_string,
 	((STYLENS,u'font-family-asian'), None): cnv_string,
 	((STYLENS,u'font-family-complex'), None): cnv_string,
 	((STYLENS,u'font-family-generic-asian'), None): cnv_string,
@@ -949,7 +950,8 @@ attrconverters = {
 	((STYLENS,u'page-usage'), None): cnv_string,
 	((STYLENS,u'paper-tray-name'), None): cnv_string,
 	((STYLENS,u'parent-style-name'), None): cnv_StyleNameRef,
-	((STYLENS,u'position'), None): cnv_position,
+	((STYLENS,u'position'), (STYLENS,u'tab-stop')): cnv_length,
+	((STYLENS,u'position'), None): cnv_string,
 	((STYLENS,u'print'), None): cnv_string,
 	((STYLENS,u'print-content'), None): cnv_boolean,
 	((STYLENS,u'print-orientation'), None): cnv_string,
@@ -1015,7 +1017,7 @@ attrconverters = {
 	((STYLENS,u'wrap'), None): cnv_string,
 	((STYLENS,u'wrap-contour'), None): cnv_boolean,
 	((STYLENS,u'wrap-contour-mode'), None): cnv_string,
-	((STYLENS,u'wrap-dynamic-treshold'), None): cnv_string,
+	((STYLENS,u'wrap-dynamic-threshold'), None): cnv_length,
 	((STYLENS,u'writing-mode-automatic'), None): cnv_boolean,
 	((STYLENS,u'writing-mode'), None): cnv_string,
 	((SVGNS,u'accent-height'), None): cnv_integer,
@@ -1122,7 +1124,7 @@ attrconverters = {
 	((TABLENS,u'database-table-name'), None): cnv_string,
 	((TABLENS,u'date-end'), None): cnv_string,
 	((TABLENS,u'date-start'), None): cnv_string,
-	((TABLENS,u'date-value-type'), None): cnv_date,
+	((TABLENS,u'date-value'), None): cnv_date,
 	((TABLENS,u'default-cell-style-name'), None): cnv_StyleNameRef,
 	((TABLENS,u'direction'), None): cnv_string,
 	((TABLENS,u'display-border'), None): cnv_boolean,
@@ -1304,7 +1306,7 @@ attrconverters = {
 	((TEXTNS,u'database-name'), None): cnv_string,
 	((TEXTNS,u'date-adjust'), None): cnv_duration,
 	((TEXTNS,u'date-value'), None): cnv_date,
-	((TEXTNS,u'date-value'), None): cnv_dateTime,
+#	((TEXTNS,u'date-value'), None): cnv_dateTime,
 	((TEXTNS,u'default-style-name'), None): cnv_StyleNameRef,
 	((TEXTNS,u'description'), None): cnv_string,
 	((TEXTNS,u'display'), None): cnv_string,
@@ -1366,6 +1368,7 @@ attrconverters = {
 	((TEXTNS,u'outline-level'), None): cnv_string,
 	((TEXTNS,u'page-adjust'), None): cnv_integer,
 	((TEXTNS,u'pages'), None): cnv_string,
+	((TEXTNS,u'paragraph-style-name'), None): cnv_StyleNameRef,
 	((TEXTNS,u'placeholder-type'), None): cnv_string,
 	((TEXTNS,u'prefix'), None): cnv_string,
 	((TEXTNS,u'protected'), None): cnv_boolean,
@@ -1417,6 +1420,7 @@ attrconverters = {
 	((TEXTNS,u'use-objects'), None): cnv_boolean,
 	((TEXTNS,u'use-other-objects'), None): cnv_boolean,
 	((TEXTNS,u'use-outline-level'), None): cnv_boolean,
+	((TEXTNS,u'use-soft-page-breaks'), None): cnv_boolean,
 	((TEXTNS,u'use-spreadsheet-objects'), None): cnv_boolean,
 	((TEXTNS,u'use-tables'), None): cnv_boolean,
 	((TEXTNS,u'value'), None): cnv_nonNegativeInteger,

@@ -258,10 +258,7 @@ class Element(Node):
         self.ownerDocument = None
         self.childNodes=[]
         self.allowed_children = grammar.allowed_children.get(self.qname)
-        namespace = self.qname[0]
-        prefix = _nsassign(namespace)
-        if not self.namespaces.has_key(namespace):
-            self.namespaces[namespace] = prefix
+        prefix = self.get_nsprefix(self.qname[0])
         self.tagName = prefix + ":" + self.qname[1]
         if text is not None:
             self.addText(text)
@@ -295,6 +292,13 @@ class Element(Node):
             for r in required:
                 if self.getAttrNS(r[0],r[1]) is None:
                     raise AttributeError, "Required attribute missing: %s in <%s>" % (r[1].lower().replace('-',''), self.tagName)
+
+    def get_nsprefix(self, namespace):
+        if namespace is None: namespace = ""
+        prefix = _nsassign(namespace)
+        if not self.namespaces.has_key(namespace):
+            self.namespaces[namespace] = prefix
+        return prefix
 
     def allowed_attributes(self):
         return grammar.allowed_attributes.get(self.qname)
@@ -378,24 +382,18 @@ class Element(Node):
             Must overwrite, If attribute already exists.
         """
         allowed_attrs = self.allowed_attributes()
-        prefix = _nsassign(namespace)
-        if not self.namespaces.has_key(namespace):
-            self.namespaces[namespace] = prefix
+        prefix = self.get_nsprefix(namespace)
 #       if allowed_attrs and (namespace, localpart) not in allowed_attrs:
 #           raise AttributeError, "Attribute %s:%s is not allowed in element <%s>" % ( prefix, localpart, self.tagName)
         c = AttrConverters()
         self.attributes[prefix + ":" + localpart] = c.convert((namespace, localpart), value, self.qname)
 
     def getAttrNS(self, namespace, localpart):
-        prefix = _nsassign(namespace)
-        if not self.namespaces.has_key(namespace):
-            self.namespaces[namespace] = prefix
+        prefix = self.get_nsprefix(namespace)
         return self.attributes.get(prefix + ":" + localpart)
 
     def removeAttrNS(self, namespace, localpart):
-        prefix = _nsassign(namespace)
-        if not self.namespaces.has_key(namespace):
-            self.namespaces[namespace] = prefix
+        prefix = self.get_nsprefix(namespace)
         del self.attributes[prefix + ":" + localpart]
 
     def getAttribute(self, attr):
