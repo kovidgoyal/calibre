@@ -1,0 +1,151 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import with_statement
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+from lxml import etree
+from urlparse import urlparse
+
+from calibre.ebooks.oeb.base import XPNSMAP, TOC
+XPath = lambda x: etree.XPath(x, namespaces=XPNSMAP)
+
+class DetectStructure(object):
+
+    def __call__(self, oeb, opts):
+        self.log = oeb.log
+        self.oeb = oeb
+        self.opts = opts
+        self.log('Detecting structure...')
+
+        self.detect_chapters()
+        if self.oeb.auto_generated_toc or opts.use_auto_toc:
+            orig_toc = self.oeb.toc
+            self.oeb.toc = TOC()
+            self.create_level_based_toc()
+            if self.oeb.toc.count() < 1:
+                if not opts.no_chapters_in_toc and self.detected_chapters:
+                    self.create_toc_from_chapters()
+                    if self.oeb.toc.count() < opts.toc_threshold:
+                        self.create_toc_from_links()
+            if self.oeb.toc.count() < 2 and orig_toc.count() > 2:
+                self.oeb.toc = orig_toc
+            else:
+                self.oeb.auto_generated_toc = True
+                self.log('Auto generated TOC with %d entries.' %
+                        self.oeb.toc.count())
+
+
+    def detect_chapters(self):
+        self.detected_chapters = []
+        if self.opts.chapter:
+            chapter_xpath = XPath(self.opts.chapter)
+            for item in self.oeb.spine:
+                for x in chapter_xpath(item.data):
+                    self.detected_chapters.append((item, x))
+
+            chapter_mark = self.opts.chapter_mark
+            page_break_before = 'display: block; page-break-before: always'
+            page_break_after = 'display: block; page-break-after: always'
+            for item, elem in self.detected_chapters:
+                text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
+                self.log('\tDetected chapter:', text[:50])
+                if chapter_mark == 'none':
+                    continue
+                elif chapter_mark == 'rule':
+                    mark = etree.Element('hr')
+                elif chapter_mark == 'pagebreak':
+                    mark = etree.Element('div', style=page_break_after)
+                else: # chapter_mark == 'both':
+                    mark = etree.Element('hr', style=page_break_before)
+                elem.addprevious(mark)
+
+    def create_level_based_toc(self):
+        if self.opts.level1_toc is None:
+            return
+        for item in self.oeb.spine:
+            self.add_leveled_toc_items(item)
+
+    def create_toc_from_chapters(self):
+        counter = self.oeb.toc.next_play_order()
+        for item, elem in self.detected_chapters:
+            text, href = self.elem_to_link(item, elem, counter)
+            self.oeb.toc.add(text, href, play_order=counter)
+            counter += 1
+
+    def create_toc_from_links(self):
+        for item in self.oeb.spine:
+            for a in item.data.xpath('//h:a[@href]'):
+                href = a.get('href')
+                purl = urlparse(href)
+                if not purl[0] or purl[0] == 'file':
+                    href, frag = purl.path, purl.fragment
+                    href = item.abshref(href)
+                    if frag:
+                        href = '#'.join((href, frag))
+                    if not self.oeb.toc.has_href(href):
+                        text = u' '.join([t.strip() for t in \
+                                a.xpath('descendant::text()')])
+                        text = text[:100].strip()
+                        if not self.oeb.toc.has_text(text):
+                            self.oeb.toc.add(text, href,
+                                play_order=self.oeb.toc.next_play_order())
+
+
+    def elem_to_link(self, item, elem, counter):
+        text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
+        text = text[:100].strip()
+        id = elem.get('id', 'calibre_toc_%d'%counter)
+        elem.set('id', id)
+        href = '#'.join((item.href, id))
+        return text, href
+
+
+    def add_leveled_toc_items(self, item):
+        level1 = XPath(self.opts.level1_toc)(item.data)
+        level1_order = []
+
+        counter = 1
+        if level1:
+            added = {}
+            for elem in level1:
+                text, _href = self.elem_to_link(item, elem, counter)
+                counter += 1
+                if text:
+                    node = self.oeb.toc.add(text, _href,
+                            play_order=self.oeb.toc.next_play_order())
+                    level1_order.append(node)
+                    added[elem] = node
+                    #node.add(_('Top'), _href)
+            if self.opts.level2_toc is not None:
+                added2 = {}
+                level2 = list(XPath(self.opts.level2_toc)(item.data))
+                for elem in level2:
+                    level1 = None
+                    for item in item.data.iterdescendants():
+                        if item in added.keys():
+                            level1 = added[item]
+                        elif item == elem and level1 is not None:
+                            text, _href = self.elem_to_link(item, elem, counter)
+                            counter += 1
+                            if text:
+                                added2[elem] = level1.add(text, _href,
+                                    play_order=self.oeb.toc.next_play_order())
+                if self.opts.level3_toc is not None:
+                    level3 = list(XPath(self.opts.level3_toc)(item.data))
+                    for elem in level3:
+                        level2 = None
+                        for item in item.data.iterdescendants():
+                            if item in added2.keys():
+                                level2 = added2[item]
+                            elif item == elem and level2 is not None:
+                                text, _href = \
+                                        self.elem_to_link(item, elem, counter)
+                                counter += 1
+                                if text:
+                                    level2.add(text, _href,
+                                    play_order=self.oeb.toc.next_play_order())
+
+

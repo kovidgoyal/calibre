@@ -15,12 +15,10 @@ from lxml.etree import XPath as _XPath
 from lxml import etree
 from lxml.cssselect import CSSSelector
 
-from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP, urldefrag, \
-                rewrite_links
+from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
+        urldefrag, rewrite_links
 from calibre.ebooks.epub import tostring, rules
 
-NAMESPACES = dict(XPNSMAP)
-NAMESPACES['re'] = 'http://exslt.org/regular-expressions'
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 

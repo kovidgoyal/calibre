@@ -41,10 +41,12 @@ NCX_NS       = 'http://www.daisy.org/z3986/2005/ncx/'
 SVG_NS       = 'http://www.w3.org/2000/svg'
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 CALIBRE_NS   = 'http://calibre.kovidgoyal.net/2009/metadata'
+RE_NS        = 'http://exslt.org/regular-expressions'
+
 XPNSMAP      = {'h'  : XHTML_NS, 'o1' : OPF1_NS,    'o2' : OPF2_NS,
                 'd09': DC09_NS,  'd10': DC10_NS,    'd11': DC11_NS,
                 'xsi': XSI_NS,   'dt' : DCTERMS_NS, 'ncx': NCX_NS,
-                'svg': SVG_NS,   'xl' : XLINK_NS}
+                'svg': SVG_NS,   'xl' : XLINK_NS,   're': RE_NS}
 OPF1_NSMAP   = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
 OPF2_NSMAP   = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                 'xsi': XSI_NS, 'calibre': CALIBRE_NS}
@@ -1256,16 +1258,21 @@ class TOC(object):
     :attr:`klass`: Optional semantic class referenced by this node.
     :attr:`id`: Option unique identifier for this node.
     """
-    def __init__(self, title=None, href=None, klass=None, id=None):
+    def __init__(self, title=None, href=None, klass=None, id=None,
+            play_order=None):
         self.title = title
         self.href = urlnormalize(href) if href else href
         self.klass = klass
         self.id = id
         self.nodes = []
+        self.play_order = 0
+        if play_order is None:
+            play_order = self.next_play_order()
+        self.play_order = play_order
 
-    def add(self, title, href, klass=None, id=None):
+    def add(self, title, href, klass=None, id=None, play_order=0):
         """Create and return a new sub-node of this node."""
-        node = TOC(title, href, klass, id)
+        node = TOC(title, href, klass, id, play_order)
         self.nodes.append(node)
         return node
 
@@ -1275,6 +1282,18 @@ class TOC(object):
         for child in self.nodes:
             for node in child.iter():
                 yield node
+
+    def count(self):
+        return len(list(self.iter())) - 1
+
+    def next_play_order(self):
+        return max([x.play_order for x in self.iter()])+1
+
+    def has_href(self, href):
+        for x in self.iter():
+            if x.href == href:
+                return True
+        return False
 
     def iterdescendants(self):
         """Iterate over all descendant nodes in depth-first order."""
@@ -1309,6 +1328,10 @@ class TOC(object):
         except ValueError:
             return 1
 
+    def __str__(self):
+        return 'TOC: %s --> %s'%(self.title, self.href)
+
+
     def to_opf1(self, tour):
         for node in self.nodes:
             element(tour, 'site', attrib={
@@ -1319,7 +1342,7 @@ class TOC(object):
     def to_ncx(self, parent):
         for node in self.nodes:
             id = node.id or unicode(uuid.uuid4())
-            attrib = {'id': id, 'playOrder': '0'}
+            attrib = {'id': id, 'playOrder': str(node.play_order)}
             if node.klass:
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
@@ -1329,6 +1352,34 @@ class TOC(object):
             node.to_ncx(point)
         return parent
 
+    def rationalize_play_orders(self):
+        '''
+        Ensure that all nodes with the same play_order have the same href and
+        with different play_orders have different hrefs.
+        '''
+        def po_node(n):
+            for x in self.iter():
+                if x is n:
+                    return
+                if x.play_order == n.play_order:
+                    return x
+
+        def href_node(n):
+            for x in self.iter():
+                if x is n:
+                    return
+                if x.href == n.href:
+                    return x
+
+        for x in self.iter():
+            y = po_node(x)
+            if y is not None:
+                if x.href != y.href:
+                    x.play_order = getattr(href_node(x), 'play_order',
+                            self.next_play_order())
+            y = href_node(x)
+            if y is not None:
+                x.play_order = y.play_order
 
 class PageList(object):
     """Collection of named "pages" to mapped positions within an OEB data model
