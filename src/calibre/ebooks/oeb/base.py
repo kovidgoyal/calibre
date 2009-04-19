@@ -1276,6 +1276,16 @@ class TOC(object):
         self.nodes.append(node)
         return node
 
+    def remove(self, node):
+        for child in self.nodes:
+            if child is node:
+                self.nodes.remove(child)
+                return True
+            else:
+                if child.remove(node):
+                    return True
+        return False
+
     def iter(self):
         """Iterate over this node and all descendants in depth-first order."""
         yield self

@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
+
 from lxml import etree
 from urlparse import urlparse
 
@@ -36,6 +38,12 @@ class DetectStructure(object):
                 self.oeb.auto_generated_toc = True
                 self.log('Auto generated TOC with %d entries.' %
                         self.oeb.toc.count())
+
+        if opts.toc_filter is not None:
+            regexp = re.compile(opts.toc_filter)
+            for node in self.oeb.toc.iter():
+                if not node.title or regexp.search(node.title) is not None:
+                    self.oeb.toc.remove(node)
 
 
     def detect_chapters(self):

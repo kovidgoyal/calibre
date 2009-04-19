@@ -176,6 +176,15 @@ OptionRecommendation(name='max_toc_links',
                 )
         ),
 
+OptionRecommendation(name='toc_filter',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('Remove entries from the Table of Contents whose titles '
+            'match the specified regular expression. Matching entries and all '
+            'their children are removed.'
+                )
+        ),
+
+
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
               "re:test(., 'chapter|book|section|part', 'i')) or @class "
