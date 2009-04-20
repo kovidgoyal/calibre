@@ -19,24 +19,6 @@ from calibre.utils.zipfile import ZipFile
 from calibre.customize.ui import run_plugins_on_preprocess
 
 
-def epub2opf(path, tdir, opts):
-    zf = ZipFile(path)
-    zf.extractall(tdir)
-    opts.chapter_mark = 'none'
-    encfile = os.path.join(tdir, 'META-INF', 'encryption.xml')
-    opf = None
-    for f in walk(tdir):
-        if f.lower().endswith('.opf'):
-            opf = f
-            break
-    if opf and os.path.exists(encfile):
-        if not process_encryption(encfile, opf):
-            raise DRMError(os.path.basename(path))
-
-    if opf is None:
-        raise ValueError('%s is not a valid EPUB file'%path)
-    return opf
-
 SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf',
                   'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
 

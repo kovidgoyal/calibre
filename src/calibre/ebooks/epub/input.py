@@ -11,12 +11,12 @@ from lxml import etree
 from calibre.customize.conversion import InputFormatPlugin
 
 class EPUBInput(InputFormatPlugin):
-    
+
     name        = 'EPUB Input'
     author      = 'Kovid Goyal'
     description = 'Convert EPUB files (.epub) to HTML'
     file_types  = set(['epub'])
-    
+
     @classmethod
     def decrypt_font(cls, key, path):
         raw = open(path, 'rb').read()
@@ -26,7 +26,7 @@ class EPUBInput(InputFormatPlugin):
         with open(path, 'wb') as f:
             f.write(decrypt)
             f.write(raw[1024:])
-    
+
     @classmethod
     def process_ecryption(cls, encfile, opf, log):
         key = None
@@ -55,21 +55,35 @@ class EPUBInput(InputFormatPlugin):
         from calibre.utils.zipfile import ZipFile
         from calibre import walk
         from calibre.ebooks import DRMError
+        from calibre.ebooks.metadata.opf2 import OPF
         zf = ZipFile(stream)
         zf.extractall(os.getcwd())
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = None
-        for f in walk('.'):
+        for f in walk(u'.'):
             if f.lower().endswith('.opf'):
-                opf = f
+                opf = os.path.abspath(f)
                 break
         path = getattr(stream, 'name', 'stream')
-        
+
         if opf is None:
             raise ValueError('%s is not a valid EPUB file'%path)
-        
+
         if os.path.exists(encfile):
             if not self.process_encryption(encfile, opf, log):
                 raise DRMError(os.path.basename(path))
 
-        return os.path.join(os.getcwd(), opf)
+        opf = os.path.relpath(opf, os.getcwdu())
+        parts = os.path.split(opf)
+        if len(parts) > 1:
+            delta = '/'.join(parts[:-1])+'/'
+            opf = OPF(opf, os.path.dirname(os.path.abspath(opf)))
+            for elem in opf.itermanifest():
+                elem.set('href', delta+elem.get('href'))
+            for elem in opf.iterguide():
+                elem.set('href', delta+elem.get('href'))
+
+        with open('content.opf', 'wb') as nopf:
+            nopf.write(opf.render())
+
+        return os.path.abspath('content.opf')
