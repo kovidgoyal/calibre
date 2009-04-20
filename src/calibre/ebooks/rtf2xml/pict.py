@@ -58,10 +58,12 @@ class Pict:
         return line[18:]
     def __make_dir(self):
         """ Make a dirctory to put the image data in"""
-        base_name = os.path.basename(self.__orig_file)
+        base_name = os.path.basename(getattr(self.__orig_file, 'name',
+            self.__orig_file))
         base_name = os.path.splitext(base_name)[0]
         if self.__out_file:
-            dir_name = os.path.dirname(self.__out_file)
+            dir_name = os.path.dirname(getattr(self.__out_file, 'name',
+                self.__out_file))
         else:
             dir_name = os.path.dirname(self.__orig_file)
         # self.__output_to_file_func()

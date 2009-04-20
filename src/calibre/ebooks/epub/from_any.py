@@ -19,11 +19,6 @@ from calibre.utils.zipfile import ZipFile
 from calibre.customize.ui import run_plugins_on_preprocess
 
 
-def rtf2opf(path, tdir, opts):
-    from calibre.ebooks.lrf.rtf.convert_from import generate_html
-    generate_html(path, tdir)
-    return os.path.join(tdir, 'metadata.opf')
-
 def epub2opf(path, tdir, opts):
     zf = ZipFile(path)
     zf.extractall(tdir)
@@ -41,11 +36,6 @@ def epub2opf(path, tdir, opts):
     if opf is None:
         raise ValueError('%s is not a valid EPUB file'%path)
     return opf
-
-def odt2epub(path, tdir, opts):
-    from calibre.ebooks.odt.to_oeb import Extract
-    opts.encoding = 'utf-8'
-    return Extract()(path, tdir)
 
 SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf',
                   'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
