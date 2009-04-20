@@ -219,6 +219,14 @@ OptionRecommendation(name='chapter_mark',
                     'to mark chapters.')
         ),
 
+OptionRecommendation(name='extra_css',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('Either the path to a CSS stylesheet or raw CSS. '
+                'This CSS will be appended to the style rules from '
+                'the source file, so it can be used to override those '
+                'rules.')
+        ),
+
 
 
 OptionRecommendation(name='read_metadata_from_opf',
@@ -486,6 +494,9 @@ OptionRecommendation(name='language',
             fkey = self.opts.dest.fkey
         else:
             fkey = map(float, fkey.split(','))
+
+        if self.opts.extra_css and os.path.exists(self.opts.extra_css):
+            self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=self.opts.line_height,
