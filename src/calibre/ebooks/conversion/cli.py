@@ -133,7 +133,7 @@ def add_pipeline_options(parser, plumber):
                   [
                     'level1_toc', 'level2_toc', 'level3_toc',
                     'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
-                    'use_auto_toc',
+                    'use_auto_toc', 'toc_filter',
                   ]
                   ),
 

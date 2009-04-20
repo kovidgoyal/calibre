@@ -3,13 +3,21 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, re
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import input_profiles, output_profiles, \
         plugin_for_input_format, plugin_for_output_format
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre import extract, walk
+
+def supported_input_formats():
+    from calibre.customize.ui import available_input_formats
+    fmts = available_input_formats()
+    for x in ('zip', 'rar', 'oebzip'):
+        fmts.add(x)
+    return fmts
 
 class OptionValues(object):
     pass
@@ -279,11 +287,14 @@ OptionRecommendation(name='language',
     help=_('Set the language.')),
 ]
 
-
         input_fmt = os.path.splitext(self.input)[1]
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
+        if input_fmt in ('zip', 'rar', 'oebzip'):
+            self.log('Processing archive...')
+            tdir = PersistentTemporaryDirectory('_plumber')
+            self.input, input_fmt = self.unarchive(self.input, tdir)
 
         if os.path.exists(self.output) and os.path.isdir(self.output):
             output_fmt = 'oeb'
@@ -293,7 +304,7 @@ OptionRecommendation(name='language',
                 output_fmt = '.oeb'
             output_fmt = output_fmt[1:].lower()
 
-        self.input_plugin = plugin_for_input_format(input_fmt)
+        self.input_plugin  = plugin_for_input_format(input_fmt)
         self.output_plugin = plugin_for_output_format(output_fmt)
 
         if self.input_plugin is None:
@@ -315,6 +326,43 @@ OptionRecommendation(name='language',
         # Remove the options that have been disabled by recommendations from the
         # plugins.
         self.merge_plugin_recommendations()
+
+    @classmethod
+    def unarchive(self, path, tdir):
+        extract(path, tdir)
+        files = list(walk(tdir))
+        from calibre.customize.ui import available_input_formats
+        fmts = available_input_formats()
+        for x in ('htm', 'html', 'xhtm', 'xhtml'): fmts.remove(x)
+
+        for ext in fmts:
+            for f in files:
+                if f.lower().endswith('.'+ext):
+                    if ext in ['txt', 'rtf'] and os.stat(f).st_size < 2048:
+                        continue
+                    return f, ext
+        return self.find_html_index(files)
+
+    @classmethod
+    def find_html_index(self, files):
+        '''
+        Given a list of files, find the most likely root HTML file in the
+        list.
+        '''
+        html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
+        html_files = [f for f in files if html_pat.search(f) is not None]
+        if not html_files:
+            raise ValueError(_('Could not find an ebook inside the archive'))
+        html_files = [(f, os.stat(f).st_size) for f in html_files]
+        html_files.sort(cmp = lambda x, y: cmp(x[1], y[1]))
+        html_files = [f[0] for f in html_files]
+        for q in ('toc', 'index'):
+            for f in html_files:
+                if os.path.splitext(os.path.basename(f))[0].lower() == q:
+                    return f, os.path.splitext(f)[1].lower()[1:]
+        return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
+
+
 
     def get_option_by_name(self, name):
         for group in (self.input_options, self.pipeline_options,
