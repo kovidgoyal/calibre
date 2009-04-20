@@ -6,6 +6,8 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 blog.stackoverflow.com
 '''
 
+from calibre.web.feeds.news import BasicNewsRecipe
+
 class StackOverflowBlog(BasicNewsRecipe):
     title                 = 'Stack Overflow - Blog'
     __author__            = 'Darko Miletic'
@@ -23,8 +25,8 @@ class StackOverflowBlog(BasicNewsRecipe):
                         , '--category' , category
                         , '--publisher', publisher
                         ]
-    
+
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     feeds = [(u'Articles', u'http://blog.stackoverflow.com/feed/' )]
-    
+
