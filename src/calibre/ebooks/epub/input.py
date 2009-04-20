@@ -51,6 +51,39 @@ class EPUBInput(InputFormatPlugin):
             traceback.print_exc()
         return False
 
+    @classmethod
+    def rationalize_cover(self, opf):
+        guide_cover, guide_elem = None, None
+        for guide_elem in opf.iterguide():
+            if guide_elem.get('type', '').lower() == 'cover':
+                guide_cover = guide_elem.get('href', '')
+                break
+        if not guide_cover:
+            return
+        spine = list(opf.iterspine())
+        if not spine:
+            return
+        idref = spine[0].get('idref', '')
+        manifest = list(opf.itermanifest())
+        if not manifest:
+            return
+        if manifest[0].get('id', False) != idref:
+            return
+        spine[0].getparent().remove(spine[0])
+        guide_elem.set('href', 'calibre_raster_cover.jpg')
+        for elem in list(opf.iterguide()):
+            if elem.get('type', '').lower() == 'titlepage':
+                elem.getparent().remove(elem)
+        from calibre.ebooks.oeb.base import OPF
+        t = etree.SubElement(guide_elem.getparent(), OPF('reference'))
+        t.set('type', 'titlepage')
+        t.set('href', guide_cover)
+        t.set('title', 'Title Page')
+        from calibre.ebooks import render_html
+        open('calibre_raster_cover.jpg', 'wb').write(
+                render_html(guide_cover).data)
+
+
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.utils.zipfile import ZipFile
         from calibre import walk
@@ -75,13 +108,16 @@ class EPUBInput(InputFormatPlugin):
 
         opf = os.path.relpath(opf, os.getcwdu())
         parts = os.path.split(opf)
+        opf = OPF(opf, os.path.dirname(os.path.abspath(opf)))
+
         if len(parts) > 1:
             delta = '/'.join(parts[:-1])+'/'
-            opf = OPF(opf, os.path.dirname(os.path.abspath(opf)))
             for elem in opf.itermanifest():
                 elem.set('href', delta+elem.get('href'))
             for elem in opf.iterguide():
                 elem.set('href', delta+elem.get('href'))
+
+        self.rationalize_cover(opf)
 
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
