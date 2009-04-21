@@ -1026,7 +1026,7 @@ class Manifest(object):
                 media_type = XHTML_MIME
             elif media_type in OEB_STYLES:
                 media_type = CSS_MIME
-            attrib = {'id': item.id, 'href': item.href,
+            attrib = {'id': item.id, 'href': urlunquote(item.href),
                       'media-type': media_type}
             if item.fallback:
                 attrib['fallback'] = item.fallback
@@ -1238,7 +1238,7 @@ class Guide(object):
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('guide'))
         for ref in self.refs.values():
-            attrib = {'type': ref.type, 'href': ref.href}
+            attrib = {'type': ref.type, 'href': urlunquote(ref.href)}
             if ref.title:
                 attrib['title'] = ref.title
             element(elem, OPF('reference'), attrib=attrib)
