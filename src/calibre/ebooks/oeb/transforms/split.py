@@ -102,7 +102,10 @@ class Split(object):
                     page_breaks.add(elem)
 
         for i, elem in enumerate(item.data.iter()):
-            elem.set('pb_order', str(i))
+            try:
+                elem.set('pb_order', str(i))
+            except TypeError: # Cant set attributes on comment nodes etc.
+                continue
 
         page_breaks = list(page_breaks)
         page_breaks.sort(cmp=
@@ -116,7 +119,7 @@ class Split(object):
             page_break_ids.append(id)
 
         for elem in item.data.iter():
-            elem.attrib.pop('pb_order')
+            elem.attrib.pop('pb_order', False)
             if elem.get('pb_before', False):
                 elem.attrib.pop('pb_before')
 
