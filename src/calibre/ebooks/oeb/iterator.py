@@ -118,6 +118,7 @@ class EbookIterator(object):
                                     print 'Loaded embedded font:', repr(family)
 
     def __enter__(self):
+        self.delete_on_exit = []
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
         from calibre.ebooks.conversion.plumber import Plumber
@@ -137,9 +138,11 @@ class EbookIterator(object):
 
         cover = self.opf.cover
         if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
-            cfile = os.path.join(os.path.dirname(self.spine[0]), 'calibre_ei_cover.html')
+            cfile = os.path.join(os.path.dirname(self.spine[0]),
+                    'calibre_iterator_cover.html')
             open(cfile, 'wb').write(TITLEPAGE%cover)
             self.spine[0:0] = [SpineItem(cfile)]
+            self.delete_on_exit.append(cfile)
 
         if self.opf.path_to_html_toc is not None and \
            self.opf.path_to_html_toc not in self.spine:
@@ -221,3 +224,6 @@ class EbookIterator(object):
 
     def __exit__(self, *args):
         self._tdir.__exit__(*args)
+        for x in self.delete_on_exit:
+            if os.path.exists(x):
+                os.remove(x)

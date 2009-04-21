@@ -343,7 +343,8 @@ class OEBReader(object):
                 continue
             id = child.get('id')
             klass = child.get('class')
-            node = toc.add(title, href, id=id, klass=klass)
+            po = int(child.get('playOrder', self.oeb.toc.next_play_order()))
+            node = toc.add(title, href, id=id, klass=klass, play_order=po)
             self._toc_from_navpoint(item, node, child)
 
     def _toc_from_ncx(self, item):

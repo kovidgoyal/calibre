@@ -149,9 +149,10 @@ class ParseRtf:
         self.__group_borders = group_borders
         self.__empty_paragraphs = empty_paragraphs
         self.__no_dtd = no_dtd
-        
+
     def __check_file(self, the_file, type):
         """Check to see if files exist"""
+        if hasattr(the_file, 'read'): return
         if the_file == None:
             if type == "file_to_parse":
                 message = "You must provide a file for the script to work"
@@ -545,13 +546,12 @@ class ParseRtf:
     def __make_temp_file(self,file):
         """Make a temporary file to parse"""
         write_file="rtf_write_file"
-        read_obj = open(file,'r')
+        read_obj = file if hasattr(file, 'read') else open(file,'r')
         write_obj = open(write_file, 'w')
         line = "dummy"
         while line:
             line = read_obj.read(1000)
             write_obj.write(line )
-        read_obj.close()
         write_obj.close()
         return write_file
     """

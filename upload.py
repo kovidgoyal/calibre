@@ -139,7 +139,7 @@ class resources(OptionlessCommand):
     RESOURCES = dict(
         opf_template    = 'ebooks/metadata/opf.xml',
         ncx_template    = 'ebooks/metadata/ncx.xml',
-        fb2_xsl         = 'ebooks/lrf/fb2/fb2.xsl',
+        fb2_xsl         = 'ebooks/fb2/fb2.xsl',
         metadata_sqlite = 'library/metadata_sqlite.sql',
         jquery          = 'gui2/viewer/jquery.js',
         jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',

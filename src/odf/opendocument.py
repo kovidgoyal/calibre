@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2006-2008 Søren Roug, European Environment Agency
+# Copyright (C) 2006-2009 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -300,6 +300,37 @@ class OpenDocument:
             self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
         return manifestfn
 
+    def addPictureFromFile(self, filename, mediatype=None):
+        """ Add a picture
+            It uses the same convention as OOo, in that it saves the picture in
+            the zipfile in the subdirectory 'Pictures'.
+            If mediatype is not given, it will be guessed from the filename
+            extension.
+        """
+        if mediatype is None:
+            mediatype, encoding = mimetypes.guess_type(filename)
+        if mediatype is None:
+            mediatype = ''
+            try: ext = filename[filename.rindex('.'):]
+            except ValueError: ext=''
+        else:
+            ext = mimetypes.guess_extension(mediatype)
+        manifestfn = "Pictures/%0.0f%s" % ((time.time()*10000000000), ext)
+        self.Pictures[manifestfn] = (IS_FILENAME, filename, mediatype)
+        return manifestfn
+
+    def addPictureFromString(self, content, mediatype):
+        """ Add a picture
+            It uses the same convention as OOo, in that it saves the picture in
+            the zipfile in the subdirectory 'Pictures'. The content variable
+            is a string that contains the binary image data. The mediatype
+            indicates the image format.
+        """
+        ext = mimetypes.guess_extension(mediatype)
+        manifestfn = "Pictures/%0.0f%s" % ((time.time()*10000000000), ext)
+        self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
+        return manifestfn
+
     def addThumbnail(self, filecontent=None):
         """ Add a fixed thumbnail
             The thumbnail in the library is big, so this is pretty useless.
@@ -394,6 +425,7 @@ class OpenDocument:
 
         # Write any extra files
         for op in self._extra:
+            if op.filename == "META-INF/documentsignatures.xml": continue # Don't save signatures
             self.manifest.addElement(manifest.FileEntry(fullpath=op.filename, mediatype=op.mediatype))
             zi = zipfile.ZipInfo(op.filename.encode('utf-8'), self._now)
             zi.compress_type = zipfile.ZIP_DEFLATED

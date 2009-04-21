@@ -116,6 +116,25 @@ def add_pipeline_options(parser, plumber):
                       'font_size_mapping',
                       'line_height',
                       'linearize_tables',
+                      'extra_css',
+                  ]
+                  ),
+
+              'STRUCTURE DETECTION' : (
+                  _('Control auto-detection of document structure.'),
+                  [
+                      'dont_split_on_page_breaks', 'chapter', 'chapter_mark',
+                  ]
+                  ),
+
+              'TABLE OF CONTENTS' : (
+                  _('Control the automatic generation of a Table of Contents. By '
+                  'default, if the source file has a Table of Contents, it will '
+                  'be used in preference to the automatically generated one.'),
+                  [
+                    'level1_toc', 'level2_toc', 'level3_toc',
+                    'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
+                    'use_auto_toc', 'toc_filter',
                   ]
                   ),
 
@@ -130,7 +149,8 @@ def add_pipeline_options(parser, plumber):
 
               }
 
-    group_order = ['', 'LOOK AND FEEL', 'METADATA', 'DEBUG']
+    group_order = ['', 'LOOK AND FEEL', 'STRUCTURE DETECTION',
+            'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
 
     for group in group_order:
         desc, options = groups[group]
@@ -163,6 +183,10 @@ def main(args=sys.argv):
     add_pipeline_options(parser, plumber)
 
     opts = parser.parse_args(args)[0]
+    y = lambda q : os.path.abspath(os.path.expanduser(q))
+    for x in ('read_metadata_from_opf', 'cover'):
+        if getattr(opts, x, None) is not None:
+            setattr(opts, x, y(getattr(opts, x)))
     recommendations = [(n.dest, getattr(opts, n.dest),
                         OptionRecommendation.HIGH) \
                                         for n in parser.options_iter()

@@ -4,12 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch cover from LibraryThing.com based on ISBN number.
 '''
 
-import sys, socket, os, re, mechanize
+import sys, socket, os, re
 
 from calibre import browser as _browser
 from calibre.utils.config import OptionParser
-from calibre.ebooks.BeautifulSoup import BeautifulSoup 
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 browser = None
+
+OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
 class LibraryThingError(Exception):
     pass
@@ -30,15 +32,21 @@ def login(username, password, force=True):
     browser['formusername'] = username
     browser['formpassword'] = password
     browser.submit()
-    
 
-def cover_from_isbn(isbn, timeout=5.):
+
+def cover_from_isbn(isbn, timeout=5., username=None, password=None):
     global browser
     if browser is None:
         browser = _browser()
     _timeout = socket.getdefaulttimeout()
     socket.setdefaulttimeout(timeout)
-    src = None                
+    src = None
+    try:
+        return browser.open(OPENLIBRARY%isbn).read(), 'jpg'
+    except:
+        pass # Cover not found
+    if username and password:
+        login(username, password, force=False)
     try:
         src = browser.open('http://www.librarything.com/isbn/'+isbn).read().decode('utf-8', 'replace')
     except Exception, err:
@@ -55,7 +63,7 @@ def cover_from_isbn(isbn, timeout=5.):
         url = url.find('img')
         if url is None:
             raise LibraryThingError(_('LibraryThing.com server error. Try again later.'))
-        url = re.sub(r'_SX\d+', '', url['src'])
+        url = re.sub(r'_S[XY]\d+', '', url['src'])
         cover_data = browser.open(url).read()
         return cover_data, url.rpartition('.')[-1]
     finally:
@@ -68,9 +76,9 @@ _('''
 
 Fetch a cover image for the book identified by ISBN from LibraryThing.com
 '''))
-    parser.add_option('-u', '--username', default=None, 
+    parser.add_option('-u', '--username', default=None,
                       help='Username for LibraryThing.com')
-    parser.add_option('-p', '--password', default=None, 
+    parser.add_option('-p', '--password', default=None,
                       help='Password for LibraryThing.com')
     return parser
 
@@ -81,13 +89,8 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     isbn = args[1]
-    if opts.username and opts.password:
-        try:
-            login(opts.username, opts.password)
-        except mechanize.FormNotFoundError:
-            raise LibraryThingError(_('LibraryThing.com server error. Try again later.'))
-        
-    cover_data, ext = cover_from_isbn(isbn)
+    cover_data, ext = cover_from_isbn(isbn, username=opts.username,
+            password=opts.password)
     if not ext:
         ext = 'jpg'
     oname = os.path.abspath(isbn+'.'+ext)

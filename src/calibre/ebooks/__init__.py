@@ -59,7 +59,10 @@ class HTMLRenderer(object):
 
 def render_html(path_to_html, width=590, height=750):
     from PyQt4.QtWebKit import QWebPage
-    from PyQt4.Qt import QEventLoop, QPalette, Qt, SIGNAL, QUrl, QSize
+    from PyQt4.Qt import QEventLoop, QPalette, Qt, SIGNAL, QUrl, QSize, \
+                         QApplication
+    if QApplication.instance() is None:
+        QApplication([])
     path_to_html = os.path.abspath(path_to_html)
     with CurrentDir(os.path.dirname(path_to_html)):
         page = QWebPage()

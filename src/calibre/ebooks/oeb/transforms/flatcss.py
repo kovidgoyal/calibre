@@ -116,7 +116,8 @@ class CSSFlattener(object):
         profile = self.context.source
         for item in self.oeb.spine:
             html = item.data
-            stylizer = Stylizer(html, item.href, self.oeb, profile)
+            stylizer = Stylizer(html, item.href, self.oeb, profile,
+                    extra_css=self.context.extra_css)
             self.stylizers[item] = stylizer
 
     def baseline_node(self, node, stylizer, sizes, csize):

@@ -3,13 +3,21 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, re
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import input_profiles, output_profiles, \
         plugin_for_input_format, plugin_for_output_format
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre import extract, walk
+
+def supported_input_formats():
+    from calibre.customize.ui import available_input_formats
+    fmts = available_input_formats()
+    for x in ('zip', 'rar', 'oebzip'):
+        fmts.add(x)
+    return fmts
 
 class OptionValues(object):
     pass
@@ -121,6 +129,105 @@ OptionRecommendation(name='dont_split_on_page_breaks',
                 )
         ),
 
+OptionRecommendation(name='level1_toc',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('XPath expression that specifies all tags that '
+            'should be added to the Table of Contents at level one. If '
+            'this is specified, it takes precedence over other forms '
+            'of auto-detection.'
+                )
+        ),
+
+OptionRecommendation(name='level2_toc',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('XPath expression that specifies all tags that should be '
+            'added to the Table of Contents at level two. Each entry is added '
+            'under the previous level one entry.'
+                )
+        ),
+
+OptionRecommendation(name='level3_toc',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('XPath expression that specifies all tags that should be '
+                'added to the Table of Contents at level three. Each entry '
+                'is added under the previous level two entry.'
+                )
+        ),
+
+OptionRecommendation(name='use_auto_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Normally, if the source file already has a Table of '
+            'Contents, it is used in preference to the auto-generated one. '
+            'With this option, the auto-generated one is always used.'
+                )
+        ),
+
+OptionRecommendation(name='no_chapters_in_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_("Don't add auto-detected chapters to the Table of "
+            'Contents.'
+                )
+        ),
+
+OptionRecommendation(name='toc_threshold',
+            recommended_value=6, level=OptionRecommendation.LOW,
+            help=_(
+        'If fewer than this number of chapters is detected, then links '
+        'are added to the Table of Contents. Default: %default')
+        ),
+
+OptionRecommendation(name='max_toc_links',
+            recommended_value=50, level=OptionRecommendation.LOW,
+            help=_('Maximum number of links to insert into the TOC. Set to 0 '
+               'to disable. Default is: %default. Links are only added to the '
+            'TOC if less than the threshold number of chapters were detected.'
+                )
+        ),
+
+OptionRecommendation(name='toc_filter',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('Remove entries from the Table of Contents whose titles '
+            'match the specified regular expression. Matching entries and all '
+            'their children are removed.'
+                )
+        ),
+
+
+OptionRecommendation(name='chapter',
+        recommended_value="//*[((name()='h1' or name()='h2') and "
+              "re:test(., 'chapter|book|section|part', 'i')) or @class "
+              "= 'chapter']", level=OptionRecommendation.LOW,
+            help=_('An XPath expression to detect chapter titles. The default '
+                'is to consider <h1> or <h2> tags that contain the words '
+                '"chapter","book","section" or "part" as chapter titles as '
+                'well as any tags that have class="chapter". The expression '
+                'used must evaluate to a list of elements. To disable chapter '
+                'detection, use the expression "/". See the XPath Tutorial '
+                'in the calibre User Manual for further help on using this '
+                'feature.'
+                )
+        ),
+
+OptionRecommendation(name='chapter_mark',
+            recommended_value='pagebreak', level=OptionRecommendation.LOW,
+            choices=['pagebreak', 'rule', 'both', 'none'],
+            help=_('Specify how to mark detected chapters. A value of '
+                    '"pagebreak" will insert page breaks before chapters. '
+                    'A value of "rule" will insert a line before chapters. '
+                    'A value of "none" will disable chapter marking and a '
+                    'value of "both" will use both page breaks and lines '
+                    'to mark chapters.')
+        ),
+
+OptionRecommendation(name='extra_css',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('Either the path to a CSS stylesheet or raw CSS. '
+                'This CSS will be appended to the style rules from '
+                'the source file, so it can be used to override those '
+                'rules.')
+        ),
+
+
 
 OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
@@ -129,6 +236,7 @@ OptionRecommendation(name='read_metadata_from_opf',
                    'from this file will override any metadata in the source '
                    'file.')
         ),
+
 
 OptionRecommendation(name='title',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -187,11 +295,14 @@ OptionRecommendation(name='language',
     help=_('Set the language.')),
 ]
 
-
         input_fmt = os.path.splitext(self.input)[1]
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
+        if input_fmt in ('zip', 'rar', 'oebzip'):
+            self.log('Processing archive...')
+            tdir = PersistentTemporaryDirectory('_plumber')
+            self.input, input_fmt = self.unarchive(self.input, tdir)
 
         if os.path.exists(self.output) and os.path.isdir(self.output):
             output_fmt = 'oeb'
@@ -201,7 +312,7 @@ OptionRecommendation(name='language',
                 output_fmt = '.oeb'
             output_fmt = output_fmt[1:].lower()
 
-        self.input_plugin = plugin_for_input_format(input_fmt)
+        self.input_plugin  = plugin_for_input_format(input_fmt)
         self.output_plugin = plugin_for_output_format(output_fmt)
 
         if self.input_plugin is None:
@@ -224,6 +335,43 @@ OptionRecommendation(name='language',
         # plugins.
         self.merge_plugin_recommendations()
 
+    @classmethod
+    def unarchive(self, path, tdir):
+        extract(path, tdir)
+        files = list(walk(tdir))
+        from calibre.customize.ui import available_input_formats
+        fmts = available_input_formats()
+        for x in ('htm', 'html', 'xhtm', 'xhtml'): fmts.remove(x)
+
+        for ext in fmts:
+            for f in files:
+                if f.lower().endswith('.'+ext):
+                    if ext in ['txt', 'rtf'] and os.stat(f).st_size < 2048:
+                        continue
+                    return f, ext
+        return self.find_html_index(files)
+
+    @classmethod
+    def find_html_index(self, files):
+        '''
+        Given a list of files, find the most likely root HTML file in the
+        list.
+        '''
+        html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
+        html_files = [f for f in files if html_pat.search(f) is not None]
+        if not html_files:
+            raise ValueError(_('Could not find an ebook inside the archive'))
+        html_files = [(f, os.stat(f).st_size) for f in html_files]
+        html_files.sort(cmp = lambda x, y: cmp(x[1], y[1]))
+        html_files = [f[0] for f in html_files]
+        for q in ('toc', 'index'):
+            for f in html_files:
+                if os.path.splitext(os.path.basename(f))[0].lower() == q:
+                    return f, os.path.splitext(f)[1].lower()[1:]
+        return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
+
+
+
     def get_option_by_name(self, name):
         for group in (self.input_options, self.pipeline_options,
                       self.output_options):
@@ -237,6 +385,7 @@ OptionRecommendation(name='language',
                 rec = self.get_option_by_name(name)
                 if rec is not None and rec.level <= level:
                     rec.recommended_value = val
+                    rec.level = level
 
     def merge_ui_recommendations(self, recommendations):
         '''
@@ -248,6 +397,7 @@ OptionRecommendation(name='language',
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level and rec.level < rec.HIGH:
                 rec.recommended_value = val
+                rec.level = level
 
     def read_user_metadata(self):
         '''
@@ -332,6 +482,9 @@ OptionRecommendation(name='language',
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
 
+        from calibre.ebooks.oeb.transforms.structure import DetectStructure
+        DetectStructure()(self.oeb, self.opts)
+
         from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
         fbase = self.opts.base_font_size
         if fbase == 0:
@@ -341,6 +494,9 @@ OptionRecommendation(name='language',
             fkey = self.opts.dest.fkey
         else:
             fkey = map(float, fkey.split(','))
+
+        if self.opts.extra_css and os.path.exists(self.opts.extra_css):
+            self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=self.opts.line_height,
@@ -364,6 +520,8 @@ OptionRecommendation(name='language',
         trimmer = ManifestTrimmer()
         trimmer(self.oeb, self.opts)
 
+        self.oeb.toc.rationalize_play_orders()
+
         self.log.info('Creating %s...'%self.output_plugin.name)
         self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
@@ -384,4 +542,3 @@ def create_oebbook(log, path_or_stream, opts, reader=None):
 
     reader()(oeb, path_or_stream)
     return oeb
-

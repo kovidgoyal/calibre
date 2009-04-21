@@ -15,130 +15,17 @@ from calibre.ebooks import DRMError
 from calibre.ebooks.epub import config as common_config
 from calibre.ebooks.epub.from_html import convert as html2epub, find_html_index
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.zipfile import ZipFile
 from calibre.customize.ui import run_plugins_on_preprocess
 
-def lit2opf(path, tdir, opts):
-    from calibre.ebooks.lit.reader import LitReader
-    print 'Exploding LIT file:', path
-    reader = LitReader(path)
-    reader.extract_content(tdir, False)
-    opf = None
-    for opf in walk(tdir):
-        if opf.lower().endswith('.opf'):
-            break
-    if not opf.endswith('.opf'):
-        opf = None
-    if opf is not None: # Check for url-quoted filenames
-        _opf = OPF(opf, os.path.dirname(opf))
-        replacements = []
-        for item in _opf.itermanifest():
-            href = item.get('href', '')
-            path = os.path.join(os.path.dirname(opf), *(href.split('/')))
-            if not os.path.exists(path) and os.path.exists(path.replace('&', '%26')):
-                npath = path
-                path = path.replace('&', '%26')
-                replacements.append((path, npath))
-        if replacements:
-            print 'Fixing quoted filenames...'
-            for path, npath in replacements:
-                if os.path.exists(path):
-                    os.rename(path, npath)
-            for f in walk(tdir):
-                with open(f, 'r+b') as f:
-                    raw = f.read()
-                    for path, npath in replacements:
-                        raw = raw.replace(os.path.basename(path), os.path.basename(npath))
-                        f.seek(0)
-                        f.truncate()
-                        f.write(raw)
-    return opf
 
-def mobi2opf(path, tdir, opts):
-    from calibre.ebooks.mobi.reader import MobiReader
-    print 'Exploding MOBI file:', path.encode('utf-8') if isinstance(path, unicode) else path
-    reader = MobiReader(path)
-    reader.extract_content(tdir)
-    files = list(walk(tdir))
-    opts.encoding = 'utf-8'
-    for f in files:
-        if f.lower().endswith('.opf'):
-            return f
-    html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}', re.IGNORECASE)
-    hf = [f for f in files if html_pat.match(os.path.splitext(f)[1]) is not None]
-    mi = MetaInformation(os.path.splitext(os.path.basename(path))[0], [_('Unknown')])
-    opf = OPFCreator(tdir, mi)
-    opf.create_manifest([(hf[0], None)])
-    opf.create_spine([hf[0]])
-    ans = os.path.join(tdir, 'metadata.opf')
-    opf.render(open(ans, 'wb'))
-    return ans
-
-def fb22opf(path, tdir, opts):
-    from calibre.ebooks.lrf.fb2.convert_from import to_html
-    print 'Converting FB2 to HTML...'
-    return to_html(path, tdir)
-    
-def rtf2opf(path, tdir, opts):
-    from calibre.ebooks.lrf.rtf.convert_from import generate_html
-    generate_html(path, tdir)
-    return os.path.join(tdir, 'metadata.opf')
-
-def txt2opf(path, tdir, opts):
-    from calibre.ebooks.lrf.txt.convert_from import generate_html
-    generate_html(path, opts.encoding, tdir)
-    return os.path.join(tdir, 'metadata.opf')
-
-def pdf2opf(path, tdir, opts):
-    from calibre.ebooks.lrf.pdf.convert_from import generate_html
-    generate_html(path, tdir)
-    opts.dont_split_on_page_breaks = True
-    return os.path.join(tdir, 'metadata.opf')
-
-def epub2opf(path, tdir, opts):
-    zf = ZipFile(path)
-    zf.extractall(tdir)
-    opts.chapter_mark = 'none'
-    encfile = os.path.join(tdir, 'META-INF', 'encryption.xml')
-    opf = None
-    for f in walk(tdir):
-        if f.lower().endswith('.opf'):
-            opf = f
-            break
-    if opf and os.path.exists(encfile):
-        if not process_encryption(encfile, opf):
-            raise DRMError(os.path.basename(path))
-        
-    if opf is None:
-        raise ValueError('%s is not a valid EPUB file'%path)
-    return opf
-    
-def odt2epub(path, tdir, opts):
-    from calibre.ebooks.odt.to_oeb import Extract
-    opts.encoding = 'utf-8'
-    return Extract()(path, tdir)
-
-MAP = {
-       'lit'  : lit2opf,
-       'mobi' : mobi2opf,
-       'prc'  : mobi2opf,
-       'azw'  : mobi2opf,
-       'fb2'  : fb22opf,
-       'rtf'  : rtf2opf,
-       'txt'  : txt2opf,
-       'pdf'  : pdf2opf,
-       'epub' : epub2opf,
-       'odt'  : odt2epub,
-       }
-SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf', 
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf',
                   'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
 
 def unarchive(path, tdir):
     extract(path, tdir)
     files = list(walk(tdir))
-    
+
     for ext in ['opf'] + list(MAP.keys()):
         for f in files:
             if f.lower().endswith('.'+ext):
@@ -147,32 +34,32 @@ def unarchive(path, tdir):
                 return f, ext
     return find_html_index(files)
 
-def any2epub(opts, path, notification=None, create_epub=True, 
+def any2epub(opts, path, notification=None, create_epub=True,
              oeb_cover=False, extract_to=None):
     path = run_plugins_on_preprocess(path)
     ext = os.path.splitext(path)[1]
     if not ext:
         raise ValueError('Unknown file type: '+path)
     ext = ext.lower()[1:]
-    
+
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(path))[0]+'.epub'
-    
+
     with nested(TemporaryDirectory('_any2epub1'), TemporaryDirectory('_any2epub2')) as (tdir1, tdir2):
         if ext in ['rar', 'zip', 'oebzip']:
             path, ext = unarchive(path, tdir1)
             print 'Found %s file in archive'%(ext.upper())
-    
+
         if ext in MAP.keys():
             path = MAP[ext](path, tdir2, opts)
             ext = 'opf'
-            
-    
+
+
         if re.match(r'((x){0,1}htm(l){0,1})|opf', ext) is None:
             raise ValueError('Conversion from %s is not supported'%ext.upper())
-        
+
         print 'Creating EPUB file...'
-        html2epub(path, opts, notification=notification, 
+        html2epub(path, opts, notification=notification,
                   create_epub=create_epub, oeb_cover=oeb_cover,
                   extract_to=extract_to)
 

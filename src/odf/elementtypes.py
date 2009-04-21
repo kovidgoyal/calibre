@@ -109,11 +109,6 @@ inline_elements = (
 )
 
 
-struct_elements = (
-	(CONFIGNS,'config-item-set'),
-	(TABLENS,u'table-cell'),
-)
-
 # It is almost impossible to determine what elements are block elements.
 # There are so many that don't fit the form
 block_elements = (
