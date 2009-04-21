@@ -44,13 +44,15 @@ class HeaderRecord(object):
 
         # Can't tell which is sidebar and footnote if they have same offset.
         # They don't exist if offset is larget than last_record.
+        # Todo: Determine if the subtraction is necessary and find out
+        # what _rec means.
         self.num_footnote_pages = self.sidebar_offset - self.footnote_offset if self.footnote_offset < self.last_data_offset else 0 
         self.num_sidebar_pages = self.sidebar_offset - self.last_data_offset if self.footnote_offset < self.last_data_offset else 0
         
 
 class Reader(object):
 
-    def __init__(self, header, stream):
+    def __init__(self, header, stream, log):
         raw = stream.read()
 
         self.sections = []
@@ -169,9 +171,9 @@ class Reader(object):
                 with open(name, 'wb') as imgf:
                     imgf.write(img)
             
-        self.create_opf(output_dir, images)
+        opf_path = self.create_opf(output_dir, images)
             
-        return os.path.join(output_dir, 'metadata.opf')
+        return opf_path
         
     def create_opf(self, output_dir, images):
         mi = MetaInformation(None, None)
@@ -188,6 +190,8 @@ class Reader(object):
             opf.create_spine(['index.html'])
             with open('metadata.opf', 'wb') as opffile:
                 opf.render(opffile)
+                
+        return os.path.join(output_dir, 'metadata.opf')
         
     def dump_pml(self):
         pml = ''
@@ -197,3 +201,8 @@ class Reader(object):
         
         return pml
         
+        
+class EreaderMetadata(object):
+
+    def __init__(self, record):
+        pass

@@ -12,6 +12,11 @@ FORMATS = {
     'PNRdPPrs' : eReader,
 }
 
+IDENTITY_TO_NAME = {
+    'PNPdPPrs' : 'eReader',
+    'PNRdPPrs' : 'eReader',
+}
+
 class PDBError(Exception):
     pass
     

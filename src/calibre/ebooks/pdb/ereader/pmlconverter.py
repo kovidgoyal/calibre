@@ -40,7 +40,6 @@ PML_HTML_RULES = [
     (re.compile('\\\\q="(?P<target>#.+?)"(?P<text>)\\\\q', re.DOTALL), lambda match: '<a href="%s">%s</a>' % (match.group('target'), match.group('text'))),
     (re.compile('\\\\Q="(?P<target>.+?)"'), lambda match: '<div id="%s"></div>' % match.group('target')),
     (re.compile('\\\\-'), lambda match: ''),
-    # Todo: Footnotes need link.
     (re.compile('\\\\Fn="(?P<target>.+?)"(?P<text>.+?)\\\\Fn'), lambda match: '<a href="#footnote-%s">%s</a>' % (match.group('target'), match.group('text'))),
     (re.compile('\\\\Sd="(?P<target>.+?)"(?P<text>.+?)\\\\Sd'), lambda match: '<a href="#sidebar-%s">%s</a>' % (match.group('target'), match.group('text'))),
     (re.compile('\\\\I'), lambda match: ''),

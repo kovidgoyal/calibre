@@ -9,7 +9,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.pdb.header import PdbHeader
-from calibre.ebooks.pdb import PDBError, get_reader
+from calibre.ebooks.pdb import PDBError, IDENTITY_TO_NAME, get_reader
 
 class PDBInput(InputFormatPlugin):
 
@@ -24,9 +24,11 @@ class PDBInput(InputFormatPlugin):
         Reader = get_reader(header.ident)
         
         if Reader is None:
-            raise PDBError('Unknown format identity is %s' % header.identity)
+            raise PDBError('Unknown format in pdb file. Identity is %s' % header.identity)
+
+        log.debug('Detected ebook format as: %s with identity: %s' % (IDENTITY_TO_NAME[header.ident], header.ident))
             
-        reader = Reader(header, stream)
+        reader = Reader(header, stream, log)
         opf = reader.extract_content(os.getcwd())
         
         return opf
