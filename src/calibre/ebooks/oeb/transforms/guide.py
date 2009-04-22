@@ -33,6 +33,8 @@ class Clean(object):
                 ref.type = 'cover'
                 self.oeb.guide.refs['cover'] = ref
                 cover_href = urldefrag(ref.href)[0]
+        else:
+            cover_href = urldefrag(self.oeb.guide.refs['cover'].href)[0]
 
         for x in list(self.oeb.guide):
             href = urldefrag(self.oeb.guide[x].href)[0]
