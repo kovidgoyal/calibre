@@ -260,6 +260,9 @@ class MetaInformation(object):
             x = 1.0
         return '%d'%x if int(x) == x else '%.2f'%x
 
+    def authors_from_string(self, raw):
+        self.authors = string_to_authors(raw)
+
     def __unicode__(self):
         ans = []
         def fmt(x, y):

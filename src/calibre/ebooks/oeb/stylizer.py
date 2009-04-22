@@ -11,6 +11,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os
 import itertools
 import re
+import logging
 import copy
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
@@ -106,7 +107,8 @@ class CSSSelector(etree.XPath):
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, profile=PROFILES['PRS505'], extra_css=''):
+    def __init__(self, tree, path, oeb, profile=PROFILES['PRS505'],
+            extra_css='', user_css=''):
         self.oeb = oeb
         self.profile = profile
         self.logger = oeb.logger
@@ -115,7 +117,8 @@ class Stylizer(object):
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [HTML_CSS_STYLESHEET]
         head = xpath(tree, '/h:html/h:head')[0]
-        parser = cssutils.CSSParser(fetcher=self._fetch_css_file)
+        parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
+                log=logging.getLogger('calibre.css'))
         for elem in head:
             if elem.tag == XHTML('style') and elem.text \
                and elem.get('type', CSS_MIME) in OEB_STYLES:
@@ -135,11 +138,12 @@ class Stylizer(object):
                         (path, item.href))
                     continue
                 stylesheets.append(sitem.data)
-        if extra_css:
-            text = XHTML_CSS_NAMESPACE + extra_css
-            stylesheet = parser.parseString(text, href=cssname)
-            stylesheet.namespaces['h'] = XHTML_NS
-            stylesheets.append(stylesheet)
+        for x in (extra_css, user_css):
+            if x:
+                text = XHTML_CSS_NAMESPACE + x
+                stylesheet = parser.parseString(text, href=cssname)
+                stylesheet.namespaces['h'] = XHTML_NS
+                stylesheets.append(stylesheet)
         rules = []
         index = 0
         self.stylesheets = set()
@@ -287,6 +291,9 @@ class Style(object):
         self._height = None
         self._lineHeight = None
         stylizer._styles[element] = self
+
+    def set(self, prop, val):
+        self._style[prop] = val
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)

@@ -16,7 +16,7 @@ from lxml import etree
 from lxml.cssselect import CSSSelector
 
 from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
-        urldefrag, rewrite_links
+        urldefrag, rewrite_links, urlunquote
 from calibre.ebooks.epub import tostring, rules
 
 
@@ -142,7 +142,7 @@ class Split(object):
             nhref = anchor_map[frag if frag else None]
             nhref = self.current_item.relhref(nhref)
             if frag:
-                nhref = '#'.join((nhref, frag))
+                nhref = '#'.join((urlunquote(nhref), frag))
 
             return nhref
         return url

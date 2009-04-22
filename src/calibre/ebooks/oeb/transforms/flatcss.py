@@ -114,11 +114,26 @@ class CSSFlattener(object):
     def stylize_spine(self):
         self.stylizers = {}
         profile = self.context.source
+        css = ''
         for item in self.oeb.spine:
             html = item.data
+            body = html.find(XHTML('body'))
+            bs = body.get('style', '').split(';')
+            bs.append('margin-top: 0pt')
+            bs.append('margin-bottom: 0pt')
+            bs.append('margin-left : %fpt'%\
+                    float(self.context.margin_left))
+            bs.append('margin-right : %fpt'%\
+                    float(self.context.margin_right))
+            bs.append('text-align: '+ \
+                    ('left' if self.context.dont_justify else 'justify'))
+            body.set('style', '; '.join(bs))
+
             stylizer = Stylizer(html, item.href, self.oeb, profile,
-                    extra_css=self.context.extra_css)
+                    user_css=self.context.extra_css,
+                    extra_css=css)
             self.stylizers[item] = stylizer
+
 
     def baseline_node(self, node, stylizer, sizes, csize):
         csize = stylizer.style(node)['font-size']
@@ -219,6 +234,15 @@ class CSSFlattener(object):
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
+        if (self.context.remove_paragraph_spacing or
+                self.context.insert_blank_line) and tag in ('p', 'div'):
+            for prop in ('margin', 'padding', 'border'):
+                for edge in ('top', 'bottom'):
+                    cssdict['%s-%s'%(prop, edge)] = '0pt'
+            if self.context.insert_blank_line:
+                cssdict['margin-top'] = cssdict['margin-bottom'] = '0.5em'
+            if self.context.remove_paragraph_spacing:
+                cssdict['text-indent'] = '1.5em'
         if cssdict:
             items = cssdict.items()
             items.sort()
@@ -253,12 +277,16 @@ class CSSFlattener(object):
         href = item.relhref(href)
         etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
-        if stylizer.page_rule:
-            items = stylizer.page_rule.items()
-            items.sort()
-            css = '; '.join("%s: %s" % (key, val) for key, val in items)
-            style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
-            style.text = "@page { %s; }" % css
+        stylizer.page_rule['margin-top'] = '%fpt'%\
+                float(self.context.margin_top)
+        stylizer.page_rule['margin-bottom'] = '%fpt'%\
+                float(self.context.margin_bottom)
+
+        items = stylizer.page_rule.items()
+        items.sort()
+        css = '; '.join("%s: %s" % (key, val) for key, val in items)
+        style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
+        style.text = "@page { %s; }" % css
 
     def replace_css(self, css):
         manifest = self.oeb.manifest
@@ -285,3 +313,4 @@ class CSSFlattener(object):
         for item in self.oeb.spine:
             stylizer = self.stylizers[item]
             self.flatten_head(item, stylizer, href)
+
