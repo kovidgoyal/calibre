@@ -278,6 +278,7 @@ class PDFMetadataWriter(MetadataWriterPlugin):
 
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.mobi.input import MOBIInput
+from calibre.ebooks.pdb.input import PDBInput
 from calibre.ebooks.pdf.input import PDFInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lit.input import LITInput
@@ -290,7 +291,7 @@ from calibre.ebooks.txt.output import TXTOutput
 from calibre.ebooks.pdf.output import PDFOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
-plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDFInput, HTMLInput,
+plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDBInput, PDFInput, HTMLInput,
         TXTInput, OEBOutput, TXTOutput, PDFOutput, LITInput,
         FB2Input, ODTInput, RTFInput]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
