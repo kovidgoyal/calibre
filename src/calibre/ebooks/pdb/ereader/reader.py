@@ -13,6 +13,7 @@ import os, sys, struct, zlib
 from calibre import CurrentDir
 from calibre.ebooks import DRMError
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.ereader.pmlconverter import pml_to_html, \
     footnote_to_html, sidebar_to_html 
@@ -51,10 +52,11 @@ class HeaderRecord(object):
         self.num_sidebar_pages = self.sidebar_offset - self.last_data_offset if self.footnote_offset < self.last_data_offset else 0
         
 
-class Reader(object):
+class Reader(FormatReader):
 
-    def __init__(self, header, stream, log):
+    def __init__(self, header, stream, log, encoding=None):
         self.log = log
+        self.encoding = encoding
     
         self.sections = []
         for i in range(header.num_sections):
@@ -73,9 +75,9 @@ class Reader(object):
         
     def decompress_text(self, number):
         if self.header_record.version == 2:
-            return decompress_doc(self.section_data(number)).decode('cp1252')
+            return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
         if self.header_record.version == 10:
-            return zlib.decompress(self.section_data(number)).decode('cp1252')
+            return zlib.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
 
         
     def get_image(self, number):
