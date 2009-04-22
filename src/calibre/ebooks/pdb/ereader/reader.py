@@ -46,15 +46,16 @@ class HeaderRecord(object):
         # They don't exist if offset is larget than last_record.
         # Todo: Determine if the subtraction is necessary and find out
         # what _rec means.
-        self.num_footnote_pages = self.sidebar_offset - self.footnote_offset if self.footnote_offset < self.last_data_offset else 0 
+        end_footnote_offset = self.sidebar_offset if self.sidebar_offset != self.footnote_offset else self.last_data_offset
+        self.num_footnote_pages = end_footnote_offset - self.footnote_offset if self.footnote_offset < self.last_data_offset else 0 
         self.num_sidebar_pages = self.sidebar_offset - self.last_data_offset if self.footnote_offset < self.last_data_offset else 0
         
 
 class Reader(object):
 
     def __init__(self, header, stream, log):
-        raw = stream.read()
-
+        self.log = log
+    
         self.sections = []
         for i in range(header.num_sections):
             self.sections.append(header.section_data(i))
@@ -91,19 +92,19 @@ class Reader(object):
         assumed to be encoded as Windows-1252. The encoding is part of
         the eReader file spec and should always be this encoding.
         '''
-        if number < 1 or number > self.header_record.num_text_pages:
+        if number not in range(1, self.header_record.num_text_pages):
             return ''
             
         return self.decompress_text(number)
             
     def get_footnote_page(self, number):
-        if number < self.header_record.footnote_offset or number > self.header_record.footnote_offset + self.header_record.num_footnote_pages - 1:
+        if number not in range(self.header_record.footnote_offset, self.header_record.footnote_offset + self.header_record.num_footnote_pages):
             return ''
             
         return self.decompress_text(number)
         
     def get_sidebar_page(self, number):
-        if number < self.header_record.sidebar_offset or number > self.header_record.sidebar_offset + self.header_record.num_sidebar_pages - 1:
+        if number not in range(self.header_record.sidebar_offset, self.header_record.sidebar_offset + self.header_record.num_sidebar_pages - 1):
             return ''
             
         return self.decompress_text(number)
@@ -139,6 +140,7 @@ class Reader(object):
         html = '<html><head><title></title></head><body>'
         
         for i in range(1, self.header_record.num_text_pages + 1):
+            self.log.debug('Extracting text page %i' % i)
             html += pml_to_html(self.get_text_page(i))
 
         # Untested: The num_.._pages variable may not be correct!
@@ -147,11 +149,13 @@ class Reader(object):
         if has_footnotes():
             html += '<br /><h1>%s</h1>' % _('Footnotes')
             for i in range(self.header_record.footnote_offset, self.header_record.num_footnote_pages):
+                self.log.debug('Extracting footnote page %i' % i)
                 html += footnote_to_html(self.get_footnote_page(i))
                 
         if has_sidebar():
             html += '<br /><h1>%s</h1>' % _('Sidebar')
             for i in range(self.header_record.sidebar_offset, self.header_record.num_sidebar_pages):
+                self.log.debug('Extracting sidebar page %i' % i)
                 html += sidebar_to_html(self.get_sidebar_page(i))
         '''
         
@@ -159,6 +163,7 @@ class Reader(object):
         
         with CurrentDir(output_dir):
             with open('index.html', 'wb') as index:
+                self.log.debug('Writing text to index.html')
                 index.write(html.encode('utf-8'))
         
         if not os.path.exists(os.path.join(output_dir, 'images/')):
@@ -169,6 +174,7 @@ class Reader(object):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
                 images.append(name)
                 with open(name, 'wb') as imgf:
+                    self.log.debug('Writing image %s to images/' % name)
                     imgf.write(img)
             
         opf_path = self.create_opf(output_dir, images)

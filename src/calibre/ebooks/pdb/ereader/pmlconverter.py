@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
 '''
-Convert pml markup to html
+Convert pml markup to and from html
 '''
 
 __license__   = 'GPL v3'
