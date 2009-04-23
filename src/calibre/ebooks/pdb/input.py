@@ -20,7 +20,7 @@ class PDBInput(InputFormatPlugin):
     
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        header = PdbHeader(stream)
+        header = PdbHeaderReader(stream)
         Reader = get_reader(header.ident)
         
         if Reader is None:

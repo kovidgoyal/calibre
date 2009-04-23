@@ -289,11 +289,12 @@ from calibre.ebooks.html.input import HTMLInput
 from calibre.ebooks.oeb.output import OEBOutput
 from calibre.ebooks.txt.output import TXTOutput
 from calibre.ebooks.pdf.output import PDFOutput
+from calibre.ebooks.pdb.ereader.output import EREADEROutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDBInput, PDFInput, HTMLInput,
         TXTInput, OEBOutput, TXTOutput, PDFOutput, LITInput,
-        FB2Input, ODTInput, RTFInput]
+        FB2Input, ODTInput, RTFInput, EREADEROutput]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

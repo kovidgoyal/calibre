@@ -227,8 +227,3 @@ class Reader(FormatReader):
                 with open(name, 'wb') as imgf:
                     imgf.write(img)
 
-
-class EreaderMetadata(object):
-
-    def __init__(self, record):
-        pass

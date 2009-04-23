@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, struct
 
-class PdbHeader(object):
+class PdbHeaderReader(object):
 
     def __init__(self, stream):
         self.stream = stream
@@ -58,3 +58,20 @@ class PdbHeader(object):
             end = self.section_offset(number + 1)
         self.stream.seek(start)
         return self.stream.read(end - start)
+
+
+class PdbHeaderWriter(object):
+
+    def __init__(self, identity, title):
+        self.identity = identity[:8]
+        self.title = title.ljust(32, '\x00')[:32]
+        
+    def build_header(self, sections)
+        '''
+        Sections is a list of section offsets
+        '''
+    
+        
+    
+        
+        return header
