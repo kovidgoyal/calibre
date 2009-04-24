@@ -34,7 +34,7 @@ class PdbHeaderReader(object):
     def full_section_info(self, number):
         if number not in range(0, self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
-            
+
         self.stream.seek(78+number*8)
         offset, a1, a2, a3, a4 = struct.unpack('>LBBBB', self.stream.read(8))[0]
         flags, val = a1, a2<<16 | a3<<8 | a4
@@ -43,14 +43,14 @@ class PdbHeaderReader(object):
     def section_offset(self, number):
         if number not in range(0, self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
-            
+
         self.stream.seek(78+number*8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
 
     def section_data(self, number):
         if number not in range(0, self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
-            
+
         start = self.section_offset(number)
         if number == self.num_sections -1:
             end = os.stat(self.stream.name).st_size
@@ -65,13 +65,13 @@ class PdbHeaderWriter(object):
     def __init__(self, identity, title):
         self.identity = identity[:8]
         self.title = title.ljust(32, '\x00')[:32]
-        
-    def build_header(self, sections)
+
+    def build_header(self, sections):
         '''
         Sections is a list of section offsets
         '''
-    
-        
-    
-        
+
+
+
+
         return header
