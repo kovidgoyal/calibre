@@ -32,6 +32,39 @@ def chap_head(match):
                return '<h1>'+chap+'<br/>'+title+'</h1><br/>'
 
 
+def line_length(raw, percent):
+    '''
+    raw is the raw text to find the line length to use for wrapping.
+    percentage is a decimal number, 0 - 1 which is used to determine
+    how far in the list of line lengths to use.
+    '''
+    raw = raw.replace('&nbsp;', ' ')
+    linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
+    lines = linere.findall(raw)
+
+    lengths = []
+    for line in lines:
+        if len(line) > 0:
+            lengths.append(len(line))
+    total = sum(lengths)
+    avg = total / len(lengths)
+    max_line = avg * 2
+    
+    lengths = sorted(lengths)
+    for i in range(len(lengths) - 1, -1, -1):
+        if lengths[i] > max_line:
+            del lengths[i]
+    
+    if percent > 1:
+        percent = 1
+    if percent < 0:
+        percent = 0
+
+    index = int(len(lengths) * percent) - 1
+    
+    return lengths[index]
+
+
 class CSSPreProcessor(object):
 
     PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
@@ -129,7 +162,12 @@ class HTMLPreProcessor(object):
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
-            rules = self.PDFTOHTML
+            # Add rules that require matching line length here
+            #line_length_rules = [
+            #    (re.compile('%i' % line_length(html, .85)), lambda match:)
+            #]
+            
+            rules = self.PDFTOHTML # + line_length_rules
         else:
             rules = []
         for rule in self.PREPROCESS + rules:

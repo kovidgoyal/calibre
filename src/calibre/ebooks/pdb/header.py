@@ -63,10 +63,10 @@ class PdbHeaderReader(object):
 class PdbHeaderWriter(object):
 
     def __init__(self, identity, title):
-        self.identity = identity[:8]
+        self.identity = identity.ljust(3, '\x00')[:8]
         self.title = title.ljust(32, '\x00')[:32]
         
-    def build_header(self, sections)
+    def build_header(self, offsets):
         '''
         Sections is a list of section offsets
         '''
