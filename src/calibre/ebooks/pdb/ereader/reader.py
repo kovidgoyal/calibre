@@ -202,6 +202,10 @@ class Reader(FormatReader):
         return os.path.join(output_dir, 'metadata.opf')
         
     def dump_pml(self):
+        '''
+        This is primarily used for debugging and 3rd party tools to
+        get the plm markup that comprises the text in the file.
+        '''
         pml = ''
         
         for i in range(1, self.header_record.num_text_pages + 1):
@@ -209,8 +213,17 @@ class Reader(FormatReader):
         
         return pml
         
-        
-class EreaderMetadata(object):
+    def dump_images(self, output_dir):
+        '''
+        This is primarily used for debugging and 3rd party tools to
+        get the images in the file.
+        '''
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
-    def __init__(self, record):
-        pass
+        with CurrentDir(output_dir):            
+            for i in range(0, self.header_record.num_image_pages):
+                name, img = self.get_image(self.header_record.image_data_offset + i)
+                with open(name, 'wb') as imgf:
+                    imgf.write(img)
+
