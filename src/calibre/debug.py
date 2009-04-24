@@ -17,10 +17,10 @@ def option_parser():
 
 Run an embedded python interpreter.
 ''')
-    parser.add_option('--update-module',
+    parser.add_option('-u', '--update-module', default=False,
+            action='store_true',
             help='Update the specified module in the frozen library. '+
-    'Module specifications are of the form full.name.of.module,path_to_module.py',
-    default=None
+    'Module specifications are of the form full.name.of.module path_to_module.py',
     )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
@@ -143,7 +143,7 @@ def main(args=sys.argv):
         from calibre.gui2.main import main
         main(['calibre'])
     elif opts.update_module:
-        mod, path = opts.update_module.partition(',')[0], opts.update_module.partition(',')[-1]
+        mod, path = args[1:3]
         update_module(mod, os.path.expanduser(path))
     elif opts.command:
         sys.argv = args[:1]

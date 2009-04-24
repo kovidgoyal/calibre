@@ -246,7 +246,9 @@ _check_symlinks_prescript()
 
         print
         print 'Adding pdftohtml'
-        os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
+        os.link(os.path.expanduser('~/pdftohtml/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
+        os.link(os.path.expanduser('~/pdftohtml/libpoppler.4.dylib'),
+                os.path.join(frameworks_dir, 'libpoppler.4.dylib'))
         print 'Adding plugins'
         module_dir = os.path.join(resource_dir, 'lib', 'python2.6', 'lib-dynload')
         print 'Adding fontconfig'

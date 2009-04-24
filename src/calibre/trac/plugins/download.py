@@ -19,6 +19,7 @@ DEPENDENCIES = [
             ('python-dateutil', '1.4.1', 'python-dateutil', 'python-dateutil', 'python-dateutil'),
             ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
             ('dnspython', '1.6.0', 'dnspython', 'dnspython', 'dnspython', 'dnspython'),
+            ('poppler', '0.10.5', 'poppler', 'poppler', 'poppler', 'poppler'),
             ]
 
 
