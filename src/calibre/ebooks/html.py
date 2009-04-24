@@ -646,12 +646,12 @@ class Processor(Parser):
         # Add level* TOC items
         counter = 0
 
-        def elem_to_link(elem, href, counter):
+        def elem_to_link(elem, href, counter, look_for_link=True):
             text = (u''.join(elem.xpath('string()'))).strip()
             if not text:
                 return None, None, None
             t = elem.xpath('descendant-or-self::a[@href]')
-            if t:
+            if look_for_link and t:
                 _href = 'content/' + t[0].get('href', '')
                 parts = _href.split('#')
                 _href = parts[0]
@@ -670,7 +670,8 @@ class Processor(Parser):
             if level1:
                 added = {}
                 for elem in level1:
-                    text, _href, frag = elem_to_link(elem, href, counter)
+                    text, _href, frag = elem_to_link(elem, href, counter,
+                            look_for_link=False)
                     counter += 1
                     if text:
                         level1_order.append(add_item(_href, frag, text, toc, type='chapter'))
@@ -685,7 +686,8 @@ class Processor(Parser):
                             if item in added.keys():
                                 level1 = added[item]
                             elif item == elem and level1 is not None:
-                                text, _href, frag = elem_to_link(elem, href, counter)
+                                text, _href, frag = elem_to_link(elem, href,
+                                        counter, look_for_link=False)
                                 counter += 1
                                 if text:
                                     added2[elem] = \
@@ -698,7 +700,8 @@ class Processor(Parser):
                                 if item in added2.keys():
                                     level2 = added2[item]
                                 elif item == elem and level2 is not None:
-                                    text, _href, frag = elem_to_link(elem, href, counter)
+                                    text, _href, frag = elem_to_link(elem, href,
+                                            counter, look_for_link=False)
                                     counter += 1
                                     if text:
                                         add_item(_href, frag, text, level2, type='chapter')
