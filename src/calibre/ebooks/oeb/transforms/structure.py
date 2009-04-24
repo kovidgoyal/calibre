@@ -11,7 +11,7 @@ import re
 from lxml import etree
 from urlparse import urlparse
 
-from calibre.ebooks.oeb.base import XPNSMAP, TOC
+from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML
 XPath = lambda x: etree.XPath(x, namespaces=XPNSMAP)
 
 class DetectStructure(object):
@@ -63,11 +63,11 @@ class DetectStructure(object):
                 if chapter_mark == 'none':
                     continue
                 elif chapter_mark == 'rule':
-                    mark = etree.Element('hr')
+                    mark = etree.Element(XHTML('hr'))
                 elif chapter_mark == 'pagebreak':
-                    mark = etree.Element('div', style=page_break_after)
+                    mark = etree.Element(XHTML('div'), style=page_break_after)
                 else: # chapter_mark == 'both':
-                    mark = etree.Element('hr', style=page_break_before)
+                    mark = etree.Element(XHTML('hr'), style=page_break_before)
                 elem.addprevious(mark)
 
     def create_level_based_toc(self):
@@ -114,12 +114,13 @@ class DetectStructure(object):
     def add_leveled_toc_items(self, item):
         level1 = XPath(self.opts.level1_toc)(item.data)
         level1_order = []
+        document = item
 
         counter = 1
         if level1:
             added = {}
             for elem in level1:
-                text, _href = self.elem_to_link(item, elem, counter)
+                text, _href = self.elem_to_link(document, elem, counter)
                 counter += 1
                 if text:
                     node = self.oeb.toc.add(text, _href,
@@ -132,11 +133,11 @@ class DetectStructure(object):
                 level2 = list(XPath(self.opts.level2_toc)(item.data))
                 for elem in level2:
                     level1 = None
-                    for item in item.data.iterdescendants():
+                    for item in document.data.iterdescendants():
                         if item in added.keys():
                             level1 = added[item]
                         elif item == elem and level1 is not None:
-                            text, _href = self.elem_to_link(item, elem, counter)
+                            text, _href = self.elem_to_link(document, elem, counter)
                             counter += 1
                             if text:
                                 added2[elem] = level1.add(text, _href,
@@ -145,12 +146,12 @@ class DetectStructure(object):
                     level3 = list(XPath(self.opts.level3_toc)(item.data))
                     for elem in level3:
                         level2 = None
-                        for item in item.data.iterdescendants():
+                        for item in document.data.iterdescendants():
                             if item in added2.keys():
                                 level2 = added2[item]
                             elif item == elem and level2 is not None:
                                 text, _href = \
-                                        self.elem_to_link(item, elem, counter)
+                                        self.elem_to_link(document, elem, counter)
                                 counter += 1
                                 if text:
                                     level2.add(text, _href,

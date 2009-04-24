@@ -17,13 +17,16 @@ from lxml.cssselect import CSSSelector
 
 from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
         urldefrag, rewrite_links, urlunquote
-from calibre.ebooks.epub import tostring, rules
+from calibre.ebooks.epub import rules
 
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
 SPLIT_ATTR       = 'cs'
 SPLIT_POINT_ATTR = 'csp'
+
+def tostring(root):
+    return etree.tostring(root, encoding='utf-8')
 
 class SplitError(ValueError):
 

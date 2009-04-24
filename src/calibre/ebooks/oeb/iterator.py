@@ -12,13 +12,15 @@ from cStringIO import StringIO
 from PyQt4.Qt import QFontDatabase
 
 from calibre.customize.ui import available_input_formats
-from calibre.ebooks.epub.from_html import TITLEPAGE
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.zipfile import safe_replace, ZipFile
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
+from calibre.ebooks.epub.output import EPUBOutput
+
+TITLEPAGE = EPUBOutput.TITLEPAGE_COVER
 
 def character_count(html):
     '''
