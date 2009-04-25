@@ -30,7 +30,7 @@ class StreamSlicer(object):
 
     def __len__(self):
         return self._len
-        
+
     def __getitem__(self, key):
         stream = self._stream
         base = self.start
@@ -72,7 +72,7 @@ class StreamSlicer(object):
             return stream.write(value)
         raise TypeError("stream indices must be integers")
 
-    
+
 class MetadataUpdater(object):
     def __init__(self, stream):
         self.stream = stream
@@ -116,7 +116,11 @@ class MetadataUpdater(object):
 
     def update(self, mi):
         recs = []
-        if mi.authors:
+        from calibre.ebooks.mobi.from_any import config
+        if mi.author_sort and config().parse().prefer_author_sort:
+            authors = mi.author_sort
+            recs.append((100, authors.encode(self.codec, 'replace')))
+        elif mi.authors:
             authors = '; '.join(mi.authors)
             recs.append((100, authors.encode(self.codec, 'replace')))
         if mi.publisher:

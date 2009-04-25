@@ -81,7 +81,9 @@ class EXTHHeader(object):
         elif id == 105:
             if not self.mi.tags:
                 self.mi.tags = []
-            self.mi.tags.append(content.decode(codec, 'ignore'))
+            self.mi.tags.extend([x.strip() for x in content.decode(codec,
+                'ignore').split(';')])
+            self.mi.tags = list(set(self.mi.tags))
         elif id == 106:
             try:
                 self.mi.publish_date = datetime.datetime.strptime(

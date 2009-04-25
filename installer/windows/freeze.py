@@ -9,7 +9,7 @@ Freeze app into executable using py2exe.
 QT_DIR           = 'C:\\Qt\\4.4.3'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
-PDFTOHTML        = 'C:\\pdftohtml\\pdftohtml.exe'
+PDFTOHTML        = 'C:\\cygwin\\home\\kovid\\poppler-0.10.6\\rel\\pdftohtml.exe'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
 VC90             = r'C:\VC90.CRT'
@@ -98,6 +98,8 @@ class BuildEXE(py2exe.build_exe.py2exe):
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
         print '\tAdding pdftohtml'
         shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
+        shutil.copyfile(PDFTOHTML+'.manifest', os.path.join(PY2EXE_DIR,
+            os.path.basename(PDFTOHTML)+'.manifest'))
         print '\tAdding ImageMagick'
         for f in os.listdir(IMAGEMAGICK_DIR):
             shutil.copyfile(os.path.join(IMAGEMAGICK_DIR, f), os.path.join(PY2EXE_DIR, f))

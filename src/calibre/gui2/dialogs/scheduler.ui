@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Dialog</class>
- <widget class="QDialog" name="Dialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,42 +10,52 @@
     <height>575</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Schedule news download</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../images.qrc">
     <normaloff>:/images/scheduler.svg</normaloff>:/images/scheduler.svg</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item rowspan="3" row="0" column="0" >
-    <widget class="QGroupBox" name="recipe_box" >
-     <property name="title" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" rowspan="3">
+    <widget class="QGroupBox" name="recipe_box">
+     <property name="title">
       <string>Recipes</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout" >
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QTreeView" name="recipes" >
-        <property name="showDropIndicator" stdset="0" >
+       <widget class="QTreeView" name="recipes">
+        <property name="showDropIndicator" stdset="0">
          <bool>false</bool>
         </property>
-        <property name="iconSize" >
+        <property name="iconSize">
          <size>
           <width>16</width>
           <height>16</height>
          </size>
         </property>
-        <property name="animated" >
+        <property name="animated">
          <bool>true</bool>
         </property>
-        <property name="headerHidden" >
+        <property name="headerHidden">
          <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="rnumber" >
-        <property name="text" >
+       <widget class="QPushButton" name="download_all_button">
+        <property name="toolTip">
+         <string>Download all scheduled recipes at once</string>
+        </property>
+        <property name="text">
+         <string>Download &amp;all scheduled</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="rnumber">
+        <property name="text">
          <string/>
         </property>
        </widget>
@@ -52,92 +63,92 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="1" >
-    <layout class="QVBoxLayout" name="verticalLayout_3" >
+   <item row="0" column="1">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QScrollArea" name="scrollArea" >
-       <property name="frameShape" >
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
-       <property name="widgetResizable" >
+       <property name="widgetResizable">
         <bool>true</bool>
        </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents" >
-        <property name="geometry" >
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>361</width>
+          <width>381</width>
           <height>500</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5" >
-         <property name="margin" >
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="detail_box" >
-           <property name="title" >
+          <widget class="QGroupBox" name="detail_box">
+           <property name="title">
             <string>Schedule for download</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4" >
+           <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="QLabel" name="blurb" >
-              <property name="text" >
+             <widget class="QLabel" name="blurb">
+              <property name="text">
                <string>blurb</string>
               </property>
-              <property name="textFormat" >
+              <property name="textFormat">
                <enum>Qt::RichText</enum>
               </property>
-              <property name="wordWrap" >
+              <property name="wordWrap">
                <bool>true</bool>
               </property>
-              <property name="openExternalLinks" >
+              <property name="openExternalLinks">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="schedule" >
-              <property name="text" >
+             <widget class="QCheckBox" name="schedule">
+              <property name="text">
                <string>&amp;Schedule for download:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QWidget" native="1" name="widget" >
-              <property name="enabled" >
+             <widget class="QWidget" name="widget" native="true">
+              <property name="enabled">
                <bool>false</bool>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_2" >
+              <layout class="QVBoxLayout" name="verticalLayout_2">
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_2" >
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
                  <item>
-                  <widget class="QRadioButton" name="daily_button" >
-                   <property name="text" >
+                  <widget class="QRadioButton" name="daily_button">
+                   <property name="text">
                     <string>Every </string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QComboBox" name="day" />
+                  <widget class="QComboBox" name="day"/>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_4" >
-                   <property name="text" >
+                  <widget class="QLabel" name="label_4">
+                   <property name="text">
                     <string>at</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QTimeEdit" name="time" />
+                  <widget class="QTimeEdit" name="time"/>
                  </item>
                  <item>
-                  <spacer name="horizontalSpacer" >
-                   <property name="orientation" >
+                  <spacer name="horizontalSpacer">
+                   <property name="orientation">
                     <enum>Qt::Horizontal</enum>
                    </property>
-                   <property name="sizeHint" stdset="0" >
+                   <property name="sizeHint" stdset="0">
                     <size>
                      <width>40</width>
                      <height>20</height>
@@ -148,41 +159,41 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout" >
+                <layout class="QHBoxLayout" name="horizontalLayout">
                  <item>
-                  <widget class="QRadioButton" name="interval_button" >
-                   <property name="text" >
+                  <widget class="QRadioButton" name="interval_button">
+                   <property name="text">
                     <string>Every </string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QDoubleSpinBox" name="interval" >
-                   <property name="sizePolicy" >
-                    <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                  <widget class="QDoubleSpinBox" name="interval">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="toolTip" >
+                   <property name="toolTip">
                     <string>Interval at which to download this recipe. A value of zero means that the recipe will be downloaded every hour.</string>
                    </property>
-                   <property name="suffix" >
+                   <property name="suffix">
                     <string> days</string>
                    </property>
-                   <property name="decimals" >
+                   <property name="decimals">
                     <number>1</number>
                    </property>
-                   <property name="minimum" >
+                   <property name="minimum">
                     <double>0.000000000000000</double>
                    </property>
-                   <property name="maximum" >
+                   <property name="maximum">
                     <double>365.100000000000023</double>
                    </property>
-                   <property name="singleStep" >
+                   <property name="singleStep">
                     <double>1.000000000000000</double>
                    </property>
-                   <property name="value" >
+                   <property name="value">
                     <double>1.000000000000000</double>
                    </property>
                   </widget>
@@ -193,54 +204,54 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="last_downloaded" >
-              <property name="text" >
+             <widget class="QLabel" name="last_downloaded">
+              <property name="text">
                <string/>
               </property>
-              <property name="wordWrap" >
+              <property name="wordWrap">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="account" >
-              <property name="title" >
+             <widget class="QGroupBox" name="account">
+              <property name="title">
                <string>&amp;Account</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_2" >
-               <item row="0" column="1" >
-                <widget class="QLineEdit" name="username" />
+              <layout class="QGridLayout" name="gridLayout_2">
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="username"/>
                </item>
-               <item row="0" column="0" >
-                <widget class="QLabel" name="label_2" >
-                 <property name="text" >
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_2">
+                 <property name="text">
                   <string>&amp;Username:</string>
                  </property>
-                 <property name="buddy" >
+                 <property name="buddy">
                   <cstring>username</cstring>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" >
-                <widget class="QLabel" name="label_3" >
-                 <property name="text" >
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
                   <string>&amp;Password:</string>
                  </property>
-                 <property name="buddy" >
+                 <property name="buddy">
                   <cstring>password</cstring>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1" >
-                <widget class="QLineEdit" name="password" >
-                 <property name="echoMode" >
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="password">
+                 <property name="echoMode">
                   <enum>QLineEdit::Password</enum>
                  </property>
                 </widget>
                </item>
-               <item row="2" column="0" >
-                <widget class="QCheckBox" name="show_password" >
-                 <property name="text" >
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="show_password">
+                 <property name="text">
                   <string>&amp;Show password</string>
                  </property>
                 </widget>
@@ -249,18 +260,18 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label" >
-              <property name="text" >
+             <widget class="QLabel" name="label">
+              <property name="text">
                <string>For the scheduling to work, you must leave calibre running.</string>
               </property>
-              <property name="wordWrap" >
+              <property name="wordWrap">
                <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="download" >
-              <property name="text" >
+             <widget class="QPushButton" name="download">
+              <property name="text">
                <string>&amp;Download now</string>
               </property>
              </widget>
@@ -274,28 +285,28 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="1" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+   <item row="2" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
-   <item row="1" column="1" >
-    <widget class="QSpinBox" name="old_news" >
-     <property name="toolTip" >
+   <item row="1" column="1">
+    <widget class="QSpinBox" name="old_news">
+     <property name="toolTip">
       <string>Delete downloaded news older than the specified number of days. Set to zero to disable.</string>
      </property>
-     <property name="suffix" >
+     <property name="suffix">
       <string> days</string>
      </property>
-     <property name="prefix" >
+     <property name="prefix">
       <string>Delete downloaded news older than </string>
      </property>
-     <property name="maximum" >
+     <property name="maximum">
       <number>1000</number>
      </property>
     </widget>
@@ -303,7 +314,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../images.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -312,11 +323,11 @@
    <receiver>Dialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>613</x>
      <y>824</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -328,11 +339,11 @@
    <receiver>Dialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>681</x>
      <y>824</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
@@ -344,11 +355,11 @@
    <receiver>widget</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>454</x>
      <y>147</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>461</x>
      <y>168</y>
     </hint>
@@ -360,11 +371,11 @@
    <receiver>widget</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>458</x>
      <y>137</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>461</x>
      <y>169</y>
     </hint>
@@ -376,11 +387,11 @@
    <receiver>day</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>421</x>
      <y>186</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>500</x>
      <y>184</y>
     </hint>
@@ -392,11 +403,11 @@
    <receiver>time</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>442</x>
      <y>193</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>603</x>
      <y>183</y>
     </hint>
@@ -408,11 +419,11 @@
    <receiver>interval</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>428</x>
      <y>213</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>495</x>
      <y>218</y>
     </hint>

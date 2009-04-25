@@ -36,9 +36,10 @@ def generate_html(pathtopdf, tdir):
     index = os.path.join(tdir, 'index.html')
     # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
     pathtopdf = os.path.abspath(pathtopdf)
-    cmd = (PDFTOHTML, '-enc', 'UTF-8',  '-noframes',  '-p',  '-nomerge', pathtopdf, os.path.basename(index))
+    cmd = (PDFTOHTML, '-enc', 'UTF-8',  '-noframes',  '-p',  '-nomerge',
+            '-nodrm', pathtopdf, os.path.basename(index))
     cwd = os.getcwd()
-    
+
     try:
         os.chdir(tdir)
         try:
@@ -67,7 +68,7 @@ def generate_html(pathtopdf, tdir):
             raise ConversionError, err
         if not os.path.exists(index) or os.stat(index).st_size < 100:
             raise DRMError()
-        
+
         raw = open(index, 'rb').read()
         open(index, 'wb').write('<!-- created by calibre\'s pdftohtml -->\n'+raw)
         if not '<br' in raw[:4000]:
@@ -105,7 +106,7 @@ def process_file(path, options, logger=None):
     tdir = PersistentTemporaryDirectory('_pdf2lrf')
     htmlfile = generate_html(pdf, tdir)
     if not options.output:
-        ext = '.lrs' if options.lrs else '.lrf'        
+        ext = '.lrs' if options.lrs else '.lrf'
         options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
     else:
         options.output = os.path.abspath(options.output)
@@ -118,7 +119,7 @@ def process_file(path, options, logger=None):
 def main(args=sys.argv, logger=None):
     parser = option_parser()
     options, args = parser.parse_args(args)
-    if len(args) != 2:            
+    if len(args) != 2:
         parser.print_help()
         print
         print 'No pdf file specified'

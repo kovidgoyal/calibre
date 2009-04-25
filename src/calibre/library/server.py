@@ -337,7 +337,7 @@ class LibraryServer(object):
 
         book, books = MarkupTemplate(self.BOOK), []
         for record in items[start:start+num]:
-            aus = record[2] if record[2] else _('Unknown')
+            aus = record[2] if record[2] else __builtins__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
             books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
