@@ -102,6 +102,7 @@ class DetectStructure(object):
                                 play_order=self.oeb.toc.next_play_order())
 
 
+
     def elem_to_link(self, item, elem, counter):
         text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
         text = text[:100].strip()

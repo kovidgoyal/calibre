@@ -941,7 +941,10 @@ class Manifest(object):
             href = urlunparse(purl)
             path, frag = urldefrag(href)
             if not path:
-                return '#'.join((self.href, frag))
+                if frag:
+                    return '#'.join((self.href, frag))
+                else:
+                    return self.href
             if '/' not in self.href:
                 return href
             dirname = os.path.dirname(self.href)
