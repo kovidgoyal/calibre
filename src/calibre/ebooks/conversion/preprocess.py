@@ -31,6 +31,12 @@ def chap_head(match):
     else: 
                return '<h1>'+chap+'<br/>'+title+'</h1><br/>'
 
+def wrap_lines(match):
+    ital = match.group('ital')
+    if not ital: 
+               return ' '
+    else: 
+               return ital+' '
 
 def line_length(raw, percent):
     '''
@@ -93,17 +99,11 @@ class HTMLPreProcessor(object):
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
                   (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
-                  # Remove page numbers
-                  (re.compile(r'\d+<br>', re.IGNORECASE), lambda match: ''),
                   # Replace <br><br> with <p>
                   (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
-                  # Remove <br>
-                  (re.compile(r'(.*)<br.*?>', re.IGNORECASE),
-                   lambda match: match.group() if \
-                           re.match('<', match.group(1).lstrip()) or \
-                           len(match.group(1)) < 40  else match.group(1)),
+
                   # Remove hyphenation
-                  (re.compile(r'-\n\r?'), lambda match: ''),
+                  (re.compile(r'-<br.*?>\n\r?'), lambda match: ''),
 
                   # Remove gray background
                   (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>'),
@@ -112,14 +112,11 @@ class HTMLPreProcessor(object):
                   (re.compile(ur'\u00a0'), lambda match : ' '),
                   
                   # Detect Chapters to match default XPATH in GUI
-                  (re.compile(r'(<br[^>]*>)?(</?p[^>]*>)?s*(?P<chap>(Chapter|Epilogue|Prologue|Book|Part)\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?', re.IGNORECASE), chap_head),
-                  (re.compile(r'(<br[^>]*>)?(</?p[^>]*>)?s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<i><b>|<i>|<b>)?(Chapter|Epilogue|Prologue|Book|Part)\s*(\d+|\w+)?(</i></b>|</i>|</b>)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>(<i>)?\s*\w+(\s+\w+)?(</i>)?)(<br[^>]*>|</?p[^>]*>)))?', re.IGNORECASE), chap_head),
+                  (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
  
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
-                  
-                  # Un wrap lines
-                  (re.compile(r'(?<=[^\.^\^?^!^"^”])\s*(</(i|b|u)>)*\s*<p.*?>\s*(<(i|b|u)>)*\s*(?=[a-z0-9I])', re.UNICODE), lambda match: ' '),
                   
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,:;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
@@ -162,12 +159,12 @@ class HTMLPreProcessor(object):
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
-            # Add rules that require matching line length here
-            #line_length_rules = [
-            #    (re.compile('%i' % line_length(html, .85)), lambda match:)
-            #]
+            line_length_rules = [
+                # Un wrap using punctuation
+                (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % line_length(html, .2), re.UNICODE), wrap_lines),
+            ]
             
-            rules = self.PDFTOHTML # + line_length_rules
+            rules = self.PDFTOHTML + line_length_rules
         else:
             rules = []
         for rule in self.PREPROCESS + rules:
