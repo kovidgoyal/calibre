@@ -39,7 +39,7 @@ class Writer(object):
         pml_pages = []
         
         for page in pages:
-            pml_pages.append(zlib.compress(html_to_pml(unicode(page))))
+            pml_pages.append(zlib.compress(html_to_pml(unicode(page)).encode('utf-8')))
 
         return pml_pages            
         
@@ -67,7 +67,7 @@ class Writer(object):
         image_items = the number of images
         '''
         version = 10
-        non_text_offset = text_items
+        non_text_offset = text_items + 1
         
         if image_items > 0:
             image_data_offset = text_items + 1

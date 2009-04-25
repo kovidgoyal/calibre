@@ -27,9 +27,9 @@ def chap_head(match):
     chap = match.group('chap')
     title = match.group('title')
     if not title: 
-               return '<h1>'+chap+'</h1><br/>'
+               return '<h1>'+chap+'</h1><br/>\n'
     else: 
-               return '<h1>'+chap+'<br/>'+title+'</h1><br/>'
+               return '<h1>'+chap+'<br/>\n'+title+'</h1><br/>\n'
 
 def wrap_lines(match):
     ital = match.group('ital')
@@ -121,7 +121,7 @@ class HTMLPreProcessor(object):
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,:;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
                   # Add space before and after italics
-                  (re.compile(r'(?<!“)<i>'), lambda match: ' <i>'),
+                  (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
                   (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
                  ]
 
@@ -161,7 +161,7 @@ class HTMLPreProcessor(object):
         elif self.is_pdftohtml(html):
             line_length_rules = [
                 # Un wrap using punctuation
-                (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % line_length(html, .2), re.UNICODE), wrap_lines),
+                (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % line_length(html, .4), re.UNICODE), wrap_lines),
             ]
             
             rules = self.PDFTOHTML + line_length_rules

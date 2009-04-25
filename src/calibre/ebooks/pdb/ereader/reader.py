@@ -154,7 +154,7 @@ class Reader(FormatReader):
         
             for i in images:
                 manifest.append((os.path.join('images/', i), None))
-        
+
             opf.create_manifest(manifest)
             opf.create_spine(['index.html'])
             with open('metadata.opf', 'wb') as opffile:
