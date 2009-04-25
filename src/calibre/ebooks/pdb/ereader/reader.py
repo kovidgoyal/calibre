@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, struct, zlib
+import os, re, sys, struct, zlib
 
 from calibre import CurrentDir
 from calibre.ebooks import DRMError
@@ -16,7 +16,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.ereader.pmlconverter import pml_to_html, \
-    footnote_to_html, sidebar_to_html 
+    footnote_sidebar_to_html 
 from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
@@ -42,14 +42,6 @@ class HeaderRecord(object):
         
         self.num_text_pages = self.non_text_offset -1
         self.num_image_pages = self.metadata_offset - self.image_data_offset
-
-        # Can't tell which is sidebar and footnote if they have same offset.
-        # They don't exist if offset is larget than last_record.
-        # Todo: Determine if the subtraction is necessary and find out
-        # what _rec means.
-        end_footnote_offset = self.sidebar_offset if self.sidebar_offset != self.footnote_offset else self.last_data_offset
-        self.num_footnote_pages = end_footnote_offset - self.footnote_offset if self.footnote_offset < self.last_data_offset else 0 
-        self.num_sidebar_pages = self.sidebar_offset - self.last_data_offset if self.footnote_offset < self.last_data_offset else 0
         
 
 class Reader(FormatReader):
@@ -94,44 +86,10 @@ class Reader(FormatReader):
         assumed to be encoded as Windows-1252. The encoding is part of
         the eReader file spec and should always be this encoding.
         '''
-        if number not in range(1, self.header_record.num_text_pages):
+        if number not in range(1, self.header_record.num_text_pages + 1):
             return ''
             
         return self.decompress_text(number)
-            
-    def get_footnote_page(self, number):
-        if number not in range(self.header_record.footnote_offset, self.header_record.footnote_offset + self.header_record.num_footnote_pages):
-            return ''
-            
-        return self.decompress_text(number)
-        
-    def get_sidebar_page(self, number):
-        if number not in range(self.header_record.sidebar_offset, self.header_record.sidebar_offset + self.header_record.num_sidebar_pages - 1):
-            return ''
-            
-        return self.decompress_text(number)
-
-    def has_footnotes(self):
-        if self.header_record.num_footnote_pages > 1:
-            try:
-                content = self.decompress_text(self.header_record.footnote_offset)
-                
-                if content.contains('</footnote>'):
-                    return True
-            except:
-                pass
-        return False
-        
-    def has_sidebar(self):
-        if self.header_record.num_sidebar_pages > 1:
-            try:
-                content = self.decompress_text(self.header_record.sidebar_offset)
-                
-                if content.contains('</sidebar>'):
-                    return True
-            except:
-                pass
-        return False
 
     def extract_content(self, output_dir):
         output_dir = os.path.abspath(output_dir)
@@ -144,22 +102,25 @@ class Reader(FormatReader):
         for i in range(1, self.header_record.num_text_pages + 1):
             self.log.debug('Extracting text page %i' % i)
             html += pml_to_html(self.get_text_page(i))
-
-        # Untested: The num_.._pages variable may not be correct!
-        # Possibly use .._rec instead?
-        '''
-        if has_footnotes():
+        
+        if self.header_record.footnote_rec > 0:
             html += '<br /><h1>%s</h1>' % _('Footnotes')
-            for i in range(self.header_record.footnote_offset, self.header_record.num_footnote_pages):
+            footnoteids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.footnote_offset).decode('cp1252' if self.encoding is None else self.encoding))
+            for fid, i in enumerate(range(self.header_record.footnote_offset + 1, self.header_record.footnote_offset + self.header_record.footnote_rec)):
                 self.log.debug('Extracting footnote page %i' % i)
-                html += footnote_to_html(self.get_footnote_page(i))
+                html += '<dl>'
+                html += footnote_sidebar_to_html(footnoteids[fid], self.decompress_text(i))
+                html += '</dl>'
                 
-        if has_sidebar():
+        
+        if self.header_record.sidebar_rec > 0:
             html += '<br /><h1>%s</h1>' % _('Sidebar')
-            for i in range(self.header_record.sidebar_offset, self.header_record.num_sidebar_pages):
+            sidebarids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.sidebar_offset).decode('cp1252' if self.encoding is None else self.encoding))
+            for sid, i in enumerate(range(self.header_record.sidebar_offset + 1, self.header_record.sidebar_offset + self.header_record.sidebar_rec)):
                 self.log.debug('Extracting sidebar page %i' % i)
-                html += sidebar_to_html(self.get_sidebar_page(i))
-        '''
+                html += '<dl>'
+                html += footnote_sidebar_to_html(sidebarids[sid], self.decompress_text(i))
+                html += '</dl>'
         
         html += '</body></html>'
         
