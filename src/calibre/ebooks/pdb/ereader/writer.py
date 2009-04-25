@@ -6,6 +6,8 @@ Write content to ereader pdb file.
 
 import struct, zlib
 
+import Image, cStringIO
+
 from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pdb.ereader import image_name
@@ -52,14 +54,22 @@ class Writer(object):
 
                 image += image_name(item.href)
                 image = image.ljust(62, '\x00')
-                image += item.data
                 
-                images.append(image)
+                im = Image.open(cStringIO.StringIO(item.data))
+                
+                data = cStringIO.StringIO()
+                im.save(data, 'PNG')
+                data = data.getvalue()
+                
+                image += data
+                
+                if len(image) < 65505:
+                    images.append(image)
                 
         return images
         
     def _metadata(self, metadata):
-        return ''
+        return '\x00\x00\x00\x00\x00'
 
     def _header_record(self, text_items, image_items):
         '''
@@ -72,22 +82,36 @@ class Writer(object):
         if image_items > 0:
             image_data_offset = text_items + 1
             meta_data_offset = image_data_offset + image_items
+            last_data_offset = meta_data_offset + 1
         else:
             meta_data_offset = text_items + 1
-            image_data_offset = meta_data_offset
+            last_data_offset = meta_data_offset + 1
+            image_data_offset = last_data_offset
     
         record = u''
         
         # Version
         record += struct.pack('>H', version)
         record = record.ljust(12, '\x00')
+        # Non-text offset, everything between record 0 and non_text_offset is text pages
         record += struct.pack('>H', non_text_offset)
+        record = record.ljust(28, '\x00')
+        # Footnote and Sidebar rec
+        record += struct.pack('>H', 0)
+        record += struct.pack('>H', 0)
+        record += struct.pack('>H', last_data_offset)
         record = record.ljust(40, '\x00')
+        # image pages
         record += struct.pack('>H', image_data_offset)
         record = record.ljust(44, '\x00')
+        # metadata string
         record += struct.pack('>H', meta_data_offset)
+        record = record.ljust(48, '\x00')
+        # footnote and sidebar offsets
+        record += struct.pack('>H', last_data_offset)
+        record += struct.pack('>H', last_data_offset)
         record = record.ljust(52, '\x00')
-        record += struct.pack('>H', meta_data_offset)
+        record += struct.pack('>H', last_data_offset)
         
         return record
 

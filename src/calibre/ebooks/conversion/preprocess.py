@@ -26,17 +26,10 @@ def sanitize_head(match):
 def chap_head(match):
     chap = match.group('chap')
     title = match.group('title')
-<<<<<<< TREE
     if not title: 
                return '<h1>'+chap+'</h1><br/>\n'
     else: 
                return '<h1>'+chap+'<br/>\n'+title+'</h1><br/>\n'
-=======
-    if not title:
-               return '<h1>'+chap+'</h1><br/>'
-    else:
-               return '<h1>'+chap+'<br/>'+title+'</h1><br/>'
->>>>>>> MERGE-SOURCE
 
 def wrap_lines(match):
     ital = match.group('ital')
