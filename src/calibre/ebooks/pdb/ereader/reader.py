@@ -40,7 +40,7 @@ class HeaderRecord(object):
         self.sidebar_offset, = struct.unpack('>H', raw[50:52])
         self.last_data_offset, = struct.unpack('>H', raw[52:54])
         
-        self.num_text_pages = self.non_text_offset -1
+        self.num_text_pages = self.non_text_offset - 1
         self.num_image_pages = self.metadata_offset - self.image_data_offset
         
 

@@ -55,3 +55,4 @@ class TXTOutput(OutputFormatPlugin):
         
         if close:
             out_stream.close()
+            

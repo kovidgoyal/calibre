@@ -5,9 +5,8 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin, \
-    OptionRecommendation
-from calibre.ebooks.txt.writer import TxtWriter, TxtNewlines, TxtMetadata
+from calibre.customize.conversion import OutputFormatPlugin
+from calibre.ebooks.pdb.ereader.writer import Writer
 from calibre.ebooks.metadata import authors_to_string
 
 class EREADEROutput(OutputFormatPlugin):
@@ -17,7 +16,22 @@ class EREADEROutput(OutputFormatPlugin):
     file_type = 'erpdb'
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        from calibre.ebooks.pdb.ereader.pmlconverter import html_to_pml
+        writer = Writer(log)
         
-#        print html_to_pml('<p class="calibre1">     “A hundred kisses from the Princess,” said he, “or else let everyone keep his own!”</p>')
-        print html_to_pml(str(oeb_book.spine[3]))
+        close = False
+        if not hasattr(output_path, 'write'):
+            close = True
+            if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
+                os.makedirs(os.path.dirname(output_path))
+            out_stream = open(output_path, 'wb')
+        else:
+            out_stream = output_path
+        
+        out_stream.seek(0)
+        out_stream.truncate()
+
+        writer.dump(oeb_book, out_stream)
+        
+        if close:
+            out_stream.close()
+            
