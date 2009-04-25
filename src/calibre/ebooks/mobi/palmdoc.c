@@ -118,9 +118,9 @@ cpalmdoc_do_compress(buffer *b, char *output) {
             found = false;
             for (chunk_len = 10; chunk_len > 2; chunk_len--) {
                 j = cpalmdoc_rfind(b->data, i, chunk_len);
-                if (j < i) {
+                dist = i - j;
+                if (j < i && dist <= 2047) {
                     found = true;
-                    dist = i - j;
                     compound = (dist << 3) + chunk_len-3;
                     *(output++) = CHAR(0x80 + (compound >> 8 ));
                     *(output++) = CHAR(compound & 0xFF);

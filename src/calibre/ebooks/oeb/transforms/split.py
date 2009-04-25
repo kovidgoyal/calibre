@@ -44,14 +44,14 @@ class Split(object):
         self.split_on_page_breaks = split_on_page_breaks
         self.page_breaks_xpath = page_breaks_xpath
         self.max_flow_size = max_flow_size
+        self.page_break_selectors = None
         if self.page_breaks_xpath is not None:
-            self.page_breaks_xpath = XPath(self.page_breaks_xpath)
+            self.page_break_selectors = [(XPath(self.page_breaks_xpath), False)]
 
     def __call__(self, oeb, context):
         self.oeb = oeb
         self.log = oeb.log
         self.map = {}
-        self.page_break_selectors = None
         for item in list(self.oeb.manifest.items):
             if item.spine_position is not None and etree.iselement(item.data):
                 self.split_item(item)
@@ -60,10 +60,7 @@ class Split(object):
 
     def split_item(self, item):
         if self.split_on_page_breaks:
-            if self.page_breaks_xpath is None:
-                page_breaks, page_break_ids = self.find_page_breaks(item)
-            else:
-                page_breaks, page_break_ids = self.page_breaks_xpath(item.data)
+            page_breaks, page_break_ids = self.find_page_breaks(item)
 
         splitter = FlowSplitter(item, page_breaks, page_break_ids,
                 self.max_flow_size, self.oeb)

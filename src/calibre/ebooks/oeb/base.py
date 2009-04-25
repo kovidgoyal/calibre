@@ -726,6 +726,7 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _parse_xhtml(self, data):
+            self.oeb.log.debug('Parsing', self.href, '...')
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = self.oeb.html_preprocessor(data)
@@ -804,6 +805,7 @@ class Manifest(object):
             return data
 
         def _parse_css(self, data):
+            self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
             data = self.oeb.css_preprocessor(data)
             data = XHTML_CSS_NAMESPACE + data
