@@ -1324,6 +1324,12 @@ class TOC(object):
                 return True
         return False
 
+    def has_text(self, text):
+        for x in self.iter():
+            if x.title and x.title.lower() == text.lower():
+                return True
+        return False
+
     def iterdescendants(self):
         """Iterate over all descendant nodes in depth-first order."""
         for child in self.nodes:

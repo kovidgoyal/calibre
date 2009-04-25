@@ -58,7 +58,7 @@ def options(option_parser):
 def opts_and_words(name, op, words):
     opts  = '|'.join(options(op))
     words = '|'.join([w.replace("'", "\\'") for w in words])
-    return '_'+name+'()'+\
+    return ('_'+name+'()'+\
 '''
 {
     local cur opts
@@ -82,7 +82,7 @@ def opts_and_words(name, op, words):
     esac
 
 }
-complete -F _'''%(opts, words) + name + ' ' + name +"\n\n"
+complete -F _'''%(opts, words) + name + ' ' + name +"\n\n").encode('utf-8')
 
 
 def opts_and_exts(name, op, exts):

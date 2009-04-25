@@ -81,7 +81,9 @@ class EXTHHeader(object):
         elif id == 105:
             if not self.mi.tags:
                 self.mi.tags = []
-            self.mi.tags.append(content.decode(codec, 'ignore'))
+            self.mi.tags.extend([x.strip() for x in content.decode(codec,
+                'ignore').split(';')])
+            self.mi.tags = list(set(self.mi.tags))
         elif id == 106:
             try:
                 self.mi.publish_date = datetime.datetime.strptime(
@@ -298,6 +300,11 @@ class MobiReader(object):
 
         self.log.debug('Parsing HTML...')
         root = html.fromstring(self.processed_html)
+        if root.xpath('descendant::p/descendant::p'):
+            from lxml.html import soupparser
+            self.log.warning('Markup contains unclosed <p> tags, parsing using',
+                'BeatifulSoup')
+            root = soupparser.fromstring(self.processed_html)
         self.upshift_markup(root)
         guides = root.xpath('//guide')
         guide = guides[0] if guides else None
@@ -613,7 +620,8 @@ class MobiReader(object):
             if r > -1 and (r < l or l == end or l == -1):
                 p = self.mobi_html.rfind('<', 0, end + 1)
                 if pos < end and p > -1 and \
-                   not end_tag_re.match(self.mobi_html[p:r]):
+                   not end_tag_re.match(self.mobi_html[p:r]) and \
+                   not self.mobi_html[p:r+1].endswith('/>'):
                     anchor = ' filepos-id="filepos%d"'
                     end = r
                 else:

@@ -21,7 +21,7 @@ def config(defaults=None):
     c.remove_opt('profile')
     mobic = mobi_config(defaults=defaults)
     c.update(mobic)
-    return c 
+    return c
 
 def option_parser(usage=USAGE):
     usage = usage % ('Mobipocket', formats())
@@ -33,13 +33,13 @@ def any2mobi(opts, path, notification=None):
     if not ext:
         raise ValueError('Unknown file type: '+path)
     ext = ext.lower()[1:]
-    
+
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(path))[0]+'.mobi'
-    
+
     opts.output = os.path.abspath(opts.output)
     orig_output = opts.output
-    
+
     with TemporaryDirectory('_any2mobi') as tdir:
         oebdir = os.path.join(tdir, 'oeb')
         os.mkdir(oebdir)
@@ -54,7 +54,7 @@ def any2mobi(opts, path, notification=None):
         opts.output = orig_output
         logging.getLogger('html2epub').info(_('Creating Mobipocket file from EPUB...'))
         oeb2mobi(opts, opf)
-    
+
 
 def main(args=sys.argv):
     parser = option_parser()

@@ -6,13 +6,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, shutil
 from urllib import unquote
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 from calibre import strftime, guess_type
+from calibre.customize.conversion import OptionRecommendation
+
 from lxml import etree
 
 
@@ -21,6 +23,14 @@ class EPUBOutput(OutputFormatPlugin):
     name = 'EPUB Output'
     author = 'Kovid Goyal'
     file_type = 'epub'
+
+    options = set([
+        OptionRecommendation(name='extract_to',
+            help=_('Extract the contents of the generated EPUB file to the '
+                'specified directory. The contents of the directory are first '
+                'deleted, so be careful.'))
+        ])
+
 
     TITLEPAGE_COVER = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -43,6 +53,7 @@ class EPUBOutput(OutputFormatPlugin):
     TITLEPAGE = '''\
 <html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
+        <title>%(title)s</title>
         <style type="text/css">
             body {
                 background: white no-repeat fixed center center;
@@ -66,7 +77,7 @@ class EPUBOutput(OutputFormatPlugin):
                 <h2>%(date)s</h2>
                 <br/><br/><br/><br/><br/>
                 <h3>%(author)s</h3>
-                <br/><br/></br/><br/><br/><br/><br/><br/><br/>
+                <br/><br/><br/><br/><br/><br/><br/><br/><br/>
                 <h4>Produced by %(app)s</h4>
             </div>
         </div>
@@ -91,9 +102,15 @@ class EPUBOutput(OutputFormatPlugin):
             self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)\
                     if x.endswith('.ncx')][0])
 
-            from calibre.epub import initialize_container
+            from calibre.ebooks.epub import initialize_container
             epub = initialize_container(output_path, os.path.basename(opf))
             epub.add_dir(tdir)
+            if opts.extract_to is not None:
+                if os.path.exists(opts.extract_to):
+                    shutil.rmtree(opts.extract_to)
+                os.mkdir(opts.extract_to)
+                epub.extractall(path=opts.extract_to)
+                self.log.info('EPUB extracted to', opts.extract_to)
             epub.close()
 
     def default_cover(self):
@@ -136,7 +153,7 @@ class EPUBOutput(OutputFormatPlugin):
             if 'cover' in g:
                 tp = self.TITLEPAGE_COVER%unquote(g['cover'].href)
                 id, href = m.generate('titlepage', 'titlepage.xhtml')
-                item = m.add(id, href, guess_type('t.xhtml'),
+                item = m.add(id, href, guess_type('t.xhtml')[0],
                         data=etree.fromstring(tp))
             else:
                 item = self.default_cover()
@@ -145,8 +162,11 @@ class EPUBOutput(OutputFormatPlugin):
                     urldefrag(self.oeb.guide['titlepage'].href)[0]]
         if item is not None:
             self.oeb.spine.insert(0, item, True)
+            if 'cover' not in self.oeb.guide.refs:
+                self.oeb.guide.add('cover', 'Title Page', 'a')
             self.oeb.guide.refs['cover'].href = item.href
-            self.oeb.guide.refs['titlepage'].href = item.href
+            if 'titlepage' in self.oeb.guide.refs:
+                self.oeb.guide.refs['titlepage'].href = item.href
 
 
 
@@ -180,7 +200,7 @@ class EPUBOutput(OutputFormatPlugin):
                 body = body[0]
             # Replace <br> that are children of <body> as ADE doesn't handle them
             if hasattr(body, 'xpath'):
-                for br in body.xpath('./h:br'):
+                for br in XPath('./h:br')(body):
                     if br.getparent() is None:
                         continue
                     try:
@@ -204,29 +224,29 @@ class EPUBOutput(OutputFormatPlugin):
 
 
             if self.opts.output_profile.remove_object_tags:
-                for tag in root.xpath('//h:embed'):
+                for tag in XPath('//h:embed')(root):
                     tag.getparent().remove(tag)
-                for tag in root.xpath('//h:object'):
+                for tag in XPath('//h:object')(root):
                     if tag.get('type', '').lower().strip() in ('image/svg+xml',):
                         continue
                     tag.getparent().remove(tag)
 
-            for tag in root.xpath('//h:title|//h:style'):
+            for tag in XPath('//h:title|//h:style')(root):
                 if not tag.text:
                     tag.getparent().remove(tag)
-            for tag in root.xpath('//h:script'):
+            for tag in XPath('//h:script')(root):
                 if not tag.text and not tag.get('src', False):
                     tag.getparent().remove(tag)
 
-            for tag in root.xpath('//h:form'):
+            for tag in XPath('//h:form')(root):
                 tag.getparent().remove(tag)
 
-            for tag in root.xpath('//h:center'):
+            for tag in XPath('//h:center')(root):
                 tag.tag = XHTML('div')
                 tag.set('style', 'text-align:center')
 
             # ADE can't handle &amp; in an img url
-            for tag in self.root.xpath('//h:img[@src]'):
+            for tag in XPath('//h:img[@src]')(root):
                 tag.set('src', tag.get('src', '').replace('&', ''))
 
             stylesheet = self.oeb.manifest.hrefs['stylesheet.css']

@@ -131,6 +131,10 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.categories = sorted(self.category_map.keys(), cmp=self.sort_categories)
         self._map = dict(self.category_map)
 
+    def scheduled_recipes(self):
+        for recipe in self.category_map[_('Scheduled')]:
+            yield recipe
+
     def sort_categories(self, x, y):
 
         def decorate(x):
@@ -305,6 +309,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.connect(button, SIGNAL('toggled(bool)'), self.do_schedule)
         self.connect(self.search, SIGNAL('search(PyQt_PyObject)'), self._model.search)
         self.connect(self._model, SIGNAL('modelReset()'), lambda : self.detail_box.setVisible(False))
+        self.connect(self.download_all_button, SIGNAL('clicked()'),
+                self.download_all)
         self.connect(self.download, SIGNAL('clicked()'), self.download_now)
         self.search.setFocus(Qt.OtherFocusReason)
         self.old_news.setValue(gconf['oldest_news'])
@@ -316,6 +322,10 @@ class SchedulerDialog(QDialog, Ui_Dialog):
     def currentChanged(self, current, previous):
         if current.parent().isValid():
             self.show_recipe(current)
+
+    def download_all(self, *args):
+        for recipe in self._model.scheduled_recipes():
+            self.emit(SIGNAL('download_now(PyQt_PyObject)'), recipe)
 
     def download_now(self):
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)

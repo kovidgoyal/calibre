@@ -110,7 +110,7 @@ class EPUBInput(InputFormatPlugin):
         parts = os.path.split(opf)
         opf = OPF(opf, os.path.dirname(os.path.abspath(opf)))
 
-        if len(parts) > 1:
+        if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'
             for elem in opf.itermanifest():
                 elem.set('href', delta+elem.get('href'))

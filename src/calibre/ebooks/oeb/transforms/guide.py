@@ -14,10 +14,6 @@ class Clean(object):
         from calibre.ebooks.oeb.base import urldefrag
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
 
-        protected_hrefs = set([])
-        if 'titlepage' in self.oeb.guide:
-            protected_hrefs.add(urldefrag(
-                self.oeb.guide['titlepage'].href)[0])
         if 'cover' not in self.oeb.guide:
             covers = []
             for x in ('other.ms-coverimage-standard',
@@ -35,20 +31,10 @@ class Clean(object):
                     self.log('Choosing %s:%s as the cover'%(ref.type, ref.href))
                 ref.type = 'cover'
                 self.oeb.guide.refs['cover'] = ref
-                protected_hrefs.add(urldefrag(ref.href)[0])
-        else:
-            protected_hrefs.add(urldefrag(self.oeb.guide.refs['cover'].href)[0])
 
         for x in list(self.oeb.guide):
             href = urldefrag(self.oeb.guide[x].href)[0]
             if x.lower() not in ('cover', 'titlepage'):
-                try:
-                    if href not in protected_hrefs:
-                        item = self.oeb.manifest.hrefs[href]
-                        if item not in self.oeb.spine:
-                            self.oeb.manifest.remove(self.oeb.manifest.hrefs[href])
-                except KeyError:
-                    pass
                 self.oeb.guide.remove(x)
 
 
