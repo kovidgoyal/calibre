@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, re, os, shutil, cStringIO, tempfile, subprocess, time
+import sys, re, os, subprocess
 sys.path.append('src')
 iswindows = re.search('win(32|64)', sys.platform)
 isosx = 'darwin' in sys.platform
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                         build_osx, upload_installers, upload_user_manual, \
                         upload_to_pypi, stage3, stage2, stage1, upload, \
                         upload_rss
-    
+
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
     ext_modules = [
@@ -65,12 +65,15 @@ if __name__ == '__main__':
                                       'src/calibre/utils/lzx/lzc.c',
                                       'src/calibre/utils/lzx/lzxc.c'],
                              include_dirs=['src/calibre/utils/lzx']),
-                   
+
                    Extension('calibre.plugins.msdes',
                              sources=['src/calibre/utils/msdes/msdesmodule.c',
                                       'src/calibre/utils/msdes/des.c'],
                              include_dirs=['src/calibre/utils/msdes']),
-                   
+
+                    Extension('calibre.plugins.cPalmdoc',
+                        sources=['src/calibre/ebooks/mobi/palmdoc.c']),
+
                     PyQtExtension('calibre.plugins.pictureflow',
                                   ['src/calibre/gui2/pictureflow/pictureflow.cpp',
                                    'src/calibre/gui2/pictureflow/pictureflow.h'],
@@ -81,7 +84,7 @@ if __name__ == '__main__':
         ext_modules.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi'],
-                include_dirs=os.environ.get('INCLUDE', 
+                include_dirs=os.environ.get('INCLUDE',
                         'C:/WinDDK/6001.18001/inc/api/;'
                         'C:/WinDDK/6001.18001/inc/crt/').split(';'),
                 extra_compile_args=['/X']
@@ -91,7 +94,7 @@ if __name__ == '__main__':
                 sources=['src/calibre/devices/usbobserver/usbobserver.c'],
                 extra_link_args=['-framework', 'IOKit'])
                            )
-    
+
     if not iswindows:
         plugins = ['plugins/%s.so'%(x.name.rpartition('.')[-1]) for x in ext_modules]
     else:
@@ -99,7 +102,7 @@ if __name__ == '__main__':
                   ['plugins/%s.pyd.manifest'%(x.name.rpartition('.')[-1]) \
                         for x in ext_modules if 'pictureflow' not in x.name]
 
-    
+
     setup(
           name           = APPNAME,
           packages       = find_packages('src'),
@@ -152,9 +155,9 @@ if __name__ == '__main__':
             'Topic :: System :: Hardware :: Hardware Drivers'
             ],
           cmdclass       = {
-                      'build_ext'     : build_ext, 
+                      'build_ext'     : build_ext,
                       'build'         : build,
-                      'build_py'      : build_py, 
+                      'build_py'      : build_py,
                       'pot'           : pot,
                       'manual'        : manual,
                       'resources'     : resources,
