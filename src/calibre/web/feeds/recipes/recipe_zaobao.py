@@ -26,7 +26,7 @@ class ZAOBAO(BasicNewsRecipe):
 						dict(name='div', attrs={'id':'content'}),
 						dict(name='span', attrs={'class':'page'}),
 					]
-					
+
     remove_tags    = [
 						dict(name='table', attrs={'cellspacing':'9'}),
 					]
@@ -42,13 +42,13 @@ class ZAOBAO(BasicNewsRecipe):
             .article {font-size:medium}\n\
             .navbar {font-size: small}\n\
             .feed{font-size: medium}\n\
-			.small{font-size: small; padding-right: 8%}\n' 
+			.small{font-size: small; padding-right: 8%}\n'
 
     INDEXES		   = [
                        (u'\u65b0\u95fb\u56fe\u7247', u'http://www.zaobao.com/photoweb/photoweb_idx.shtml')
                     ]
     MAX_ITEMS_IN_INDEX = 10
-    
+
     DESC_SENSE     = u'\u8054\u5408\u65e9\u62a5\u7f51'
 
     feeds          = [
@@ -65,21 +65,21 @@ class ZAOBAO(BasicNewsRecipe):
                       (u'\u65e9\u62a5\u4f53\u80b2', u'http://www.zaobao.com/ty/ty.xml'),
                       (u'\u65e9\u62a5\u526f\u520a', u'http://www.zaobao.com/fk/fk.xml'),
                     ]
-        
+
     def postprocess_html(self, soup, first):
         for tag in soup.findAll(name=['table', 'tr', 'td']):
             tag.name = 'div'
         return soup
-      
+
     def parse_feeds(self):
-        self.log_debug(_('ZAOBAO overrided parse_feeds()'))
+        self.log_debug('ZAOBAO overrided parse_feeds()')
         parsed_feeds = BasicNewsRecipe.parse_feeds(self)
 
         for id, obj in enumerate(self.INDEXES):
             title, url = obj
             articles = []
             soup = self.index_to_soup(url)
-            
+
             for i, item in enumerate(soup.findAll('li')):
                 if i >= self.MAX_ITEMS_IN_INDEX:
                     break
@@ -89,7 +89,7 @@ class ZAOBAO(BasicNewsRecipe):
                     a_title = self.tag_to_string(a)
                     date = ''
                     description = ''
-                    self.log_debug(_('adding %s at %s')%(a_title,a_url))
+                    self.log_debug('adding %s at %s'%(a_title,a_url))
                     articles.append({
                                     'title':a_title,
                                     'date':date,
@@ -100,23 +100,23 @@ class ZAOBAO(BasicNewsRecipe):
             pfeeds = feeds_from_index([(title, articles)], oldest_article=self.oldest_article,
                                      max_articles_per_feed=self.max_articles_per_feed)
 
-            self.log_debug(_('adding %s to feed')%(title))
+            self.log_debug('adding %s to feed'%(title))
             for feed in pfeeds:
-                self.log_debug(_('adding feed: %s')%(feed.title))
+                self.log_debug('adding feed: %s'%(feed.title))
                 feed.description = self.DESC_SENSE
                 parsed_feeds.append(feed)
                 for a, article in enumerate(feed):
-                    self.log_debug(_('added article %s from %s')%(article.title, article.url))
-                self.log_debug(_('added feed %s')%(feed.title))
-                
+                    self.log_debug('added article %s from %s'%(article.title, article.url))
+                self.log_debug('added feed %s'%(feed.title))
+
         for i, feed in enumerate(parsed_feeds):
             # workaorund a strange problem: Somethimes the xml encoding is not apllied correctly by parse()
             weired_encoding_detected = False
             if not isinstance(feed.description, unicode) and self.encoding and feed.description:
-                self.log_debug(_('Feed %s is not encoded correctly, manually replace it')%(feed.title))
+                self.log_debug('Feed %s is not encoded correctly, manually replace it'%(feed.title))
                 feed.description = feed.description.decode(self.encoding, 'replace')
             elif feed.description.find(self.DESC_SENSE) == -1 and self.encoding and feed.description:
-                self.log_debug(_('Feed %s is weired encoded, manually redo all')%(feed.title))
+                self.log_debug('Feed %s is strangely encoded, manually redo all'%(feed.title))
                 feed.description = feed.description.encode('cp1252', 'replace').decode(self.encoding, 'replace')
                 weired_encoding_detected = True
 
@@ -136,14 +136,14 @@ class ZAOBAO(BasicNewsRecipe):
                         article.summary = article.summary.encode('cp1252', 'replace').decode(self.encoding, 'replace')
                     if article.text_summary:
                         article.text_summary = article.text_summary.encode('cp1252', 'replace').decode(self.encoding, 'replace')
-                
+
                 if article.title == "Untitled article":
-                    self.log_debug(_('Removing empty article %s from %s')%(article.title, article.url))
+                    self.log_debug('Removing empty article %s from %s'%(article.title, article.url))
                     # remove the article
                     feed.articles[a:a+1] = []
         return parsed_feeds
 
-    def get_browser(self): 
+    def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.addheaders.append(('Pragma', 'no-cache'))
         return br

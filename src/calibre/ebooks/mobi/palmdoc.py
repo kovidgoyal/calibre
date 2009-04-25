@@ -85,4 +85,4 @@ def compress_doc(data):
             out.write(''.join(binseq))
             i += len(binseq) - 1
     return out.getvalue()
-        
+
