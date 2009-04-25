@@ -12,3 +12,5 @@
 * Refactor add books to use a separate process named calibre-worker-add
   - Dont use the process for adding a single book
   - Use a process pool for speed
+
+* Change mobi metadata setter to use author_sort setting from MOBI output plugin instead of mobi.py
