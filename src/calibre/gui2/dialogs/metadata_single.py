@@ -159,9 +159,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         row = self.formats.currentRow()
         fmt = self.formats.item(row)
         if fmt is None:
-            error_dialog(self, _('No format selected'),
+            if self.formats.count() == 1:
+                fmt = self.formats.item(0)
+            if fmt is None:
+                error_dialog(self, _('No format selected'),
                     _('No format selected')).exec_()
-            return
+                return
         ext = fmt.ext.lower()
         if fmt.path is None:
             stream = self.db.format(self.row, ext, as_file=True)

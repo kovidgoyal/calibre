@@ -227,6 +227,14 @@ OptionRecommendation(name='extra_css',
                 'rules.')
         ),
 
+OptionRecommendation(name='page_breaks_before',
+            recommended_value="//*[name()='h1' or name()='h2']",
+            level=OptionRecommendation.LOW,
+            help=_('An XPath expression. Page breaks are inserted '
+            'before the specified elements.')
+        ),
+
+
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the top margin in pts. Default is %default')),

@@ -26,10 +26,17 @@ def sanitize_head(match):
 def chap_head(match):
     chap = match.group('chap')
     title = match.group('title')
+<<<<<<< TREE
     if not title: 
                return '<h1>'+chap+'</h1><br/>\n'
     else: 
                return '<h1>'+chap+'<br/>\n'+title+'</h1><br/>\n'
+=======
+    if not title:
+               return '<h1>'+chap+'</h1><br/>'
+    else:
+               return '<h1>'+chap+'<br/>'+title+'</h1><br/>'
+>>>>>>> MERGE-SOURCE
 
 def wrap_lines(match):
     ital = match.group('ital')
@@ -55,19 +62,19 @@ def line_length(raw, percent):
     total = sum(lengths)
     avg = total / len(lengths)
     max_line = avg * 2
-    
+
     lengths = sorted(lengths)
     for i in range(len(lengths) - 1, -1, -1):
         if lengths[i] > max_line:
             del lengths[i]
-    
+
     if percent > 1:
         percent = 1
     if percent < 0:
         percent = 0
 
     index = int(len(lengths) * percent) - 1
-    
+
     return lengths[index]
 
 
@@ -110,14 +117,13 @@ class HTMLPreProcessor(object):
 
                   # Remove non breaking spaces
                   (re.compile(ur'\u00a0'), lambda match : ' '),
-                  
+
                   # Detect Chapters to match default XPATH in GUI
                   (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>(<i><b>|<i>|<b>)?(Chapter|Epilogue|Prologue|Book|Part)\s*(\d+|\w+)?(</i></b>|</i>|</b>)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>(<i>)?\s*\w+(\s+\w+)?(</i>)?)(<br[^>]*>|</?p[^>]*>)))?', re.IGNORECASE), chap_head),
                   (re.compile(r'(?=<(/?br|p))(<(/?br|p)[^>]*)?>\s*(?P<chap>([A-Z \'"!]{5,})\s*(\d+|\w+)?)(</?p[^>]*>|<br[^>]*>)\n?((?=(<i>)?\s*\w+(\s+\w+)?(</i>)?(<br[^>]*>|</?p[^>]*>))((?P<title>.*)(<br[^>]*>|</?p[^>]*>)))?'), chap_head),
- 
+
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
-                  
                   # Clean up spaces
                   (re.compile(u'(?<=[\.,:;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
                   # Add space before and after italics
@@ -154,6 +160,7 @@ class HTMLPreProcessor(object):
     def __call__(self, html, remove_special_chars=None):
         if remove_special_chars is not None:
             html = remove_special_chars.sub('', html)
+        html = html.replace('\0', '')
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):

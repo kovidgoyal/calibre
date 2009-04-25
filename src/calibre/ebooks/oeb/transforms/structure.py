@@ -45,6 +45,14 @@ class DetectStructure(object):
                 if not node.title or regexp.search(node.title) is not None:
                     self.oeb.toc.remove(node)
 
+        if opts.page_breaks_before is not None:
+            pb_xpath = XPath(opts.page_breaks_before)
+            for item in oeb.spine:
+                for elem in pb_xpath(item.data):
+                    style = elem.get('style', '')
+                    if style:
+                        style += '; '
+                    elem.set('style', style+'page-break-before:always')
 
     def detect_chapters(self):
         self.detected_chapters = []
@@ -100,6 +108,7 @@ class DetectStructure(object):
                         if not self.oeb.toc.has_text(text):
                             self.oeb.toc.add(text, href,
                                 play_order=self.oeb.toc.next_play_order())
+
 
 
     def elem_to_link(self, item, elem, counter):
