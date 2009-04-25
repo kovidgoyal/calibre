@@ -11,17 +11,8 @@ from PyQt4.Qt import QDialog
 
 from calibre.customize.ui import available_input_formats
 from calibre.utils.config import prefs
-from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
-from calibre.gui2.dialogs.epub import Config as EPUBConvert
-from calibre.gui2.dialogs.mobi import Config as MOBIConvert
-import calibre.gui2.dialogs.comicconf as ComicConf
 from calibre.gui2 import warning_dialog
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
-from calibre.ebooks.metadata.opf import OPFCreator
-from calibre.ebooks.epub.from_any import SOURCE_FORMATS as EPUB_PREFERRED_SOURCE_FORMATS, config as epubconfig
-from calibre.ebooks.mobi.from_any import config as mobiconfig
-from calibre.ebooks.lrf.comic.convert_from import config as comicconfig
 
 # Ordered list of source formats. Items closer to the beginning are
 # preferred for conversion over those toward the end.

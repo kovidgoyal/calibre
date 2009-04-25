@@ -17,18 +17,18 @@ class PDBInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert PDB to HTML'
     file_types  = set(['pdb'])
-    
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         header = PdbHeaderReader(stream)
         Reader = get_reader(header.ident)
-        
+
         if Reader is None:
             raise PDBError('Unknown format in pdb file. Identity is %s' % header.identity)
 
         log.debug('Detected ebook format as: %s with identity: %s' % (IDENTITY_TO_NAME[header.ident], header.ident))
-            
+
         reader = Reader(header, stream, log, options.input_encoding)
         opf = reader.extract_content(os.getcwd())
-        
+
         return opf

@@ -16,14 +16,17 @@ from lxml import etree
 from lxml.cssselect import CSSSelector
 
 from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
-        urldefrag, rewrite_links
-from calibre.ebooks.epub import tostring, rules
+        urldefrag, rewrite_links, urlunquote
+from calibre.ebooks.epub import rules
 
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
 SPLIT_ATTR       = 'cs'
 SPLIT_POINT_ATTR = 'csp'
+
+def tostring(root):
+    return etree.tostring(root, encoding='utf-8')
 
 class SplitError(ValueError):
 
@@ -142,7 +145,7 @@ class Split(object):
             nhref = anchor_map[frag if frag else None]
             nhref = self.current_item.relhref(nhref)
             if frag:
-                nhref = '#'.join((nhref, frag))
+                nhref = '#'.join((urlunquote(nhref), frag))
 
             return nhref
         return url

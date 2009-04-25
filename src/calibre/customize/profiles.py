@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re
+import re
 from itertools import izip
 
 from calibre.customize import Plugin as _Plugin
@@ -22,7 +22,7 @@ class Plugin(_Plugin):
 
     fbase  = 12
     fsizes = [5, 7, 9, 12, 13.5, 17, 20, 22, 24]
-    screen_size = (800, 600)
+    screen_size = (1600, 1200)
     dpi = 100
 
     def __init__(self, *args, **kwargs):

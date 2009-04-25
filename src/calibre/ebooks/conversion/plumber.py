@@ -195,7 +195,7 @@ OptionRecommendation(name='toc_filter',
 
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
-              "re:test(., 'chapter|book|section|part', 'i')) or @class "
+              r"re:test(., 'chapter|book|section|part\s+', 'i')) or @class "
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
@@ -227,6 +227,64 @@ OptionRecommendation(name='extra_css',
                 'rules.')
         ),
 
+OptionRecommendation(name='margin_top',
+        recommended_value=5.0, level=OptionRecommendation.LOW,
+        help=_('Set the top margin in pts. Default is %default')),
+
+OptionRecommendation(name='margin_bottom',
+        recommended_value=5.0, level=OptionRecommendation.LOW,
+        help=_('Set the bottom margin in pts. Default is %default')),
+
+OptionRecommendation(name='margin_left',
+        recommended_value=5.0, level=OptionRecommendation.LOW,
+        help=_('Set the left margin in pts. Default is %default')),
+
+OptionRecommendation(name='margin_right',
+        recommended_value=5.0, level=OptionRecommendation.LOW,
+        help=_('Set the right margin in pts. Default is %default')),
+
+OptionRecommendation(name='dont_justify',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Do not force text to be justified in output. Whether text '
+            'is actually displayed justified or not depends on whether '
+            'the ebook format and reading device support justification.')
+        ),
+
+OptionRecommendation(name='remove_paragraph_spacing',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Remove spacing between paragraphs. Also sets an indent on '
+        'paragraphs of 1.5em. Spacing removal will not work '
+        'if the source file does not use paragraphs (<p> or <div> tags).')
+        ),
+
+OptionRecommendation(name='prefer_metadata_cover',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Use the cover detected from the source file in preference '
+        'to the specified cover.')
+        ),
+
+OptionRecommendation(name='insert_blank_line',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Insert a blank line between paragraphs. Will not work '
+            'if the source file does not use paragraphs (<p> or <div> tags).'
+            )
+        ),
+
+OptionRecommendation(name='remove_first_image',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Remove the first image from the input ebook. Useful if the '
+        'first image in the source file is a cover and you are specifying '
+        'an external cover.'
+            )
+        ),
+
+OptionRecommendation(name='insert_comments',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Insert the comments/summary from the book metadata at the start of '
+            'the book. This is useful if your ebook reader does not support '
+            'displaying the comments from the metadata.'
+            )
+        ),
 
 
 OptionRecommendation(name='read_metadata_from_opf',
@@ -244,7 +302,8 @@ OptionRecommendation(name='title',
 
 OptionRecommendation(name='authors',
     recommended_value=None, level=OptionRecommendation.LOW,
-    help=_('Set the authors. Multiple authors should be separated ')),
+    help=_('Set the authors. Multiple authors should be separated by '
+    'ampersands.')),
 
 OptionRecommendation(name='title_sort',
     recommended_value=None, level=OptionRecommendation.LOW,
@@ -428,7 +487,6 @@ OptionRecommendation(name='language',
             mi.cover = None
         self.user_metadata = mi
 
-
     def setup_options(self):
         '''
         Setup the `self.opts` object.
@@ -479,8 +537,15 @@ OptionRecommendation(name='language',
         if not hasattr(self.oeb, 'manifest'):
             self.oeb = create_oebbook(self.log, self.oeb, self.opts)
 
+        from calibre.ebooks.oeb.transforms.guide import Clean
+        Clean()(self.oeb, self.opts)
+
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
+
+        from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
+        MergeMetadata()(self.oeb, self.user_metadata,
+                self.opts.prefer_metadata_cover)
 
         from calibre.ebooks.oeb.transforms.structure import DetectStructure
         DetectStructure()(self.oeb, self.opts)
@@ -494,6 +559,9 @@ OptionRecommendation(name='language',
             fkey = self.opts.dest.fkey
         else:
             fkey = map(float, fkey.split(','))
+
+        from calibre.ebooks.oeb.transforms.jacket import Jacket
+        Jacket()(self.oeb, self.opts)
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
             self.opts.extra_css = open(self.opts.extra_css, 'rb').read()

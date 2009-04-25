@@ -117,6 +117,9 @@ def add_pipeline_options(parser, plumber):
                       'line_height',
                       'linearize_tables',
                       'extra_css',
+                      'margin_top', 'margin_left', 'margin_right',
+                      'margin_bottom', 'dont_justify',
+                      'insert_blank_line', 'remove_paragraph_spacing',
                   ]
                   ),
 
@@ -124,6 +127,8 @@ def add_pipeline_options(parser, plumber):
                   _('Control auto-detection of document structure.'),
                   [
                       'dont_split_on_page_breaks', 'chapter', 'chapter_mark',
+                      'prefer_metadata_cover', 'remove_first_image',
+                      'insert_comments',
                   ]
                   ),
 

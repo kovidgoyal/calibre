@@ -9,6 +9,7 @@ from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre import CurrentDir
+from urllib import unquote
 
 class OEBOutput(OutputFormatPlugin):
 
@@ -32,7 +33,7 @@ class OEBOutput(OutputFormatPlugin):
                         f.write(raw)
 
             for item in oeb_book.manifest:
-                path = os.path.abspath(item.href)
+                path = os.path.abspath(unquote(item.href))
                 dir = os.path.dirname(path)
                 if not os.path.exists(dir):
                     os.makedirs(dir)

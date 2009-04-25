@@ -514,7 +514,8 @@ class Metadata(object):
         scheme  = Attribute(lambda term: 'scheme' if \
                                 term == OPF('meta') else OPF('scheme'),
                             [DC('identifier'), OPF('meta')])
-        file_as = Attribute(OPF('file-as'), [DC('creator'), DC('contributor')])
+        file_as = Attribute(OPF('file-as'), [DC('creator'), DC('contributor'),
+                                             DC('title')])
         role    = Attribute(OPF('role'), [DC('creator'), DC('contributor')])
         event   = Attribute(OPF('event'), [DC('date')])
         id      = Attribute('id')
@@ -592,6 +593,19 @@ class Metadata(object):
         for key in self.items:
             yield key
     __iter__ = iterkeys
+
+    def clear(self, key):
+        l = self.items[key]
+        for x in list(l):
+            l.remove(x)
+
+    def filter(self, key, predicate):
+        l = self.items[key]
+        for x in list(l):
+            if predicate(x):
+                l.remove(x)
+
+
 
     def __getitem__(self, key):
         return self.items[key]
@@ -1011,7 +1025,7 @@ class Manifest(object):
                 media_type = OEB_DOC_MIME
             elif media_type in OEB_STYLES:
                 media_type = OEB_CSS_MIME
-            attrib = {'id': item.id, 'href': item.href,
+            attrib = {'id': item.id, 'href': urlunquote(item.href),
                       'media-type': media_type}
             if item.fallback:
                 attrib['fallback'] = item.fallback
@@ -1202,6 +1216,9 @@ class Guide(object):
         self.refs[type] = ref
         return ref
 
+    def remove(self, type):
+        return self.refs.pop(type, None)
+
     def iterkeys(self):
         for type in self.refs:
             yield type
@@ -1229,7 +1246,7 @@ class Guide(object):
     def to_opf1(self, parent=None):
         elem = element(parent, 'guide')
         for ref in self.refs.values():
-            attrib = {'type': ref.type, 'href': ref.href}
+            attrib = {'type': ref.type, 'href': urlunquote(ref.href)}
             if ref.title:
                 attrib['title'] = ref.title
             element(elem, 'reference', attrib=attrib)
@@ -1345,7 +1362,7 @@ class TOC(object):
     def to_opf1(self, tour):
         for node in self.nodes:
             element(tour, 'site', attrib={
-                'title': node.title, 'href': node.href})
+                'title': node.title, 'href': urlunquote(node.href)})
             node.to_opf1(tour)
         return tour
 
@@ -1358,7 +1375,7 @@ class TOC(object):
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
             element(label, NCX('text')).text = node.title
-            element(point, NCX('content'), src=node.href)
+            element(point, NCX('content'), src=urlunquote(node.href))
             node.to_ncx(point)
         return parent
 
