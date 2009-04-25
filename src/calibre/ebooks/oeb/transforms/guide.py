@@ -41,10 +41,12 @@ class Clean(object):
 
         for x in list(self.oeb.guide):
             href = urldefrag(self.oeb.guide[x].href)[0]
-            if x.lower() != ('cover', 'titlepage'):
+            if x.lower() not in ('cover', 'titlepage'):
                 try:
                     if href not in protected_hrefs:
-                        self.oeb.manifest.remove(self.oeb.manifest.hrefs[href])
+                        item = self.oeb.manifest.hrefs[href]
+                        if item not in self.oeb.spine:
+                            self.oeb.manifest.remove(self.oeb.manifest.hrefs[href])
                 except KeyError:
                     pass
                 self.oeb.guide.remove(x)

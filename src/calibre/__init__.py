@@ -2,7 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-import sys, os, re, logging, time, subprocess, atexit, mimetypes, \
+import sys, os, re, logging, time, subprocess, mimetypes, \
        __builtin__, warnings
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
@@ -71,7 +71,7 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
-    are encoded in the filesystem encoding of the platform, or UTF-8. 
+    are encoded in the filesystem encoding of the platform, or UTF-8.
     '''
     if isinstance(name, unicode):
         name = name.encode(filesystem_encoding, 'ignore')
@@ -159,7 +159,7 @@ def extract(path, dir):
 
 def get_proxies():
     proxies = {}
-    
+
     for q in ('http', 'ftp'):
         proxy =  os.environ.get(q+'_proxy', None)
         if not proxy: continue
@@ -194,8 +194,8 @@ def get_proxies():
 def browser(honor_time=True, max_time=2, mobile_browser=False):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
-    refresh requests and ignores robots.txt. Also uses proxy if avaialable.  
-    
+    refresh requests and ignores robots.txt. Also uses proxy if avaialable.
+
     :param honor_time: If True honors pause time in refresh requests
     :param max_time: Maximum time in seconds to wait during a refresh request
     '''
@@ -232,16 +232,16 @@ def fit_image(width, height, pwidth, pheight):
     return scaled, int(width), int(height)
 
 class CurrentDir(object):
-    
+
     def __init__(self, path):
         self.path = path
         self.cwd = None
-        
+
     def __enter__(self, *args):
         self.cwd = os.getcwd()
         os.chdir(self.path)
         return self.cwd
-    
+
     def __exit__(self, *args):
         os.chdir(self.cwd)
 

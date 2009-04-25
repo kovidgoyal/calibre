@@ -2,41 +2,46 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
-    'and Marshall T. Vandegrift <llasram@gmail.com>'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from cStringIO import StringIO
 from struct import pack
 
-COUNT_BITS = 3
+from calibre.constants import plugins
+cPalmdoc = plugins['cPalmdoc'][0]
+if not cPalmdoc:
+    raise RuntimeError(('Failed to load required cPalmdoc module: '
+            '%s')%plugins['cPalmdoc'][1])
 
 def decompress_doc(data):
-    buffer = [ord(i) for i in data]
-    res = []
-    i = 0
-    while i < len(buffer):
-        c = buffer[i]
-        i += 1
-        if c >= 1 and c <= 8:
-            res.extend(buffer[i:i+c])
-            i += c
-        elif c <= 0x7f:
-            res.append(c)
-        elif c >= 0xc0:
-            res.extend( (ord(' '), c^0x80) )
-        else:
-            c = (c << 8) + buffer[i]
-            i += 1
-            di = (c & 0x3fff) >> COUNT_BITS
-            j = len(res)
-            num = (c & ((1 << COUNT_BITS) - 1)) + 3
-
-            for k in range( num ):
-                res.append(res[j - di+k])
-
-    return ''.join([chr(i) for i in res])
+    return cPalmdoc.decompress(data)
 
 def compress_doc(data):
+    return cPalmdoc.compress(data)
+
+def test():
+    TESTS = [
+            'abc\x03\x04\x05\x06ms', # Test binary writing
+            'a b c \xfed ', # Test encoding of spaces
+            '0123456789axyz2bxyz2cdfgfo9iuyerh',
+            '0123456789asd0123456789asd|yyzzxxffhhjjkk',
+            ('ciewacnaq eiu743 r787q 0w%  ; sa fd\xef\ffdxosac wocjp acoiecowei '
+            'owaic jociowapjcivcjpoivjporeivjpoavca; p9aw8743y6r74%$^$^%8 ')
+            ]
+    for test in TESTS:
+        print 'Test:', repr(test)
+        print '\tTesting compression...'
+        good = py_compress_doc(test)
+        x = compress_doc(test)
+        print '\t\tgood:',  repr(good)
+        print '\t\tx   :',  repr(x)
+        assert x == good
+        print '\tTesting decompression...'
+        print '\t\t', repr(decompress_doc(x))
+        assert decompress_doc(x) == test
+        print
+
+def py_compress_doc(data):
     out = StringIO()
     i = 0
     ldata = len(data)
@@ -85,4 +90,4 @@ def compress_doc(data):
             out.write(''.join(binseq))
             i += len(binseq) - 1
     return out.getvalue()
-        
+

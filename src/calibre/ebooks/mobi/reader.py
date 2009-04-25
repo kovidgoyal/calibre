@@ -226,7 +226,7 @@ class MobiReader(object):
                     page-break-after: always; margin: 0; display: block
                 }
                 ''')
-        self.tag_css_rules = []
+        self.tag_css_rules = {}
 
         if hasattr(filename_or_stream, 'read'):
             stream = filename_or_stream
@@ -328,10 +328,10 @@ class MobiReader(object):
 
         with open('styles.css', 'wb') as s:
             s.write(self.base_css_rules+'\n\n')
-            for rule in self.tag_css_rules:
+            for cls, rule in self.tag_css_rules.items():
                 if isinstance(rule, unicode):
                     rule = rule.encode('utf-8')
-                s.write(rule+'\n\n')
+                s.write('.%s { %s }\n\n'%(cls, rule))
 
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
@@ -389,6 +389,7 @@ class MobiReader(object):
                     'xx-large' : '6',
                     }
         mobi_version = self.book_header.mobi_version
+        style_map = {}
         for i, tag in enumerate(root.iter(etree.Element)):
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
                            'state', 'city', 'street', 'address', 'content'):
@@ -455,9 +456,18 @@ class MobiReader(object):
                 except ValueError:
                     pass
             if styles:
-                attrib['id'] = attrib.get('id', 'calibre_mr_gid%d'%i)
-                self.tag_css_rules.append('#%s {%s}'%(attrib['id'],
-                                                      '; '.join(styles)))
+                cls = None
+                rule = '; '.join(styles)
+                for sel, srule in self.tag_css_rules.items():
+                    if srule == rule:
+                        cls = sel
+                        break
+                if cls is None:
+                    ncls = 'calibre_%d'%i
+                    self.tag_css_rules[ncls] = rule
+                cls = attrib.get('class', '')
+                cls = cls + (' ' if cls else '') + ncls
+                attrib['class'] = cls
 
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
