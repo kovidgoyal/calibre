@@ -24,8 +24,8 @@ PML_HTML_RULES = [
     (re.compile(r'\\o(?P<text>.+?)\\o', re.DOTALL), lambda match: '<del>%s</del>' % match.group('text')),
     (re.compile(r'\\v(?P<text>.+?)\\v', re.DOTALL), lambda match: '<!-- %s -->' % match.group('text')),
     (re.compile(r'\\t(?P<text>.+?)\\t', re.DOTALL), lambda match: '<div style="margin-left: 5%%;">%s</div>' % match.group('text')),
-    (re.compile(r'\\T="(?P<val>\d+)%%*"(?P<text>.+?)$', re.MULTILINE), lambda match: '<div style="margin-left: %i%%;">%s</div>' % (match.group('val'), match.group('text'))),
-    (re.compile(r'\\w="(?P<val>\d+)%%"'), lambda match: '<hr width="%s%%" />' % match.group('val')),
+    (re.compile(r'\\T="(?P<val>\d+)%*"(?P<text>.+?)$', re.MULTILINE), lambda match: r'<div style="margin-left: %s%%;">%s</div>' % (match.group('val'), match.group('text'))),
+    (re.compile(r'\\w="(?P<val>\d+)%"'), lambda match: '<hr width="%s%%" />' % match.group('val')),
     (re.compile(r'\\n'), lambda match: ''),
     (re.compile(r'\\s'), lambda match: ''),
     (re.compile(r'\\b(?P<text>.+?)\\b', re.DOTALL), lambda match: '<b>%s</b>' % match.group('text')), # \b is deprecated; \B should be used instead.
@@ -56,14 +56,6 @@ PML_HTML_RULES = [
     
     # Replace \\ with \.
     (re.compile(r'\\\\'), lambda match: '\\'),
-]
-
-FOOTNOTE_HTML_RULES = [
-    (re.compile('<footnote id="(?P<id>.+?)">(?P<text>.+?)</footnote>', re.DOTALL), lambda match: '<div id="footnote-%s">%s</div>')
-]
-
-SIDEBAR_HTML_RULES = [
-    (re.compile('<sidebar id="(?P<id>.+?)">(?P<text>.+?)</sidebar>', re.DOTALL), lambda match: '<div id="sidebar-%s">%s</div>')
 ]
 
 HTML_PML_RULES = [
@@ -109,23 +101,9 @@ def pml_to_html(pml):
         
     return html
 
-def footnote_to_html(footnotes):
-    html = footnotes
-    for rule in FOOTNOTE_HTML_RULES:
-        html = rule[0].sub(rule[1], html)
-        
-    html = pml_to_html(html)
-        
-    return html
-    
-def sidebar_to_html(sidebars):
-    html = sidebars
-    for rule in FOOTNOTE_HTML_RULES:
-        html = rule[0].sub(rule[1], html)
-        
-    html = pml_to_html(html)
-        
-    return html
+def footnote_sidebar_to_html(id, pml):
+    html = '<div id="sidebar-%s">%s</div>' % (id, pml_to_html(pml))
+    return html 
 
 def html_to_pml(html):
     pml = html
