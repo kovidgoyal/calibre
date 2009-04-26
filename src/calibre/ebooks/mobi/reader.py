@@ -382,6 +382,7 @@ class MobiReader(object):
                     }
         mobi_version = self.book_header.mobi_version
         for tag in root.iter(etree.Element):
+            tag.attrib.pop('xmlns', '')
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
                            'state', 'city', 'street', 'address', 'content'):
                 tag.tag = 'div' if tag.tag == 'content' else 'span'
