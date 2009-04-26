@@ -5,16 +5,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, array, os, re, codecs, logging
 
 from calibre import setup_cli_handlers, sanitize_file_name
-from calibre.utils.config import OptionParser 
+from calibre.utils.config import OptionParser
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
                                          Font, Text, TOCObject, BookAttr, ruby_tags
-                                         
+
 
 class LRFDocument(LRFMetaFile):
-    
+
     class temp(object): pass
-    
+
     def __init__(self, stream):
         LRFMetaFile.__init__(self, stream)
         self.scramble_key = self.xor_key
@@ -23,11 +23,11 @@ class LRFDocument(LRFMetaFile):
         self.image_map = {}
         self.toc = ''
         self.keep_parsing = True
-        
+
     def parse(self):
         self._parse_objects()
         self.metadata = LRFDocument.temp()
-        for a in ('title', 'title_reading', 'author', 'author_reading', 'book_id', 
+        for a in ('title', 'title_reading', 'author', 'author_reading', 'book_id',
                   'classification', 'free_text', 'publisher', 'label', 'category'):
             setattr(self.metadata, a, getattr(self, a))
         self.doc_info = LRFDocument.temp()
@@ -37,7 +37,7 @@ class LRFDocument(LRFMetaFile):
         self.device_info = LRFDocument.temp()
         for a in ('dpi', 'width', 'height'):
             setattr(self.device_info, a, getattr(self, a))
-        
+
     def _parse_objects(self):
         self.objects = {}
         self._file.seek(self.object_index_offset)
@@ -68,15 +68,15 @@ class LRFDocument(LRFMetaFile):
                 attr = h[0]
                 if hasattr(obj, attr):
                     self.ruby_tags[attr] = getattr(obj, attr)
-    
+
     def __iter__(self):
         for pt in self.page_trees:
             yield pt
-        
+
     def write_files(self):
         for obj in self.image_map.values() + self.font_map.values():
-            open(obj.file, 'wb').write(obj.stream)            
-        
+            open(obj.file, 'wb').write(obj.stream)
+
     def to_xml(self, write_files=True):
         bookinfo = u'<BookInformation>\n<Info version="1.1">\n<BookInfo>\n'
         bookinfo += u'<Title reading="%s">%s</Title>\n'%(self.metadata.title_reading, self.metadata.title)
@@ -113,7 +113,7 @@ class LRFDocument(LRFMetaFile):
                 pages += unicode(page)
             pages += close
         traversed_objects = [int(i) for i in re.findall(r'objid="(\w+)"', pages)] + [pt_id]
-        
+
         objects = u'\n<Objects>\n'
         styles  = u'\n<Style>\n'
         for obj in self.objects:
@@ -131,16 +131,16 @@ class LRFDocument(LRFMetaFile):
         if write_files:
             self.write_files()
         return '<BBeBXylog version="1.0">\n' + bookinfo + pages + styles + objects + '</BBeBXylog>'
-        
+
 def option_parser():
     parser = OptionParser(usage=_('%prog book.lrf\nConvert an LRF file into an LRS (XML UTF-8 encoded) file'))
     parser.add_option('--output', '-o', default=None, help=_('Output LRS file'), dest='out')
-    parser.add_option('--dont-output-resources', default=True, action='store_false', 
-                      help=_('Do not save embedded image and font files to disk'), 
+    parser.add_option('--dont-output-resources', default=True, action='store_false',
+                      help=_('Do not save embedded image and font files to disk'),
                       dest='output_resources')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
     return parser
-    
+
 def main(args=sys.argv, logger=None):
     parser = option_parser()
     opts, args = parser.parse_args(args)

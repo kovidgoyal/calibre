@@ -970,7 +970,12 @@ class Canvas(LRFStream):
         stream = cStringIO.StringIO(self.stream)
         while stream.tell() < len(self.stream):
             tag = Tag(stream)
-            self._contents.append(PutObj(self._document.objects, *struct.unpack("<HHI", tag.contents)))
+            try:
+                self._contents.append(
+                    PutObj(self._document.objects,
+                        *struct.unpack("<HHI", tag.contents)))
+            except struct.error:
+                print 'Canvas object has errors, skipping.'
 
     def __unicode__(self):
         s = '\n<%s objid="%s" '%(self.__class__.__name__, self.id,)
