@@ -40,7 +40,7 @@ class HeaderRecord(object):
         self.sidebar_offset, = struct.unpack('>H', raw[50:52])
         self.last_data_offset, = struct.unpack('>H', raw[52:54])
         
-        self.num_text_pages = self.non_text_offset -1
+        self.num_text_pages = self.non_text_offset - 1
         self.num_image_pages = self.metadata_offset - self.image_data_offset
         
 
@@ -76,7 +76,7 @@ class Reader(FormatReader):
         if number < self.header_record.image_data_offset or number > self.header_record.image_data_offset + self.header_record.num_image_pages - 1:
             return 'empty', ''
         data = self.section_data(number)
-        name = data[4:4+32].strip('\0')
+        name = data[4:4+32].strip('\x00')
         img = data[62:]
         return name, img
         
@@ -97,7 +97,7 @@ class Reader(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
-        html = '<html><head><title></title></head><body>'
+        html = u'<html><head><title></title></head><body>'
         
         for i in range(1, self.header_record.num_text_pages + 1):
             self.log.debug('Extracting text page %i' % i)
@@ -110,8 +110,7 @@ class Reader(FormatReader):
                 self.log.debug('Extracting footnote page %i' % i)
                 html += '<dl>'
                 html += footnote_sidebar_to_html(footnoteids[fid], self.decompress_text(i))
-                html += '</dl>'
-                
+                html += '</dl>'   
         
         if self.header_record.sidebar_rec > 0:
             html += '<br /><h1>%s</h1>' % _('Sidebar')
@@ -127,7 +126,8 @@ class Reader(FormatReader):
         with CurrentDir(output_dir):
             with open('index.html', 'wb') as index:
                 self.log.debug('Writing text to index.html')
-                index.write(html.encode('utf-8'))
+                index.write(html)
+#        print html
         
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
@@ -154,7 +154,7 @@ class Reader(FormatReader):
         
             for i in images:
                 manifest.append((os.path.join('images/', i), None))
-        
+
             opf.create_manifest(manifest)
             opf.create_spine(['index.html'])
             with open('metadata.opf', 'wb') as opffile:
