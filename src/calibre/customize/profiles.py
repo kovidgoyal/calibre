@@ -148,6 +148,8 @@ class OutputProfile(Plugin):
     remove_special_chars      = re.compile(u'[\u200b\u00ad]')
     # ADE falls to the ground in a dead faint when it sees an <object>
     remove_object_tags        = True
+    # The image size for comics
+    comic_screen_size = (584, 754)
 
 class SonyReaderOutput(OutputProfile):
 
@@ -161,6 +163,18 @@ class SonyReaderOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+
+class SonyReaderLandscapeOutput(SonyReaderOutput):
+
+    name        = 'Sony Reader Landscape'
+    short_name  = 'sony-landscape'
+    description = _('This profile is intended for the SONY PRS line. '
+                    'The 500/505/700 etc, in landscape mode. Mainly useful '
+                    'for comics.')
+
+    screen_size               = (784, 1012)
+    comic_screen_size         = (784, 1012)
+
 
 class MSReaderOutput(OutputProfile):
 
@@ -223,4 +237,5 @@ class KindleOutput(OutputProfile):
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
-        MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput]
+        MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,
+        SonyReaderLandscapeOutput]

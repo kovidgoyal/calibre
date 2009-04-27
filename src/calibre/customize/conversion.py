@@ -96,6 +96,11 @@ class InputFormatPlugin(Plugin):
     #: For example: ``set(['azw', 'mobi', 'prc'])``
     file_types     = set([])
 
+    #: If True, this input plugin generates a collection of images,
+    #: one per HTML file. You can obtain access to the images via
+    #: convenience method, :method:`get_image_collection`.
+    is_image_collection = False
+
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :member:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.

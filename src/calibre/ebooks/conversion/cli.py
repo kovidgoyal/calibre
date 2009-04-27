@@ -47,7 +47,7 @@ def print_help(parser, log):
 
 def check_command_line_options(parser, args, log):
     if len(args) < 3 or args[1].startswith('-') or args[2].startswith('-'):
-        print_help(parser)
+        print_help(parser, log)
         log.error('\n\nYou must specify the input AND output files')
         raise SystemExit(1)
 

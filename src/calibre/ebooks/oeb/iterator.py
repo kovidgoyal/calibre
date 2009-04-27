@@ -128,6 +128,8 @@ class EbookIterator(object):
         plumber.setup_options()
         if hasattr(plumber.opts, 'dont_package'):
             plumber.opts.dont_package = True
+        if hasattr(plumber.opts, 'no_process'):
+            plumber.opts.no_process = True
         self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
