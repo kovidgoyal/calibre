@@ -52,7 +52,7 @@ def check_command_line_options(parser, args, log):
         raise SystemExit(1)
 
     input = os.path.abspath(args[1])
-    if not os.access(input, os.R_OK):
+    if not input.endswith('.recipe') and not os.access(input, os.R_OK):
         log.error('Cannot read from', input)
         raise SystemExit(1)
 
@@ -168,6 +168,9 @@ def add_pipeline_options(parser, plumber):
             rec = plumber.get_option_by_name(name)
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
+
+    option_recommendation_to_cli_option(parser.add_option,
+            plumber.get_option_by_name('list_recipes'))
 
 def option_parser():
     return OptionParser(usage=USAGE)
