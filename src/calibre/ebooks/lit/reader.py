@@ -882,6 +882,9 @@ class LitContainer(object):
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)
         return str(unbin)
 
+    def get_metadata(self):
+        return self._read_meta()
+
 
 class LitReader(OEBReader):
     Container = LitContainer
