@@ -28,23 +28,11 @@ class PDFOutput(OutputFormatPlugin):
     file_type = 'pdf'
 
     options = set([
-                    OptionRecommendation(name='margin_top', recommended_value='1',
-                        level=OptionRecommendation.LOW,
-                        help=_('The top margin around the document.')),
-                    OptionRecommendation(name='margin_bottom', recommended_value='1',
-                        level=OptionRecommendation.LOW,
-                        help=_('The bottom margin around the document.')),
-                    OptionRecommendation(name='margin_left', recommended_value='1',
-                        level=OptionRecommendation.LOW,
-                        help=_('The left margin around the document.')),
-                    OptionRecommendation(name='margin_right', recommended_value='1',
-                        level=OptionRecommendation.LOW,
-                        help=_('The right margin around the document.')),
-
                     OptionRecommendation(name='unit', recommended_value='inch',
                         level=OptionRecommendation.LOW, short_switch='u', choices=UNITS.keys(),
                         help=_('The unit of measure. Default is inch. Choices '
-                        'are %s' % UNITS.keys())),
+                        'are %s '
+                        'Note: This does not override the unit for margins!' % UNITS.keys())),
                     OptionRecommendation(name='paper_size', recommended_value='letter',
                         level=OptionRecommendation.LOW, choices=PAPER_SIZES.keys(),
                         help=_('The size of the paper. Default is letter. Choices '
@@ -60,15 +48,23 @@ class PDFOutput(OutputFormatPlugin):
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        self.opts, self.log = opts, log
+        self.input_plugin, self.opts, self.log = input_plugin, opts, log
+    
         if input_plugin.is_image_collection:
-            self.convert_images(input_plugin.get_images())
+            self.convert_images(input_plugin.get_images(), output_path)
+        else:
+            self.convert_text(oeb_book, output_path)
+            
+    def convert_images(self, images, output_path):
+        raise NotImplementedError()
+            
+    def convert_text(self, oeb_book, output_path):
         with TemporaryDirectory('_pdf_out') as oebdir:
-            OEBOutput(None).convert(oeb_book, oebdir, input_plugin, opts, log)
+            OEBOutput(None).convert(oeb_book, oebdir, self.input_plugin, self.opts, self.log)
 
             opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
 
-            writer = PDFWriter(log, opts)
+            writer = PDFWriter(self.opts, self.log)
 
             close = False
             if not hasattr(output_path, 'write'):
@@ -85,3 +81,4 @@ class PDFOutput(OutputFormatPlugin):
 
             if close:
                 out_stream.close()
+

@@ -37,7 +37,7 @@ class PDFMetadata(object):
 
 
 class PDFWriter(QObject):
-    def __init__(self, log, opts):
+    def __init__(self, opts, log):
         if QApplication.instance() is None:
             QApplication([])
         QObject.__init__(self)
@@ -107,7 +107,7 @@ class PDFWriter(QObject):
             else:
                 printer.setPaperSize(QSizeF(self.opts.output_profile.width / self.opts.output_profile.dpi, self.opts.output_profile.height / self.opts.output_profile.dpi), QPrinter.Inch)
 
-            printer.setPageMargins(size(self.opts.margin_left), size(self.opts.margin_top), size(self.opts.margin_right), size(self.opts.margin_bottom), unit(self.opts.unit))
+            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
             printer.setOrientation(orientation(self.opts.orientation))
             printer.setOutputFormat(QPrinter.PdfFormat)
             printer.setOutputFileName(item_path)
@@ -132,3 +132,10 @@ class PDFWriter(QObject):
         finally:
             self._delete_tmpdir()
             self.loop.exit(0)
+
+
+class ImagePDFWriter(object):
+    
+    def __init__(self, opts, log):
+        self.opts, self.log = opts, log
+        
