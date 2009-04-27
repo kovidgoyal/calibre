@@ -31,7 +31,7 @@ class Writer(object):
         
         lengths = [len(i) for i in sections]
         
-        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, '')
+        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, 'test book')
         pdbHeaderBuilder.build_header(lengths, out_stream)
         
         for item in sections:
@@ -69,7 +69,7 @@ class Writer(object):
         return images
         
     def _metadata(self, metadata):
-        return '\x00\x00\x00\x00\x00'
+        return 'test\x00\x00\x00\x00\x00'
 
     def _header_record(self, text_items, image_items):
         '''
@@ -88,7 +88,7 @@ class Writer(object):
             last_data_offset = meta_data_offset + 1
             image_data_offset = last_data_offset
     
-        record = u''
+        record = ''
         
         record += struct.pack('>H', version)                # [0:2]
         record += struct.pack('>H', 0)                      # [2:4]
@@ -115,8 +115,12 @@ class Writer(object):
         record += struct.pack('>H', meta_data_offset)       # [44:46]
         record += struct.pack('>H', meta_data_offset)       # [46:48]
         record += struct.pack('>H', last_data_offset)       # [48:50] # footnote_offset
-        record += struct.pack('>H', last_data_offset)       # [52:54] # sidebar_offset
-        record += struct.pack('>H', last_data_offset)       # [54:56] # last_data_offset
+        record += struct.pack('>H', last_data_offset)       # [50:52] # sidebar_offset
+        record += struct.pack('>H', last_data_offset)       # [52:54] # last_data_offset
+
+        record += struct.pack('>H', 1)       # [54:56]
+        for i in range(56, 132, 2):
+            record += struct.pack('>H', 0)
         
         '''
         # Version

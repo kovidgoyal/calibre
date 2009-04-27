@@ -53,6 +53,9 @@ def ereader_header_info(header):
     print '50-52 sidebar_offset:    %i' % struct.unpack('>H', h0[50:52])[0]
     print '52-54 last_data_offset:  %i' % struct.unpack('>H', h0[52:54])[0]
     
+    for i in range(54, 131, 2):
+        print '%i-%i:                   %i' % (i, i+2, struct.unpack('>H', h0[i:i+2])[0])
+    
     print ''
     
 def section_lengths(header):
