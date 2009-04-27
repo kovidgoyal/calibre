@@ -59,6 +59,7 @@ class Split(object):
         self.fix_links()
 
     def split_item(self, item):
+        page_breaks, page_break_ids = [], []
         if self.split_on_page_breaks:
             page_breaks, page_break_ids = self.find_page_breaks(item)
 

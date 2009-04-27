@@ -96,6 +96,11 @@ class InputFormatPlugin(Plugin):
     #: For example: ``set(['azw', 'mobi', 'prc'])``
     file_types     = set([])
 
+    #: If True, this input plugin generates a collection of images,
+    #: one per HTML file. You can obtain access to the images via
+    #: convenience method, :method:`get_image_collection`.
+    is_image_collection = False
+
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :member:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
@@ -127,6 +132,14 @@ class InputFormatPlugin(Plugin):
     #: A set of 3-tuples of the form
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set([])
+
+    def get_images(self):
+        '''
+        Return a list of absolute paths to the images, if this input plugin
+        represents an image collection. The list of images is in the same order
+        as the spine and the TOC.
+        '''
+        raise NotImplementedError()
 
     def convert(self, stream, options, file_ext, log, accelerators):
         '''

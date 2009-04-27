@@ -360,6 +360,10 @@ OptionRecommendation(name='book_producer',
 OptionRecommendation(name='language',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the language.')),
+
+OptionRecommendation(name='list_recipes',
+    recommended_value=False, help=_('List available recipes.')),
+
 ]
 
         input_fmt = os.path.splitext(self.input)[1]
@@ -525,6 +529,13 @@ OptionRecommendation(name='language',
         self.setup_options()
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
+        if self.opts.list_recipes:
+            from calibre.web.feeds.recipes import titles
+            self.log('Available recipes:')
+            for title in sorted(titles):
+                self.log('\t'+title)
+            self.log('%d recipes available'%len(titles))
+            raise SystemExit(0)
 
         # Run any preprocess plugins
         from calibre.customize.ui import run_plugins_on_preprocess
@@ -535,8 +546,13 @@ OptionRecommendation(name='language',
         accelerators = {}
 
         tdir = PersistentTemporaryDirectory('_plumber')
+        stream = self.input if self.input_fmt == 'recipe' else \
+                open(self.input, 'rb')
 
-        self.oeb = self.input_plugin(open(self.input, 'rb'), self.opts,
+        if hasattr(self.opts, 'lrf') and self.output_plugin.file_type == 'lrf':
+            self.opts.lrf = True
+
+        self.oeb = self.input_plugin(stream, self.opts,
                                     self.input_fmt, self.log,
                                     accelerators, tdir)
         if self.opts.debug_input is not None:

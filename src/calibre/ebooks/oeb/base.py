@@ -1578,15 +1578,15 @@ class OEBBook(object):
                 return data.decode('utf-16')
             except UnicodeDecodeError:
                 pass
-        try:
-            return data.decode('utf-8')
-        except UnicodeDecodeError:
-            pass
         if self.encoding is not None:
             try:
                 return data.decode(self.encoding)
             except UnicodeDecodeError:
                 pass
+        try:
+            return data.decode('utf-8')
+        except UnicodeDecodeError:
+            pass
         data, _ = xml_to_unicode(data)
         data = data.replace('\r\n', '\n')
         data = data.replace('\r', '\n')

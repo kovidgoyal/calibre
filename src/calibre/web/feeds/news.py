@@ -20,6 +20,7 @@ from calibre import browser, __appname__, iswindows, \
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
+from calibre.web import Recipe
 from calibre.ebooks import render_html
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
@@ -27,12 +28,11 @@ from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
-from calibre.utils.logging import Log
 from calibre.ptempfile import PersistentTemporaryFile, \
                               PersistentTemporaryDirectory
 
 
-class BasicNewsRecipe(object):
+class BasicNewsRecipe(Recipe):
     '''
     Abstract base class that contains logic needed in all feed fetchers.
     '''
@@ -443,39 +443,33 @@ class BasicNewsRecipe(object):
         '''
         raise NotImplementedError
 
-    def __init__(self, options, parser, progress_reporter):
+    def __init__(self, options, log, progress_reporter):
         '''
         Initialize the recipe.
         :param options: Parsed commandline options
         :param parser:  Command line option parser. Used to intelligently merge options.
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
-        self.log = Log()
-        if options.verbose:
-            self.log.filter_level = self.log.DEBUG
+        self.log = log
         if not isinstance(self.title, unicode):
             self.title = unicode(self.title, 'utf-8', 'replace')
 
-        for attr in ('username', 'password', 'lrf', 'output_dir', 'verbose', 'debug', 'test'):
-            setattr(self, attr, getattr(options, attr))
+        self.debug = options.verbose > 1
+        self.output_dir = os.getcwd()
+        self.verbose = options.verbose
+        self.test = options.test
+        self.username = options.username
+        self.password = options.password
+        self.lrf = options.lrf
+
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
             self.max_articles_per_feed = 2
             self.simultaneous_downloads = min(4, self.simultaneous_downloads)
 
-
         if self.debug:
             self.verbose = True
         self.report_progress = progress_reporter
-
-        self.username = self.password = None
-        #: If True optimize downloading for eventual conversion to LRF
-        self.lrf = False
-        defaults = parser.get_default_values()
-
-        for opt in options.__dict__.keys():
-            if getattr(options, opt) != getattr(defaults, opt, None):
-                setattr(self, opt, getattr(options, opt))
 
         if isinstance(self.feeds, basestring):
             self.feeds = eval(self.feeds)
@@ -493,7 +487,6 @@ class BasicNewsRecipe(object):
             '--timeout', str(self.timeout),
             '--max-recursions', str(self.recursions),
             '--delay', str(self.delay),
-            '--timeout', str(self.timeout),
             ]
         if self.encoding is not None:
             web2disk_cmdline.extend(['--encoding', self.encoding])
@@ -520,9 +513,6 @@ class BasicNewsRecipe(object):
             self.simultaneous_downloads = 1
 
         self.navbar = templates.NavBarTemplate()
-        self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine', '--header', '--encoding', 'utf-8'])
-        if '--base-font-size' not in self.html2lrf_options:
-            self.html2lrf_options.extend(['--base-font-size', '12'])
         self.failed_downloads = []
         self.partial_failures = []
 
@@ -557,7 +547,7 @@ class BasicNewsRecipe(object):
         return self.postprocess_html(soup, first_fetch)
 
 
-    def download(self, for_lrf=False):
+    def download(self):
         '''
         Download and pre-process all articles from the feeds in this recipe.
         This method should be called only one on a particular Recipe instance.

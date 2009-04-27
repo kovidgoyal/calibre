@@ -3,19 +3,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import re
 from calibre.utils import zipfile
 
 def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLATED, verbose=True):
     '''
-    Update files in the zip file at `pathtozip` matching the given 
+    Update files in the zip file at `pathtozip` matching the given
     `patterns` with the given `filepaths`. If more than
-    one file matches, all of the files are replaced. 
-    
+    one file matches, all of the files are replaced.
+
     :param patterns:    A list of compiled regular expressions
     :param filepaths:   A list of paths to the replacement files. Must have the
                         same length as `patterns`.
-    :param names:       A list of archive names for each file in filepaths. 
+    :param names:       A list of archive names for each file in filepaths.
                         A name can be `None` in which case the name of the existing
                         file in the archive is used.
     :param compression: The compression to use when replacing files. Can be
