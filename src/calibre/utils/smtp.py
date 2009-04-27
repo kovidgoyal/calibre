@@ -81,7 +81,12 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
     import smtplib
-    cls = smtplib.SMTP if encryption == 'TLS' else smtplib.SMTP_SSL
+    class SMTP_SSL(smtplib.SMTP_SSL): # Workaround for bug in smtplib.py
+        def _get_socket(self, host, port, timeout):
+            smtplib.SMTP_SSL._get_socket(self, host, port, timeout)
+            return self.sock
+
+    cls = smtplib.SMTP if encryption == 'TLS' else SMTP_SSL
     timeout = None # Non-blocking sockets sometimes don't work
     port = int(port)
     s = cls(timeout=timeout, local_hostname=localhost)
@@ -93,6 +98,8 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=30,
         s.starttls()
         s.ehlo()
     if username is not None and password is not None:
+        if encryption == 'SSL':
+            s.sock = s.file.sslobj
         s.login(username, password)
     s.sendmail(from_, to, msg)
     return s.quit()

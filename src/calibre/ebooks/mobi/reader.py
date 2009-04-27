@@ -313,8 +313,10 @@ class MobiReader(object):
             self.read_embedded_metadata(root, metadata_elems[0], guide)
         for elem in guides + metadata_elems:
             elem.getparent().remove(elem)
+        fname = self.name.encode('ascii', 'replace')
+        fname = re.sub(r'[\x08\x15\0]+', '', fname)
         htmlfile = os.path.join(output_dir,
-                                sanitize_file_name(self.name)+'.html')
+                                sanitize_file_name(fname)+'.html')
         try:
             for ref in guide.xpath('descendant::reference'):
                 if ref.attrib.has_key('href'):
@@ -396,8 +398,8 @@ class MobiReader(object):
                     'xx-large' : '6',
                     }
         mobi_version = self.book_header.mobi_version
-        style_map = {}
         for i, tag in enumerate(root.iter(etree.Element)):
+            tag.attrib.pop('xmlns', '')
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
                            'state', 'city', 'street', 'address', 'content'):
                 tag.tag = 'div' if tag.tag == 'content' else 'span'
