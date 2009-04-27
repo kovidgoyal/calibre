@@ -133,6 +133,14 @@ class InputFormatPlugin(Plugin):
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set([])
 
+    def get_images(self):
+        '''
+        Return a list of absolute paths to the images, if this input plugin
+        represents an image collection. The list of images is in the same order
+        as the spine and the TOC.
+        '''
+        raise NotImplementedError()
+
     def convert(self, stream, options, file_ext, log, accelerators):
         '''
         This method must be implemented in sub-classes. It must return

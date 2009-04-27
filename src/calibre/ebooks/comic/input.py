@@ -357,6 +357,9 @@ class ComicInput(InputFormatPlugin):
                 thumbnail = None
         return new_pages
 
+    def get_images(self):
+        return self._images
+
     def convert(self, stream, opts, file_ext, log, accelerators,
             progress=lambda p, m : m):
         from calibre.ebooks.metadata import MetaInformation
@@ -401,6 +404,9 @@ class ComicInput(InputFormatPlugin):
         spine = []
         for comic in comics:
             spine.extend(map(href, comic[2]))
+        self._images = []
+        for comic in comics:
+            self._images.extend(comic[1])
         opf.create_spine(spine)
         toc = TOC()
         if len(comics) == 1:
