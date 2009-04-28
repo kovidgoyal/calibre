@@ -38,7 +38,7 @@ class USBMS(Device):
     CAN_SET_METADATA = False
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
-        Device.__init__(self, key=key, log_packets=log_packets, 
+        Device.__init__(self, key=key, log_packets=log_packets,
                         report_progress=report_progress)
 
     def get_device_information(self, end_session=True):
@@ -225,14 +225,14 @@ class USBMS(Device):
     @classmethod
     def metadata_from_path(cls, path):
         return metadata_from_formats([path])
-    
+
     @classmethod
     def book_from_path(cls, path):
         fileext = path_to_ext(path)
         mi = cls.metadata_from_path(path)
         mime = mime_type_ext(fileext)
         authors = authors_to_string(mi.authors)
-        
+
         book = Book(path, mi.title, authors, mime)
         return book
 

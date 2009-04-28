@@ -464,6 +464,7 @@ class Application(QApplication):
     def __init__(self, args):
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
+        global gui_thread
         gui_thread = QThread.currentThread()
         self.translator = QTranslator(self)
         lang = get_lang()
