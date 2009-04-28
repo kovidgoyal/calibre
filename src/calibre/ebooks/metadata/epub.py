@@ -51,7 +51,7 @@ class OCF(object):
     MIMETYPE        = 'application/epub+zip'
     CONTAINER_PATH  = 'META-INF/container.xml'
     ENCRYPTION_PATH = 'META-INF/encryption.xml'
-    
+
     def __init__(self):
         raise NotImplementedError('Abstract base class')
 
@@ -70,13 +70,13 @@ class OCFReader(OCF):
                 self.container = Container(f)
         except KeyError:
             raise EPubException("missing OCF container.xml file")
-        self.opf_path = self.container[OPF.MIMETYPE] 
+        self.opf_path = self.container[OPF.MIMETYPE]
         try:
             with closing(self.open(self.opf_path)) as f:
                 self.opf = OPF(f, self.root)
         except KeyError:
             raise EPubException("missing OPF package file")
-                
+
 
 class OCFZipReader(OCFReader):
     def __init__(self, stream, mode='r', root=None):
@@ -93,19 +93,19 @@ class OCFZipReader(OCFReader):
 
     def open(self, name, mode='r'):
         return StringIO(self.archive.read(name))
-    
+
 class OCFDirReader(OCFReader):
     def __init__(self, path):
         self.root = path
         super(OCFDirReader, self).__init__()
-        
+
     def open(self, path, *args, **kwargs):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
 class CoverRenderer(QObject):
     WIDTH  = 600
     HEIGHT = 800
-    
+
     def __init__(self, path):
         if QApplication.instance() is None:
             QApplication([])
@@ -123,7 +123,7 @@ class CoverRenderer(QObject):
         self.rendered = False
         url = QUrl.fromLocalFile(os.path.normpath(path))
         self.page.mainFrame().load(url)
-        
+
     def render_html(self, ok):
         try:
             if not ok:
@@ -158,6 +158,8 @@ class CoverRenderer(QObject):
 
 
 def get_cover(opf, opf_path, stream):
+    from calibre.gui2 import is_ok_to_use_qt
+    if not is_ok_to_use_qt(): return None
     spine = list(opf.spine_items())
     if not spine:
         return
@@ -172,7 +174,7 @@ def get_cover(opf, opf_path, stream):
                 return
             cr = CoverRenderer(cpage)
             return cr.image_data
-    
+
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a :class:`MetaInformation` object """
     stream.seek(0)
@@ -194,11 +196,11 @@ def set_metadata(stream, mi):
     reader.opf.smart_update(mi)
     newopf = StringIO(reader.opf.render())
     safe_replace(stream, reader.container[OPF.MIMETYPE], newopf)
-    
+
 def option_parser():
     parser = get_parser('epub')
     parser.remove_option('--category')
-    parser.add_option('--tags', default=None, 
+    parser.add_option('--tags', default=None,
                       help=_('A comma separated list of tags to set'))
     parser.add_option('--series', default=None,
                       help=_('The series to which this book belongs'))
@@ -240,17 +242,17 @@ def main(args=sys.argv):
         if opts.language is not None:
             mi.language = opts.language
             changed = True
-        
+
         if changed:
             set_metadata(stream, mi)
         print unicode(get_metadata(stream, extract_cover=False)).encode('utf-8')
-        
+
     if mi.cover_data[1] is not None:
         cpath = os.path.splitext(os.path.basename(args[1]))[0] + '_cover.jpg'
         with open(cpath, 'wb') as f:
             f.write(mi.cover_data[1])
             print 'Cover saved to', f.name
-    
+
     return 0
 
 if __name__ == '__main__':
