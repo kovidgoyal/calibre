@@ -4,12 +4,11 @@ __copyright__ = '2009, James Ralston <jralston at mindspring.com>'
 Device driver for Ectaco Jetbook firmware >= JL04_v030e
 '''
 
-import os, shutil
+import os, re, sys, shutil
 from itertools import cycle
 
 from calibre.devices.errors import FreeSpaceError
-from calibre.devices.usbms.driver import USBMS
-from calibre.devices.usbms.books import BookList
+from calibre.devices.usbms.driver import USBMS, metadata_from_formats
 from calibre import sanitize_file_name as sanitize
 
 class JETBOOK(USBMS):
@@ -36,6 +35,10 @@ class JETBOOK(USBMS):
     EBOOK_DIR_CARD = "Books"
     SUPPORTS_SUB_DIRS = True
 
+    JETBOOK_FILE_NAME_PATTERN = re.compile(
+            r'(?P<authors>.+)#(?P<title>.+)'
+            )
+
     def upload_books(self, files, names, on_card=False, end_session=True,
                     metadata=None):
 
@@ -61,9 +64,9 @@ class JETBOOK(USBMS):
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            author = sanitize(mdata.get('authors','Unknown'))
-            title = sanitize(mdata.get('title', 'Unknown'))
-            (basename, fileext) = os.path.splitext(os.path.basename(names.next()))
+            author = sanitize(mdata.get('authors','Unknown')).replace(' ', '_')
+            title = sanitize(mdata.get('title', 'Unknown')).replace(' ', '_')
+            fileext = os.path.splitext(os.path.basename(names.next()))[1]
             fname = '%s#%s%s' % (author, title, fileext)
 
             filepath = os.path.join(newpath, fname)
@@ -82,3 +85,26 @@ class JETBOOK(USBMS):
 
         return zip(paths, cycle([on_card]))
 
+    @classmethod
+    def metadata_from_path(cls, path):
+
+        def check_unicode(txt):
+            txt = txt.replace('_', ' ')
+            if not isinstance(txt, unicode):
+                return txt.decode(sys.getfilesystemencoding(), 'replace')
+
+            return txt
+
+        mi = metadata_from_formats([path])
+
+        if (mi.title==_('Unknown') or mi.authors==[_('Unknown')]) \
+                and '#' in mi.title:
+            fn = os.path.splitext(os.path.basename(path))[0]
+            match = cls.JETBOOK_FILE_NAME_PATTERN.match(fn)
+            if match is not None:
+                mi.title = check_unicode(match.group('title'))
+                authors = match.group('authors').split('&')
+                mi.authors = map(check_unicode, authors)
+
+        return mi
+                
