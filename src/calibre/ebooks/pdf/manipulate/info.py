@@ -16,7 +16,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
-from calibre.ebooks.pdf.verify import is_valid_pdfs, is_encrypted
+from calibre.ebooks.pdf.verify import is_valid_pdfs, is_encrypted, is_encrypted
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
@@ -42,10 +42,10 @@ def print_info(pdf_path):
         print _('Subject:               %s' % pdf.documentInfo.subject)
         print _('Creator:               %s' % pdf.documentInfo.creator)
         print _('Producer:              %s' % pdf.documentInfo.producer)
-        print _('Creation Date:         %s' % time.strftime('%a %b %d %H:%M:%S %Y', time.gmtime(os.path.getctime(pdf_path))))
-        print _('Modification Date:     %s' % time.strftime('%a %b %d %H:%M:%S %Y', time.gmtime(os.path.getmtime(pdf_path))))
+        #print _('Creation Date:         %s' % time.strftime('%a %b %d %H:%M:%S %Y', time.gmtime(os.path.getctime(pdf_path))))
+        #print _('Modification Date:     %s' % time.strftime('%a %b %d %H:%M:%S %Y', time.gmtime(os.path.getmtime(pdf_path))))
         print _('Pages:                 %s' % pdf.numPages)
-        print _('Encrypted:             %s' % pdf.isEncrypted)
+        #print _('Encrypted:             %s' % pdf.isEncrypted)
         try:
             print _('File Size:             %s bytes' % os.path.getsize(pdf_path))
         except: pass
