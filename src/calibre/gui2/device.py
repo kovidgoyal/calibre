@@ -45,7 +45,7 @@ class DeviceJob(Job):
 
 class DeviceManager(Thread):
 
-    def __init__(self, connected_slot, job_manager, sleep_time=2):
+    def __init__(self, connected_slot, job_manager, sleep_time=20):
         '''
         @param sleep_time: Time to sleep between device probes in millisecs
         @type sleep_time: integer
