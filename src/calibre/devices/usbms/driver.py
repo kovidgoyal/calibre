@@ -71,8 +71,7 @@ class USBMS(Device):
                     bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
         return bl
 
-    def upload_books(self, files, names, on_card=False, end_session=True,
-                     metadata=None):
+    def _sanity_check(self, on_card, files):
         if on_card and not self._card_prefix:
             raise ValueError(_('The reader has no storage card connected.'))
 
@@ -96,6 +95,12 @@ class USBMS(Device):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024:
             raise FreeSpaceError(_("There is insufficient free space in main memory"))
+        return path
+
+    def upload_books(self, files, names, on_card=False, end_session=True,
+                     metadata=None):
+
+        path = self._sanity_check(on_card, files)
 
         paths = []
         names = iter(names)

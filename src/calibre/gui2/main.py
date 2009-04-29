@@ -1571,8 +1571,8 @@ def main(args=sys.argv):
             extra = '' if iswindows else \
                     ('If you\'re sure it is not running, delete the file '
                     '%s.'%os.path.expanduser('~/.calibre_calibre GUI.lock'))
-            QMessageBox.critical(None, 'Cannot Start '+__appname__,
-                        '<p>%s is already running. %s</p>'%(__appname__, extra))
+            QMessageBox.critical(None, _('Cannot Start ')+__appname__,
+                        _('<p>%s is already running. %s</p>')%(__appname__, extra))
             return 1
         initialize_file_icon_provider()
         main = Main(single_instance, opts, actions)
