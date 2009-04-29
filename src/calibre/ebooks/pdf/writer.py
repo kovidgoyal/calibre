@@ -140,9 +140,70 @@ class ImagePDFWriter(PDFWriter):
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
         self.logger.debug('Processing %s...' % item)
+        
+        import Image
+        
+        size = self._size()
+        #height = 'height: %ipx;' % size[1] if Image.open(item).size[1] > size[1] else ''
+        #height = 'height: %icm;' % size[1]
+        #height = 'height: %ipx;' % self.opts.output_profile.comic_screen_size[1]
+###        height = 'height: 594px;' # self.opts.output_profile.comic_screen_size[1] * .78
+        
+        #print 
+        #print size[1] 
+        #print Image.open(item).size[1]
+        #print Image.open(item).size[1] / self.opts.output_profile.dpi
+        #print height
 
-        html = '<html><body style="margin: 0;"><img src="%s" style="display: block; margin-left: auto; margin-right: auto; padding: 0px;" /></body></html>' % item
+
+        #height = 'height: %ipx;' % (self.opts.output_profile.comic_screen_size[1] - 160)
+        #height = 'height: %ipx;' % (self.opts.output_profile.comic_screen_size[1] * .78)
+        height = 'height: %fcm;' % (size[1] * 1.3)
+        #print height
+
+        html = '<html><body style="margin: 0;"><img src="%s" style="%s display: block; margin-left: auto; margin-right: auto; padding: 0px;" /></body></html>' % (item, height)
 
         self.view.setHtml(html)
 
+    def _render_html(self, ok):
+        if ok:
+            item_path = os.path.join(self.tmp_path, '%i.pdf' % len(self.combine_queue))
+
+            self.logger.debug('\tRendering item %s as %i' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
+
+            printer = QPrinter(QPrinter.HighResolution)
+
+            if self.opts.output_profile.short_name == 'default':
+                if self.custom_size == None:
+                    printer.setPaperSize(paper_size(self.opts.paper_size))
+                else:
+                    printer.setPaperSize(QSizeF(self.custom_size[0], self.custom_size[1]), unit(self.opts.unit))
+            else:
+                printer.setPaperSize(QSizeF(self.opts.output_profile.comic_screen_size[0] / self.opts.output_profile.dpi, self.opts.output_profile.comic_screen_size[1] / self.opts.output_profile.dpi), QPrinter.Inch)
+
+            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+            printer.setOrientation(orientation(self.opts.orientation))
+            printer.setOutputFormat(QPrinter.PdfFormat)
+            printer.setOutputFileName(item_path)
+            self.view.print_(printer)
+        self._render_book()
+
+    def _size(self):
+            printer = QPrinter(QPrinter.HighResolution)
+
+            if self.opts.output_profile.short_name == 'default':
+                if self.custom_size == None:
+                    printer.setPaperSize(paper_size(self.opts.paper_size))
+                else:
+                    printer.setPaperSize(QSizeF(self.custom_size[0], self.custom_size[1]), unit(self.opts.unit))
+            else:
+                printer.setPaperSize(QSizeF(self.opts.output_profile.comic_screen_size[0] / self.opts.output_profile.dpi, self.opts.output_profile.comic_screen_size[1] / self.opts.output_profile.dpi), QPrinter.Inch)
+
+            printer.setPageMargins(0, 0, 0, 0, QPrinter.Point)
+            printer.setOrientation(orientation(self.opts.orientation))
+            printer.setOutputFormat(QPrinter.PdfFormat)
+
+            size = printer.paperSize(QPrinter.Millimeter)
+
+            return size.width() / 10, size.height() / 10
 
