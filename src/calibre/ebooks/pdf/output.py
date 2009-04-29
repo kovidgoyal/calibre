@@ -16,6 +16,7 @@ import os, glob
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.oeb.output import OEBOutput
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.pdf.writer import PDFWriter, ImagePDFWriter, PDFMetadata
 from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
@@ -58,14 +59,14 @@ class PDFOutput(OutputFormatPlugin):
             self.convert_text(oeb_book)
             
     def convert_images(self, images):
-        # process images to document size
         self.write(ImagePDFWriter, images)
             
     def convert_text(self, oeb_book):
         with TemporaryDirectory('_pdf_out') as oebdir:
             OEBOutput(None).convert(oeb_book, oebdir, self.input_plugin, self.opts, self.log)
 
-            opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
+            opfpath = glob.glob(os.path.join(oebdir, '*.opf'))[0]
+            opf = OPF(opfpath, os.path.dirname(opfpath))
             
             self.write(PDFWriter, [s.path for s in opf.spine])
 
