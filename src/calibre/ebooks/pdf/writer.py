@@ -141,7 +141,7 @@ class ImagePDFWriter(PDFWriter):
 
         self.logger.debug('Processing %s...' % item)
 
-        html = '<html><body><img src="%s" style="display: block; margin-left: auto; margin-right: auto; padding: 0px;" /></body></html>' % item
+        html = '<html><body style="margin: 0;"><img src="%s" style="display: block; margin-left: auto; margin-right: auto; padding: 0px;" /></body></html>' % item
 
         self.view.setHtml(html)
 
