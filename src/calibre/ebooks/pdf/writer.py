@@ -64,12 +64,11 @@ class PDFWriter(QObject):
 
         self.opts = opts
 
-    def dump(self, opfpath, out_stream, pdf_metadata):
+    def dump(self, items, out_stream, pdf_metadata):
         self.metadata = pdf_metadata
         self._delete_tmpdir()
 
-        opf = OPF(opfpath, os.path.dirname(opfpath))
-        self.render_queue = [i.path for i in opf.spine]
+        self.render_queue = items
         self.combine_queue = []
         self.out_stream = out_stream
 
@@ -87,7 +86,7 @@ class PDFWriter(QObject):
         item = str(self.render_queue.pop(0))
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
-        self.logger.info('Processing %s...' % item)
+        self.logger.debug('Processing %s...' % item)
 
         self.view.load(QUrl(item))
 
@@ -120,7 +119,7 @@ class PDFWriter(QObject):
             self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
 
     def _write(self):
-        self.logger.info('Combining individual PDF parts...')
+        self.logger.debug('Combining individual PDF parts...')
 
         try:
             outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
@@ -134,8 +133,16 @@ class PDFWriter(QObject):
             self.loop.exit(0)
 
 
-class ImagePDFWriter(object):
+class ImagePDFWriter(PDFWriter):
     
-    def __init__(self, opts, log):
-        self.opts, self.log = opts, log
-        
+    def _render_next(self):
+        item = str(self.render_queue.pop(0))
+        self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
+
+        self.logger.debug('Processing %s...' % item)
+
+        html = '<html><body><img src="%s" style="display: block; margin-left: auto; margin-right: auto; padding: 0px;" /></body></html>' % item
+
+        self.view.setHtml(html)
+
+

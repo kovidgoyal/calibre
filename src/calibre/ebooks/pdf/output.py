@@ -17,7 +17,7 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.oeb.output import OEBOutput
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.pdf.writer import PDFWriter, PDFMetadata
+from calibre.ebooks.pdf.writer import PDFWriter, ImagePDFWriter, PDFMetadata
 from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
     ORIENTATIONS
 
@@ -49,36 +49,42 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
+        self.output_path = output_path
+        self.metadata = oeb_book.metadata
     
         if input_plugin.is_image_collection:
-            self.convert_images(input_plugin.get_images(), output_path)
+            self.convert_images(input_plugin.get_images())
         else:
-            self.convert_text(oeb_book, output_path)
+            self.convert_text(oeb_book)
             
-    def convert_images(self, images, output_path):
-        raise NotImplementedError()
+    def convert_images(self, images):
+        # process images to document size
+        self.write(ImagePDFWriter, images)
             
-    def convert_text(self, oeb_book, output_path):
+    def convert_text(self, oeb_book):
         with TemporaryDirectory('_pdf_out') as oebdir:
             OEBOutput(None).convert(oeb_book, oebdir, self.input_plugin, self.opts, self.log)
 
             opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
+            
+            self.write(PDFWriter, [s.path for s in opf.spine])
 
-            writer = PDFWriter(self.opts, self.log)
+    def write(self, Writer, items):
+        writer = Writer(self.opts, self.log)
 
-            close = False
-            if not hasattr(output_path, 'write'):
-                close = True
-                if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
-                    os.makedirs(os.path.dirname(output_path))
-                out_stream = open(output_path, 'wb')
-            else:
-                out_stream = output_path
+        close = False
+        if not hasattr(self.output_path, 'write'):
+            close = True
+            if not os.path.exists(os.path.dirname(self.output_path)) and os.path.dirname(self.output_path) != '':
+                os.makedirs(os.path.dirname(self.output_path))
+            out_stream = open(self.output_path, 'wb')
+        else:
+            out_stream = self.output_path
 
-            out_stream.seek(0)
-            out_stream.truncate()
-            writer.dump(opf, out_stream, PDFMetadata(oeb_book.metadata))
+        out_stream.seek(0)
+        out_stream.truncate()
+        writer.dump(items, out_stream, PDFMetadata(self.metadata))
 
-            if close:
-                out_stream.close()
+        if close:
+            out_stream.close()
 
