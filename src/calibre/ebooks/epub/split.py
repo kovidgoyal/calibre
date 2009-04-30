@@ -24,16 +24,16 @@ SPLIT_ATTR       = 'cs'
 SPLIT_POINT_ATTR = 'csp'
 
 class SplitError(ValueError):
-    
+
     def __init__(self, path, root):
         size = len(tostring(root))/1024.
-        ValueError.__init__(self, _('Could not find reasonable point at which to split: %s Sub-tree size: %d KB')% 
+        ValueError.__init__(self, _('Could not find reasonable point at which to split: %s Sub-tree size: %d KB')%
                             (os.path.basename(path), size))
 
-    
+
 
 class Splitter(LoggingInterface):
-    
+
     def __init__(self, path, opts, stylesheet_map, opf):
         LoggingInterface.__init__(self, logging.getLogger('htmlsplit'))
         self.setup_cli_handler(opts.verbose)
@@ -45,10 +45,10 @@ class Splitter(LoggingInterface):
         self.orig_size = os.stat(content(path)).st_size
         self.log_info('\tSplitting %s (%d KB)', path, self.orig_size/1024.)
         root = html.fromstring(open(content(path)).read())
-            
+
         self.page_breaks, self.trees = [], []
         self.split_size = 0
-        
+
         # Split on page breaks
         self.splitting_on_page_breaks = True
         if not opts.dont_split_on_page_breaks:
@@ -60,29 +60,36 @@ class Splitter(LoggingInterface):
         else:
             self.trees = [root.getroottree()]
             trees = list(self.trees)
-        
+
         # Split any remaining over-sized trees
         self.splitting_on_page_breaks = False
         if self.opts.profile.flow_size < sys.maxint:
             lt_found = False
             self.log_info('\tLooking for large trees...')
+            self.tree_map = {}
             for i, tree in enumerate(list(trees)):
-                self.trees = []
-                size = len(tostring(tree.getroot())) 
+                self.split_trees = []
+                size = len(tostring(tree.getroot()))
                 if size > self.opts.profile.flow_size:
                     lt_found = True
                     try:
                         self.split_to_size(tree)
+                        self.tree_map[tree] = self.split_trees
                     except (SplitError, RuntimeError): # Splitting fails
                         if not self.always_remove:
                             self.always_remove = True
+                            self.split_trees = []
                             self.split_to_size(tree)
+                            self.tree_map[tree] = self.split_trees
                         else:
                             raise
-                    trees[i:i+1] = list(self.trees)
+            t = []
+            for x in trees:
+                t.extend(self.tree_map.get(x, [x]))
+            trees = t
             if not lt_found:
                 self.log_info('\tNo large trees found')
-        
+
         self.trees = trees
         self.was_split = len(self.trees) > 1
         if self.was_split:
@@ -92,17 +99,17 @@ class Splitter(LoggingInterface):
                 for f in self.files:
                     self.log_info('\t\t\t%s - %d KB', f, os.stat(content(f)).st_size/1024.)
             self.fix_opf(opf)
-            
+
         self.trees = None
-        
-    
+
+
     def split_text(self, text, root, size):
         self.log_debug('\t\t\tSplitting text of length: %d'%len(text))
         rest = text.replace('\r', '')
         parts = re.split('\n\n', rest)
         self.log_debug('\t\t\t\tFound %d parts'%len(parts))
         if max(map(len, parts)) > size:
-            raise SplitError('Cannot split as file contains a <pre> tag with a very large paragraph', root) 
+            raise SplitError('Cannot split as file contains a <pre> tag with a very large paragraph', root)
         ans = []
         buf = ''
         for part in parts:
@@ -112,8 +119,8 @@ class Splitter(LoggingInterface):
                 ans.append(buf)
                 buf = part
         return ans
-            
-    
+
+
     def split_to_size(self, tree):
         self.log_debug('\t\tSplitting...')
         root = tree.getroot()
@@ -135,7 +142,7 @@ class Splitter(LoggingInterface):
                 p = pre.getparent()
                 i = p.index(pre)
                 p[i:i+1] = new_pres
-        
+
         split_point, before = self.find_split_point(root)
         if split_point is None or self.split_size > 6*self.orig_size:
             if not self.always_remove:
@@ -143,21 +150,21 @@ class Splitter(LoggingInterface):
                                 'structure preservation. This may cause '
                                 'incorrect rendering.'))
             raise SplitError(self.path, root)
-        
+
         for t in self.do_split(tree, split_point, before):
             r = t.getroot()
             if self.is_page_empty(r):
                 continue
             size = len(tostring(r))
             if size <= self.opts.profile.flow_size:
-                self.trees.append(t)
+                self.split_trees.append(t)
                 #print tostring(t.getroot(), pretty_print=True)
-                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', 
-                               len(self.trees), size/1024.)
+                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)',
+                               len(self.split_trees), size/1024.)
                 self.split_size += size
             else:
                 self.split_to_size(t)
-    
+
     def is_page_empty(self, root):
         body = root.find('body')
         if body is None:
@@ -171,14 +178,14 @@ class Splitter(LoggingInterface):
             if img.get('style', '') != 'display:none':
                 return False
         return True
-                
+
     def do_split(self, tree, split_point, before):
         '''
-        Split ``tree`` into a *before* and *after* tree at ``split_point``, 
-        preserving tag structure, but not duplicating any text. 
+        Split ``tree`` into a *before* and *after* tree at ``split_point``,
+        preserving tag structure, but not duplicating any text.
         All tags that have had their text and tail
         removed have the attribute ``calibre_split`` set to 1.
-        
+
         :param before: If True tree is split before split_point, otherwise after split_point
         :return: before_tree, after_tree
         '''
@@ -189,7 +196,7 @@ class Splitter(LoggingInterface):
         body, body2  = root.body, root2.body
         split_point  = root.xpath(path)[0]
         split_point2 = root2.xpath(path)[0]
-        
+
         def nix_element(elem, top=True):
             if self.always_remove:
                 parent = elem.getparent()
@@ -199,18 +206,18 @@ class Splitter(LoggingInterface):
                 else:
                     index = parent.index(elem)
                     parent[index:index+1] = list(elem.iterchildren())
-                
+
             else:
                 elem.text = u''
                 elem.tail = u''
                 elem.set(SPLIT_ATTR, '1')
                 if elem.tag.lower() in ['ul', 'ol', 'dl', 'table', 'hr', 'img']:
                     elem.set('style', 'display:none')
-        
+
         def fix_split_point(sp):
             if not self.splitting_on_page_breaks:
-                sp.set('style', sp.get('style', '')+'page-break-before:avoid;page-break-after:avoid') 
-        
+                sp.set('style', sp.get('style', '')+'page-break-before:avoid;page-break-after:avoid')
+
         # Tree 1
         hit_split_point = False
         for elem in list(body.iterdescendants(etree.Element)):
@@ -224,8 +231,8 @@ class Splitter(LoggingInterface):
                 continue
             if hit_split_point:
                 nix_element(elem)
-            
-            
+
+
         # Tree 2
         hit_split_point = False
         for elem in list(body2.iterdescendants(etree.Element)):
@@ -239,17 +246,17 @@ class Splitter(LoggingInterface):
                 continue
             if not hit_split_point:
                 nix_element(elem, top=False)
-        
+
         return tree, tree2
-                
-    
+
+
     def split_on_page_breaks(self, orig_tree):
         ordered_ids = []
         for elem in orig_tree.xpath('//*[@id]'):
             id = elem.get('id')
             if id in self.page_break_ids:
                 ordered_ids.append(self.page_breaks[self.page_break_ids.index(id)])
-                
+
         self.trees = []
         tree = orig_tree
         for pattern, before in ordered_ids:
@@ -261,13 +268,13 @@ class Splitter(LoggingInterface):
                 tree = after
         self.trees.append(tree)
         self.trees = [t for t in self.trees if not self.is_page_empty(t.getroot())]
-                
-            
-                
+
+
+
     def find_page_breaks(self, stylesheets, root):
         '''
         Find all elements that have either page-break-before or page-break-after set.
-        Populates `self.page_breaks` with id based XPath selectors (for elements that don't 
+        Populates `self.page_breaks` with id based XPath selectors (for elements that don't
         have ids, an id is created).
         '''
         page_break_selectors = set([])
@@ -284,16 +291,16 @@ class Splitter(LoggingInterface):
                     page_break_selectors.add((CSSSelector(rule.selectorText), False))
             except:
                 pass
-            
+
         page_breaks = set([])
         for selector, before in page_break_selectors:
             for elem in selector(root):
                 elem.pb_before = before
                 page_breaks.add(elem)
-                
+
         for i, elem in enumerate(root.iter()):
             elem.pb_order = i
-            
+
         page_breaks = list(page_breaks)
         page_breaks.sort(cmp=lambda x,y : cmp(x.pb_order, y.pb_order))
         self.page_break_ids = []
@@ -301,12 +308,12 @@ class Splitter(LoggingInterface):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
             id = x.get('id')
             self.page_breaks.append((XPath('//*[@id="%s"]'%id), x.pb_before))
-            self.page_break_ids.append(id)                        
-        
-        
+            self.page_break_ids.append(id)
+
+
     def find_split_point(self, root):
         '''
-        Find the tag at which to split the tree rooted at `root`. 
+        Find the tag at which to split the tree rooted at `root`.
         Search order is:
             * Heading tags
             * <div> tags
@@ -315,7 +322,7 @@ class Splitter(LoggingInterface):
             * <p> tags
             * <br> tags
             * <li> tags
-            
+
         We try to split in the "middle" of the file (as defined by tag counts.
         '''
         def pick_elem(elems):
@@ -326,18 +333,18 @@ class Splitter(LoggingInterface):
                     i = int(math.floor(len(elems)/2.))
                     elems[i].set(SPLIT_POINT_ATTR, '1')
                     return elems[i]
-    
+
         for path in (
-                     '//*[re:match(name(), "h[1-6]", "i")]', 
+                     '//*[re:match(name(), "h[1-6]", "i")]',
                      '/html/body/div',
                      '//pre',
-                     '//hr', 
+                     '//hr',
                      '//p',
                      '//div',
                      '//br',
                      '//li',
                      ):
-            elems = root.xpath(path, 
+            elems = root.xpath(path,
                     namespaces={'re':'http://exslt.org/regular-expressions'})
             elem = pick_elem(elems)
             if elem is not None:
@@ -346,9 +353,9 @@ class Splitter(LoggingInterface):
                 except:
                     continue
                 return elem, True
-            
+
         return None, True
-    
+
     def commit(self):
         '''
         Commit all changes caused by the split. This removes the previously
@@ -358,7 +365,7 @@ class Splitter(LoggingInterface):
         '''
         self.anchor_map = collections.defaultdict(lambda :self.base%0)
         self.files = []
-        
+
         for i, tree in enumerate(self.trees):
             root = tree.getroot()
             self.files.append(self.base%i)
@@ -368,7 +375,7 @@ class Splitter(LoggingInterface):
             for elem in root.xpath('//*[@%s or @%s]'%(SPLIT_ATTR, SPLIT_POINT_ATTR)):
                 elem.attrib.pop(SPLIT_ATTR, None)
                 elem.attrib.pop(SPLIT_POINT_ATTR, '0')
-                
+
         for current, tree in zip(self.files, self.trees):
             for a in tree.getroot().xpath('//a[@href]'):
                 href = a.get('href').strip()
@@ -376,10 +383,10 @@ class Splitter(LoggingInterface):
                     anchor = href[1:]
                     file = self.anchor_map[anchor]
                     if file != current:
-                        a.set('href', file+href)            
+                        a.set('href', file+href)
             open(content(current), 'wb').\
                 write(tostring(tree.getroot(), pretty_print=self.opts.pretty_print))
-            
+
         os.remove(content(self.path))
 
 
@@ -392,12 +399,12 @@ class Splitter(LoggingInterface):
         id_map = {}
         for item in items:
             id_map[item.get('id')] = opf.replace_manifest_item(item, new_items)
-        
+
         for id in id_map.keys():
             opf.replace_spine_items_by_idref(id, id_map[id])
-        
+
         for ref in opf.iterguide():
-            href = ref.get('href', '') 
+            href = ref.get('href', '')
             if href.startswith('content/'+self.path):
                 href = href.split('#')
                 frag = None
@@ -409,8 +416,8 @@ class Splitter(LoggingInterface):
                 new_file = self.anchor_map[frag]
                 ref.set('href', 'content/'+new_file+('' if frag is None else ('#'+frag)))
 
-          
-                
+
+
 def fix_content_links(html_files, changes, opts):
     split_files = [f.path for f in changes]
     anchor_maps = [f.anchor_map for f in changes]
@@ -421,7 +428,7 @@ def fix_content_links(html_files, changes, opts):
             files[i:i+1] = changes[j].files
         except ValueError:
             continue
-        
+
     for htmlfile in files:
         changed = False
         root = html.fromstring(open(content(htmlfile), 'rb').read())
@@ -440,7 +447,7 @@ def fix_content_links(html_files, changes, opts):
                     frag = ('#'+anchor) if anchor else ''
                     a.set('href', newf+frag)
                     changed = True
-                    
+
         if changed:
             open(content(htmlfile), 'wb').write(tostring(root, pretty_print=opts.pretty_print))
 
@@ -449,7 +456,7 @@ def fix_ncx(path, changes):
     anchor_maps = [f.anchor_map for f in changes]
     tree = etree.parse(path)
     changed = False
-    for content in tree.getroot().xpath('//x:content[@src]', 
+    for content in tree.getroot().xpath('//x:content[@src]',
                     namespaces={'x':"http://www.daisy.org/z3986/2005/ncx/"}):
         href = content.get('src')
         if not href.startswith('#'):
@@ -482,21 +489,21 @@ def find_html_files(opf):
             if os.path.exists(content(f)):
                 html_files.append(f)
     return html_files
-        
+
 
 def split(pathtoopf, opts, stylesheet_map):
     pathtoopf = os.path.abspath(pathtoopf)
     opf = OPF(open(pathtoopf, 'rb'), os.path.dirname(pathtoopf))
-    
+
     with CurrentDir(os.path.dirname(pathtoopf)):
         html_files = find_html_files(opf)
         changes = [Splitter(f, opts, stylesheet_map, opf) for f in html_files]
         changes = [c for c in changes if c.was_split]
-        
+
         fix_content_links(html_files, changes, opts)
         for item in opf.itermanifest():
             if item.get('media-type', '') == 'application/x-dtbncx+xml':
                 fix_ncx(item.get('href'), changes)
-                break 
+                break
 
         open(pathtoopf, 'wb').write(opf.render())
