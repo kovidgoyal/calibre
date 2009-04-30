@@ -343,7 +343,7 @@ class ComicInput(InputFormatPlugin):
             new_pages = n2
         else:
             new_pages, failures = process_pages(new_pages, self.opts,
-                    self.progress, tdir2)
+                    self.report_progress, tdir2)
             if not new_pages:
                 raise ValueError('Could not find any valid pages in comic: %s'
                         % comic)
@@ -360,13 +360,12 @@ class ComicInput(InputFormatPlugin):
     def get_images(self):
         return self._images
 
-    def convert(self, stream, opts, file_ext, log, accelerators,
-            progress=lambda p, m : m):
+    def convert(self, stream, opts, file_ext, log, accelerators):
         from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.toc import TOC
 
-        self.opts, self.log, self.progress = opts, log, progress
+        self.opts, self.log= opts, log
         if file_ext == 'cbc':
             comics_ = self.get_comics_from_collection(stream)
         else:

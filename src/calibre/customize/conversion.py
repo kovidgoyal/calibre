@@ -79,6 +79,10 @@ class OptionRecommendation(object):
                              repr(self.recommended_value) +
                              ' is not a string or a number')
 
+class DummyReporter(object):
+
+    def __call__(self, percent, msg=''):
+        pass
 
 class InputFormatPlugin(Plugin):
     '''
@@ -132,6 +136,10 @@ class InputFormatPlugin(Plugin):
     #: A set of 3-tuples of the form
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set([])
+
+    def __init__(self, *args):
+        Plugin.__init__(self, *args)
+        self.report_progress = DummyReporter()
 
     def get_images(self):
         '''
@@ -241,6 +249,11 @@ class OutputFormatPlugin(Plugin):
     #: A set of 3-tuples of the form
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set([])
+
+    def __init__(self, *args):
+        Plugin.__init__(self, *args)
+        self.report_progress = DummyReporter()
+
 
     def convert(self, oeb_book, output, input_plugin, opts, log):
         '''

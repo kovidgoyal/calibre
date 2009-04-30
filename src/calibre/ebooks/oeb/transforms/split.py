@@ -173,18 +173,22 @@ class FlowSplitter(object):
 
         if self.max_flow_size > 0:
             lt_found = False
-            self.log('\tLooking for large trees...')
+            self.log('\tLooking for large trees in %s...'%item.href)
             trees = list(self.trees)
-            for i, tree in enumerate(list(self.trees)):
-                self.trees = []
+            self.tree_map = {}
+            for i, tree in enumerate(trees):
                 size = len(tostring(tree.getroot()))
-                if size > self.opts.profile.flow_size:
+                if size > self.max_flow_size:
+                    self.log('\tFound large tree #%d'%i)
                     lt_found = True
+                    self.split_trees = []
                     self.split_to_size(tree)
-                    trees[i:i+1] = list(self.trees)
+                    self.tree_map[tree] = self.split_trees
             if not lt_found:
-                self.log_info('\tNo large trees found')
-            self.trees = trees
+                self.log('\tNo large trees found')
+            self.trees = []
+            for x in trees:
+                self.trees.extend(self.tree_map.get(x, [x]))
 
         self.was_split = len(self.trees) > 1
         self.commit()
@@ -347,11 +351,10 @@ class FlowSplitter(object):
                 continue
             size = len(tostring(r))
             if size <= self.max_flow_size:
-                self.trees.append(t)
-                #print tostring(t.getroot(), pretty_print=True)
-                self.log.debug('\t\t\tCommitted sub-tree #%d (%d KB)',
-                               len(self.trees), size/1024.)
-                self.split_size += size
+                self.split_trees.append(t)
+                self.log.debug(
+                    '\t\t\tCommitted sub-tree #%d (%d KB)'%(
+                               len(self.split_trees), size/1024.))
             else:
                 self.split_to_size(t)
 

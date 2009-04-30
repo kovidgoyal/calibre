@@ -38,7 +38,7 @@ class RecipeInput(InputFormatPlugin):
         ])
 
     def convert(self, recipe_or_file, opts, file_ext, log,
-            accelerators, progress=lambda x, y: x):
+            accelerators):
         from calibre.web.feeds.recipes import \
                 get_builtin_recipe, compile_recipe
         if os.access(recipe_or_file, os.R_OK):
@@ -51,7 +51,7 @@ class RecipeInput(InputFormatPlugin):
             raise ValueError('%s is not a valid recipe file or builtin recipe' %
                     recipe_or_file)
 
-        ro = recipe(opts, log, progress)
+        ro = recipe(opts, log, self.report_progress)
         ro.download()
 
         opts.output_profile.flow_size = 0

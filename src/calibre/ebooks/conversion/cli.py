@@ -175,8 +175,20 @@ def add_pipeline_options(parser, plumber):
 def option_parser():
     return OptionParser(usage=USAGE)
 
+
+class ProgressBar(object):
+
+    def __init__(self, log):
+        self.log = log
+
+    def __call__(self, frac, msg=''):
+        if msg:
+            percent = int(frac*100)
+            self.log('%d%% %s'%(percent, msg))
+
 def main(args=sys.argv):
     log = Log()
+    reporter = ProgressBar(log)
     parser = option_parser()
     if len(args) < 3:
         print_help(parser, log)
@@ -186,7 +198,7 @@ def main(args=sys.argv):
 
     from calibre.ebooks.conversion.plumber import Plumber
 
-    plumber = Plumber(input, output, log)
+    plumber = Plumber(input, output, log, reporter)
     add_input_output_options(parser, plumber)
     add_pipeline_options(parser, plumber)
 
