@@ -5,18 +5,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Device drivers.
 '''
 
-def devices():
-    from calibre.devices.prs500.driver import PRS500
-    from calibre.devices.prs505.driver import PRS505
-    from calibre.devices.prs700.driver import PRS700
-    from calibre.devices.cybookg3.driver import CYBOOKG3
-    from calibre.devices.kindle.driver import KINDLE
-    from calibre.devices.kindle.driver import KINDLE2
-    from calibre.devices.blackberry.driver import BLACKBERRY
-    from calibre.devices.eb600.driver import EB600
-    return (PRS500, PRS505, PRS700, CYBOOKG3, KINDLE, KINDLE2,
-            BLACKBERRY, EB600)
-
 import time
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)

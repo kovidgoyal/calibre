@@ -10,6 +10,7 @@ from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.constants import __version__, iswindows, isosx
+from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser
@@ -285,6 +286,12 @@ def available_output_formats():
         if not is_disabled(plugin):
             formats.add(plugin.file_type)
     return formats
+
+def device_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, DevicePlugin):
+            if not is_disabled(plugin):
+                yield plugin
 
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)

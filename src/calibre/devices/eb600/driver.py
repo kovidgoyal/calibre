@@ -7,6 +7,11 @@ Device driver for the Netronix EB600
 from calibre.devices.usbms.driver import USBMS
 
 class EB600(USBMS):
+    name           = 'Netronix EB600 Device Interface'
+    description    = _('Communicate with the EB600 eBook reader.')
+    author         = _('Kovid Goyal')
+    supported_platforms = ['windows', 'osx', 'linux']
+
     # Ordered list of supported formats
     FORMATS     = ['epub', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt', 'pdf']
     DRM_FORMATS = ['prc', 'mobi', 'html', 'pdf', 'txt']
