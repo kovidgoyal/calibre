@@ -8,6 +8,11 @@ Device driver for the SONY PRS-700
 from calibre.devices.prs505.driver import PRS505
 
 class PRS700(PRS505):
+
+    name           = 'PRS-700 Device Interface'
+    description    = _('Communicate with the Sony PRS-700 eBook reader.')
+    author         = _('Kovid Goyal and John Schember')
+    supported_platforms = ['windows', 'osx', 'linux']
     
     BCD          = [0x31a]
     

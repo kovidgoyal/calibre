@@ -1,5 +1,6 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
+                '2009, John Schember <john at nachtimwald.com>'
 '''
 Device driver for the SONY PRS-505
 '''
@@ -14,6 +15,12 @@ from calibre import iswindows, islinux, isosx, __appname__
 from calibre.devices.errors import PathError
 
 class PRS505(CLI, Device):
+
+    name           = 'PRS-505 Device Interface'
+    description    = _('Communicate with the Sony PRS-505 eBook reader.')
+    author         = _('Kovid Goyal and John Schember')
+    supported_platforms = ['windows', 'osx', 'linux']
+
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
     
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id

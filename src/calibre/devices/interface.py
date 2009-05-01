@@ -6,8 +6,9 @@ the GUI. A device backend must subclass the L{Device} class. See prs500.py for
 a backend that implement the Device interface for the SONY PRS500 Reader.
 """
 
+from calibre.customize import Plugin
 
-class Device(object):
+class DevicePlugin(Plugin):
     """ 
     Defines the interface that should be implemented by backends that 
     communicate with an ebook reader. 
@@ -16,6 +17,8 @@ class Device(object):
     the front-end needs to call several methods one after another, in which case 
     the USB session should not be closed after each method call.
     """
+    type = _('Device Interface')
+    
     # Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
     VENDOR_ID   = 0x0000
@@ -27,8 +30,8 @@ class Device(object):
     # Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = True
     
-    def __init__(self, key='-1', log_packets=False, report_progress=None) :
-        """ 
+    def reset(self, key='-1', log_packets=False, report_progress=None) :
+        """
         @param key: The key to unlock the device
         @param log_packets: If true the packet stream to/from the device is logged 
         @param report_progress: Function that is called with a % progress 

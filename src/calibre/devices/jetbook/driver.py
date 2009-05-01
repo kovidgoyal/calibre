@@ -11,6 +11,12 @@ from calibre.devices.usbms.driver import USBMS, metadata_from_formats
 from calibre import sanitize_file_name as sanitize
 
 class JETBOOK(USBMS):
+    name           = 'Ectaco JetBook Device Interface'
+    description    = _('Communicate with the JetBook eBook reader.')
+    author         = _('James Ralston')
+    supported_platforms = ['windows', 'osx', 'linux']
+
+
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
     FORMATS     = ['epub', 'mobi', 'prc', 'txt', 'rtf', 'pdf']

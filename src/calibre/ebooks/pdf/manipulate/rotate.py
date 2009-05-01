@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Reverse content of PDF.
+Rotate pages of a PDF.
 '''
 
 import os, sys
@@ -23,13 +22,13 @@ from calibre.ebooks.pdf.verify import is_valid_pdf, is_encrypted
 from pyPdf import PdfFileWriter, PdfFileReader
 
 USAGE = '\n%prog %%name ' + _('''\
-[options] file.pdf
+file.pdf degrees
 
-Reverse a PDF.
+Rotate pages of a PDF clockwise.
 ''')
 
 OPTIONS = set([
-    OptionRecommendation(name='output', recommended_value='reversed.pdf',
+    OptionRecommendation(name='output', recommended_value='rotated.pdf',
         level=OptionRecommendation.HIGH, long_switch='output', short_switch='o',
         help=_('Path to output file. By default a file is created in the current directory.')),
 ])
@@ -51,14 +50,14 @@ def option_recommendation_to_cli_option(add_option, rec):
     add_option(Option(*switches, **attrs))
 
 def add_options(parser):
-    group = OptionGroup(parser, _('Reverse Options:'), _('Options to control the transformation of pdf'))
+    group = OptionGroup(parser, _('Rotate Options:'), _('Options to control the transformation of pdf'))
     parser.add_option_group(group)
     add_option = group.add_option
     
     for rec in OPTIONS:
         option_recommendation_to_cli_option(add_option, rec)
 
-def reverse(pdf_path, out_path, metadata=None):
+def rotate(pdf_path, out_path, degrees, metadata=None):
     if metadata == None:
         title = _('Unknown')
         author = _('Unknown')
@@ -69,8 +68,8 @@ def reverse(pdf_path, out_path, metadata=None):
     out_pdf = PdfFileWriter(title=title, author=author)
 
     pdf = PdfFileReader(open(os.path.abspath(pdf_path), 'rb'))
-    for page in reversed(pdf.pages):
-        out_pdf.addPage(page)
+    for page in pdf.pages:
+        out_pdf.addPage(page.rotateClockwise(int(degrees)))
 
     with open(out_path, 'wb') as out_file:
         out_pdf.write(out_file)
@@ -83,8 +82,8 @@ def main(args=sys.argv, name=''):
     opts, args = parser.parse_args(args)
     args = args[1:]
     
-    if len(args) < 1:
-        print 'Error: A PDF file is required.\n'
+    if len(args) < 2:
+        print 'Error: A PDF file and how many degrees to rotate is required.\n'
         print_help(parser, log)
         return 1
     
@@ -98,7 +97,7 @@ def main(args=sys.argv, name=''):
     
     mi = metadata_from_formats([args[0]])
 
-    reverse(args[0], opts.output, mi)
+    rotate(args[0], opts.output, args[1], mi)
 
     return 0
 

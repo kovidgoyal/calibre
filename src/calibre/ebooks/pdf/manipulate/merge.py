@@ -18,7 +18,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
-from calibre.ebooks.pdf.verify import is_valid_pdfs
+from calibre.ebooks.pdf.verify import is_valid_pdfs, is_encrypted
 
 from pyPdf import PdfFileWriter, PdfFileReader
 

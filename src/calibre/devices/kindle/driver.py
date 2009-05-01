@@ -6,9 +6,14 @@ Device driver for Amazon's Kindle
 
 import os, re, sys
 
-from calibre.devices.usbms.driver import USBMS, metadata_from_formats
+from calibre.devices.usbms.driver import USBMS
 
 class KINDLE(USBMS):
+    name           = 'Kindle Device Interface'
+    description    = _('Communicate with the Kindle eBook reader.')
+    author         = _('John Schember')
+    supported_platforms = ['windows', 'osx', 'linux']
+
     # Ordered list of supported formats
     FORMATS     = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'txt']
 
@@ -46,6 +51,7 @@ class KINDLE(USBMS):
 
     @classmethod
     def metadata_from_path(cls, path):
+        from calibre.devices.usbms.driver import metadata_from_formats
         mi = metadata_from_formats([path])
         if mi.title == _('Unknown') or ('-asin' in mi.title and '-type' in mi.title):
             match = cls.WIRELESS_FILE_NAME_PATTERN.match(os.path.basename(path))
@@ -58,6 +64,10 @@ class KINDLE(USBMS):
 
 
 class KINDLE2(KINDLE):
+    name           = 'Kindle 2 Device Interface'
+    description    = _('Communicate with the Kindle 2 eBook reader.')
+    author         = _('John Schember')
+    supported_platforms = ['windows', 'osx', 'linux']
 
     PRODUCT_ID = [0x0002]
     BCD        = [0x0100]

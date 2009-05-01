@@ -7,6 +7,12 @@ __docformat__ = 'restructuredtext en'
 from calibre.devices.usbms.driver import USBMS
 
 class BLACKBERRY(USBMS):
+
+    name           = 'Blackberry Device Interface'
+    description    = _('Communicate with the Blackberry smart phone.')
+    author         = _('Kovid Goyal')
+    supported_platforms = ['windows', 'linux']
+
     # Ordered list of supported formats
     FORMATS     = ['mobi', 'prc']
     
@@ -16,15 +22,11 @@ class BLACKBERRY(USBMS):
     
     VENDOR_NAME = 'RIM'
     WINDOWS_MAIN_MEM = 'BLACKBERRY_SD'
-    #WINDOWS_CARD_MEM = 'CARD_STORAGE'
     
     #OSX_MAIN_MEM = 'Kindle Internal Storage Media'
-    #OSX_CARD_MEM = 'Kindle Card Storage Media'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Blackberry Main Memory'
-    #STORAGE_CARD_VOLUME_LABEL = 'Kindle Storage Card'
     
     EBOOK_DIR_MAIN = 'ebooks'
-    #EBOOK_DIR_CARD = "documents"
     SUPPORTS_SUB_DIRS = True
 

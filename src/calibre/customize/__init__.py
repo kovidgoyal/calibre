@@ -221,5 +221,4 @@ class MetadataWriterPlugin(Plugin):
         '''
         pass
 
-
    

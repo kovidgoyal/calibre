@@ -10,8 +10,8 @@ from binascii import unhexlify
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
                      Qt
 
-from calibre.customize.ui import available_input_formats, available_output_formats
-from calibre.devices import devices
+from calibre.customize.ui import available_input_formats, available_output_formats, \
+    device_plugins
 from calibre.constants import iswindows
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.parallel import Job
@@ -21,7 +21,6 @@ from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    info_dialog
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.devices.interface import Device
 from calibre import sanitize_file_name, preferred_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
@@ -54,7 +53,7 @@ class DeviceManager(Thread):
         '''
         Thread.__init__(self)
         self.setDaemon(True)
-        self.devices        = [[d, False] for d in devices()]
+        self.devices        = [[d, False] for d in device_plugins()]
         self.device         = None
         self.device_class   = None
         self.sleep_time     = sleep_time
@@ -71,7 +70,8 @@ class DeviceManager(Thread):
             connected = self.scanner.is_device_connected(device[0])
             if connected and not device[1]:
                 try:
-                    dev = device[0]()
+                    dev = device[0]
+                    dev.reset()
                     if iswindows:
                         import pythoncom
                         pythoncom.CoInitialize()

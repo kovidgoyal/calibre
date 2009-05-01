@@ -10,7 +10,6 @@ for a particular device.
 import os, fnmatch, shutil
 from itertools import cycle
 
-from calibre.ebooks.metadata.meta import metadata_from_formats, path_to_ext
 from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
@@ -21,6 +20,12 @@ from calibre.devices.mime import mime_type_ext
 # CLI must come before Device as it implments the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
+
+    name           = 'USBMS Base Device Interface'
+    description    = _('Communicate with an eBook reader.')
+    author         = _('John Schember')
+    supported_platforms = ['windows', 'osx', 'linux']
+
     FORMATS = []
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD_A = ''
@@ -28,8 +33,8 @@ class USBMS(CLI, Device):
     SUPPORTS_SUB_DIRS = False
     CAN_SET_METADATA = False
 
-    def __init__(self, key='-1', log_packets=False, report_progress=None):
-        Device.__init__(self, key=key, log_packets=log_packets,
+    def reset(self, key='-1', log_packets=False, report_progress=None):
+        Device.reset(self, key=key, log_packets=log_packets,
                         report_progress=report_progress)
 
     def get_device_information(self, end_session=True):
@@ -40,6 +45,7 @@ class USBMS(CLI, Device):
         return (self.__class__.__name__, '', '', '')
 
     def books(self, oncard=None, end_session=True):
+        from calibre.ebooks.metadata.meta import path_to_ext
         bl = BookList()
 
         if oncard == 'carda' and not self._card_a_prefix:
@@ -190,10 +196,12 @@ class USBMS(CLI, Device):
 
     @classmethod
     def metadata_from_path(cls, path):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         return metadata_from_formats([path])
 
     @classmethod
     def book_from_path(cls, path):
+        from calibre.ebooks.metadata.meta import path_to_ext
         fileext = path_to_ext(path)
         mi = cls.metadata_from_path(path)
         mime = mime_type_ext(fileext)

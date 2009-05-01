@@ -16,7 +16,7 @@ from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.pdf.manipulate import crop, decrypt, encrypt, \
-    info, merge, reverse, split
+    info, merge, reverse, rotate, split
 
 COMMANDS = {
              'crop'    : crop,
@@ -25,6 +25,7 @@ COMMANDS = {
              'info'    : info,
              'merge'   : merge,
              'reverse' : reverse,
+             'rotate'  : rotate,
              'split'   : split,
            }
 

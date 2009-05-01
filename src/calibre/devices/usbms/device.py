@@ -8,11 +8,11 @@ device. This class handles device detection.
 
 import os, subprocess, time, re
 
-from calibre.devices.interface import Device as _Device
+from calibre.devices.interface import DevicePlugin as Device
 from calibre.devices.errors import DeviceError
 from calibre import iswindows, islinux, isosx, __appname__
 
-class Device(_Device):
+class Device(Device):
     '''
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. If you are writing such a driver, inherit from this
@@ -83,7 +83,7 @@ class Device(_Device):
     FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
 
 
-    def __init__(self, key='-1', log_packets=False, report_progress=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None) :
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
     @classmethod

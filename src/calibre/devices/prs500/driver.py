@@ -40,7 +40,7 @@ from array import array
 from functools import wraps
 from StringIO import StringIO
 
-from calibre.devices.interface import Device
+from calibre.devices.interface import DevicePlugin
 from calibre.devices.libusb import Error as USBError
 from calibre.devices.libusb import get_device_by_id
 from calibre.devices.prs500.prstypes import *
@@ -76,12 +76,16 @@ class File(object):
         return self.name
 
 
-class PRS500(Device):
+class PRS500(DevicePlugin):
 
     """
     Implements the backend for communication with the SONY Reader.
     Each method decorated by C{safe} performs a task.
     """
+    name           = 'PRS-500 Device Interface'
+    description    = _('Communicate with the Sony PRS-500 eBook reader.')
+    author         = _('Kovid Goyal')
+    supported_platforms = ['windows', 'osx', 'linux']
 
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
@@ -181,7 +185,7 @@ class PRS500(Device):
 
         return run_session
 
-    def __init__(self, key='-1', log_packets=False, report_progress=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None) :
         """
         @param key: The key to unlock the device
         @param log_packets: If true the packet stream to/from the device is logged
