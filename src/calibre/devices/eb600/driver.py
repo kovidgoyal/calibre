@@ -2,6 +2,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 '''
 Device driver for the Netronix EB600
+
+Windows PNP strings:
+ ('USBSTOR\\DISK&VEN_NETRONIX&PROD_EBOOK&REV_062E\\6&1A275569&0&EB6001009
+2W00000&0', 2, u'F:\\')
+        ('USBSTOR\\DISK&VEN_NETRONIX&PROD_EBOOK&REV_062E\\6&1A275569&0&EB6001009
+2W00000&1', 3, u'G:\\')
+
 '''
 
 from calibre.devices.usbms.driver import USBMS
@@ -30,8 +37,8 @@ class EB600(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     def windows_sort_drives(self, drives):
-        main = drives['main']
-        card = drives['card']
+        main = drives.get('main', None)
+        card = drives.get('card', None)
         if card and main and card < main:
             drives['main'] = card
             drives['card'] = main

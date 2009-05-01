@@ -196,14 +196,14 @@ class Device(_Device):
             if 'main' in drives.keys() and 'card' in drives.keys():
                 break
 
-        drives = self.windows_sort_drives(drives)
-        self._main_prefix = drives.get('main')
-        self._card_prefix = drives.get('card')
-
-        if not self._main_prefix:
+        if 'main' not in drives:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
                 self.__class__.__name__)
+
+        drives = self.windows_sort_drives(drives)
+        self._main_prefix = drives.get('main')
+        self._card_prefix = drives.get('card', None)
 
     def get_osx_mountpoints(self, raw=None):
         if raw is None:
