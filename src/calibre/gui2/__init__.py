@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
-                         QByteArray, QUrl, QTranslator, QCoreApplication
+                         QByteArray, QUrl, QTranslator, QCoreApplication, QThread
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QApplication, QDialog
 
@@ -457,11 +457,15 @@ try:
 except:
     SingleApplication = None
 
+gui_thread = None
+
 class Application(QApplication):
 
     def __init__(self, args):
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
+        global gui_thread
+        gui_thread = QThread.currentThread()
         self.translator = QTranslator(self)
         lang = get_lang()
         if lang:
@@ -469,4 +473,12 @@ class Application(QApplication):
             if data:
                 self.translator.loadFromData(data)
                 self.installTranslator(self.translator)
+
+def is_ok_to_use_qt():
+    global gui_thread
+    if QApplication.instance() is None:
+        QApplication([])
+    if gui_thread is None:
+        gui_thread = QThread.currentThread()
+    return gui_thread is QThread.currentThread()
 

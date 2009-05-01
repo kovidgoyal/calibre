@@ -760,9 +760,9 @@ class LibraryDatabase2(LibraryDatabase):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         self.data.remove(id)
         if os.path.exists(path):
-            if iswindows:
+            try:
                 winshell.delete_file(path, no_confirm=True, silent=True)
-            else:
+            except:
                 self.rmtree(path)
             parent = os.path.dirname(path)
             if len(os.listdir(parent)) == 0:
