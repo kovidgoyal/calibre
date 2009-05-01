@@ -42,10 +42,6 @@ class USBMS(Device):
                         report_progress=report_progress)
 
     def get_device_information(self, end_session=True):
-        """
-        Ask device for device information. See L{DeviceInfoQuery}.
-        @return: (device name, device version, software version on device, mime type)
-        """
         return (self.__class__.__name__, '', '', '')
 
     def books(self, oncard=False, end_session=True):

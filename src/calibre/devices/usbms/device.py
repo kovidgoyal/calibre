@@ -106,7 +106,7 @@ class Device(_Device):
 
     @classmethod
     def _windows_space(cls, prefix):
-        if prefix is None:
+        if not prefix:
             return 0, 0
         win32file = __import__('win32file', globals(), locals(), [], -1)
         try:
