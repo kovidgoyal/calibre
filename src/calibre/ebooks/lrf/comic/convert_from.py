@@ -45,7 +45,7 @@ except:
 PROFILES = {
             # Name : (width, height) in pixels
             'prs500':(584, 754),
-            # The SONY's LRF renderer (on the PRS500) only uses the first 800x600 block of the image 
+            # The SONY's LRF renderer (on the PRS500) only uses the first 800x600 block of the image
             'prs500-landscape': (784, 1012)
             }
 
@@ -59,8 +59,8 @@ def extract_comic(path_to_comic_file):
 
 def find_pages(dir, sort_on_mtime=False, verbose=False):
     '''
-    Find valid comic pages in a previously un-archived comic. 
-    
+    Find valid comic pages in a previously un-archived comic.
+
     :param dir: Directory in which extracted comic lives
     :param sort_on_mtime: If True sort pages based on their last modified time.
                           Otherwise, sort alphabetically.
@@ -70,6 +70,7 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     for datum in os.walk(dir):
         for name in datum[-1]:
             path = os.path.join(datum[0], name)
+            if '__MACOSX' in path: continue
             for ext in extensions:
                 if path.lower().endswith('.'+ext):
                     pages.append(path)
@@ -87,10 +88,10 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
 
 class PageProcessor(list):
     '''
-    Contains the actual image rendering logic. See :method:`render` and 
+    Contains the actual image rendering logic. See :method:`render` and
     :method:`process_pages`.
     '''
-    
+
     def __init__(self, path_to_page, dest, opts, num):
         list.__init__(self)
         self.path_to_page = path_to_page
@@ -99,8 +100,8 @@ class PageProcessor(list):
         self.dest         = dest
         self.rotate       = False
         self.render()
-        
-        
+
+
     def render(self):
         img = NewMagickWand()
         if img < 0:
@@ -129,7 +130,7 @@ class PageProcessor(list):
                 MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
                 self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
         self.process_pages()
-        
+
     def process_pages(self):
         for i, wand in enumerate(self.pages):
             pw = NewPixelWand()
@@ -137,11 +138,11 @@ class PageProcessor(list):
                 if pw < 0:
                     raise RuntimeError('Cannot create wand.')
                 PixelSetColor(pw, 'white')
-                
+
                 MagickSetImageBorderColor(wand, pw)
                 if self.rotate:
                     MagickRotateImage(wand, pw, -90)
-                    
+
                 # 25 percent fuzzy trim?
                 if not self.opts.disable_trim:
                     MagickTrimImage(wand, 25*65535/100)
@@ -151,9 +152,9 @@ class PageProcessor(list):
                     MagickNormalizeImage(wand)
                 sizex = MagickGetImageWidth(wand)
                 sizey = MagickGetImageHeight(wand)
-                
+
                 SCRWIDTH, SCRHEIGHT = PROFILES[self.opts.profile]
-                
+
                 if self.opts.keep_aspect_ratio:
                     # Preserve the aspect ratio by adding border
                     aspect = float(sizex) / float(sizey)
@@ -193,15 +194,15 @@ class PageProcessor(list):
                     MagickBorderImage(wand, pw, deltax, deltay)
                 else:
                     MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, CatromFilter, 1.0)
-                    
+
                 if not self.opts.dont_sharpen:
                     MagickSharpenImage(wand, 0.0, 1.0)
-                    
+
                 MagickSetImageType(wand, GrayscaleType)
-                
+
                 if self.opts.despeckle:
                     MagickDespeckleImage(wand)
-                
+
                 MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
                 dest = '%d_%d.png'%(self.num, i)
                 dest = os.path.join(self.dest, dest)
@@ -212,7 +213,7 @@ class PageProcessor(list):
                 if pw > 0:
                     DestroyPixelWand(pw)
                 DestroyMagickWand(wand)
-            
+
 def render_pages(tasks, dest, opts, notification=None):
     '''
     Entry point for the job server.
@@ -222,24 +223,23 @@ def render_pages(tasks, dest, opts, notification=None):
         for num, path in tasks:
             try:
                 pages.extend(PageProcessor(path, dest, opts, num))
-                msg = _('Rendered %s') 
+                msg = _('Rendered %s')%path
             except:
                 failures.append(path)
-                msg = _('Failed %s')
+                msg = _('Failed %s')%path
                 if opts.verbose:
-                    msg += '\n' + traceback.format_exc() 
-            msg = msg%path
+                    msg += '\n' + traceback.format_exc()
             if notification is not None:
                 notification(0.5, msg)
-    
+
     return pages, failures
-        
-            
+
+
 class JobManager(object):
     '''
     Simple job manager responsible for keeping track of overall progress.
     '''
-    
+
     def __init__(self, total, update):
         self.total  = total
         self.update = update
@@ -248,19 +248,19 @@ class JobManager(object):
         self.output         = lambda j: j
         self.start_work     = lambda j: j
         self.job_done       = lambda j: j
-        
+
     def status_update(self, job):
         self.done += 1
         #msg = msg%os.path.basename(job.args[0])
         self.update(float(self.done)/self.total, job.msg)
-        
+
 def process_pages(pages, opts, update):
     '''
     Render all identified comic pages.
     '''
     if not _imagemagick_loaded:
         raise RuntimeError('Failed to load ImageMagick')
-    
+
     tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
     job_manager = JobManager(len(pages), update)
     server = Server()
@@ -274,7 +274,7 @@ def process_pages(pages, opts, update):
     server.killall()
     server.close()
     ans, failures = [], []
-        
+
     for job in jobs:
         if job.result is None:
             raise Exception(_('Failed to process comic: %s\n\n%s')%(job.exception, job.traceback))
@@ -282,7 +282,7 @@ def process_pages(pages, opts, update):
         ans += pages
         failures += failures_
     return ans, failures, tdir
-    
+
 def config(defaults=None,output_format='lrf'):
     desc = _('Options to control the conversion of comics (CBR, CBZ) files into ebooks')
     if defaults is None:
@@ -333,7 +333,7 @@ def option_parser(output_format='lrf'):
     return c.option_parser(usage=_('''\
 %prog [options] comic.cb[z|r]
 
-Convert a comic in a CBZ or CBR file to an ebook. 
+Convert a comic in a CBZ or CBR file to an ebook.
 '''))
 
 def create_epub(pages, profile, opts, thumbnail=None):
@@ -349,7 +349,7 @@ def create_epub(pages, profile, opts, thumbnail=None):
                 <img src="%s" alt="comic page #%d" />
             </div>
         </body>
-    </html>        
+    </html>
     ''')
     dir = os.path.dirname(pages[0])
     for i, page in enumerate(pages):
@@ -357,7 +357,7 @@ def create_epub(pages, profile, opts, thumbnail=None):
         page = os.path.join(dir, 'page_%d.html'%(i+1))
         open(page, 'wb').write(wrapper)
         wrappers.append(page)
-        
+
     mi  = MetaInformation(opts.title, [opts.author])
     opf = OPFCreator(dir, mi)
     opf.create_manifest([(w, None) for w in wrappers])
@@ -379,23 +379,23 @@ def create_lrf(pages, profile, opts, thumbnail=None):
     book = Book(title=opts.title, author=opts.author,
             bookid=uuid4().hex,
             publisher='%s %s'%(__appname__, __version__), thumbnail=thumbnail,
-            category='Comic', pagestyledefault=ps, 
+            category='Comic', pagestyledefault=ps,
             booksetting=BookSetting(screenwidth=width, screenheight=height))
     for page in pages:
         imageStream = ImageStream(page)
         _page = book.create_page()
-        _page.append(ImageBlock(refstream=imageStream, 
-                    blockwidth=width, blockheight=height, xsize=width, 
+        _page.append(ImageBlock(refstream=imageStream,
+                    blockwidth=width, blockheight=height, xsize=width,
                     ysize=height, x1=width, y1=height))
         book.append(_page)
-        
+
     book.renderLrf(open(opts.output, 'wb'))
     print _('Output written to'), opts.output
-    
+
 
 def create_pdf(pages, profile, opts, thumbnail=None,toc=None):
     width, height = PROFILES[profile]
-    
+
     from reportlab.pdfgen import canvas
 
     cur_page=0
@@ -420,7 +420,7 @@ def create_pdf(pages, profile, opts, thumbnail=None,toc=None):
                 base_cur += 1
             toc.append(("Not seen",-1))
 
-    
+
     pdf = canvas.Canvas(filename=opts.output, pagesize=(width,height+15))
     pdf.setAuthor(opts.author)
     pdf.setTitle(opts.title)
@@ -439,18 +439,18 @@ def create_pdf(pages, profile, opts, thumbnail=None,toc=None):
                 # Preserve the aspect ratio by adding border
                 aspect = float(sizex) / float(sizey)
                 if aspect <= (float(width) / float(height)):
-                    newsizey = height 
+                    newsizey = height
                     newsizex = int(newsizey * aspect)
                     deltax = (width - newsizex) / 2
                     deltay = 0
                 else:
-                    newsizex = width 
+                    newsizex = width
                     newsizey = int(newsizex / aspect)
                     deltax = 0
                     deltay = (height - newsizey) / 2
             pdf.drawImage(page, x=deltax,y=deltay,width=newsizex, height=newsizey)
         else:
-            pdf.drawImage(page, x=0,y=0,width=width, height=height) 
+            pdf.drawImage(page, x=0,y=0,width=width, height=height)
         if toc != None:
             if toc[toc_index][1] == cur_page:
                 tmp=toc[toc_index][0]
@@ -475,18 +475,18 @@ def create_pdf(pages, profile, opts, thumbnail=None,toc=None):
             cur_page += 1
         pdf.showPage()
     # Write the document to disk
-    pdf.save() 
+    pdf.save()
 
-    
+
 def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
     path_to_file = run_plugins_on_preprocess(path_to_file)
     source = path_to_file
     to_delete = []
     toc = []
-    list = [] 
+    list = []
     pages = []
 
-    
+
     if not opts.title:
         opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
@@ -548,12 +548,12 @@ def main(args=sys.argv, notification=None, output_format='lrf'):
         parser.print_help()
         print '\nYou must specify a file to convert'
         return 1
-    
+
     if not callable(notification):
-        pb = ProgressBar(terminal_controller, _('Rendering comic pages...'), 
+        pb = ProgressBar(terminal_controller, _('Rendering comic pages...'),
                          no_progress_bar=opts.no_progress_bar or getattr(opts, 'no_process', False))
         notification = pb.update
-    
+
     source = os.path.abspath(args[1])
     do_convert(source, opts, notification, output_format=output_format)
     return 0
