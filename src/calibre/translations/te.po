@@ -7,15 +7,203 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-04-19 23:54+0000\n"
+"POT-Creation-Date: 2009-04-28 22:27+0000\n"
 "PO-Revision-Date: 2008-06-24 13:22+0000\n"
 "Last-Translator: వీవెన్ (Veeven) <Unknown>\n"
 "Language-Team: Telugu <te@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-04-24 05:28+0000\n"
+"X-Launchpad-Export-Date: 2009-05-01 18:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:113
+msgid "Publisher"
+msgstr "ప్రచురణకర్త"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:300
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:108
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:361
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:971
+msgid "Title"
+msgstr "శీర్షిక"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:972
+msgid "Author(s)"
+msgstr "రచయిత(లు)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:304
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:71
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:489
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:322
+#: /home/kovid/work/calibre/src/calibre/gui2/status.py:58
+msgid "Comments"
+msgstr "వ్యాఖ్యలు"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
+msgid "Usage:"
+msgstr "వాడుక:"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:62
+msgid " not found."
+msgstr " దొరకలేదు."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:127
+msgid "Advanced"
+msgstr "ఉన్నత"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:538
+#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
+msgid "Configuration"
+msgstr "స్వరూపణం"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:558
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:573
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:574
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:625
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:471
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:334
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:348
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:357
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:359
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:361
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:365
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:367
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:267
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:269
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:346
+#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:348
+msgid "..."
+msgstr "..."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:548
+msgid " seconds"
+msgstr " క్షణాలు"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:566
+msgid "Toolbar"
+msgstr "పనిముట్ల పట్టీ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:569
+msgid "Small"
+msgstr "చిన్న"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:592
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:608
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:179
+msgid "&Password:"
+msgstr "&సంకేతపదం:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:41
+msgid "ERROR"
+msgstr "పొరపాటు"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:72
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:98
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:298
+msgid "Look & Feel"
+msgstr "రూపు రేఖలు"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:74
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:299
+msgid "Page Setup"
+msgstr "పేజీ అమరిక"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:351
+msgid "Book "
+msgstr "పుస్తకం "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:27
+msgid "Unavailable"
+msgstr "అందుబాటులో లేదు"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:309
+msgid "<font color=\"gray\">No help available</font>"
+msgstr "<font color=\"gray\">సహాయమేమీ అందుబాటులో లేదు</font>"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:495
+msgid "Category"
+msgstr "వర్గం"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
+msgid " days"
+msgstr " రోజులు"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:108
+msgid "Title:"
+msgstr "శీర్షిక:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:111
+msgid "Authors:"
+msgstr "రచయితలు:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:47
+msgid "Status"
+msgstr "స్థితి"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:48
+msgid "Progress"
+msgstr "ప్రగతి"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:72
+msgid "Error"
+msgstr "పొరపాటు"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:973
+msgid "Size (MB)"
+msgstr "పరిమాణం (మెబై)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:974
+msgid "Date"
+msgstr "తేదీ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
+msgid "Next Page"
+msgstr "తర్వాతి పేజీ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:154
+msgid "Back"
+msgstr "వెనుకకు"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:155
+msgid "Forward"
+msgstr "ముందుకి"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -27,9 +215,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:196
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:71
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:528
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1052
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1068
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1054
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1070
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1072
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
@@ -40,7 +228,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:102
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:82
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:83
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:179
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:199
@@ -52,7 +240,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:55
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:95
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:97
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:148
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:152
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:334
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:860
@@ -61,8 +249,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:37
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:138
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:622
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:633
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -497,7 +685,7 @@ msgid "Output written to "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:541
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1155
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1157
 msgid "You must specify an input HTML file"
 msgstr ""
 
@@ -520,90 +708,90 @@ msgstr ""
 msgid "Written processed HTML to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:936
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:938
 msgid "Options to control the traversal of HTML"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:943
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:945
 msgid "The output directory. Default is the current directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:945
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:947
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:568
 msgid "Character encoding for HTML files. Default is to auto detect."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:947
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:949
 msgid ""
 "Create the output in a zip file. If this option is specified, the --output "
 "should be the name of a file not a directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:949
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:951
 msgid "Control the following of links in HTML files."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:951
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:953
 msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:953
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:955
 msgid ""
 "Maximum levels of recursion when following links in HTML files. Must be non-"
 "negative. 0 implies that no links in the root HTML file are followed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:955
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:957
 msgid "Set metadata of the generated ebook"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:957
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:959
 msgid "Set the title. Default is to autodetect."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:959
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:961
 msgid "The author(s) of the ebook, as a & separated list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:961
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:963
 msgid "The subject(s) of this book, as a comma separated list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:963
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:965
 msgid "Set the publisher of this book."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:965
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:967
 msgid "A summary of this book."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:967
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:969
 msgid "Load metadata from the specified OPF file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:969
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:971
 msgid "Options useful for debugging"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:971
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:973
 msgid ""
 "Be more verbose while processing. Can be specified multiple times to "
 "increase verbosity."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:973
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:975
 msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:979
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:981
 msgid ""
 "%prog [options] file.html|opf\n"
 "\n"
 "Follow all links in an HTML file and collect them into the specified "
 "directory.\n"
-"Also collects any resources like images, stylesheets, scripts, etc. \n"
+"Also collects any resources like images, stylesheets, scripts, etc.\n"
 "If an OPF file is specified instead, the list of files in its <spine> "
 "element\n"
 "is used.\n"
@@ -618,7 +806,7 @@ msgid "%prog [options] LITFILE"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:657
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:668
 msgid "Output directory. Defaults to current directory."
 msgstr ""
 
@@ -633,7 +821,7 @@ msgid "Useful for debugging."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:681
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:692
 msgid "OEB ebook created in"
 msgstr ""
 
@@ -672,13 +860,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
 msgid "Sort key for the author"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:302
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:113
-msgid "Publisher"
-msgstr "ప్రచురణకర్త"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
 msgid "Path to file containing image to be used as cover"
@@ -1307,7 +1488,7 @@ msgid "Extract thumbnail from LRF file"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:606
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:191
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:195
 msgid "Set the publisher"
 msgstr ""
 
@@ -1341,16 +1522,16 @@ msgid ""
 "%prog converts mybook.mobi to mybook.lrf"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:48
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:49
 msgid "Could not find pdftohtml, check it is in your PATH"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:74
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:75
 msgid ""
 " is an image based PDF. Only conversion of text based PDFs is supported."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:93
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:94
 msgid ""
 "%prog [options] mybook.pdf\n"
 "\n"
@@ -1402,38 +1583,9 @@ msgstr ""
 msgid "Set the comment"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:300
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:69
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:70
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:55
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:108
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:361
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:971
-msgid "Title"
-msgstr "శీర్షిక"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:301
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:56
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:366
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:972
-msgid "Author(s)"
-msgstr "రచయిత(లు)"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:303
 msgid "Producer"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:304
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:71
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:64
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:489
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:353
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:322
-#: /home/kovid/work/calibre/src/calibre/gui2/status.py:58
-msgid "Comments"
-msgstr "వ్యాఖ్యలు"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:114
@@ -1462,29 +1614,25 @@ msgstr ""
 msgid "Timestamp"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:202
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:204
 msgid "A comma separated list of tags to set"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:204
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:206
 msgid "The series to which this book belongs"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:206
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:208
 msgid "The series index"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:208
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:210
 msgid "The book language"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:210
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:212
 msgid "Extract the cover"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
-msgid "Usage:"
-msgstr "వాడుక:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/imp.py:53
 msgid "Usage: imp-meta file.imp"
@@ -1536,10 +1684,6 @@ msgid ""
 "later."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:62
-msgid " not found."
-msgstr " దొరకలేదు."
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:65
 msgid "LibraryThing.com server error. Try again later."
 msgstr ""
@@ -1557,19 +1701,19 @@ msgid "Usage: %s file.lit"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:53
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:236
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:240
 msgid "Cover saved to"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:187
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:191
 msgid "Set the subject tags"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:189
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:193
 msgid "Set the language"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:193
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:197
 msgid "Set the ISBN"
 msgstr ""
 
@@ -1589,11 +1733,11 @@ msgstr ""
 msgid "Creating Mobipocket file from EPUB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:655
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:666
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:679
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:690
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
@@ -2203,10 +2347,6 @@ msgid "Interface"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:127
-msgid "Advanced"
-msgstr "ఉన్నత"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:127
 msgid ""
 "Content\n"
 "Server"
@@ -2361,11 +2501,6 @@ msgstr ""
 msgid "Compacting database. This may take a while."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:538
-#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
-msgid "Configuration"
-msgstr "స్వరూపణం"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:539
 msgid ""
 "&Location of ebooks (The ebooks are stored in folders sorted by author and "
@@ -2375,36 +2510,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:540
 msgid "Browse for the new database location"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:541
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:556
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:558
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:573
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:574
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:625
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:471
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:499
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:329
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:334
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:348
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:357
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:359
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:361
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:365
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:367
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:126
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:135
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:267
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:269
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:270
-#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:336
-#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:340
-#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:346
-#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:348
-msgid "..."
-msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:542
 msgid "Show notification when &new version is available"
@@ -2433,10 +2538,6 @@ msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:548
-msgid " seconds"
-msgstr " క్షణాలు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:549
 msgid "Choose &language (requires restart):"
@@ -2494,10 +2595,6 @@ msgstr ""
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:566
-msgid "Toolbar"
-msgstr "పనిముట్ల పట్టీ"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:567
 msgid "Large"
 msgstr ""
@@ -2505,10 +2602,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:568
 msgid "Medium"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:569
-msgid "Small"
-msgstr "చిన్న"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:570
 msgid "&Button size in toolbar"
@@ -2590,20 +2683,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:590
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:607
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:178
 msgid "&Username:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:591
 msgid "Your username on the mail server"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:592
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:608
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:174
-msgid "&Password:"
-msgstr "&సంకేతపదం:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:593
 msgid "Your password on the mail server"
@@ -2674,7 +2760,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:610
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:180
 msgid "&Show password"
 msgstr ""
 
@@ -2755,10 +2841,6 @@ msgstr ""
 msgid "&Show this warning again"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:41
-msgid "ERROR"
-msgstr "పొరపాటు"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:52
 msgid "Bulk convert to "
 msgstr ""
@@ -2775,20 +2857,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:161
 msgid "Metadata"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:72
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:98
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:298
-msgid "Look & Feel"
-msgstr "రూపు రేఖలు"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:74
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:99
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:299
-msgid "Page Setup"
-msgstr "పేజీ అమరిక"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:100
@@ -2825,26 +2893,26 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:174
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:104
 msgid "Cannot read"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:175
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:105
 msgid "You do not have permission to read the file: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:183
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:113
 msgid "Error reading file"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:114
 msgid "<p>There was an error reading from file: <br /><b>"
 msgstr ""
 
@@ -3004,12 +3072,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:350
 msgid "Series index."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:488
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:516
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:351
-msgid "Book "
-msgstr "పుస్తకం "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:490
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:524
@@ -3245,10 +3307,6 @@ msgstr ""
 msgid "Details of job"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:27
-msgid "Unavailable"
-msgstr "అందుబాటులో లేదు"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:38
 msgid " - Jobs"
 msgstr ""
@@ -3317,10 +3375,6 @@ msgid ""
 "device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:309
-msgid "<font color=\"gray\">No help available</font>"
-msgstr "<font color=\"gray\">సహాయమేమీ అందుబాటులో లేదు</font>"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:412
 msgid "Bulk convert ebooks to LRF"
 msgstr ""
@@ -3328,10 +3382,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:494
 msgid "Convert to LRF"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:495
-msgid "Category"
-msgstr "వర్గం"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:519
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
@@ -3540,76 +3590,68 @@ msgstr ""
 msgid "A&utomatically set author sort"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:163
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:164
 msgid "No format selected"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:173
 msgid "Could not read metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:174
 msgid "Could not read metadata from %s format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:183
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:188
 msgid "Could not read cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:183
 msgid "Could not read cover from %s format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:189
 msgid "The cover in the %s format is invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:365
-msgid ""
-"<p>Enter your username and password for <b>LibraryThing.com</b>. This is "
-"<b>optional</b>. It will make fetching of covers faster and more "
-"reliable.<br/>If you do not have an account, you can <a "
-"href='http://www.librarything.com'>register</a> for free.</p>"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:392
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:373
 msgid "Downloading cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:404
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:409
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:396
 msgid "Cannot fetch cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:386
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:397
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:406
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:387
 msgid "The download timed out."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:403
 msgid "Bad cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:404
 msgid "The cover is not a valid picture"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:458
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:439
 msgid "Cannot fetch metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:459
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:440
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
 
@@ -3675,91 +3717,92 @@ msgid "You"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:124
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:143
 msgid "Custom"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:126
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:137
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:227
 msgid "Scheduled"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:239
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:216
 msgid "Search"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:317
 msgid "%d recipes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
 msgid "Monday"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
 msgid "Tuesday"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
 msgid "Wednesday"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
 msgid "day"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
 msgid "Friday"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
 msgid "Saturday"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
 msgid "Sunday"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
 msgid "Thursday"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:346
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:356
 msgid "Must set account information"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:347
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:357
 msgid "This recipe requires a username and password"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:388
 msgid "Created by: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:426
 msgid "%d days, %d hours and %d minutes ago"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:428
 msgid "Last downloaded"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:430
 msgid "Last downloaded: never"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:446
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:165
 msgid "Schedule news download"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:449
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:459
 msgid "Add a custom news source"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:838
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:842
@@ -3767,63 +3810,65 @@ msgstr ""
 msgid "News"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:163
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
 msgid "Recipes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:164
-msgid "Schedule for download"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:165
-msgid "blurb"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:166
-msgid "&Schedule for download:"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
-msgid "Every "
+msgid "Download all scheduled recipes at once"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
-msgid "at"
+msgid "Download &all scheduled"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
+msgid "Schedule for download"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:170
+msgid "blurb"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:171
+msgid "&Schedule for download:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:172
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:174
+msgid "Every "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:173
+msgid "at"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:175
 msgid ""
 "Interval at which to download this recipe. A value of zero means that the "
 "recipe will be downloaded every hour."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:179
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
-msgid " days"
-msgstr " రోజులు"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:172
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:177
 msgid "&Account"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:181
 msgid "For the scheduling to work, you must leave calibre running."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:182
 msgid "&Download now"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:183
 msgid ""
 "Delete downloaded news older than the specified number of days. Set to zero "
 "to disable."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:185
 msgid "Delete downloaded news older than "
 msgstr ""
 
@@ -4153,10 +4198,6 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:108
-msgid "Title:"
-msgstr "శీర్షిక:"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:109
 msgid "Regular expression (?P&lt;title&gt;)"
 msgstr ""
@@ -4173,10 +4214,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:106
 msgid "No match"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:111
-msgid "Authors:"
-msgstr "రచయితలు:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:112
 msgid "Regular expression (?P<authors>)"
@@ -4210,14 +4247,6 @@ msgstr ""
 msgid "Job"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:47
-msgid "Status"
-msgstr "స్థితి"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:48
-msgid "Progress"
-msgstr "ప్రగతి"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:49
 msgid "Running time"
 msgstr ""
@@ -4229,10 +4258,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:70
 msgid "Finished"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:72
-msgid "Error"
-msgstr "పొరపాటు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:74
 msgid "Waiting"
@@ -4254,16 +4279,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:177
 msgid "Job has already run"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:110
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:973
-msgid "Size (MB)"
-msgstr "పరిమాణం (మెబై)"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:111
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:974
-msgid "Date"
-msgstr "తేదీ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:112
 msgid "Rating"
@@ -4342,23 +4357,9 @@ msgstr ""
 msgid "LRF Viewer toolbar"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-msgid "Next Page"
-msgstr "తర్వాతి పేజీ"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
 msgid "Previous Page"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:154
-msgid "Back"
-msgstr "వెనుకకు"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:155
-msgid "Forward"
-msgstr "ముందుకి"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
@@ -4761,6 +4762,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1544
 msgid "Log debugging information to console"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1574
+msgid "Cannot Start "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1575
+msgid "<p>%s is already running. %s</p>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:335
@@ -5613,7 +5622,7 @@ msgstr ""
 msgid "Failed to authenticate with server: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:227
+#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
 msgid "Control email delivery"
 msgstr ""
 
@@ -6046,7 +6055,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telepolis.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
 msgid "German"
@@ -6072,6 +6080,10 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
+msgid "Chinese"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:457
@@ -6373,15 +6385,3 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:184
 msgid "subscribers"
 msgstr ""
-
-#~ msgid "Basic"
-#~ msgstr "ప్రాధమిక"
-
-#~ msgid "Options"
-#~ msgstr "ఎంపికలు"
-
-#~ msgid "Change password"
-#~ msgstr "సంకేతపదం మార్చు"
-
-#~ msgid "Author"
-#~ msgstr "రచయిత"

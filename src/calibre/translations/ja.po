@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-04-19 23:54+0000\n"
+"POT-Creation-Date: 2009-04-28 22:27+0000\n"
 "PO-Revision-Date: 2009-04-18 14:22+0000\n"
 "Last-Translator: MASA.H <masahase@users.sourceforge.jp>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-04-24 05:28+0000\n"
+"X-Launchpad-Export-Date: 2009-05-01 18:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -27,9 +27,9 @@ msgstr "まったく何もしません。（何も影響しません。）"
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:196
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:71
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:528
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1052
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1068
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1054
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1070
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1072
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
@@ -40,7 +40,7 @@ msgstr "まったく何もしません。（何も影響しません。）"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:102
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:82
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:83
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:179
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:199
@@ -52,7 +52,7 @@ msgstr "まったく何もしません。（何も影響しません。）"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:55
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:95
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:97
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:148
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:152
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:334
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:449
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:860
@@ -61,8 +61,8 @@ msgstr "まったく何もしません。（何も影響しません。）"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:37
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:138
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:622
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:633
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -193,14 +193,6 @@ msgstr "有効なプラグインが見つからない "
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr "プラグイン%sの初期化に失敗してトレースバック"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
-msgid ""
-"    %prog options\n"
-"\n"
-"    Customize calibre by loading external plugins.\n"
-"    "
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:275
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr "それが含まれているzipファイルへのパスを指定して、プラグインを追加します。"
@@ -262,6 +254,877 @@ msgid ""
 "name."
 msgstr "出力したEPUBファイル。出力ファイル名を特に指定していない場合は、入力ファイルの名前から名付けられます。"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:117
+msgid "Control auto-detection of document structure."
+msgstr "ドキュメント構造の自動判別を制御"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:139
+msgid "Path to the cover to be used for this book"
+msgstr "この本のカバーへのパス"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:202
+msgid "Control page layout"
+msgstr "ページレイアウトの制御"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:204
+msgid "Set the top margin in pts. Default is %default"
+msgstr "上余白量(デフォルトは%default)(単位:ポイント)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:206
+msgid "Set the bottom margin in pts. Default is %default"
+msgstr "下余白量(デフォルトは%default)(単位:ポイント)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:208
+msgid "Set the left margin in pts. Default is %default"
+msgstr "左余白量(デフォルトは%default)(単位:ポイント)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:210
+msgid "Set the right margin in pts. Default is %default"
+msgstr "右余白量(デフォルトは%default)(単位:ポイント)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:212
+msgid ""
+"The base font size in pts. Default is %defaultpt. Set to 0 to disable "
+"rescaling of fonts."
+msgstr "基本フォントサイズ。デフォルトは%defaultpt pt。0にするとフォントサイズの変更を無効にする。"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:223
+msgid ""
+"Remove table markup, converting it into paragraphs. This is useful if your "
+"source file uses a table to manage layout."
+msgstr "テーブル記法を削除しパラグラフに変換する。これはテーブルレイアウトされたファイルに対して有用です。"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:237
+msgid "Keep intermediate files during processing by html2epub"
+msgstr "html2epubの中間ファイルを保持する。"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:105
+msgid "Could not find an ebook inside the archive"
+msgstr "この書庫からはebookを見つけられませんでした。"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/iterator.py:36
+msgid "%s format books are not supported"
+msgstr "%s　フォーマットは対応してません"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:945
+msgid "The output directory. Default is the current directory."
+msgstr "出力先ディレクトリ（デフォルトはカレント)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:947
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:568
+msgid "Character encoding for HTML files. Default is to auto detect."
+msgstr "HTMLファイルでの文字コード（デフォルトは自動判別）"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:957
+msgid "Set metadata of the generated ebook"
+msgstr "生成されたebookのメタデータを設定する"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:959
+msgid "Set the title. Default is to autodetect."
+msgstr "タイトル（デフォルトは自動判別）"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:961
+msgid "The author(s) of the ebook, as a & separated list."
+msgstr "作者（& で区切られたリスト)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:963
+msgid "The subject(s) of this book, as a comma separated list."
+msgstr "主題（カンマ\",\"で区切られたリスト)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:965
+msgid "Set the publisher of this book."
+msgstr "発行者"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:967
+msgid "A summary of this book."
+msgstr "概要"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:969
+msgid "Load metadata from the specified OPF file"
+msgstr "指定したOPFファイルからメタデータを読み込む"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:971
+msgid "Options useful for debugging"
+msgstr "デバッグに役立つオプション"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:975
+msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
+msgstr "出力HTMLを人に読みやすいよう整形する"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
+msgid "Creating LIT file from EPUB..."
+msgstr "EPUBからLITファイルを生成する"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:668
+msgid "Output directory. Defaults to current directory."
+msgstr "出力先（デフォルトはカレント）"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:901
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:731
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:580
+msgid "Useful for debugging."
+msgstr "デバッグに有用"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:728
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/from_feeds.py:26
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:577
+msgid "Output file. Default is derived from input filename."
+msgstr "出力ファイル名（デフォルトは入力ファイル名）"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:76
+msgid "Set the title. Default: filename."
+msgstr "タイトル（デフォルトはファイル名)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:78
+msgid ""
+"Set the author(s). Multiple authors should be set as a comma separated list. "
+"Default: %default"
+msgstr "著者名、複数の場合はカンマで区切る（デフォルトは%default）"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
+msgid "Set the comment."
+msgstr "コメント"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
+msgid "Set the category"
+msgstr "カテゴリー"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:113
+msgid "Publisher"
+msgstr "発行元"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
+msgid "Path to file containing image to be used as cover"
+msgstr "カバーとして使用する画像へのパス"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:93
+msgid ""
+"If there is a cover graphic detected in the source file, use that instead of "
+"the specified cover."
+msgstr "ソースファイル中にカバー画像が存在したら指定したカバーの代わりに使う"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:468
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:362
+msgid "Book Cover"
+msgstr "本のカバー"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:501
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:326
+msgid "&Title: "
+msgstr "タイトル(&T): "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:330
+msgid "&Author(s): "
+msgstr "作者(&A): "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:479
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:507
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:339
+msgid "&Publisher: "
+msgstr "発行者(&P): "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:510
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:512
+msgid " pt"
+msgstr " ポイント"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:163
+msgid "Warning"
+msgstr "警告"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:81
+msgid "Fetch"
+msgstr "取得"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:82
+msgid "Matches"
+msgstr "該当箇所"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:27
+msgid "Unavailable"
+msgstr "利用不能"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:495
+msgid "Category"
+msgstr "カテゴリ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:528
+msgid " pts"
+msgstr " ポイント"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:534
+msgid "Header"
+msgstr "ヘッダー"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:537
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:544
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:546
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:548
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:107
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:109
+msgid " px"
+msgstr " ピクセル"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:325
+msgid "Meta information"
+msgstr "メタ情報"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:324
+msgid "Edit Meta Information"
+msgstr "メタ情報の編集"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:328
+msgid "Swap the author and title"
+msgstr "作者とタイトルの入れ替え"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:43
+msgid "Aborting..."
+msgstr "停止中..."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
+msgid "You"
+msgstr "あなた"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:143
+msgid "Custom"
+msgstr "カスタム"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:227
+msgid "Scheduled"
+msgstr "スケジュール"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:239
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:216
+msgid "Search"
+msgstr "検索"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
+msgid "Monday"
+msgstr "月曜"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
+msgid "Tuesday"
+msgstr "火曜"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
+msgid "Wednesday"
+msgstr "水曜"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
+msgid "Friday"
+msgstr "金曜"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
+msgid "Saturday"
+msgstr "土曜"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
+msgid "Sunday"
+msgstr "日曜"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:319
+msgid "Thursday"
+msgstr "木曜"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
+#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:838
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:842
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1157
+msgid "News"
+msgstr "ニュース"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:177
+msgid "&Account"
+msgstr "アカウント(&A)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:35
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:96
+msgid "Form"
+msgstr "フォーム"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:88
+msgid "Advanced Search"
+msgstr "高度な検索"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
+msgid "Tag Editor"
+msgstr "タグエディタ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:52
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:105
+msgid "&Test"
+msgstr "テスト(&T)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:228
+msgid "Invalid input"
+msgstr "不正な入力"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
+msgid "Feed &URL:"
+msgstr "フィードのURL(&U):"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:104
+msgid "Regular &expression"
+msgstr "正規表現(&E)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:106
+msgid "File &name:"
+msgstr "ファイル名(&N):"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:107
+msgid "Test"
+msgstr "テスト"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:108
+msgid "Title:"
+msgstr "タイトル："
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:90
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:94
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:106
+msgid "No match"
+msgstr "該当するものはありません"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:111
+msgid "Authors:"
+msgstr "作者:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:46
+msgid "Job"
+msgstr "ジョブ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:47
+msgid "Status"
+msgstr "ステータス"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:48
+msgid "Progress"
+msgstr "進捗率"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:65
+msgid "Unknown job"
+msgstr "不明なジョブ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:70
+msgid "Finished"
+msgstr "完了"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:72
+msgid "Error"
+msgstr "エラー"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:74
+msgid "Waiting"
+msgstr "待機中"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:76
+msgid "Working"
+msgstr "処理中"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:157
+msgid "Previous page"
+msgstr "前のページ"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:158
+msgid "Font size larger"
+msgstr "フォントサイズを大きくする"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:159
+msgid "Font size smaller"
+msgstr "フォントサイズを小さくする"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:163
+msgid "Find next"
+msgstr "次を検索"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:164
+msgid "Copy to clipboard"
+msgstr "クリップボードにコピー"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:167
+msgid "Bookmark"
+msgstr "ブックマーク"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:83
+msgid "Invalid regular expression"
+msgstr "無効な正規表現です"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:84
+msgid "Invalid regular expression: %s"
+msgstr "次の正規表現は無効です。:%s"
+
+#: /home/kovid/work/calibre/src/calibre/library/__init__.py:20
+msgid "The port on which to listen. Default is %default"
+msgstr "受信ポート(デフォルトは%default）"
+
+#: /home/kovid/work/calibre/src/calibre/library/__init__.py:24
+msgid "The max number of worker threads to use. Default is %default"
+msgstr "ワーカースレッドの最大数（デフォルトは%default）"
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:200
+msgid "Sort results in ascending order"
+msgstr "昇順に並び替え"
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:205
+msgid "The string used to separate fields. Default is a space."
+msgstr "区切り文字(デフォルトは半角スペース）"
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:217
+msgid "Invalid fields. Available fields:"
+msgstr "無効なフィールド。有効なフィールド:"
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:224
+msgid "Invalid sort field. Available fields:"
+msgstr "無効な並び替えフィールド。有効なフィールド:"
+
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:332
+msgid "Process directories recursively"
+msgstr "ディレクトリを再帰的に処理する"
+
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1400
+msgid "Compacting database"
+msgstr "データベースのコンパクト化"
+
+#: /home/kovid/work/calibre/src/calibre/parallel.py:814
+msgid "Job stopped by user"
+msgstr "ユーザーによってジョブが停止された"
+
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:546
+msgid "The language in which to display the user interface"
+msgstr "UIの言語"
+
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:548
+msgid "The default output format for ebook conversions."
+msgstr "ebook変換でのデフォルトフォーマット"
+
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:552
+msgid "The priority of worker processes"
+msgstr "ワーカープロセスの優先度"
+
+#: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
+msgid "Failed to negotiate SSH session: "
+msgstr "SSHセッションのネゴシエイトに失敗 "
+
+#: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
+msgid "Failed to authenticate with server: %s"
+msgstr "サーバー(%s)の認証に失敗"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:105
+msgid "Dont show the progress bar"
+msgstr "プログレスバーを非表示"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:120
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:689
+msgid "Fetching feeds..."
+msgstr "フィードの取得中"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:40
+msgid "Unknown News Source"
+msgstr "未知のニュースソース"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:568
+msgid "Download finished"
+msgstr "ダウンロード完了"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevnik_cro.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jutarnji.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nacional_cro.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vecernji_list.py:26
+msgid "Croatian"
+msgstr "クロアチア語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata_rs.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_b92.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_blic.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_danas.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_e_novine.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:27
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nin.py:30
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_novosti.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pescanik.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politika.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pressonline.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tanjug.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vijesti.py:27
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vreme.py:27
+msgid "Serbian"
+msgstr "セルビア語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chr_mon.py:11
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_mail.py:6
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_telegraph.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_discover_magazine.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dna.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ecogeek.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_economist.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_endgadget.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_espn.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_exiled.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_financial_times.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_forbes.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_freakonomics.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_fudzilla.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glasgow_herald.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_globe_and_mail.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_guardian.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:27
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honoluluadvertiser.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_iht.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_indy_star.py:6
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_irish_times.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_japan_times.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_joelonsoftware.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jpost.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde_english.py:44
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_scientist.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books_no_sub.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_yorker.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_news_times.py:7
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_newsweek.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm_int.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes_sub.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_outlook_india.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_today.py:11
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_world.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politico.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_portfolio.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_reuters.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_san_fran_chronicle.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_aas.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_teleread.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_age.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_nation.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_oz.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_register.py:6
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_scotsman.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_utne.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:17
+msgid "English"
+msgstr "英語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ambito.py:61
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_clarin.py:64
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_criticadigital.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_mercurio_chile.py:61
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_pais.py:14
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_universal.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elargentino.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elcronista.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elmundo.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_granma.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_infobae.py:21
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_cuarta.py:53
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_segunda.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_tercera.py:64
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion_chile.py:54
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:25
+msgid "Spanish"
+msgstr "スペイン語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
+msgid "Italian"
+msgstr "イタリア語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_courrierinternational.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cyberpresse.py:9
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_liberation.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mediapart.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mondedurable.py:13
+msgid "French"
+msgstr "フランス語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_de_standaard.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_demorgen_be.py:16
+msgid "Dutch"
+msgstr "オランダ語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_der_standard.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diepresse.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_faznet.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ftd.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_heise.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hna.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
+msgid "German"
+msgstr "ドイツ語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevni_avaz.py:27
+msgid "Bosnian"
+msgstr "ボスニア語"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+msgid "Portugese"
+msgstr "ポルトガル語"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:12
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:38
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:45
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:103
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:141
+msgid "title"
+msgstr "タイトル"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:16
+msgid "category"
+msgstr "カテゴリ"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:17
+msgid "categories"
+msgstr "カテゴリ"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:35
+msgid "Draft"
+msgstr "ドラフト"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:36
+msgid "Public"
+msgstr "公開"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:43
+msgid "status"
+msgstr "ステータス"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:46
+msgid "created"
+msgstr "作成された"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:47
+msgid "modified"
+msgstr "修正された"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:17
+msgid "Date published."
+msgstr "発行日"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:22
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:38
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:98
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:126
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:173
+msgid "name"
+msgstr "名前"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:23
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:26
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:105
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:142
+msgid "link"
+msgstr "リンク"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:27
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:61
+msgid "links"
+msgstr "リンク"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:39
+msgid "url"
+msgstr "URL"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:42
+msgid "Example"
+msgstr "例"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:46
+msgid "description"
+msgstr "詳細"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:47
+msgid "welcome"
+msgstr "ようこそ"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:57
+msgid "use internal cache"
+msgstr "内蔵キャッシュを使う"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:58
+msgid "cache duration"
+msgstr "キャッシュの期限"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:63
+msgid "template"
+msgstr "テンプレート"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:69
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:170
+msgid "site"
+msgstr "サイト"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:70
+msgid "sites"
+msgstr "サイト"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:96
+msgid "feed url"
+msgstr "配信URL"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:99
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:175
+msgid "shortname"
+msgstr "短い名前"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:109
+msgid "last modified"
+msgstr "最終変更日時:"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:113
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:140
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:171
+msgid "feed"
+msgstr "配信"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:114
+msgid "feeds"
+msgstr "配信"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:129
+msgid "tag"
+msgstr "タグ"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:130
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:149
+msgid "tags"
+msgstr "タグ"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:143
+msgid "content"
+msgstr "内容"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:144
+msgid "date modified"
+msgstr "更新日時"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:146
+msgid "author"
+msgstr "作者"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:147
+msgid "author email"
+msgstr "作者のE-Mail"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:148
+msgid "comments"
+msgstr "コメント"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:150
+msgid "date created"
+msgstr "作成日"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:183
+msgid "subscriber"
+msgstr "購読者"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:184
+msgid "subscribers"
+msgstr "購読者"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
+msgid ""
+"    %prog options\n"
+"\n"
+"    Customize calibre by loading external plugins.\n"
+"    "
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
 msgid ""
 "Profile of the target device this EPUB is meant for. Set to None to create a "
@@ -274,10 +1137,6 @@ msgid ""
 "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
 "existing CSS declarations in the source files."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:117
-msgid "Control auto-detection of document structure."
-msgstr "ドキュメント構造の自動判別を制御"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:122
 msgid ""
@@ -300,10 +1159,6 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:139
-msgid "Path to the cover to be used for this book"
-msgstr "この本のカバーへのパス"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:142
 msgid ""
@@ -401,32 +1256,6 @@ msgid ""
 "one is always used."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:202
-msgid "Control page layout"
-msgstr "ページレイアウトの制御"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:204
-msgid "Set the top margin in pts. Default is %default"
-msgstr "上余白量(デフォルトは%default)(単位:ポイント)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:206
-msgid "Set the bottom margin in pts. Default is %default"
-msgstr "下余白量(デフォルトは%default)(単位:ポイント)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:208
-msgid "Set the left margin in pts. Default is %default"
-msgstr "左余白量(デフォルトは%default)(単位:ポイント)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:210
-msgid "Set the right margin in pts. Default is %default"
-msgstr "右余白量(デフォルトは%default)(単位:ポイント)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:212
-msgid ""
-"The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-"rescaling of fonts."
-msgstr "基本フォントサイズ。デフォルトは%defaultpt pt。0にするとフォントサイズの変更を無効にする。"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:215
 msgid ""
 "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
@@ -438,12 +1267,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:221
 msgid "Do not force text to be justified in output."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:223
-msgid ""
-"Remove table markup, converting it into paragraphs. This is useful if your "
-"source file uses a table to manage layout."
-msgstr "テーブル記法を削除しパラグラフに変換する。これはテーブルレイアウトされたファイルに対して有用です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:226
 msgid ""
@@ -460,10 +1283,6 @@ msgstr ""
 msgid "Print generated NCX file to stdout"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:237
-msgid "Keep intermediate files during processing by html2epub"
-msgstr "html2epubの中間ファイルを保持する。"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:239
 msgid ""
 "Extract the contents of the produced EPUB file to the specified directory."
@@ -476,10 +1295,6 @@ msgid ""
 "Convert any of a large number of ebook formats to a %s file. Supported "
 "formats are: %s\n"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:105
-msgid "Could not find an ebook inside the archive"
-msgstr "この書庫からはebookを見つけられませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
 msgid ""
@@ -499,13 +1314,9 @@ msgid "Output written to "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:541
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1155
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1157
 msgid "You must specify an input HTML file"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/iterator.py:36
-msgid "%s format books are not supported"
-msgstr "%s　フォーマットは対応してません"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:30
 msgid ""
@@ -522,150 +1333,66 @@ msgstr ""
 msgid "Written processed HTML to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:936
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:938
 msgid "Options to control the traversal of HTML"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:943
-msgid "The output directory. Default is the current directory."
-msgstr "出力先ディレクトリ（デフォルトはカレント)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:945
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:568
-msgid "Character encoding for HTML files. Default is to auto detect."
-msgstr "HTMLファイルでの文字コード（デフォルトは自動判別）"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:947
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:949
 msgid ""
 "Create the output in a zip file. If this option is specified, the --output "
 "should be the name of a file not a directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:949
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:951
 msgid "Control the following of links in HTML files."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:951
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:953
 msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:953
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:955
 msgid ""
 "Maximum levels of recursion when following links in HTML files. Must be non-"
 "negative. 0 implies that no links in the root HTML file are followed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:955
-msgid "Set metadata of the generated ebook"
-msgstr "生成されたebookのメタデータを設定する"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:957
-msgid "Set the title. Default is to autodetect."
-msgstr "タイトル（デフォルトは自動判別）"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:959
-msgid "The author(s) of the ebook, as a & separated list."
-msgstr "作者（& で区切られたリスト)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:961
-msgid "The subject(s) of this book, as a comma separated list."
-msgstr "主題（カンマ\",\"で区切られたリスト)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:963
-msgid "Set the publisher of this book."
-msgstr "発行者"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:965
-msgid "A summary of this book."
-msgstr "概要"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:967
-msgid "Load metadata from the specified OPF file"
-msgstr "指定したOPFファイルからメタデータを読み込む"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:969
-msgid "Options useful for debugging"
-msgstr "デバッグに役立つオプション"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:971
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:973
 msgid ""
 "Be more verbose while processing. Can be specified multiple times to "
 "increase verbosity."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:973
-msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-msgstr "出力HTMLを人に読みやすいよう整形する"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:979
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:981
 msgid ""
 "%prog [options] file.html|opf\n"
 "\n"
 "Follow all links in an HTML file and collect them into the specified "
 "directory.\n"
-"Also collects any resources like images, stylesheets, scripts, etc. \n"
+"Also collects any resources like images, stylesheets, scripts, etc.\n"
 "If an OPF file is specified instead, the list of files in its <spine> "
 "element\n"
 "is used.\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
-msgid "Creating LIT file from EPUB..."
-msgstr "EPUBからLITファイルを生成する"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:892
 msgid "%prog [options] LITFILE"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:657
-msgid "Output directory. Defaults to current directory."
-msgstr "出力先（デフォルトはカレント）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:898
 msgid "Legibly format extracted markup. May modify meaningful whitespace."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:901
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:731
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:580
-msgid "Useful for debugging."
-msgstr "デバッグに有用"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:681
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:692
 msgid "OEB ebook created in"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:725
 msgid "%prog [options] OPFFILE"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:728
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/from_feeds.py:26
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:577
-msgid "Output file. Default is derived from input filename."
-msgstr "出力ファイル名（デフォルトは入力ファイル名）"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:76
-msgid "Set the title. Default: filename."
-msgstr "タイトル（デフォルトはファイル名)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:78
-msgid ""
-"Set the author(s). Multiple authors should be set as a comma separated list. "
-"Default: %default"
-msgstr "著者名、複数の場合はカンマで区切る（デフォルトは%default）"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
-msgid "Set the comment."
-msgstr "コメント"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
-msgid "Set the category"
-msgstr "カテゴリー"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:85
 msgid "Sort key for the title"
@@ -674,23 +1401,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
 msgid "Sort key for the author"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:302
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:113
-msgid "Publisher"
-msgstr "発行元"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
-msgid "Path to file containing image to be used as cover"
-msgstr "カバーとして使用する画像へのパス"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:93
-msgid ""
-"If there is a cover graphic detected in the source file, use that instead of "
-"the specified cover."
-msgstr "ソースファイル中にカバー画像が存在したら指定したカバーの代わりに使う"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:96
 msgid "Output file name. Default is derived from input filename"
@@ -1309,7 +2019,7 @@ msgid "Extract thumbnail from LRF file"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:606
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:191
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:195
 msgid "Set the publisher"
 msgstr ""
 
@@ -1343,16 +2053,16 @@ msgid ""
 "%prog converts mybook.mobi to mybook.lrf"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:48
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:49
 msgid "Could not find pdftohtml, check it is in your PATH"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:74
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:75
 msgid ""
 " is an image based PDF. Only conversion of text based PDFs is supported."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:93
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:94
 msgid ""
 "%prog [options] mybook.pdf\n"
 "\n"
@@ -1464,23 +2174,23 @@ msgstr ""
 msgid "Timestamp"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:202
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:204
 msgid "A comma separated list of tags to set"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:204
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:206
 msgid "The series to which this book belongs"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:206
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:208
 msgid "The series index"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:208
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:210
 msgid "The book language"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:210
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:212
 msgid "Extract the cover"
 msgstr ""
 
@@ -1559,19 +2269,19 @@ msgid "Usage: %s file.lit"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:53
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:236
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:240
 msgid "Cover saved to"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:187
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:191
 msgid "Set the subject tags"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:189
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:193
 msgid "Set the language"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:193
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:197
 msgid "Set the ISBN"
 msgstr ""
 
@@ -1591,11 +2301,11 @@ msgstr ""
 msgid "Creating Mobipocket file from EPUB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:655
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:666
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:679
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:690
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
@@ -2592,7 +3302,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:590
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:607
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:178
 msgid "&Username:"
 msgstr ""
 
@@ -2603,7 +3313,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:608
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:179
 msgid "&Password:"
 msgstr ""
 
@@ -2676,7 +3386,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:610
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:180
 msgid "&Show password"
 msgstr ""
 
@@ -2827,26 +3537,26 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:174
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:104
 msgid "Cannot read"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:175
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:105
 msgid "You do not have permission to read the file: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:183
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:113
 msgid "Error reading file"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:114
 msgid "<p>There was an error reading from file: <br /><b>"
 msgstr ""
 
@@ -2890,12 +3600,6 @@ msgstr ""
 msgid "Convert to EPUB"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:468
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:496
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:362
-msgid "Book Cover"
-msgstr "本のカバー"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:469
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:497
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:363
@@ -2913,24 +3617,11 @@ msgstr ""
 msgid "Use cover from &source file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:473
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:501
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:326
-msgid "&Title: "
-msgstr "タイトル(&T): "
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:474
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:502
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:327
 msgid "Change the title of this book"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:475
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:503
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:330
-msgid "&Author(s): "
-msgstr "作者(&A): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:476
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:504
@@ -2951,13 +3642,6 @@ msgid ""
 "Change the author(s) of this book. Multiple authors should be separated by a "
 "comma"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:479
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:507
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:136
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:339
-msgid "&Publisher: "
-msgstr "発行者(&P): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:480
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:508
@@ -3022,14 +3706,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:518
 msgid "Base &font size:"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:492
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:506
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:508
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:510
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:512
-msgid " pt"
-msgstr " ポイント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:493
 msgid "Remove &spacing between paragraphs"
@@ -3197,10 +3873,6 @@ msgstr ""
 msgid "The metadata download seems to have stalled. Try again later."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:163
-msgid "Warning"
-msgstr "警告"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:164
 msgid "Could not fetch metadata from:"
 msgstr ""
@@ -3230,14 +3902,6 @@ msgstr ""
 msgid "&Access Key:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:81
-msgid "Fetch"
-msgstr "取得"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:82
-msgid "Matches"
-msgstr "該当箇所"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:83
 msgid ""
 "Select the book that most closely matches your copy from the list below"
@@ -3246,10 +3910,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:37
 msgid "Details of job"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:27
-msgid "Unavailable"
-msgstr "利用不能"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:38
 msgid " - Jobs"
@@ -3331,16 +3991,6 @@ msgstr ""
 msgid "Convert to LRF"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:495
-msgid "Category"
-msgstr "カテゴリ"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:519
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:528
-msgid " pts"
-msgstr " ポイント"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:520
 msgid "Embedded Fonts"
 msgstr ""
@@ -3385,10 +4035,6 @@ msgstr ""
 msgid "&Preprocess:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:534
-msgid "Header"
-msgstr "ヘッダー"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:535
 msgid "&Show header"
 msgstr ""
@@ -3396,16 +4042,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:536
 msgid "&Header format:"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:537
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:542
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:544
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:546
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:548
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:107
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:109
-msgid " px"
-msgstr " ピクセル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:538
 msgid "Header &separation:"
@@ -3481,11 +4117,6 @@ msgstr ""
 msgid "Edit Meta information"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:127
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:325
-msgid "Meta information"
-msgstr "メタ情報"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:331
 msgid "Author S&ort: "
@@ -3542,86 +4173,70 @@ msgstr ""
 msgid "A&utomatically set author sort"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:163
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:164
 msgid "No format selected"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:173
 msgid "Could not read metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:174
 msgid "Could not read metadata from %s format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:183
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:188
 msgid "Could not read cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:183
 msgid "Could not read cover from %s format"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:189
 msgid "The cover in the %s format is invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:365
-msgid ""
-"<p>Enter your username and password for <b>LibraryThing.com</b>. This is "
-"<b>optional</b>. It will make fetching of covers faster and more "
-"reliable.<br/>If you do not have an account, you can <a "
-"href='http://www.librarything.com'>register</a> for free.</p>"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:392
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:373
 msgid "Downloading cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:404
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:409
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:385
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:396
 msgid "Cannot fetch cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:386
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:397
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:406
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:387
 msgid "The download timed out."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:403
 msgid "Bad cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:404
 msgid "The cover is not a valid picture"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:458
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:439
 msgid "Cannot fetch metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:459
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:440
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:324
-msgid "Edit Meta Information"
-msgstr "メタ情報の編集"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:328
-msgid "Swap the author and title"
-msgstr "作者とタイトルの入れ替え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:333
 msgid ""
@@ -3668,171 +4283,110 @@ msgstr ""
 msgid "Password needed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:43
-msgid "Aborting..."
-msgstr "停止中..."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
-msgid "You"
-msgstr "あなた"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:124
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:139
-msgid "Custom"
-msgstr "カスタム"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:126
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:137
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:223
-msgid "Scheduled"
-msgstr "スケジュール"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:235
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:216
-msgid "Search"
-msgstr "検索"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:317
 msgid "%d recipes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
-msgid "Monday"
-msgstr "月曜"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
-msgid "Tuesday"
-msgstr "火曜"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
-msgid "Wednesday"
-msgstr "水曜"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:318
 msgid "day"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
-msgid "Friday"
-msgstr "金曜"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
-msgid "Saturday"
-msgstr "土曜"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
-msgid "Sunday"
-msgstr "日曜"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:313
-msgid "Thursday"
-msgstr "木曜"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:346
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:356
 msgid "Must set account information"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:347
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:357
 msgid "This recipe requires a username and password"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:388
 msgid "Created by: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:426
 msgid "%d days, %d hours and %d minutes ago"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:428
 msgid "Last downloaded"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:430
 msgid "Last downloaded: never"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:446
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:165
 msgid "Schedule news download"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:449
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:459
 msgid "Add a custom news source"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:456
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:838
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:842
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1157
-msgid "News"
-msgstr "ニュース"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:163
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
 msgid "Recipes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:164
-msgid "Schedule for download"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:165
-msgid "blurb"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:166
-msgid "&Schedule for download:"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
-msgid "Every "
+msgid "Download all scheduled recipes at once"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
-msgid "at"
+msgid "Download &all scheduled"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
+msgid "Schedule for download"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:170
+msgid "blurb"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:171
+msgid "&Schedule for download:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:172
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:174
+msgid "Every "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:173
+msgid "at"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:175
 msgid ""
 "Interval at which to download this recipe. A value of zero means that the "
 "recipe will be downloaded every hour."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid " days"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:172
-msgid "&Account"
-msgstr "アカウント(&A)"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:181
 msgid "For the scheduling to work, you must leave calibre running."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:182
 msgid "&Download now"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:183
 msgid ""
 "Delete downloaded news older than the specified number of days. Set to zero "
 "to disable."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:185
 msgid "Delete downloaded news older than "
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:35
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:96
-msgid "Form"
-msgstr "フォーム"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
@@ -3851,10 +4405,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:39
 msgid "Negate"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:88
-msgid "Advanced Search"
-msgstr "高度な検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:89
 msgid "Find entries that have..."
@@ -3885,10 +4435,6 @@ msgid ""
 "See the <a href=\"http://calibre.kovidgoyal.net/user_manual/gui.html#the-"
 "search-interface\">User Manual</a> for more help"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
-msgid "Tag Editor"
-msgstr "タグエディタ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:124
 msgid "A&vailable tags"
@@ -3933,11 +4479,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
 msgid "Send test mail from %s to:"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:52
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:105
-msgid "&Test"
-msgstr "テスト(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:62
 msgid "No recipe selected"
@@ -3985,12 +4526,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:121
 msgid "This feed has already been added to the recipe"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:162
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:228
-msgid "Invalid input"
-msgstr "不正な入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:172
@@ -4101,10 +4636,6 @@ msgstr ""
 msgid "&Feed title:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
-msgid "Feed &URL:"
-msgstr "フィードのURL(&U):"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:275
 msgid "&Add feed"
 msgstr ""
@@ -4143,42 +4674,9 @@ msgid ""
 "metadata entries are documented in tooltips.</p></body></html>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:104
-msgid "Regular &expression"
-msgstr "正規表現(&E)"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:106
-msgid "File &name:"
-msgstr "ファイル名(&N):"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:107
-msgid "Test"
-msgstr "テスト"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:108
-msgid "Title:"
-msgstr "タイトル："
-
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:109
 msgid "Regular expression (?P&lt;title&gt;)"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:110
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:113
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:116
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:90
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:94
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:99
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:106
-msgid "No match"
-msgstr "該当するものはありません"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:111
-msgid "Authors:"
-msgstr "作者:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:112
 msgid "Regular expression (?P<authors>)"
@@ -4208,41 +4706,9 @@ msgstr ""
 msgid "Regular expression (?P<isbn>)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:46
-msgid "Job"
-msgstr "ジョブ"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:47
-msgid "Status"
-msgstr "ステータス"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:48
-msgid "Progress"
-msgstr "進捗率"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:49
 msgid "Running time"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:65
-msgid "Unknown job"
-msgstr "不明なジョブ"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:70
-msgid "Finished"
-msgstr "完了"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:72
-msgid "Error"
-msgstr "エラー"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:74
-msgid "Waiting"
-msgstr "待機中"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:76
-msgid "Working"
-msgstr "処理中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs2.py:176
@@ -4765,6 +5231,14 @@ msgstr ""
 msgid "Log debugging information to console"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1574
+msgid "Cannot Start "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1575
+msgid "<p>%s is already running. %s</p>"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:335
 msgid "calibre"
 msgstr ""
@@ -5187,45 +5661,13 @@ msgstr ""
 msgid "Next page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:157
-msgid "Previous page"
-msgstr "前のページ"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:158
-msgid "Font size larger"
-msgstr "フォントサイズを大きくする"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:159
-msgid "Font size smaller"
-msgstr "フォントサイズを小さくする"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:163
-msgid "Find next"
-msgstr "次を検索"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:164
-msgid "Copy to clipboard"
-msgstr "クリップボードにコピー"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:166
 msgid "Reference Mode"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:167
-msgid "Bookmark"
-msgstr "ブックマーク"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Toggle full screen"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:83
-msgid "Invalid regular expression"
-msgstr "無効な正規表現です"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:84
-msgid "Invalid regular expression: %s"
-msgstr "次の正規表現は無効です。:%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:175
 msgid ""
@@ -5264,17 +5706,9 @@ msgstr ""
 msgid "Settings to control the calibre content server"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/__init__.py:20
-msgid "The port on which to listen. Default is %default"
-msgstr "受信ポート(デフォルトは%default）"
-
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:22
 msgid "The server timeout in seconds. Default is %default"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/library/__init__.py:24
-msgid "The max number of worker threads to use. Default is %default"
-msgstr "ワーカースレッドの最大数（デフォルトは%default）"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:26
 msgid "Set a password to restrict access. By default access is unrestricted."
@@ -5317,10 +5751,6 @@ msgid ""
 "Default: %%default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:200
-msgid "Sort results in ascending order"
-msgstr "昇順に並び替え"
-
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:202
 msgid ""
 "Filter the results by the search query. For the format of the search query, "
@@ -5334,10 +5764,6 @@ msgid ""
 "screen size."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:205
-msgid "The string used to separate fields. Default is a space."
-msgstr "区切り文字(デフォルトは半角スペース）"
-
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:206
 msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
@@ -5349,14 +5775,6 @@ msgid ""
 "The format in which to output the data. Available choices: %s. Defaults is "
 "text."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:217
-msgid "Invalid fields. Available fields:"
-msgstr "無効なフィールド。有効なフィールド:"
-
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:224
-msgid "Invalid sort field. Available fields:"
-msgstr "無効な並び替えフィールド。有効なフィールド:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:295
 msgid ""
@@ -5378,10 +5796,6 @@ msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:332
-msgid "Process directories recursively"
-msgstr "ディレクトリを再帰的に処理する"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:334
 msgid ""
@@ -5528,10 +5942,6 @@ msgstr ""
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1400
-msgid "Compacting database"
-msgstr "データベースのコンパクト化"
-
 #: /home/kovid/work/calibre/src/calibre/library/server.py:141
 msgid "Password to access your calibre library. Username is "
 msgstr ""
@@ -5546,10 +5956,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/parallel.py:388
 msgid "Could not launch worker process."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/parallel.py:814
-msgid "Job stopped by user"
-msgstr "ユーザーによってジョブが停止された"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:43
 msgid "%sUsage%s: %s\n"
@@ -5579,21 +5985,9 @@ msgstr ""
 msgid "Path to directory in which your library of books is stored"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:546
-msgid "The language in which to display the user interface"
-msgstr "UIの言語"
-
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:548
-msgid "The default output format for ebook conversions."
-msgstr "ebook変換でのデフォルトフォーマット"
-
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:550
 msgid "Read metadata from files"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:552
-msgid "The priority of worker processes"
-msgstr "ワーカープロセスの優先度"
 
 #: /home/kovid/work/calibre/src/calibre/utils/fontconfig.py:180
 msgid "Could not initialize the fontconfig library"
@@ -5607,15 +6001,7 @@ msgstr ""
 msgid "host must be of the form user@hostname"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
-msgid "Failed to negotiate SSH session: "
-msgstr "SSHセッションのネゴシエイトに失敗 "
-
-#: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
-msgid "Failed to authenticate with server: %s"
-msgstr "サーバー(%s)の認証に失敗"
-
-#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:227
+#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
 msgid "Control email delivery"
 msgstr ""
 
@@ -5769,23 +6155,6 @@ msgid ""
 "Options to control web2disk (used to fetch websites linked from feeds)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:105
-msgid "Dont show the progress bar"
-msgstr "プログレスバーを非表示"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:120
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:689
-msgid "Fetching feeds..."
-msgstr "フィードの取得中"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:40
-msgid "Unknown News Source"
-msgstr "未知のニュースソース"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:568
-msgid "Download finished"
-msgstr "ダウンロード完了"
-
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:570
 msgid "Failed to download the following articles:"
 msgstr ""
@@ -5864,206 +6233,6 @@ msgstr ""
 msgid "Fetching feed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevnik_cro.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jutarnji.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nacional_cro.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vecernji_list.py:26
-msgid "Croatian"
-msgstr "クロアチア語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata_rs.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_b92.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_blic.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_danas.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_e_novine.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:27
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nin.py:30
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_novosti.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pescanik.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politika.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pressonline.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tanjug.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vijesti.py:27
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vreme.py:27
-msgid "Serbian"
-msgstr "セルビア語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chr_mon.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_mail.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_telegraph.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_discover_magazine.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dna.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ecogeek.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_economist.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_endgadget.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_espn.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_exiled.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_financial_times.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_forbes.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_freakonomics.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_fudzilla.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glasgow_herald.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_globe_and_mail.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_guardian.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:27
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honoluluadvertiser.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_iht.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_indy_star.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_irish_times.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_japan_times.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_joelonsoftware.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jpost.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde_english.py:44
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_scientist.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books_no_sub.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_yorker.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_news_times.py:7
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_newsweek.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm_int.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes_sub.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_outlook_india.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_today.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_world.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politico.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_portfolio.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_reuters.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_san_fran_chronicle.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_aas.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_teleread.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_age.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_nation.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_oz.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_register.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_scotsman.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_utne.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:17
-msgid "English"
-msgstr "英語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ambito.py:61
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_clarin.py:64
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_criticadigital.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_mercurio_chile.py:61
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_pais.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_universal.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elargentino.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elcronista.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elmundo.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_granma.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_infobae.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_cuarta.py:53
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_segunda.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_tercera.py:64
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion_chile.py:54
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:25
-msgid "Spanish"
-msgstr "スペイン語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
-msgid "Italian"
-msgstr "イタリア語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_courrierinternational.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cyberpresse.py:9
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_liberation.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mediapart.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mondedurable.py:13
-msgid "French"
-msgstr "フランス語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_de_standaard.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_demorgen_be.py:16
-msgid "Dutch"
-msgstr "オランダ語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_der_standard.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diepresse.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_faznet.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ftd.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_heise.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hna.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telepolis.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
-msgid "German"
-msgstr "ドイツ語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevni_avaz.py:27
-msgid "Bosnian"
-msgstr "ボスニア語"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
-msgid "Portugese"
-msgstr "ポルトガル語"
-
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
 msgid "Kovid Goyal"
 msgstr ""
@@ -6074,6 +6243,10 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
+msgid "Chinese"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:457
@@ -6103,34 +6276,10 @@ msgstr ""
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:12
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:38
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:45
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:103
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:141
-msgid "title"
-msgstr "タイトル"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:13
 #: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:39
 msgid "slug"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:16
-msgid "category"
-msgstr "カテゴリ"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:17
-msgid "categories"
-msgstr "カテゴリ"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:35
-msgid "Draft"
-msgstr "ドラフト"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:36
-msgid "Public"
-msgstr "公開"
 
 #: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:41
 msgid "body"
@@ -6140,10 +6289,6 @@ msgstr ""
 msgid "tease"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:43
-msgid "status"
-msgstr "ステータス"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:44
 msgid "allow comments"
 msgstr ""
@@ -6151,14 +6296,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:45
 msgid "publish"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:46
-msgid "created"
-msgstr "作成された"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:47
-msgid "modified"
-msgstr "修正された"
 
 #: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:53
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:153
@@ -6174,49 +6311,9 @@ msgstr ""
 msgid "Fields updated automatically by Feedjack"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:17
-msgid "Date published."
-msgstr "発行日"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:18
 msgid "Date the post was first obtained."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:22
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:38
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:98
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:126
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:173
-msgid "name"
-msgstr "名前"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:23
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:26
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:105
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:142
-msgid "link"
-msgstr "リンク"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:27
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:61
-msgid "links"
-msgstr "リンク"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:39
-msgid "url"
-msgstr "URL"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:42
-msgid "Example"
-msgstr "例"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:46
-msgid "description"
-msgstr "詳細"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:47
-msgid "welcome"
-msgstr "ようこそ"
 
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:48
 msgid "greets"
@@ -6242,45 +6339,15 @@ msgstr ""
 msgid "show tagcloud"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:57
-msgid "use internal cache"
-msgstr "内蔵キャッシュを使う"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:58
-msgid "cache duration"
-msgstr "キャッシュの期限"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:59
 msgid "Duration in seconds of the cached pages and data."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:63
-msgid "template"
-msgstr "テンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:65
 msgid ""
 "This template must be a directory in your feedjack templates directory. "
 "Leave blank to use the default template."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:69
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:170
-msgid "site"
-msgstr "サイト"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:70
-msgid "sites"
-msgstr "サイト"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:96
-msgid "feed url"
-msgstr "配信URL"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:99
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:175
-msgid "shortname"
-msgstr "短い名前"
 
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:100
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:178
@@ -6299,60 +6366,13 @@ msgstr ""
 msgid "etag"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:109
-msgid "last modified"
-msgstr "最終変更日時:"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:110
 msgid "last checked"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:113
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:140
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:171
-msgid "feed"
-msgstr "配信"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:114
-msgid "feeds"
-msgstr "配信"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:129
-msgid "tag"
-msgstr "タグ"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:130
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:149
-msgid "tags"
-msgstr "タグ"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:143
-msgid "content"
-msgstr "内容"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:144
-msgid "date modified"
-msgstr "更新日時"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:145
 msgid "guid"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:146
-msgid "author"
-msgstr "作者"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:147
-msgid "author email"
-msgstr "作者のE-Mail"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:148
-msgid "comments"
-msgstr "コメント"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:150
-msgid "date created"
-msgstr "作成日"
 
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:174
 msgid "Keep blank to use the Feed's original name."
@@ -6367,11 +6387,3 @@ msgid ""
 "If disabled, this subscriber will not appear in the site or in the site's "
 "feed."
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:183
-msgid "subscriber"
-msgstr "購読者"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:184
-msgid "subscribers"
-msgstr "購読者"
