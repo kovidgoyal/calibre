@@ -7,20 +7,21 @@ Device driver for Ectaco Jetbook firmware >= JL04_v030e
 import os, re, sys, shutil
 from itertools import cycle
 
-from calibre.devices.errors import FreeSpaceError
 from calibre.devices.usbms.driver import USBMS, metadata_from_formats
 from calibre import sanitize_file_name as sanitize
 
 class JETBOOK(USBMS):
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
-    FORMATS     = [ 'epub', 'mobi', 'prc', 'txt', 'rtf', 'pdf']
+    FORMATS     = ['epub', 'mobi', 'prc', 'txt', 'rtf', 'pdf']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
     BCD         = [0x314]
 
-    VENDOR_NAME = 'NETCHIP'
+    VENDOR_NAME      = 'LINUX'
+    WINDOWS_MAIN_MEM = 'EBOOK'
+    WINDOWS_CARD_MEM = 'EBOOK'
 
     WINDOWS_MAIN_MEM = None
     WINDOWS_CARD_MEM = None
@@ -107,4 +108,15 @@ class JETBOOK(USBMS):
                 mi.authors = map(check_unicode, authors)
 
         return mi
-                
+
+    def windows_sort_drives(self, drives):
+        main = drives['main']
+        card = drives['card']
+        if card and main and card < main:
+            drives['main'] = card
+            drives['card'] = main
+
+        return drives
+
+
+
