@@ -19,10 +19,8 @@ from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
         urldefrag, rewrite_links, urlunquote
 from calibre.ebooks.epub import rules
 
-
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
-SPLIT_ATTR       = 'cs'
 SPLIT_POINT_ATTR = 'csp'
 
 def tostring(root):
@@ -66,7 +64,9 @@ class Split(object):
         splitter = FlowSplitter(item, page_breaks, page_break_ids,
                 self.max_flow_size, self.oeb)
         if splitter.was_split:
-            self.map[item.href] = dict(splitter.anchor_map)
+            am = splitter.anchor_map
+            self.map[item.href] = collections.defaultdict(
+                    am.default_factory, **am)
 
     def find_page_breaks(self, item):
         if self.page_break_selectors is None:
@@ -161,6 +161,7 @@ class FlowSplitter(object):
         self.page_break_ids = page_break_ids
         self.max_flow_size  = max_flow_size
         self.base           = item.href
+        self.csp_counter    = 0
 
         base, ext = os.path.splitext(self.base)
         self.base = base.replace('%', '%%')+'_split_%d'+ext
@@ -191,6 +192,8 @@ class FlowSplitter(object):
                 self.trees.extend(self.tree_map.get(x, [x]))
 
         self.was_split = len(self.trees) > 1
+        if self.was_split:
+            self.log('\tSplit into %d parts'%len(self.trees))
         self.commit()
 
     def split_on_page_breaks(self, orig_tree):
@@ -237,35 +240,21 @@ class FlowSplitter(object):
         split_point2 = root2.xpath(path)[0]
 
         def nix_element(elem, top=True):
-            if True:
-                parent = elem.getparent()
-                index = parent.index(elem)
-                if top:
-                    parent.remove(elem)
-                else:
-                    index = parent.index(elem)
-                    parent[index:index+1] = list(elem.iterchildren())
+            parent = elem.getparent()
+            index = parent.index(elem)
+            if top:
+                parent.remove(elem)
             else:
-                elem.text = u''
-                elem.tail = u''
-                elem.set(SPLIT_ATTR, '1')
-                if elem.tag.lower() in ['ul', 'ol', 'dl', 'table', 'hr', 'img']:
-                    elem.set('style', 'display:none')
-
-        def fix_split_point(sp):
-            if not self.splitting_on_page_breaks:
-                sp.set('style', sp.get('style', '')+'page-break-before:avoid;page-break-after:avoid')
+                index = parent.index(elem)
+                parent[index:index+1] = list(elem.iterchildren())
 
         # Tree 1
         hit_split_point = False
         for elem in list(body.iterdescendants(etree.Element)):
-            if elem.get(SPLIT_ATTR, '0') == '1':
-                continue
             if elem is split_point:
                 hit_split_point = True
                 if before:
                     nix_element(elem)
-                fix_split_point(elem)
                 continue
             if hit_split_point:
                 nix_element(elem)
@@ -274,13 +263,10 @@ class FlowSplitter(object):
         # Tree 2
         hit_split_point = False
         for elem in list(body2.iterdescendants(etree.Element)):
-            if elem.get(SPLIT_ATTR, '0') == '1':
-                continue
             if elem is split_point2:
                 hit_split_point = True
                 if not before:
                     nix_element(elem, top=False)
-                fix_split_point(elem)
                 continue
             if not hit_split_point:
                 nix_element(elem, top=False)
@@ -374,8 +360,8 @@ class FlowSplitter(object):
         '''
         def pick_elem(elems):
             if elems:
-                elems = [i for i in elems if i.get(SPLIT_POINT_ATTR, '0') != '1'\
-                          and i.get(SPLIT_ATTR, '0') != '1']
+                elems = [i for i in elems if i.get(SPLIT_POINT_ATTR, '0') !=
+                        '1']
                 if elems:
                     i = int(math.floor(len(elems)/2.))
                     elems[i].set(SPLIT_POINT_ATTR, '1')
@@ -417,14 +403,16 @@ class FlowSplitter(object):
         for i, tree in enumerate(self.trees):
             root = tree.getroot()
             self.files.append(self.base%i)
-            for elem in root.xpath('//*[@id]'):
-                if elem.get(SPLIT_ATTR, '0') == '0':
-                    self.anchor_map[elem.get('id')] = self.files[-1]
-            for elem in root.xpath('//*[@%s or @%s]'%(SPLIT_ATTR, SPLIT_POINT_ATTR)):
-                elem.attrib.pop(SPLIT_ATTR, None)
+            for elem in root.xpath('//*[@id or @name]'):
+                anchor = elem.get('id', '')
+                if not anchor:
+                    anchor = elem.get('name')
+                self.anchor_map[anchor] = self.files[-1]
+            for elem in root.xpath('//*[@%s]'%SPLIT_POINT_ATTR):
                 elem.attrib.pop(SPLIT_POINT_ATTR, '0')
 
         spine_pos = self.item.spine_position
+
         for current, tree in zip(*map(reversed, (self.files, self.trees))):
             for a in tree.getroot().xpath('//h:a[@href]', namespaces=NAMESPACES):
                 href = a.get('href').strip()
