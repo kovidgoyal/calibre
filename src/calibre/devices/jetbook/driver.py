@@ -29,9 +29,6 @@ class JETBOOK(USBMS):
     WINDOWS_MAIN_MEM = 'EBOOK'
     WINDOWS_CARD_MEM = 'EBOOK'
 
-    WINDOWS_MAIN_MEM = None
-    WINDOWS_CARD_MEM = None
-
     OSX_MAIN_MEM = None
     OSX_CARD_MEM = None
 
@@ -116,8 +113,8 @@ class JETBOOK(USBMS):
         return mi
 
     def windows_sort_drives(self, drives):
-        main = drives['main']
-        card = drives['card']
+        main = drives.get('main', None)
+        card = drives.get('card', None)
         if card and main and card < main:
             drives['main'] = card
             drives['card'] = main

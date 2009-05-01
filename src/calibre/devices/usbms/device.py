@@ -8,11 +8,11 @@ device. This class handles device detection.
 
 import os, subprocess, time, re
 
-from calibre.devices.interface import DevicePlugin as Device
+from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre import iswindows, islinux, isosx, __appname__
 
-class Device(Device):
+class Device(DevicePlugin):
     '''
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. If you are writing such a driver, inherit from this
@@ -122,7 +122,7 @@ class Device(Device):
 
     @classmethod
     def _windows_space(cls, prefix):
-        if prefix is None:
+        if not prefix:
             return 0, 0
         win32file = __import__('win32file', globals(), locals(), [], -1)
         try:
@@ -221,15 +221,15 @@ class Device(Device):
             if 'main' in drives.keys() and 'carda' in drives.keys() and 'cardb' in drives.keys():
                 break
 
-        drives = self.windows_sort_drives(drives)
-        self._main_prefix = drives.get('main')
-        self._card_a_prefix = drives.get('carda')
-        self._card_b_prefix = drives.get('cardb')
-
-        if not self._main_prefix:
+        if 'main' not in drives:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
                 self.__class__.__name__)
+
+        drives = self.windows_sort_drives(drives)
+        self._main_prefix = drives.get('main')
+        self._card_a_prefix = drives.get('carda', None)
+        self._card_b_prefix = drives.get('cardb', None)
 
     def get_osx_mountpoints(self, raw=None):
         if raw is None:
@@ -272,16 +272,16 @@ class Device(Device):
         self._main_prefix = re.search(main_pat, mount).group(2) + os.sep
         card_a_pat = names['carda'] if 'carda' in names.keys() else None
         card_b_pat = names['cardb'] if 'cardb' in names.keys() else None
-        
+
         def get_card_prefix(pat):
             if pat is not None:
                 pat = dev_pat % pat
                 return re.search(pat, mount).group(2) + os.sep
             else:
                 return None
-                
+
         self._card_a_prefix = get_card_prefix(card_a_pat)
-        self._card_b_prefix = get_card_prefix(card_b_pat) 
+        self._card_b_prefix = get_card_prefix(card_b_pat)
 
     def open_linux(self):
         import dbus
