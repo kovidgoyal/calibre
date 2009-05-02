@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 
-from calibre.customize.conversion import OptionRecommendation
+from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.customize.ui import input_profiles, output_profiles, \
         plugin_for_input_format, plugin_for_output_format
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
@@ -22,6 +22,17 @@ def supported_input_formats():
 class OptionValues(object):
     pass
 
+class CompositeProgressReporter(object):
+
+    def __init__(self, global_min, global_max, global_reporter):
+        self.global_min, self.global_max = global_min, global_max
+        self.global_reporter = global_reporter
+
+    def __call__(self, fraction, msg=''):
+        global_frac = self.global_min + fraction * \
+                (self.global_max - self.global_min)
+        self.global_reporter(global_frac, msg)
+
 class Plumber(object):
     '''
     The `Plumber` manages the conversion pipeline. An UI should call the methods
@@ -35,7 +46,7 @@ class Plumber(object):
         'tags', 'book_producer', 'language'
         ]
 
-    def __init__(self, input, output, log):
+    def __init__(self, input, output, log, report_progress=DummyReporter()):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -43,6 +54,7 @@ class Plumber(object):
         self.input = os.path.abspath(input)
         self.output = os.path.abspath(output)
         self.log = log
+        self.ui_reporter = report_progress
 
         # Initialize the conversion options that are independent of input and
         # output formats. The input and output plugins can still disable these
@@ -63,7 +75,8 @@ OptionRecommendation(name='input_profile',
                    'conversion system information on how to interpret '
                    'various information in the input document. For '
                    'example resolution dependent lengths (i.e. lengths in '
-                   'pixels).')
+                   'pixels). Choices are:')+\
+                        ', '.join([x.short_name for x in input_profiles()])
         ),
 
 OptionRecommendation(name='output_profile',
@@ -73,8 +86,9 @@ OptionRecommendation(name='output_profile',
                    'tells the conversion system how to optimize the '
                    'created document for the specified device. In some cases, '
                    'an output profile is required to produce documents that '
-                   'will work on a device. For example EPUB on the SONY reader.'
-                   )
+                   'will work on a device. For example EPUB on the SONY reader. '
+                   'Choices are:') + \
+                           ', '.join([x.short_name for x in output_profiles()])
         ),
 
 OptionRecommendation(name='base_font_size',
@@ -552,6 +566,9 @@ OptionRecommendation(name='list_recipes',
         if hasattr(self.opts, 'lrf') and self.output_plugin.file_type == 'lrf':
             self.opts.lrf = True
 
+        self.ui_reporter(0.01, _('Converting input to HTML...'))
+        ir = CompositeProgressReporter(0.01, 0.34, self.ui_reporter)
+        self.input_plugin.report_progress = ir
         self.oeb = self.input_plugin(stream, self.opts,
                                     self.input_fmt, self.log,
                                     accelerators, tdir)
@@ -560,9 +577,12 @@ OptionRecommendation(name='list_recipes',
             return
         if not hasattr(self.oeb, 'manifest'):
             self.oeb = create_oebbook(self.log, self.oeb, self.opts)
+        pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
+        pr(0., _('Running transforms on ebook...'))
 
         from calibre.ebooks.oeb.transforms.guide import Clean
         Clean()(self.oeb, self.opts)
+        pr(0.1)
 
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
@@ -570,9 +590,11 @@ OptionRecommendation(name='list_recipes',
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
         MergeMetadata()(self.oeb, self.user_metadata,
                 self.opts.prefer_metadata_cover)
+        pr(0.2)
 
         from calibre.ebooks.oeb.transforms.structure import DetectStructure
         DetectStructure()(self.oeb, self.opts)
+        pr(0.35)
 
         from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
         fbase = self.opts.base_font_size
@@ -586,6 +608,7 @@ OptionRecommendation(name='list_recipes',
 
         from calibre.ebooks.oeb.transforms.jacket import Jacket
         Jacket()(self.oeb, self.opts)
+        pr(0.4)
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
             self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
@@ -598,6 +621,7 @@ OptionRecommendation(name='list_recipes',
         if self.opts.linearize_tables:
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
+        pr(0.7)
 
         from calibre.ebooks.oeb.transforms.split import Split
         pbx = accelerators.get('pagebreaks', None)
@@ -605,6 +629,7 @@ OptionRecommendation(name='list_recipes',
                 max_flow_size=self.opts.output_profile.flow_size,
                 page_breaks_xpath=pbx)
         split(self.oeb, self.opts)
+        pr(0.9)
 
         from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
 
@@ -613,10 +638,15 @@ OptionRecommendation(name='list_recipes',
         trimmer(self.oeb, self.opts)
 
         self.oeb.toc.rationalize_play_orders()
+        pr(1.)
 
         self.log.info('Creating %s...'%self.output_plugin.name)
+        our = CompositeProgressReporter(0.67, 1., self.ui_reporter)
+        self.output_plugin.report_progress = our
+        our(0., _('Creating')+' %s'%self.output_plugin.name)
         self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
+        self.ui_reporter(1.)
 
 def create_oebbook(log, path_or_stream, opts, reader=None):
     '''

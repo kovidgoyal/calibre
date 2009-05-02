@@ -117,6 +117,7 @@ def debug_device_driver():
             print 'Trying to open device...'
             d = dev()
             d.open()
+            print 'Main memory:', repr(d._main_prefix)
             print 'Total space:', d.total_space()
             break
 

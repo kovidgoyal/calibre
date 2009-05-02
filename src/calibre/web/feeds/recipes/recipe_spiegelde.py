@@ -1,47 +1,64 @@
+#!/usr/bin/env  python
+
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
-Fetch Spiegel Online.
+spiegel.de
 '''
-
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
-class SpeigelOnline(BasicNewsRecipe):
+class Spiegel_ger(BasicNewsRecipe):
+    title                 = 'Spiegel Online - German'
+    __author__            = 'Darko Miletic'
+    description           = "Immer die neueste Meldung auf dem Schirm, sekundenaktuell und uebersichtlich: Mit dem RSS-Angebot von SPIEGEL ONLINE entgeht Ihnen keine wichtige Meldung mehr, selbst wenn Sie keinen Internet-Browser geoeffnet haben. Sie koennen unsere Nachrichten-Feeds ganz einfach abonnieren - unkompliziert, kostenlos und nach Ihren persoenlichen Themen-Vorlieben."
+    publisher             = 'SPIEGEL ONLINE Gmbh'
+    category              = 'SPIEGEL ONLINE, DER SPIEGEL, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'    
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    language              = _('German')
+    lang                  = 'de-DE'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1252'
+    
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        ]
 
-    title = 'Spiegel Online'
-    description = 'Nachrichten des Magazins Der Spiegel'
-    __author__ = 'Kovid Goyal'
-    use_embedded_content   = False
-    language = _('German')
-    timefmt = ' [ %Y-%m-%d %a]'
-    max_articles_per_feed = 40
-    no_stylesheets = True
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+                        
+    keep_only_tags = [dict(name='div', attrs={'id':'spMainContent'})]
 
-    preprocess_regexps = \
-        [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-            [
-             # Remove Zum Thema footer
-             (r'<div class="spArticleCredit.*?</body>', lambda match: '</body>'),
-             ]
-            ]
+    remove_tags = [dict(name=['object','link','base'])]
+    
+    remove_tags_after = dict(name='div', attrs={'id':'spArticleBody'})
 
-    feeds= [ ('Spiegel Online', 'http://www.spiegel.de/schlagzeilen/rss/0,5291,,00.xml') ]
+    feeds          = [(u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/index.rss')]
 
+    def print_version(self, url):
+        main, sep, rest = url.rpartition(',')
+        rmain, rsep, rrest = main.rpartition(',')
+        return rmain + ',druck-' + rrest + ',' + rest
 
-    def print_version(self,url):
-        tokens = url.split(',')
-        tokens[-2:-2] = ['druck|']
-        return ','.join(tokens).replace('|,','-')
-
-    def postprocess_html(self, soup, first_fetch):
-        if soup.contents[0].name == 'head':
-            x = BeautifulSoup('<html></html>')
-            for y in reversed(soup.contents):
-                x.contents[0].insert(0, y)
-            soup = x
-
+    def preprocess_html(self, soup):
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        for item in soup.findAll(style=True):
+            del item['style']
+        htmltag = soup.find('html')
+        if not htmltag:
+            thtml = Tag(soup,'html',[("lang",self.lang),("xml:lang",self.lang),("dir","ltr")])
+            soup.insert(0,thtml)
+            thead = soup.head
+            tbody = soup.body
+            thead.extract()
+            tbody.extract()
+            soup.html.insert(0,tbody)
+            soup.html.insert(0,thead)
         return soup

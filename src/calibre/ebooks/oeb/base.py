@@ -1571,26 +1571,26 @@ class OEBBook(object):
 
     def decode(self, data):
         """Automatically decode :param:`data` into a `unicode` object."""
+        def fix_data(d):
+            return d.replace('\r\n', '\n').replace('\r', '\n')
         if isinstance(data, unicode):
-            return data
+            return fix_data(data)
         if data[:2] in ('\xff\xfe', '\xfe\xff'):
             try:
-                return data.decode('utf-16')
+                return fix_data(data.decode('utf-16'))
             except UnicodeDecodeError:
                 pass
         if self.encoding is not None:
             try:
-                return data.decode(self.encoding)
+                return fix_data(data.decode(self.encoding))
             except UnicodeDecodeError:
                 pass
         try:
-            return data.decode('utf-8')
+            return fix_data(data.decode('utf-8'))
         except UnicodeDecodeError:
             pass
         data, _ = xml_to_unicode(data)
-        data = data.replace('\r\n', '\n')
-        data = data.replace('\r', '\n')
-        return data
+        return fix_data(data)
 
     def to_opf1(self):
         """Produce OPF 1.2 representing the book's metadata and structure.

@@ -18,7 +18,7 @@ from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.mime import mime_type_ext
 
 # CLI must come before Device as it implments the CLI functions that
-# are inherited from the device interface in Device. 
+# are inherited from the device interface in Device.
 class USBMS(CLI, Device):
 
     name           = 'USBMS Base Device Interface'
@@ -38,10 +38,6 @@ class USBMS(CLI, Device):
                         report_progress=report_progress)
 
     def get_device_information(self, end_session=True):
-        """
-        Ask device for device information. See L{DeviceInfoQuery}.
-        @return: (device name, device version, software version on device, mime type)
-        """
         return (self.__class__.__name__, '', '', '')
 
     def books(self, oncard=None, end_session=True):
@@ -72,8 +68,7 @@ class USBMS(CLI, Device):
                     bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
         return bl
 
-    def upload_books(self, files, names, on_card=None, end_session=True,
-                     metadata=None):
+    def _sanity_check(self, on_card, files):
         if on_card == 'carda' and not self._card_a_prefix:
             raise ValueError(_('The reader has no storage card in this slot.'))
         elif on_card == 'cardb' and not self._card_b_prefix:
@@ -105,6 +100,12 @@ class USBMS(CLI, Device):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        return path
+
+    def upload_books(self, files, names, on_card=False, end_session=True,
+                     metadata=None):
+
+        path = self._sanity_check(on_card, files)
 
         paths = []
         names = iter(names)
@@ -128,7 +129,7 @@ class USBMS(CLI, Device):
                             newpath += tag
                             newpath = os.path.normpath(newpath)
                             break
-                            
+
                 if newpath == path:
                     newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
                     newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
@@ -193,7 +194,7 @@ class USBMS(CLI, Device):
     def metadata_from_path(cls, path):
         from calibre.ebooks.metadata.meta import metadata_from_formats
         return metadata_from_formats([path])
-    
+
     @classmethod
     def book_from_path(cls, path):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -201,7 +202,7 @@ class USBMS(CLI, Device):
         mi = cls.metadata_from_path(path)
         mime = mime_type_ext(fileext)
         authors = authors_to_string(mi.authors)
-        
+
         book = Book(path, mi.title, authors, mime)
         return book
 

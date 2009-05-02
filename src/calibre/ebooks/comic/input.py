@@ -35,6 +35,7 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     for datum in os.walk(dir):
         for name in datum[-1]:
             path = os.path.join(datum[0], name)
+            if '__MACOSX' in path: continue
             for ext in extensions:
                 if path.lower().endswith('.'+ext):
                     pages.append(path)
@@ -190,13 +191,12 @@ def render_pages(tasks, dest, opts, notification=None):
         for num, path in tasks:
             try:
                 pages.extend(PageProcessor(path, dest, opts, num))
-                msg = _('Rendered %s')
+                msg = _('Rendered %s')%path
             except:
                 failures.append(path)
-                msg = _('Failed %s')
+                msg = _('Failed %s')%path
                 if opts.verbose:
                     msg += '\n' + traceback.format_exc()
-            msg = msg%path
             if notification is not None:
                 notification(0.5, msg)
 
@@ -343,7 +343,7 @@ class ComicInput(InputFormatPlugin):
             new_pages = n2
         else:
             new_pages, failures = process_pages(new_pages, self.opts,
-                    self.progress, tdir2)
+                    self.report_progress, tdir2)
             if not new_pages:
                 raise ValueError('Could not find any valid pages in comic: %s'
                         % comic)
@@ -360,13 +360,12 @@ class ComicInput(InputFormatPlugin):
     def get_images(self):
         return self._images
 
-    def convert(self, stream, opts, file_ext, log, accelerators,
-            progress=lambda p, m : m):
+    def convert(self, stream, opts, file_ext, log, accelerators):
         from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.toc import TOC
 
-        self.opts, self.log, self.progress = opts, log, progress
+        self.opts, self.log= opts, log
         if file_ext == 'cbc':
             comics_ = self.get_comics_from_collection(stream)
         else:
