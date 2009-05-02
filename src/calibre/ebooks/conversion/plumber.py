@@ -312,6 +312,14 @@ OptionRecommendation(name='insert_metadata',
             )
         ),
 
+OptionRecommendation(name='preprocess_html',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Attempt to detect and correct hard line breaks and other '
+            'problems in the source file. This may make things worse, so use '
+            'with care.'
+            )
+        ),
+
 
 OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
@@ -580,7 +588,8 @@ OptionRecommendation(name='list_recipes',
             self.log('Debug input called, aborting the rest of the pipeline.')
             return
         if not hasattr(self.oeb, 'manifest'):
-            self.oeb = create_oebbook(self.log, self.oeb, self.opts)
+            self.oeb = create_oebbook(self.log, self.oeb, self.opts,
+                    self.input_plugin)
         pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
         pr(0., _('Running transforms on ebook...'))
 
@@ -652,12 +661,13 @@ OptionRecommendation(name='list_recipes',
                 self.opts, self.log)
         self.ui_reporter(1.)
 
-def create_oebbook(log, path_or_stream, opts, reader=None):
+def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None):
     '''
     Create an OEBBook.
     '''
     from calibre.ebooks.oeb.base import OEBBook
-    html_preprocessor = HTMLPreProcessor()
+    html_preprocessor = HTMLPreProcessor(input_plugin.preprocess_html,
+            opts.preprocess_html)
     oeb = OEBBook(log, html_preprocessor=html_preprocessor,
             pretty_print=opts.pretty_print)
     # Read OEB Book into OEBBook

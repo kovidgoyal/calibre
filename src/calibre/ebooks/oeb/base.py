@@ -1506,7 +1506,7 @@ class OEBBook(object):
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
     def __init__(self, logger,
-            html_preprocessor=HTMLPreProcessor(),
+            html_preprocessor,
             css_preprocessor=CSSPreProcessor(),
             encoding='utf-8', pretty_print=False):
         """Create empty book.  Arguments:

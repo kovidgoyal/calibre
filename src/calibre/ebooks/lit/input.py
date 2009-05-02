@@ -19,6 +19,6 @@ class LITInput(InputFormatPlugin):
                 accelerators):
         from calibre.ebooks.lit.reader import LitReader
         from calibre.ebooks.conversion.plumber import create_oebbook
-        return create_oebbook(log, stream, options, reader=LitReader)
+        return create_oebbook(log, stream, options, self, reader=LitReader)
 
 
