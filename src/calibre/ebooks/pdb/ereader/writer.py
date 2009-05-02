@@ -31,13 +31,14 @@ class Writer(object):
         
         lengths = [len(i) for i in sections]
         
-        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, 'test book')
+        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, '')
         pdbHeaderBuilder.build_header(lengths, out_stream)
         
         for item in sections:
             out_stream.write(item)
 
     def _text(self, pages):
+        # Todo: Split pages over 65505 Bytes
         pml_pages = []
         
         for page in pages:
@@ -46,6 +47,7 @@ class Writer(object):
         return pml_pages            
         
     def _images(self, manifest):
+        # Todo: resize images over 65505 Bytes
         images = []
         
         for item in manifest:
@@ -69,9 +71,19 @@ class Writer(object):
         return images
         
     def _metadata(self, metadata):
-        return 'test\x00\x00\x00\x00\x00'
+        '''
+        Metadata takes the form:
+        title\x00
+        author\x00
+        copyright\x00
+        publisher\x00
+        isbn\x00
+        '''
+        return '\x00\x00\x00\x00\x00'
 
     def _header_record(self, text_items, image_items):
+        # Todo: Find out more about header and add correct values to the file
+        # can be read by eReader reader software.
         '''
         text_items = the number of text pages
         image_items = the number of images
