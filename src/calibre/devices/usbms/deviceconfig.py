@@ -16,18 +16,19 @@ class DeviceConfig(object):
         c.add_opt('format_map', default=cls.FORMATS,  help=cls.HELP_MESSAGE)
         return c
 
+    @classmethod
     def _configProxy(cls):
         return ConfigProxy(cls._config())
 
     @classmethod
     def config_widget(cls):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
-        cw = ConfigWidget(cls.configProxy(cls._config()), cls.FORMATS)
+        cw = ConfigWidget(cls._configProxy(), cls.FORMATS)
         return cw
 
     @classmethod
     def save_settings(cls, config_widget):
-        cls.configProxy(cls._config())['format_map'] = config_widget.format_map()
+        cls._configProxy()['format_map'] = config_widget.format_map()
 
     @classmethod
     def settings(cls):

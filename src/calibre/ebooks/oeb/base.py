@@ -22,8 +22,7 @@ from cssutils import CSSParser
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
-from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, \
-        CSSPreProcessor
+from calibre.ebooks.conversion.preprocess import CSSPreProcessor
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
