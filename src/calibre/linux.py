@@ -5,7 +5,6 @@ import sys, os, shutil
 from subprocess import check_call, call
 
 from calibre import __version__, __appname__
-from calibre.devices import devices
 
 DEVICES = devices()
 

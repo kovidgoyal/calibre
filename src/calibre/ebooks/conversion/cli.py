@@ -128,7 +128,7 @@ def add_pipeline_options(parser, plumber):
                   [
                       'dont_split_on_page_breaks', 'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
-                      'insert_comments', 'page_breaks_before',
+                      'insert_metadata', 'page_breaks_before',
                   ]
                   ),
 

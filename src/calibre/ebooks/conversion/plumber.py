@@ -300,11 +300,11 @@ OptionRecommendation(name='remove_first_image',
             )
         ),
 
-OptionRecommendation(name='insert_comments',
+OptionRecommendation(name='insert_metadata',
         recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Insert the comments/summary from the book metadata at the start of '
+        help=_('Insert the book metadata at the start of '
             'the book. This is useful if your ebook reader does not support '
-            'displaying the comments from the metadata.'
+            'displaying/searching metadata directly.'
             )
         ),
 
@@ -607,7 +607,7 @@ OptionRecommendation(name='list_recipes',
             fkey = map(float, fkey.split(','))
 
         from calibre.ebooks.oeb.transforms.jacket import Jacket
-        Jacket()(self.oeb, self.opts)
+        Jacket()(self.oeb, self.opts, self.user_metadata)
         pr(0.4)
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
