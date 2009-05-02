@@ -4,15 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 '''
 Device driver for the SONY PRS-505
 '''
-import sys, os, shutil, time, subprocess, re
+import os, time
 from itertools import cycle
 
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.prs505.books import BookList, fix_ids
-from calibre import iswindows, islinux, isosx, __appname__
-from calibre.devices.errors import PathError
+from calibre import __appname__
 
 class PRS505(CLI, Device):
 
@@ -22,7 +21,7 @@ class PRS505(CLI, Device):
     supported_platforms = ['windows', 'osx', 'linux']
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
-    
+
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
     PRODUCT_ID   = [0x031e]   #: Product Id for the PRS-505
     BCD          = [0x229]  #: Needed to disambiguate 505 and 700 on linux
@@ -46,27 +45,34 @@ class PRS505(CLI, Device):
 
     def open(self):
         Device.open(self)
-        
+
         def write_cache(prefix):
             try:
                 cachep = os.path.join(prefix, self.CACHE_XML)
                 if not os.path.exists(cachep):
-                    os.makedirs(os.path.dirname(cachep), mode=0777)
-                    f = open(cachep, 'wb')
-                    f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
-<cache xmlns="http://www.kinoma.com/FskCache/1">
-</cache>
-'''.encode('utf8'))
-                    f.close()
+                    try:
+                        os.makedirs(os.path.dirname(cachep), mode=0777)
+                    except:
+                        time.sleep(5)
+                        os.makedirs(os.path.dirname(cachep), mode=0777)
+                    with open(cachep, 'wb') as f:
+                        f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+                            <cache xmlns="http://www.kinoma.com/FskCache/1">
+                            </cache>
+                            '''.encode('utf8'))
+                    return True
             except:
                 self._card_prefix = None
                 import traceback
                 traceback.print_exc()
+            return False
 
         if self._card_a_prefix is not None:
-            write_cache(self._card_a_prefix)
+            if not write_cache(self._card_a_prefix):
+                self._card_a_prefix = None
         if self._card_b_prefix is not None:
-            write_cache(self._card_b_prefix)
+            if not write_cache(self._card_b_prefix):
+                self._card_b_prefix = None
 
     def get_device_information(self, end_session=True):
         return (self.__class__.__name__, '', '', '')
@@ -132,7 +138,7 @@ class PRS505(CLI, Device):
             if not hasattr(infile, 'read'):
                 infile, close = open(infile, 'rb'), True
             infile.seek(0)
-            
+
             newpath = path
             mdata = metadata.next()
 
@@ -159,11 +165,11 @@ class PRS505(CLI, Device):
             paths.append(filepath)
 
             self.put_file(infile, paths[-1], replace_file=True)
-            
+
             if close:
                 infile.close()
             ctimes.append(os.path.getctime(paths[-1]))
-            
+
         return zip(paths, sizes, ctimes, cycle([on_card]))
 
     @classmethod
@@ -199,7 +205,7 @@ class PRS505(CLI, Device):
         f = open(self._main_prefix + self.__class__.MEDIA_XML, 'wb')
         booklists[0].write(f)
         f.close()
-        
+
         def write_card_prefix(prefix, listid):
             if prefix is not None and hasattr(booklists[listid], 'write'):
                 if not os.path.exists(prefix):

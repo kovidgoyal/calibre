@@ -40,7 +40,7 @@ recipe_modules = ['recipe_' + r for r in (
            'krstarica', 'krstarica_en', 'tanjug', 'laprensa_ni', 'azstarnet',
            'corriere_della_sera_it', 'corriere_della_sera_en', 'msdnmag_en',
            'moneynews', 'der_standard', 'diepresse', 'nzz_ger', 'hna',
-           'seattle_times', 'scott_hanselman', 'coding_horror',
+           'seattle_times', 'scott_hanselman', 'coding_horror', 'twitchfilms',
            'stackoverflow', 'telepolis_artikel', 'zaobao', 'usnews',
           )]
 

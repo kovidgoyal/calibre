@@ -105,7 +105,7 @@ def debug_device_driver():
                 prefix = logical_disk.DeviceID+os.sep
                 drives.append((str(drive.PNPDeviceID), drive.Index, prefix))
             except IndexError:
-                drives.append(str(drive.PNPDeviceID))
+                drives.append((str(drive.PNPDeviceID), 'No mount points found'))
         for drive in drives:
             print '\t', drive
     from calibre.devices import devices
