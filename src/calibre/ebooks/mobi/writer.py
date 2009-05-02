@@ -6,8 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 
-import sys
-import os
 from struct import pack
 import time
 import random
@@ -16,24 +14,14 @@ import re
 from itertools import izip, count
 from collections import defaultdict
 from urlparse import urldefrag
-import logging
 from PIL import Image
 from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
     OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.base import namespace, prefixname
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.base import OEBBook
-from calibre.ebooks.oeb.profile import Context
-from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
-from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
-from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
-from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
-from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
-from calibre.ebooks.mobi.mobiml import MBP_NS, MobiMLizer
-from calibre.customize.ui import run_plugins_on_postprocess
-from calibre.utils.config import Config, StringConfig
+from calibre.ebooks.mobi.mobiml import MBP_NS
 
 # TODO:
 # - Allow override CSS (?)
@@ -293,58 +281,22 @@ class Serializer(object):
                 buffer.write('%010d' % ioff)
 
 
-class MobiFlattener(object):
-    def config(self, cfg):
-        return cfg
-
-    def generate(self, opts):
-        return self
-
-    def __call__(self, oeb, context):
-        fbase = context.dest.fbase
-        fkey = context.dest.fnums.values()
-        flattener = CSSFlattener(
-            fbase=fbase, fkey=fkey, unfloat=True, untable=True)
-        return flattener(oeb, context)
-
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    DEFAULT_PROFILE = 'CybookG3'
-
-    TRANSFORMS = [HTMLTOCAdder, CaseMangler, MobiFlattener(), SVGRasterizer,
-                  ManifestTrimmer, MobiMLizer]
-
-    def __init__(self, compression=None, imagemax=None,
+    def __init__(self, compression=PALMDOC, imagemax=None,
                  prefer_author_sort=False):
         self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
 
     @classmethod
-    def config(cls, cfg):
-        """Add any book-writing options to the :class:`Config` object
-        :param:`cfg`.
-        """
-        mobi = cfg.add_group('mobipocket', _('Mobipocket-specific options.'))
-        mobi('compress', ['--compress'], default=False,
-             help=_('Compress file text using PalmDOC compression. '
-                    'Results in smaller files, but takes a long time to run.'))
-        mobi('rescale_images', ['--rescale-images'], default=False,
-             help=_('Modify images to meet Palm device size limitations.'))
-        mobi('prefer_author_sort', ['--prefer-author-sort'], default=False,
-             help=_('When present, use the author sorting information for '
-                    'generating the Mobipocket author metadata.'))
-        return cfg
-
-    @classmethod
     def generate(cls, opts):
         """Generate a Writer instance from command-line options."""
-        compression = PALMDOC if opts.compress else UNCOMPRESSED
         imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
         prefer_author_sort = opts.prefer_author_sort
-        return cls(compression=compression, imagemax=imagemax,
+        return cls(compression=PALMDOC, imagemax=imagemax,
                    prefer_author_sort=prefer_author_sort)
 
     def __call__(self, oeb, path):
@@ -577,88 +529,4 @@ class MobiWriter(object):
             self._write(record)
 
 
-def config(defaults=None):
-    desc = _('Options to control the conversion to MOBI')
-    _profiles = list(sorted(Context.PROFILES.keys()))
-    if defaults is None:
-        c = Config('mobi', desc)
-    else:
-        c = StringConfig(defaults, desc)
 
-    profiles = c.add_group('profiles', _('Device renderer profiles. '
-        'Affects conversion of font sizes, image rescaling and rasterization '
-        'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
-    profiles('source_profile', ['--source-profile'],
-             default='Browser', choices=_profiles,
-             help=_("Source renderer profile. Default is %default."))
-    profiles('dest_profile', ['--dest-profile'],
-             default='CybookG3', choices=_profiles,
-             help=_("Destination renderer profile. Default is %default."))
-    c.add_opt('encoding', ['--encoding'], default=None,
-              help=_('Character encoding for HTML files. Default is to auto detect.'))
-    return c
-
-
-def option_parser():
-    c = config()
-    parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
-    parser.add_option(
-        '-o', '--output', default=None,
-        help=_('Output file. Default is derived from input filename.'))
-    parser.add_option(
-        '-v', '--verbose', default=0, action='count',
-        help=_('Useful for debugging.'))
-    return parser
-
-def oeb2mobi(opts, inpath):
-    logger = Logger(logging.getLogger('oeb2mobi'))
-    logger.setup_cli_handler(opts.verbose)
-    outpath = opts.output
-    if outpath is None:
-        outpath = os.path.basename(inpath)
-        outpath = os.path.splitext(outpath)[0] + '.mobi'
-    source = opts.source_profile
-    if source not in Context.PROFILES:
-        logger.error(_('Unknown source profile %r') % source)
-        return 1
-    dest = opts.dest_profile
-    if dest not in Context.PROFILES:
-        logger.error(_('Unknown destination profile %r') % dest)
-        return 1
-    compression = PALMDOC if opts.compress else UNCOMPRESSED
-    imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
-    context = Context(source, dest)
-    oeb = OEBBook(inpath, logger=logger, encoding=opts.encoding)
-    tocadder = HTMLTOCAdder(title=opts.toc_title)
-    tocadder.transform(oeb, context)
-    mangler = CaseMangler()
-    mangler.transform(oeb, context)
-    fbase = context.dest.fbase
-    fkey = context.dest.fnums.values()
-    flattener = CSSFlattener(
-        fbase=fbase, fkey=fkey, unfloat=True, untable=True)
-    flattener.transform(oeb, context)
-    rasterizer = SVGRasterizer()
-    rasterizer.transform(oeb, context)
-    trimmer = ManifestTrimmer()
-    trimmer.transform(oeb, context)
-    mobimlizer = MobiMLizer(ignore_tables=opts.ignore_tables)
-    mobimlizer.transform(oeb, context)
-    writer = MobiWriter(compression=compression, imagemax=imagemax,
-                        prefer_author_sort=opts.prefer_author_sort)
-    writer.dump(oeb, outpath)
-    run_plugins_on_postprocess(outpath, 'mobi')
-    logger.info(_('Output written to ') + outpath)
-
-def main(argv=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(argv[1:])
-    if len(args) != 1:
-        parser.print_help()
-        return 1
-    inpath = args[0]
-    retval = oeb2mobi(opts, inpath)
-    return retval
-
-if __name__ == '__main__':
-    sys.exit(main())

@@ -131,18 +131,6 @@ OptionRecommendation(name='linearize_tables',
                 )
         ),
 
-OptionRecommendation(name='dont_split_on_page_breaks',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Turn off splitting at page breaks. Normally, input '
-                    'files are automatically split at every page break into '
-                    'two files. This gives an output ebook that can be '
-                    'parsed faster and with less resources. However, '
-                    'splitting is slow and if your source file contains a '
-                    'very large number of page breaks, you should turn off '
-                    'splitting on page breaks.'
-                )
-        ),
-
 OptionRecommendation(name='level1_toc',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('XPath expression that specifies all tags that '
@@ -628,20 +616,14 @@ OptionRecommendation(name='list_recipes',
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=self.opts.line_height,
-                untable=self.opts.linearize_tables)
+                untable=self.output_plugin.file_type in ('mobi','lit'),
+                unfloat=self.output_plugin.file_type in ('mobi', 'lit'))
         flattener(self.oeb, self.opts)
 
-        if self.opts.linearize_tables:
+        if self.opts.linearize_tables and \
+                self.output_plugin.file_type not in ('mobi', 'lrf'):
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
-        pr(0.7)
-
-        from calibre.ebooks.oeb.transforms.split import Split
-        pbx = accelerators.get('pagebreaks', None)
-        split = Split(not self.opts.dont_split_on_page_breaks,
-                max_flow_size=self.opts.output_profile.flow_size,
-                page_breaks_xpath=pbx)
-        split(self.oeb, self.opts)
         pr(0.9)
 
         from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
