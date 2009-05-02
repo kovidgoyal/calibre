@@ -525,11 +525,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         index = self.plugin_view.currentIndex()
         if index.isValid():
             plugin = self._plugin_model.index_to_plugin(index)
-            if not plugin.can_be_disabled:
-                error_dialog(self,_('Plugin cannot be disabled'),
-                             _('The plugin: %s cannot be disabled')%plugin.name).exec_()
-                return
             if op == 'toggle':
+                if not plugin.can_be_disabled:
+                    error_dialog(self,_('Plugin cannot be disabled'),
+                                 _('The plugin: %s cannot be disabled')%plugin.name).exec_()
+                    return
                 if is_disabled(plugin):
                     enable_plugin(plugin)
                 else:
