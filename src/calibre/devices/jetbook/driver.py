@@ -7,7 +7,7 @@ Device driver for Ectaco Jetbook firmware >= JL04_v030e
 import os, re, sys, shutil
 from itertools import cycle
 
-from calibre.devices.usbms.driver import USBMS, metadata_from_formats
+from calibre.devices.usbms.driver import USBMS
 from calibre import sanitize_file_name as sanitize
 
 class JETBOOK(USBMS):
@@ -98,7 +98,8 @@ class JETBOOK(USBMS):
                 return txt.decode(sys.getfilesystemencoding(), 'replace')
 
             return txt
-
+            
+        from calibre.devices.usbms.driver import metadata_from_formats
         mi = metadata_from_formats([path])
 
         if (mi.title==_('Unknown') or mi.authors==[_('Unknown')]) \

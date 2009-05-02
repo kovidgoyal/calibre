@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
+
 '''
 Convert pml markup to and from html
 '''
@@ -46,6 +46,10 @@ PML_HTML_RULES = [
     (re.compile(r'\\Fn="(?P<target>.+?)"(?P<text>.+?)\\Fn'), lambda match: '<a href="#footnote-%s">%s</a>' % (match.group('target'), match.group('text'))),
     (re.compile(r'\\Sd="(?P<target>.+?)"(?P<text>.+?)\\Sd'), lambda match: '<a href="#sidebar-%s">%s</a>' % (match.group('target'), match.group('text'))),
     (re.compile(r'\\I'), lambda match: ''),
+    
+    # Sidebar and Footnotes
+    (re.compile(r'<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.+?)\s*</sidebar>', re.DOTALL), lambda match: '<div id="sidebar-%s">%s</div>' % (match.group('target'), match.group('text'))),
+    (re.compile(r'<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.+?)\s*</footnote>', re.DOTALL), lambda match: '<div id="footnote-%s">%s</div>' % (match.group('target'), match.group('text'))),
     
     # eReader files are one paragraph per line.
     # This forces the lines to wrap properly.

@@ -5,8 +5,9 @@ import sys, os, shutil
 from subprocess import check_call, call
 
 from calibre import __version__, __appname__
+from calibre.customize.ui import device_plugins
 
-DEVICES = devices()
+DEVICES = device_plugins()
 
 DESTDIR = ''
 if os.environ.has_key('DESTDIR'):
@@ -292,7 +293,7 @@ def setup_udev_rules(group_file, reload, fatal_errors):
           </match>
       </match>
   </device>
-'''%dict(cls=cls.__name__, vendor_id=cls.VENDOR_ID, product_id=cls.PRODUCT_ID,
+'''%dict(cls=cls.__class__.__name__, vendor_id=cls.VENDOR_ID, product_id=cls.PRODUCT_ID,
          prog=__appname__, bcd=cls.BCD))
         fdi.write('\n'+cls.get_fdi())
     fdi.write('\n</deviceinfo>\n')

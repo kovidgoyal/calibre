@@ -33,7 +33,7 @@ from calibre.ebooks.lrf.html.table import Table
 from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, \
                     fit_image, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.devices.interface import Device
+from calibre.devices.interface import DevicePlugin as Device
 from calibre.ebooks.lrf.html.color_map import lrs_color
 from calibre.ebooks.chardet import xml_to_unicode
 

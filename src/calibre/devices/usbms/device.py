@@ -10,9 +10,10 @@ import os, subprocess, time, re
 
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
+from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
 
-class Device(DevicePlugin):
+class Device(DeviceConfig, DevicePlugin):
     '''
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. If you are writing such a driver, inherit from this
@@ -94,7 +95,7 @@ class Device(DevicePlugin):
             for pid in cls.PRODUCT_ID:
                 fdi_base_values = dict(
                                        app=__appname__,
-                                       deviceclass=cls.__name__,
+                                       deviceclass=cls.__class__.__name__,
                                        vendor_id=hex(vid),
                                        product_id=hex(pid),
                                        main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
