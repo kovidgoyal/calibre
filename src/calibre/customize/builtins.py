@@ -303,6 +303,7 @@ from calibre.devices.kindle.driver import KINDLE
 from calibre.devices.kindle.driver import KINDLE2
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.eb600.driver import EB600
+from calibre.devices.jetbook.driver import JETBOOK
 
 plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDBInput, PDFInput, HTMLInput,
         TXTInput, OEBOutput, TXTOutput, PDFOutput, LITInput, ComicInput,
