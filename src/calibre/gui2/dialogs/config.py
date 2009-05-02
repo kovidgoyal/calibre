@@ -7,7 +7,8 @@ from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
-                        QModelIndex, QInputDialog, QAbstractTableModel
+                        QModelIndex, QInputDialog, QAbstractTableModel, \
+                        QDialogButtonBox
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
@@ -540,11 +541,28 @@ class ConfigDialog(QDialog, Ui_Dialog):
                     info_dialog(self, _('Plugin not customizable'),
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
-                help = plugin.customization_help()
-                text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
-                                                help)
-                if ok:
-                    customize_plugin(plugin, unicode(text))
+                if hasattr(plugin, 'config_widget'):
+                    config_dialog = QDialog(self)
+                    button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+
+                    config_dialog.connect(button_box, SIGNAL('accepted()'), config_dialog.accept)
+                    config_dialog.connect(button_box, SIGNAL('rejected()'), config_dialog.reject)
+                    
+                    config_widget = plugin.config_widget()
+                    v = QVBoxLayout(config_dialog)
+                    v.addWidget(config_widget)
+                    v.addWidget(button_box)
+                    config_dialog.exec_()
+                    
+                    if config_dialog.result() == QDialog.Accepted:
+                        plugin.save_settings(config_widget)
+                        self._plugin_model.refresh_plugin(plugin)
+                else:
+                    help = plugin.customization_help()
+                    text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
+                                                    help)
+                    if ok:
+                        customize_plugin(plugin, unicode(text))
                     self._plugin_model.refresh_plugin(plugin)
             if op == 'remove':
                 if remove_plugin(plugin):
