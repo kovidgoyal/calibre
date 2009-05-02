@@ -69,7 +69,7 @@ class PMLInput(InputFormatPlugin):
                 imgs = glob.glob(os.path.join(tdir, '*.png'))
                 for img in imgs:
                     pimg_name = os.path.basename(img)
-                    pimg_path = os.path.join(os.getcwd(), pimg_name)
+                    pimg_path = os.path.join(os.getcwd(), 'images', pimg_name)
                     
                     images.append(pimg_name)
                     
