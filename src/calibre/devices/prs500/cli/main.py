@@ -205,7 +205,8 @@ def main():
     scanner.scan()
     for d in device_plugins():
         if scanner.is_device_connected(d):
-            dev = d(log_packets=options.log_packets)
+            dev = d
+            dev.reset(log_packets=options.log_packets)
     
     if dev is None:
         print >>sys.stderr, 'Unable to find a connected ebook reader.'
