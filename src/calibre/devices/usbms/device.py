@@ -13,7 +13,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
 
-class Device(DeviceConfig, Device):
+class Device(DeviceConfig, DevicePlugin):
     '''
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. If you are writing such a driver, inherit from this
