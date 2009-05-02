@@ -90,12 +90,11 @@ class Device(DeviceConfig, DevicePlugin):
     @classmethod
     def get_fdi(cls):
         fdi = ''
-
         for vid in cls.VENDOR_ID:
             for pid in cls.PRODUCT_ID:
                 fdi_base_values = dict(
                                        app=__appname__,
-                                       deviceclass=cls.__class__.__name__,
+                                       deviceclass=cls.__name__,
                                        vendor_id=hex(vid),
                                        product_id=hex(pid),
                                        main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,

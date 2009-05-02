@@ -436,7 +436,7 @@ class DeviceGUI(object):
         fmt = None
         if specific:
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
-                                self.device_manager.device_class.FORMATS)
+                                self.device_manager.device_class.settings().format_map)
             d.exec_()
             fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
@@ -581,7 +581,7 @@ class DeviceGUI(object):
             ids = list(dynamic.get('news_to_be_synced', set([])))
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files = self.library_view.model().get_preferred_formats_from_ids(
-                                ids, self.device_manager.device_class.FORMATS)
+                                ids, self.device_manager.device_class.settings().format_map)
             files = [f for f in files if f is not None]
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
@@ -618,7 +618,7 @@ class DeviceGUI(object):
             return
             
         _files, _auto_rows = self.library_view.model().get_preferred_formats(rows,
-                                    self.device_manager.device_class.FORMATS,
+                                    self.device_manager.device_class.settings().format_map,
                                     paths=True, set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
@@ -667,7 +667,7 @@ class DeviceGUI(object):
                 if specific_format == None:
                     formats = [f.lower() for f in self.library_view.model().db.formats(row).split(',')]
                     formats = formats if formats != None else [] 
-                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.FORMATS).intersection(available_output_formats())) != []:
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
                         auto.append(row)
                     else:
                         bad.append(self.library_view.model().title(row))
@@ -682,8 +682,8 @@ class DeviceGUI(object):
             autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
             d = info_dialog(self, _('No suitable formats'),
                     _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
-            for fmt in self.device_manager.device_class.FORMATS:
-                if fmt in list(set(self.device_manager.device_class.FORMATS).intersection(set(available_output_formats()))):
+            for fmt in self.device_manager.device_class.settings().format_map:
+                if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
                     format = fmt
                     break
             d.exec_()                        
