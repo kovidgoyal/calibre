@@ -28,7 +28,21 @@ class EPUBOutput(OutputFormatPlugin):
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated EPUB file to the '
                 'specified directory. The contents of the directory are first '
-                'deleted, so be careful.'))
+                'deleted, so be careful.')),
+
+        OptionRecommendation(name='dont_split_on_page_breaks',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Turn off splitting at page breaks. Normally, input '
+                    'files are automatically split at every page break into '
+                    'two files. This gives an output ebook that can be '
+                    'parsed faster and with less resources. However, '
+                    'splitting is slow and if your source file contains a '
+                    'very large number of page breaks, you should turn off '
+                    'splitting on page breaks.'
+                )
+        ),
+
+
         ])
 
 
@@ -87,6 +101,13 @@ class EPUBOutput(OutputFormatPlugin):
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
+
+        from calibre.ebooks.oeb.transforms.split import Split
+        split = Split(not self.opts.dont_split_on_page_breaks,
+                max_flow_size=self.opts.output_profile.flow_size
+                )
+        split(self.oeb, self.opts)
+
 
         self.workaround_ade_quirks()
 

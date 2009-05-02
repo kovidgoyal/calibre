@@ -26,16 +26,16 @@ def sanitize_head(match):
 def chap_head(match):
     chap = match.group('chap')
     title = match.group('title')
-    if not title: 
+    if not title:
                return '<h1>'+chap+'</h1><br/>\n'
-    else: 
+    else:
                return '<h1>'+chap+'<br/>\n'+title+'</h1><br/>\n'
 
 def wrap_lines(match):
     ital = match.group('ital')
-    if not ital: 
+    if not ital:
                return ' '
-    else: 
+    else:
                return ital+' '
 
 def line_length(raw, percent):
@@ -106,7 +106,7 @@ class HTMLPreProcessor(object):
                   (re.compile(u'¨\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Ï'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*a', re.UNICODE), lambda match: u'ä'),
                   (re.compile(u'¨\s*(<br.*?>)*\s*A', re.UNICODE), lambda match: u'Ä'),
-                  
+
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),
                   # Remove <hr> tags
@@ -151,6 +151,9 @@ class HTMLPreProcessor(object):
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
+    def __init__(self, input_plugin_preprocess, plugin_preprocess):
+        self.input_plugin_preprocess = input_plugin_preprocess
+        self.plugin_preprocess = plugin_preprocess
 
     def is_baen(self, src):
         return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"',
@@ -175,7 +178,7 @@ class HTMLPreProcessor(object):
                 # Un wrap using punctuation
                 (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % line_length(html, .4), re.UNICODE), wrap_lines),
             ]
-            
+
             rules = self.PDFTOHTML + line_length_rules
         else:
             rules = []
@@ -191,6 +194,9 @@ class HTMLPreProcessor(object):
                 '<html', '<html xmlns:xlink="%s"' % XLINK_NS, 1)
 
         html = XMLDECL_RE.sub('', html)
+
+        if self.plugin_preprocess:
+            html = self.input_plugin_preprocess(html)
 
         return html
 

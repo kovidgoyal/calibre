@@ -131,18 +131,6 @@ OptionRecommendation(name='linearize_tables',
                 )
         ),
 
-OptionRecommendation(name='dont_split_on_page_breaks',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Turn off splitting at page breaks. Normally, input '
-                    'files are automatically split at every page break into '
-                    'two files. This gives an output ebook that can be '
-                    'parsed faster and with less resources. However, '
-                    'splitting is slow and if your source file contains a '
-                    'very large number of page breaks, you should turn off '
-                    'splitting on page breaks.'
-                )
-        ),
-
 OptionRecommendation(name='level1_toc',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('XPath expression that specifies all tags that '
@@ -309,6 +297,14 @@ OptionRecommendation(name='insert_metadata',
         help=_('Insert the book metadata at the start of '
             'the book. This is useful if your ebook reader does not support '
             'displaying/searching metadata directly.'
+            )
+        ),
+
+OptionRecommendation(name='preprocess_html',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Attempt to detect and correct hard line breaks and other '
+            'problems in the source file. This may make things worse, so use '
+            'with care.'
             )
         ),
 
@@ -580,7 +576,8 @@ OptionRecommendation(name='list_recipes',
             self.log('Debug input called, aborting the rest of the pipeline.')
             return
         if not hasattr(self.oeb, 'manifest'):
-            self.oeb = create_oebbook(self.log, self.oeb, self.opts)
+            self.oeb = create_oebbook(self.log, self.oeb, self.opts,
+                    self.input_plugin)
         pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
         pr(0., _('Running transforms on ebook...'))
 
@@ -619,20 +616,14 @@ OptionRecommendation(name='list_recipes',
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=self.opts.line_height,
-                untable=self.opts.linearize_tables)
+                untable=self.output_plugin.file_type in ('mobi','lit'),
+                unfloat=self.output_plugin.file_type in ('mobi', 'lit'))
         flattener(self.oeb, self.opts)
 
-        if self.opts.linearize_tables:
+        if self.opts.linearize_tables and \
+                self.output_plugin.file_type not in ('mobi', 'lrf'):
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
-        pr(0.7)
-
-        from calibre.ebooks.oeb.transforms.split import Split
-        pbx = accelerators.get('pagebreaks', None)
-        split = Split(not self.opts.dont_split_on_page_breaks,
-                max_flow_size=self.opts.output_profile.flow_size,
-                page_breaks_xpath=pbx)
-        split(self.oeb, self.opts)
         pr(0.9)
 
         from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
@@ -652,13 +643,14 @@ OptionRecommendation(name='list_recipes',
                 self.opts, self.log)
         self.ui_reporter(1.)
 
-def create_oebbook(log, path_or_stream, opts, reader=None):
+def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None):
     '''
     Create an OEBBook.
     '''
     from calibre.ebooks.oeb.base import OEBBook
-    html_preprocessor = HTMLPreProcessor()
-    oeb = OEBBook(log, html_preprocessor=html_preprocessor,
+    html_preprocessor = HTMLPreProcessor(input_plugin.preprocess_html,
+            opts.preprocess_html)
+    oeb = OEBBook(log, html_preprocessor,
             pretty_print=opts.pretty_print)
     # Read OEB Book into OEBBook
     log('Parsing all content...')

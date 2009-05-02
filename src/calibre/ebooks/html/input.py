@@ -288,7 +288,7 @@ class HTMLInput(InputFormatPlugin):
             return opfpath
 
         from calibre.ebooks.conversion.plumber import create_oebbook
-        oeb = create_oebbook(log, opfpath, opts)
+        oeb = create_oebbook(log, opfpath, opts, self)
 
         from calibre.ebooks.oeb.transforms.package import Package
         Package(os.getcwdu())(oeb, opts)

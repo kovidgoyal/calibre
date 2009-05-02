@@ -22,8 +22,7 @@ from cssutils import CSSParser
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
-from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, \
-        CSSPreProcessor
+from calibre.ebooks.conversion.preprocess import CSSPreProcessor
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
@@ -1506,7 +1505,7 @@ class OEBBook(object):
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
     def __init__(self, logger,
-            html_preprocessor=HTMLPreProcessor(),
+            html_preprocessor,
             css_preprocessor=CSSPreProcessor(),
             encoding='utf-8', pretty_print=False):
         """Create empty book.  Arguments:
