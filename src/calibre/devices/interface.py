@@ -210,7 +210,31 @@ class DevicePlugin(Plugin):
         Read the file at C{path} on the device and write it to outfile.
         @param outfile: file object like C{sys.stdout} or the result of an C{open} call
         '''
-        raise NotImplementedError()         
+        raise NotImplementedError()
+
+    @classmethod
+    def config_widget(cls):
+        '''
+        Should return a QWidget. The QWidget contains the settings for the device interface
+        '''
+        raise NotImplementedError()
+
+    @classmethod
+    def save_settings(cls, settings_widget):
+        '''
+        Should save settings to disk. Takes the widget created in config_widget
+        and saves all settings to disk.
+        '''
+        raise NotImplementedError()
+
+    @classmethod
+    def settings(cls):
+        '''
+        Should return an opts object. The opts object should have one attribute
+        `formats` whihc is an ordered list of formats for the device.
+        '''
+        raise NotImplementedError()
+
 
 
     

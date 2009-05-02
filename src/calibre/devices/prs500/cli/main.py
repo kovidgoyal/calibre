@@ -13,7 +13,7 @@ from calibre import __version__, iswindows, __appname__
 from calibre.devices.errors import PathError 
 from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
-from calibre.devices import devices
+from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
@@ -203,7 +203,7 @@ def main():
         _wmi = wmi.WMI()
     scanner = DeviceScanner(_wmi)
     scanner.scan()
-    for d in devices():
+    for d in device_plugins():
         if scanner.is_device_connected(d):
             dev = d(log_packets=options.log_packets)
     
