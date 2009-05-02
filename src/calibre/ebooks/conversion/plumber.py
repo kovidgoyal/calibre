@@ -251,19 +251,23 @@ OptionRecommendation(name='page_breaks_before',
 
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
-        help=_('Set the top margin in pts. Default is %default')),
+        help=_('Set the top margin in pts. Default is %default. '
+            'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_bottom',
         recommended_value=5.0, level=OptionRecommendation.LOW,
-        help=_('Set the bottom margin in pts. Default is %default')),
+        help=_('Set the bottom margin in pts. Default is %default. '
+            'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_left',
         recommended_value=5.0, level=OptionRecommendation.LOW,
-        help=_('Set the left margin in pts. Default is %default')),
+        help=_('Set the left margin in pts. Default is %default. '
+            'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_right',
         recommended_value=5.0, level=OptionRecommendation.LOW,
-        help=_('Set the right margin in pts. Default is %default')),
+        help=_('Set the right margin in pts. Default is %default. '
+            'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='dont_justify',
         recommended_value=False, level=OptionRecommendation.LOW,
