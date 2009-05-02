@@ -251,7 +251,11 @@ class PRS505(Device):
             try:
                 cachep = os.path.join(self._card_prefix, self.CACHE_XML)
                 if not os.path.exists(cachep):
-                    os.makedirs(os.path.dirname(cachep), mode=0777)
+                    try:
+                        os.makedirs(os.path.dirname(cachep), mode=0777)
+                    except:
+                        time.sleep(5)
+                        os.makedirs(os.path.dirname(cachep), mode=0777)
                     f = open(cachep, 'wb')
                     f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
 <cache xmlns="http://www.kinoma.com/FskCache/1">
