@@ -11,7 +11,7 @@ import Image, cStringIO
 from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pdb.ereader import image_name
-from calibre.ebooks.pdb.ereader.pmlconverter import html_to_pml
+from calibre.ebooks.pml.pmlconverter import html_to_pml
 
 IDENTITY = 'PNPdPPrs'
 
