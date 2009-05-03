@@ -16,7 +16,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pml.pmlconverter import pml_to_html, \
-    footnote_sidebar_to_html 
+    footnote_sidebar_to_html
 from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
