@@ -302,6 +302,7 @@ from calibre.web.feeds.input import RecipeInput
 from calibre.ebooks.oeb.output import OEBOutput
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.mobi.output import MOBIOutput
+from calibre.ebooks.pdb.output import PDBOutput
 from calibre.ebooks.lrf.output import LRFOutput
 from calibre.ebooks.lit.output import LITOutput
 from calibre.ebooks.txt.output import TXTOutput
@@ -323,7 +324,7 @@ from calibre.devices.jetbook.driver import JETBOOK
 plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDBInput, PDFInput, HTMLInput,
         TXTInput, OEBOutput, TXTOutput, PDFOutput, LITInput, ComicInput,
         FB2Input, ODTInput, RTFInput, EPUBOutput, RecipeInput, PMLInput,
-        PMLOutput, MOBIOutput, LRFOutput, LITOutput]
+        PMLOutput, MOBIOutput, PDBOutput, LRFOutput, LITOutput]
 plugins += [PRS500, PRS505, PRS700, CYBOOKG3, KINDLE, KINDLE2, BLACKBERRY,
         EB600, JETBOOK]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

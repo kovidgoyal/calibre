@@ -5,15 +5,25 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.ebooks.pdb.ereader.reader import Reader as eReader
-from calibre.ebooks.pdb.ztxt.reader import Reader as zTXT
-from calibre.ebooks.pdb.palmdoc.reader import Reader as PalmDoc
+class PDBError(Exception):
+    pass
+    
 
-FORMATS = {
-    'PNPdPPrs' : eReader,
-    'PNRdPPrs' : eReader,
-    'zTXTGPlm' : zTXT,
-    'TEXtREAd' : PalmDoc,
+from calibre.ebooks.pdb.ereader.reader import Reader as ereader_reader
+from calibre.ebooks.pdb.ztxt.reader import Reader as ztxt_reader
+from calibre.ebooks.pdb.palmdoc.reader import Reader as palmdoc_reader
+
+FORMAT_READERS = {
+    'PNPdPPrs' : ereader_reader,
+    'PNRdPPrs' : ereader_reader,
+    'zTXTGPlm' : ztxt_reader,
+    'TEXtREAd' : palmdoc_reader,
+}
+
+from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
+
+FORMAT_WRITERS = {
+    'doc' : palmdoc_writer,
 }
 
 IDENTITY_TO_NAME = {
@@ -48,15 +58,15 @@ IDENTITY_TO_NAME = {
     'BDOCWrdS' : 'WordSmith',
 }
 
-class PDBError(Exception):
-    pass
-    
-
 def get_reader(identity):
     '''
     Returns None if no reader is found for the identity.
     '''
-    if identity in FORMATS.keys():
-        return FORMATS[identity]
-    else:
-        return None
+    return FORMAT_READERS.get(identity, None)
+        
+def get_writer(extension):
+    '''
+    Returns None if no writer is found for extension.
+    '''
+    return FORMAT_WRITERS.get(extension, None)
+    
