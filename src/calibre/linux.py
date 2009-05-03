@@ -138,12 +138,9 @@ def setup_completion(fatal_errors):
     try:
         print 'Setting up bash completion...',
         sys.stdout.flush()
-        from calibre.ebooks.lrf.html.convert_from import option_parser as htmlop
-        from calibre.ebooks.lrf.txt.convert_from import option_parser as txtop
         from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
         from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
         from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
-        from calibre.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
         from calibre.web.feeds.main import option_parser as feeds2disk
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.metadata.fetch import option_parser as fem_op
@@ -159,21 +156,10 @@ def setup_completion(fatal_errors):
         manifest.append(f.name)
 
         f.write('# calibre Bash Shell Completion\n')
-        f.write(opts_and_exts('html2lrf', htmlop,
-                              ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'php']))
-        f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
-        f.write(opts_and_exts('lit2lrf', htmlop, ['lit']))
-        f.write(opts_and_exts('epub2lrf', htmlop, ['epub']))
-        f.write(opts_and_exts('rtf2lrf', htmlop, ['rtf']))
-        f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
-        f.write(opts_and_exts('fb22lrf', htmlop, ['fb2']))
-        f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
-        f.write(opts_and_exts('any2lrf', htmlop, any_formats))
         f.write(opts_and_exts('calibre', guiop, any_formats))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
-        f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
         f.write(opts_and_words('calibre-smtp', smtp_op, []))

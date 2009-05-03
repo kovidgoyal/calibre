@@ -373,6 +373,7 @@ class Style(object):
     @property
     def fontSize(self):
         def normalize_fontsize(value, base):
+            value = value.replace('"', '').replace("'", '')
             result = None
             factor = None
             if value == 'inherit':
