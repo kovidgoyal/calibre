@@ -28,7 +28,6 @@ class HeaderRecord(object):
         self.num_records, = struct.unpack('>H', raw[2:4])
         self.size, = struct.unpack('>L', raw[4:8])
         self.record_size, = struct.unpack('>H', raw[8:10])
-        self.crc32, = struct.unpack('>L', raw[18:22])
         
     
 class Reader(FormatReader):
@@ -47,10 +46,6 @@ class Reader(FormatReader):
         # Initalize the decompressor
         self.uncompressor = zlib.decompressobj()
         self.uncompressor.decompress(self.section_data(1))
-        
-#        if self.header_record.version not in (1, 2) or self.header_record.uid != 1:
-#            raise zTXTError('Unknown book version %i.' % self.header_record.version)
-
 
     def section_data(self, number):
         return self.sections[number]
