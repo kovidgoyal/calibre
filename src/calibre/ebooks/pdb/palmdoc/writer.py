@@ -34,7 +34,7 @@ class Writer(FormatWriter):
             txt_records[i] = compress_doc(txt_records[i].encode('utf-8'))
             section_lengths.append(len(txt_records[i]))
             
-        out_stream.seek(0)            
+        out_stream.seek(0)
         hb = PdbHeaderBuilder('TEXtREAd', title)
         hb.build_header(section_lengths, out_stream)
         
