@@ -22,7 +22,6 @@ entry_points = {
              'web2disk           = calibre.web.fetch.simple:main',
              'feeds2disk         = calibre.web.feeds.main:main',
              'calibre-server     = calibre.library.server:main',
-             'web2lrf            = calibre.ebooks.lrf.web.convert_from:main',
              'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',
              'isbndb             = calibre.ebooks.metadata.isbndb:main',
