@@ -119,10 +119,44 @@ class LRFOutput(OutputFormatPlugin):
         ('dont_justify', True, OptionRecommendation.HIGH),
         ])
 
+    def convert_images(self, pages, opts, wide):
+        from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, ImageBlock
+        from uuid import uuid4
+        from calibre.constants import __appname__, __version__
+
+        width, height = (784, 1012) if wide else (584, 754)
+
+        ps = {}
+        ps['topmargin']      = 0
+        ps['evensidemargin'] = 0
+        ps['oddsidemargin']  = 0
+        ps['textwidth']      = width
+        ps['textheight']     = height
+        book = Book(title=opts.title, author=opts.author,
+                bookid=uuid4().hex,
+                publisher='%s %s'%(__appname__, __version__),
+                category=_('Comic'), pagestyledefault=ps,
+                booksetting=BookSetting(screenwidth=width, screenheight=height))
+        for page in pages:
+            imageStream = ImageStream(page)
+            _page = book.create_page()
+            _page.append(ImageBlock(refstream=imageStream,
+                        blockwidth=width, blockheight=height, xsize=width,
+                        ysize=height, x1=width, y1=height))
+            book.append(_page)
+
+        book.renderLrf(open(opts.output, 'wb'))
+
+
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
         lrf_opts = LRFOptions(output_path, opts, oeb)
+
+        if input_plugin.is_image_collection:
+            self.convert_images(input_plugin.get_images(), lrf_opts,
+                    getattr(opts, 'wide', False))
+            return
 
         from calibre.ptempfile import TemporaryDirectory
         with TemporaryDirectory('_lrf_output') as tdir:
