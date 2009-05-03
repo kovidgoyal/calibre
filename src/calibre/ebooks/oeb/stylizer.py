@@ -88,7 +88,7 @@ FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
 class CSSSelector(etree.XPath):
     MIN_SPACE_RE = re.compile(r' *([>~+]) *')
     LOCAL_NAME_RE = re.compile(r"(?<!local-)name[(][)] *= *'[^:]+:")
-    
+
     def __init__(self, css, namespaces=XPNSMAP):
         css = self.MIN_SPACE_RE.sub(r'\1', css)
         path = css_to_xpath(css)
@@ -103,9 +103,9 @@ class CSSSelector(etree.XPath):
             self.css)
 
 
-class Stylizer(object):    
+class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
-    
+
     def __init__(self, tree, path, oeb, profile=PROFILES['PRS505']):
         self.oeb = oeb
         self.profile = profile
@@ -167,7 +167,7 @@ class Stylizer(object):
                 self.style(elem)._update_cssdict(cssdict)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr()
-    
+
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
         if path not in hrefs:
@@ -175,7 +175,7 @@ class Stylizer(object):
         data = hrefs[path].data
         data = XHTML_CSS_NAMESPACE + data
         return ('utf-8', data)
-    
+
     def flatten_rule(self, rule, href, index):
         results = []
         if isinstance(rule, CSSStyleRule):
@@ -189,7 +189,7 @@ class Stylizer(object):
             style = self.flatten_style(rule.style)
             self.page_rule.update(style)
         return results
-    
+
     def flatten_style(self, cssstyle):
         style = {}
         for prop in cssstyle:
@@ -206,7 +206,7 @@ class Stylizer(object):
             if size in FONT_SIZE_NAMES:
                 style['font-size'] = "%dpt" % self.profile.fnames[size]
         return style
-    
+
     def _normalize_edge(self, cssvalue, name):
         style = {}
         if isinstance(cssvalue, CSSValueList):
@@ -228,7 +228,7 @@ class Stylizer(object):
         for edge, value in itertools.izip(edges, values):
             style["%s-%s" % (name, edge)] = value
         return style
-        
+
     def _normalize_font(self, cssvalue):
         composition = ('font-style', 'font-variant', 'font-weight',
                        'font-size', 'line-height', 'font-family')
@@ -275,7 +275,7 @@ class Stylizer(object):
 
 class Style(object):
     UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)$')
-    
+
     def __init__(self, element, stylizer):
         self._element = element
         self._profile = stylizer.profile
@@ -289,7 +289,7 @@ class Style(object):
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)
-    
+
     def _apply_style_attr(self):
         attrib = self._element.attrib
         if 'style' not in attrib:
@@ -301,7 +301,7 @@ class Style(object):
         except CSSSyntaxError:
             return
         self._style.update(self._stylizer.flatten_style(style))
-    
+
     def _has_parent(self):
         return (self._element.getparent() is not None)
 
@@ -350,7 +350,7 @@ class Style(object):
             elif unit == 'in':
                 result = value * 72.0
             elif unit == 'pt':
-                result = value 
+                result = value
             elif unit == 'em':
                 font = font or self.fontSize
                 result = value * font
@@ -365,6 +365,7 @@ class Style(object):
     @property
     def fontSize(self):
         def normalize_fontsize(value, base):
+            value = value.replace('"', '').replace("'", '')
             result = None
             factor = None
             if value == 'inherit':
@@ -425,7 +426,7 @@ class Style(object):
                 result = self._unit_convert(width, base=base)
             self._width = result
         return self._width
-    
+
     @property
     def height(self):
         if self._height is None:
@@ -467,27 +468,27 @@ class Style(object):
                 result = 1.2 * self.fontSize
             self._lineHeight = result
         return self._lineHeight
-    
+
     @property
     def marginTop(self):
         return self._unit_convert(
             self._get('margin-top'), base=self.height)
-    
+
     @property
     def marginBottom(self):
         return self._unit_convert(
             self._get('margin-bottom'), base=self.height)
-    
+
     @property
     def paddingTop(self):
         return self._unit_convert(
             self._get('padding-top'), base=self.height)
-    
+
     @property
     def paddingBottom(self):
         return self._unit_convert(
             self._get('padding-bottom'), base=self.height)
-    
+
     def __str__(self):
         items = self._style.items()
         items.sort()
