@@ -34,6 +34,7 @@ class HeaderRecord(object):
 class Reader(FormatReader):
     
     def __init__(self, header, stream, log, encoding=None):
+        self.stream = stream
         self.log = log
         self.encoding = encoding
     
@@ -69,7 +70,8 @@ class Reader(FormatReader):
         with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
                         
-        mi = MetaInformation(_('Unknown'), _('Unknown'))
+        from calibre.ebooks.metadata.meta import get_metadata
+        mi = get_metadata(self.stream, 'pdb')
         manifest = [('index.html', None)]
         spine = ['index.html']
         opf_writer(output_dir, 'metadata.opf', manifest, spine, mi)
