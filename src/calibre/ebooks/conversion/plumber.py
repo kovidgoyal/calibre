@@ -236,7 +236,6 @@ OptionRecommendation(name='page_breaks_before',
             'before the specified elements.')
         ),
 
-
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the top margin in pts. Default is %default. '
@@ -614,11 +613,18 @@ OptionRecommendation(name='list_recipes',
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
             self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
 
+        oibl = self.opts.insert_blank_line
+        orps  = self.opts.remove_paragraph_spacing
+        if self.output_plugin.file_type == 'lrf':
+            self.opts.insert_blank_line = False
+            self.opts.remove_paragraph_spacing = False
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=self.opts.line_height,
                 untable=self.output_plugin.file_type in ('mobi','lit'),
                 unfloat=self.output_plugin.file_type in ('mobi', 'lit'))
         flattener(self.oeb, self.opts)
+        self.opts.insert_blank_line = oibl
+        self.opts.remove_paragraph_spacing = orps
 
         if self.opts.linearize_tables and \
                 self.output_plugin.file_type not in ('mobi', 'lrf'):

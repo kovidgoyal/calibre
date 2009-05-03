@@ -49,7 +49,7 @@ def load_plugin(path_to_zip_file):
 
     :return: A :class:`Plugin` instance.
     '''
-    print 'Loading plugin from', path_to_zip_file
+    #print 'Loading plugin from', path_to_zip_file
     if not os.access(path_to_zip_file, os.R_OK):
         raise PluginNotFound
     zf = ZipFile(path_to_zip_file)

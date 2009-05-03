@@ -22,7 +22,6 @@ entry_points = {
              'web2disk           = calibre.web.fetch.simple:main',
              'feeds2disk         = calibre.web.feeds.main:main',
              'calibre-server     = calibre.library.server:main',
-             'web2lrf            = calibre.ebooks.lrf.web.convert_from:main',
              'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',
              'isbndb             = calibre.ebooks.metadata.isbndb:main',
@@ -32,6 +31,7 @@ entry_points = {
              'calibre-fontconfig = calibre.utils.fontconfig:main',
              'calibre-parallel   = calibre.parallel:main',
              'calibre-customize  = calibre.customize.ui:main',
+             'calibre-complete   = calibre.utils.complete:main',
              'pdfmanipulate      = calibre.ebooks.pdf.manipulate.cli:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
              'calibre-smtp = calibre.utils.smtp:main',
@@ -139,12 +139,9 @@ def setup_completion(fatal_errors):
     try:
         print 'Setting up bash completion...',
         sys.stdout.flush()
-        from calibre.ebooks.lrf.html.convert_from import option_parser as htmlop
-        from calibre.ebooks.lrf.txt.convert_from import option_parser as txtop
         from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
         from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
         from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
-        from calibre.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
         from calibre.web.feeds.main import option_parser as feeds2disk
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.metadata.fetch import option_parser as fem_op
@@ -160,21 +157,10 @@ def setup_completion(fatal_errors):
         manifest.append(f.name)
 
         f.write('# calibre Bash Shell Completion\n')
-        f.write(opts_and_exts('html2lrf', htmlop,
-                              ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'php']))
-        f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
-        f.write(opts_and_exts('lit2lrf', htmlop, ['lit']))
-        f.write(opts_and_exts('epub2lrf', htmlop, ['epub']))
-        f.write(opts_and_exts('rtf2lrf', htmlop, ['rtf']))
-        f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
-        f.write(opts_and_exts('fb22lrf', htmlop, ['fb2']))
-        f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
-        f.write(opts_and_exts('any2lrf', htmlop, any_formats))
         f.write(opts_and_exts('calibre', guiop, any_formats))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
-        f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
         f.write(opts_and_words('calibre-smtp', smtp_op, []))
@@ -248,8 +234,9 @@ _prs500()
        ;;
   esac
 }
-complete -o nospace  -F _prs500 prs500
+complete -o nospace  -F _prs500 ebook-device
 
+complete -o nospace -C calibre-complete ebook-convert
 ''')
         f.close()
         print 'done'

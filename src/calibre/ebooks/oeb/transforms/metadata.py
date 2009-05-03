@@ -11,7 +11,8 @@ import os
 class MergeMetadata(object):
     'Merge in user metadata, including cover'
 
-    def __call__(self, oeb, mi, prefer_metadata_cover=False):
+    def __call__(self, oeb, mi, prefer_metadata_cover=False,
+            prefer_author_sort=False):
         from calibre.ebooks.oeb.base import DC
         self.oeb, self.log = oeb, oeb.log
         m = self.oeb.metadata
@@ -23,6 +24,8 @@ class MergeMetadata(object):
             if not m.title:
                 m.add(DC('title'), mi.title_sort)
             m.title[0].file_as = mi.title_sort
+        if prefer_author_sort and mi.author_sort:
+            mi.authors = [mi.author_sort]
         if mi.authors:
             m.filter('creator', lambda x : x.role.lower() == 'aut')
             for a in mi.authors:
@@ -64,7 +67,10 @@ class MergeMetadata(object):
             for t in mi.tags:
                 m.add('subject', t)
 
-        self.set_cover(mi, prefer_metadata_cover)
+        cover_id = self.set_cover(mi, prefer_metadata_cover)
+        m.clear('cover')
+        if cover_id is not None:
+            m.add('cover', cover_id)
 
     def set_cover(self, mi, prefer_metadata_cover):
         cdata = ''
@@ -72,13 +78,15 @@ class MergeMetadata(object):
             cdata = open(mi.cover, 'rb').read()
         elif mi.cover_data and mi.cover_data[-1]:
             cdata = mi.cover_data[1]
-        if not cdata: return
+        id = None
         if 'cover' in self.oeb.guide:
-            if not prefer_metadata_cover:
-                href = self.oeb.guide['cover'].href
+            href = self.oeb.guide['cover'].href
+            id = self.oeb.manifest.hrefs[href].id
+            if not prefer_metadata_cover and cdata:
                 self.oeb.manifest.hrefs[href]._data = cdata
-        else:
+        elif cdata:
             id, href = self.oeb.manifest.generate('cover', 'cover.jpg')
             self.oeb.manifest.add(id, href, 'image/jpeg', data=cdata)
             self.oeb.guide.add('cover', 'Cover', href)
+        return id
 

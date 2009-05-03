@@ -19,7 +19,7 @@ from calibre import browser, __appname__, iswindows, \
                     strftime, __version__, preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.ebooks.lrf import entity_to_unicode
+from calibre import entity_to_unicode
 from calibre.web import Recipe
 from calibre.ebooks import render_html
 from calibre.ebooks.metadata.toc import TOC

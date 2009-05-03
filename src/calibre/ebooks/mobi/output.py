@@ -29,6 +29,10 @@ class MOBIOutput(OutputFormatPlugin):
         ),
     ])
 
+    recommendations = set([
+        ('dont_justify', True, OptionRecommendation.HIGH),
+        ])
+
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
         from calibre.ebooks.mobi.writer import PALM_MAX_IMAGE_SIZE, MobiWriter
