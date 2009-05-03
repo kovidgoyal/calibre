@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Read content from ztxt pdb file.
+Read content from palmdoc pdb file.
 '''
 
 __license__   = 'GPL v3'
@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 import os, struct, zlib
 
 from calibre.ebooks.pdb.formatreader import FormatReader
-from calibre.ebooks.pdb.ztxt import zTXTError
+from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.txt.processor import txt_to_markdown, opf_writer
 
 class HeaderRecord(object):
@@ -23,10 +23,8 @@ class HeaderRecord(object):
     '''
 
     def __init__(self, raw):
-        self.version, = struct.unpack('>H', raw[0:2])
-        self.num_records, = struct.unpack('>H', raw[2:4])
-        self.size, = struct.unpack('>L', raw[4:8])
-        self.record_size, = struct.unpack('>H', raw[8:10])
+        self.compression, = struct.unpack('>H', raw[0:2])
+        self.num_records, = struct.unpack('>H', raw[8:10])
         
     
 class Reader(FormatReader):
@@ -42,17 +40,15 @@ class Reader(FormatReader):
 
         self.header_record = HeaderRecord(self.section_data(0))
 
-        # Initalize the decompressor
-        self.uncompressor = zlib.decompressobj()
-        self.uncompressor.decompress(self.section_data(1))
-
     def section_data(self, number):
         return self.sections[number]
 
     def decompress_text(self, number):
-        if number == 1:
-            self.uncompressor = zlib.decompressobj()
-        return self.uncompressor.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
+        if self.header_record.compression == 1:
+            return self.section_data(number).decode('cp1252' if self.encoding is None else self.encoding)
+        if self.header_record.compression == 2:
+            return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
+        return ''
 
     def extract_content(self, output_dir):
         txt = ''

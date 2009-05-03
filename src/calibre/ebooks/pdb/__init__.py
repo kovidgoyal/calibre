@@ -7,13 +7,13 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.pdb.ereader.reader import Reader as eReader
 from calibre.ebooks.pdb.ztxt.reader import Reader as zTXT
-#from calibre.ebooks.pdb.palmdoc.reader import Reader as PalmDoc
+from calibre.ebooks.pdb.palmdoc.reader import Reader as PalmDoc
 
 FORMATS = {
     'PNPdPPrs' : eReader,
     'PNRdPPrs' : eReader,
     'zTXTGPlm' : zTXT,
-#    'TEXtREAd' : PalmDoc,
+    'TEXtREAd' : PalmDoc,
 }
 
 IDENTITY_TO_NAME = {
