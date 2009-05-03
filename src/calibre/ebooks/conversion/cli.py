@@ -61,11 +61,6 @@ def check_command_line_options(parser, args, log):
         output = os.path.splitext(os.path.basename(input))[0]+output
     output = os.path.abspath(output)
 
-    if '.' in output:
-        if os.path.exists(output):
-            log.warn('WARNING:', output, 'exists. Deleting.')
-            os.remove(output)
-
     return input, output
 
 def option_recommendation_to_cli_option(add_option, rec):
@@ -187,22 +182,26 @@ class ProgressBar(object):
             percent = int(frac*100)
             self.log('%d%% %s'%(percent, msg))
 
-def main(args=sys.argv):
-    log = Log()
-    reporter = ProgressBar(log)
+def create_option_parser(args, log):
     parser = option_parser()
     if len(args) < 3:
         print_help(parser, log)
-        return 1
+        raise SystemExit(1)
 
     input, output = check_command_line_options(parser, args, log)
 
     from calibre.ebooks.conversion.plumber import Plumber
 
+    reporter = ProgressBar(log)
     plumber = Plumber(input, output, log, reporter)
     add_input_output_options(parser, plumber)
     add_pipeline_options(parser, plumber)
 
+    return parser, plumber
+
+def main(args=sys.argv):
+    log = Log()
+    parser, plumber = create_option_parser(args, log)
     opts = parser.parse_args(args)[0]
     y = lambda q : os.path.abspath(os.path.expanduser(q))
     for x in ('read_metadata_from_opf', 'cover'):

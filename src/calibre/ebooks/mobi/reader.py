@@ -303,7 +303,7 @@ class MobiReader(object):
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
             self.log.warning('Markup contains unclosed <p> tags, parsing using',
-                'BeatifulSoup')
+                    'BeatifulSoup')
             root = soupparser.fromstring(self.processed_html)
         self.upshift_markup(root)
         guides = root.xpath('//guide')
