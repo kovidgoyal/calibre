@@ -236,7 +236,7 @@ _prs500()
 }
 complete -o nospace  -F _prs500 ebook-device
 
-complete -C calibre-complete ebook-convert
+complete -o nospace -C calibre-complete ebook-convert
 ''')
         f.close()
         print 'done'
