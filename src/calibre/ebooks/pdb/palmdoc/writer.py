@@ -30,7 +30,9 @@ class Writer(FormatWriter):
         header_record = self._header_record(txt_length, len(txt_records))
         
         section_lengths = [len(header_record)]
+        self.log.info('Compessing data...')
         for i in range(0, len(txt_records)):
+            self.log.debug('\tCompressing record %i' % i)
             txt_records[i] = compress_doc(txt_records[i].encode('utf-8'))
             section_lengths.append(len(txt_records[i]))
             

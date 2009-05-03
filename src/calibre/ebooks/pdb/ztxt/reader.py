@@ -14,6 +14,8 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ztxt import zTXTError
 from calibre.ebooks.txt.processor import txt_to_markdown, opf_writer
 
+SUPPORTED_VERSION = (1, 40)
+
 class HeaderRecord(object):
     '''
     The first record in the file is always the header record. It holds
@@ -27,6 +29,7 @@ class HeaderRecord(object):
         self.num_records, = struct.unpack('>H', raw[2:4])
         self.size, = struct.unpack('>L', raw[4:8])
         self.record_size, = struct.unpack('>H', raw[8:10])
+        self.flags, = struct.unpack('>B', raw[18:19])
         
     
 class Reader(FormatReader):
@@ -41,6 +44,16 @@ class Reader(FormatReader):
             self.sections.append(header.section_data(i))
 
         self.header_record = HeaderRecord(self.section_data(0))
+        
+        vmajor = (self.header_record.version & 0x0000FF00) >> 8
+        vminor = self.header_record.version & 0x000000FF
+        if vmajor < 1 or (vmajor == 1 and vminor < 40):
+            raise zTXTError('Unsupported ztxt version (%i.%i). Only versions newer than %i.%i are supported.' % (vmajor, vminor, SUPPORTED_VERSION[0], SUPPORTED_VERSION[1]))
+
+        if (self.header_record.flags & 0x01) == 0:
+            raise zTXTError('Only compression method 1 (random access) is supported')
+
+        self.log.debug('Foud ztxt version: %i.%i' % (vmajor, vminor))
 
         # Initalize the decompressor
         self.uncompressor = zlib.decompressobj()
@@ -57,9 +70,12 @@ class Reader(FormatReader):
     def extract_content(self, output_dir):
         txt = ''
         
+        self.log.info('Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
+            self.log.debug('\tDecompressing text section %i' % i)
             txt += self.decompress_text(i)
 
+        self.log.info('Converting text to OEB...')
         html = txt_to_markdown(txt)
         with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
