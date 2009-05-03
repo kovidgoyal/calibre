@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
+
 '''
 Write content to ereader pdb file.
 '''
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
 
 import struct, zlib
 

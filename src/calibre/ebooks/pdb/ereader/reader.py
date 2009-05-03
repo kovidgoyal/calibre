@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
+
 '''
 Read content from ereader pdb file.
 '''
@@ -127,8 +127,7 @@ class Reader(FormatReader):
             with open('index.html', 'wb') as index:
                 self.log.debug('Writing text to index.html')
                 index.write(html)
-#        print html
-        
+
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         images = []

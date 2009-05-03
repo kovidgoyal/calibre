@@ -171,6 +171,17 @@ class TXTMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.txt import get_metadata
         return get_metadata(stream)
 
+class PDBMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read PDB metadata'
+    file_types  = set(['pdb'])
+    description = _('Read metadata from %s files') % 'PDB'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.pdb import get_metadata
+        return get_metadata(stream)
+
 class LRXMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read LRX metadata'
