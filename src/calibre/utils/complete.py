@@ -12,7 +12,7 @@ BASH completion for calibre commands that are too complex for simple
 completion.
 '''
 
-import sys, os, shlex, glob
+import sys, os, shlex, glob, re
 from functools import partial
 
 from calibre import prints
@@ -53,8 +53,9 @@ def get_opts_from_parser(parser, prefix):
             for x in do_opt(o): yield x
 
 def send(ans):
+    pat = re.compile('([^0-9a-zA-Z_.])')
     for x in sorted(set(ans)):
-        x = x.replace(' ', '\\ ')
+        x = pat.sub(lambda m : '\\'+m.group(1), x)
         if x.endswith('\\ '):
             x = x[:-2]+' '
         prints(x)
