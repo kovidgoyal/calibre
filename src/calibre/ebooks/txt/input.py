@@ -8,8 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.markdown import markdown
-from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.txt.processor import txt_to_markdown, opf_writer
 
 class TXTInput(InputFormatPlugin):
     
@@ -25,19 +24,15 @@ class TXTInput(InputFormatPlugin):
             ienc = options.input_encoding
         txt = stream.read().decode(ienc)
         
-        md = markdown.Markdown(
-            extensions=['footnotes', 'tables', 'toc'],
-            safe_mode=False,)
-        html = '<html><head><title /></head><body>'+md.convert(txt)+'</body></html>'
+        html = txt_to_markdown(txt)
         with open('index.html', 'wb') as index:
             index.write(html.encode('utf-8'))
             
         from calibre.ebooks.metadata.meta import get_metadata
         mi = get_metadata(stream, 'txt')
-        opf = OPFCreator(os.getcwd(), mi)
-        opf.create_manifest([('index.html', None)])
-        opf.create_spine(['index.html'])
-        with open('metadata.opf', 'wb') as opffile:
-            opf.render(opffile)
+        manifest = [('index.html', None)]
+        spine = ['index.html']
+        opf_writer(os.getcwd(), 'metadata.opf', manifest, spine, mi)
         
         return os.path.join(os.getcwd(), 'metadata.opf')
+

@@ -62,12 +62,12 @@ class PDFOutput(OutputFormatPlugin):
         self.write(ImagePDFWriter, images)
             
     def convert_text(self, oeb_book):
-        with TemporaryDirectory('_pdf_out') as oebdir:
+        with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
-            oeb_output.convert(oeb, oeb_dir, self.input_plugin, self.opts, self.log)
+            oeb_output.convert(oeb_book, oeb_dir, self.input_plugin, self.opts, self.log)
         
-            opfpath = glob.glob(os.path.join(oebdir, '*.opf'))[0]
+            opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
             opf = OPF(opfpath, os.path.dirname(opfpath))
             
             self.write(PDFWriter, [s.path for s in opf.spine])
