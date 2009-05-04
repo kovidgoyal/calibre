@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 import sys, os, re, logging, time, subprocess, mimetypes, \
-       __builtin__, warnings
+       __builtin__, warnings, multiprocessing
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
@@ -265,40 +265,7 @@ class StreamReadWrapper(object):
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
-    try:
-        from PyQt4.QtCore import QThread
-        ans = QThread.idealThreadCount()
-        if ans > 0:
-            return ans
-    except:
-        pass
-    #for Linux, Unix and MacOS
-    if hasattr(os, "sysconf"):
-        if os.sysconf_names.has_key("SC_NPROCESSORS_ONLN"):
-            #Linux and Unix
-            ncpus = os.sysconf("SC_NPROCESSORS_ONLN")
-            if isinstance(ncpus, int) and ncpus > 0:
-                return ncpus
-        else:
-            #MacOS X
-            try:
-                return int(subprocess.Popen(('sysctl', '-n', 'hw.cpu'), stdout=subprocess.PIPE).stdout.read())
-            except IOError: # Occassionally the system call gets interrupted
-                try:
-                    return int(subprocess.Popen(('sysctl', '-n', 'hw.cpu'), stdout=subprocess.PIPE).stdout.read())
-                except IOError:
-                    return 1
-            except ValueError: # On some systems the sysctl call fails
-                return 1
-
-    #for Windows
-    if os.environ.has_key("NUMBER_OF_PROCESSORS"):
-        ncpus = int(os.environ["NUMBER_OF_PROCESSORS"]);
-        if ncpus > 0:
-            return ncpus
-    #return the default value
-    return 1
-
+    return multiprocessing.cpu_count()
 
 def launch(path_or_url):
     if os.path.exists(path_or_url):
