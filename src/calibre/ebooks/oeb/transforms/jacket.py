@@ -70,9 +70,8 @@ class Jacket(object):
                 tags = map(unicode, self.oeb.metadata.subject)
             except:
                 tags = []
-        tags = u'/'.join(tags)
         if tags:
-            tags = '<b>Tags: </b>' + u'/%s/'%tags
+            tags = '<b>Tags: </b>' + self.opts.dest.tags_to_string(tags)
         else:
             tags = ''
         try:

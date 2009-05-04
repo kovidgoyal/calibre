@@ -151,6 +151,10 @@ class OutputProfile(Plugin):
     # The image size for comics
     comic_screen_size = (584, 754)
 
+    @classmethod
+    def tags_to_string(cls, tags):
+        return ', '.join(tags)
+
 class SonyReaderOutput(OutputProfile):
 
     name        = 'Sony Reader'
@@ -235,6 +239,11 @@ class KindleOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
+    @classmethod
+    def tags_to_string(cls, tags):
+        return 'ttt '.join(tags)+'ttt '
+
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,
