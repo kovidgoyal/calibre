@@ -64,6 +64,10 @@ class OptionRecommendation(object):
 
         self.validate_parameters()
 
+    @property
+    def help(self):
+        return self.option.help
+
     def clone(self):
         return OptionRecommendation(recommended_value=self.recommended_value,
                 level=self.level, option=self.option.clone())
