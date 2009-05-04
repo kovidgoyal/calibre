@@ -92,7 +92,7 @@ class Config(ResizableDialog, Ui_Dialog):
                 self.show_pane)
         self.connect(self.groups, SIGNAL('clicked(QModelIndex)'),
                 self.show_pane)
-        self.connect(self.groups, SIGNAL('itemEntered(QModelIndex)'),
+        self.connect(self.groups, SIGNAL('entered(QModelIndex)'),
                 self.show_group_help)
         self.groups.setMouseTracking(True)
 
