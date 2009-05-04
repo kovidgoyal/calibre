@@ -53,9 +53,12 @@ class Reader(FormatReader):
     def extract_content(self, output_dir):
         txt = ''
         
+        self.log.info('Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
+            self.log.debug('\tDecompressing text section %i' % i)
             txt += self.decompress_text(i)
 
+        self.log.info('Converting text to OEB...')
         html = txt_to_markdown(txt)
         with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
