@@ -296,6 +296,14 @@ class MobiReader(object):
             from lxml.html import soupparser
             print 'Markup contains unclosed <p> tags, parsing using BeatifulSoup'
             root = soupparser.fromstring(self.processed_html)
+        if root[0].tag != 'html':
+            nroot = html.fromstring('<html><head></head><body></body></html>')
+            bod = nroot.find('body')
+            for child in list(root):
+                child.getparent().remove(child)
+                bod.append(child)
+            root = nroot
+
         self.upshift_markup(root)
         guides = root.xpath('//guide')
         guide = guides[0] if guides else None
