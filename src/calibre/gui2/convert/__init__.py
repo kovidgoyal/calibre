@@ -190,7 +190,7 @@ class Widget(QWidget):
         elif isinstance(g, QCheckBox):
             g.setCheckState(Qt.Checked if bool(val) else Qt.Unchecked)
         else:
-            raise Exception('Can\'t set value in %s'%type(g))
+            raise Exception('Can\'t set value %s in %s'%(repr(val), type(g)))
         self.post_set_value(g, val)
 
     def set_help(self, msg):
