@@ -14,6 +14,9 @@ from calibre.utils.config import prefs
 from calibre.gui2 import warning_dialog
 from calibre.ptempfile import PersistentTemporaryFile
 
+from calibre.gui2.convert import load_specifics
+from calibre.gui2.convert.single import Config as SingleConfig
+
 # Ordered list of source formats. Items closer to the beginning are
 # preferred for conversion over those toward the end.
 PREFERRED_SOURCE_FORMATS = ['epub', 'lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf',
@@ -40,7 +43,6 @@ def auto_convert(fmt, parent, db, rows):
         return None, None, None
     parent.status_bar.showMessage(_('Starting auto conversion of %d books')%total, 2000)
 
-    i = 0
     bad_rows = []
 
     for i, row in enumerate(rows):
@@ -85,132 +87,42 @@ def auto_convert(fmt, parent, db, rows):
 
     return jobs, changed, bad_rows
 
-def convert_single(fmt, parent, db, comics, others):
+def convert_single_ebook(parent, db, row_ids):
     changed = False
     jobs = []
-    others_ids = [db.id(row) for row in others]
-    comics_ids = [db.id(row) for row in comics]
-    for row, row_id in zip(others, others_ids):
-        temp_files = []
-        d = get_dialog(fmt)(parent, db, row)
-        if d.source_format is not None:
-            d.exec_()
-            if d.result() == QDialog.Accepted:
-                opts = d.opts
-                data = db.format(row, d.source_format)
-                pt = PersistentTemporaryFile('.'+d.source_format.lower())
-                pt.write(data)
-                pt.close()
-                of = PersistentTemporaryFile('.'+fmt)
-                of.close()
-                opts.output = of.name
-                opts.from_opf = d.opf_file.name
-                opts.verbose = 2
-                args = [opts, pt.name]
-                if d.cover_file:
-                    temp_files.append(d.cover_file)
-                    opts.cover = d.cover_file.name
-                temp_files.extend([d.opf_file, pt, of])
-                jobs.append(('any2'+fmt, args, _('Convert book: ')+d.mi.title,
-                             fmt.upper(), row_id, temp_files))
-                changed = True
+    
+    total = len(row_ids)
+    if total == 0:
+        return None, None, None
+    parent.status_bar.showMessage(_('Starting conversion of %d books') % total, 2000)
 
-    for row, row_id in zip(comics, comics_ids):
-        mi = db.get_metadata(row)
-        title = author = _('Unknown')
-        if mi.title:
-            title = mi.title
-        if mi.authors:
-            author =  ','.join(mi.authors)
-        defaults = db.conversion_options(db.id(row), 'comic')
-        opts, defaults = ComicConf.get_conversion_options(parent, defaults, title, author)
-        if defaults is not None:
-            db.set_conversion_options(db.id(row), 'comic', defaults)
-        if opts is None: continue
-        for _fmt in ['cbz', 'cbr']:
-            try:
-                data = db.format(row, _fmt.upper())
-                if data is not None:
-                    break
-            except:
-                continue
-        pt = PersistentTemporaryFile('.'+_fmt)
-        pt.write(data)
-        pt.close()
-        of = PersistentTemporaryFile('.'+fmt)
-        of.close()
-        opts.output = of.name
-        opts.verbose = 2
-        args = [pt.name, opts]
-        changed = True
-        jobs.append(('comic2'+fmt, args, _('Convert comic: ')+opts.title,
-                     fmt.upper(), row_id, [pt, of]))
+    for i, row_id in enumerate(row_ids):
+        temp_files = []
+
+        d = SingleConfig(parent, db, row_id)
+        if d.exec_() == QDialog.Accepted:
+            mi = db.get_metadata(row_id, True)
+            in_file = db.format_abspath(row_id, d.input_format, True)
+            
+            out_file = PersistentTemporaryFile('.' + d.output_format)
+            out_file.write(d.output_format)
+            out_file.close()
+        
+            desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
+            
+            opts = load_specifics(db, row_id)
+            opts_string = ''
+            for opt in opts.keys():
+                opts_string += ' --%s %s ' % (opt, opts[opt])    
+            
+            args = [['', in_file, out_file.name, opts_string]]
+            temp_files = [out_file]
+            jobs.append(('ebook-convert', args, desc, d.output_format.upper(), row_id, temp_files))
+
+            changed = True
 
     return jobs, changed
 
-
-
-def convert_single_lrf(parent, db, comics, others):
-    changed = False
-    jobs = []
-    others_ids = [db.id(row) for row in others]
-    comics_ids = [db.id(row) for row in comics]
-    for row, row_id in zip(others, others_ids):
-        temp_files = []
-        d = LRFSingleDialog(parent, db, row)
-        if d.selected_format:
-            d.exec_()
-            if d.result() == QDialog.Accepted:
-                cmdline = d.cmdline
-                data = db.format(row, d.selected_format)
-                pt = PersistentTemporaryFile('.'+d.selected_format.lower())
-                pt.write(data)
-                pt.close()
-                of = PersistentTemporaryFile('.lrf')
-                of.close()
-                cmdline.extend(['-o', of.name])
-                cmdline.append(pt.name)
-                if d.cover_file:
-                    temp_files.append(d.cover_file)
-                temp_files.extend([pt, of])
-                jobs.append(('any2lrf', [cmdline], _('Convert book: ')+d.title(),
-                             'LRF', row_id, temp_files))
-                changed = True
-
-    for row, row_id in zip(comics, comics_ids):
-        mi = db.get_metadata(row)
-        title = author = _('Unknown')
-        if mi.title:
-            title = mi.title
-        if mi.authors:
-            author =  ','.join(mi.authors)
-        defaults = db.conversion_options(db.id(row), 'comic')
-        opts, defaults = ComicConf.get_conversion_options(parent, defaults, title, author)
-        if defaults is not None:
-            db.set_conversion_options(db.id(row), 'comic', defaults)
-        if opts is None: continue
-        for fmt in ['cbz', 'cbr']:
-            try:
-                data = db.format(row, fmt.upper())
-                if data is not None:
-                    break
-            except:
-                continue
-        if data is None:
-            continue
-        pt = PersistentTemporaryFile('.'+fmt)
-        pt.write(data)
-        pt.close()
-        of = PersistentTemporaryFile('.lrf')
-        of.close()
-        opts.output = of.name
-        opts.verbose = 1
-        args = [pt.name, opts]
-        changed = True
-        jobs.append(('comic2lrf', args, _('Convert comic: ')+opts.title,
-                     'LRF', row_id, [pt, of]))
-
-    return jobs, changed
 
 def convert_bulk(fmt, parent, db, comics, others):
     if others:
@@ -453,13 +365,6 @@ def fetch_scheduled_recipe(recipe, script):
 
 def auto_convert_ebook(*args):
     return auto_convert(*args)
-
-def convert_single_ebook(*args):
-    fmt = prefs['output_format'].lower()
-    if fmt == 'lrf':
-        return convert_single_lrf(*args)
-    elif fmt in ('epub', 'mobi'):
-        return convert_single(fmt, *args)
 
 def convert_bulk_ebooks(*args):
     fmt = prefs['output_format'].lower()

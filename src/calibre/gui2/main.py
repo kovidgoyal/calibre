@@ -1004,18 +1004,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('No books selected'))
             d.exec_()
             return [], []
-        comics, others = [], []
-        db = self.library_view.model().db
-        for r in rows:
-            formats = db.formats(r)
-            if not formats: continue
-            formats = formats.lower().split(',')
-            if 'cbr' in formats or 'cbz' in formats:
-                comics.append(r)
-            else:
-                others.append(r)
-        return comics, others
-
+        return [self.library_view.model().db.id(r) for r in rows]
 
     def convert_bulk(self, checked):
         r = self.get_books_for_conversion()
@@ -1044,14 +1033,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         set_conversion_defaults(True, self, self.library_view.model().db)
 
     def convert_single(self, checked):
-        r = self.get_books_for_conversion()
-        if r is None: return
+        row_ids = self.get_books_for_conversion()
+        if row_ids is None: return
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
-        comics, others = r
         jobs, changed = convert_single_ebook(self,
-                self.library_view.model().db, comics, others)
+                self.library_view.model().db, row_ids)
         for func, args, desc, fmt, id, temp_files in jobs:
             job = self.job_manager.run_job(Dispatcher(self.book_converted),
                                             func, args=args, description=desc)
