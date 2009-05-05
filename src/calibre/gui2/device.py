@@ -612,23 +612,23 @@ class DeviceGUI(object):
 
 
     def sync_to_device(self, on_card, delete_from_library,
-            specific_format=None, send_rows=None, do_auto_convert=True):
-        rows = self.library_view.selectionModel().selectedRows() if send_rows is None else send_rows
-        if not self.device_manager or not rows or len(rows) == 0:
+            specific_format=None, send_ids=None, do_auto_convert=True):
+        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
+        if not self.device_manager or not ids or len(ids) == 0:
             return
             
-        _files, _auto_rows = self.library_view.model().get_preferred_formats(rows,
+        _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     self.device_manager.device_class.settings().format_map,
                                     paths=True, set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
-            rows = list(set(rows).difference(_auto_rows))
+            ids = list(set(ids).difference(_auto_ids))
         else:
-            _auto_rows = []
+            _auto_ids = []
         
-        ids = iter(self.library_view.model().id(r) for r in rows)
-        metadata = self.library_view.model().get_metadata(rows)
+        ids = iter(ids)
+        metadata = self.library_view.model().get_metadata(ids, True)
         for mi in metadata:
             cdata = mi['cover']
             if cdata:
@@ -662,8 +662,8 @@ class DeviceGUI(object):
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         
         auto = []
-        if _auto_rows != []:
-            for row in _auto_rows:
+        if _auto_ids != []:
+            for row in _auto_ids:
                 if specific_format == None:
                     formats = [f.lower() for f in self.library_view.model().db.formats(row).split(',')]
                     formats = formats if formats != None else [] 
@@ -686,8 +686,8 @@ class DeviceGUI(object):
                 if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
                     format = fmt
                     break
-            d.exec_()                        
-            self.auto_convert(_auto_rows, on_card, format)
+            d.exec_()
+            self.auto_convert(_auto_ids, on_card, format)
 
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)

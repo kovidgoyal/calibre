@@ -89,7 +89,7 @@ class Config(ResizableDialog, Ui_Dialog):
                         None)
 
         self.setup_input_output_formats(db, book_id, preferred_input_format,
-                preferred_input_format)
+                preferred_output_format)
         self.db, self.book_id = db, book_id
         self.setup_pipeline()
 

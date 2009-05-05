@@ -36,9 +36,7 @@ from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, \
-                                set_conversion_defaults, fetch_scheduled_recipe, \
-                                auto_convert_ebook
+from calibre.gui2.tools import convert_single_ebook, fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -233,18 +231,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
-        cm.addSeparator()
-        cm.addAction(_('Set defaults for conversion'))
-        cm.addAction(_('Set defaults for conversion of comics'))
         self.action_convert.setMenu(cm)
         QObject.connect(cm.actions()[0],
                 SIGNAL('triggered(bool)'), self.convert_single)
         QObject.connect(cm.actions()[1],
                 SIGNAL('triggered(bool)'), self.convert_bulk)
-        QObject.connect(cm.actions()[3],
-                SIGNAL('triggered(bool)'), self.set_conversion_defaults)
-        QObject.connect(cm.actions()[4],
-                SIGNAL('triggered(bool)'), self.set_comic_conversion_defaults)
         QObject.connect(self.action_convert,
                 SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
@@ -979,17 +970,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Convert ####################################
 
-    def auto_convert(self, rows, on_card, format):
+    def auto_convert(self, row_ids, on_card, format):
         previous = self.library_view.currentIndex()
 
-        jobs, changed, bad_rows = auto_convert_ebook(format, self, self.library_view.model().db, rows)
-        if jobs is None:
-            return
+        jobs, changed = convert_single_ebook(self, self.library_view.model().db, row_ids, True)
+        if jobs == []: return
         for func, args, desc, fmt, id, temp_files in jobs:
-            if id not in bad_rows:
-                job = self.job_manager.run_job(Dispatcher(self.book_auto_converted),
-                                            func, args=args, description=desc)
-                self.conversion_jobs[job] = (temp_files, fmt, id, on_card)
+            job = self.job_manager.run_job(Dispatcher(self.book_auto_converted),
+                                        func, args=args, description=desc)
+            self.conversion_jobs[job] = (temp_files, fmt, id, on_card)
 
         if changed:
             self.library_view.model().refresh_rows(rows)
@@ -1004,18 +993,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('No books selected'))
             d.exec_()
             return [], []
-        comics, others = [], []
-        db = self.library_view.model().db
-        for r in rows:
-            formats = db.formats(r)
-            if not formats: continue
-            formats = formats.lower().split(',')
-            if 'cbr' in formats or 'cbz' in formats:
-                comics.append(r)
-            else:
-                others.append(r)
-        return comics, others
-
+        return [self.library_view.model().db.id(r) for r in rows]
 
     def convert_bulk(self, checked):
         r = self.get_books_for_conversion()
@@ -1037,21 +1015,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
 
-    def set_conversion_defaults(self, checked):
-        set_conversion_defaults(False, self, self.library_view.model().db)
-
-    def set_comic_conversion_defaults(self, checked):
-        set_conversion_defaults(True, self, self.library_view.model().db)
-
     def convert_single(self, checked):
-        r = self.get_books_for_conversion()
-        if r is None: return
+        row_ids = self.get_books_for_conversion()
+        if row_ids is None: return
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
-        comics, others = r
         jobs, changed = convert_single_ebook(self,
-                self.library_view.model().db, comics, others)
+                self.library_view.model().db, row_ids)
         for func, args, desc, fmt, id, temp_files in jobs:
             job = self.job_manager.run_job(Dispatcher(self.book_converted),
                                             func, args=args, description=desc)
@@ -1084,8 +1055,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, QModelIndex())
 
-        r = self.library_view.model().index(self.library_view.model().db.row(book_id), 0)
-        self.sync_to_device(on_card, False, specific_format=fmt, send_rows=[r], do_auto_convert=False)
+        self.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
