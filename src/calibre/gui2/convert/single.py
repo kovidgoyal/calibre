@@ -11,7 +11,8 @@ import sys, cPickle
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
 from calibre.gui2 import ResizableDialog, NONE
-from calibre.gui2.convert import GuiRecommendations, save_specifics
+from calibre.gui2.convert import GuiRecommendations, save_specifics, \
+        load_specifics
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -79,6 +80,12 @@ class Config(ResizableDialog, Ui_Dialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         ResizableDialog.__init__(self, parent)
+
+        if preferred_input_format is None and db is not None:
+            recs = load_specifics(db, book_id)
+            if recs:
+                preferred_input_format = recs.get('gui_preferred_input_format',
+                        None)
 
         self.setup_input_output_formats(db, book_id, preferred_input_format,
                 preferred_input_format)
@@ -208,6 +215,7 @@ class Config(ResizableDialog, Ui_Dialog):
         self.opf_path, self.cover_path = self.mw.opf_file, self.mw.cover_file
         self._recommendations = recs
         if self.db is not None:
+            recs['gui_preferred_input_format'] = self.input_format
             save_specifics(self.db, self.book_id, recs)
         ResizableDialog.accept(self)
 
