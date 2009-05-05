@@ -131,7 +131,7 @@ class Config(ResizableDialog, Ui_Dialog):
         try:
             output_widget = __import__(name)
             pw = output_widget.PluginWidget
-            pw.ICON = ':/images/forward.svg'
+            pw.ICON = ':/images/back.svg'
             pw.HELP = _('Options specific to the output format.')
             output_widget = widget_factory(pw)
         except ImportError:
@@ -228,7 +228,7 @@ if __name__ == '__main__':
     images_rc
     a=Application([])
     db = LibraryDatabase2('/home/kovid/documents/library')
-    d = Config(None, db, 998)
+    d = Config(None, db, 594)
     d.show()
     a.exec_()
 
