@@ -12,3 +12,5 @@
   - Use a process pool for speed or multiple process for stability (20 per process?)
 
 * Change mobi metadata setter to use author_sort setting from MOBI output plugin instead of mobi.py
+
+* Fix HTML-to-ZIP plugin

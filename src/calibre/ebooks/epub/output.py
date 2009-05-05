@@ -285,8 +285,10 @@ class EPUBOutput(OutputFormatPlugin):
             for elem in root.iterdescendants():
                 if getattr(elem, 'text', False):
                     elem.text = special_chars.sub('', elem.text)
+                    elem.text = elem.text.replace(u'\u2011', '-')
                 if getattr(elem, 'tail', False):
                     elem.tail = special_chars.sub('', elem.tail)
+                    elem.tail = elem.tail.replace(u'\u2011', '-')
 
 
 
