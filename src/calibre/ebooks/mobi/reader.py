@@ -305,6 +305,15 @@ class MobiReader(object):
             self.log.warning('Markup contains unclosed <p> tags, parsing using',
                     'BeatifulSoup')
             root = soupparser.fromstring(self.processed_html)
+        if root[0].tag != 'html':
+            self.log.warn('File does not have opening <html> tag')
+            nroot = html.fromstring('<html><head></head><body></body></html>')
+            bod = nroot.find('body')
+            for child in list(root):
+                child.getparent().remove(child)
+                bod.append(child)
+            root = nroot
+
         self.upshift_markup(root)
         guides = root.xpath('//guide')
         guide = guides[0] if guides else None
