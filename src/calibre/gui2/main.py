@@ -1055,8 +1055,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, QModelIndex())
 
-        r = self.library_view.model().index(self.library_view.model().db.row(book_id), 0)
-        self.sync_to_device(on_card, False, specific_format=fmt, send_rows=[r], do_auto_convert=False)
+        self.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
