@@ -686,7 +686,8 @@ class DeviceGUI(object):
                 if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
                     format = fmt
                     break
-            d.exec_()                        
+            d.exec_()
+            _auto_rows = [self.library_view.model().db.id(r) for r in _auto_rows]
             self.auto_convert(_auto_rows, on_card, format)
 
         if bad:

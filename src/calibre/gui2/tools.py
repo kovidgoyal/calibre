@@ -9,85 +9,11 @@ Logic for setting up conversion jobs
 import os
 from PyQt4.Qt import QDialog
 
-from calibre.customize.ui import available_input_formats
-from calibre.utils.config import prefs
-from calibre.gui2 import warning_dialog
 from calibre.ptempfile import PersistentTemporaryFile
-
 from calibre.gui2.convert import load_specifics
 from calibre.gui2.convert.single import Config as SingleConfig
 
-# Ordered list of source formats. Items closer to the beginning are
-# preferred for conversion over those toward the end.
-PREFERRED_SOURCE_FORMATS = ['epub', 'lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf',
-                  'txt', 'pdf', 'oebzip', 'htm', 'html']
-
-def get_dialog(fmt):
-    return {
-              'epub':EPUBConvert,
-              'mobi':MOBIConvert,
-              }[fmt]
-
-def get_config(fmt):
-    return {
-              'epub':epubconfig,
-              'mobi':mobiconfig,
-           }[fmt]
-
-def auto_convert(fmt, parent, db, rows):
-    changed = False
-    jobs = []
-
-    total = len(rows)
-    if total == 0:
-        return None, None, None
-    parent.status_bar.showMessage(_('Starting auto conversion of %d books')%total, 2000)
-
-    bad_rows = []
-
-    for i, row in enumerate(rows):
-        row_id = db.id(row)
-
-        temp_files = []
-
-        data = None
-        in_formats = [f.lower() for f in db.formats(row).split(',')]
-        in_formats = list(set(in_formats).intersection(available_input_formats()))
-        for _fmt in PREFERRED_SOURCE_FORMATS:
-            if _fmt in in_formats:
-                data = _fmt
-                break
-        if data is None:
-            if in_formats != []:
-                data = list(in_formats)[0]
-            else:
-                bad_rows.append(row)
-                continue
-
-        mi = db.get_metadata(row)
-        in_file = db.format_abspath(row, data)
-        out_file = PersistentTemporaryFile('.'+fmt.lower())
-        out_file.write(data)
-        out_file.close()
-        desc = _('Auto convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-        args = [['', in_file, out_file.name]]
-        temp_files = [out_file]
-        jobs.append(('ebook-convert', args, desc, fmt.upper(), row_id, temp_files))
-
-        changed = True
-
-    if bad_rows:
-        res = []
-        for row in bad_rows:
-            title = db.title(row)
-            res.append('<li>%s</li>'%title)
-
-        msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), total, '\n'.join(res))
-        warning_dialog(parent, _('Could not convert some books'), msg).exec_()
-
-    return jobs, changed, bad_rows
-
-def convert_single_ebook(parent, db, row_ids):
+def convert_single_ebook(parent, db, row_ids, auto_conversion=False):
     changed = False
     jobs = []
     
@@ -100,7 +26,13 @@ def convert_single_ebook(parent, db, row_ids):
         temp_files = []
 
         d = SingleConfig(parent, db, row_id)
-        if d.exec_() == QDialog.Accepted:
+        
+        if auto_conversion:
+            result = QDialog.Accepted
+        else:
+            retult = d.exec_()
+        
+        if result == QDialog.Accepted:
             mi = db.get_metadata(row_id, True)
             in_file = db.format_abspath(row_id, d.input_format, True)
             
@@ -362,9 +294,6 @@ def fetch_scheduled_recipe(recipe, script):
         args.extend(['--username', x[0], '--password', x[1]])
     args.append(script)
     return 'feeds2'+fmt, [args], _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
-
-def auto_convert_ebook(*args):
-    return auto_convert(*args)
 
 def convert_bulk_ebooks(*args):
     fmt = prefs['output_format'].lower()
