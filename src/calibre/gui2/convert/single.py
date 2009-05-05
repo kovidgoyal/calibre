@@ -16,6 +16,7 @@ from calibre.gui2.convert import GuiRecommendations, save_specifics, \
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.page_setup import PageSetupWidget
 
 from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats, \
                     INPUT_FORMAT_PREFERENCES, OUTPUT_FORMAT_PREFERENCES
@@ -132,6 +133,7 @@ class Config(ResizableDialog, Ui_Dialog):
         self.mw = widget_factory(MetadataWidget)
         self.setWindowTitle(_('Convert')+ ' ' + unicode(self.mw.title.text()))
         lf = widget_factory(LookAndFeelWidget)
+        ps = widget_factory(PageSetupWidget)
 
         output_widget = None
         name = self.plumber.output_plugin.name.lower().replace(' ', '_')
@@ -159,7 +161,7 @@ class Config(ResizableDialog, Ui_Dialog):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [self.mw, lf]
+        widgets = [self.mw, lf, ps]
         if input_widget is not None:
             widgets.append(input_widget)
         if output_widget is not None:
@@ -234,9 +236,9 @@ if __name__ == '__main__':
     from calibre.library.database2 import LibraryDatabase2
     from calibre.gui2 import images_rc, Application
     images_rc
-    a=Application([])
+    a  = Application([])
     db = LibraryDatabase2('/home/kovid/documents/library')
-    d = Config(None, db, 594)
+    d  = Config(None, db, 594)
     d.show()
     a.exec_()
 

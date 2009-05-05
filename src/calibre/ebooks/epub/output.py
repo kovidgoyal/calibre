@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os, shutil, re
 from urllib import unquote
 
 from calibre.customize.conversion import OutputFormatPlugin
@@ -40,6 +40,13 @@ class EPUBOutput(OutputFormatPlugin):
                     'very large number of page breaks, you should turn off '
                     'splitting on page breaks.'
                 )
+        ),
+
+        OptionRecommendation(name='flow_size', recommended_value=260,
+            help=_('Split all HTML files larger than this size (in KB). '
+                'This is necessary as most EPUB readers cannot handle large '
+                'file sizes. The default of %defaultKB is the size required '
+                'for Adobe Digital Editions.')
         ),
 
 
@@ -104,7 +111,7 @@ class EPUBOutput(OutputFormatPlugin):
 
         from calibre.ebooks.oeb.transforms.split import Split
         split = Split(not self.opts.dont_split_on_page_breaks,
-                max_flow_size=self.opts.output_profile.flow_size
+                max_flow_size=self.opts.flow_size*1024
                 )
         split(self.oeb, self.opts)
 
@@ -243,14 +250,12 @@ class EPUBOutput(OutputFormatPlugin):
                                 br.tail = ''
                             br.tail += sibling.tail
 
-
-            if self.opts.output_profile.remove_object_tags:
-                for tag in XPath('//h:embed')(root):
-                    tag.getparent().remove(tag)
-                for tag in XPath('//h:object')(root):
-                    if tag.get('type', '').lower().strip() in ('image/svg+xml',):
-                        continue
-                    tag.getparent().remove(tag)
+            for tag in XPath('//h:embed')(root):
+                tag.getparent().remove(tag)
+            for tag in XPath('//h:object')(root):
+                if tag.get('type', '').lower().strip() in ('image/svg+xml',):
+                    continue
+                tag.getparent().remove(tag)
 
             for tag in XPath('//h:title|//h:style')(root):
                 if not tag.text:
@@ -275,6 +280,13 @@ class EPUBOutput(OutputFormatPlugin):
                     'cursor: default; }')
             stylesheet.data.add('a[href] { color: blue; '
                     'text-decoration: underline; cursor:pointer; }')
+
+            special_chars = re.compile(u'[\u200b\u00ad]')
+            for elem in root.iterdescendants():
+                if getattr(elem, 'text', False):
+                    elem.text = special_chars.sub('', elem.text)
+                if getattr(elem, 'tail', False):
+                    elem.tail = special_chars.sub('', elem.tail)
 
 
 

@@ -154,8 +154,9 @@ class Widget(QWidget):
 
 
     def get_value(self, g):
-        if self.get_value_handler(g):
-            return
+        ret = self.get_value_handler(g)
+        if ret != 'this is a dummy return value, xcswx1avcx4x':
+            return ret
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit)):
@@ -217,7 +218,7 @@ class Widget(QWidget):
         pass
 
     def get_value_handler(self, g):
-        return False
+        return 'this is a dummy return value, xcswx1avcx4x'
 
     def post_get_value(self, g):
         pass
