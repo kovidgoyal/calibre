@@ -11,11 +11,13 @@ from PyQt4.Qt import QDialog
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import load_specifics
+from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
 
 def convert_single_ebook(parent, db, row_ids, auto_conversion=False):
     changed = False
     jobs = []
+    bad = []
     
     total = len(row_ids)
     if total == 0:
@@ -25,33 +27,45 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False):
     for i, row_id in enumerate(row_ids):
         temp_files = []
 
-        d = SingleConfig(parent, db, row_id)
-        
-        if auto_conversion:
-            result = QDialog.Accepted
-        else:
-            retult = d.exec_()
-        
-        if result == QDialog.Accepted:
-            mi = db.get_metadata(row_id, True)
-            in_file = db.format_abspath(row_id, d.input_format, True)
+        try:
+            d = SingleConfig(parent, db, row_id)
             
-            out_file = PersistentTemporaryFile('.' + d.output_format)
-            out_file.write(d.output_format)
-            out_file.close()
-        
-            desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
+            if auto_conversion:
+                result = QDialog.Accepted
+            else:
+                retult = d.exec_()
             
-            opts = load_specifics(db, row_id)
-            opts_string = ''
-            for opt in opts.keys():
-                opts_string += ' --%s %s ' % (opt, opts[opt])    
+            if result == QDialog.Accepted:
+                mi = db.get_metadata(row_id, True)
+                in_file = db.format_abspath(row_id, d.input_format, True)
+                
+                out_file = PersistentTemporaryFile('.' + d.output_format)
+                out_file.write(d.output_format)
+                out_file.close()
             
-            args = [['', in_file, out_file.name, opts_string]]
-            temp_files = [out_file]
-            jobs.append(('ebook-convert', args, desc, d.output_format.upper(), row_id, temp_files))
+                desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
+                
+                opts = load_specifics(db, row_id)
+                opts_string = ''
+                for opt in opts.keys():
+                    opts_string += ' --%s %s ' % (opt, opts[opt])    
+                
+                args = [['', in_file, out_file.name, opts_string]]
+                temp_files = [out_file]
+                jobs.append(('ebook-convert', args, desc, d.output_format.upper(), row_id, temp_files))
 
-            changed = True
+                changed = True
+        except NoSupportedInputFormats:
+            bad.append(row_id)
+
+    if bad != []:
+        res = []
+        for id in bad:
+            title = db.title(id, True)
+            res.append('<li>%s</li>'%title)
+
+        msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), total, '\n'.join(res))
+        warning_dialog(parent, _('Could not convert some books'), msg).exec_()
 
     return jobs, changed
 
