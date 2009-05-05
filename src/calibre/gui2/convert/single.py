@@ -69,6 +69,7 @@ class Config(ResizableDialog, Ui_Dialog):
 
     input_path - Path to input file
     output_format - Output format (without a leading .)
+    input_format  - Input format (without a leading .)
     opf_path - Path to OPF file with user specified metadata
     cover_path - Path to user specified cover (can be None)
     recommendations - A pickled list of 3 tuples in the same format as the
@@ -96,14 +97,21 @@ class Config(ResizableDialog, Ui_Dialog):
                 self.show_group_help)
         self.groups.setMouseTracking(True)
 
+    @property
+    def input_format(self):
+        return unicode(self.input_formats.currentText()).lower()
+
+    @property
+    def output_format(self):
+        return unicode(self.output_formats.currentText()).lower()
+
 
     def setup_pipeline(self, *args):
-        input_format = unicode(self.input_formats.currentText()).lower()
-        output_format = unicode(self.output_formats.currentText()).lower()
+        input_format = self.input_format
+        output_format = self.output_format
         input_path = self.db.format_abspath(self.book_id, input_format,
                 index_is_id=True)
         self.input_path = input_path
-        self.output_format = output_format
         output_path = 'dummy.'+output_format
         log = Log()
         log.outputs = []

@@ -252,5 +252,53 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>opt_render_tables_as_images</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_3</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>96</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>31</x>
+     <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_header</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_4</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>67</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>72</x>
+     <y>165</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_header</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_5</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>107</x>
+     <y>141</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>102</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

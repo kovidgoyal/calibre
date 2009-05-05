@@ -35,6 +35,10 @@ class PluginWidget(Widget, Ui_Form):
         self.opt_mono_family.setModel(self.font_family_model)
 
         self.initialize_options(get_option, get_help, db, book_id)
+        self.opt_header.toggle(), self.opt_header.toggle()
+        self.opt_render_tables_as_images.toggle()
+        self.opt_render_tables_as_images.toggle()
+
 
     def set_value_handler(self, g, val):
         if val is None and unicode(g.objectName()) in ('opt_serif_family',
