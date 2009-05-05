@@ -36,9 +36,7 @@ from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, \
-                                set_conversion_defaults, fetch_scheduled_recipe, \
-                                auto_convert_ebook
+from calibre.gui2.tools import convert_single_ebook, fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -233,18 +231,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
-        cm.addSeparator()
-        cm.addAction(_('Set defaults for conversion'))
-        cm.addAction(_('Set defaults for conversion of comics'))
         self.action_convert.setMenu(cm)
         QObject.connect(cm.actions()[0],
                 SIGNAL('triggered(bool)'), self.convert_single)
         QObject.connect(cm.actions()[1],
                 SIGNAL('triggered(bool)'), self.convert_bulk)
-        QObject.connect(cm.actions()[3],
-                SIGNAL('triggered(bool)'), self.set_conversion_defaults)
-        QObject.connect(cm.actions()[4],
-                SIGNAL('triggered(bool)'), self.set_comic_conversion_defaults)
         QObject.connect(self.action_convert,
                 SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
@@ -1023,12 +1014,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
-
-    def set_conversion_defaults(self, checked):
-        set_conversion_defaults(False, self, self.library_view.model().db)
-
-    def set_comic_conversion_defaults(self, checked):
-        set_conversion_defaults(True, self, self.library_view.model().db)
 
     def convert_single(self, checked):
         row_ids = self.get_books_for_conversion()
