@@ -392,6 +392,7 @@ class PreProcessor(object):
         opts = getattr(self, 'opts', False)
         if opts and hasattr(opts, 'profile') and getattr(opts.profile, 'remove_special_chars', False):
             html = opts.profile.remove_special_chars.sub('', html)
+            html = html.replace(u'\u2011', '-')
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):
