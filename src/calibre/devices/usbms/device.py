@@ -205,13 +205,19 @@ class Device(_Device):
         self._main_prefix = drives.get('main')
         self._card_prefix = drives.get('card', None)
 
+    @classmethod
+    def run_ioreg(cls, raw=None):
+        if raw is not None:
+            return raw
+        ioreg = '/usr/sbin/ioreg'
+        if not os.access(ioreg, os.X_OK):
+            ioreg = 'ioreg'
+        return subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
+                                stdout=subprocess.PIPE).communicate()[0]
+
+
     def get_osx_mountpoints(self, raw=None):
-        if raw is None:
-            ioreg = '/usr/sbin/ioreg'
-            if not os.access(ioreg, os.X_OK):
-                ioreg = 'ioreg'
-            raw = subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
-                                   stdout=subprocess.PIPE).communicate()[0]
+        raw = self.run_ioreg(raw)
         lines = raw.splitlines()
         names = {}
 

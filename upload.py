@@ -399,7 +399,7 @@ class update(OptionlessCommand):
                   ' a version update.'
 
     def run(self):
-        for x in ['build', 'dist', 'docs'] + \
+        for x in ['build', 'dist'] + \
             glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
             if os.path.exists(x):
                 if os.path.isdir(x):
