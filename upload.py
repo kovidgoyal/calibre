@@ -286,7 +286,7 @@ class gui(OptionlessCommand):
                 with open('images.qrc', 'wb') as f:
                     f.write(manifest)
                 try:
-                    check_call(['pyrcc4', '-py2', '-o', images, 'images.qrc'])
+                    check_call(['pyrcc4', '-o', images, 'images.qrc'])
                 except:
                     import traceback
                     traceback.print_exc()
