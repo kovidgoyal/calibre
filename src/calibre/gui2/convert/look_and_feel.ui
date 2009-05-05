@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="0" column="0" colspan="2">
+      <widget class="QLabel" name="label_18">
+       <property name="text">
+        <string>Base &amp;font size:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_base_font_size</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QDoubleSpinBox" name="opt_base_font_size">
+       <property name="suffix">
+        <string> pt</string>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>30.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>15.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Line &amp;height:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_line_height</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QDoubleSpinBox" name="opt_line_height">
+       <property name="suffix">
+        <string> pt</string>
+       </property>
+       <property name="decimals">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
+       <property name="text">
+        <string>Remove &amp;spacing between paragraphs</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_dont_justify">
+       <property name="text">
+        <string>No text &amp;justification</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_linearize_tables">
+       <property name="text">
+        <string>&amp;Linearize tables</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_remove_first_image">
+       <property name="text">
+        <string>Remove &amp;first image from source file</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Font size &amp;key:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_font_size_mapping</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QLineEdit" name="opt_font_size_mapping"/>
+     </item>
+     <item row="8" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_insert_metadata">
+       <property name="text">
+        <string>Insert &amp;metadata at start of book</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Input character &amp;encoding</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_input_encoding</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLineEdit" name="opt_input_encoding"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Extra &amp;CSS</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QTextEdit" name="opt_extra_css"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../work/calibre-pluginize/src/calibre/gui2/images.qrc"/>
+  <include location="../images.qrc"/>
+ </resources>
+ <connections/>
+</ui>

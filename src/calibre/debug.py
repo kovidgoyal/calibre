@@ -108,6 +108,11 @@ def debug_device_driver():
                 drives.append((str(drive.PNPDeviceID), 'No mount points found'))
         for drive in drives:
             print '\t', drive
+    if isosx:
+        from calibre.devices.usbms.device import Device
+        raw = Device.run_ioreg()
+        open('/tmp/ioreg.txt', 'wb').write(raw)
+        print 'ioreg output saved to /tmp/ioreg.txt'
     from calibre.devices import devices
     for dev in devices():
         print 'Looking for', dev.__name__

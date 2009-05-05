@@ -53,6 +53,7 @@ class LRFOptions(object):
         self.lrs = False
         self.minimize_memory_usage = False
         self.autorotation = opts.enable_autorotation
+        self.header_separation = (self.profile.dpi/72.) * opts.header_separation
 
 
         for x in ('top', 'bottom', 'left', 'right'):
@@ -60,7 +61,7 @@ class LRFOptions(object):
             'margin_'+x))
 
         for x in ('wordspace', 'header', 'header_format',
-                'header_separation', 'minimum_indent', 'serif_family',
+                'minimum_indent', 'serif_family',
                 'render_tables_as_images', 'sans_family', 'mono_family',
                 'text_size_multiplier_for_rendered_tables'):
             setattr(self, x, getattr(opts, x))
@@ -87,7 +88,7 @@ class LRFOutput(OutputFormatPlugin):
             'and %t by the title. Default is %default')
         ),
         OptionRecommendation(name='header_separation', recommended_value=0,
-            help=_('Add extra spacing below the header. Default is %default px.')
+            help=_('Add extra spacing below the header. Default is %default pt.')
         ),
         OptionRecommendation(name='minimum_indent', recommended_value=0,
             help=_('Minimum paragraph indent (the indent of the first line '
@@ -99,7 +100,7 @@ class LRFOutput(OutputFormatPlugin):
                 'document has large or complex tables)')
         ),
         OptionRecommendation(name='text_size_multiplier_for_rendered_tables',
-            recommended_value=1,
+            recommended_value=1.0,
             help=_('Multiply the size of text in rendered tables by this '
             'factor. Default is %default')
         ),

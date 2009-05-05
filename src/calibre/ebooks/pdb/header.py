@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, struct, time
+import re, struct, time
 
 class PdbHeaderReader(object):
 
@@ -53,7 +53,8 @@ class PdbHeaderReader(object):
 
         start = self.section_offset(number)
         if number == self.num_sections -1:
-            end = os.stat(self.stream.name).st_size
+            self.stream.seek(0, 2)
+            end = self.stream.tell()
         else:
             end = self.section_offset(number + 1)
         self.stream.seek(start)
@@ -65,18 +66,18 @@ class PdbHeaderBuilder(object):
     def __init__(self, identity, title):
         self.identity = identity.ljust(3, '\x00')[:8]
         self.title = re.sub('[^-A-Za-z0-9]+', '_', title).ljust(32, '\x00')[:32]
-        
+
     def build_header(self, section_lengths, out_stream):
         '''
         section_lengths = Lenght of each section in file.
         '''
-        
+
         now = int(time.time())
         nrecords = len(section_lengths)
-        
+
         out_stream.write(self.title + struct.pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0))
         out_stream.write(self.identity + struct.pack('>IIH', nrecords, 0, nrecords))
- 
+
         offset = 78 + (8 * nrecords) + 2
         for id, record in enumerate(section_lengths):
             out_stream.write(struct.pack('>LBBBB', long(offset), 0, 0, 0, 0))

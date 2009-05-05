@@ -19,6 +19,10 @@ def supported_input_formats():
         fmts.add(x)
     return fmts
 
+INPUT_FORMAT_PREFERENCES = ['cbr', 'cbz', 'cbc', 'lit', 'mobi', 'prc', 'azw', 'fb2', 'html',
+        'rtf', 'pdf', 'txt', 'pdb']
+OUTPUT_FORMAT_PREFERENCES = ['epub', 'mobi', 'lit', 'pdf', 'pdb', 'txt']
+
 class OptionValues(object):
     pass
 
@@ -114,7 +118,7 @@ OptionRecommendation(name='font_size_mapping',
         ),
 
 OptionRecommendation(name='line_height',
-            recommended_value=None, level=OptionRecommendation.LOW,
+            recommended_value=0, level=OptionRecommendation.LOW,
             help=_('The line height in pts. Controls spacing between consecutive '
                    'lines of text. By default no line height manipulation is '
                    'performed.'
@@ -463,6 +467,12 @@ OptionRecommendation(name='list_recipes',
                 if rec.option == name:
                     return rec
 
+    def get_option_help(self, name):
+        rec = self.get_option_by_name(name)
+        help = getattr(rec, 'help', None)
+        if help is not None:
+            return help.replace('%default', str(rec.recommended_value))
+
     def merge_plugin_recommendations(self):
         for source in (self.input_plugin, self.output_plugin):
             for name, val, level in source.recommendations:
@@ -598,7 +608,7 @@ OptionRecommendation(name='list_recipes',
 
         from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
         fbase = self.opts.base_font_size
-        if fbase == 0:
+        if fbase < 1e-4:
             fbase = float(self.opts.dest.fbase)
         fkey = self.opts.font_size_mapping
         if fkey is None:
@@ -618,8 +628,11 @@ OptionRecommendation(name='list_recipes',
         if self.output_plugin.file_type == 'lrf':
             self.opts.insert_blank_line = False
             self.opts.remove_paragraph_spacing = False
+        line_height = self.opts.line_height
+        if line_height < 1e-4:
+            line_height = None
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
-                lineh=self.opts.line_height,
+                lineh=line_height,
                 untable=self.output_plugin.file_type in ('mobi','lit'),
                 unfloat=self.output_plugin.file_type in ('mobi', 'lit'))
         flattener(self.oeb, self.opts)

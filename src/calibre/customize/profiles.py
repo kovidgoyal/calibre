@@ -3,7 +3,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
 from itertools import izip
 
 from calibre.customize import Plugin as _Plugin
@@ -141,15 +140,12 @@ class OutputProfile(Plugin):
                     'if you want to produce a document intended to be read at a '
                     'computer or on a range of devices.')
 
-    # ADE dies an agonizing, long drawn out death if HTML files have more
-    # bytes than this.
-    flow_size                 = -1
-    # ADE runs screaming when it sees these characters
-    remove_special_chars      = re.compile(u'[\u200b\u00ad]')
-    # ADE falls to the ground in a dead faint when it sees an <object>
-    remove_object_tags        = True
     # The image size for comics
     comic_screen_size = (584, 754)
+
+    @classmethod
+    def tags_to_string(cls, tags):
+        return ', '.join(tags)
 
 class SonyReaderOutput(OutputProfile):
 
@@ -158,7 +154,6 @@ class SonyReaderOutput(OutputProfile):
     description = _('This profile is intended for the SONY PRS line. '
                     'The 500/505/700 etc.')
 
-    flow_size                 = 270000
     screen_size               = (600, 775)
     dpi                       = 168.451
     fbase                     = 12
@@ -235,6 +230,11 @@ class KindleOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
+    @classmethod
+    def tags_to_string(cls, tags):
+        return 'ttt '.join(tags)+'ttt '
+
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,

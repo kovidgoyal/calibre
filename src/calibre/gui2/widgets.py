@@ -285,7 +285,7 @@ class FontFamilyModel(QAbstractListModel):
             print 'WARNING: Could not load fonts'
             traceback.print_exc()
         self.families.sort()
-        self.families[:0] = ['None']
+        self.families[:0] = [_('None')]
 
     def rowCount(self, *args):
         return len(self.families)

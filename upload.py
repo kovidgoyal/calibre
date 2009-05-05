@@ -286,7 +286,7 @@ class gui(OptionlessCommand):
                 with open('images.qrc', 'wb') as f:
                     f.write(manifest)
                 try:
-                    check_call(['pyrcc4', '-o', images, 'images.qrc'])
+                    check_call(['pyrcc4', '-py2', '-o', images, 'images.qrc'])
                 except:
                     import traceback
                     traceback.print_exc()
@@ -399,7 +399,7 @@ class update(OptionlessCommand):
                   ' a version update.'
 
     def run(self):
-        for x in ['build', 'dist', 'docs'] + \
+        for x in ['build', 'dist'] + \
             glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
             if os.path.exists(x):
                 if os.path.isdir(x):
