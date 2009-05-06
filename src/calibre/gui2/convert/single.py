@@ -136,9 +136,10 @@ class Config(ResizableDialog, Ui_Dialog):
         ps = widget_factory(PageSetupWidget)
 
         output_widget = None
-        name = self.plumber.output_plugin.name.lower().replace(' ', '_')
+        name = 'calibre.gui2.convert.%s' % self.plumber.output_plugin.name.lower().replace(' ', '_')
         try:
-            output_widget = __import__(name)
+            __import__(name)
+            output_widget = sys.modules[name]
             pw = output_widget.PluginWidget
             pw.ICON = ':/images/back.svg'
             pw.HELP = _('Options specific to the output format.')

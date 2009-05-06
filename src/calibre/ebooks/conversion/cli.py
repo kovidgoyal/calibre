@@ -211,6 +211,7 @@ def main(args=sys.argv):
                         OptionRecommendation.HIGH) \
                                         for n in parser.options_iter()
                                         if n.dest]
+    print recommendations
     plumber.merge_ui_recommendations(recommendations)
 
     plumber.run()
