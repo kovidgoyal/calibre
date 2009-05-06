@@ -38,50 +38,21 @@ DEBUG = False
 
 #: A mapping from job names to functions that perform the jobs
 PARALLEL_FUNCS = {
-      'any2lrf'      :
-        ('calibre.ebooks.lrf.any.convert_from', 'main', dict(gui_mode=True), None),
-
       'lrfviewer'    :
         ('calibre.gui2.lrf_renderer.main', 'main', {}, None),
 
       'ebook-viewer'    :
         ('calibre.gui2.viewer.main', 'main', {}, None),
 
-      'feeds2lrf'    :
-        ('calibre.ebooks.lrf.feeds.convert_from', 'main', {}, 'notification'),
-
-      'render_table' :
-        ('calibre.ebooks.lrf.html.table_as_image', 'do_render', {}, None),
-
       'render_pages' :
         ('calibre.ebooks.comic.input', 'render_pages', {}, 'notification'),
 
-      'comic2lrf'    :
-        ('calibre.ebooks.lrf.comic.convert_from', 'do_convert', {}, 'notification'),
-
-      'any2epub'     :
-        ('calibre.ebooks.epub.from_any', 'any2epub', {}, None),
-
-      'feeds2epub'   :
-        ('calibre.ebooks.epub.from_feeds', 'main', {}, 'notification'),
-
-      'comic2epub'    :
-        ('calibre.ebooks.epub.from_comic', 'convert', {}, 'notification'),
-
-      'any2mobi'     :
-        ('calibre.ebooks.mobi.from_any', 'any2mobi', {}, None),
-
-      'any2pdf'     :
-        ('calibre.ebooks.pdf.from_any', 'any2pdf', {}, None),
-
-      'feeds2mobi'   :
-        ('calibre.ebooks.mobi.from_feeds', 'main', {}, 'notification'),
-
-      'comic2mobi'    :
-        ('calibre.ebooks.mobi.from_comic', 'convert', {}, 'notification'),
-
       'ebook-convert'     :
         ('calibre.ebooks.conversion.cli', 'main', {}, None),
+        
+        
+      'gui_convert'     :
+        ('calibre.gui2.convert.gui_conversion', 'gui_convert', {}, None),
 }
 
 

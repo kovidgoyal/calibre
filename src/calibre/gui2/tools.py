@@ -6,7 +6,9 @@ __docformat__ = 'restructuredtext en'
 '''
 Logic for setting up conversion jobs
 '''
-import os
+
+import cPickle, os
+
 from PyQt4.Qt import QDialog
 
 from calibre.ptempfile import PersistentTemporaryFile
@@ -14,7 +16,7 @@ from calibre.gui2.convert import load_specifics
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
 
-def convert_single_ebook(parent, db, row_ids, auto_conversion=False out_format=None):
+def convert_single_ebook(parent, db, row_ids, auto_conversion=False, out_format=None):
     changed = False
     jobs = []
     bad = []
@@ -32,8 +34,6 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False out_format=N
             
             if auto_conversion:
                 result = QDialog.Accepted
-                if d.output_format != out_format:
-                    raise Exception('Output format not supported.')
             else:
                 result = d.exec_()
             
@@ -47,14 +47,10 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False out_format=N
             
                 desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
                 
-                opts = load_specifics(db, row_id)
-                opts_string = ''
-                for opt in opts.keys():
-                    opts_string += ' --%s %s ' % (opt, opts[opt])    
-                
-                args = [['', in_file, out_file.name, opts_string]]
+                recs = cPickle.loads(d.recommendations)
+                args = [in_file, out_file.name, recs]
                 temp_files = [out_file]
-                jobs.append(('ebook-convert', args, desc, d.output_format.upper(), row_id, temp_files))
+                jobs.append(('gui_convert', args, desc, d.output_format.upper(), row_id, temp_files))
 
                 changed = True
         except NoSupportedInputFormats:
