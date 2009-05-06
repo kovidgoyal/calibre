@@ -507,10 +507,10 @@ class DeviceGUI(object):
             self.status_bar.showMessage(_('Sending email to')+' '+to, 3000)
 
         if bad:
-            bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
+            bad = '\n'.join('%s'%(i,) for i in bad)
             d = warning_dialog(self, _('No suitable formats'),
-                '<p>'+ _('Could not email the following books '
-                'as no suitable formats were found:<br><ul>%s</ul>')%(bad,))
+                _('Could not email the following books '
+                'as no suitable formats were found:'), bad)
             d.exec_()
 
     def emails_sent(self, results, remove=[]):
@@ -694,12 +694,12 @@ class DeviceGUI(object):
                 self.auto_convert(_auto_ids, on_card, format)
 
         if bad:
-            bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
+            bad = '\n'.join('%s'%(i,) for i in bad)
             d = warning_dialog(self, _('No suitable formats'),
                     _('Could not upload the following books to the device, '
                 'as no suitable formats were found. Try changing the output '
                 'format in the upper right corner next to the red heart and '
-                're-converting. <br><ul>%s</ul>')%(bad,))
+                're-converting.'), bad)
             d.exec_()
 
     def upload_booklists(self):

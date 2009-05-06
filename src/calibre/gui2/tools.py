@@ -12,6 +12,7 @@ import cPickle, os
 from PyQt4.Qt import QDialog
 
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.gui2 import warning_dialog
 from calibre.gui2.convert import load_specifics
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
@@ -60,10 +61,12 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
         res = []
         for id in bad:
             title = db.title(id, True)
-            res.append('<li>%s</li>'%title)
+            res.append('%s'%title)
 
-        msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), total, '\n'.join(res))
-        warning_dialog(parent, _('Could not convert some books'), msg).exec_()
+        msg = '%s' % '\n'.join(res)
+        warning_dialog(parent, _('Could not convert some books'),
+            _('Could not convert %d of %d books, because no suitable source format was found.' % (len(res), total)),
+            msg).exec_()
 
     return jobs, changed, bad
 

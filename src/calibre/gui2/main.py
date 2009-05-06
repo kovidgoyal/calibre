@@ -445,13 +445,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def change_output_format(self, x):
         of = unicode(x).strip()
         if of != prefs['output_format']:
-            if of not in ('LRF', 'EPUB', 'MOBI'):
-                warning_dialog(self, 'Warning',
-                    ('<p>%s support is still in beta. If you find bugs, '
-                    'please report them by opening a <a href="http://cal'
-                    'ibre.kovidgoyal.net">ticket</a>.')%of).exec_()
             prefs.set('output_format', of)
-
 
     def test_server(self, *args):
         if self.content_server.exception is not None:
@@ -916,14 +910,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                         callback=callback,
                                         single_format=single_format)
                 if failures and single_format is not None:
-                    msg = _('<p>Could not save the following books to disk, '
-                       'because the %s format is not available for them:<ul>')\
+                    msg = _('Could not save the following books to disk, '
+                       'because the %s format is not available for them')\
                                %single_format.upper()
+                    det_msg = ''
                     for f in failures:
-                        msg += '<li>%s</li>'%f[1]
-                    msg += '</ul>'
+                        det_msg += '%s\n'%f[1]
                     warning_dialog(self, _('Could not save some ebooks'),
-                            msg).exec_()
+                            msg, det_msg).exec_()
                 QDesktopServices.openUrl(QUrl('file:'+dir))
             else:
                 paths = self.current_view().model().paths(rows)
