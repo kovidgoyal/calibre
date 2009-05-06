@@ -33,7 +33,7 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False):
             if auto_conversion:
                 result = QDialog.Accepted
             else:
-                retult = d.exec_()
+                result = d.exec_()
             
             if result == QDialog.Accepted:
                 mi = db.get_metadata(row_id, True)
@@ -67,7 +67,7 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False):
         msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), total, '\n'.join(res))
         warning_dialog(parent, _('Could not convert some books'), msg).exec_()
 
-    return jobs, changed
+    return jobs, changed, bad
 
 
 def convert_bulk_ebooks(*args):

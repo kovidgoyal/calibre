@@ -973,12 +973,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def auto_convert(self, row_ids, on_card, format):
         previous = self.library_view.currentIndex()
 
-        jobs, changed = convert_single_ebook(self, self.library_view.model().db, row_ids, True)
+        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, row_ids, True)
         if jobs == []: return
         for func, args, desc, fmt, id, temp_files in jobs:
-            job = self.job_manager.run_job(Dispatcher(self.book_auto_converted),
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_auto_converted),
                                         func, args=args, description=desc)
-            self.conversion_jobs[job] = (temp_files, fmt, id, on_card)
+                self.conversion_jobs[job] = (temp_files, fmt, id, on_card)
 
         if changed:
             self.library_view.model().refresh_rows(rows)
@@ -1021,12 +1022,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
-        jobs, changed = convert_single_ebook(self,
+        jobs, changed, bad = convert_single_ebook(self,
                 self.library_view.model().db, row_ids)
         for func, args, desc, fmt, id, temp_files in jobs:
-            job = self.job_manager.run_job(Dispatcher(self.book_converted),
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_converted),
                                             func, args=args, description=desc)
-            self.conversion_jobs[job] = (temp_files, fmt, id)
+                self.conversion_jobs[job] = (temp_files, fmt, id)
 
         if changed:
             self.library_view.model().refresh_rows(rows)
