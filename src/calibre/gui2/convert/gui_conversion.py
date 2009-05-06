@@ -9,8 +9,8 @@ import logging
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 
-def gui_convert(input, output, recommendations):
-    plumber = Plumber(input, output, Log())
+def gui_convert(input, output, recommendations, notification):
+    plumber = Plumber(input, output, Log(), notification)
     plumber.merge_ui_recommendations(recommendations)
     
     plumber.run()

@@ -16,21 +16,21 @@ from calibre.gui2.convert import load_specifics
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
 
-def convert_single_ebook(parent, db, row_ids, auto_conversion=False, out_format=None):
+def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
     changed = False
     jobs = []
     bad = []
     
-    total = len(row_ids)
+    total = len(book_ids)
     if total == 0:
         return None, None, None
     parent.status_bar.showMessage(_('Starting conversion of %d books') % total, 2000)
 
-    for i, row_id in enumerate(row_ids):
+    for i, book_id in enumerate(book_ids):
         temp_files = []
 
         try:
-            d = SingleConfig(parent, db, row_id, None, out_format)
+            d = SingleConfig(parent, db, book_id, None, out_format)
             
             if auto_conversion:
                 result = QDialog.Accepted
@@ -38,8 +38,8 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False, out_format=
                 result = d.exec_()
             
             if result == QDialog.Accepted:
-                mi = db.get_metadata(row_id, True)
-                in_file = db.format_abspath(row_id, d.input_format, True)
+                mi = db.get_metadata(book_id, True)
+                in_file = db.format_abspath(book_id, d.input_format, True)
                 
                 out_file = PersistentTemporaryFile('.' + d.output_format)
                 out_file.write(d.output_format)
@@ -50,11 +50,11 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False, out_format=
                 recs = cPickle.loads(d.recommendations)
                 args = [in_file, out_file.name, recs]
                 temp_files = [out_file]
-                jobs.append(('gui_convert', args, desc, d.output_format.upper(), row_id, temp_files))
+                jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
         except NoSupportedInputFormats:
-            bad.append(row_id)
+            bad.append(book_id)
 
     if bad != []:
         res = []
@@ -66,7 +66,6 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False, out_format=
         warning_dialog(parent, _('Could not convert some books'), msg).exec_()
 
     return jobs, changed, bad
-
 
 def convert_bulk_ebooks(*args):
     pass

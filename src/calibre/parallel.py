@@ -50,9 +50,8 @@ PARALLEL_FUNCS = {
       'ebook-convert'     :
         ('calibre.ebooks.conversion.cli', 'main', {}, None),
         
-        
       'gui_convert'     :
-        ('calibre.gui2.convert.gui_conversion', 'gui_convert', {}, None),
+        ('calibre.gui2.convert.gui_conversion', 'gui_convert', {}, 'notification'),
 }
 
 
