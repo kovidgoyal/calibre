@@ -16,7 +16,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.parallel import Job
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-                                   pixmap_to_data, warning_dialog
+                                   pixmap_to_data
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.devices.interface import Device
@@ -25,6 +25,11 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
+
+def warning(title, msg, details, parent):
+    from calibre.gui2.widgets import WarningDialog
+    WarningDialog(title, msg, details, parent).exec_()
+
 
 class DeviceJob(Job):
 
@@ -478,11 +483,11 @@ class DeviceGUI(object):
             self.status_bar.showMessage(_('Sending email to')+' '+to, 3000)
 
         if bad:
-            bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
-            d = warning_dialog(self, _('No suitable formats'),
-                '<p>'+ _('Could not email the following books '
-                'as no suitable formats were found:<br><ul>%s</ul>')%(bad,))
-            d.exec_()
+            bad = u'\n'.join(u'<li>%s</li>'%(i,) for i in bad)
+            details = u'<p><ul>%s</ul></p>'%bad
+            warning(_('No suitable formats'),
+                _('Could not email the following books '
+                'as no suitable formats were found:'), details, self)
 
     def emails_sent(self, results, remove=[]):
         errors, good = [], []
@@ -624,13 +629,13 @@ class DeviceGUI(object):
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
-            bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
-            d = warning_dialog(self, _('No suitable formats'),
+            bad = u'\n'.join(u'<li>%s</li>'%(i,) for i in bad)
+            details = u'<p><ul>%s</ul></p>'%bad
+            warning(_('No suitable formats'),
                     _('Could not upload the following books to the device, '
                 'as no suitable formats were found. Try changing the output '
                 'format in the upper right corner next to the red heart and '
-                're-converting. <br><ul>%s</ul>')%(bad,))
-            d.exec_()
+                're-converting.'), details, self)
 
     def upload_booklists(self):
         '''
