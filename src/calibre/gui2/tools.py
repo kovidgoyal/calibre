@@ -14,7 +14,7 @@ from calibre.gui2.convert import load_specifics
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
 
-def convert_single_ebook(parent, db, row_ids, auto_conversion=False):
+def convert_single_ebook(parent, db, row_ids, auto_conversion=False out_format=None):
     changed = False
     jobs = []
     bad = []
@@ -28,10 +28,12 @@ def convert_single_ebook(parent, db, row_ids, auto_conversion=False):
         temp_files = []
 
         try:
-            d = SingleConfig(parent, db, row_id)
+            d = SingleConfig(parent, db, row_id, None, out_format)
             
             if auto_conversion:
                 result = QDialog.Accepted
+                if d.output_format != out_format:
+                    raise Exception('Output format not supported.')
             else:
                 result = d.exec_()
             

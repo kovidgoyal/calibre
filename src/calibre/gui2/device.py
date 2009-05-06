@@ -678,16 +678,20 @@ class DeviceGUI(object):
                         bad.append(self.library_view.model().title(row))
                         
         if auto != []:
-            autos = [self.library_view.model().title(row) for row in auto]
-            autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
-            d = info_dialog(self, _('No suitable formats'),
-                    _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
+            format = None
             for fmt in self.device_manager.device_class.settings().format_map:
                 if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
                     format = fmt
                     break
-            d.exec_()
-            self.auto_convert(_auto_ids, on_card, format)
+            if format is None:
+                bad += auto
+            else:
+                autos = [self.library_view.model().title(row) for row in auto]
+                autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
+                d = info_dialog(self, _('No suitable formats'),
+                        _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
+                d.exec_()
+                self.auto_convert(_auto_ids, on_card, format)
 
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
