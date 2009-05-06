@@ -1060,8 +1060,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     #############################View book######################################
 
     def view_format(self, row, format):
-        self._view_file(self.library_view.model().db.format(row,
-            format, as_file=True).name)
+        fmt_path = self.library_view.model().db.format_abspath(row, format)
+        if fmt_path:
+            self._view_file(fmt_path)
 
     def book_downloaded_for_viewing(self, job):
         if job.exception:
