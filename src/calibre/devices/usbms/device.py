@@ -40,7 +40,7 @@ class Device(_Device):
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                 %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="0">
+                  <match key="@info.parent:storage.lun" int="%(lun0)d">
                           <merge key="volume.label" type="string">%(main_memory)s</merge>
                           <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
                   </match>
@@ -54,7 +54,7 @@ class Device(_Device):
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                 %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="1">
+                  <match key="@info.parent:storage.lun" int="%(lun1)d">
                           <merge key="volume.label" type="string">%(storage_card)s</merge>
                           <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
                   </match>
@@ -65,6 +65,7 @@ class Device(_Device):
   </device>
 '''
     FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
+    FDI_LUNS = {'lun0':0, 'lun1':1, 'lun2':2}
 
 
     def __init__(self, key='-1', log_packets=False, report_progress=None) :
@@ -84,6 +85,8 @@ class Device(_Device):
                                        main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                        storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                   )
+
+                fdi_base_values.update(cls.FDI_LUNS)
 
                 if cls.BCD is None:
                     fdi_base_values['BCD_start'] = ''
@@ -303,7 +306,7 @@ class Device(_Device):
             try:
                 self.open_linux()
             except DeviceError:
-                time.sleep(3)
+                time.sleep(7)
                 self.open_linux()
         if iswindows:
             try:
