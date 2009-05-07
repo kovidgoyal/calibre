@@ -12,6 +12,7 @@ from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
+from calibre.devices.interface import DevicePlugin
 from calibre.constants import iswindows
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.parallel import Job
@@ -26,6 +27,11 @@ from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
+
+def warning(title, msg, details, parent):
+    from calibre.gui2.widgets import WarningDialog
+    WarningDialog(title, msg, details, parent).exec_()
+
 
 class DeviceJob(Job):
 
@@ -541,7 +547,7 @@ class DeviceGUI(object):
         p.loadFromData(data)
         if not p.isNull():
             ht = self.device_manager.device_class.THUMBNAIL_HEIGHT \
-                    if self.device_manager else Device.THUMBNAIL_HEIGHT
+                    if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             return (p.width(), p.height(), pixmap_to_data(p))
 
@@ -616,7 +622,7 @@ class DeviceGUI(object):
         ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not self.device_manager or not ids or len(ids) == 0:
             return
-            
+
         _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     self.device_manager.device_class.settings().format_map,
                                     paths=True, set_metadata=True,
@@ -626,7 +632,7 @@ class DeviceGUI(object):
             ids = list(set(ids).difference(_auto_ids))
         else:
             _auto_ids = []
-        
+
         metadata = self.library_view.model().get_metadata(ids, True)
         ids = iter(ids)
         for mi in metadata:
@@ -634,7 +640,7 @@ class DeviceGUI(object):
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
-        
+
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
@@ -660,13 +666,13 @@ class DeviceGUI(object):
         remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
-        
+
         auto = []
         if _auto_ids != []:
             for id in _auto_ids:
                 if specific_format == None:
                     formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
-                    formats = formats if formats != None else [] 
+                    formats = formats if formats != None else []
                     if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
                         auto.append(id)
                     else:
@@ -676,7 +682,7 @@ class DeviceGUI(object):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
-                        
+
         if auto != []:
             format = None
             for fmt in self.device_manager.device_class.settings().format_map:
