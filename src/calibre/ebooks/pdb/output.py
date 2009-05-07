@@ -6,8 +6,9 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin
-from calibre.ebooks.pdb import PDBError, get_writer
+from calibre.customize.conversion import OutputFormatPlugin, \
+    OptionRecommendation
+from calibre.ebooks.pdb import PDBError, get_writer, FORMAT_WRITERS
 
 class PDBOutput(OutputFormatPlugin):
 
@@ -15,20 +16,25 @@ class PDBOutput(OutputFormatPlugin):
     author = 'John Schember'
     file_type = 'pdb'
     
+    options = set([
+        OptionRecommendation(name='format', recommended_value='doc',
+            level=OptionRecommendation.LOW,
+            short_switch='f', choices=FORMAT_WRITERS.keys(),
+            help=_('Format to use inside the pdb container. Choices are: '
+            '%s' % FORMAT_WRITERS.keys())),
+    ])
+
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         close = False
         if not hasattr(output_path, 'write'):
-            # Determine the format to write based upon the sub extension
-            format = os.path.splitext(os.path.splitext(output_path)[0])[1][1:]
             close = True
             if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
                 os.makedirs(os.path.dirname(output_path))
             out_stream = open(output_path, 'wb')
         else:
-            format = os.path.splitext(os.path.splitext(output_path.name)[0])[1][1:]
             out_stream = output_path
             
-        Writer = get_writer(format)
+        Writer = get_writer(opts.format)
         
         if Writer is None:
             raise PDBError('No writer avaliable for format %s.' % format)
