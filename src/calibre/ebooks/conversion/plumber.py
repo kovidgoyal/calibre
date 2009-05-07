@@ -117,6 +117,13 @@ OptionRecommendation(name='font_size_mapping',
                    )
         ),
 
+OptionRecommendation(name='disable_font_rescaling',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Disable all rescaling of font sizes.'
+                   )
+        ),
+
+
 OptionRecommendation(name='line_height',
             recommended_value=0, level=OptionRecommendation.LOW,
             help=_('The line height in pts. Controls spacing between consecutive '

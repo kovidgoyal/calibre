@@ -202,7 +202,8 @@ class CSSFlattener(object):
         if 'bgcolor' in node.attrib:
             cssdict['background-color'] = node.attrib['bgcolor']
             del node.attrib['bgcolor']
-        if 'font-size' in cssdict or tag == 'body':
+        if not self.context.disable_font_rescaling and \
+                'font-size' in cssdict or tag == 'body':
             fsize = self.fmap[style['font-size']]
             cssdict['font-size'] = "%0.5fem" % (fsize / psize)
             psize = fsize

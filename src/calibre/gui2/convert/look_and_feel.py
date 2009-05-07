@@ -21,8 +21,11 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 ['dont_justify', 'extra_css', 'base_font_size',
                     'font_size_mapping', 'insert_metadata', 'line_height',
                     'linearize_tables', 'remove_first_image',
+                    'disable_font_rescaling',
                     'remove_paragraph_spacing', 'input_encoding']
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
+        self.opt_disable_font_rescaling.toggle()
+        self.opt_disable_font_rescaling.toggle()
 
