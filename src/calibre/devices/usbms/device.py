@@ -43,7 +43,7 @@ class Device(DeviceConfig, DevicePlugin):
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                 %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="0">
+                  <match key="@info.parent:storage.lun" int="%(lun0)d">
                           <merge key="volume.label" type="string">%(main_memory)s</merge>
                           <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
                   </match>
@@ -57,7 +57,7 @@ class Device(DeviceConfig, DevicePlugin):
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                 %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="1">
+                  <match key="@info.parent:storage.lun" int="%(lun1)d">
                           <merge key="volume.label" type="string">%(storage_card)s</merge>
                           <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
                   </match>
@@ -71,7 +71,7 @@ class Device(DeviceConfig, DevicePlugin):
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                 %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="2">
+                  <match key="@info.parent:storage.lun" int="%(lun2)d">
                           <merge key="volume.label" type="string">%(storage_card)s</merge>
                           <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
                   </match>
@@ -81,6 +81,7 @@ class Device(DeviceConfig, DevicePlugin):
       </match>
   </device>
 '''
+    FDI_LUNS = {'lun0':0, 'lun1':1, 'lun2':2}
     FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
 
 
@@ -100,6 +101,7 @@ class Device(DeviceConfig, DevicePlugin):
                                        main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                        storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                   )
+                fdi_base_values.update(cls.FDI_LUNS)
 
                 if cls.BCD is None:
                     fdi_base_values['BCD_start'] = ''
@@ -342,7 +344,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 self.open_linux()
             except DeviceError:
-                time.sleep(3)
+                time.sleep(7)
                 self.open_linux()
         if iswindows:
             try:
