@@ -38,6 +38,7 @@ class USBMS(CLI, Device):
                         report_progress=report_progress)
 
     def get_device_information(self, end_session=True):
+        self.report_progress(1.0, _('Get device information...'))
         return (self.__class__.__name__, '', '', '')
 
     def books(self, oncard=None, end_session=True):
@@ -45,10 +46,13 @@ class USBMS(CLI, Device):
         bl = BookList()
 
         if oncard == 'carda' and not self._card_a_prefix:
+            self.report_progress(1.0, _('Getting list of books on device...'))
             return bl
         elif oncard == 'cardb' and not self._card_b_prefix:
+            self.report_progress(1.0, _('Getting list of books on device...'))
             return bl
         elif oncard and oncard != 'carda' and oncard != 'cardb':
+            self.report_progress(1.0, _('Getting list of books on device...'))
             return bl
 
         prefix = self._card_a_prefix if oncard == 'carda' else self._card_b_prefix if oncard == 'cardb' else self._main_prefix
@@ -59,13 +63,20 @@ class USBMS(CLI, Device):
             for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
                 # Filter out anything that isn't in the list of supported ebook types
                 for book_type in self.FORMATS:
-                    for filename in fnmatch.filter(files, '*.%s' % (book_type)):
+                    match = fnmatch.filter(files, '*.%s' % (book_type))
+                    for i, filename in enumerate(match):
+                        self.report_progress((i+1) / float(len(match)), _('Getting list of books on device...'))
                         bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
         else:
             path = os.path.join(prefix, ebook_dir)
-            for filename in os.listdir(path):
+            paths = os.listdir(path)
+            for i, filename in enumerate(paths):
+                self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
                 if path_to_ext(filename) in self.FORMATS:
                     bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
+                    
+        self.report_progress(1.0, _('Getting list of books on device...'))
+        
         return bl
 
     def _sanity_check(self, on_card, files):
@@ -78,7 +89,7 @@ class USBMS(CLI, Device):
 
         if on_card == 'carda':
             path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
-        if on_card == 'cardb':
+        elif on_card == 'cardb':
             path = os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B)
         else:
             path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
@@ -102,7 +113,7 @@ class USBMS(CLI, Device):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
-    def upload_books(self, files, names, on_card=False, end_session=True,
+    def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
 
         path = self._sanity_check(on_card, files)
@@ -111,7 +122,7 @@ class USBMS(CLI, Device):
         names = iter(names)
         metadata = iter(metadata)
 
-        for infile in files:
+        for i, infile in enumerate(files):
             newpath = path
 
             if self.SUPPORTS_SUB_DIRS:
@@ -125,14 +136,14 @@ class USBMS(CLI, Device):
                             newpath = os.path.join(newpath, mdata.get('timestamp', ''))
                             break
                         elif tag.startswith('/'):
-                            newpath = path
                             newpath += tag
                             newpath = os.path.normpath(newpath)
                             break
 
                 if newpath == path:
-                    newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
-                    newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
+                    newpath = os.path.join(newpath,
+                        mdata.get('authors', _('Unknown')),
+                        mdata.get('title', _('Unknown')))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
@@ -151,22 +162,28 @@ class USBMS(CLI, Device):
             else:
                 shutil.copy2(infile, filepath)
 
+            self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
+
+        self.report_progress(1.0, _('Transferring books to device...'))
+        
         return zip(paths, cycle([on_card]))
 
-    @classmethod
-    def add_books_to_metadata(cls, locations, metadata, booklists):
-        for location in locations:
+    def add_books_to_metadata(self, locations, metadata, booklists):
+        for i, location in enumerate(locations):
+            self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
             path = location[0]
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
-            book = cls.book_from_path(path)
+            book = self.book_from_path(path)
 
             if not book in booklists[blist]:
                 booklists[blist].append(book)
+        self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
 
     def delete_books(self, paths, end_session=True):
-        for path in paths:
+        for i, path in enumerate(paths):
+            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             if os.path.exists(path):
                 # Delete the ebook
                 os.unlink(path)
@@ -175,20 +192,22 @@ class USBMS(CLI, Device):
                         os.removedirs(os.path.dirname(path))
                     except:
                         pass
+        self.report_progress(1.0, _('Removing books from device...'))
 
-    @classmethod
-    def remove_books_from_metadata(cls, paths, booklists):
-        for path in paths:
+    def remove_books_from_metadata(self, paths, booklists):
+        for i, path in enumerate(paths):
+            self.report_progress((i+1) / float(len(paths)), _('Removing books from device metadata listing...'))
             for bl in booklists:
                 for book in bl:
                     if path.endswith(book.path):
                         bl.remove(book)
+        self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
     def sync_booklists(self, booklists, end_session=True):
         # There is no meta data on the device to update. The device is treated
         # as a mass storage device and does not use a meta data xml file like
         # the Sony Readers.
-        pass
+        self.report_progress(1.0, _('Sending metadata to device...'))
 
     @classmethod
     def metadata_from_path(cls, path):

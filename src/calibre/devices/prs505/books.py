@@ -129,7 +129,7 @@ class Book(object):
 
 class BookList(_BookList):
     
-    def __init__(self, xml_file, mountpath):
+    def __init__(self, xml_file, mountpath, report_progress=None):
         _BookList.__init__(self)
         xml_file.seek(0)
         self.document = dom.parse(xml_file)
@@ -144,7 +144,10 @@ class BookList(_BookList):
         else:
             self.prefix = ''
             
-        for book in self.root_element.childNodes:
+        nodes = self.root_element.childNodes
+        for i, book in enumerate(nodes):
+            if report_progress:
+                self.report_progress((i+1) / float(len(nodes)), _('Getting list of books on device...'))
             if hasattr(book, 'tagName') and book.tagName.endswith('text'):
                 tags = [i.getAttribute('title') for i in self.get_playlists(book.getAttribute('id'))]
                 self.append(Book(book, mountpath, tags, prefix=self.prefix))

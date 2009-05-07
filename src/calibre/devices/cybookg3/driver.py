@@ -43,43 +43,13 @@ class CYBOOKG3(USBMS):
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-        if on_card == 'carda' and not self._card_a_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
-        elif on_card == 'cardb' and not self._card_b_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
-        elif on_card and on_card not in ('carda', 'cardb'):
-            raise DeviceError(_('The reader has no storage card in this slot.'))
-
-        if on_card == 'carda':
-            path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
-        if on_card == 'cardb':
-            path = os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B)
-        else:
-            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
-
-        def get_size(obj):
-            if hasattr(obj, 'seek'):
-                obj.seek(0, os.SEEK_END)
-                size = obj.tell()
-                obj.seek(0)
-                return size
-            return os.path.getsize(obj)
-
-        sizes = [get_size(f) for f in files]
-        size = sum(sizes)
-
-        if not on_card and size > self.free_space()[0] - 2*1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space in main memory"))
-        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
-        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        path = self._sanity_check(on_card, files)
 
         paths = []
         names = iter(names)
         metadata = iter(metadata)
 
-        for infile in files:
+        for i, infile in enumerate(files):
             newpath = path
             mdata = metadata.next()
 
@@ -90,7 +60,6 @@ class CYBOOKG3(USBMS):
                         newpath = os.path.join(newpath, mdata.get('title', ''))
                         newpath = os.path.join(newpath, mdata.get('timestamp', ''))
                     elif tag.startswith('/'):
-                        newpath = path
                         newpath += tag
                         newpath = os.path.normpath(newpath)
                         break
@@ -125,10 +94,15 @@ class CYBOOKG3(USBMS):
             t2b.write_t2b(t2bfile, coverdata)
             t2bfile.close()
 
+            self.report_progress(i / float(len(files)), _('Transferring books to device...'))
+
+        self.report_progress(1.0, _('Transferring books to device...'))
+        
         return zip(paths, cycle([on_card]))
 
     def delete_books(self, paths, end_session=True):
-        for path in paths:
+        for i, path in enumerate(paths):
+            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             if os.path.exists(path):
                 os.unlink(path)
 
@@ -148,4 +122,4 @@ class CYBOOKG3(USBMS):
                     os.removedirs(os.path.dirname(path))
                 except:
                     pass
-
+        self.report_progress(1.0, _('Removing books from device...'))
