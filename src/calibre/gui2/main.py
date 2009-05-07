@@ -1047,7 +1047,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             d = error_dialog(self, _('Cannot convert'),
                     _('No books selected'))
             d.exec_()
-            return [], []
+            return None
         return [self.library_view.model().db.id(r) for r in rows]
 
     def convert_bulk(self, checked):
