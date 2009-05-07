@@ -107,7 +107,7 @@ def add_pipeline_options(parser, plumber):
               'LOOK AND FEEL' : (
                   _('Options to control the look and feel of the output'),
                   [
-                      'base_font_size',
+                      'base_font_size', 'disable_font_rescaling',
                       'font_size_mapping',
                       'line_height',
                       'linearize_tables',
