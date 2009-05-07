@@ -397,27 +397,39 @@ class BooksModel(QAbstractTableModel):
         else:
             return metadata
 
-    def get_preferred_formats_from_ids(self, ids, all_formats, mode='r+b'):
+    def get_preferred_formats_from_ids(self, ids, formats, paths=False,
+                              set_metadata=False, specific_format=None,
+                              exclude_auto=False, mode='r+b'):
         ans = []
+        need_auto = []
+        if specific_format is not None:
+            formats = [specific_format.lower()]
         for id in ids:
             format = None
             fmts = self.db.formats(id, index_is_id=True)
             if not fmts:
                 fmts = ''
-            available_formats = set(fmts.lower().split(','))
-            for f in all_formats:
-                if f.lower() in available_formats:
-                    format = f.lower()
+            db_formats = set(fmts.lower().split(','))
+            available_formats = set([f.lower() for f in formats])
+            u = available_formats.intersection(db_formats)
+            for f in formats:
+                if f.lower() in u:
+                    format = f
                     break
-            if format is None:
-                ans.append(format)
+            if format is not None:
+                pt = PersistentTemporaryFile(suffix='.'+format)
+                pt.write(self.db.format(id, format, index_is_id=True))
+                pt.flush()
+                if set_metadata:
+                    _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
+                                  format)
+                pt.close() if paths else pt.seek(0)
+                ans.append(pt)
             else:
-                f = self.db.format(id, format, index_is_id=True, as_file=True,
-                                   mode=mode)
-                ans.append(f)
-        return ans
-
-
+                need_auto.append(id)
+                if not exclude_auto:
+                    ans.append(None)
+        return ans, need_auto
 
     def get_preferred_formats(self, rows, formats, paths=False,
                               set_metadata=False, specific_format=None,

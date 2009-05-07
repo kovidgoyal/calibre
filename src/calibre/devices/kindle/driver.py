@@ -39,7 +39,8 @@ class KINDLE(USBMS):
     r'(?P<title>[^-]+)-asin_(?P<asin>[a-zA-Z\d]{10,})-type_(?P<type>\w{4})-v_(?P<index>\d+).*')
 
     def delete_books(self, paths, end_session=True):
-        for path in paths:
+        for i, path in enumerate(paths):
+            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             if os.path.exists(path):
                 os.unlink(path)
 
@@ -48,6 +49,7 @@ class KINDLE(USBMS):
                 # Delete the ebook auxiliary file
                 if os.path.exists(filepath + '.mbp'):
                     os.unlink(filepath + '.mbp')
+        self.report_progress(1.0, _('Removing books from device...'))
 
     @classmethod
     def metadata_from_path(cls, path):

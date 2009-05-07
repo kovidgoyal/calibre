@@ -966,7 +966,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def auto_convert(self, row_ids, on_card, format):
         previous = self.library_view.currentIndex()
-
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, row_ids, True, format)
         if jobs == []: return
         for func, args, desc, fmt, id, temp_files in jobs:

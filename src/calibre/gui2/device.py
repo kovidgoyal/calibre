@@ -551,7 +551,7 @@ class DeviceGUI(object):
                 for account, x in opts.accounts.items() if x[1]]
         sent_mails = []
         for account, fmts in accounts:
-            files = self.library_view.model().\
+            files, auto = self.library_view.model().\
                     get_preferred_formats_from_ids([id], fmts)
             files = [f.name for f in files if f is not None]
             if not files:
@@ -580,7 +580,7 @@ class DeviceGUI(object):
         if self.device_connected:
             ids = list(dynamic.get('news_to_be_synced', set([])))
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
-            files = self.library_view.model().get_preferred_formats_from_ids(
+            files, auto = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, self.device_manager.device_class.settings().format_map)
             files = [f for f in files if f is not None]
             if not files:
@@ -627,8 +627,8 @@ class DeviceGUI(object):
         else:
             _auto_ids = []
         
-        ids = iter(ids)
         metadata = self.library_view.model().get_metadata(ids, True)
+        ids = iter(ids)
         for mi in metadata:
             cdata = mi['cover']
             if cdata:
@@ -663,19 +663,19 @@ class DeviceGUI(object):
         
         auto = []
         if _auto_ids != []:
-            for row in _auto_ids:
+            for id in _auto_ids:
                 if specific_format == None:
-                    formats = [f.lower() for f in self.library_view.model().db.formats(row).split(',')]
+                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
                     formats = formats if formats != None else [] 
                     if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
-                        auto.append(row)
+                        auto.append(id)
                     else:
-                        bad.append(self.library_view.model().title(row))
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
                 else:
                     if specific_format in available_output_formats():
-                        auto.append(row)
+                        auto.append(id)
                     else:
-                        bad.append(self.library_view.model().title(row))
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
                         
         if auto != []:
             format = None
@@ -686,7 +686,7 @@ class DeviceGUI(object):
             if format is None:
                 bad += auto
             else:
-                autos = [self.library_view.model().title(row) for row in auto]
+                autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
                 autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
                 d = info_dialog(self, _('No suitable formats'),
                         _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))

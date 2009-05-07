@@ -34,6 +34,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
             d = SingleConfig(parent, db, book_id, None, out_format)
             
             if auto_conversion:
+                d.accept()
                 result = QDialog.Accepted
             else:
                 result = d.exec_()

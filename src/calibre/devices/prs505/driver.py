@@ -75,24 +75,29 @@ class PRS505(CLI, Device):
                 self._card_b_prefix = None
 
     def get_device_information(self, end_session=True):
+        self.report_progress(1.0, _('Get device information...'))
         return (self.__class__.__name__, '', '', '')
 
     def books(self, oncard=None, end_session=True):
         if oncard == 'carda' and not self._card_a_prefix:
+            self.report_progress(1.0, _('Getting list of books on device...'))
             return []
         elif oncard == 'cardb' and not self._card_b_prefix:
+            self.report_progress(1.0, _('Getting list of books on device...'))
             return []
         elif oncard and oncard != 'carda' and oncard != 'cardb':
+            self.report_progress(1.0, _('Getting list of books on device...'))
             return []
 
         db = self.__class__.CACHE_XML if oncard else self.__class__.MEDIA_XML
         prefix = self._card_a_prefix if oncard == 'carda' else self._card_b_prefix if oncard == 'cardb' else self._main_prefix
-        bl = BookList(open(prefix + db, 'rb'), prefix)
+        bl = BookList(open(prefix + db, 'rb'), prefix, self.report_progress)
         paths = bl.purge_corrupted_files()
         for path in paths:
             path = os.path.join(prefix, path)
             if os.path.exists(path):
                 os.unlink(path)
+        self.report_progress(1.0, _('Getting list of books on device...'))
         return bl
 
     def upload_books(self, files, names, on_card=None, end_session=True,
@@ -133,7 +138,7 @@ class PRS505(CLI, Device):
 
         names = iter(names)
         metadata = iter(metadata)
-        for infile in files:
+        for i, infile in enumerate(files):
             close = False
             if not hasattr(infile, 'read'):
                 infile, close = open(infile, 'rb'), True
@@ -170,6 +175,10 @@ class PRS505(CLI, Device):
                 infile.close()
             ctimes.append(os.path.getctime(paths[-1]))
 
+            self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
+
+        self.report_progress(1.0, _('Transferring books to device...'))
+
         return zip(paths, sizes, ctimes, cycle([on_card]))
 
     @classmethod
@@ -186,9 +195,11 @@ class PRS505(CLI, Device):
         fix_ids(*booklists)
 
     def delete_books(self, paths, end_session=True):
-        for path in paths:
+        for i, path in enumerate(paths):
+            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             if os.path.exists(path):
                 os.unlink(path)
+        self.report_progress(1.0, _('Removing books from device...'))
 
     @classmethod
     def remove_books_from_metadata(cls, paths, booklists):
@@ -215,3 +226,5 @@ class PRS505(CLI, Device):
                 f.close()
         write_card_prefix(self._card_a_prefix, 1)
         write_card_prefix(self._card_b_prefix, 2)
+        
+        self.report_progress(1.0, _('Sending metadata to device...'))

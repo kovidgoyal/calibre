@@ -52,26 +52,33 @@ class JETBOOK(USBMS):
         names = iter(names)
         metadata = iter(metadata)
 
-        for infile in files:
+        for i, infile in enumerate(files):
             newpath = path
 
-            if self.SUPPORTS_SUB_DIRS:
-                mdata = metadata.next()
+            mdata = metadata.next()
 
-                if 'tags' in mdata.keys():
-                    for tag in mdata['tags']:
-                        if tag.startswith('/'):
-                            newpath += tag
-                            newpath = os.path.normpath(newpath)
-                            break
-
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
+            if 'tags' in mdata.keys():
+                for tag in mdata['tags']:
+                    if tag.startswith(_('News')):
+                        newpath = os.path.join(newpath, 'news')
+                        newpath = os.path.join(newpath, mdata.get('title', ''))
+                        newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                        break
+                    elif tag.startswith('/'):
+                        newpath += tag
+                        newpath = os.path.normpath(newpath)
+                        break
 
             author = sanitize(mdata.get('authors','Unknown')).replace(' ', '_')
             title = sanitize(mdata.get('title', 'Unknown')).replace(' ', '_')
             fileext = os.path.splitext(os.path.basename(names.next()))[1]
             fname = '%s#%s%s' % (author, title, fileext)
+
+            if newpath == path:
+                newpath = os.path.join(newpath, author, title)
+                
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
 
             filepath = os.path.join(newpath, fname)
             paths.append(filepath)
@@ -87,6 +94,10 @@ class JETBOOK(USBMS):
             else:
                 shutil.copy2(infile, filepath)
 
+            self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
+
+        self.report_progress(1.0, _('Transferring books to device...'))
+        
         return zip(paths, cycle([on_card]))
 
     @classmethod
