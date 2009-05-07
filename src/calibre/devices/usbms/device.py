@@ -83,6 +83,7 @@ class Device(DeviceConfig, DevicePlugin):
 '''
     FDI_LUNS = {'lun0':0, 'lun1':1, 'lun2':2}
     FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
+    FDI_LUNS = {'lun0':0, 'lun1':1, 'lun2':2}
 
 
     def reset(self, key='-1', log_packets=False, report_progress=None) :
