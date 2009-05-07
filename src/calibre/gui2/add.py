@@ -7,7 +7,7 @@ from PyQt4.Qt import QThread, SIGNAL, QMutex, QWaitCondition, Qt
 
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.constants import preferred_encoding
-from calibre.gui2.widgets import WarningDialog
+from calibre.gui2 import warning_dialog
 
 class Add(QThread):
     
@@ -113,13 +113,13 @@ class AddFiles(Add):
                     
     def process_duplicates(self):
         if self.duplicates:
-            files = _('<p>Books with the same title as the following already '
-                      'exist in the database. Add them anyway?<ul>')
+            files = ''
             for mi in self.duplicates[2]:
-                files += '<li>'+mi.title+'</li>\n'
-            d = WarningDialog (_('Duplicates found!'), 
-                              _('Duplicates found!'), 
-                              files+'</ul></p>', parent=self._parent)
+                files += mi.title+'\n'
+            d = warning_dialog(_('Duplicates found!'), 
+                         _('Books with the same title as the following already '
+                           'exist in the database. Add them anyway?'),
+                              files, parent=self._parent)
             if d.exec_() == d.Accepted:
                 num = self.db.add_books(*self.duplicates, 
                                   **dict(add_duplicates=True))[1]
@@ -221,16 +221,16 @@ class AddRecursive(Add):
         
     def process_duplicates(self):
         if self.duplicates:
-            files = _('<p>Books with the same title as the following already '
-                      'exist in the database. Add them anyway?<ul>')
+            files = ''
             for mi in self.duplicates:
                 title = mi[0].title
                 if not isinstance(title, unicode):
                     title = title.decode(preferred_encoding, 'replace')
-                files += '<li>'+title+'</li>\n'
-            d = WarningDialog (_('Duplicates found!'), 
-                              _('Duplicates found!'), 
-                              files+'</ul></p>', parent=self._parent)
+                files += title+'\n'
+            d = warning_dialog(_('Duplicates found!'), 
+                        _('Books with the same title as the following already '
+                          'exist in the database. Add them anyway?'),
+                              files, parent=self._parent)
             if d.exec_() == d.Accepted:
                 for mi, formats in self.duplicates:
                     self.db.import_book(mi, formats, notify=False)

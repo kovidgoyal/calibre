@@ -19,7 +19,6 @@ from calibre import fit_image
 from calibre.utils.fontconfig import find_font_families
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
-from calibre.gui2.dialogs.warning_ui import Ui_Dialog as Ui_WarningDialog
 
 class ProgressIndicator(QWidget):
 
@@ -55,16 +54,6 @@ class ProgressIndicator(QWidget):
         if self.movie.state() == self.movie.Running:
             self.movie.setPaused(True)
             self.setVisible(False)
-
-
-class WarningDialog(QDialog, Ui_WarningDialog):
-
-    def __init__(self, title, msg, details, parent=None):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.setWindowTitle(title)
-        self.msg.setText(msg)
-        self.details.setText(details)
 
 class FilenamePattern(QWidget, Ui_Form):
 

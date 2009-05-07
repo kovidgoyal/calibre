@@ -24,7 +24,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
-from calibre.gui2.widgets import ProgressIndicator, WarningDialog
+from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -36,8 +36,8 @@ from calibre.gui2.jobs2 import JobManager
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
-from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.tools import convert_single_ebook, fetch_scheduled_recipe
+from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
+    fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -89,7 +89,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.persistent_files = []
         self.metadata_dialogs = []
         self.default_thumbnail = None
-        self.device_error_dialog = ConversionErrorDialog(self,
+        self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
@@ -865,16 +865,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             db = self.library_view.model().refresh_ids(
                 x.updated, cr)
             if x.failures:
-                details = ['<li><b>%s:</b> %s</li>'%(title, reason) for title,
+                details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
-                details = '<p><ul>%s</ul></p>'%(''.join(details))
-                WarningDialog(_('Failed to download some metadata'),
+                details = '%s\n'%('\n'.join(details))
+                warning_dialog(_('Failed to download some metadata'),
                     _('Failed to download metadata for the following:'),
                     details, self).exec_()
         else:
             err = _('<b>Failed to download metadata:')+\
                     '</b><br><pre>'+x.tb+'</pre>'
-            ConversionErrorDialog(self, _('Error'), err,
+            error_dialog(self, _('Error'), err,
                               show=True)
 
 
@@ -1051,24 +1051,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         return [self.library_view.model().db.id(r) for r in rows]
 
     def convert_bulk(self, checked):
-        r = self.get_books_for_conversion()
-        if r is None:
-            return
-        comics, others = r
-
-        res  = convert_bulk_ebooks(self,
-                self.library_view.model().db, comics, others)
-        if res is None:
-            return
-        jobs, changed = res
+        row_ids = self.get_books_for_conversion()
+        if row_ids is None: return
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_bulk_ebook(self,
+                self.library_view.model().db, row_ids)
         for func, args, desc, fmt, id, temp_files in jobs:
-            job = self.job_manager.run_job(Dispatcher(self.book_converted),
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_converted),
                                             func, args=args, description=desc)
-            self.conversion_jobs[job] = (temp_files, fmt, id)
+                self.conversion_jobs[job] = (temp_files, fmt, id)
 
         if changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
 
     def convert_single(self, checked):
         row_ids = self.get_books_for_conversion()
@@ -1431,7 +1430,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         if isinstance(job.exception, JobKilled):
             return
-        ConversionErrorDialog(self, _('Conversion Error'), job.gui_text(),
+        error_dialog(self, _('Conversion Error'), job.gui_text(),
                               show=True)
 
 
