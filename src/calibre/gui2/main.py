@@ -24,6 +24,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
+from calibre.gui2.widgets import ProgressIndicator, WarningDialog
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -74,6 +75,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowTitle(__appname__)
+        self.progress_indicator = ProgressIndicator(self)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.read_settings()
@@ -169,6 +171,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         md.addAction(_('Edit metadata individually'))
         md.addSeparator()
         md.addAction(_('Edit metadata in bulk'))
+        md.addSeparator()
+        md.addAction(_('Download metadata and covers'))
+        md.addAction(_('Download only metadata'))
         self.metadata_menu = md
         self.add_menu = QMenu()
         self.add_menu.addAction(_('Add books from a single directory'))
@@ -195,6 +200,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 partial(self.edit_metadata, bulk=False))
         QObject.connect(md.actions()[2], SIGNAL('triggered(bool)'),
                 partial(self.edit_metadata, bulk=True))
+        QObject.connect(md.actions()[4], SIGNAL('triggered(bool)'),
+                partial(self.download_metadata, covers=True))
+        QObject.connect(md.actions()[5], SIGNAL('triggered(bool)'),
+                partial(self.download_metadata, covers=False))
+
+
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
@@ -821,6 +832,54 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     ############################################################################
 
     ############################### Edit metadata ##############################
+
+    def download_metadata(self, checked, covers=True):
+        rows = self.library_view.selectionModel().selectedRows()
+        previous = self.library_view.currentIndex()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Cannot download metadata'),
+                             _('No books selected'))
+            d.exec_()
+            return
+        db = self.library_view.model().db
+        ids = [db.id(row.row()) for row in rows]
+        from calibre.gui2.metadata import DownloadMetadata
+        self._download_book_metadata = DownloadMetadata(db, ids, get_covers=covers)
+        self._download_book_metadata.start()
+        self.progress_indicator.start(
+            _('Downloading metadata for %d book(s)')%len(ids))
+        self._book_metadata_download_check = QTimer(self)
+        self.connect(self._book_metadata_download_check,
+                SIGNAL('timeout()'), self.book_metadata_download_check)
+        self._book_metadata_download_check.start(100)
+
+    def book_metadata_download_check(self):
+        if self._download_book_metadata.is_alive():
+            return
+        self._book_metadata_download_check.stop()
+        self.progress_indicator.stop()
+        cr = self.library_view.currentIndex().row()
+        x = self._download_book_metadata
+        self._download_book_metadata = None
+        if x.exception is None:
+            db = self.library_view.model().refresh_ids(
+                x.updated, cr)
+            if x.failures:
+                details = ['<li><b>%s:</b> %s</li>'%(title, reason) for title,
+                        reason in x.failures.values()]
+                details = '<p><ul>%s</ul></p>'%(''.join(details))
+                WarningDialog(_('Failed to download some metadata'),
+                    _('Failed to download metadata for the following:'),
+                    details, self).exec_()
+        else:
+            err = _('<b>Failed to download metadata:')+\
+                    '</b><br><pre>'+x.tb+'</pre>'
+            ConversionErrorDialog(self, _('Error'), err,
+                              show=True)
+
+
+
+
     def edit_metadata(self, checked, bulk=None):
         '''
         Edit metadata of selected books in library.
@@ -1081,8 +1140,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     #############################View book######################################
 
     def view_format(self, row, format):
-        self._view_file(self.library_view.model().db.format(row,
-            format, as_file=True).name)
+        fmt_path = self.library_view.model().db.format_abspath(row, format)
+        if fmt_path:
+            self._view_file(fmt_path)
 
     def book_downloaded_for_viewing(self, job):
         if job.exception:
