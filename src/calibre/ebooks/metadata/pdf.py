@@ -9,6 +9,7 @@ from threading import Thread
 from calibre import FileWrapper
 from calibre.ebooks.metadata import MetaInformation, authors_to_string, get_parser
 from pyPdf import PdfFileReader, PdfFileWriter
+from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
@@ -49,6 +50,12 @@ class MetadataWriter(Thread):
 
 def set_metadata(stream, mi):
     stream.seek(0)
+    try:
+        pdftk_set_metadata(stream, mi)
+    except:
+        pass
+    else:
+        return
 
     # Use a StringIO object for the pdf because we will want to over
     # write it later and if we are working on the stream directly it
