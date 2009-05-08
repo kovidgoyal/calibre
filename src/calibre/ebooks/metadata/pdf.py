@@ -17,6 +17,7 @@ try:
     _imagemagick_loaded = True
 except:
     _imagemagick_loaded = False
+from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a L{MetaInfo} object """
@@ -67,6 +68,13 @@ class MetadataWriter(Thread):
 
 def set_metadata(stream, mi):
     stream.seek(0)
+    try:
+        pdftk_set_metadata(stream, mi)
+    except:
+        pass
+    else:
+        return
+
     # Use a StringIO object for the pdf because we will want to over
     # write it later and if we are working on the stream directly it
     # could cause some issues.
@@ -98,13 +106,13 @@ def get_cover(stream):
         with StreamReadWrapper(stream) as stream:
             pdf = PdfFileReader(stream)
             output = PdfFileWriter()
-    
+
             if len(pdf.pages) >= 1:
                 output.addPage(pdf.getPage(0))
-    
+
                 with TemporaryDirectory('_pdfmeta') as tdir:
                     cover_path = os.path.join(tdir, 'cover.pdf')
-    
+
                     with open(cover_path, "wb") as outputStream:
                         output.write(outputStream)
                     with ImageMagick():

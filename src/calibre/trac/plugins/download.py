@@ -20,6 +20,7 @@ DEPENDENCIES = [
             ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
             ('dnspython', '1.6.0', 'dnspython', 'dnspython', 'dnspython', 'dnspython'),
             ('poppler', '0.10.5', 'poppler', 'poppler', 'poppler', 'poppler'),
+            ('pdftk', '1.12', 'pdftk', 'pdftk', 'pdftk', 'pdftk'),
             ]
 
 

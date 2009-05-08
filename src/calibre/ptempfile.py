@@ -1,8 +1,8 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-""" 
-Provides platform independent temporary files that persist even after 
+"""
+Provides platform independent temporary files that persist even after
 being closed.
 """
 import tempfile, os, atexit, shutil
@@ -15,38 +15,38 @@ def cleanup(path):
         if os.path.exists(path):
             os.remove(path)
     except:
-        pass   
-    
+        pass
+
 class PersistentTemporaryFile(object):
-    """ 
+    """
     A file-like object that is a temporary file that is available even after being closed on
     all platforms. It is automatically deleted on normal program termination.
     """
     _file = None
-    
+
     def __init__(self, suffix="", prefix="", dir=None, mode='w+b'):
-        if prefix == None: 
+        if prefix == None:
             prefix = ""
         fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
                                     dir=dir)
-        self._file = os.fdopen(fd, 'w+b')
+        self._file = os.fdopen(fd, mode)
         self._name = name
         atexit.register(cleanup, name)
-        
+
     def __getattr__(self, name):
         if name == 'name':
             return self.__dict__['_name']
         return getattr(self.__dict__['_file'], name)
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, *args):
         self.close()
-        
+
     def __del__(self):
         self.close()
-          
+
 
 def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     '''
@@ -66,12 +66,37 @@ class TemporaryDirectory(object):
         self.prefix = prefix
         self.dir = dir
         self.keep = keep
-    
+
     def __enter__(self):
         self.tdir = tempfile.mkdtemp(self.suffix, __appname__+"_"+ __version__+"_" +self.prefix, self.dir)
         return self.tdir
-    
+
     def __exit__(self, *args):
         if not self.keep and os.path.exists(self.tdir):
             shutil.rmtree(self.tdir, ignore_errors=True)
-            
+
+class TemporaryFile(object):
+
+    def __init__(self, suffix="", prefix="", dir=None, mode='w+b'):
+        if prefix == None:
+            prefix = ''
+        if suffix is None:
+            suffix = ''
+        self.prefix, self.suffix, self.dir, self.mode = prefix, suffix, dir, mode
+        self._file = None
+
+    def __enter__(self):
+        fd, name = tempfile.mkstemp(self.suffix,
+                __appname__+"_"+ __version__+"_" + self.prefix,
+                                    dir=self.dir)
+        self._file = os.fdopen(fd, self.mode)
+        self._name = name
+        self._file.close()
+        return name
+
+    def __exit__(self, *args):
+        cleanup(self._name)
+
+
+
+
