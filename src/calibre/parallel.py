@@ -43,7 +43,7 @@ PARALLEL_FUNCS = {
 
       'lrfviewer'    :
         ('calibre.gui2.lrf_renderer.main', 'main', {}, None),
-        
+
       'ebook-viewer'    :
         ('calibre.gui2.viewer.main', 'main', {}, None),
 
@@ -52,28 +52,28 @@ PARALLEL_FUNCS = {
 
       'render_table' :
         ('calibre.ebooks.lrf.html.table_as_image', 'do_render', {}, None),
-        
+
       'render_pages' :
         ('calibre.ebooks.lrf.comic.convert_from', 'render_pages', {}, 'notification'),
 
       'comic2lrf'    :
         ('calibre.ebooks.lrf.comic.convert_from', 'do_convert', {}, 'notification'),
-        
+
       'any2epub'     :
         ('calibre.ebooks.epub.from_any', 'any2epub', {}, None),
-        
+
       'feeds2epub'   :
         ('calibre.ebooks.epub.from_feeds', 'main', {}, 'notification'),
-        
+
       'comic2epub'    :
         ('calibre.ebooks.epub.from_comic', 'convert', {}, 'notification'),
-        
+
       'any2mobi'     :
         ('calibre.ebooks.mobi.from_any', 'any2mobi', {}, None),
-        
+
       'feeds2mobi'   :
         ('calibre.ebooks.mobi.from_feeds', 'main', {}, 'notification'),
-        
+
       'comic2mobi'    :
         ('calibre.ebooks.mobi.from_comic', 'convert', {}, 'notification'),
 }
@@ -166,9 +166,11 @@ class WorkerMother(object):
                 self.gui_executable = os.path.join(contents, 'MacOS',
                                                os.path.basename(sys.executable))
                 contents = os.path.join(contents, 'console.app', 'Contents')
-                self.executable = os.path.join(contents, 'MacOS',
-                                               os.path.basename(sys.executable))
-                
+                exe = os.path.basename(sys.executable)
+                if 'python' not in exe:
+                    exe = 'python'
+                self.executable = os.path.join(contents, 'MacOS', exe)
+
                 resources = os.path.join(contents, 'Resources')
                 fd = os.path.join(contents, 'Frameworks')
                 sp = os.path.join(resources, 'lib', 'python'+sys.version[:3], 'site-packages.zip')
@@ -192,7 +194,7 @@ class WorkerMother(object):
         for func in ('spawn_free_spirit', 'spawn_worker'):
             setattr(self, func, getattr(self, func+'_'+ext))
 
-    
+
     def cleanup_child_windows(self, child, name=None, fd=None):
         try:
             child.kill()
@@ -503,9 +505,9 @@ class Overseer(object):
                     self.job.update_status(percent, msg)
             elif word == 'ERROR':
                 self.write('OK')
-                exception, traceback = cPickle.loads(msg)
-                self.job.output(u'%s\n%s'%(exception, traceback))
-                self.job.exception, self.job.traceback = exception, traceback
+                exception, tb = cPickle.loads(msg)
+                self.job.output(u'%s\n%s'%(exception, tb))
+                self.job.exception, self.job.traceback = exception, tb
                 return True
             else:
                 self.terminate()
@@ -520,8 +522,8 @@ class JobKilled(Exception):
     pass
 
 class Job(object):
-    
-    def __init__(self, job_done, job_manager=None, 
+
+    def __init__(self, job_done, job_manager=None,
                  args=[], kwargs={}, description=None):
         self.args            = args
         self.kwargs          = kwargs
@@ -534,9 +536,9 @@ class Job(object):
         self.description     = description
         self.start_time      = None
         self.running_time    = None
-        
+
         self.result = self.exception = self.traceback = self.log = None
-    
+
     def __cmp__(self, other):
         sstatus, ostatus = self.status(), other.status()
         if sstatus == ostatus or (self.has_run and other.has_run):
@@ -551,8 +553,8 @@ class Job(object):
             return -1
         if ostatus == 'WAITING':
             return 1
-        
-    
+
+
     def job_done(self):
         self.is_running, self.has_run = False, True
         self.running_time = (time.time() - self.start_time) if \
@@ -560,14 +562,14 @@ class Job(object):
         if self.job_manager is not None:
             self.job_manager.job_done(self)
         self._job_done(self)
-        
+
     def start_work(self):
         self.is_running = True
         self.has_run    = False
         self.start_time = time.time()
         if self.job_manager is not None:
             self.job_manager.start_work(self)
-    
+
     def update_status(self, percent, msg=None):
         self.percent = percent
         self.msg     = msg
@@ -576,7 +578,7 @@ class Job(object):
                 self.job_manager.status_update(self)
             except:
                 traceback.print_exc()
-        
+
     def status(self):
         if self.is_running:
             return 'WORKING'
@@ -586,7 +588,7 @@ class Job(object):
             if self.exception is None:
                 return 'DONE'
             return 'ERROR'
-            
+
     def console_text(self):
         ans = [u'Job: ']
         if self.description:
@@ -604,13 +606,13 @@ class Job(object):
             if self.traceback:
                 ans.append(u'**Traceback**:')
                 ans.extend(self.traceback.split('\n'))
-        
+
         if self.log:
             if isinstance(self.log, str):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.append(self.log)
         return (u'\n'.join(ans)).encode('utf-8')
-    
+
     def gui_text(self):
         ans = [u'Job: ']
         if self.description:
@@ -635,19 +637,19 @@ class Job(object):
             if isinstance(self.log, str):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.extend(self.log.split('\n'))
-        
+
         ans = [x.decode(preferred_encoding, 'replace') if isinstance(x, str) else x for x in ans]
-        
+
         return u'<br>'.join(ans)
 
 
 class ParallelJob(Job):
-    
+
     def __init__(self, func, *args, **kwargs):
         Job.__init__(self, *args, **kwargs)
         self.func = func
         self.done = self.job_done
-        
+
     def output(self, msg):
         if not self.log:
             self.log = u''
@@ -657,7 +659,7 @@ class ParallelJob(Job):
             self.log += msg
         if self.job_manager is not None:
             self.job_manager.output(self)
-    
+
 
 def remove_ipc_socket(path):
     os = __import__('os')
@@ -696,7 +698,7 @@ class Server(Thread):
         self.result_lock = RLock()
         self.pool_lock = RLock()
         self.start()
-        
+
     def split(self, tasks):
         '''
         Split a list into a list of sub lists, with the number of sub lists being
@@ -714,7 +716,7 @@ class Server(Thread):
             ans.append(section)
             pos += delta
         return ans
-        
+
 
     def close(self):
         try:
@@ -727,7 +729,7 @@ class Server(Thread):
             self.jobs.append(job)
         if job.job_manager is not None:
             job.job_manager.add_job(job)
-            
+
     def poll(self):
         '''
         Return True if the server has either working or queued jobs
@@ -735,14 +737,14 @@ class Server(Thread):
         with self.job_lock:
             with self.working_lock:
                 return len(self.jobs) + len(self.working) > 0
-            
+
     def wait(self, sleep=1):
         '''
         Wait until job queue is empty
         '''
         while self.poll():
             time.sleep(sleep)
-    
+
     def run(self):
         while True:
             job = None
@@ -929,7 +931,7 @@ def work(client_socket, func, args, kwdargs):
                 func(*args, **kwargs)
             except (Exception, SystemExit):
                 continue
-                
+
         time.sleep(5) # Give any in progress BufferedSend time to complete
 
 
@@ -942,7 +944,7 @@ def worker(host, port):
     if msg != 'OK':
         return 1
     write(client_socket, 'WAITING')
-    
+
     sys.stdout = BufferedSender(client_socket)
     sys.stderr = sys.stdout
 
