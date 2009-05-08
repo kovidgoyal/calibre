@@ -20,9 +20,14 @@ class PluginWidget(Widget, Ui_Form):
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
 
+        default = self.opt_format.currentText()
+
         global format_model
         if format_model is None:
             format_model = BasicComboModel(FORMAT_WRITERS.keys())
         self.format_model = format_model
         self.opt_format.setModel(self.format_model)
+
+        default_index = self.opt_format.findText(default)
+        self.opt_format.setCurrentIndex(default_index if default_index != -1 else 0)
 

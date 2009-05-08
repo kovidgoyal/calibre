@@ -10,14 +10,14 @@ from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
-    def __init__(self, config, all_formats):
+    def __init__(self, settings, all_formats):
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
         self.setupUi(self)
         
-        self.config = config
+        self.settings = settings
         
-        format_map = config['format_map']
+        format_map = settings.format_map
         disabled_formats = list(set(all_formats).difference(format_map))
         for format in format_map + disabled_formats:
             item = QListWidgetItem(format, self.columns)

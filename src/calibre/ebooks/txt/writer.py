@@ -19,7 +19,7 @@ class TxtWriter(object):
         self.newline = newline
         self.log = log
 
-    def dump(self, spine, metadata):
+    def dump(self, spine):
         out = u''
         for item in spine:
             content = unicode(item)
@@ -31,12 +31,6 @@ class TxtWriter(object):
             content = self.cleanup_text(content)
             content = self.specified_newlines(content)
             out += content
-
-        # Prepend metadata
-        if metadata.author != None and metadata.author != '':
-            if metadata.title != None and metadata.title != '':
-                out = (u'%s%s%s%s' % (metadata.author.upper(), self.newline, self.newline, self.newline)) + out
-                out = (u'%s%s%s%s' % (metadata.title.upper(), self.newline, self.newline, self.newline)) + out
 
             # Put two blank lines at end of file
             end = out[-3 * len(self.newline):]
@@ -145,8 +139,3 @@ class TxtNewlines(object):
     def __init__(self, newline_type):
         self.newline = self.NEWLINE_TYPES.get(newline_type.lower(), os.linesep)
 
-
-class TxtMetadata(object):
-    def __init__(self):
-        self.title = None
-        self.author = None

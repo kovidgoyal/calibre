@@ -35,7 +35,8 @@ class PDFOutput(OutputFormatPlugin):
                         'Note: This does not override the unit for margins!' % UNITS.keys())),
                     OptionRecommendation(name='paper_size', recommended_value='letter',
                         level=OptionRecommendation.LOW, choices=PAPER_SIZES.keys(),
-                        help=_('The size of the paper. Default is letter. Choices '
+                        help=_('The size of the paper. This size will be overridden when an '
+                        'output profile is used. Default is letter. Choices '
                         'are %s' % PAPER_SIZES.keys())),
                     OptionRecommendation(name='custom_size', recommended_value=None,
                         help=_('Custom size of the document. Use the form widthxheight '
