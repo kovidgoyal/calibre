@@ -25,16 +25,11 @@ class TXTOutput(OutputFormatPlugin):
                             'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
                             'For Mac OS X use \'unix\'. \'system\' will default to the newline '
                             'type used by this OS.' % sorted(TxtNewlines.NEWLINE_TYPES.keys()))),
-                    OptionRecommendation(name='prepend_metadata', recommended_value='false',
-                        level=OptionRecommendation.LOW,
-                        choices=['true', 'false'],
-                        help=_('Write the title and author to the beginning of the file. '
-                            'Default is \'true\'. Use \'false\' to disable.')),
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         metadata = TxtMetadata()
-        if opts.prepend_metadata.lower() == 'true':
+        if opts.insert_metadata:
             metadata.author = opts.authors if opts.authors else authors_to_string([x.value for x in oeb_book.metadata.creator]) if oeb_book.metadata.creator != [] else _('Unknown')
             metadata.title = opts.title if opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
             
