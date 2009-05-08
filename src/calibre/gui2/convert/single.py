@@ -153,9 +153,10 @@ class Config(ResizableDialog, Ui_Dialog):
         except ImportError:
             pass
         input_widget = None
-        name = self.plumber.input_plugin.name.lower().replace(' ', '_')
+        name = 'calibre.gui2.convert.%s' % self.plumber.input_plugin.name.lower().replace(' ', '_')
         try:
-            input_widget = __import__(name)
+            __import__(name)
+            input_widget = sys.modules[name]
             pw = input_widget.PluginWidget
             pw.ICON = ':/images/forward.svg'
             pw.HELP = _('Options specific to the input format.')
