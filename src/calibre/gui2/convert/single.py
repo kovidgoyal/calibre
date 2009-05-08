@@ -17,6 +17,9 @@ from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
+from calibre.gui2.convert.structure_detection import StructureDetectionWidget
+from calibre.gui2.convert.toc import TOCWidget
+
 
 from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats, \
                     INPUT_FORMAT_PREFERENCES, OUTPUT_FORMAT_PREFERENCES
@@ -115,6 +118,7 @@ class Config(ResizableDialog, Ui_Dialog):
 
 
     def setup_pipeline(self, *args):
+        oidx = self.groups.currentIndex().row()
         input_format = self.input_format
         output_format = self.output_format
         input_path = self.db.format_abspath(self.book_id, input_format,
@@ -134,6 +138,8 @@ class Config(ResizableDialog, Ui_Dialog):
         self.setWindowTitle(_('Convert')+ ' ' + unicode(self.mw.title.text()))
         lf = widget_factory(LookAndFeelWidget)
         ps = widget_factory(PageSetupWidget)
+        sd = widget_factory(StructureDetectionWidget)
+        toc = widget_factory(TOCWidget)
 
         output_widget = None
         name = 'calibre.gui2.convert.%s' % self.plumber.output_plugin.name.lower().replace(' ', '_')
@@ -162,7 +168,7 @@ class Config(ResizableDialog, Ui_Dialog):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [self.mw, lf, ps]
+        widgets = [self.mw, lf, ps, sd, toc]
         if input_widget is not None:
             widgets.append(input_widget)
         if output_widget is not None:
@@ -175,7 +181,9 @@ class Config(ResizableDialog, Ui_Dialog):
         self._groups_model = GroupModel(widgets)
         self.groups.setModel(self._groups_model)
 
-        self.groups.setCurrentIndex(self._groups_model.index(0))
+        idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
+        self.groups.setCurrentIndex(self._groups_model.index(idx))
+        self.stack.setCurrentIndex(idx)
 
 
     def setup_input_output_formats(self, db, book_id, preferred_input_format,
@@ -213,6 +221,8 @@ class Config(ResizableDialog, Ui_Dialog):
     def accept(self):
         recs = GuiRecommendations()
         for w in self._groups_model.widgets:
+            if not w.pre_commit_check():
+                return
             x = w.commit(save_defaults=False)
             recs.update(x)
         self.opf_path, self.cover_path = self.mw.opf_file, self.mw.cover_file

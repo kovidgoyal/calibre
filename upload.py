@@ -312,6 +312,8 @@ class gui(OptionlessCommand):
                 dat = dat.replace('import images_rc', 'from calibre.gui2 import images_rc')
                 dat = dat.replace('from library import', 'from calibre.gui2.library import')
                 dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
+                dat = dat.replace('from convert.xpath_wizard import',
+                    'from calibre.gui2.convert.xpath_wizard import')
                 dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
 
                 # Workaround bug in Qt 4.4 on Windows

@@ -1,0 +1,143 @@
+<ui version="4.0" >
+ <class>Form</class>
+ <widget class="QWidget" name="Form" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>381</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" >
+   <item row="0" column="0" colspan="2" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>Match HTML &amp;tags with tag name:</string>
+     </property>
+     <property name="buddy" >
+      <cstring>tag</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QComboBox" name="tag" >
+     <property name="editable" >
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text" >
+       <string>*</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>a</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>br</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>div</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>h1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>h2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>h3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>h4</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>h5</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>h6</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>hr</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>span</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Having the &amp;attribute:</string>
+     </property>
+     <property name="buddy" >
+      <cstring>attribute</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2" >
+    <widget class="QLineEdit" name="attribute" />
+   </item>
+   <item row="4" column="0" >
+    <widget class="QLabel" name="label_3" >
+     <property name="text" >
+      <string>With &amp;value:</string>
+     </property>
+     <property name="buddy" >
+      <cstring>value</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" >
+    <widget class="QLineEdit" name="value" />
+   </item>
+   <item row="5" column="1" >
+    <widget class="QLabel" name="label_4" >
+     <property name="text" >
+      <string>(A regular expression)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2" >
+    <widget class="QLabel" name="label_5" >
+     <property name="text" >
+      <string>&lt;p>For example, to match all h2 tags that have class="chapter", set tag to &lt;i>h2&lt;/i>, attribute to &lt;i>class&lt;/i> and value to &lt;i>chapter&lt;/i>.&lt;/p>&lt;p>Leaving attribute blank will match any attribute and leaving value blank will match any value. Setting tag to * will match any tag.&lt;/p>&lt;p>To learn more advanced usage of XPath see the &lt;a href="http://calibre.kovidgoyal.net/user_manual/xpath.html">XPath Tutorial&lt;/a>.</string>
+     </property>
+     <property name="wordWrap" >
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
