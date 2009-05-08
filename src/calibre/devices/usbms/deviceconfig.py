@@ -23,7 +23,7 @@ class DeviceConfig(object):
     @classmethod
     def config_widget(cls):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
-        cw = ConfigWidget(cls._configProxy(), cls.FORMATS)
+        cw = ConfigWidget(cls.settings(), cls.FORMATS)
         return cw
 
     @classmethod

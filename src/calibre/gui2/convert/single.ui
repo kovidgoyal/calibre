@@ -21,7 +21,7 @@
    <item row="0" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="input_label">
        <property name="text">
         <string>&amp;Input format:</string>
        </property>
@@ -108,8 +108,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>810</width>
-        <height>492</height>
+        <width>800</width>
+        <height>471</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">

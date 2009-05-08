@@ -30,6 +30,7 @@ class BulkConfig(Config):
 
         self.setup_pipeline()
 
+        self.input_label.hide()
         self.input_formats.hide()
 
         self.connect(self.output_formats, SIGNAL('currentIndexChanged(QString)'),
