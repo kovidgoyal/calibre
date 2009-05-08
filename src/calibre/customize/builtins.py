@@ -320,13 +320,14 @@ from calibre.devices.kindle.driver import KINDLE2
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.eb600.driver import EB600
 from calibre.devices.jetbook.driver import JETBOOK
+from calibre.devices.bebook.driver import BEBOOK, BEBOOK_MINI
 
 plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDBInput, PDFInput, HTMLInput,
         TXTInput, OEBOutput, TXTOutput, PDFOutput, LITInput, ComicInput,
         FB2Input, ODTInput, RTFInput, EPUBOutput, RecipeInput, PMLInput,
         PMLOutput, MOBIOutput, PDBOutput, LRFOutput, LITOutput]
 plugins += [PRS500, PRS505, PRS700, CYBOOKG3, KINDLE, KINDLE2, BLACKBERRY,
-        EB600, JETBOOK]
+        EB600, JETBOOK, BEBOOK, BEBOOK_MINI]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

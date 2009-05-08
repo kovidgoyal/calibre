@@ -4,8 +4,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys
-
 from PyQt4.Qt import QString, SIGNAL
 
 from calibre.gui2.convert.single import Config, sort_formats_by_preference, \
@@ -65,10 +63,10 @@ class BulkConfig(Config):
         toc = widget_factory(TOCWidget)
 
         output_widget = None
-        name = 'calibre.gui2.convert.%s' % self.plumber.output_plugin.name.lower().replace(' ', '_')
+        name = self.plumber.output_plugin.name.lower().replace(' ', '_')
         try:
-            __import__(name)
-            output_widget = sys.modules[name]
+            output_widget = __import__('calibre.gui2.convert.'+name,
+                        fromlist=[1])
             pw = output_widget.PluginWidget
             pw.ICON = ':/images/back.svg'
             pw.HELP = _('Options specific to the output format.')

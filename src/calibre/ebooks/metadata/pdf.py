@@ -80,7 +80,7 @@ def set_metadata(stream, mi):
     for page in orig_pdf.pages:
         out_pdf.addPage(page)
     writer.start()
-    writer.join(10) # Wait 10 secs for writing to complete
+    writer.join(15) # Wait 15 secs for writing to complete
     out_pdf.killed = True
     writer.join()
     if out_pdf.killed:
