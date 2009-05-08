@@ -21,17 +21,11 @@ from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
                                    info_dialog
 from calibre.ebooks.metadata import authors_to_string
-from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre import sanitize_file_name, preferred_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
-
-def warning(title, msg, details, parent):
-    from calibre.gui2.widgets import WarningDialog
-    WarningDialog(title, msg, details, parent).exec_()
-
 
 class DeviceJob(Job):
 
@@ -530,13 +524,13 @@ class DeviceGUI(object):
                 good.append(title)
         if errors:
             errors = '\n'.join([
-                    '<li><b>%s</b><br>%s<br>%s<br></li>' %
-                    (title, e, tb.replace('\n', '<br>')) for \
+                    '%s\n\n%s\n%s\n' %
+                    (title, e, tb) for \
                             title, e, tb in errors
                     ])
-            ConversionErrorDialog(self, _('Failed to email books'),
-                    '<p>'+_('Failed to email the following books:')+\
-                            '<ul>%s</ul>'%errors,
+            error_dialog(self, _('Failed to email books'),
+                    _('Failed to email the following books:'),
+                            '%s'%errors,
                         show=True)
         else:
             self.status_bar.showMessage(_('Sent by email:') + ', '.join(good),

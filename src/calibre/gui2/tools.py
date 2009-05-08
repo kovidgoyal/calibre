@@ -16,6 +16,7 @@ from calibre.gui2 import warning_dialog
 from calibre.gui2.convert import load_specifics
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
+from calibre.gui2.convert.bulk import BulkConfig
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
     changed = False
@@ -71,109 +72,59 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
 
     return jobs, changed, bad
 
-def convert_bulk_ebooks(*args):
-    pass
-    #(fmt, parent, db, comics, others):
-    if others:
-        d = get_dialog(fmt)(parent, db)
-        if d.exec_() != QDialog.Accepted:
-            others, user_mi = [], None
-        else:
-            opts = d.opts
-            opts.verbose = 2
-            user_mi = d.user_mi
-    if comics:
-        comic_opts = ComicConf.get_bulk_conversion_options(parent)
-        if not comic_opts:
-            comics = []
-    bad_rows = []
+def convert_bulk_ebook(parent, db, book_ids):
+    changed = False
     jobs = []
-    total = sum(map(len, (others, comics)))
+    bad = []
+    
+    total = len(book_ids)
     if total == 0:
-        return
-    parent.status_bar.showMessage(_('Starting Bulk conversion of %d books')%total, 2000)
+        return None, None, None
+    parent.status_bar.showMessage(_('Starting conversion of %d books') % total, 2000)
 
-    for i, row in enumerate(others+comics):
-        row_id = db.id(row)
-        if row in others:
-            data = None
-            for _fmt in EPUB_PREFERRED_SOURCE_FORMATS:
-                try:
-                    data = db.format(row, _fmt.upper())
-                    if data is not None:
-                        break
-                except:
-                    continue
-            if data is None:
-                bad_rows.append(row)
-                continue
-            options = opts.copy()
-            mi = db.get_metadata(row)
-            if user_mi is not None:
-                if user_mi.series_index == 1:
-                    user_mi.series_index = None
-                mi.smart_update(user_mi)
-            db.set_metadata(db.id(row), mi)
-            opf = OPFCreator(os.getcwdu(), mi)
-            opf_file = PersistentTemporaryFile('.opf')
-            opf.render(opf_file)
-            opf_file.close()
-            pt = PersistentTemporaryFile('.'+_fmt.lower())
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.'+fmt)
-            of.close()
-            cover = db.cover(row)
-            cf = None
-            if cover:
-                cf = PersistentTemporaryFile('.jpeg')
-                cf.write(cover)
-                cf.close()
-                options.cover = cf.name
-            options.output = of.name
-            options.from_opf = opf_file.name
-            args = [options, pt.name]
-            desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            temp_files = [cf] if cf is not None else []
-            temp_files.extend([opf_file, pt, of])
-            jobs.append(('any2'+fmt, args, desc, fmt.upper(), row_id, temp_files))
-        else:
-            options = comic_opts.copy()
-            mi = db.get_metadata(row)
-            if mi.title:
-                options.title = mi.title
-            if mi.authors:
-                options.author =  ','.join(mi.authors)
-            data = None
-            for _fmt in ['cbz', 'cbr']:
-                try:
-                    data = db.format(row, _fmt.upper())
-                    if data is not None:
-                        break
-                except:
-                    continue
+    d = BulkConfig(parent, db)
+    if d.exec_() != QDialog.Accepted:
+        return jobs, changed, bad
 
-            pt = PersistentTemporaryFile('.'+_fmt.lower())
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.'+fmt)
-            of.close()
-            setattr(options, 'output', of.name)
-            options.verbose = 1
-            args = [pt.name, options]
-            desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            jobs.append(('comic2'+fmt, args, desc, fmt.upper(), row_id, [pt, of]))
+    output_format = d.output_format
+    recs = cPickle.loads(d.recommendations)
 
-    if bad_rows:
+    for i, book_id in enumerate(book_ids):
+        temp_files = []
+
+        try:
+            d = SingleConfig(parent, db, book_id, None, output_format)
+            d.accept()
+            
+            mi = db.get_metadata(book_id, True)
+            in_file = db.format_abspath(book_id, d.input_format, True)
+            
+            out_file = PersistentTemporaryFile('.' + output_format)
+            out_file.write(output_format)
+            out_file.close()
+        
+            desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
+            
+            args = [in_file, out_file.name, recs]
+            temp_files = [out_file]
+            jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
+
+            changed = True
+        except NoSupportedInputFormats:
+            bad.append(book_id)
+
+    if bad != []:
         res = []
-        for row in bad_rows:
-            title = db.title(row)
-            res.append('<li>%s</li>'%title)
+        for id in bad:
+            title = db.title(id, True)
+            res.append('%s'%title)
 
-        msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), total, '\n'.join(res))
-        warning_dialog(parent, _('Could not convert some books'), msg).exec_()
+        msg = '%s' % '\n'.join(res)
+        warning_dialog(parent, _('Could not convert some books'),
+            _('Could not convert %d of %d books, because no suitable source format was found.' % (len(res), total)),
+            msg).exec_()
 
-    return jobs, False
+    return jobs, changed, bad
 
 def _fetch_news(data, fmt):
     pt = PersistentTemporaryFile(suffix='_feeds2%s.%s'%(fmt.lower(), fmt.lower()))
