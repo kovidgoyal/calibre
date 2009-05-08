@@ -154,6 +154,7 @@ class Widget(QWidget):
 
 
     def get_value(self, g):
+        from calibre.gui2.convert.xpath_wizard import XPathEdit
         ret = self.get_value_handler(g)
         if ret != 'this is a dummy return value, xcswx1avcx4x':
             return ret
@@ -169,11 +170,14 @@ class Widget(QWidget):
             return unicode(g.currentText())
         elif isinstance(g, QCheckBox):
             return bool(g.isChecked())
+        elif isinstance(g, XPathEdit):
+            return g.xpath
         else:
             raise Exception('Can\'t get value from %s'%type(g))
 
 
     def set_value(self, g, val):
+        from calibre.gui2.convert.xpath_wizard import XPathEdit
         if self.set_value_handler(g, val):
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
@@ -190,6 +194,8 @@ class Widget(QWidget):
             g.setCurrentIndex(idx)
         elif isinstance(g, QCheckBox):
             g.setCheckState(Qt.Checked if bool(val) else Qt.Unchecked)
+        elif isinstance(g, XPathEdit):
+            g.edit.setText(val if val else '')
         else:
             raise Exception('Can\'t set value %s in %s'%(repr(val), type(g)))
         self.post_set_value(g, val)
@@ -222,6 +228,9 @@ class Widget(QWidget):
 
     def post_get_value(self, g):
         pass
+
+    def pre_commit_check(self):
+        return True
 
     def commit(self, save_defaults=False):
         return self.commit_options(save_defaults)

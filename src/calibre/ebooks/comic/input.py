@@ -304,6 +304,7 @@ class ComicInput(InputFormatPlugin):
         ('chapter', None, OptionRecommendation.HIGH),
         ('page_breaks_brefore', None, OptionRecommendation.HIGH),
         ('use_auto_toc', False, OptionRecommendation.HIGH),
+        ('page_breaks_before', None, OptionRecommendation.HIGH),
         ])
 
     def get_comics_from_collection(self, stream):
