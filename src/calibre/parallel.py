@@ -49,7 +49,7 @@ PARALLEL_FUNCS = {
 
       'ebook-convert'     :
         ('calibre.ebooks.conversion.cli', 'main', {}, None),
-        
+
       'gui_convert'     :
         ('calibre.gui2.convert.gui_conversion', 'gui_convert', {}, 'notification'),
 }
@@ -142,8 +142,10 @@ class WorkerMother(object):
                 self.gui_executable = os.path.join(contents, 'MacOS',
                                                os.path.basename(sys.executable))
                 contents = os.path.join(contents, 'console.app', 'Contents')
-                self.executable = os.path.join(contents, 'MacOS',
-                                               os.path.basename(sys.executable))
+                exe = os.path.basename(sys.executable)
+                if 'python' not in exe:
+                    exe = 'python'
+                self.executable = os.path.join(contents, 'MacOS', exe)
 
                 resources = os.path.join(contents, 'Resources')
                 fd = os.path.join(contents, 'Frameworks')
@@ -479,9 +481,9 @@ class Overseer(object):
                     self.job.update_status(percent, msg)
             elif word == 'ERROR':
                 self.write('OK')
-                exception, traceback = cPickle.loads(msg)
-                self.job.output(u'%s\n%s'%(exception, traceback))
-                self.job.exception, self.job.traceback = exception, traceback
+                exception, tb = cPickle.loads(msg)
+                self.job.output(u'%s\n%s'%(exception, tb))
+                self.job.exception, self.job.traceback = exception, tb
                 return True
             else:
                 self.terminate()
