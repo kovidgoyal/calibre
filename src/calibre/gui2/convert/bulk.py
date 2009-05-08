@@ -14,6 +14,8 @@ from calibre.customize.ui import available_output_formats
 from calibre.gui2 import ResizableDialog
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
+from calibre.gui2.convert.structure_detection import StructureDetectionWidget
+from calibre.gui2.convert.toc import TOCWidget
 from calibre.gui2.convert import GuiRecommendations
 from calibre.ebooks.conversion.plumber import Plumber, OUTPUT_FORMAT_PREFERENCES
 from calibre.utils.logging import Log
@@ -58,6 +60,8 @@ class BulkConfig(Config):
         self.setWindowTitle(_('Bulk Convert'))
         lf = widget_factory(LookAndFeelWidget)
         ps = widget_factory(PageSetupWidget)
+        sd = widget_factory(StructureDetectionWidget)
+        toc = widget_factory(TOCWidget)
 
         output_widget = None
         name = 'calibre.gui2.convert.%s' % self.plumber.output_plugin.name.lower().replace(' ', '_')
@@ -76,7 +80,7 @@ class BulkConfig(Config):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [lf, ps]
+        widgets = [lf, ps, sd, toc]
         if output_widget is not None:
             widgets.append(output_widget)
         for w in widgets:
@@ -89,7 +93,7 @@ class BulkConfig(Config):
 
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
-
+        self.stack.setCurrentIndex(idx)
 
     def setup_output_formats(self, db, preferred_output_format):
         available_formats = ''

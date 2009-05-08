@@ -18,6 +18,7 @@ from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
+from calibre.gui2.convert.toc import TOCWidget
 
 
 from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats, \
@@ -138,6 +139,7 @@ class Config(ResizableDialog, Ui_Dialog):
         lf = widget_factory(LookAndFeelWidget)
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
+        toc = widget_factory(TOCWidget)
 
         output_widget = None
         name = 'calibre.gui2.convert.%s' % self.plumber.output_plugin.name.lower().replace(' ', '_')
@@ -166,7 +168,7 @@ class Config(ResizableDialog, Ui_Dialog):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [self.mw, lf, ps, sd]
+        widgets = [self.mw, lf, ps, sd, toc]
         if input_widget is not None:
             widgets.append(input_widget)
         if output_widget is not None:
@@ -181,6 +183,7 @@ class Config(ResizableDialog, Ui_Dialog):
 
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
+        self.stack.setCurrentIndex(idx)
 
 
     def setup_input_output_formats(self, db, book_id, preferred_input_format,

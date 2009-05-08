@@ -76,12 +76,18 @@ class XPathEdit(QWidget, Ui_Edit):
     def text(self):
         return unicode(self.edit.text())
 
+    @property
+    def xpath(self):
+        return self.text
+
     def check(self):
         from calibre.ebooks.oeb.base import XPNSMAP
         from lxml.etree import XPath
         try:
-            XPath(self.text, namespace=XPNSMAP)
+            XPath(self.text, namespaces=XPNSMAP)
         except:
+            import traceback
+            traceback.print_exc()
             return False
         return True
 
