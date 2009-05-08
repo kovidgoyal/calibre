@@ -16,6 +16,7 @@ from calibre.gui2 import warning_dialog
 from calibre.gui2.convert import load_specifics
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
+from calibre.gui2.convert.bulk import BulkConfig
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
     changed = False
@@ -72,7 +73,6 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
     return jobs, changed, bad
 
 def convert_bulk_ebook(parent, db, book_ids):
-    return [], False, []
     changed = False
     jobs = []
     bad = []
@@ -82,18 +82,18 @@ def convert_bulk_ebook(parent, db, book_ids):
         return None, None, None
     parent.status_bar.showMessage(_('Starting conversion of %d books') % total, 2000)
 
-    d = SingleConfig(parent, db)
+    d = BulkConfig(parent, db)
     if d.exec_() != QDialog.Accepted:
         return jobs, changed, bad
 
-    out_format = d.output_format
+    output_format = d.output_format
     recs = cPickle.loads(d.recommendations)
 
     for i, book_id in enumerate(book_ids):
         temp_files = []
 
         try:
-            d = SingleConfig(parent, db, book_id, None, out_format)
+            d = SingleConfig(parent, db, book_id, None, output_format)
             d.accept()
             
             mi = db.get_metadata(book_id, True)
