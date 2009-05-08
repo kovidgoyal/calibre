@@ -12,11 +12,13 @@ def devices():
     from calibre.devices.cybookg3.driver import CYBOOKG3
     from calibre.devices.kindle.driver import KINDLE
     from calibre.devices.kindle.driver import KINDLE2
+    from calibre.devices.bebook.driver import BEBOOK
+    from calibre.devices.bebook.driver import BEBOOKMINI
     from calibre.devices.blackberry.driver import BLACKBERRY
     from calibre.devices.eb600.driver import EB600
     from calibre.devices.jetbook.driver import JETBOOK
     return (PRS500, PRS505, PRS700, CYBOOKG3, KINDLE, KINDLE2,
-            BLACKBERRY, EB600, JETBOOK)
+            BEBOOK, BEBOOKMINI, BLACKBERRY, EB600, JETBOOK)
 
 import time
 
