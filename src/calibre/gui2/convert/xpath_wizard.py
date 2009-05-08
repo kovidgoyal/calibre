@@ -84,7 +84,8 @@ class XPathEdit(QWidget, Ui_Edit):
         from calibre.ebooks.oeb.base import XPNSMAP
         from lxml.etree import XPath
         try:
-            XPath(self.text, namespaces=XPNSMAP)
+            if self.text.strip():
+                XPath(self.text, namespaces=XPNSMAP)
         except:
             import traceback
             traceback.print_exc()

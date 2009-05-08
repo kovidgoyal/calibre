@@ -112,6 +112,8 @@ class BulkConfig(Config):
     def accept(self):
         recs = GuiRecommendations()
         for w in self._groups_model.widgets:
+            if not w.pre_commit_check():
+                return
             x = w.commit(save_defaults=False)
             recs.update(x)
         self._recommendations = recs

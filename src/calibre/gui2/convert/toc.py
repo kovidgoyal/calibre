@@ -33,7 +33,7 @@ class TOCWidget(Widget, Ui_Form):
 
     def pre_commit_check(self):
         for x in ('level1', 'level2', 'level3'):
-            x = getattr(self, 'opt_'+x)
+            x = getattr(self, 'opt_'+x+'_toc')
             if not x.check():
                 error_dialog(self, _('Invalid XPath'),
                 _('The XPath expression %s is invalid.')%x.text).exec_()

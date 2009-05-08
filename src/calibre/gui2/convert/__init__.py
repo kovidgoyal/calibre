@@ -83,8 +83,11 @@ class GuiRecommendations(dict):
         if d:
             self.update(d)
 
-    def merge_recommendations(self, get_option, level, options):
+    def merge_recommendations(self, get_option, level, options,
+            only_existing=False):
         for name in options:
+            if only_existing and name not in self:
+                continue
             opt = get_option(name)
             if opt is None: continue
             if opt.level == OptionRecommendation.HIGH:
@@ -125,8 +128,10 @@ class Widget(QWidget):
         if db is not None:
             specifics = load_specifics(db, book_id)
             specifics.merge_recommendations(get_option, OptionRecommendation.HIGH,
-                    self._options)
+                    self._options, only_existing=True)
             defaults.update(specifics)
+
+
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
 
@@ -202,7 +207,10 @@ class Widget(QWidget):
 
     def set_help(self, msg):
         if msg and getattr(msg, 'strip', lambda:True)():
-            self.emit(SIGNAL('set_help(PyQt_PyObject)'), msg)
+            try:
+                self.emit(SIGNAL('set_help(PyQt_PyObject)'), msg)
+            except:
+                pass
 
     def setup_help(self, help_provider):
         for name in self._options:

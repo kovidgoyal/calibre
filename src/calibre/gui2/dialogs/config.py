@@ -8,7 +8,7 @@ from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QInputDialog, QAbstractTableModel, \
-                        QDialogButtonBox
+                        QDialogButtonBox, QTabWidget
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
@@ -23,8 +23,72 @@ from calibre.ebooks.oeb.iterator import is_supported
 from calibre.library import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
-                                 plugin_customization, add_plugin, remove_plugin
+                                 plugin_customization, add_plugin, \
+                                 remove_plugin, input_format_plugins, \
+                                 output_format_plugins
 from calibre.utils.smtp import config as smtp_prefs
+from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.page_setup import PageSetupWidget
+from calibre.gui2.convert.structure_detection import StructureDetectionWidget
+from calibre.ebooks.conversion.plumber import Plumber
+from calibre.utils.logging import Log
+from calibre.gui2.convert.toc import TOCWidget
+
+class ConfigTabs(QTabWidget):
+
+    def __init__(self, parent):
+        QTabWidget.__init__(self, parent)
+        log = Log()
+        log.outputs = []
+
+        self.plumber = Plumber('dummt.epub', 'dummy.epub', log)
+
+        def widget_factory(cls):
+            return cls(self, self.plumber.get_option_by_name,
+                self.plumber.get_option_help, None, None)
+
+        lf = widget_factory(LookAndFeelWidget)
+        ps = widget_factory(PageSetupWidget)
+        sd = widget_factory(StructureDetectionWidget)
+        toc = widget_factory(TOCWidget)
+
+        self.widgets = [lf, ps, sd, toc]
+
+        for plugin in input_format_plugins():
+            name = plugin.name.lower().replace(' ', '_')
+            try:
+                input_widget = __import__('calibre.gui2.convert.'+name,
+                        fromlist=[1])
+                pw = input_widget.PluginWidget
+                pw.ICON = ':/images/forward.svg'
+                pw.HELP = _('Options specific to the input format.')
+                self.widgets.append(widget_factory(pw))
+            except ImportError:
+                continue
+
+        for plugin in output_format_plugins():
+            name = plugin.name.lower().replace(' ', '_')
+            try:
+                output_widget = __import__('calibre.gui2.convert.'+name,
+                        fromlist=[1])
+                pw = output_widget.PluginWidget
+                pw.ICON = ':/images/forward.svg'
+                pw.HELP = _('Options specific to the input format.')
+                self.widgets.append(widget_factory(pw))
+            except ImportError:
+                continue
+
+        for widget in self.widgets:
+            self.addTab(widget, widget.TITLE.replace('\n', ' ').replace('&',
+            '&&'))
+
+    def commit(self):
+        for widget in self.widgets:
+            if not widget.pre_commit_check():
+                return False
+            widget.commit(save_defaults=True)
+        return True
+
 
 class PluginModel(QAbstractItemModel):
 
@@ -124,10 +188,12 @@ class CategoryModel(QStringListModel):
 
     def __init__(self, *args):
         QStringListModel.__init__(self, *args)
-        self.setStringList([_('General'), _('Interface'), _('Email\nDelivery'),
+        self.setStringList([_('General'), _('Interface'), _('Conversion'),
+                            _('Email\nDelivery'),
                             _('Advanced'), _('Content\nServer'), _('Plugins')])
         self.icons = list(map(QVariant, map(QIcon,
             [':/images/dialog_information.svg', ':/images/lookfeel.svg',
+                ':/images/convert.svg',
              ':/images/mail.svg', ':/images/view.svg',
              ':/images/network-server.svg', ':/images/plugins.svg'])))
 
@@ -401,6 +467,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.delete_news.setEnabled(bool(self.sync_news.isChecked()))
         self.connect(self.sync_news, SIGNAL('toggled(bool)'),
                 self.delete_news.setEnabled)
+        self.setup_conversion_options()
+
+    def setup_conversion_options(self):
+        self.conversion_options = ConfigTabs(self)
+        self.stackedWidget.insertWidget(2, self.conversion_options)
 
     def setup_email_page(self):
         opts = smtp_prefs().parse()
@@ -547,13 +618,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
                     config_dialog.connect(button_box, SIGNAL('accepted()'), config_dialog.accept)
                     config_dialog.connect(button_box, SIGNAL('rejected()'), config_dialog.reject)
-                    
+
                     config_widget = plugin.config_widget()
                     v = QVBoxLayout(config_dialog)
                     v.addWidget(config_widget)
                     v.addWidget(button_box)
                     config_dialog.exec_()
-                    
+
                     if config_dialog.result() == QDialog.Accepted:
                         plugin.save_settings(config_widget)
                         self._plugin_model.refresh_plugin(plugin)
@@ -669,6 +740,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
              _('The size %s is invalid. must be of the form widthxheight')%mcs).exec_()
             return
         if not self.set_email_settings():
+            return
+        if not self.conversion_options.commit():
             return
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
