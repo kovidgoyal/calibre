@@ -25,7 +25,7 @@ class BEBOOK(USBMS):
     WINDOWS_CARD_A_MEM = 'BEBOOK_STORAGE_CARD'
 
     OSX_MAIN_MEM = 'BeBook Internal Memory'
-    OSX_CARD_MEM = 'BeBook Storage Card'
+    OSX_CARD_A_MEM = 'BeBook Storage Card'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'BeBook Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'BeBook Storage Card'
