@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 import struct, zlib
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
-from calibre.ebooks.txt.writer import TxtWriter, TxtNewlines, TxtMetadata
+from calibre.ebooks.txt.writer import TxtWriter, TxtNewlines
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 
 MAX_RECORD_SIZE = 8192
@@ -50,7 +50,7 @@ class Writer(FormatWriter):
         
     def _generate_text(self, spine):
         txt_writer = TxtWriter(TxtNewlines('system').newline, self.log)
-        txt = txt_writer.dump(spine, TxtMetadata())
+        txt = txt_writer.dump(spine)
         
         txt_length = len(txt)
         

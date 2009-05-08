@@ -28,13 +28,8 @@ class TXTOutput(OutputFormatPlugin):
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        metadata = TxtMetadata()
-        if opts.insert_metadata:
-            metadata.author = opts.authors if opts.authors else authors_to_string([x.value for x in oeb_book.metadata.creator]) if oeb_book.metadata.creator != [] else _('Unknown')
-            metadata.title = opts.title if opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
-            
         writer = TxtWriter(TxtNewlines(opts.newline).newline, log)
-        txt = writer.dump(oeb_book.spine, metadata)
+        txt = writer.dump(oeb_book.spine)
 
         close = False
         if not hasattr(output_path, 'write'):
