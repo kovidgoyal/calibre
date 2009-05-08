@@ -142,10 +142,10 @@ class Config(ResizableDialog, Ui_Dialog):
         toc = widget_factory(TOCWidget)
 
         output_widget = None
-        name = 'calibre.gui2.convert.%s' % self.plumber.output_plugin.name.lower().replace(' ', '_')
+        name = self.plumber.output_plugin.name.lower().replace(' ', '_')
         try:
-            __import__(name)
-            output_widget = sys.modules[name]
+            output_widget = __import__('calibre.gui2.convert.'+name,
+                        fromlist=[1])
             pw = output_widget.PluginWidget
             pw.ICON = ':/images/back.svg'
             pw.HELP = _('Options specific to the output format.')
@@ -155,7 +155,8 @@ class Config(ResizableDialog, Ui_Dialog):
         input_widget = None
         name = self.plumber.input_plugin.name.lower().replace(' ', '_')
         try:
-            input_widget = __import__(name)
+            input_widget = __import__('calibre.gui2.convert.'+name,
+                        fromlist=[1])
             pw = input_widget.PluginWidget
             pw.ICON = ':/images/forward.svg'
             pw.HELP = _('Options specific to the input format.')
