@@ -88,7 +88,7 @@ HTML_PML_RULES = [
     (re.compile('<a.*?href="(?P<target>#.+?).*?">(?P<text>)</a>', re.DOTALL), lambda match: '\\q="%s"%s\\q' % (match.group('target'), match.group('text'))),
     #(re.compile('<img.*?src="images/(?P<name>.+?)".*?>'), lambda match: '\\m="%s"' % match.group('name')),
     (re.compile('<img.*?src="(?P<name>.+?)".*?>(.*?</img>)*'), lambda match: '\\m="%s"' % image_name(match.group('name').strip('\x00'))),
-    #(re.compile('&#(?P<num>\d\d\d\d);'), lambda match: '\\U%s' % int(match.group('num'))),
+    (re.compile('&#(?P<num>\d\d\d\d);'), lambda match: '\\U%s' % int(match.group('num'))),
     (re.compile('&#(?P<num>\d\d\d);'), lambda match: '\\a%s' % match.group('num')),
     (re.compile('<small .*?>(?P<text>.+?)</small>', re.DOTALL), lambda match: '\\k%s\\k' % match.group('text')),
     (re.compile('<small>(?P<text>.+?)</small>', re.DOTALL), lambda match: '\\k%s\\k' % match.group('text')),
@@ -163,5 +163,12 @@ def html_to_pml(html):
         pml += body
     
     # Replace symbols outside of cp1512 wtih \Uxxxx
+    chars = set(pml)
+    unichars = []
+    for c in chars:
+        if ord(c) > 128:
+            unichars.append(c)
+    for u in unichars:
+        pml = pml.replace(u, '\U%s' % hex(ord(u))[2:].rjust(4, '0'))
 
     return pml
