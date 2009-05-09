@@ -220,7 +220,10 @@
            <item row="0" column="0">
             <widget class="QLabel" name="label_23">
              <property name="text">
-              <string>Output Format:</string>
+              <string>Preferred &amp;output format:</string>
+             </property>
+             <property name="buddy">
+              <cstring>output_format</cstring>
              </property>
             </widget>
            </item>
