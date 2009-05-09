@@ -579,8 +579,9 @@ class BasicNewsRecipe(Recipe):
 
     def feeds2index(self, feeds):
         templ = templates.IndexTemplate()
+        css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
         return templ.generate(self.title, self.timefmt, feeds,
-                              extra_css=self.extra_css).render(doctype='xhtml')
+                              extra_css=css).render(doctype='xhtml')
 
     @classmethod
     def description_limiter(cls, src):
@@ -631,8 +632,9 @@ class BasicNewsRecipe(Recipe):
 
 
         templ = templates.FeedTemplate()
+        css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
         return templ.generate(feed, self.description_limiter,
-                              extra_css=self.extra_css).render(doctype='xhtml')
+                              extra_css=css).render(doctype='xhtml')
 
 
     def _fetch_article(self, url, dir, f, a, num_of_feeds):

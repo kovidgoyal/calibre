@@ -18,9 +18,13 @@ class RecipeInput(InputFormatPlugin):
     file_types  = set(['recipe'])
 
     recommendations = set([
-        ('chapter_mark', 'none', OptionRecommendation.HIGH),
+        ('chapter', None, OptionRecommendation.HIGH),
         ('dont_split_on_page_breaks', True, OptionRecommendation.HIGH),
         ('use_auto_toc', False, OptionRecommendation.HIGH),
+        ('input_encoding', None, OptionRecommendation.HIGH),
+        ('input_profile', 'default', OptionRecommendation.HIGH),
+        ('page_breaks_before', None, OptionRecommendation.HIGH),
+        ('insert_metadata', False, OptionRecommendation.HIGH),
         ])
 
     options = set([

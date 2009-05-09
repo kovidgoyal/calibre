@@ -136,14 +136,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
 
-        self.output_formats = sorted(['EPUB', 'MOBI', 'LRF'])
-        for f in self.output_formats:
-            self.output_format.addItem(f)
-        self.output_format.setCurrentIndex(self.output_formats.index(
-            prefs['output_format']))
-        self.connect(self.output_format, SIGNAL('currentIndexChanged(QString)'),
-                     self.change_output_format, Qt.QueuedConnection)
-
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.'
                 'kovidgoyal.net/user_manual">%s.kovidgoyal.net</a>'
@@ -266,8 +258,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
 
-        QObject.connect(self.config_button,
-                SIGNAL('clicked(bool)'), self.do_config)
         self.connect(self.preferences_action, SIGNAL('triggered(bool)'),
                 self.do_config)
         self.connect(self.action_preferences, SIGNAL('triggered(bool)'),
@@ -451,12 +441,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     if getattr(window, '__systray_minimized', False):
                         window.show()
                         setattr(window, '__systray_minimized', False)
-
-
-    def change_output_format(self, x):
-        of = unicode(x).strip()
-        if of != prefs['output_format']:
-            prefs.set('output_format', of)
 
     def test_server(self, *args):
         if self.content_server.exception is not None:
@@ -1057,7 +1041,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_bulk_ebook(self,
-                self.library_view.model().db, row_ids)
+                self.library_view.model().db, row_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_converted),
@@ -1076,7 +1060,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self,
-                self.library_view.model().db, row_ids)
+                self.library_view.model().db, row_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_converted),

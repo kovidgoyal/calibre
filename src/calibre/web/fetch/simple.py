@@ -53,9 +53,15 @@ def save_soup(soup, target):
     ns = BeautifulSoup('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
     nm = ns.find('meta')
     metas = soup.findAll('meta', content=True)
+    added = False
     for meta in metas:
         if 'charset' in meta.get('content', '').lower():
             meta.replaceWith(nm)
+            added = True
+    if not added:
+        head = soup.find('head')
+        if head is not None:
+            head.insert(0, nm)
 
     selfdir = os.path.dirname(target)
 
@@ -67,6 +73,7 @@ def save_soup(soup, target):
 
     html = unicode(soup)
     with open(target, 'wb') as f:
+        idx = html.find('hoping')
         f.write(html.encode('utf-8'))
 
 class response(str):

@@ -222,8 +222,8 @@ class CSSFlattener(object):
             if dyn_rescale is not None:
                 fsize = self.fmap[_sbase]
                 fsize *= dyn_rescale
+                cssdict['font-size'] = '%0.5fem'%(fsize/psize)
                 psize = fsize
-                cssdict['font-size'] = '%0.5fpt'%(fsize)
             elif 'font-size' in cssdict or tag == 'body':
                 fsize = self.fmap[style['font-size']]
                 cssdict['font-size'] = "%0.5fem" % (fsize / psize)
