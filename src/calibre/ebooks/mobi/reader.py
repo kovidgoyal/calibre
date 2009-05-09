@@ -276,19 +276,6 @@ class MobiReader(object):
         self.replace_page_breaks()
         self.cleanup_html()
 
-        if self.processed_html.startswith('<body'):
-            self.processed_html = '<html><head></head>'+self.processed_html+'</html>'
-        self.processed_html = \
-            re.compile('<head>', re.IGNORECASE).sub(
-                '\n<head>\n'
-                '<style type="text/css">\n'
-                'blockquote { margin: 0em 0em 0em 1.25em; text-align: justify; }\n'
-                'p { margin: 0em; text-align: justify; }\n'
-                '.bold { font-weight: bold; }\n'
-                '.italic { font-style: italic; }\n'
-                '</style>\n',
-                self.processed_html)
-
         if self.verbose:
             print 'Parsing HTML...'
         root = html.fromstring(self.processed_html)
@@ -296,13 +283,47 @@ class MobiReader(object):
             from lxml.html import soupparser
             print 'Markup contains unclosed <p> tags, parsing using BeatifulSoup'
             root = soupparser.fromstring(self.processed_html)
-        if root[0].tag != 'html':
+        if root.tag != 'html':
             nroot = html.fromstring('<html><head></head><body></body></html>')
             bod = nroot.find('body')
             for child in list(root):
                 child.getparent().remove(child)
                 bod.append(child)
             root = nroot
+
+        htmls = list(root.xpath('//html'))
+        if len(htmls) > 1:
+            print 'Markup contains multiple <html> tags'
+            # Keep only the largest head and body
+            bodies, heads = root.xpath('//body'), root.xpath('//head')
+            def sz(x): return len(list(x.iter()))
+            def scmp(x, y): return cmp(sz(x), sz(y))
+            body = list(sorted(bodies, cmp=scmp))
+            head = list(sorted(heads, cmp=scmp))
+            for x in root: root.remove(x)
+            if head:
+                root.append(head[-1])
+            if body:
+                root.append(body[-1])
+        for x in root.xpath('//script'):
+            x.getparent().remove(x)
+
+        head = root.xpath('//head')
+        if head:
+            head = head[0]
+        else:
+            head = root.makeelement('head', {})
+            root.insert(0, head)
+        head.text = '\n\t'
+        style = head.makeelement('style', {'type':'text/css'})
+        head.insert(0, style)
+        style.tail = '\n\t'
+        style.text = '''
+                blockquote { margin: 0em 0em 0em 1.25em; text-align: justify }
+                p { margin: 0em; text-align: justify }
+                .bold { font-weight: bold }
+                .italic { font-style: italic }
+        '''
 
         self.upshift_markup(root)
         guides = root.xpath('//guide')
