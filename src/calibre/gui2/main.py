@@ -47,6 +47,19 @@ from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.gui2.dialogs.confirm_delete import confirm
 
+class SaveMenu(QMenu):
+
+    def __init__(self, parent):
+        QMenu.__init__(self, _('Save single format to disk...'), parent)
+        for ext in sorted(BOOK_EXTENSIONS):
+            action = self.addAction(ext.upper())
+            setattr(self, 'do_'+ext, partial(self.do, ext))
+            self.connect(action, SIGNAL('triggered(bool)'),
+                    getattr(self, 'do_'+ext))
+
+    def do(self, ext, *args):
+        self.emit(SIGNAL('save_fmt(PyQt_PyObject)'), ext)
+
 class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     'The main GUI'
 
@@ -201,6 +214,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
+        self.save_menu.addAction(_('Save only %s format to disk')%
+                prefs['output_format'].upper())
+        self.save_sub_menu = SaveMenu(self)
+        self.save_menu.addMenu(self.save_sub_menu)
+        self.connect(self.save_sub_menu, SIGNAL('save_fmt(PyQt_PyObject)'),
+                self.save_specific_format_disk)
 
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
@@ -212,6 +231,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.save_to_disk)
         QObject.connect(self.save_menu.actions()[1], SIGNAL("triggered(bool)"),
                 self.save_to_single_dir)
+        QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"),
+                self.save_single_format_to_disk)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"),
                 self.view_book)
         QObject.connect(self.view_menu.actions()[0],
@@ -906,7 +927,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################## Save to disk ################################
     def save_single_format_to_disk(self, checked):
-        self.save_to_disk(checked, True, config['save_to_disk_single_format'])
+        self.save_to_disk(checked, True, prefs['output_format'])
+
+    def save_specific_format_disk(self, fmt):
+        self.save_to_disk(False, True, fmt)
 
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
@@ -915,10 +939,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot save to disk'),
-                    _('No books selected'))
-            d.exec_()
-            return
+            return error_dialog(self, _('Cannot save to disk'),
+                    _('No books selected'), show=True)
 
         progress = ProgressDialog(_('Saving to disk...'), min=0, max=len(rows),
                                   parent=self)
@@ -1260,8 +1282,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                             config['show_text_in_toolbar'] else \
                             Qt.ToolButtonIconOnly)
             self.save_menu.actions()[2].setText(
-                _('Save only %s format to disk')%config.get(
-                    'save_to_disk_single_format').upper())
+                _('Save only %s format to disk')%
+                prefs['output_format'].upper())
             if self.library_path != d.database_location:
                 try:
                     newloc = d.database_location
