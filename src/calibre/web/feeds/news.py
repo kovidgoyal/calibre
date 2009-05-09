@@ -231,23 +231,23 @@ class BasicNewsRecipe(Recipe):
     #: use :member:`extra_css` in your recipe to customize look and feel.
     template_css = u'''
             .article_date {
-                font-size: x-small; color: gray; font-family: monospace;
+                color: gray; font-family: monospace;
             }
 
             .article_description {
-                font-size: small; font-family: sans; text-indent: 0pt;
+                font-family: sans; text-indent: 0pt;
             }
 
             a.article {
-                font-weight: bold; font-size: large;
+                font-weight: bold;
             }
 
             a.feed {
-                font-weight: bold; font-size: large;
+                font-weight: bold;
             }
 
             .navbar {
-                font-family:monospace; font-size:8pt
+                font-family:monospace;
             }
 '''
 

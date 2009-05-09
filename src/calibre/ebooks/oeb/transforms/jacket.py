@@ -25,14 +25,16 @@ class Jacket(object):
             <title>%(title)s</title>
         </head>
         <body>
-            <div style="text-align:center">
-            <h1>%(title)s</h1>
-            <h2>%(jacket)s</h2>
-            <div>%(series)s</div>
-            <div>%(tags)s</div>
-            </div>
-            <div style="margin-top:2em">
-                %(comments)s
+            <div class="calibre_rescale_100">
+                <div style="text-align:center">
+                    <h1 class="calibre_rescale_180">%(title)s</h1>
+                    <h2 class="calibre_rescale_140">%(jacket)s</h2>
+                    <div class="calibre_rescale_100">%(series)s</div>
+                    <div class="calibre_rescale_100">%(tags)s</div>
+                </div>
+                <div style="margin-top:2em" class="calibre_rescale_100">
+                    %(comments)s
+                </div>
             </div>
         </body>
     </html>
