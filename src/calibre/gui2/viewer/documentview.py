@@ -53,6 +53,8 @@ def config(defaults=None):
     else:
         c = StringConfig(defaults, desc)
 
+    c.add_opt('remember_window_size', default=False,
+        help=_('Remember last used window size'))
     c.add_opt('user_css', default='',
               help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
 
@@ -76,6 +78,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
 
         opts = config().parse()
+        self.opt_remember_window_size.setChecked(opts.remember_window_size)
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
@@ -94,6 +97,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('mono_font_size', self.mono_font_size.value())
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[self.standard_font.currentIndex()])
         c.set('user_css', unicode(self.css.toPlainText()))
+        c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         return QDialog.accept(self, *args)
 
 

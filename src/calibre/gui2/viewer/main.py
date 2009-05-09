@@ -20,7 +20,7 @@ from calibre.ebooks.epub.from_any import SOURCE_FORMATS
 from calibre.ebooks import DRMError
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.constants import islinux
-from calibre.utils.config import Config, StringConfig
+from calibre.utils.config import Config, StringConfig, dynamic
 from calibre.gui2.library import SearchBox
 from calibre.ebooks.metadata import MetaInformation
 
@@ -198,6 +198,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_reference = None
         self.pending_bookmark  = None
         self.selected_text     = None
+        self.read_settings()
         self.history = History(self.action_back, self.action_forward)
         self.metadata = Metadata(self)
         self.pos = DoubleSpinBox()
@@ -570,9 +571,21 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return self
 
     def __exit__(self, *args):
+        self.write_settings()
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__(*args)
+
+    def write_settings(self):
+        dynamic.set('viewer_window_geometry', self.saveGeometry())
+
+    def read_settings(self):
+        c = config().parse()
+        wg = dynamic['viewer_window_geometry']
+        if wg is not None and c.remember_window_size:
+            self.restoreGeometry(wg)
+
+
 
 
 def config(defaults=None):
@@ -585,6 +598,9 @@ def config(defaults=None):
     c.add_opt('raise_window', ['--raise-window'], default=False,
               help=_('If specified, viewer window will try to come to the '
                      'front when started.'))
+    c.add_opt('remember_window_size', default=False,
+        help=_('Remember last used window size'))
+
     return c
 
 def option_parser():
