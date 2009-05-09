@@ -188,7 +188,7 @@ def main(args=sys.argv, name=''):
         print 'Error: Could not read file `%s`.' % pdf
         return 1
         
-    if is_encrypted(args[0]):
+    if is_encrypted(pdf):
         print 'Error: file `%s` is encrypted.' % args[0]
         return 1
         
