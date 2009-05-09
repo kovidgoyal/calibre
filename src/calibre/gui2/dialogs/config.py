@@ -391,13 +391,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
         self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
-        
-        output_formats = sorted(available_output_formats())
-        output_formats.remove('oeb')
-        for f in output_formats:
-            self.output_format.addItem(f)
-        default_index = self.output_format.findText(prefs['output_format'])
-        self.output_format.setCurrentIndex(default_index if default_index != -1 else 0)
 
         output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
