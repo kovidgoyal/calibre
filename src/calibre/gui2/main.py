@@ -201,8 +201,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
-        self.save_menu.addAction(_('Save only %s format to disk')%\
-                config.get('save_to_disk_single_format').upper())
 
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
@@ -214,8 +212,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.save_to_disk)
         QObject.connect(self.save_menu.actions()[1], SIGNAL("triggered(bool)"),
                 self.save_to_single_dir)
-        QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"),
-                self.save_single_format_to_disk)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"),
                 self.view_book)
         QObject.connect(self.view_menu.actions()[0],

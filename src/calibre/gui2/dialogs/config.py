@@ -391,20 +391,16 @@ class ConfigDialog(QDialog, Ui_Dialog):
         icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
         self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
-        
+
         output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
         for f in output_formats:
-            self.output_format.addItem(f)
-        default_index = self.output_format.findText(prefs['output_format'])
+            self.output_format.addItem(f.upper())
+        default_index = \
+            self.output_format.findText(prefs['output_format'].upper())
         self.output_format.setCurrentIndex(default_index if default_index != -1 else 0)
 
-        self.book_exts = sorted(BOOK_EXTENSIONS)
-        for ext in self.book_exts:
-            self.single_format.addItem(ext.upper(), QVariant(ext))
 
-        single_format = config['save_to_disk_single_format']
-        self.single_format.setCurrentIndex(self.book_exts.index(single_format))
         self.cover_browse.setValue(config['cover_flow_queue_length'])
         self.systray_notifications.setChecked(not config['disable_tray_notification'])
         from calibre.translations.compiled import translations
@@ -426,17 +422,17 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
         self.pdf_metadata.setChecked(prefs['read_file_metadata'])
 
-        added_html = False
-        for ext in self.book_exts:
+        exts = set([])
+        for ext in BOOK_EXTENSIONS:
             ext = ext.lower()
             ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
             if ext == 'lrf' or is_supported('book.'+ext):
-                if ext == 'html' and added_html:
-                    continue
-                self.viewer.addItem(ext.upper())
-                self.viewer.item(self.viewer.count()-1).setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
-                self.viewer.item(self.viewer.count()-1).setCheckState(Qt.Checked if ext.upper() in config['internally_viewed_formats'] else Qt.Unchecked)
-                added_html = ext == 'html'
+                exts.add(ext)
+
+        for ext in sorted(exts):
+            self.viewer.addItem(ext.upper())
+            self.viewer.item(self.viewer.count()-1).setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
+            self.viewer.item(self.viewer.count()-1).setCheckState(Qt.Checked if ext.upper() in config['internally_viewed_formats'] else Qt.Unchecked)
         self.viewer.sortItems()
         self.start.setEnabled(not getattr(self.server, 'is_running', False))
         self.test.setEnabled(not self.start.isEnabled())
@@ -767,8 +763,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
         prefs['worker_process_priority'] = p
         prefs['read_file_metadata'] = bool(self.pdf_metadata.isChecked())
-        prefs['output_format'] = self.output_format.currentText()
-        config['save_to_disk_single_format'] = self.book_exts[self.single_format.currentIndex()]
+        prefs['output_format'] = unicode(self.output_format.currentText()).upper()
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
         config['systray_icon'] = self.systray_icon.checkState() == Qt.Checked

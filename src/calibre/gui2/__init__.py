@@ -27,8 +27,6 @@ def _config():
               help=_('Frequently used directories'))
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
-    c.add_opt('save_to_disk_single_format', default='lrf',
-              help=_('The format to use when saving single files to disk'))
     c.add_opt('confirm_delete', default=False,
               help=_('Confirm before deleting'))
     c.add_opt('toolbar_icon_size', default=QSize(48, 48),
