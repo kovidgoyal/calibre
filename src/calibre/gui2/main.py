@@ -1041,7 +1041,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_bulk_ebook(self,
-                self.library_view.model().db, row_ids)
+                self.library_view.model().db, row_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_converted),
@@ -1060,7 +1060,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self,
-                self.library_view.model().db, row_ids)
+                self.library_view.model().db, row_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_converted),

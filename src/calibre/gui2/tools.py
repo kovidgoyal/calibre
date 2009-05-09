@@ -72,7 +72,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
 
     return jobs, changed, bad
 
-def convert_bulk_ebook(parent, db, book_ids):
+def convert_bulk_ebook(parent, db, book_ids, out_format=None):
     changed = False
     jobs = []
     bad = []
@@ -82,7 +82,7 @@ def convert_bulk_ebook(parent, db, book_ids):
         return None, None, None
     parent.status_bar.showMessage(_('Starting conversion of %d books') % total, 2000)
 
-    d = BulkConfig(parent, db)
+    d = BulkConfig(parent, db, out_format)
     if d.exec_() != QDialog.Accepted:
         return jobs, changed, bad
 
