@@ -20,6 +20,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.gui2 import NONE, error_dialog, config as gconf
 from calibre.utils.config import DynamicConfig
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.dialogs.user_profiles import UserProfiles
 
 config = DynamicConfig('scheduler')
@@ -522,8 +523,12 @@ class Scheduler(QObject):
                 self.recipes.remove(recipe)
                 save_recipes(self.recipes)
                 return
+            pt = PersistentTemporaryFile('_builtin.recipe')
+            pt.write(script)
+            pt.close()
+            script = pt.name
         except ValueError:
-            script = recipe.title
+            script = recipe.title + '.recipe'
         self.debug('\tQueueing:', recipe)
         self.main.download_scheduled_recipe(recipe, script, self.recipe_downloaded)
         self.queue.add(recipe)

@@ -856,10 +856,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('Failed to download metadata for the following:'),
                     details, self).exec_()
         else:
-            err = _('<b>Failed to download metadata:')+\
-                    '</b><br><pre>'+x.tb+'</pre>'
-            error_dialog(self, _('Error'), err,
-                              show=True)
+            err = _('Failed to download metadata:')
+            error_dialog(self, _('Error'), err, det_msg=x.tb).exec_()
 
 
 
@@ -1414,8 +1412,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         if isinstance(job.exception, JobKilled):
             return
-        error_dialog(self, _('Conversion Error'), job.gui_text(),
-                              show=True)
+        error_dialog(self, _('Conversion Error'),
+                _('Failed to process')+': '+unicode(job.description),
+                det_msg=job.console_text()).exec_()
 
 
     def initialize_database(self):

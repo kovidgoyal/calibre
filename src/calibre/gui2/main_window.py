@@ -7,6 +7,7 @@ from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL,\
                      QAction, QMenu, QMenuBar, QIcon
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.utils.config import OptionParser
+from calibre.gui2 import error_dialog
 
 def option_parser(usage='''\
 Usage: %prog [options]
@@ -19,26 +20,26 @@ Launch the Graphical User Interface
     return parser
 
 class DebugWindow(ConversionErrorDialog):
-    
+
     def __init__(self, parent):
         ConversionErrorDialog.__init__(self, parent, 'Console output', '')
         self.setModal(Qt.NonModal)
         font = QFont()
         font.setStyleHint(QFont.TypeWriter)
         self.text.setFont(font)
-        
+
     def write(self, msg):
         self.text.setPlainText(self.text.toPlainText()+QString(msg))
-        
+
     def flush(self):
-        pass    
+        pass
 
 class MainWindow(QMainWindow):
 
     ___menu_bar = None
     ___menu     = None
-    __actions   = [] 
-    
+    __actions   = []
+
     @classmethod
     def create_application_menubar(cls):
         mb = QMenuBar(None)
@@ -50,8 +51,8 @@ class MainWindow(QMainWindow):
         mb.addMenu(menu)
         cls.___menu_bar = mb
         cls.___menu = menu
-        
-    
+
+
     @classmethod
     def get_menubar_actions(cls):
         preferences_action = QAction(QIcon(':/images/config.svg'), _('&Preferences'), None)
@@ -59,7 +60,7 @@ class MainWindow(QMainWindow):
         preferences_action.setMenuRole(QAction.PreferencesRole)
         quit_action.setMenuRole(QAction.QuitRole)
         return preferences_action, quit_action
-    
+
     def __init__(self, opts, parent=None):
         QMainWindow.__init__(self, parent)
         app = QCoreApplication.instance()
@@ -69,19 +70,18 @@ class MainWindow(QMainWindow):
             self.__console_redirect = DebugWindow(self)
             sys.stdout = sys.stderr = self.__console_redirect
             self.__console_redirect.show()
-    
+
     def unix_signal(self, signal):
         print 'Received signal:', repr(signal)
-    
+
     def unhandled_exception(self, type, value, tb):
         try:
             sio = StringIO.StringIO()
             traceback.print_exception(type, value, tb, file=sio)
             fe = sio.getvalue()
             print >>sys.stderr, fe
-            msg = '<p><b>' + unicode(str(value), 'utf8', 'replace') + '</b></p>'
-            msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
-            d = ConversionErrorDialog(self, _('ERROR: Unhandled exception'), msg)
-            d.exec_()
+            msg = unicode(str(value), 'utf8', 'replace')
+            error_dialog(self, _('ERROR: Unhandled exception'), msg, det_msg=fe,
+                    show=True)
         except:
             pass
