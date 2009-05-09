@@ -25,7 +25,7 @@ from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin
                                  disable_plugin, customize_plugin, \
                                  plugin_customization, add_plugin, \
                                  remove_plugin, input_format_plugins, \
-                                 output_format_plugins
+                                 output_format_plugins, available_output_formats
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
@@ -391,6 +391,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
         icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
         self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
+        
+        output_formats = sorted(available_output_formats())
+        output_formats.remove('oeb')
+        for f in output_formats:
+            self.output_format.addItem(f)
+        default_index = self.output_format.findText(prefs['output_format'])
+        self.output_format.setCurrentIndex(default_index if default_index != -1 else 0)
 
         self.book_exts = sorted(BOOK_EXTENSIONS)
         for ext in self.book_exts:
@@ -760,6 +767,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
         prefs['worker_process_priority'] = p
         prefs['read_file_metadata'] = bool(self.pdf_metadata.isChecked())
+        prefs['output_format'] = self.output_format.currentText()
         config['save_to_disk_single_format'] = self.book_exts[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
