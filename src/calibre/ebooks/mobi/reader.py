@@ -290,14 +290,6 @@ class MobiReader(object):
         self.replace_page_breaks()
         self.cleanup_html()
 
-        if self.processed_html.startswith('<body'):
-            self.processed_html = '<html><head></head>'+self.processed_html+'</html>'
-        self.processed_html = \
-            re.compile('<head>', re.IGNORECASE).sub(
-                '\n<head>\n'
-                '\t<link type="text/css" href="styles.css" />\n',
-                self.processed_html)
-
         self.log.debug('Parsing HTML...')
         root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
@@ -305,7 +297,7 @@ class MobiReader(object):
             self.log.warning('Markup contains unclosed <p> tags, parsing using',
                     'BeatifulSoup')
             root = soupparser.fromstring(self.processed_html)
-        if root[0].tag != 'html':
+        if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
             nroot = html.fromstring('<html><head></head><body></body></html>')
             bod = nroot.find('body')
@@ -313,6 +305,35 @@ class MobiReader(object):
                 child.getparent().remove(child)
                 bod.append(child)
             root = nroot
+
+        htmls = list(root.xpath('//html'))
+        if len(htmls) > 1:
+            self.log.warn('Markup contains multiple <html> tags')
+            # Keep only the largest head and body
+            bodies, heads = root.xpath('//body'), root.xpath('//head')
+            def sz(x): return len(list(x.iter()))
+            def scmp(x, y): return cmp(sz(x), sz(y))
+            body = list(sorted(bodies, cmp=scmp))
+            head = list(sorted(heads, cmp=scmp))
+            for x in root: root.remove(x)
+            if head:
+                root.append(head[-1])
+            if body:
+                root.append(body[-1])
+        for x in root.xpath('//script'):
+            x.getparent().remove(x)
+
+        head = root.xpath('//head')
+        if head:
+            head = head[0]
+        else:
+            head = root.makeelement('head', {})
+            root.insert(0, head)
+        head.text = '\n\t'
+        link = head.makeelement('link', {'type':'text/css',
+            'href':'styles.css'})
+        head.insert(0, link)
+        link.tail = '\n\t'
 
         self.upshift_markup(root)
         guides = root.xpath('//guide')
