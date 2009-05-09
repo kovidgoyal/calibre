@@ -147,19 +147,6 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="1" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Format for &amp;single file save:</string>
-             </property>
-             <property name="buddy">
-              <cstring>single_format</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="single_format"/>
-           </item>
-           <item row="2" column="0">
             <widget class="QLabel" name="label_2">
              <property name="text">
               <string>Default network &amp;timeout:</string>
@@ -169,7 +156,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="1" column="1">
             <widget class="QSpinBox" name="timeout">
              <property name="toolTip">
               <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
@@ -188,10 +175,10 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="2" column="1">
             <widget class="QComboBox" name="language"/>
            </item>
-           <item row="3" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="label_7">
              <property name="text">
               <string>Choose &amp;language (requires restart):</string>
@@ -201,7 +188,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="3" column="1">
             <widget class="QComboBox" name="priority">
              <item>
               <property name="text">
@@ -220,7 +207,7 @@
              </item>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="priority_label">
              <property name="text">
               <string>Job &amp;priority:</string>

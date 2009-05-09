@@ -27,8 +27,6 @@ def _config():
               help=_('Frequently used directories'))
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
-    c.add_opt('save_to_disk_single_format', default='lrf',
-              help=_('The format to use when saving single files to disk'))
     c.add_opt('confirm_delete', default=False,
               help=_('Confirm before deleting'))
     c.add_opt('toolbar_icon_size', default=QSize(48, 48),
@@ -100,18 +98,23 @@ def available_width():
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
 
-def warning_dialog(parent, title, msg, det_msg=''):
+def warning_dialog(parent, title, msg, det_msg='', show=False):
     d = QMessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+
+    if show:
+        return d.exec_()
     return d
 
-def error_dialog(parent, title, msg, det_msg=''):
+def error_dialog(parent, title, msg, det_msg='', show=False):
     d = QMessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
+    if show:
+        return d.exec_()
     return d
 
 def question_dialog(parent, title, msg, det_msg=''):
@@ -121,12 +124,15 @@ def question_dialog(parent, title, msg, det_msg=''):
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
     return d
 
-def info_dialog(parent, title, msg, det_msg=''):
+def info_dialog(parent, title, msg, det_msg='', show=False):
     d = QMessageBox(QMessageBox.Information, title, msg, QMessageBox.NoButton,
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    if show:
+        return d.exec_()
     return d
+
 
 def qstring_to_unicode(q):
     return unicode(q)

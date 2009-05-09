@@ -530,8 +530,8 @@ class DeviceGUI(object):
                     ])
             error_dialog(self, _('Failed to email books'),
                     _('Failed to email the following books:'),
-                            '%s'%errors,
-                        show=True)
+                            '%s'%errors
+                        )
         else:
             self.status_bar.showMessage(_('Sent by email:') + ', '.join(good),
                     5000)

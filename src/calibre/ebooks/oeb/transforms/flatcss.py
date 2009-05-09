@@ -24,6 +24,19 @@ def asfloat(value, default):
         value = default
     return float(value)
 
+def dynamic_rescale_factor(node):
+    classes = node.get('class', '').split(' ')
+    classes = [x.replace('calibre_rescale_', '') for x in classes if
+            x.startswith('calibre_rescale_')]
+    if not classes: return None
+    factor = 1.0
+    for x in classes:
+        try:
+            factor *= float(x)/100.
+        except ValueError:
+            continue
+    return factor
+
 
 class KeyMapper(object):
     def __init__(self, sbase, dbase, dkey):
@@ -202,11 +215,19 @@ class CSSFlattener(object):
         if 'bgcolor' in node.attrib:
             cssdict['background-color'] = node.attrib['bgcolor']
             del node.attrib['bgcolor']
-        if not self.context.disable_font_rescaling and \
-                'font-size' in cssdict or tag == 'body':
-            fsize = self.fmap[style['font-size']]
-            cssdict['font-size'] = "%0.5fem" % (fsize / psize)
-            psize = fsize
+        if not self.context.disable_font_rescaling:
+            _sbase = self.sbase if self.sbase is not None else \
+                self.context.source.fbase
+            dyn_rescale = dynamic_rescale_factor(node)
+            if dyn_rescale is not None:
+                fsize = self.fmap[_sbase]
+                fsize *= dyn_rescale
+                cssdict['font-size'] = '%0.5fem'%(fsize/psize)
+                psize = fsize
+            elif 'font-size' in cssdict or tag == 'body':
+                fsize = self.fmap[style['font-size']]
+                cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                psize = fsize
         if cssdict:
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)

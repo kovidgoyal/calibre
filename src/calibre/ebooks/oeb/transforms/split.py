@@ -369,13 +369,13 @@ class FlowSplitter(object):
 
         for path in (
                      '//*[re:match(name(), "h[1-6]", "i")]',
-                     '/html/body/div',
-                     '//pre',
-                     '//hr',
-                     '//p',
-                     '//div',
-                     '//br',
-                     '//li',
+                     '/h:html/h:body/h:div',
+                     '//h:pre',
+                     '//h:hr',
+                     '//h:p',
+                     '//h:div',
+                     '//h:br',
+                     '//h:li',
                      ):
             elems = root.xpath(path, namespaces=NAMESPACES)
             elem = pick_elem(elems)
