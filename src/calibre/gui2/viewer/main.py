@@ -20,7 +20,7 @@ from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux
-from calibre.utils.config import Config, StringConfig
+from calibre.utils.config import Config, ConfigProxy, StringConfig
 from calibre.gui2.library import SearchBox
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
@@ -199,6 +199,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_reference = None
         self.pending_bookmark  = None
         self.selected_text     = None
+        self.read_settings()
         self.history = History(self.action_back, self.action_forward)
         self.metadata = Metadata(self)
         self.pos = DoubleSpinBox()
@@ -600,6 +601,26 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__(*args)
+
+    def closeEvent(self, e):
+        self.write_settings()
+
+    def read_settings(self):
+        geometry = settings['viewer_window_geometry']
+        if geometry is not None:
+            self.restoreGeometry(geometry)
+
+    def write_settings(self):
+        settings.set('viewer_window_geometry', self.saveGeometry())
+
+
+def _settings():
+    c = Config('viewer_gui', 'preferences for the calibre viewer GUI')
+    c.add_opt('viewer_window_geometry', default=None,
+            help=_('Viewer window geometry')) # value QVariant.toByteArray
+    return ConfigProxy(c)
+
+settings = _settings()
 
 
 def config(defaults=None):
