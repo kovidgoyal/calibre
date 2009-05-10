@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
+from calibre import entity_to_unicode
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.htmlsymbols import HTML_SYMBOLS
 
@@ -86,10 +87,9 @@ HTML_PML_RULES = [
     (re.compile('<a.*?href="#footnote-(?P<target>.+?).*?">(?P<text>.+?)</a>'), lambda match: '\\Fn="%s"%s\\Fn' % (match.group('target'), match.group('text'))),
     (re.compile('<div.*?id="(?P<target>.+?).*?"></div>'), lambda match: '\\\\Q="%s"' % match.group('target')),
     (re.compile('<a.*?href="(?P<target>#.+?).*?">(?P<text>)</a>', re.DOTALL), lambda match: '\\q="%s"%s\\q' % (match.group('target'), match.group('text'))),
-    #(re.compile('<img.*?src="images/(?P<name>.+?)".*?>'), lambda match: '\\m="%s"' % match.group('name')),
-    (re.compile('<img.*?src="(?P<name>.+?)".*?>(.*?</img>)*'), lambda match: '\\m="%s"' % image_name(match.group('name').strip('\x00'))),
-    #(re.compile('&#(?P<num>\d\d\d\d);'), lambda match: '\\U%s' % int(match.group('num'))),
-    (re.compile('&#(?P<num>\d\d\d);'), lambda match: '\\a%s' % match.group('num')),
+    (re.compile('<img.*?src="(?P<name>.+?)".*?>(.*?</img>)*'), lambda match: '\\m="%s"' % image_name(match.group('name')).strip('\x00')),
+    (re.compile('&(?P<num>#\d+);'), lambda match: entity_to_unicode(match)),
+    (re.compile('&(?P<num>.+);'), lambda match: entity_to_unicode(match)),
     (re.compile('<small .*?>(?P<text>.+?)</small>', re.DOTALL), lambda match: '\\k%s\\k' % match.group('text')),
     (re.compile('<small>(?P<text>.+?)</small>', re.DOTALL), lambda match: '\\k%s\\k' % match.group('text')),
     (re.compile('<sub .*?>(?P<text>.+?)</sub>', re.DOTALL), lambda match: '\\Sb%s\\Sb' % match.group('text')),
@@ -161,7 +161,5 @@ def html_to_pml(html):
             body = rule[0].sub(rule[1], body)
             
         pml += body
-    
-    # Replace symbols outside of cp1512 wtih \Uxxxx
 
     return pml

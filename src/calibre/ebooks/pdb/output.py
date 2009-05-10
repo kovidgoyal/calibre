@@ -44,7 +44,7 @@ class PDBOutput(OutputFormatPlugin):
         out_stream.seek(0)
         out_stream.truncate()
         
-        writer.write_content(oeb_book, out_stream)
+        writer.write_content(oeb_book, out_stream, oeb_book.metadata)
 
         if close:
             out_stream.close()
