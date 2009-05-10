@@ -229,6 +229,11 @@ _check_symlinks_prescript()
         all_modules   = main_modules['console'] + main_modules['gui']
         all_functions = main_functions['console'] + main_functions['gui']
         print
+        print 'Adding PoDoFo'
+        pdf = glob.glob(os.path.expanduser('~/podofo/*.dylib'))[0]
+        shutil.copyfile(pdf, os.path.join(frameworks_dir, os.path.basename(pdf)))
+
+
         loader_path = os.path.join(resource_dir, 'loaders')
         if not os.path.exists(loader_path):
             os.mkdir(loader_path)

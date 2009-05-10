@@ -80,7 +80,7 @@ def fb22opf(path, tdir, opts):
     from calibre.ebooks.lrf.fb2.convert_from import to_html
     print 'Converting FB2 to HTML...'
     return to_html(path, tdir)
-    
+
 def rtf2opf(path, tdir, opts):
     from calibre.ebooks.lrf.rtf.convert_from import generate_html
     generate_html(path, tdir)
@@ -89,6 +89,7 @@ def rtf2opf(path, tdir, opts):
 def txt2opf(path, tdir, opts):
     from calibre.ebooks.lrf.txt.convert_from import generate_html
     generate_html(path, opts.encoding, tdir)
+    opts.encoding = 'utf-8'
     return os.path.join(tdir, 'metadata.opf')
 
 def pdf2opf(path, tdir, opts):
@@ -110,11 +111,11 @@ def epub2opf(path, tdir, opts):
     if opf and os.path.exists(encfile):
         if not process_encryption(encfile, opf):
             raise DRMError(os.path.basename(path))
-        
+
     if opf is None:
         raise ValueError('%s is not a valid EPUB file'%path)
     return opf
-    
+
 def odt2epub(path, tdir, opts):
     from calibre.ebooks.odt.to_oeb import Extract
     opts.encoding = 'utf-8'
@@ -132,13 +133,13 @@ MAP = {
        'epub' : epub2opf,
        'odt'  : odt2epub,
        }
-SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf', 
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'azw', 'fb2', 'odt', 'rtf',
                   'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
 
 def unarchive(path, tdir):
     extract(path, tdir)
     files = list(walk(tdir))
-    
+
     for ext in ['opf'] + list(MAP.keys()):
         for f in files:
             if f.lower().endswith('.'+ext):
@@ -147,32 +148,32 @@ def unarchive(path, tdir):
                 return f, ext
     return find_html_index(files)
 
-def any2epub(opts, path, notification=None, create_epub=True, 
+def any2epub(opts, path, notification=None, create_epub=True,
              oeb_cover=False, extract_to=None):
     path = run_plugins_on_preprocess(path)
     ext = os.path.splitext(path)[1]
     if not ext:
         raise ValueError('Unknown file type: '+path)
     ext = ext.lower()[1:]
-    
+
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(path))[0]+'.epub'
-    
+
     with nested(TemporaryDirectory('_any2epub1'), TemporaryDirectory('_any2epub2')) as (tdir1, tdir2):
         if ext in ['rar', 'zip', 'oebzip']:
             path, ext = unarchive(path, tdir1)
             print 'Found %s file in archive'%(ext.upper())
-    
+
         if ext in MAP.keys():
             path = MAP[ext](path, tdir2, opts)
             ext = 'opf'
-            
-    
+
+
         if re.match(r'((x){0,1}htm(l){0,1})|opf', ext) is None:
             raise ValueError('Conversion from %s is not supported'%ext.upper())
-        
+
         print 'Creating EPUB file...'
-        html2epub(path, opts, notification=notification, 
+        html2epub(path, opts, notification=notification,
                   create_epub=create_epub, oeb_cover=oeb_cover,
                   extract_to=extract_to)
 

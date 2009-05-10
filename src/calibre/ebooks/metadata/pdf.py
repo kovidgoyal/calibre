@@ -6,13 +6,35 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, cStringIO
 from threading import Thread
 
-from calibre import FileWrapper
 from calibre.ebooks.metadata import MetaInformation, authors_to_string, get_parser
-from pyPdf import PdfFileReader, PdfFileWriter
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
+from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
+    set_metadata as podofo_set_metadata
+
 
 def get_metadata(stream):
+    try:
+        return podofo_get_metadata(stream)
+    except:
+        return get_metadata_pypdf(stream)
+
+def set_metadata(stream, mi):
+    stream.seek(0)
+    try:
+        return podofo_set_metadata(stream, mi)
+    except:
+        pass
+    try:
+        return pdftk_set_metadata(stream, mi)
+    except:
+        pass
+    set_metadata_pypdf(stream, mi)
+
+
+def get_metadata_pypdf(stream):
     """ Return metadata as a L{MetaInfo} object """
+    from pyPdf import PdfFileReader
+    from calibre import FileWrapper
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
     try:
@@ -48,18 +70,12 @@ class MetadataWriter(Thread):
         except RuntimeError:
             pass
 
-def set_metadata(stream, mi):
-    stream.seek(0)
-    try:
-        pdftk_set_metadata(stream, mi)
-    except:
-        pass
-    else:
-        return
-
+def set_metadata_pypdf(stream, mi):
     # Use a StringIO object for the pdf because we will want to over
     # write it later and if we are working on the stream directly it
     # could cause some issues.
+
+    from pyPdf import PdfFileReader, PdfFileWriter
     raw = cStringIO.StringIO(stream.read())
     orig_pdf = PdfFileReader(raw)
 
@@ -73,7 +89,7 @@ def set_metadata(stream, mi):
         out_pdf.addPage(page)
 
     writer.start()
-    writer.join(15) # Wait 15 secs for writing to complete
+    writer.join(10) # Wait 10 secs for writing to complete
     out_pdf.killed = True
     writer.join()
     if out_pdf.killed:

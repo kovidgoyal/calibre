@@ -12,6 +12,7 @@ LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 PDFTOHTML        = 'C:\\cygwin\\home\\kovid\\poppler-0.10.6\\rel\\pdftohtml.exe'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 PDFTK            = 'C:\\pdftk.exe'
+PODOFO           = 'C:\\podofo'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
 VC90             = r'C:\VC90.CRT'
 
@@ -101,8 +102,11 @@ class BuildEXE(py2exe.build_exe.py2exe):
         shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
         shutil.copyfile(PDFTOHTML+'.manifest', os.path.join(PY2EXE_DIR,
             os.path.basename(PDFTOHTML)+'.manifest'))
-        print '\tAdding pdftk'
-        shutil.copyfile(PDFTK, os.path.join(PY2EXE_DIR, os.path.basename(PDFTK)))
+        #print '\tAdding pdftk'
+        #shutil.copyfile(PDFTK, os.path.join(PY2EXE_DIR, os.path.basename(PDFTK)))
+        print 'Adding podofo'
+        for f in glob.glob(os.path.join(PODOFO, '*.dll')):
+            shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
 
         print '\tAdding ImageMagick'
         for f in os.listdir(IMAGEMAGICK_DIR):

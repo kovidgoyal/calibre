@@ -402,7 +402,8 @@ class LibraryDatabase2(LibraryDatabase):
 
         def get_property(idx, index_is_id=False, loc=-1):
             row = self.data._data[idx] if index_is_id else self.data[idx]
-            return row[loc]
+            if row is not None:
+                return row[loc]
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
