@@ -126,7 +126,7 @@ class Reader(FormatReader):
         with CurrentDir(output_dir):
             with open('index.html', 'wb') as index:
                 self.log.debug('Writing text to index.html')
-                index.write(html)
+                index.write(html.encode('utf-8'))
 
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))

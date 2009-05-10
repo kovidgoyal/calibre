@@ -22,10 +22,12 @@ FORMAT_READERS = {
 
 from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
 from calibre.ebooks.pdb.ztxt.writer import Writer as ztxt_writer
+from calibre.ebooks.pdb.ereader.writer import Writer as ereader_writer
 
 FORMAT_WRITERS = {
-    'doc'  : palmdoc_writer,
-    'ztxt' : ztxt_writer,
+    'doc'     : palmdoc_writer,
+    'ztxt'    : ztxt_writer,
+    'ereader' : ereader_writer,
 }
 
 IDENTITY_TO_NAME = {

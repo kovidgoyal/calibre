@@ -41,7 +41,7 @@ class PMLInput(InputFormatPlugin):
             ienc = self.options.input_encoding
 
         html = pml_to_html(pml_stream.read().decode(ienc)) 
-        html_stream.write('<html><head><title /></head><body>' + html + '</body></html>')
+        html_stream.write('<html><head><title /></head><body>' + html.encode('utf-8') + '</body></html>')
 
         if pclose:
             pml_stream.close()
@@ -63,10 +63,12 @@ class PMLInput(InputFormatPlugin):
                     html_name = os.path.splitext(os.path.basename(pml))[0]+'.html'
                     html_path = os.path.join(os.getcwd(), html_name)
                     
-                    pages.append(html_name)                
+                    pages.append(html_name)
                     self.process_pml(pml, html_path)
                     
                 imgs = glob.glob(os.path.join(tdir, '*.png'))
+                if len(imgs) > 0:
+                    os.makedirs(os.path.join(os.getcwd(), 'images'))
                 for img in imgs:
                     pimg_name = os.path.basename(img)
                     pimg_path = os.path.join(os.getcwd(), 'images', pimg_name)
