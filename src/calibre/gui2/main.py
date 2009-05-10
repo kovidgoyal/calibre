@@ -179,6 +179,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         md.addSeparator()
         md.addAction(_('Download metadata and covers'))
         md.addAction(_('Download only metadata'))
+        md.addAction(_('Download only covers'))
         self.metadata_menu = md
         self.add_menu = QMenu()
         self.add_menu.addAction(_('Add books from a single directory'))
@@ -209,6 +210,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 partial(self.download_metadata, covers=True))
         QObject.connect(md.actions()[5], SIGNAL('triggered(bool)'),
                 partial(self.download_metadata, covers=False))
+        QObject.connect(md.actions()[6], SIGNAL('triggered(bool)'),
+                partial(self.download_metadata, covers=True,
+                    set_metadata=False))
+
 
 
         self.save_menu = QMenu()
@@ -834,7 +839,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Edit metadata ##############################
 
-    def download_metadata(self, checked, covers=True):
+    def download_metadata(self, checked, covers=True, set_metadata=True):
         rows = self.library_view.selectionModel().selectedRows()
         previous = self.library_view.currentIndex()
         if not rows or len(rows) == 0:
@@ -845,10 +850,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         db = self.library_view.model().db
         ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata import DownloadMetadata
-        self._download_book_metadata = DownloadMetadata(db, ids, get_covers=covers)
+        self._download_book_metadata = DownloadMetadata(db, ids,
+                get_covers=covers, set_metadata=set_metadata)
         self._download_book_metadata.start()
+        x = _('covers') if covers and not set_metadata else _('metadata')
         self.progress_indicator.start(
-            _('Downloading metadata for %d book(s)')%len(ids))
+            _('Downloading %s for %d book(s)')%(x, len(ids)))
         self._book_metadata_download_check = QTimer(self)
         self.connect(self._book_metadata_download_check,
                 SIGNAL('timeout()'), self.book_metadata_download_check)

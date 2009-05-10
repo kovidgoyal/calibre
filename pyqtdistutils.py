@@ -80,13 +80,16 @@ CONFIG   += x86 ppc
             os.chdir(cwd)
 
     def build_sbf(self, sip, sbf, bdir):
-        print '\tBuilding spf...'
+        print '\tBuilding sbf...'
         sip_bin = self.sipcfg.sip_bin
+        pyqt_sip_flags = []
+        if hasattr(self, 'pyqtcfg'):
+            pyqt_sip_flags += ['-I', self.pyqtcfg.pyqt_sip_dir]
+            pyqt_sip_flags += self.pyqtcfg.pyqt_sip_flags.split()
         self.spawn([sip_bin,
                     "-c", bdir,
                     "-b", sbf,
-                    '-I', self.pyqtcfg.pyqt_sip_dir,
-                    ] + self.pyqtcfg.pyqt_sip_flags.split()+
+                    ] + pyqt_sip_flags +
                     [sip])
 
     def build_pyqt(self, bdir, sbf, ext, qtobjs, headers):
@@ -94,9 +97,14 @@ CONFIG   += x86 ppc
                                        build_file=sbf, dir=bdir,
                                        makefile='Makefile.pyqt',
                                        universal=OSX_SDK, qt=1)
+        makefile.extra_libs = ext.libraries
+        makefile.extra_lib_dirs = ext.library_dirs
+        makefile.extra_cxxflags = ext.extra_compile_args
+
         if 'win32' in sys.platform:
             makefile.extra_lib_dirs += WINDOWS_PYTHON
         makefile.extra_include_dirs = list(set(map(os.path.dirname, headers)))
+        makefile.extra_include_dirs += ext.include_dirs
         makefile.extra_lflags += qtobjs
         makefile.generate()
         cwd = os.getcwd()
@@ -110,7 +118,7 @@ CONFIG   += x86 ppc
 
     def build_extension(self, ext):
         self.inplace = True # Causes extensions to be built in the source tree
-        
+
         fullname = self.get_ext_fullname(ext.name)
         if self.inplace:
             # ignore build-lib -- put the compiled extension into
@@ -127,14 +135,14 @@ CONFIG   += x86 ppc
         else:
             ext_filename = os.path.join(self.build_lib,
                                         self.get_ext_filename(fullname))
-        bdir = os.path.abspath(os.path.join(self.build_temp, fullname))    
+        bdir = os.path.abspath(os.path.join(self.build_temp, fullname))
         if not os.path.exists(bdir):
             os.makedirs(bdir)
-            
+
         if not isinstance(ext, PyQtExtension):
             if not iswindows:
                 return _build_ext.build_extension(self, ext)
-            
+
             c_sources = [f for f in ext.sources if os.path.splitext(f)[1].lower() in ('.c', '.cpp', '.cxx')]
             compile_args = '/c /nologo /Ox /MD /W3 /GX /DNDEBUG'.split()
             compile_args += ext.extra_compile_args
@@ -147,7 +155,7 @@ CONFIG   += x86 ppc
                 objects.append(o)
                 compiler =  cc + ['/Tc'+f, '/Fo'+o]
                 self.spawn(compiler)
-            out = os.path.join(bdir, base+'.pyd') 
+            out = os.path.join(bdir, base+'.pyd')
             linker = [msvc.linker] + '/DLL /nologo /INCREMENTAL:NO'.split()
             linker += ['/LIBPATH:'+x for x in self.library_dirs]
             linker += [x+'.lib' for x in ext.libraries]
@@ -156,9 +164,9 @@ CONFIG   += x86 ppc
             for src in (out, out+'.manifest'):
                 shutil.copyfile(src, os.path.join('src', 'calibre', 'plugins', os.path.basename(src)))
             return
-                
-        
-        
+
+
+
         if not os.path.exists(bdir):
             os.makedirs(bdir)
         ext.sources2 = map(os.path.abspath, ext.sources)
@@ -199,6 +207,14 @@ CONFIG   += x86 ppc
                 os.unlink(ext_filename)
             shutil.copyfile(mod, ext_filename)
             shutil.copymode(mod, ext_filename)
+
+
+        if self.force or newer_group([mod], ext_filename, 'newer'):
+            if os.path.exists(ext_filename):
+                os.unlink(ext_filename)
+            shutil.copyfile(mod, ext_filename)
+            shutil.copymode(mod, ext_filename)
+
 
     def get_sip_output_list(self, sbf, bdir):
         """

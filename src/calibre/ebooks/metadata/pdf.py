@@ -7,9 +7,7 @@ import sys, os, cStringIO
 from threading import Thread
 
 from calibre import StreamReadWrapper
-from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ptempfile import TemporaryDirectory
-from pyPdf import PdfFileReader, PdfFileWriter
 try:
     from calibre.utils.PythonMagickWand import \
         NewMagickWand, MagickReadImage, MagickSetImageFormat, \
@@ -17,11 +15,17 @@ try:
     _imagemagick_loaded = True
 except:
     _imagemagick_loaded = False
+from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
+from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
+    set_metadata as podofo_set_metadata
+
 
 def get_metadata(stream, extract_cover=True):
-    """ Return metadata as a L{MetaInfo} object """
-    mi = MetaInformation(_('Unknown'), [_('Unknown')])
+    try:
+        mi = podofo_get_metadata(stream)
+    except:
+        mi = get_metadata_pypdf(stream)
     stream.seek(0)
 
     if extract_cover and _imagemagick_loaded:
@@ -32,7 +36,26 @@ def get_metadata(stream, extract_cover=True):
         except:
             import traceback
             traceback.print_exc()
+    return mi
 
+
+def set_metadata(stream, mi):
+    stream.seek(0)
+    try:
+        return podofo_set_metadata(stream, mi)
+    except:
+        pass
+    try:
+        return pdftk_set_metadata(stream, mi)
+    except:
+        pass
+    set_metadata_pypdf(stream, mi)
+
+
+def get_metadata_pypdf(stream):
+    """ Return metadata as a L{MetaInfo} object """
+    from pyPdf import PdfFileReader
+    mi = MetaInformation(_('Unknown'), [_('Unknown')])
     try:
         with StreamReadWrapper(stream) as stream:
             info = PdfFileReader(stream).getDocumentInfo()
@@ -66,18 +89,12 @@ class MetadataWriter(Thread):
         except RuntimeError:
             pass
 
-def set_metadata(stream, mi):
-    stream.seek(0)
-    try:
-        pdftk_set_metadata(stream, mi)
-    except:
-        pass
-    else:
-        return
-
+def set_metadata_pypdf(stream, mi):
     # Use a StringIO object for the pdf because we will want to over
     # write it later and if we are working on the stream directly it
     # could cause some issues.
+
+    from pyPdf import PdfFileReader, PdfFileWriter
     raw = cStringIO.StringIO(stream.read())
     orig_pdf = PdfFileReader(raw)
     title = mi.title if mi.title else orig_pdf.documentInfo.title
@@ -88,7 +105,7 @@ def set_metadata(stream, mi):
     for page in orig_pdf.pages:
         out_pdf.addPage(page)
     writer.start()
-    writer.join(15) # Wait 15 secs for writing to complete
+    writer.join(10) # Wait 10 secs for writing to complete
     out_pdf.killed = True
     writer.join()
     if out_pdf.killed:
@@ -102,6 +119,8 @@ def set_metadata(stream, mi):
     stream.seek(0)
 
 def get_cover(stream):
+    from pyPdf import PdfFileReader, PdfFileWriter
+
     try:
         with StreamReadWrapper(stream) as stream:
             pdf = PdfFileReader(stream)
