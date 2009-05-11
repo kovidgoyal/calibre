@@ -16,6 +16,7 @@ from calibre.gui2 import warning_dialog
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
 from calibre.gui2.convert.bulk import BulkConfig
+from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
@@ -131,13 +132,16 @@ def fetch_scheduled_recipe(recipe, script):
     fmt = prefs['output_format'].lower()
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()
-    args = ['ebook-convert', script, pt.name, '-vv']
+    recs = []
+    args = [script, pt.name, recs]
     if recipe.needs_subscription:
         x = config.get('recipe_account_info_%s'%recipe.id, False)
         if not x:
             raise ValueError(_('You must set a username and password for %s')%recipe.title)
-        args.extend(['--username', x[0], '--password', x[1]])
+        recs.append(('username', x[0], OptionRecommendation.HIGH))
+        recs.append(('password', x[1], OptionRecommendation.HIGH))
 
-    return 'ebook-convert', [args], _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
+
+    return 'gui_convert', args, _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
 
 
