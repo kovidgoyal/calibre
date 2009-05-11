@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Keep track of donations to calibre.
 '''
-import sys, cStringIO, textwrap, traceback, re, os, time
+import sys, cStringIO, textwrap, traceback, re, os, time, calendar
 from datetime import date, timedelta
 from math import sqrt
 os.environ['HOME'] = '/tmp'
@@ -14,7 +14,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
 
 import cherrypy
 from lxml import etree
@@ -33,7 +32,13 @@ def range_for_month(year, month):
 
 def range_for_year(year):
     return date(year=year, month=1, day=1), date(year=year, month=12, day=31)
-    
+
+def days_in_month(year, month):
+    c = calendar.Calendar()
+    ans = 0
+    for x in c.itermonthdays(year, month):
+        if x != 0: ans += 1
+    return ans
 
 def rationalize_country(country):
     if re.match('(?i)(US|USA|America)', country):
@@ -67,14 +72,14 @@ def rationalize_country(country):
     return country
 
 class Record(object):
-    
+
     def __init__(self, email, country, amount, date, name):
         self.email = email
         self.country = country
         self.amount = amount
         self.date = date
         self.name = name
-        
+
     def __str__(self):
         return '<donation email="%s" country="%s" amount="%.2f" date="%s" %s />'%\
         (self.email, self.country, self.amount, self.date.isoformat(), 'name="%s"'%self.name if self.name else '')
@@ -93,7 +98,7 @@ class Country(list):
 
     def __str__(self):
         return self.name + ': %.2f%%'%self.percent
-    
+
     def __cmp__(self, other):
         return cmp(self.total, other.total)
 
@@ -118,7 +123,7 @@ class Stats:
             if r.date not in self.days.keys():
                 self.days[r.date] = []
             self.days[r.date].append(r)
-            
+
         self.min, self.max = start, end
         self.period = (self.max - self.min) + timedelta(days=1)
         daily_totals = []
@@ -139,7 +144,24 @@ class Stats:
             self.countries[r.country].append(r)
         for country in self.countries.values():
             country.percent = (100 * country.total/self.total) if self.total else 0.
-        
+
+    def get_daily_averages(self):
+        month_buckets, month_order = {}, []
+        x = self.min
+        for t in self.daily_totals:
+            month = (x.year, x.month)
+            if month not in month_buckets:
+                month_buckets[month] = 0.
+                month_order.append(month)
+            month_buckets[month] += t
+            x += timedelta(days=1)
+        c = calendar.Calendar()
+        month_days = [days_in_month(*x) for x in month_order]
+        month_averages = [month_buckets[x]/float(y) for x, y in zip(month_order, month_days)]
+        return month_order, month_averages
+
+
+
     def __str__(self):
         buf = cStringIO.StringIO()
         print >>buf, '\tTotal: %.2f'%self.total
@@ -149,7 +171,7 @@ class Stats:
         for c in self.countries.values():
             print >>buf, '\t\t', c
         return buf.getvalue()
-    
+
     def to_html(self, num_of_countries=sys.maxint):
         countries = sorted(self.countries.values(), cmp=cmp, reverse=True)[:num_of_countries]
         crows = ['<tr><td>%s</td><td class="country_percent">%.2f %%</td></tr>'%(c.name, c.percent) for c in countries]
@@ -168,32 +190,48 @@ class Stats:
             <br />
             %(ctable)s
         </div>
-        ''')%dict(total=self.total, da=self.daily_average, ac=self.average, 
+        ''')%dict(total=self.total, da=self.daily_average, ac=self.average,
                   ctable=ctable, period=self.period.days, num=len(self.totals),
-                  dd=self.daily_deviation, ad=self.average_deviation, 
-                  dpd=len(self.totals)/float(self.period.days), 
+                  dd=self.daily_deviation, ad=self.average_deviation,
+                  dpd=len(self.totals)/float(self.period.days),
                   min=self.min.isoformat(), max=self.max.isoformat())
-        
+
 
 def expose(func):
-    
+
     def do(self, *args, **kwargs):
         dict.update(cherrypy.response.headers, {'Server':'Donations_server/1.0'})
         return func(self, *args, **kwargs)
-    
+
     return cherrypy.expose(do)
 
 class Server(object):
-    
+
     TRENDS = '/tmp/donations_trend.png'
     MONTH_TRENDS = '/tmp/donations_month_trend.png'
-    
+    AVERAGES = '/tmp/donations_averages.png'
+
     def __init__(self, apache=False, root='/', data_file='/tmp/donations.xml'):
         self.apache = apache
         self.document_root = root
         self.data_file = data_file
         self.read_records()
-    
+
+    def calculate_daily_averages(self):
+        stats = self.get_slice(self.earliest, self.latest)
+        fig = plt.figure(2, (10, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        fig.clear()
+        ax = fig.add_subplot(111)
+        month_order, month_averages = stats.get_daily_averages()
+        x = [date(y, m, 1) for y, m in month_order[:-1]]
+        ax.plot(x, month_averages[:-1])
+        ax.set_xlabel('Month')
+        ax.set_ylabel('Daily average ($)')
+        ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%y'))
+        fig.savefig(self.AVERAGES)
+
+
     def calculate_month_trend(self, days=31):
         stats = self.get_slice(date.today()-timedelta(days=days-1), date.today())
         fig = plt.figure(2, (10, 4), 96)#, facecolor, edgecolor, frameon, FigureClass)
@@ -214,14 +252,14 @@ Total: $%(total).2f
 Daily average: $%(da).2f \u00b1 %(dd).2f
 Average contribution: $%(ac).2f \u00b1 %(ad).2f
 Donors per day: %(dpd).2f
-        '''%dict(total=stats.total, da=stats.daily_average, 
+        '''%dict(total=stats.total, da=stats.daily_average,
                  dd=stats.daily_deviation, ac=stats.average,
                  ad=stats.average_deviation,
                  dpd=len(stats.totals)/float(stats.period.days),
              )
         text = ax.annotate(text, (0.5, 0.65), textcoords='axes fraction')
         fig.savefig(self.MONTH_TRENDS)
-    
+
     def calculate_trend(self):
         def months(start, end):
             pos = range_for_month(start.year, start.month)[0]
@@ -253,7 +291,7 @@ Donors per day: %(dpd).2f
         fig.savefig(self.TRENDS)
         #plt.show()
 
-        
+
     def read_records(self):
         self.tree = etree.parse(self.data_file)
         self.last_read_time = time.time()
@@ -269,21 +307,22 @@ Donors per day: %(dpd).2f
         self.earliest, self.latest = min_date, max_date
         self.calculate_trend()
         self.calculate_month_trend()
-            
+        self.calculate_daily_averages()
+
     def get_slice(self, start_date, end_date):
         stats = Stats([r for r in self.records if r.date >= start_date and r.date <= end_date],
                         start_date, end_date)
         return stats
-    
+
     def month(self, year, month):
         return self.get_slice(*range_for_month(year, month))
-    
+
     def year(self, year):
         return self.get_slice(*range_for_year(year))
-    
+
     def range_to_date(self, raw):
         return date(*map(int, raw.split('-')))
-    
+
     def build_page(self, period_type, data):
         if os.stat(self.data_file).st_mtime >= self.last_read_time:
             self.read_records()
@@ -294,7 +333,7 @@ Donors per day: %(dpd).2f
         yy = data if period_type == 'year' else year
         rl = data[0] if period_type == 'range' else ''
         rr = data[1] if period_type == 'range' else ''
-        
+
         def build_month_list(current):
             months = []
             for i in range(1, 13):
@@ -302,7 +341,7 @@ Donors per day: %(dpd).2f
                 sel = 'selected="selected"' if i == current else ''
                 months.append('<option value="%d" %s>%s</option>'%(i, sel, month))
             return months
-        
+
         def build_year_list(current):
             all_years = sorted(range(self.earliest.year, self.latest.year+1, 1))
             if current not in all_years:
@@ -312,11 +351,11 @@ Donors per day: %(dpd).2f
                 sel = 'selected="selected"' if year == current else ''
                 years.append('<option value="%d" %s>%d</option>'%(year, sel, year))
             return years
-        
+
         mmlist = '<select name="month_month">\n%s</select>'%('\n'.join(build_month_list(mm)))
         mylist = '<select name="month_year">\n%s</select>'%('\n'.join(build_year_list(my)))
         yylist = '<select name="year_year">\n%s</select>'%('\n'.join(build_year_list(yy)))
-        
+
         if period_type == 'month':
             range_stats = range_for_month(my, mm)
         elif period_type == 'year':
@@ -332,9 +371,9 @@ Donors per day: %(dpd).2f
             range_stats = '<pre>Invalid input:\n%s</pre>'%err
         else:
             range_stats = self.get_slice(*range_stats).to_html(num_of_countries=10)
-        
+
         today = self.get_slice(date.today(), date.today())
-        
+
         return textwrap.dedent('''\
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -365,7 +404,7 @@ Donors per day: %(dpd).2f
                         if ((dayobj.getMonth()+1!=monthfield)||(dayobj.getDate()!=dayfield)||(dayobj.getFullYear()!=yearfield)) return false;
                         return true;
                     }
-                
+
                     function check_period_form(form) {
                         if (form.period_type[2].checked) {
                             if (!test_date(form.range_left.value)) {
@@ -381,11 +420,11 @@ Donors per day: %(dpd).2f
                         }
                         return true;
                     }
-                    
+
                     function is_empty(val) {
                         return val.trim().length == 0
                     }
-                    
+
                     function check_add_form(form) {
                         var test_amount = /[\.0-9]+/;
                         if (is_empty(form.email.value)) {
@@ -409,8 +448,8 @@ Donors per day: %(dpd).2f
                             return false;
                         }
                         return true;
-                    } 
-                    
+                    }
+
                     function rationalize_periods() {
                         var form = document.forms[0];
                         var disabled = !form.period_type[0].checked;
@@ -438,7 +477,7 @@ Donors per day: %(dpd).2f
                             <h3>Donations to date</h3>
                             %(todate)s
                         </td>
-                
+
                         <td id="right">
                             <h3>Donations in period</h3>
                             <fieldset>
@@ -463,10 +502,13 @@ Donors per day: %(dpd).2f
                 </table>
                 <hr />
                 <div style="text-align:center">
-                    <h3>Income trends for the last year</h3>
                     <img src="%(root)strend.png" alt="Income trends" />
-                    <h3>Income trends for the last 31 days</h3>
+                    <h3>Income trends for the last year</h3>
                     <img src="%(root)smonth_trend.png" alt="Month income trend" />
+                    <h3>Income trends for the last 31 days</h3>
+                    <img src="%(root)saverage_trend.png" alt="Daily average
+                    income trend" />
+                    <h3>Income trends since records started</h3>
                 </div>
             </body>
         </html>
@@ -479,26 +521,31 @@ Donors per day: %(dpd).2f
                   rl=rl, rr=rr, range_stats=range_stats, root=self.document_root,
                   today=today.total
                   )
-    
+
     @expose
     def index(self):
         month = date.today().month
         year = date.today().year
         cherrypy.response.headers['Content-Type'] = 'application/xhtml+xml'
         return self.build_page('month', (year, month))
-    
+
     @expose
     def trend_png(self):
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return open(self.TRENDS, 'rb').read()
-    
+
     @expose
     def month_trend_png(self):
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return open(self.MONTH_TRENDS, 'rb').read()
-    
+
     @expose
-    def show(self, period_type='month', month_month='', month_year='', 
+    def average_trend_png(self):
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        return open(self.AVERAGES, 'rb').read()
+
+    @expose
+    def show(self, period_type='month', month_month='', month_year='',
              year_year='', range_left='', range_right=''):
         if period_type == 'month':
             mm = int(month_month) if month_month else date.today().month
@@ -510,7 +557,7 @@ Donors per day: %(dpd).2f
             data = (range_left, range_right)
         cherrypy.response.headers['Content-Type'] = 'application/xhtml+xml'
         return self.build_page(period_type, data)
-    
+
 def config():
     config = {
             'global': {
@@ -527,9 +574,9 @@ def apache_start():
         'environment'     : 'production',
         'show_tracebacks' : False,
         })
-    cherrypy.tree.mount(Server(apache=True, root='/donations/', data_file='/var/www/calibre.kovidgoyal.net/donations.xml'), 
+    cherrypy.tree.mount(Server(apache=True, root='/donations/', data_file='/var/www/calibre.kovidgoyal.net/donations.xml'),
                         '/donations', config=config())
-    
+
 
 def main(args=sys.argv):
     server = Server()
