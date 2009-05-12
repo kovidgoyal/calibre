@@ -57,7 +57,25 @@ if __name__ == '__main__':
 
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
-    ext_modules = [
+    optional = []
+
+
+    podofo_inc = '/usr/include/podofo' if islinux else \
+    'C:\\podofo\\include\\podofo' if iswindows else \
+    '/Users/kovid/podofo/include/podofo'
+    podofo_lib = '/usr/lib' if islinux else r'C:\podofo' if iswindows else \
+            '/Users/kovid/podofo/lib'
+    if os.path.exists(os.path.join(podofo_inc, 'PdfString.h')):
+        eca = ['/EHsc'] if iswindows else []
+        optional.append(PyQtExtension('calibre.plugins.podofo', [],
+                        ['src/calibre/utils/podofo/podofo.sip'],
+                        libraries=['podofo'], extra_compile_args=eca,
+                        library_dirs=[os.environ.get('PODOFO_LIB_DIR', podofo_lib)],
+                        include_dirs=\
+                        [os.environ.get('PODOFO_INC_DIR', podofo_inc)]))
+
+    ext_modules = optional + [
+
                    Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
                                       'src/calibre/utils/lzx/compressor.c',

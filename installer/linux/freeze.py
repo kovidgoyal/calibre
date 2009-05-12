@@ -31,6 +31,7 @@ def freeze():
                        '/usr/lib/libsqlite3.so.0',
                        '/usr/lib/libsqlite3.so.0',
                        '/usr/lib/libmng.so.1',
+                       '/usr/lib/libpodofo.so.0.6.99',
                        '/lib/libz.so.1',
                        '/lib/libbz2.so.1',
                        '/lib/libbz2.so.1',

@@ -76,7 +76,7 @@ class JETBOOK(USBMS):
 
             if newpath == path:
                 newpath = os.path.join(newpath, author, title)
-                
+
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
@@ -97,7 +97,7 @@ class JETBOOK(USBMS):
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
-        
+
         return zip(paths, cycle([on_card]))
 
     @classmethod
@@ -109,7 +109,7 @@ class JETBOOK(USBMS):
                 return txt.decode(sys.getfilesystemencoding(), 'replace')
 
             return txt
-            
+
         from calibre.devices.usbms.driver import metadata_from_formats
         mi = metadata_from_formats([path])
 
@@ -126,10 +126,10 @@ class JETBOOK(USBMS):
 
     def windows_sort_drives(self, drives):
         main = drives.get('main', None)
-        card = drives.get('card', None)
+        card = drives.get('carda', None)
         if card and main and card < main:
             drives['main'] = card
-            drives['card'] = main
+            drives['carda'] = main
 
         return drives
 

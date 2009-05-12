@@ -41,11 +41,12 @@ class Worker(Thread):
 
 class DownloadMetadata(Thread):
 
-    def __init__(self, db, ids, get_covers):
+    def __init__(self, db, ids, get_covers, set_metadata=True):
         Thread.__init__(self)
         self.setDaemon(True)
         self.metadata = {}
         self.covers   = {}
+        self.set_metadata = set_metadata
         self.db = db
         self.updated = set([])
         self.get_covers = get_covers
@@ -96,8 +97,9 @@ class DownloadMetadata(Thread):
                 self.commit_covers()
 
         self.commit_covers(True)
-        for id in self.fetched_metadata:
-            self.db.set_metadata(id, self.metadata[id])
+        if self.set_metadata:
+            for id in self.fetched_metadata:
+                self.db.set_metadata(id, self.metadata[id])
         self.updated = set(self.fetched_metadata)
 
 

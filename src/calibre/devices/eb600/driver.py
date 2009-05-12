@@ -43,7 +43,7 @@ class EB600(USBMS):
 
     def windows_sort_drives(self, drives):
         main = drives.get('main', None)
-        card = drives.get('card', None)
+        card = drives.get('carda', None)
         if card and main and card < main:
             drives['main'] = card
             drives['carda'] = main

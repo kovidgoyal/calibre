@@ -53,7 +53,7 @@ if plugins is None:
             plugin_path = getattr(pkg_resources, 'resource_filename')('calibre', 'plugins')
             sys.path.insert(0, plugin_path)
 
-        for plugin in ['pictureflow', 'lzx', 'msdes', 'cPalmdoc'] + \
+        for plugin in ['pictureflow', 'lzx', 'msdes', 'podofo', 'cPalmdoc'] + \
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):
             try:
