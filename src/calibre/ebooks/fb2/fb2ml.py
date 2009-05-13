@@ -17,7 +17,6 @@ from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.constants import __appname__, __version__
 
 from BeautifulSoup import BeautifulSoup
-from lxml import etree
 
 TAG_MAP = {
     'b' : 'strong',
