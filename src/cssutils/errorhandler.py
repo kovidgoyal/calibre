@@ -27,7 +27,7 @@ class _ErrorHandler(object):
     """
     handles all errors and log messages
     """
-    def __init__(self, log, defaultloglevel=logging.INFO,
+    def __init__(self, log, defaultloglevel=logging.INFO, 
                  raiseExceptions=True):
         """
         inits log if none given
@@ -51,7 +51,7 @@ class _ErrorHandler(object):
             hdlr.setFormatter(formatter)
             self._log.addHandler(hdlr)
             self._log.setLevel(defaultloglevel)
-
+            
         self.raiseExceptions = raiseExceptions
 
     def __getattr__(self, name):
@@ -86,7 +86,7 @@ class _ErrorHandler(object):
         if error and self.raiseExceptions and not neverraise:
             if isinstance(error, urllib2.HTTPError) or isinstance(error, urllib2.URLError):
                 raise
-            elif issubclass(error, xml.dom.DOMException):
+            elif issubclass(error, xml.dom.DOMException): 
                 error.line = line
                 error.col = col
 #                raise error(msg, line, col)
