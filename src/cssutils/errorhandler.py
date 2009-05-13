@@ -16,7 +16,7 @@ log
 """
 __all__ = ['ErrorHandler']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: errorhandler.py 1560 2008-12-14 16:13:16Z cthedot $'
+__version__ = '$Id: errorhandler.py 1728 2009-05-01 20:35:25Z cthedot $'
 
 from helper import Deprecated
 import logging
@@ -89,9 +89,9 @@ class _ErrorHandler(object):
             elif issubclass(error, xml.dom.DOMException):
                 error.line = line
                 error.col = col
-                raise error(msg)
-            else:
-                raise error(msg)
+#                raise error(msg, line, col)
+#            else:
+            raise error(msg)
         else:
             self._logcall(msg)
 

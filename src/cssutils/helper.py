@@ -68,6 +68,9 @@ def string(value):
                           u'\f', u'\\c ').replace(
                           u'"', u'\\"')
     
+    if value.endswith(u'\\'):
+        value = value[:-1] + u'\\\\'
+
     return u'"%s"' % value
 
 def stringvalue(string):
@@ -77,7 +80,7 @@ def stringvalue(string):
     
         ``'a \'string'`` => ``a 'string``
     """
-    return string.replace('\\'+string[0], string[0])[1:-1]
+    return string.replace(u'\\'+string[0], string[0])[1:-1]
 
 _match_forbidden_in_uri = re.compile(ur'''.*?[\(\)\s\;,'"]''', re.U).match
 def uri(value):

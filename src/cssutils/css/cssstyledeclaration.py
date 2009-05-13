@@ -51,7 +51,7 @@ TODO:
 """
 __all__ = ['CSSStyleDeclaration', 'Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstyledeclaration.py 1658 2009-02-07 18:24:40Z cthedot $'
+__version__ = '$Id: cssstyledeclaration.py 1710 2009-04-18 15:46:20Z cthedot $'
 
 from cssproperties import CSS2Properties
 from property import Property
@@ -613,7 +613,7 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
         except IndexError:
             return u''
 
-    length = property(lambda self: len(self.__nnames()),
+    length = property(lambda self: len(list(self.__nnames())),
         doc="(DOM) The number of distinct properties that have been explicitly "
             "in this declaration block. The range of valid indices is 0 to "
             "length-1 inclusive. These are properties with a different ``name`` "

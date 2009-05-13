@@ -3,7 +3,7 @@
 """cssutils serializer"""
 __all__ = ['CSSSerializer', 'Preferences']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: serialize.py 1606 2009-01-03 20:32:17Z cthedot $'
+__version__ = '$Id: serialize.py 1741 2009-05-09 18:20:20Z cthedot $'
 
 import codecs
 import cssutils
@@ -58,6 +58,9 @@ class Preferences(object):
     keepEmptyRules = False
         defines if empty rules like e.g. ``a {}`` are kept in the resulting
         serialized sheet
+    keepUnkownAtRules = True
+        defines if unknown @rules like e.g. ``@three-dee {}`` are kept in the 
+        serialized sheet
     keepUsedNamespaceRulesOnly = False
         if True only namespace rules which are actually used are kept
         
@@ -82,12 +85,10 @@ class Preferences(object):
     spacer = u' '
         general spacer, used e.g. by CSSUnknownRule
     
-    validOnly = False **DO NOT CHANGE YET**
-        if True only valid (currently Properties) are kept
+    validOnly = False
+        if True only valid (Properties) are output
         
         A Property is valid if it is a known Property with a valid value.
-        Currently CSS 2.1 values as defined in cssproperties.py would be
-        valid. 
     """
     def __init__(self, **initials):
         """Always use named instead of positional parameters."""
@@ -118,6 +119,7 @@ class Preferences(object):
         self.keepAllProperties = True
         self.keepComments = True
         self.keepEmptyRules = False
+        self.keepUnkownAtRules = True
         self.keepUsedNamespaceRulesOnly = False
         self.lineNumbers = False
         self.lineSeparator = u'\n'
@@ -139,6 +141,7 @@ class Preferences(object):
         self.indent = u''
         self.keepComments = False
         self.keepEmptyRules = False
+        self.keepUnkownAtRules = False
         self.keepUsedNamespaceRulesOnly = True
         self.lineNumbers = False
         self.lineSeparator = u''
@@ -563,7 +566,7 @@ class CSSSerializer(object):
         anything until ";" or "{...}"
         + CSSComments
         """
-        if rule.wellformed:
+        if rule.wellformed and self.prefs.keepUnkownAtRules:
             out = Out(self)
             out.append(rule.atkeyword)  
                          
@@ -741,10 +744,11 @@ class CSSSerializer(object):
                         out.append(separator)
                 elif isinstance(val, cssutils.css.Property):
                     # PropertySimilarNameList
-                    out.append(val.cssText)
-                    if not (self.prefs.omitLastSemicolon and i==len(seq)-1):
-                        out.append(u';')
-                    out.append(separator)
+                    if val.cssText:
+                        out.append(val.cssText)
+                        if not (self.prefs.omitLastSemicolon and i==len(seq)-1):
+                            out.append(u';')
+                        out.append(separator)
                 elif isinstance(val, cssutils.css.CSSUnknownRule):
                     # @rule
                     out.append(val.cssText)

@@ -7,7 +7,7 @@ TODO
 """
 __all__ = ['Selector']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: selector.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: selector.py 1741 2009-05-09 18:20:20Z cthedot $'
 
 from cssutils.util import _SimpleNamespaces
 import cssutils
@@ -701,6 +701,14 @@ class Selector(cssutils.util.Base2):
                         u'Selector: Unexpected negation.', token=token)
                     return expected
 
+            def _atkeyword(expected, seq, token, tokenizer=None):
+                "invalidates selector"
+                new['wellformed'] = False
+                self._log.error(
+                        u'Selector: Unexpected ATKEYWORD.', token=token)
+                return expected
+
+
             # expected: only|not or mediatype, mediatype, feature, and
             newseq = self._tempSeq()
             
@@ -727,7 +735,8 @@ class Selector(cssutils.util.Base2):
                              'INCLUDES': _attcombinator,
                              
                              'S': _S,
-                             'COMMENT': _COMMENT})
+                             'COMMENT': _COMMENT,
+                             'ATKEYWORD': _atkeyword})
             wellformed = wellformed and new['wellformed']
 
             # post condition         
