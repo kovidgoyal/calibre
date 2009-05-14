@@ -106,7 +106,7 @@ class FB2MLizer(object):
                 tag_count += 1
                 fb2_text += '<%s>' % fb2_tag
                 tag_stack.append(fb2_tag)
-        
+
             for s in STYLES:
                 style_tag = STYLE_MAP.get(style[s], None)
                 if style_tag:
@@ -115,19 +115,29 @@ class FB2MLizer(object):
                     tag_stack.append(style_tag)
 
             fb2_text += elem.text
+        
+        for item in elem:
+            fb2_text += self.dump_text(item, stylizer, tag_stack)
+
+        close_tags = []
+        for i in range(0, tag_count):
+            close_tags.insert(0, tag_stack.pop())
+            
+        fb2_text += self.close_tags(close_tags)
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             if 'p' not in tag_stack:
                 fb2_text += '<p>%s</p>' % elem.tail
             else:
                 fb2_text += elem.tail
-        
-        for item in elem:
-            fb2_text += self.dump_text(item, stylizer, tag_stack)
-
-        for i in range(0, tag_count):
-            fb2_tag = tag_stack.pop()
-            fb2_text += '</%s>' % fb2_tag
             
+        return fb2_text
+
+    def close_tags(self, tags):
+        fb2_text = u''
+        for i in range(0, len(tags)):
+            fb2_tag = tags.pop()
+            fb2_text += '</%s>' % fb2_tag
+
         return fb2_text
 
