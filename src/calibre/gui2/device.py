@@ -463,15 +463,20 @@ class DeviceGUI(object):
             fmts = [x.strip().lower() for x in fmts.split(',')]
             self.send_by_mail(to, fmts, delete)
 
-    def send_by_mail(self, to, fmts, delete_from_library):
-        rows = self.library_view.selectionModel().selectedRows()
-        if not rows or len(rows) == 0:
+    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None, do_auto_convert=True):
+        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
+        if not ids or len(ids) == 0:
             return
-        ids = iter(self.library_view.model().id(r) for r in rows)
+        files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
+                                    fmts, paths=True, set_metadata=True,
+                                    exclude_auto=do_auto_convert)
+        if do_auto_convert:
+            ids = list(set(ids).difference(_auto_ids))
+        else:
+            _auto_ids = []
+            
         full_metadata = self.library_view.model().get_metadata(
-                                        rows, full_metadata=True)[-1]
-        files = self.library_view.model().get_preferred_formats(rows,
-                                    fmts, paths=True, set_metadata=True)
+                                        ids, full_metadata=True, rows_are_ids=True)[-1]
         files = [getattr(f, 'name', None) for f in files]
 
         bad, remove_ids, jobnames = [], [], []
@@ -505,6 +510,38 @@ class DeviceGUI(object):
                     Dispatcher(partial(self.emails_sent, remove=remove)),
                     attachments, to_s, subjects, texts, attachment_names)
             self.status_bar.showMessage(_('Sending email to')+' '+to, 3000)
+
+        auto = []
+        if _auto_ids != []:
+            for id in _auto_ids:
+                if specific_format == None:
+                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
+                    formats = formats if formats != None else []
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(fmts).intersection(available_output_formats())) != []:
+                        auto.append(id)
+                    else:
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+                else:
+                    if specific_format in available_output_formats():
+                        auto.append(id)
+                    else:
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+
+        if auto != []:
+            format = None
+            for fmt in fmts:
+                if fmt in list(set(fmts).intersection(set(available_output_formats()))):
+                    format = fmt
+                    break
+            if format is None:
+                bad += auto
+            else:
+                autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
+                d = info_dialog(self, _('No suitable formats'),
+                        _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
+                d.exec_()
+                self.auto_convert_mail(to, delete_from_library, auto, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
@@ -691,7 +728,7 @@ class DeviceGUI(object):
                 d = info_dialog(self, _('No suitable formats'),
                         _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
                 d.exec_()
-                self.auto_convert(_auto_ids, on_card, format)
+                self.auto_convert(auto, on_card, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
