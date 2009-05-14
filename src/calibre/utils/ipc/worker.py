@@ -25,6 +25,9 @@ PARALLEL_FUNCS = {
 
       'gui_convert'     :
         ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
+
+      'read_metadata' :
+      ('calibre.ebooks.metadata.worker', 'read_metadata_', 'notification'),
 }
 
 class Progress(Thread):

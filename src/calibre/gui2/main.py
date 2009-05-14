@@ -676,21 +676,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                           'Select root folder')
         if not root:
             return
-        from calibre.gui2.add import AddRecursive
-        self._add_recursive_thread = AddRecursive(root,
-                                self.library_view.model().db, self.get_metadata,
-                                single, self)
-        self.connect(self._add_recursive_thread, SIGNAL('finished()'),
-                     self._recursive_files_added)
-        self._add_recursive_thread.start()
-
-    def _recursive_files_added(self):
-        self._add_recursive_thread.process_duplicates()
-        if self._add_recursive_thread.number_of_books_added > 0:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
-            self.library_view.model().count_changed()
-        self._add_recursive_thread = None
+        from calibre.gui2.add import Adder
+        self._adder = Adder(self,
+                self.library_view.model().db,
+                Dispatcher(self._files_added))
+        self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, checked):
         '''
@@ -731,10 +721,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         (_('LRF Books'), ['lrf']),
                         (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
                         (_('LIT Books'), ['lit']),
-                        (_('MOBI Books'), ['mobi', 'prc']),
+                        (_('MOBI Books'), ['mobi', 'prc', 'azw']),
                         (_('Text books'), ['txt', 'rtf']),
                         (_('PDF Books'), ['pdf']),
-                        (_('Comics'), ['cbz', 'cbr']),
+                        (_('Comics'), ['cbz', 'cbr', 'cbc']),
                         (_('Archives'), ['zip', 'rar']),
                         ])
         if not books:
@@ -745,39 +735,28 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:
-            on_card = self.stack.currentIndex() == 2
+            on_card = self.stack.currentIndex() >= 2
         if not paths:
             return
-        from calibre.gui2.add import AddFiles
-        self._add_files_thread = AddFiles(paths, self.default_thumbnail,
-                                          self.get_metadata,
-                                          None if to_device else \
-                                          self.library_view.model().db
-                                          )
-        self._add_files_thread.send_to_device = to_device
-        self._add_files_thread.on_card = on_card
-        self._add_files_thread.create_progress_dialog(_('Adding books...'),
-                                                _('Reading metadata...'), self)
-        self.connect(self._add_files_thread, SIGNAL('finished()'),
-                     self._files_added)
-        self._add_files_thread.start()
+        from calibre.gui2.add import Adder
+        self._adder = Adder(self,
+                None if to_device else self.library_view.model().db,
+                Dispatcher(partial(self._files_added, on_card=on_card)))
+        self._adder.add(paths)
 
-    def _files_added(self):
-        t = self._add_files_thread
-        self._add_files_thread = None
-        if not t.canceled:
-            if t.send_to_device:
-                self.upload_books(t.paths,
-                                  list(map(sanitize_file_name, t.names)),
-                                  t.infos, on_card=t.on_card)
-                self.status_bar.showMessage(
-                        _('Uploading books to device.'), 2000)
-            else:
-                t.process_duplicates()
-        if t.number_of_books_added > 0:
-            self.library_view.model().books_added(t.number_of_books_added)
+    def _files_added(self, paths=[], names=[], infos=[], on_card=False):
+        if paths:
+            self.upload_books(paths,
+                                list(map(sanitize_file_name, names)),
+                                infos, on_card=on_card)
+            self.status_bar.showMessage(
+                    _('Uploading books to device.'), 2000)
+        if self._adder.number_of_books_added > 0:
+            self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+
+        self._adder = None
 
 
     ############################################################################
@@ -1401,7 +1380,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.set_message(job.details)
+            self.device_error_dialog.setDetailedText(job.details)
             self.device_error_dialog.show()
 
     def job_exception(self, job):
@@ -1525,8 +1504,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if self.job_manager.has_device_jobs():
                 msg = '<p>'+__appname__ + \
                       _(''' is communicating with the device!<br>
-                      'Quitting may cause corruption on the device.<br>
-                      'Are you sure you want to quit?''')+'</p>'
+                      Quitting may cause corruption on the device.<br>
+                      Are you sure you want to quit?''')+'</p>'
 
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)

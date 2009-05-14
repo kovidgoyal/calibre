@@ -285,6 +285,7 @@ class JobsView(TableView):
         job = self.model().row_to_job(row)
         d = DetailView(self, job)
         d.exec_()
+        d.timer.stop()
 
 
 class FontFamilyModel(QAbstractListModel):

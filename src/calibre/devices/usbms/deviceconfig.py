@@ -12,7 +12,8 @@ class DeviceConfig(object):
 
     @classmethod
     def _config(cls):
-        c = Config('device_drivers_%s' % cls.__class__.__name__, _('settings for device drivers'))
+        klass = cls if isinstance(cls, type) else cls.__class__
+        c = Config('device_drivers_%s' % klass.__name__, _('settings for device drivers'))
         c.add_opt('format_map', default=cls.FORMATS,  help=cls.HELP_MESSAGE)
         return c
 
@@ -33,7 +34,7 @@ class DeviceConfig(object):
     @classmethod
     def settings(cls):
         return cls._config().parse()
-        
+
     def customization_help(cls, gui=False):
         return cls.HELP_MESSAGE
 

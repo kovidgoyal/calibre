@@ -11,7 +11,7 @@ import sys, cPickle
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
 from calibre.gui2 import ResizableDialog, NONE
-from calibre.gui2.convert import GuiRecommendations, save_specifics, \
+from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics, \
         load_specifics
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget

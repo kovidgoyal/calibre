@@ -241,8 +241,13 @@ class MetaInformation(object):
             self.tags += mi.tags
         self.tags = list(set(self.tags))
 
-        if getattr(mi, 'cover_data', None) and mi.cover_data[0] is not None:
-            self.cover_data = mi.cover_data
+        if getattr(mi, 'cover_data', False):
+            other_cover = mi.cover_data[-1]
+            self_cover = self.cover_data[-1] if self.cover_data else ''
+            if not self_cover: self_cover = ''
+            if not other_cover: other_cover = ''
+            if len(other_cover) > len(self_cover):
+                self.cover_data = mi.cover_data
 
         my_comments = getattr(self, 'comments', '')
         other_comments = getattr(mi, 'comments', '')

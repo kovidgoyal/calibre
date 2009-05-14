@@ -9,12 +9,9 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys
-import os
 from struct import pack, unpack
 from cStringIO import StringIO
 from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.mobi.reader import get_metadata
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
 
@@ -116,8 +113,13 @@ class MetadataUpdater(object):
 
     def update(self, mi):
         recs = []
-        from calibre.ebooks.mobi.from_any import config
-        if mi.author_sort and config().parse().prefer_author_sort:
+        try:
+             from calibre.ebooks.conversion.config import load_defaults
+             prefs = load_defaults('mobi_output')
+             pas = prefs.get('prefer_author_sort', False)
+        except:
+            pas = False
+        if mi.author_sort and pas:
             authors = mi.author_sort
             recs.append((100, authors.encode(self.codec, 'replace')))
         elif mi.authors:

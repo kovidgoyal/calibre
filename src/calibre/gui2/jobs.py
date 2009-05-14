@@ -31,8 +31,7 @@ class JobManager(QAbstractTableModel):
 
         self.jobs          = []
         self.add_job       = Dispatcher(self._add_job)
-        self.job_done      = Dispatcher(self._job_done)
-        self.server        = Server(self.job_done)
+        self.server        = Server()
         self.changed_queue = Queue()
 
         self.timer         = QTimer(self)
@@ -98,7 +97,8 @@ class JobManager(QAbstractTableModel):
         try:
             self._update()
         except BaseException:
-            pass
+            import traceback
+            traceback.print_exc()
 
     def _update(self):
         # Update running time
@@ -132,6 +132,8 @@ class JobManager(QAbstractTableModel):
             if needs_reset:
                 self.jobs.sort()
                 self.reset()
+                if job.is_finished:
+                    self.emit(SIGNAL('job_done(int)'), len(self.unfinished_jobs()))
             else:
                 for job in jobs:
                     idx = self.jobs.index(job)
@@ -154,12 +156,6 @@ class JobManager(QAbstractTableModel):
 
     def row_to_job(self, row):
         return self.jobs[row]
-
-    def _job_done(self, job):
-        self.emit(SIGNAL('layoutAboutToBeChanged()'))
-        self.jobs.sort()
-        self.emit(SIGNAL('job_done(int)'), len(self.unfinished_jobs()))
-        self.emit(SIGNAL('layoutChanged()'))
 
     def has_device_jobs(self):
         for job in self.jobs:

@@ -42,7 +42,7 @@ class BaseJob(object):
     def update(self):
         if self.duration is not None:
             self._run_state   = self.FINISHED
-            self.percent = 1
+            self.percent = 100
             if self.killed:
                 self._status_text = _('Stopped')
             else:

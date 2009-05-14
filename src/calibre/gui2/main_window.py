@@ -8,6 +8,7 @@ from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL,\
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
+from calibre import prints
 
 def option_parser(usage='''\
 Usage: %prog [options]
@@ -79,8 +80,8 @@ class MainWindow(QMainWindow):
             sio = StringIO.StringIO()
             traceback.print_exception(type, value, tb, file=sio)
             fe = sio.getvalue()
-            print >>sys.stderr, fe
-            msg = unicode(str(value), 'utf8', 'replace')
+            prints(fe, file=sys.stderr)
+            msg = '<b>%s</b>:'%type.__name__ + unicode(str(value), 'utf8', 'replace')
             error_dialog(self, _('ERROR: Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except:

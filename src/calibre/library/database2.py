@@ -1183,6 +1183,28 @@ class LibraryDatabase2(LibraryDatabase):
             path = path_or_stream
         return run_plugins_on_import(path, format)
 
+    def create_book_entry(self, mi, cover=None, add_duplicates=True):
+        if not add_duplicates and self.has_book(mi):
+            return None
+        series_index = 1 if mi.series_index is None else mi.series_index
+        aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
+        title = mi.title
+        if isinstance(aus, str):
+            aus = aus.decode(preferred_encoding, 'replace')
+        if isinstance(title, str):
+            title = title.decode(preferred_encoding)
+        obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+                            (title, series_index, aus))
+        id = obj.lastrowid
+        self.data.books_added([id], self.conn)
+        self.set_path(id, True)
+        self.conn.commit()
+        self.set_metadata(id, mi)
+        if cover:
+            self.set_cover(id, cover)
+        return id
+
+
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. The result cache is not updated.

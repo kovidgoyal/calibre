@@ -34,18 +34,18 @@ class DeviceJob(BaseJob):
         BaseJob.__init__(self, description, done=done)
         self.func = func
         self.args, self.kwargs = args, kwargs
+        self.exception = None
         self.job_manager = job_manager
-        self.job_manager.add_job(self)
-        self.details = _('No details available.')
+        self._details = _('No details available.')
 
     def start_work(self):
         self.start_time = time.time()
         self.job_manager.changed_queue.put(self)
 
     def job_done(self):
-        self.duration = time.time() - self.start_time()
+        self.duration = time.time() - self.start_time
+        self.percent = 1
         self.job_manager.changed_queue.put(self)
-        self.job_manager.job_done(self)
 
     def report_progress(self, percent, msg=''):
         self.notifications.put((percent, msg))
@@ -57,7 +57,7 @@ class DeviceJob(BaseJob):
             self.result = self.func(*self.args, **self.kwargs)
         except (Exception, SystemExit), err:
             self.failed = True
-            self.details = unicode(err) + '\n\n' + \
+            self._details = unicode(err) + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
         finally:
@@ -65,7 +65,7 @@ class DeviceJob(BaseJob):
 
     @property
     def log_file(self):
-        return cStringIO.StringIO(self.details.encode('utf-8'))
+        return cStringIO.StringIO(self._details.encode('utf-8'))
 
 
 class DeviceManager(Thread):
@@ -230,7 +230,6 @@ class DeviceManager(Thread):
 
     def _view_book(self, path, target):
         f = open(target, 'wb')
-        print self.device
         self.device.get_file(path, f)
         f.close()
         return target
@@ -379,12 +378,12 @@ class DeviceMenu(QMenu):
                     if action.dest == 'main:':
                         action.setEnabled(True)
                     elif action.dest == 'carda:0':
-                        if card_prefix[0] != None:
+                        if card_prefix and card_prefix[0] != None:
                             action.setEnabled(True)
                         else:
                             action.setEnabled(False)
                     elif action.dest == 'cardb:0':
-                        if card_prefix[1] != None:
+                        if card_prefix and card_prefix[1] != None:
                             action.setEnabled(True)
                         else:
                             action.setEnabled(False)
@@ -737,7 +736,7 @@ class DeviceGUI(object):
         '''
         Called once metadata has been uploaded.
         '''
-        if job.exception is not None:
+        if job.failed:
             self.device_job_exception(job)
             return
         cp, fs = job.result
