@@ -1,7 +1,7 @@
 """CSSMediaRule implements DOM Level 2 CSS CSSMediaRule."""
 __all__ = ['CSSMediaRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssmediarule.py 1641 2009-01-13 21:05:37Z cthedot $'
+__version__ = '$Id: cssmediarule.py 1743 2009-05-09 20:33:15Z cthedot $'
 
 import cssrule
 import cssutils
@@ -131,8 +131,15 @@ class CSSMediaRule(cssrule.CSSRule):
                                                mediaendonly=True,
                                                separateEnd=True)
             nonetoken = self._nexttoken(tokenizer, None)
-            if (u'}' != self._tokenvalue(braceOrEOF) and 
-               'EOF' != self._type(braceOrEOF)):
+            if 'EOF' == self._type(braceOrEOF):
+                # HACK!!!
+                # TODO: Not complete, add EOF to rule and } to @media
+                cssrulestokens.append(braceOrEOF)
+                braceOrEOF = ('CHAR', '}', 0, 0)
+                self._log.debug(u'CSSMediaRule: Incomplete, adding "}".', 
+                                token=braceOrEOF, neverraise=True)
+
+            if u'}' != self._tokenvalue(braceOrEOF):
                 self._log.error(u'CSSMediaRule: No "}" found.', 
                                 token=braceOrEOF)
             elif nonetoken:

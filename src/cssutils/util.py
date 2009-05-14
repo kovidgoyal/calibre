@@ -2,7 +2,7 @@
 """
 __all__ = []
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: util.py 1654 2009-02-03 20:16:20Z cthedot $'
+__version__ = '$Id: util.py 1743 2009-05-09 20:33:15Z cthedot $'
 
 from helper import normalize
 from itertools import ifilter
@@ -307,7 +307,6 @@ class Base(_BaseClass):
                      bracket == parant == 0) and typ in endtypes:
                      # mediaqueryendonly with STRING
                     break
-
         if separateEnd:
             # TODO: use this method as generator, then this makes sense
             if resulttokens:

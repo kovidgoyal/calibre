@@ -1,10 +1,9 @@
 """Property is a single CSS property in a CSSStyleDeclaration."""
 __all__ = ['Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: property.py 1664 2009-02-07 22:47:09Z cthedot $'
+__version__ = '$Id: property.py 1685 2009-03-01 18:26:48Z cthedot $'
 
 from cssutils.helper import Deprecated
-from cssutils.profiles import profiles
 from cssvalue import CSSValue
 import cssutils
 import xml.dom
@@ -67,6 +66,7 @@ class Property(cssutils.util.Base):
         self._mediaQuery = _mediaQuery
         self._parent = _parent
 
+        self.__nametoken = None
         self._name = u''
         self._literalname = u''
         if name:
@@ -193,6 +193,7 @@ class Property(cssutils.util.Base):
         # define a token for error logging
         if isinstance(name, list):
             token = name[0]
+            self.__nametoken = token
         else:
             token = None
 
@@ -208,9 +209,9 @@ class Property(cssutils.util.Base):
             self.seqs[0] = newseq
 
 #            # validate
-            if self._name not in profiles.knownnames:
+            if self._name not in cssutils.profile.knownNames:
                 # self.valid = False
-                self._log.warn(u'Property: Unknown Property.',
+                self._log.warn(u'Property: Unknown Property name.',
                                token=token, neverraise=True)
             else:
                 pass
@@ -354,7 +355,7 @@ class Property(cssutils.util.Base):
             # validate priority
             if self._priority not in (u'', u'important'):
                 self._log.error(u'Property: No CSS priority value: %r.' %
-                    self._priority)
+                                self._priority)
 
     priority = property(lambda self: self._priority, _setPriority,
         doc="Priority of this property.")
@@ -362,42 +363,101 @@ class Property(cssutils.util.Base):
     literalpriority = property(lambda self: self._literalpriority,
         doc="Readonly literal (not normalized) priority of this property")
 
-    def validate(self, profile=None):
-        """Validate value against `profile`.
+    def validate(self, profiles=None):
+        """Validate value against `profiles`.
         
-        :param profile:
-            A profile name used for validating. If no `profile` is given
-            ``Property.profiles
+        :param profiles:
+            A list of profile names used for validating. If no `profiles`
+            is given ``cssutils.profile.defaultProfiles`` is used
+            
+        For each of the following cases a message is reported:
+        
+        - INVALID (so the property is known but not valid)
+            ``ERROR    Property: Invalid value for "{PROFILE-1[/PROFILE-2...]"
+            property: ...``
+
+        - VALID but not in given profiles or defaultProfiles
+            ``WARNING    Property: Not valid for profile "{PROFILE-X}" but valid
+            "{PROFILE-Y}" property: ...``
+
+        - VALID in current profile
+            ``DEBUG    Found valid "{PROFILE-1[/PROFILE-2...]" property...``
+
+        - UNKNOWN property
+            ``WARNING    Unknown Property name...`` is issued            
+            
+        so for example::
+        
+            cssutils.log.setLevel(logging.DEBUG)
+            parser = cssutils.CSSParser()
+            s = parser.parseString('''body { 
+                unknown-property: x;
+                color: 4;
+                color: rgba(1,2,3,4);
+                color: red 
+            }''')
+
+            # Log output:
+            
+            WARNING Property: Unknown Property name. [2:9: unknown-property]
+            ERROR   Property: Invalid value for "CSS Color Module Level 3/CSS Level 2.1" property: 4 [3:9: color]
+            DEBUG   Property: Found valid "CSS Color Module Level 3" value: rgba(1, 2, 3, 4) [4:9: color]
+            DEBUG   Property: Found valid "CSS Level 2.1" value: red [5:9: color]
+        
+
+        and when setting an explicit default profile::
+
+            cssutils.profile.defaultProfiles = cssutils.profile.CSS_LEVEL_2
+            s = parser.parseString('''body { 
+                unknown-property: x;
+                color: 4;
+                color: rgba(1,2,3,4);
+                color: red 
+            }''')
+
+            # Log output:
+            
+            WARNING Property: Unknown Property name. [2:9: unknown-property]
+            ERROR   Property: Invalid value for "CSS Color Module Level 3/CSS Level 2.1" property: 4 [3:9: color]
+            WARNING Property: Not valid for profile "CSS Level 2.1" but valid "CSS Color Module Level 3" value: rgba(1, 2, 3, 4)  [4:9: color]
+            DEBUG   Property: Found valid "CSS Level 2.1" value: red [5:9: color]            
         """
         valid = False
         
         if self.name and self.value:
-            if profile is None:
-                usedprofile = cssutils.profiles.defaultprofile
-            else:
-                usedprofile = profile
-            
-            if self.name in profiles.knownnames:
-                valid, validprofiles = profiles.validateWithProfile(self.name,
-                                                                   self.value,
-                                                                   usedprofile)
 
+            if self.name in cssutils.profile.knownNames:
+                # add valid, matching, validprofiles...
+                valid, matching, validprofiles = \
+                    cssutils.profile.validateWithProfile(self.name,
+                                                         self.value,
+                                                         profiles)
+                
                 if not valid:
-                    self._log.error(u'Property: Invalid value for "%s" property: %s: %s'
-                                   % (u'/'.join(validprofiles), 
-                                      self.name, 
+                    self._log.error(u'Property: Invalid value for '
+                                    u'"%s" property: %s'
+                                    % (u'/'.join(validprofiles), self.value),
+                                    token=self.__nametoken,
+                                    neverraise=True)
+                    
+                # TODO: remove logic to profiles!
+                elif valid and not matching:#(profiles and profiles not in validprofiles):
+                    if not profiles:
+                        notvalidprofiles = u'/'.join(cssutils.profile.defaultProfiles)
+                    else:
+                        notvalidprofiles = profiles
+                    self._log.warn(u'Property: Not valid for profile "%s" '
+                                   u'but valid "%s" value: %s '
+                                   % (notvalidprofiles, u'/'.join(validprofiles),
                                       self.value),
+                                   token = self.__nametoken,
                                    neverraise=True)
-                elif valid and (usedprofile and usedprofile not in validprofiles):
-                    self._log.warn(u'Property: Not valid for profile "%s": %s: %s'
-                                   % (usedprofile, self.name, self.value),
-                                   neverraise=True)
+                    valid = False
                                 
-                if valid:
-                    self._log.info(u'Property: Found valid "%s" property: %s: %s'
-                                   % (u'/'.join(validprofiles), 
-                                       self.name, 
-                                       self.value),
+                elif valid:
+                    self._log.debug(u'Property: Found valid "%s" value: %s'
+                                   % (u'/'.join(validprofiles), self.value),
+                                   token = self.__nametoken,
                                    neverraise=True)
                     
         if self._priority not in (u'', u'important'):

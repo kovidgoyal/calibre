@@ -9,6 +9,7 @@ vreme.com
 import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Vreme(BasicNewsRecipe):    
     title                = 'Vreme'
@@ -27,7 +28,7 @@ class Vreme(BasicNewsRecipe):
     language             = _('Serbian')
     lang                 = 'sr-Latn-RS'
     direction            = 'ltr'    
-    extra_css            = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: serif1, serif}' 
+    extra_css            = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} .heading1{font-size: x-large; font-weight: bold} .heading2{font-size: large; font-weight: bold} .toc-heading{font-size: small}' 
     
     html2lrf_options = [
                           '--comment'  , description
@@ -89,9 +90,10 @@ class Vreme(BasicNewsRecipe):
             del item['size']
         soup.html['lang'] = self.lang
         soup.html['dir' ] = self.direction
-        mtag = '<meta http-equiv="Content-Language" content="' + self.lang + '"/>'
-        mtag += '\n<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '"/>'
-        soup.head.insert(0,mtag)    
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
         return soup
                 
     def get_cover_url(self):

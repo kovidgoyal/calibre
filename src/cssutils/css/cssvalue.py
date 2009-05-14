@@ -7,10 +7,9 @@
 """
 __all__ = ['CSSValue', 'CSSPrimitiveValue', 'CSSValueList', 'RGBColor']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssvalue.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: cssvalue.py 1684 2009-03-01 18:26:21Z cthedot $'
 
 from cssutils.prodparser import *
-from cssutils.profiles import profiles
 import cssutils
 import cssutils.helper
 import re
@@ -121,7 +120,8 @@ class CSSValue(cssutils.util._NewBase):
                       # special case IE only expression
                       Prod(name='expression', 
                            match=lambda t, v: t == self._prods.FUNCTION and 
-                                              cssutils.helper.normalize(v) == 'expression(',
+                                              cssutils.helper.normalize(v) in (u'expression(', 
+                                                                               u'alpha('),
                            nextSor=nextSor,
                            toSeq=lambda t, tokens: (ExpressionValue.name, 
                                                     ExpressionValue(cssutils.helper.pushtoken(t, 
@@ -968,7 +968,8 @@ class RGBColor(CSSPrimitiveValue):
     
 
 class ExpressionValue(CSSFunction):
-    """Special IE only CSSFunction which may contain *anything*."""
+    """Special IE only CSSFunction which may contain *anything*.
+    Used for expressions and ``alpha(opacity=100)`` currently"""
     name = u'Expression (IE only)'
     
     def _productiondefinition(self):
