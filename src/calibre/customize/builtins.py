@@ -294,6 +294,7 @@ from calibre.ebooks.pdf.input import PDFInput
 from calibre.ebooks.txt.input import TXTInput
 from calibre.ebooks.lit.input import LITInput
 from calibre.ebooks.fb2.input import FB2Input
+from calibre.ebooks.fb2.output import FB2Output
 from calibre.ebooks.odt.input import ODTInput
 from calibre.ebooks.rtf.input import RTFInput
 from calibre.ebooks.html.input import HTMLInput
@@ -324,7 +325,7 @@ from calibre.devices.bebook.driver import BEBOOK, BEBOOK_MINI
 
 plugins = [HTML2ZIP, EPUBInput, MOBIInput, PDBInput, PDFInput, HTMLInput,
         TXTInput, OEBOutput, TXTOutput, PDFOutput, LITInput, ComicInput,
-        FB2Input, ODTInput, RTFInput, EPUBOutput, RecipeInput, PMLInput,
+        FB2Input, FB2Output, ODTInput, RTFInput, EPUBOutput, RecipeInput, PMLInput,
         PMLOutput, MOBIOutput, PDBOutput, LRFOutput, LITOutput]
 plugins += [PRS500, PRS505, PRS700, CYBOOKG3, KINDLE, KINDLE2, BLACKBERRY,
         EB600, JETBOOK, BEBOOK, BEBOOK_MINI]
