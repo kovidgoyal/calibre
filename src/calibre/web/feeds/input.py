@@ -57,6 +57,8 @@ class RecipeInput(InputFormatPlugin):
 
         ro = recipe(opts, log, self.report_progress)
         ro.download()
+        for key, val in recipe.conversion_options.items():
+            setattr(opts, key, val)
 
         opts.output_profile.flow_size = 0
 
