@@ -6,11 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle
+import os, cPickle, sys
 from multiprocessing.connection import Client
 from threading import Thread
-from queue import Queue
+from Queue import Queue
 from contextlib import closing
+from binascii import unhexlify
 
 PARALLEL_FUNCS = {
       'lrfviewer'    :
@@ -29,8 +30,8 @@ PARALLEL_FUNCS = {
 class Progress(Thread):
 
     def __init__(self, conn):
-        self.daemon = True
         Thread.__init__(self)
+        self.daemon = True
         self.conn = conn
         self.queue = Queue()
 
@@ -56,8 +57,9 @@ def get_func(name):
     return func, notification
 
 def main():
-    address = cPickle.loads(os.environ['CALIBRE_WORKER_ADDRESS'])
-    key     = os.environ['CALIBRE_WORKER_KEY']
+    address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
+    key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
+    resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])
     with closing(Client(address, authkey=key)) as conn:
         name, args, kwargs = conn.recv()
         func, notification = get_func(name)
@@ -66,13 +68,17 @@ def main():
             kwargs[notification] = notifier
             notifier.start()
 
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
+        if result is not None:
+            cPickle.dump(result, open(resultf, 'wb'), -1)
 
         notifier.queue.put(None)
 
+    sys.stdout.flush()
+    sys.stderr.flush()
     return 0
 
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    sys.exit(main())

@@ -13,7 +13,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    iswindows, isosx
+                    iswindows, isosx, prints
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
@@ -32,10 +32,9 @@ from calibre.gui2.main_window import MainWindow, option_parser as _option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
 from calibre.gui2.status import StatusBar
-from calibre.gui2.jobs2 import JobManager
+from calibre.gui2.jobs import JobManager, JobsDialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
-from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
     fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
@@ -44,7 +43,6 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
-from calibre.parallel import JobKilled
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SaveMenu(QMenu):
@@ -626,9 +624,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once device information has been read.
         '''
-        if job.exception is not None:
-            self.device_job_exception(job)
-            return
+        if job.failed:
+            return self.device_job_exception(job)
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
         self.device_info = _('Connected ')+info[0]
@@ -641,7 +638,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once metadata has been read for all books on the device.
         '''
-        if job.exception is not None:
+        if job.failed:
             if isinstance(job.exception, ExpatError):
                 error_dialog(self, _('Device database corrupted'),
                 _('''
@@ -823,8 +820,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Called once deletion is done on the device
         '''
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
-            view.model().deletion_done(job, bool(job.exception))
-        if job.exception is not None:
+            view.model().deletion_done(job, job.failed)
+        if job.failed:
             self.device_job_exception(job)
             return
 
@@ -993,9 +990,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             progress.hide()
 
     def books_saved(self, job):
-        if job.exception is not None:
-            self.device_job_exception(job)
-            return
+        if job.failed:
+            return self.device_job_exception(job)
 
     ############################################################################
 
@@ -1013,9 +1009,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, recipe, callback = self.conversion_jobs.pop(job)
         pt = temp_files[0]
-        if job.exception is not None:
-            self.job_exception(job)
-            return
+        if job.failed:
+            return self.job_exception(job)
         id = self.library_view.model().add_news(pt.name, recipe)
         self.library_view.model().reset()
         sync = dynamic.get('news_to_be_synced', set([]))
@@ -1098,9 +1093,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def book_auto_converted(self, job):
         temp_files, fmt, book_id, on_card = self.conversion_jobs.pop(job)
         try:
-            if job.exception is not None:
-                self.job_exception(job)
-                return
+            if job.failed:
+                return self.job_exception(job)
             data = open(temp_files[0].name, 'rb')
             self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
             data.close()
@@ -1122,7 +1116,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
         try:
-            if job.exception is not None:
+            if job.failed:
                 self.job_exception(job)
                 return
             data = open(temp_files[-1].name, 'rb')
@@ -1151,7 +1145,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._view_file(fmt_path)
 
     def book_downloaded_for_viewing(self, job):
-        if job.exception:
+        if job.failed:
             self.device_job_exception(job)
             return
         self._view_file(job.result)
@@ -1165,12 +1159,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     args.append('--raise-window')
                 if name is not None:
                     args.append(name)
-                self.job_manager.server.run_free_job(viewer,
-                        kwdargs=dict(args=args))
+                self.job_manager.launch_gui_app(viewer,
+                        kwargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl.fromLocalFile(name))#launch(name)
-
-            time.sleep(5) # User feedback
+                time.sleep(2) # User feedback
         finally:
             self.unsetCursor()
 
@@ -1395,7 +1388,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         try:
             if 'Could not read 32 bytes on the control bus.' in \
-                    unicode(job.exception):
+                    unicode(job.details):
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
@@ -1404,16 +1397,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         except:
             pass
         try:
-            print >>sys.stderr, job.console_text()
+            prints(job.details, file=sys.stderr)
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.set_message(job.gui_text())
+            self.device_error_dialog.set_message(job.details)
             self.device_error_dialog.show()
 
     def job_exception(self, job):
         try:
-            if job.exception[0] == 'DRMError':
+            if 'calibre.ebooks.DRMError' in job.details:
                 error_dialog(self, _('Conversion Error'),
                     _('<p>Could not convert: %s<p>It is a '
                       '<a href="%s">DRM</a>ed book. You must first remove the '
@@ -1423,23 +1416,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
         except:
             pass
-        only_msg = getattr(job.exception, 'only_msg', False)
+        if job.killed:
+            return
         try:
-            print job.console_text()
+            prints(job.details, file=sys.stderr)
         except:
             pass
-        if only_msg:
-            try:
-                exc = unicode(job.exception)
-            except:
-                exc = repr(job.exception)
-            error_dialog(self, _('Conversion Error'), exc).exec_()
-            return
-        if isinstance(job.exception, JobKilled):
-            return
         error_dialog(self, _('Conversion Error'),
-                _('Failed to process')+': '+unicode(job.description),
-                det_msg=job.console_text()).exec_()
+                _('<b>Failed</b>')+': '+unicode(job.description),
+                det_msg=job.details).exec_()
 
 
     def initialize_database(self):
@@ -1555,7 +1540,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def shutdown(self, write_settings=True):
         if write_settings:
             self.write_settings()
-        self.job_manager.terminate_all_jobs()
+        self.job_manager.server.close()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()

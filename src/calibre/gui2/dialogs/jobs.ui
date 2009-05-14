@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>JobsDialog</class>
- <widget class="QDialog" name="JobsDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="JobsDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,31 +10,32 @@
     <height>542</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Active Jobs</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/jobs.svg</iconset>
+  <property name="windowIcon">
+   <iconset resource="../images.qrc">
+    <normaloff>:/images/jobs.svg</normaloff>:/images/jobs.svg</iconset>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="JobsView" name="jobs_view" >
-     <property name="contextMenuPolicy" >
+    <widget class="JobsView" name="jobs_view">
+     <property name="contextMenuPolicy">
       <enum>Qt::NoContextMenu</enum>
      </property>
-     <property name="editTriggers" >
+     <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
-     <property name="alternatingRowColors" >
+     <property name="alternatingRowColors">
       <bool>true</bool>
      </property>
-     <property name="selectionMode" >
+     <property name="selectionMode">
       <enum>QAbstractItemView::SingleSelection</enum>
      </property>
-     <property name="selectionBehavior" >
+     <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
-     <property name="iconSize" >
+     <property name="iconSize">
       <size>
        <width>32</width>
        <height>32</height>
@@ -42,9 +44,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="kill_button" >
-     <property name="text" >
+    <widget class="QPushButton" name="kill_button">
+     <property name="text">
       <string>&amp;Stop selected job</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="details_button">
+     <property name="text">
+      <string>Show job &amp;details</string>
      </property>
     </widget>
    </item>
@@ -58,7 +67,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../images.qrc"/>
  </resources>
  <connections/>
 </ui>

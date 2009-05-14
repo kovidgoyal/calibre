@@ -12,7 +12,13 @@ from lxml import etree
 from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML
-XPath = lambda x: etree.XPath(x, namespaces=XPNSMAP)
+from calibre.ebooks import ConversionError
+def XPath(x):
+    try:
+        return etree.XPath(x, namespaces=XPNSMAP)
+    except etree.XPathSyntaxError:
+        raise ConversionError(
+        'The syntax of the XPath expression %s is invalid.' % repr(x))
 
 class DetectStructure(object):
 

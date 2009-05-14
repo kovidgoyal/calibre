@@ -96,8 +96,12 @@ def iterlinks(root):
 
     for el in root.iter():
         attribs = el.attrib
+        try:
+            tag = el.tag
+        except UnicodeDecodeError:
+            continue
 
-        if el.tag == XHTML('object'):
+        if tag == XHTML('object'):
             codebase = None
             ## <object> tags have attributes that are relative to
             ## codebase
@@ -122,7 +126,7 @@ def iterlinks(root):
                     yield (el, attr, attribs[attr], 0)
 
 
-        if el.tag == XHTML('style') and el.text:
+        if tag == XHTML('style') and el.text:
             for match in _css_url_re.finditer(el.text):
                 yield (el, None, match.group(1), match.start(1))
             for match in _css_import_re.finditer(el.text):
@@ -801,6 +805,11 @@ class Manifest(object):
                 self.oeb.logger.warn(
                     'File %r missing <body/> element' % self.href)
                 etree.SubElement(data, XHTML('body'))
+
+            # Remove microsoft office markup
+            r = [x for x in data.iterdescendants(etree.Element) if 'microsoft-com' in x.tag]
+            for x in r:
+                x.tag = XHTML('span')
             return data
 
         def _parse_css(self, data):

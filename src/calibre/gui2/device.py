@@ -1,7 +1,7 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, traceback, Queue, time, socket
+import os, traceback, Queue, time, socket, cStringIO
 from threading import Thread, RLock
 from itertools import repeat
 from functools import partial
@@ -15,7 +15,7 @@ from calibre.customize.ui import available_input_formats, available_output_forma
 from calibre.devices.interface import DevicePlugin
 from calibre.constants import iswindows
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
-from calibre.parallel import Job
+from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
@@ -27,21 +27,45 @@ from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 
-class DeviceJob(Job):
+class DeviceJob(BaseJob):
 
-    def __init__(self, func, *args, **kwargs):
-        Job.__init__(self, *args, **kwargs)
+    def __init__(self, func, done, job_manager, args=[], kwargs={},
+            description=''):
+        BaseJob.__init__(self, description, done=done)
         self.func = func
+        self.args, self.kwargs = args, kwargs
+        self.job_manager = job_manager
+        self.job_manager.add_job(self)
+        self.details = _('No details available.')
+
+    def start_work(self):
+        self.start_time = time.time()
+        self.job_manager.changed_queue.put(self)
+
+    def job_done(self):
+        self.duration = time.time() - self.start_time()
+        self.job_manager.changed_queue.put(self)
+        self.job_manager.job_done(self)
+
+    def report_progress(self, percent, msg=''):
+        self.notifications.put((percent, msg))
+        self.job_manager.changed_queue.put(self)
 
     def run(self):
         self.start_work()
         try:
             self.result = self.func(*self.args, **self.kwargs)
         except (Exception, SystemExit), err:
+            self.failed = True
+            self.details = unicode(err) + '\n\n' + \
+                traceback.format_exc()
             self.exception = err
-            self.traceback = traceback.format_exc()
         finally:
             self.job_done()
+
+    @property
+    def log_file(self):
+        return cStringIO.StringIO(self.details.encode('utf-8'))
 
 
 class DeviceManager(Thread):
@@ -113,7 +137,7 @@ class DeviceManager(Thread):
                 job = self.next()
                 if job is not None:
                     self.current_job = job
-                    self.device.set_progress_reporter(job.update_status)
+                    self.device.set_progress_reporter(job.report_progress)
                     self.current_job.run()
                     self.current_job = None
                 else:

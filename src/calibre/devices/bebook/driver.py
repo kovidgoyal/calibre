@@ -18,9 +18,9 @@ class BEBOOK(USBMS):
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0x8803, 0x6803]
-    BCD		= [0x312]
+    BCD         = [0x312]
 
-    VENDOR_NAME = 'LINUX'
+    VENDOR_NAME      = 'LINUX'
     WINDOWS_MAIN_MEM = 'FILE-STOR_GADGET'
     WINDOWS_CARD_MEM = 'FILE-STOR_GADGET'
 
@@ -51,7 +51,7 @@ class BEBOOK_MINI(BEBOOK):
 
     VENDOR_ID	= [0x0492]
     PRODUCT_ID	= [0x8813]
-    BCD		= [0x319]
+    BCD         = [0x319]
 
     OSX_MAIN_MEM = 'BeBook Mini Internal Memory'
     OSX_CARD_MEM = 'BeBook Mini Storage Card'

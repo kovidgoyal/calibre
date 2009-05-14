@@ -176,7 +176,7 @@ class Widget(QWidget):
         elif isinstance(g, QCheckBox):
             return bool(g.isChecked())
         elif isinstance(g, XPathEdit):
-            return g.xpath
+            return g.xpath if g.xpath else None
         else:
             raise Exception('Can\'t get value from %s'%type(g))
 

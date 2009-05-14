@@ -189,6 +189,8 @@ class Config(ResizableDialog, Ui_Dialog):
 
     def setup_input_output_formats(self, db, book_id, preferred_input_format,
             preferred_output_format):
+        if preferred_output_format:
+            preferred_output_format = preferred_output_format.lower()
         available_formats = db.formats(book_id, index_is_id=True)
         if not available_formats:
             available_formats = ''

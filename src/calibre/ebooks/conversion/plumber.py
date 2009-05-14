@@ -668,6 +668,7 @@ OptionRecommendation(name='list_recipes',
         self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
         self.ui_reporter(1.)
+        self.log(self.output_fmt.upper(), 'output written to', self.output)
 
 def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None):
     '''

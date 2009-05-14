@@ -86,7 +86,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
             self.source_code.setPlainText('')
         else:
             self.source_code.setPlainText(src)
-            #self.highlighter = PythonHighlighter(self.source_code.document())
+            self.highlighter = PythonHighlighter(self.source_code.document())
             self.stacks.setCurrentIndex(1)
             self.toggle_mode_button.setText(_('Switch to Basic mode'))
 
