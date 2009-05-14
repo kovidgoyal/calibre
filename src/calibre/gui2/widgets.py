@@ -176,8 +176,8 @@ class LocationModel(QAbstractListModel):
                          _('Click to see the list of books on storage card B in your reader')
                          ]
 
-    def rowCount(self, parent):
-        return 1 + sum([1 for i in self.free if i >= 0])
+    def rowCount(self, *args):
+        return 1 + len([i for i in self.free if i >= 0])
 
     def data(self, index, role):
         row = index.row()

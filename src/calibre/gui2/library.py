@@ -723,9 +723,6 @@ class BooksView(TableView):
 
     def close(self):
         self._model.close()
-        
-    def set_editable(self, editable):
-        self._model.set_editable(editable)
 
     def set_editable(self, editable):
         self._model.set_editable(editable)
@@ -1019,10 +1016,6 @@ class DeviceBooksModel(BooksModel):
                 self.sort(col, self.sorted_on[1])
             done = True
         return done
-        
-    def set_editable(self, editable):
-        self.editable = editable
-        
 
     def set_editable(self, editable):
         self.editable = editable

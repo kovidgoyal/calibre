@@ -200,17 +200,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"),
                 self.edit_metadata)
+        self.__em1__ = partial(self.edit_metadata, bulk=False)
         QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'),
-                partial(self.edit_metadata, bulk=False))
+                self.__em1__)
+        self.__em2__ = partial(self.edit_metadata, bulk=True)
         QObject.connect(md.actions()[2], SIGNAL('triggered(bool)'),
-                partial(self.edit_metadata, bulk=True))
+                self.__em2__)
+        self.__em3__ = partial(self.download_metadata, covers=True)
         QObject.connect(md.actions()[4], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=True))
+                self.__em3__)
+        self.__em4__ = partial(self.download_metadata, covers=False)
         QObject.connect(md.actions()[5], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=False))
+                self.__em4__)
+        self.__em5__ = partial(self.download_metadata, covers=True,
+                    set_metadata=False)
         QObject.connect(md.actions()[6], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=True,
-                    set_metadata=False))
+                self.__em5__)
 
 
 
@@ -739,9 +744,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if not paths:
             return
         from calibre.gui2.add import Adder
+        self.__adder_func = partial(self._files_added, on_card=on_card)
         self._adder = Adder(self,
                 None if to_device else self.library_view.model().db,
-                Dispatcher(partial(self._files_added, on_card=on_card)))
+                Dispatcher(self.__adder_func))
         self._adder.add(paths)
 
     def _files_added(self, paths=[], names=[], infos=[], on_card=False):

@@ -494,7 +494,7 @@ class DeviceGUI(object):
         full_metadata = self.library_view.model().get_metadata(
                                         rows, full_metadata=True)[-1]
         files = self.library_view.model().get_preferred_formats(rows,
-                                    fmts, paths=True, set_metadata=True)
+                                    fmts, paths=True, set_metadata=True)[0]
         files = [getattr(f, 'name', None) for f in files]
 
         bad, remove_ids, jobnames = [], [], []
