@@ -5,4 +5,3 @@
 
 * Replace single application stuff with Listener from multiprocessing
 
-* Fix HTML-to-ZIP plugin

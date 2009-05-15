@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, os
+import textwrap, os, glob
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
 from calibre.constants import __version__
 
@@ -20,9 +20,20 @@ every time you add an HTML file to the library.\
     on_import = True
 
     def run(self, htmlfile):
-        of = self.temporary_file('_plugin_html2zip.zip')
-        from calibre.ebooks.html import gui_main as html2oeb
-        html2oeb(htmlfile, of)
+        from calibre.ptempfile import TemporaryDirectory
+        from calibre.gui2.convert.gui_conversion import gui_convert
+        from calibre.customize.conversion import OptionRecommendation
+        from calibre.ebooks.epub import initialize_container
+
+        with TemporaryDirectory('_plugin_html2zip') as tdir:
+            gui_convert(htmlfile, tdir, [('debug_input', tdir,
+                OptionRecommendation.HIGH)])
+            of = self.temporary_file('_plugin_html2zip.zip')
+            opf = glob.glob(os.path.join(tdir, '*.opf'))[0]
+            epub = initialize_container(of.name, os.path.basename(opf))
+            epub.add_dir(tdir)
+            epub.close()
+
         return of.name
 
 class OPFMetadataReader(MetadataReaderPlugin):

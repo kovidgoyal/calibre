@@ -90,7 +90,7 @@ class Adder(QObject):
     def add_formats(self, id, formats):
         for path in formats:
             fmt = os.path.splitext(path)[-1].replace('.', '').upper()
-            self.db.add_format(id, fmt, open(path, 'rb'), index_is_id=True,
+            self.db.add_format_with_hooks(id, fmt, path, index_is_id=True,
                     notify=False)
 
     def canceled(self):
