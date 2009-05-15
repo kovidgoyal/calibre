@@ -506,6 +506,9 @@ class OPF(object):
             else:
                 self.path_to_html_toc, self.html_toc_fragment = \
                     toc.partition('#')[0], toc.partition('#')[-1]
+                if not os.access(self.path_to_html_toc, os.R_OK) or \
+                        not os.path.isfile(self.path_to_html_toc):
+                    self.path_to_html_toc = None
                 self.toc.read_html_toc(toc)
         except:
             pass
