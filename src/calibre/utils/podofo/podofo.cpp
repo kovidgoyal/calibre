@@ -6,8 +6,6 @@
 #include <podofo.h>
 using namespace PoDoFo;
 
-#include <string.h>
-
 class podofo_pdfmem_wrapper : public PdfMemDocument {
     public:
         inline void set_info(PdfInfo *i) { this->SetInfo(i); }

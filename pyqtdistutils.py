@@ -144,7 +144,7 @@ CONFIG   += x86 ppc
                 return _build_ext.build_extension(self, ext)
 
             c_sources = [f for f in ext.sources if os.path.splitext(f)[1].lower() in ('.c', '.cpp', '.cxx')]
-            compile_args = '/c /nologo /Ox /MD /W3 /GX /DNDEBUG'.split()
+            compile_args = '/c /nologo /Ox /MD /W3 /EHsc /DNDEBUG'.split()
             compile_args += ext.extra_compile_args
             self.swig_opts = ''
             inc_dirs = self.include_dirs + [x.replace('/', '\\') for x in ext.include_dirs]
@@ -153,11 +153,12 @@ CONFIG   += x86 ppc
             for f in c_sources:
                 o = os.path.join(bdir, os.path.basename(f)+'.obj')
                 objects.append(o)
-                compiler =  cc + ['/Tc'+f, '/Fo'+o]
+                inf = '/Tp' if f.endswith('.cpp') else '/Tc'
+                compiler =  cc + [inf+f, '/Fo'+o]
                 self.spawn(compiler)
             out = os.path.join(bdir, base+'.pyd')
             linker = [msvc.linker] + '/DLL /nologo /INCREMENTAL:NO'.split()
-            linker += ['/LIBPATH:'+x for x in self.library_dirs]
+            linker += ['/LIBPATH:'+x for x in self.library_dirs+ext.library_dirs]
             linker += [x+'.lib' for x in ext.libraries]
             linker += ['/EXPORT:init'+base] + objects + ['/OUT:'+out]
             self.spawn(linker)
