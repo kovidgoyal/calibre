@@ -387,6 +387,8 @@ class MetadataField(object):
                 ans = self.formatter(ans)
             except:
                 return None
+        if hasattr(ans, 'strip'):
+            ans = ans.strip()
         return ans
 
     def __get__(self, obj, type=None):

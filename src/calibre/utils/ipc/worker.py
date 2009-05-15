@@ -65,6 +65,8 @@ def main():
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])
     with closing(Client(address, authkey=key)) as conn:
         name, args, kwargs = conn.recv()
+        #print (name, args, kwargs)
+        #sys.stdout.flush()
         func, notification = get_func(name)
         notifier = Progress(conn)
         if notification:

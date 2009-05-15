@@ -166,8 +166,8 @@ class Server(Thread):
             if len(self.pool) + len(self.workers) < self.pool_size:
                 try:
                     self.pool.append(self.launch_worker())
-                except:
-                    break
+                except Exception, err:
+                    pass
 
             if len(self.pool) > 0 and len(self.waiting_jobs) > 0:
                 job = self.waiting_jobs.pop()

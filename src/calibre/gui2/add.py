@@ -2,12 +2,12 @@
 UI for adding books to the database
 '''
 import os
-from threading import Queue, Empty
+from Queue import Queue, Empty
 
-from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer
+from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer, Qt
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import warning_dialog
+from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding
@@ -17,11 +17,13 @@ class RecursiveFind(QThread):
     def __init__(self, parent, db, root, single):
         QThread.__init__(self, parent)
         self.db = db
-        self.path = root, self.single_book_per_directory = single
+        self.path = root
+        self.single_book_per_directory = single
         self.canceled = False
 
     def run(self):
         root = os.path.abspath(self.path)
+        self.books = []
         for dirpath in os.walk(root):
             if self.canceled:
                 return
@@ -47,6 +49,7 @@ class Adder(QObject):
         self.number_of_books_added = 0
         self.rfind = self.worker = self.timer = None
         self.callback = callback
+        self.callback_called = False
         self.infos, self.paths, self.names = [], [], []
         self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
 
@@ -58,9 +61,10 @@ class Adder(QObject):
         self.pd.value = 0
         self.rfind = RecursiveFind(self, self.db, root, single)
         self.connect(self.rfind, SIGNAL('update(PyQt_PyObject)'),
-                self.pd.set_msg)
+                self.pd.set_msg, Qt.QueuedConnection)
         self.connect(self.rfind, SIGNAL('found(PyQt_PyObject)'),
-                self.add)
+                self.add, Qt.QueuedConnection)
+        self.rfind.start()
 
     def add(self, books):
         books = [[b] if isinstance(b, basestring) else b for b in books]
@@ -71,10 +75,10 @@ class Adder(QObject):
         self.ids = {}
         self.nmap = {}
         self.duplicates = []
-        for i, b in books:
+        for i, b in enumerate(books):
             tasks.append((i, b))
             self.ids[i] = b
-            self.nmap = os.path.basename(b[0])
+            self.nmap[i] = os.path.basename(b[0])
         self.worker = read_metadata(tasks, self.rq)
         self.pd.set_min(0)
         self.pd.set_max(len(self.ids))
@@ -97,6 +101,10 @@ class Adder(QObject):
         if self.worker is not None:
             self.worker.canceled = True
         self.pd.hide()
+        if not self.callback_called:
+            self.callback(self.paths, self.names, self.infos)
+            self.callback_called = True
+
 
 
     def update(self):
@@ -104,7 +112,9 @@ class Adder(QObject):
             self.timer.stop()
             self.process_duplicates()
             self.pd.hide()
-            self.callback(self.paths, self.names, self.infos)
+            if not self.callback_called:
+               self.callback(self.paths, self.names, self.infos)
+               self.callback_called = True
             return
 
         try:
@@ -139,15 +149,16 @@ class Adder(QObject):
                            'tags':mi.tags if mi.tags else []})
 
     def process_duplicates(self):
+        if not self.duplicates:
+            return
         files = [x[0].title for x in self.duplicates]
-        d = warning_dialog(_('Duplicates found!'),
+        if question_dialog(self._parent, _('Duplicates found!'),
                         _('Books with the same title as the following already '
                         'exist in the database. Add them anyway?'),
-                            '\n'.join(files), parent=self._parent)
-        if d.exec_() == d.Accepted:
+                        '\n'.join(files)):
             for mi, cover, formats in self.duplicates:
                 id = self.db.create_book_entry(mi, cover=cover,
-                        add_duplicates=False)
+                        add_duplicates=True)
                 self.add_formats(id, formats)
                 self.number_of_books_added += 1
 

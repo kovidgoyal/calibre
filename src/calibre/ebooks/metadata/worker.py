@@ -8,12 +8,17 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Thread
 from Queue import Empty
-import os, time
+import os, time, sys
 
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import prints
+
+
+def debug(*args):
+    prints(*args)
+    sys.stdout.flush()
 
 def read_metadata_(task, tdir, notification=lambda x,y:x):
     from calibre.ebooks.metadata.meta import metadata_from_formats
@@ -44,7 +49,7 @@ class Progress(object):
     def __call__(self, id):
         cover = os.path.join(self.tdir, str(id))
         if not os.path.exists(cover): cover = None
-        self.result_queue.put((id, os.path.join(self.tdir, id+'.opf'), cover))
+        self.result_queue.put((id, os.path.join(self.tdir, '%s.opf'%id), cover))
 
 class ReadMetadata(Thread):
 
@@ -57,7 +62,10 @@ class ReadMetadata(Thread):
 
 
     def run(self):
-        jobs, ids = set([]), set([id for id, p in self.tasks])
+        jobs, ids = set([]), set([])
+        for t in self.tasks:
+            for b in t:
+                ids.add(b[0])
         progress = Progress(self.result_queue, self.tdir)
         server = Server()
         for i, task in enumerate(self.tasks):
@@ -74,22 +82,26 @@ class ReadMetadata(Thread):
                 while True:
                     try:
                         id = job.notifications.get_nowait()[-1]
-                        progress(id)
-                        ids.remove(id)
+                        if id in ids:
+                            progress(id)
+                            ids.remove(id)
                     except Empty:
                         break
                 job.update()
                 if not job.is_finished:
                     running = True
+
             if not running:
                 break
 
+        server.close()
+        time.sleep(1)
+
         if self.canceled:
-            server.close()
-            time.sleep(1)
             return
 
         for id in ids:
+            print 11111111, id
             progress(id)
 
         for job in jobs:
@@ -99,9 +111,8 @@ class ReadMetadata(Thread):
                 os.remove(job.log_path)
 
 
-def read_metadata(paths, result_queue):
+def read_metadata(paths, result_queue, chunk=50):
     tasks = []
-    chunk = 50
     pos = 0
     while pos < len(paths):
         tasks.append(paths[pos:pos+chunk])
