@@ -1062,7 +1062,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, previous)
 
-    def auto_convert_mail(self, to, delete_from_library, book_ids, format):
+    def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format):
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
@@ -1073,7 +1073,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 job = self.job_manager.run_job(Dispatcher(self.book_auto_converted_mail),
                                         func, args=args, description=desc)
                 self.conversion_jobs[job] = (temp_files, fmt, id,
-                        delete_from_library, to)
+                        delete_from_library, to, fmts)
 
         if changed:
             self.library_view.model().refresh_rows(rows)
@@ -1152,7 +1152,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_auto_converted_mail(self, job):
-        temp_files, fmt, book_id, delete_from_library, to = self.conversion_jobs.pop(job)
+        temp_files, fmt, book_id, delete_from_library, to, fmts = self.conversion_jobs.pop(job)
         try:
             if job.failed:
                 self.job_exception(job)
@@ -1173,7 +1173,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, QModelIndex())
 
-        self.send_by_mail(to, fmt, delete_from_library, send_ids=[book_id], do_auto_convert=False)
+        self.send_by_mail(to, fmts, delete_from_library, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
