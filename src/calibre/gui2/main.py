@@ -1010,17 +1010,35 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Convert ####################################
 
-    def auto_convert(self, row_ids, on_card, format):
+    def auto_convert(self, book_ids, on_card, format):
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, row_ids, True, format)
+        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, book_ids, True, format)
         if jobs == []: return
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_auto_converted),
                                         func, args=args, description=desc)
                 self.conversion_jobs[job] = (temp_files, fmt, id, on_card)
+
+        if changed:
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
+
+    def auto_convert_mail(self, to, delete_from_library, book_ids, format):
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, book_ids, True, format)
+        if jobs == []: return
+        for func, args, desc, fmt, id, temp_files in jobs:
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_auto_converted_mail),
+                                        func, args=args, description=desc)
+                self.conversion_jobs[job] = (temp_files, fmt, id,
+                        delete_from_library, to)
 
         if changed:
             self.library_view.model().refresh_rows(rows)
@@ -1038,13 +1056,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         return [self.library_view.model().db.id(r) for r in rows]
 
     def convert_bulk(self, checked):
-        row_ids = self.get_books_for_conversion()
-        if row_ids is None: return
+        book_ids = self.get_books_for_conversion()
+        if book_ids is None: return
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_bulk_ebook(self,
-                self.library_view.model().db, row_ids, out_format=prefs['output_format'])
+                self.library_view.model().db, book_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_converted),
@@ -1057,13 +1075,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().current_changed(current, previous)
 
     def convert_single(self, checked):
-        row_ids = self.get_books_for_conversion()
-        if row_ids is None: return
+        book_ids = self.get_books_for_conversion()
+        if book_ids is None: return
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self,
-                self.library_view.model().db, row_ids, out_format=prefs['output_format'])
+                self.library_view.model().db, book_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_converted),
@@ -1097,6 +1115,30 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().current_changed(current, QModelIndex())
 
         self.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
+
+    def book_auto_converted_mail(self, job):
+        temp_files, fmt, book_id, delete_from_library, to = self.conversion_jobs.pop(job)
+        try:
+            if job.failed:
+                self.job_exception(job)
+                return
+            data = open(temp_files[0].name, 'rb')
+            self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+            data.close()
+            self.status_bar.showMessage(job.description + (' completed'), 2000)
+        finally:
+            for f in temp_files:
+                try:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+                except:
+                    pass
+        self.tags_view.recount()
+        if self.current_view() is self.library_view:
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, QModelIndex())
+
+        self.send_by_mail(to, fmt, delete_from_library, send_ids=[book_id], do_auto_convert=False)
 
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)

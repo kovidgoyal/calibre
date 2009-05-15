@@ -119,11 +119,11 @@ class FB2MLizer(object):
         for item in elem:
             fb2_text += self.dump_text(item, stylizer, tag_stack)
 
-        close_tags = []
+        close_tag_list = []
         for i in range(0, tag_count):
-            close_tags.insert(0, tag_stack.pop())
+            close_tag_list.insert(0, tag_stack.pop())
             
-        fb2_text += self.close_tags(close_tags)
+        fb2_text += self.close_tags(close_tag_list)
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             if 'p' not in tag_stack:
