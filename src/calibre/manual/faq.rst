@@ -17,39 +17,11 @@ E-book Format Conversion
 
 What formats does |app| support conversion to/from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| supports the conversion of the following formats:
+|app| supports the conversion of many input formats to many output formats.
+It can convert every input format in the following list, to every output format.
 
-+----------------------------+------------------------------------------------------------------+
-|                            |          **Output formats**                                      |
-|                            +------------------+-----------------------+-----------------------+
-|                            |      EPUB        |         LRF           |         MOBI          |
-+===================+========+==================+=======================+=======================+
-|                   |  MOBI  |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  LIT   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  PRC** |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  EPUB  |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  ODT   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  FB2   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  HTML  |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-| **Input formats** |  CBR   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  CBZ   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  RTF   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  TXT   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  PDF   |       ✔          |          ✔            |          ✔            | 
-|                   |        |                  |                       |                       |
-|                   |  LRS   |                  |          ✔            |                       |
-+-------------------+--------+------------------+-----------------------+-----------------------+
+*Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, MOBI, ODT, PDF, PRC**, RTF, TXT
+*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PDF, TXT
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
 
@@ -64,7 +36,7 @@ The PDF conversion tries to extract the text and images from the PDF file and co
 are also represented as vector diagrams, thus they cannot be extracted.
 
 How do I convert a collection of HTML files in a specific order?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
  
    <html>
@@ -105,7 +77,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS 500/505/700, Cybook Gen 3, Amazon Kindle 1/2, Netronix EB600, Ectaco Jetbook and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS 500/505/700, Cybook Gen 3, Amazon Kindle 1/2, Netronix EB600, Ectaco Jetbook, BeBook/BeBook Mini and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
 I used |app| to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

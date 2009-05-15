@@ -1,7 +1,7 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, traceback, Queue, time, socket
+import os, traceback, Queue, time, socket, cStringIO
 from threading import Thread, RLock
 from itertools import repeat
 from functools import partial
@@ -15,7 +15,7 @@ from calibre.customize.ui import available_input_formats, available_output_forma
 from calibre.devices.interface import DevicePlugin
 from calibre.constants import iswindows
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
-from calibre.parallel import Job
+from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
@@ -27,21 +27,45 @@ from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 
-class DeviceJob(Job):
+class DeviceJob(BaseJob):
 
-    def __init__(self, func, *args, **kwargs):
-        Job.__init__(self, *args, **kwargs)
+    def __init__(self, func, done, job_manager, args=[], kwargs={},
+            description=''):
+        BaseJob.__init__(self, description, done=done)
         self.func = func
+        self.args, self.kwargs = args, kwargs
+        self.exception = None
+        self.job_manager = job_manager
+        self._details = _('No details available.')
+
+    def start_work(self):
+        self.start_time = time.time()
+        self.job_manager.changed_queue.put(self)
+
+    def job_done(self):
+        self.duration = time.time() - self.start_time
+        self.percent = 1
+        self.job_manager.changed_queue.put(self)
+
+    def report_progress(self, percent, msg=''):
+        self.notifications.put((percent, msg))
+        self.job_manager.changed_queue.put(self)
 
     def run(self):
         self.start_work()
         try:
             self.result = self.func(*self.args, **self.kwargs)
         except (Exception, SystemExit), err:
+            self.failed = True
+            self._details = unicode(err) + '\n\n' + \
+                traceback.format_exc()
             self.exception = err
-            self.traceback = traceback.format_exc()
         finally:
             self.job_done()
+
+    @property
+    def log_file(self):
+        return cStringIO.StringIO(self._details.encode('utf-8'))
 
 
 class DeviceManager(Thread):
@@ -113,7 +137,7 @@ class DeviceManager(Thread):
                 job = self.next()
                 if job is not None:
                     self.current_job = job
-                    self.device.set_progress_reporter(job.update_status)
+                    self.device.set_progress_reporter(job.report_progress)
                     self.current_job.run()
                     self.current_job = None
                 else:
@@ -206,7 +230,6 @@ class DeviceManager(Thread):
 
     def _view_book(self, path, target):
         f = open(target, 'wb')
-        print self.device
         self.device.get_file(path, f)
         f.close()
         return target
@@ -355,12 +378,12 @@ class DeviceMenu(QMenu):
                     if action.dest == 'main:':
                         action.setEnabled(True)
                     elif action.dest == 'carda:0':
-                        if card_prefix[0] != None:
+                        if card_prefix and card_prefix[0] != None:
                             action.setEnabled(True)
                         else:
                             action.setEnabled(False)
                     elif action.dest == 'cardb:0':
-                        if card_prefix[1] != None:
+                        if card_prefix and card_prefix[1] != None:
                             action.setEnabled(True)
                         else:
                             action.setEnabled(False)
@@ -463,7 +486,8 @@ class DeviceGUI(object):
             fmts = [x.strip().lower() for x in fmts.split(',')]
             self.send_by_mail(to, fmts, delete)
 
-    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None, do_auto_convert=True):
+    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None,
+            do_auto_convert=True, specific_format=None):
         ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not ids or len(ids) == 0:
             return
@@ -474,7 +498,7 @@ class DeviceGUI(object):
             ids = list(set(ids).difference(_auto_ids))
         else:
             _auto_ids = []
-            
+
         full_metadata = self.library_view.model().get_metadata(
                                         ids, full_metadata=True, rows_are_ids=True)[-1]
         files = [getattr(f, 'name', None) for f in files]
@@ -537,10 +561,10 @@ class DeviceGUI(object):
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
-                d = info_dialog(self, _('No suitable formats'),
-                        _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
-                d.exec_()
+                autos = '\n'.join('%s'%i for i in autos)
+                info_dialog(self, _('No suitable formats'),
+                    _('Auto converting the following books before uploading to '
+                        'the device:'), det_msg=autos, show=True)
                 self.auto_convert_mail(to, delete_from_library, auto, format)
 
         if bad:
@@ -724,10 +748,10 @@ class DeviceGUI(object):
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
-                autos = '\n'.join('<li>%s</li>'%(i,) for i in autos)
-                d = info_dialog(self, _('No suitable formats'),
-                        _('Auto converting the following books before uploading to the device:<br><ul>%s</ul>')%(autos,))
-                d.exec_()
+                autos = '\n'.join('%s'%i for i in autos)
+                info_dialog(self, _('No suitable formats'),
+                    _('Auto converting the following books before uploading to '
+                        'the device:'), det_msg=autos, show=True)
                 self.auto_convert(auto, on_card, format)
 
         if bad:
@@ -750,7 +774,7 @@ class DeviceGUI(object):
         '''
         Called once metadata has been uploaded.
         '''
-        if job.exception is not None:
+        if job.failed:
             self.device_job_exception(job)
             return
         cp, fs = job.result

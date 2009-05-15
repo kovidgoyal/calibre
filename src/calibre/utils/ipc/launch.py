@@ -70,7 +70,7 @@ class Worker(object):
 
     @property
     def is_alive(self):
-        return hasattr(self, 'child') and self.child.poll() is not None
+        return hasattr(self, 'child') and self.child.poll() is None
 
     @property
     def returncode(self):
@@ -144,6 +144,7 @@ class Worker(object):
 
         self.child = subprocess.Popen(cmd, **args)
 
+        self.log_path = ret
         return ret
 
 

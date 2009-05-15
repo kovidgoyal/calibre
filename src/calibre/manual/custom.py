@@ -4,9 +4,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, inspect, re
-from sphinx.builder import StandaloneHTMLBuilder, bold
+from sphinx.builder import StandaloneHTMLBuilder
 from sphinx.util import rpartition
-from sphinx.ext.autodoc import get_module_charset, prepare_docstring
+from sphinx.util.console import bold
+from sphinx.ext.autodoc import prepare_docstring
 from docutils.statemachine import ViewList
 from docutils import nodes
 
@@ -181,7 +182,7 @@ def auto_member(dirname, arguments, options, content, lineno,
     docstring = '\n'.join(comment_lines)
 
     if module is not None and docstring is not None:
-        docstring = docstring.decode(get_module_charset(mod))
+        docstring = docstring.decode('utf-8')
 
     result = ViewList()
     result.append('.. attribute:: %s.%s'%(cls.__name__, obj), '<autodoc>')

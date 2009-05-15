@@ -4,16 +4,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Miscellaneous widgets used in the GUI
 '''
 import re, os, traceback
-from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
+from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
-                        QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
-                        QPixmap, QMovie, QPalette
-from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
+                        QSyntaxHighlighter, QCursor, QColor, QWidget, \
+                        QPixmap, QMovie, QPalette, QTimer, QDialog, \
+                        QAbstractListModel, QVariant, Qt, SIGNAL, \
                          QRegExp, QSettings, QSize, QModelIndex
 
-from calibre.gui2.jobs2 import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, \
                          qstring_to_unicode, error_dialog
+from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.utils.fontconfig import find_font_families
@@ -176,8 +176,8 @@ class LocationModel(QAbstractListModel):
                          _('Click to see the list of books on storage card B in your reader')
                          ]
 
-    def rowCount(self, parent):
-        return 1 + sum([1 for i in self.free if i >= 0])
+    def rowCount(self, *args):
+        return 1 + len([i for i in self.free if i >= 0])
 
     def data(self, index, role):
         row = index.row()
@@ -249,6 +249,31 @@ class LocationView(QListView):
         if 0 <= row and row <= 3:
             self.model().location_changed(row)
 
+class DetailView(QDialog, Ui_Dialog):
+
+    def __init__(self, parent, job):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.setWindowTitle(job.description)
+        self.job = job
+        self.next_pos = 0
+        self.update()
+        self.timer = QTimer(self)
+        self.connect(self.timer, SIGNAL('timeout()'), self.update)
+        self.timer.start(1000)
+
+
+    def update(self):
+        f = self.job.log_file
+        f.seek(self.next_pos)
+        more = f.read()
+        self.next_pos = f.tell()
+        if more:
+            self.log.appendPlainText(more.decode('utf-8', 'replace'))
+        vbar = self.log.verticalScrollBar()
+        vbar.setValue(vbar.maximum())
+
+
 class JobsView(TableView):
 
     def __init__(self, parent):
@@ -259,8 +284,8 @@ class JobsView(TableView):
         row = index.row()
         job = self.model().row_to_job(row)
         d = DetailView(self, job)
-        self.connect(self.model(), SIGNAL('output_received()'), d.update)
         d.exec_()
+        d.timer.stop()
 
 
 class FontFamilyModel(QAbstractListModel):
@@ -539,12 +564,12 @@ class PythonHighlighter(QSyntaxHighlighter):
             return
 
         for regex, format in PythonHighlighter.Rules:
-            i = text.indexOf(regex)
+            i = regex.indexIn(text)
             while i >= 0:
                 length = regex.matchedLength()
                 self.setFormat(i, length,
                                PythonHighlighter.Formats[format])
-                i = text.indexOf(regex, i + length)
+                i = regex.indexIn(text, i + length)
 
         # Slow but good quality highlighting for comments. For more
         # speed, comment this out and add the following to __init__:
@@ -569,12 +594,12 @@ class PythonHighlighter(QSyntaxHighlighter):
 
         self.setCurrentBlockState(NORMAL)
 
-        if text.indexOf(self.stringRe) != -1:
+        if self.stringRe.indexIn(text) != -1:
             return
         # This is fooled by triple quotes inside single quoted strings
-        for i, state in ((text.indexOf(self.tripleSingleRe),
+        for i, state in ((self.tripleSingleRe.indexIn(text),
                           TRIPLESINGLE),
-                         (text.indexOf(self.tripleDoubleRe),
+                         (self.tripleDoubleRe.indexIn(text),
                           TRIPLEDOUBLE)):
             if self.previousBlockState() == state:
                 if i == -1:

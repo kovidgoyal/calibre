@@ -47,6 +47,7 @@ from calibre.devices.prs500.prstypes import *
 from calibre.devices.errors import *
 from calibre.devices.prs500.books import BookList, fix_ids
 from calibre import __author__, __appname__
+from calibre.devices.usbms.deviceconfig import DeviceConfig
 
 # Protocol versions this driver has been tested with
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L]
@@ -76,7 +77,7 @@ class File(object):
         return self.name
 
 
-class PRS500(DevicePlugin):
+class PRS500(DeviceConfig, DevicePlugin):
 
     """
     Implements the backend for communication with the SONY Reader.
@@ -624,6 +625,8 @@ class PRS500(DevicePlugin):
                 data_type=FreeSpaceAnswer, \
                 command_number=FreeSpaceQuery.NUMBER)[0]
             data.append( pkt.free )
+        data = [x for x in data if x != 0]
+        data.append(0)
         return data
 
     def _exists(self, path):

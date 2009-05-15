@@ -12,14 +12,14 @@ open issues
 """
 __all__ = ['CSSProductions', 'MACROS', 'PRODUCTIONS']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssproductions.py 1537 2008-12-03 14:37:10Z cthedot $'
+__version__ = '$Id: cssproductions.py 1738 2009-05-02 13:03:28Z cthedot $'
 
 # a complete list of css3 macros
 MACROS = {
     'nonascii': r'[^\0-\177]',
     'unicode': r'\\[0-9a-f]{1,6}(?:{nl}|{s})?',
-    # 'escape': r'{unicode}|\\[ -~\200-\4177777]',
-    'escape': r'{unicode}|\\[ -~\200-\777]',
+    #'escape': r'{unicode}|\\[ -~\200-\777]',
+    'escape': r'{unicode}|\\[^\n\r\f0-9a-f]',
     'nmstart': r'[_a-zA-Z]|{nonascii}|{escape}',
     'nmchar': r'[-_a-zA-Z0-9]|{nonascii}|{escape}',
     'string1': r'"([^\n\r\f\\"]|\\{nl}|{escape})*"',

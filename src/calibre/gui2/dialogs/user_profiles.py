@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, os
 
 from PyQt4.QtCore import SIGNAL, QUrl
-from PyQt4.QtGui import QMessageBox, QDesktopServices
+from PyQt4.QtGui import QDesktopServices
 
 from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
@@ -86,7 +86,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
             self.source_code.setPlainText('')
         else:
             self.source_code.setPlainText(src)
-            #self.highlighter = PythonHighlighter(self.source_code.document())
+            self.highlighter = PythonHighlighter(self.source_code.document())
             self.stacks.setCurrentIndex(1)
             self.toggle_mode_button.setText(_('Switch to Basic mode'))
 
@@ -175,9 +175,9 @@ class %(classname)s(%(base_class)s):
         try:
             self.available_profiles.add_item(title, (title, profile), replace=False)
         except ValueError:
-            d = question_dialog(self, _('Replace recipe?'),
-                    _('A custom recipe named %s already exists. Do you want to replace it?')%title)
-            if d.exec_() == QMessageBox.Yes:
+            if question_dialog(self, _('Replace recipe?'),
+                _('A custom recipe named %s already exists. Do you want to '
+                    'replace it?')%title):
                 self.available_profiles.add_item(title, (title, profile), replace=True)
             else:
                 return
@@ -207,9 +207,9 @@ class %(classname)s(%(base_class)s):
                     try:
                         self.available_profiles.add_item(title, (title, r.text), replace=False)
                     except ValueError:
-                        d = question_dialog(self, _('Replace recipe?'),
-                                _('A custom recipe named %s already exists. Do you want to replace it?')%title)
-                        if d.exec_() == QMessageBox.Yes:
+                        if question_dialog(self, _('Replace recipe?'),
+                            _('A custom recipe named %s already exists. Do you '
+                                'want to replace it?')%title):
                             self.available_profiles.add_item(title, (title, r.text), replace=True)
                         else:
                             return
@@ -231,9 +231,9 @@ class %(classname)s(%(base_class)s):
             try:
                 self.available_profiles.add_item(title, (title, src), replace=False)
             except ValueError:
-                d = question_dialog(self, _('Replace recipe?'),
-                        _('A custom recipe named %s already exists. Do you want to replace it?')%title)
-                if d.exec_() == QMessageBox.Yes:
+                if question_dialog(self, _('Replace recipe?'),
+                    _('A custom recipe named %s already exists. Do you want to '
+                        'replace it?')%title):
                     self.available_profiles.add_item(title, (title, src), replace=True)
                 else:
                     return

@@ -70,11 +70,11 @@ Usage may be::
 __all__ = ['css', 'stylesheets', 'CSSParser', 'CSSSerializer']
 __docformat__ = 'restructuredtext'
 __author__ = 'Christof Hoeke with contributions by Walter Doerwald'
-__date__ = '$LastChangedDate:: 2009-02-16 12:05:02 -0800 #$:'
+__date__ = '$LastChangedDate:: 2009-05-09 13:59:54 -0700 #$:'
 
-VERSION = '0.9.6a1'
+VERSION = '0.9.6a5'
 
-__version__ = '%s $Id: __init__.py 1669 2009-02-16 20:05:02Z cthedot $' % VERSION
+__version__ = '%s $Id: __init__.py 1747 2009-05-09 20:59:54Z cthedot $' % VERSION
 
 import codec
 import xml.dom
@@ -91,6 +91,9 @@ from parse import CSSParser
 
 from serialize import CSSSerializer
 ser = CSSSerializer()
+
+from profiles import Profiles
+profile = Profiles(log=log)
 
 # used by Selector defining namespace prefix '*'
 _ANYNS = -1

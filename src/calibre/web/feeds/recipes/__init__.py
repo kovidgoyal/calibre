@@ -42,7 +42,7 @@ recipe_modules = ['recipe_' + r for r in (
            'moneynews', 'der_standard', 'diepresse', 'nzz_ger', 'hna',
            'seattle_times', 'scott_hanselman', 'coding_horror', 'twitchfilms',
            'stackoverflow', 'telepolis_artikel', 'zaobao', 'usnews',
-           'straitstimes',
+           'straitstimes', 'index_hu', 'pcworld_hu', 'hrt', 'rts',
           )]
 
 import re, imp, inspect, time, os

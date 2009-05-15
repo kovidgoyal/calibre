@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>, ' \
                 '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import errno, os, re, sys, subprocess
+import errno, os, sys, subprocess
 from functools import partial
 
 from calibre.ebooks import ConversionError, DRMError
@@ -33,7 +33,7 @@ def pdftohtml(pdf_path):
     if isinstance(pdf_path, unicode):
         pdf_path = pdf_path.encode(sys.getfilesystemencoding())
     if not os.access(pdf_path, os.R_OK):
-        raise ConversionError, 'Cannot read from ' + pdf_path
+        raise ConversionError('Cannot read from ' + pdf_path)
 
     with TemporaryDirectory('_pdftohtml') as tdir:
         index = os.path.join(tdir, 'index.html')
@@ -47,7 +47,7 @@ def pdftohtml(pdf_path):
                 p = popen(cmd, stderr=subprocess.PIPE)
             except OSError, err:
                 if err.errno == 2:
-                    raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'), True)
+                    raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
                 else:
                     raise
 
@@ -63,13 +63,13 @@ def pdftohtml(pdf_path):
 
             if ret != 0:
                 err = p.stderr.read()
-                raise ConversionError, err
+                raise ConversionError(err)
             if not os.path.exists(index) or os.stat(index).st_size < 100:
                 raise DRMError()
-        
+
             with open(index, 'rb') as i:
                 raw = i.read()
             if not '<br' in raw[:4000]:
-                raise ConversionError(os.path.basename(pdf_path) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'), True)
+                raise ConversionError(os.path.basename(pdf_path) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'))
 
             return '<!-- created by calibre\'s pdftohtml -->\n' + raw

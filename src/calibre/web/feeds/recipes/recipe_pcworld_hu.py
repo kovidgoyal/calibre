@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import with_statement
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Index(BasicNewsRecipe):
+
+
+    title = u'PCWORLD.HU'
+    oldest_article = 3
+    max_articles_per_feed = 50
+    language = _('Hungarian')
+    __author__ = 'Ezmegaz'
+
+
+    feeds = [(u'H\xedrek', u'http://pcworld.hu/rss/rss.xml'), (u'Hardver h\xedrek', u'http://www.pcworld.hu/rss/rss_hardverhirek.xml'), (u'Szoftver h\xedrek', u'http://www.pcworld.hu/rss/rss_szoftverhirek.xml'), (u'Hardver cikkek', u'http://www.pcworld.hu/rss/rss_hardvercikkek.xml'), (u'Szoftver cikkek', u'http://www.pcworld.hu/rss/rss_szoftvercikkek.xml'), (u'Mobil h\xedrek', u'http://www.pcworld.hu/rss/rss_mobil.xml'), (u'\xdczleti h\xedrek', u'http://www.pcworld.hu/rss/rss_uzlet.xml'), (u'Let\xf6lt\xe9sek', u'http://www.pcworld.hu/rss/rss_letoltes.xml'), (u'PC World TV', u'http://tv.pcworld.hu/rss/rss_hun_pcw.xml'), (u'Tudta-e...?', u'http://pcworld.hu/rss/rss_tudtae.xml')]
+

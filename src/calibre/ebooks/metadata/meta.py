@@ -28,6 +28,14 @@ def path_to_ext(path):
     return os.path.splitext(path)[1][1:].lower()
 
 def metadata_from_formats(formats):
+    try:
+        return _metadata_from_formats(formats)
+    except:
+        mi = metadata_from_filename(formats[0])
+        if not mi.authors:
+            mi.authors = [_('Unknown')]
+
+def _metadata_from_formats(formats):
     mi = MetaInformation(None, None)
     formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],
                                      METADATA_PRIORITIES[path_to_ext(y)]))

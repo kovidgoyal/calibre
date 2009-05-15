@@ -10,10 +10,10 @@ from calibre.gui2 import qstring_to_unicode, config
 
 class BookInfoDisplay(QWidget):
     class BookCoverDisplay(QLabel):
-        
+
         WIDTH = 81
         HEIGHT = 108
-        
+
         def __init__(self, coverpath=':/images/book.svg'):
             QLabel.__init__(self)
             self.default_pixmap = QPixmap(coverpath).scaled(self.__class__.WIDTH,
@@ -23,42 +23,42 @@ class BookInfoDisplay(QWidget):
             self.setScaledContents(True)
             self.setMaximumHeight(self.HEIGHT)
             self.setPixmap(self.default_pixmap)
-            
-        
+
+
         def setPixmap(self, pixmap):
             width, height = fit_image(pixmap.width(), pixmap.height(),
                                               self.WIDTH, self.HEIGHT)[1:]
             self.setMaximumHeight(height)
             self.setMaximumWidth(width)
             QLabel.setPixmap(self, pixmap)
-             
+
             try:
                 aspect_ratio = pixmap.width()/float(pixmap.height())
             except ZeroDivisionError:
                 aspect_ratio = 1
             self.setMaximumWidth(int(aspect_ratio*self.HEIGHT))
-        
+
         def sizeHint(self):
             return QSize(self.__class__.WIDTH, self.__class__.HEIGHT)
-        
-    
+
+
     class BookDataDisplay(QLabel):
         def __init__(self):
             QLabel.__init__(self)
             self.setText('')
             self.setWordWrap(True)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
-            
+
         def mouseReleaseEvent(self, ev):
             self.emit(SIGNAL('mr(int)'), 1)
-            
+
     WEIGHTS = collections.defaultdict(lambda : 100)
     WEIGHTS[_('Path')] = 0
     WEIGHTS[_('Formats')] = 1
     WEIGHTS[_('Comments')] = 2
     WEIGHTS[_('Series')] = 3
     WEIGHTS[_('Tags')] = 4
-    
+
     def __init__(self, clear_message):
         QWidget.__init__(self)
         self.setCursor(Qt.PointingHandCursor)
@@ -74,16 +74,16 @@ class BookInfoDisplay(QWidget):
         self.data = {}
         self.setVisible(False)
         self._layout.setAlignment(self.cover_display, Qt.AlignTop|Qt.AlignLeft)
-        
+
     def mouseReleaseEvent(self, ev):
         self.emit(SIGNAL('show_book_info()'))
-    
+
     def show_data(self, data):
         if data.has_key('cover'):
             self.cover_display.setPixmap(QPixmap.fromImage(data.pop('cover')))
         else:
             self.cover_display.setPixmap(self.cover_display.default_pixmap)
-            
+
         rows = u''
         self.book_data.setText('')
         self.data = data.copy()
@@ -97,7 +97,7 @@ class BookInfoDisplay(QWidget):
                 txt = txt.decode(preferred_encoding, 'replace')
             rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
         self.book_data.setText(u'<table>'+rows+u'</table>')
-        
+
         self.clear_message()
         self.book_data.updateGeometry()
         self.updateGeometry()
@@ -113,7 +113,7 @@ class MovieButton(QFrame):
         self.movie = movie
         self.layout().addWidget(self.movie_widget)
         self.jobs = QLabel('<b>'+_('Jobs:')+' 0')
-        self.jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)  
+        self.jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)
         self.layout().addWidget(self.jobs)
         self.layout().setAlignment(self.jobs, Qt.AlignHCenter)
         self.jobs.setMargin(0)
@@ -125,8 +125,8 @@ class MovieButton(QFrame):
         movie.start()
         movie.setPaused(True)
         self.jobs_dialog.jobs_view.restore_column_widths()
-        
-        
+
+
     def mouseReleaseEvent(self, event):
         if self.jobs_dialog.isVisible():
             self.jobs_dialog.jobs_view.write_settings()
@@ -137,7 +137,7 @@ class MovieButton(QFrame):
             self.jobs_dialog.jobs_view.restore_column_widths()
 
 class CoverFlowButton(QToolButton):
-    
+
     def __init__(self, parent=None):
         QToolButton.__init__(self, parent)
         self.setIconSize(QSize(80, 80))
@@ -149,17 +149,17 @@ class CoverFlowButton(QToolButton):
         self.connect(self, SIGNAL('toggled(bool)'), self.adjust_tooltip)
         self.adjust_tooltip(False)
         self.setCursor(Qt.PointingHandCursor)
-        
+
     def adjust_tooltip(self, on):
         tt = _('Click to turn off Cover Browsing') if on else _('Click to browse books by their covers')
         self.setToolTip(tt)
-        
+
     def disable(self, reason):
         self.setDisabled(True)
         self.setToolTip(_('<p>Browsing books by their covers is disabled.<br>Import of pictureflow module failed:<br>')+reason)
-        
+
 class TagViewButton(QToolButton):
-    
+
     def __init__(self, parent=None):
         QToolButton.__init__(self, parent)
         self.setIconSize(QSize(80, 80))
@@ -170,10 +170,10 @@ class TagViewButton(QToolButton):
         self.setCheckable(True)
         self.setChecked(False)
         self.setAutoRaise(True)
-    
+
 
 class StatusBar(QStatusBar):
-    
+
     def __init__(self, jobs_dialog, systray=None):
         QStatusBar.__init__(self)
         self.systray = systray
@@ -192,11 +192,11 @@ class StatusBar(QStatusBar):
         self.addWidget(self.scroll_area, 100)
         self.setMinimumHeight(120)
         self.setMaximumHeight(120)
-        
-    
+
+
     def reset_info(self):
         self.book_info.show_data({})
-        
+
     def showMessage(self, msg, timeout=0):
         ret = QStatusBar.showMessage(self, msg, timeout)
         if self.systray is not None and not config['disable_tray_notification']:
@@ -207,39 +207,38 @@ class StatusBar(QStatusBar):
                     msg = msg.encode('utf-8')
             self.systray.showMessage('calibre', msg, self.systray.Information, 10000)
         return ret
-    
+
     def jobs(self):
         src = qstring_to_unicode(self.movie_button.jobs.text())
         return int(re.search(r'\d+', src).group())
-        
+
     def show_book_info(self):
         self.emit(SIGNAL('show_book_info()'))
-    
+
     def job_added(self, nnum):
         jobs = self.movie_button.jobs
         src = qstring_to_unicode(jobs.text())
         num = self.jobs()
-        nnum = num + 1
         text = src.replace(str(num), str(nnum))
         jobs.setText(text)
         if self.movie_button.movie.state() == QMovie.Paused:
             self.movie_button.movie.setPaused(False)
-            
-    def job_done(self, running):
+
+    def job_done(self, nnum):
         jobs = self.movie_button.jobs
         src = qstring_to_unicode(jobs.text())
         num = self.jobs()
-        text = src.replace(str(num), str(running))
+        text = src.replace(str(num), str(nnum))
         jobs.setText(text)
-        if running == 0:
+        if nnum == 0:
             self.no_more_jobs()
-            
+
     def no_more_jobs(self):
         if self.movie_button.movie.state() == QMovie.Running:
             self.movie_button.movie.jumpToFrame(0)
             self.movie_button.movie.setPaused(True)
             QCoreApplication.instance().alert(self, 5000)
-        
+
 if __name__ == '__main__':
     # Used to create the animated status icon
     from PyQt4.Qt import QApplication, QPainter, QSvgRenderer, QColor
@@ -280,4 +279,4 @@ if __name__ == '__main__':
                 os.remove(file)
     import sys
     create_mng(sys.argv[1])
-        
+

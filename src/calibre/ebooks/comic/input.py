@@ -7,12 +7,14 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, shutil, traceback, textwrap
+import os, shutil, traceback, textwrap, time
+from Queue import Empty
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre import extract, CurrentDir
+from calibre import extract, CurrentDir, prints
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.parallel import Server, ParallelJob
+from calibre.utils.ipc.server import Server
+from calibre.utils.ipc.job import ParallelJob
 
 def extract_comic(path_to_comic_file):
     '''
@@ -47,8 +49,8 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
 
     pages.sort(cmp=comparator)
     if verbose:
-        print 'Found comic pages...'
-        print '\t'+'\n\t'.join([os.path.basename(p) for p in pages])
+        prints('Found comic pages...')
+        prints('\t'+'\n\t'.join([os.path.basename(p) for p in pages]))
     return pages
 
 class PageProcessor(list):
@@ -181,7 +183,7 @@ class PageProcessor(list):
                     p.DestroyPixelWand(pw)
                 p.DestroyMagickWand(wand)
 
-def render_pages(tasks, dest, opts, notification=None):
+def render_pages(tasks, dest, opts, notification=lambda x, y: x):
     '''
     Entry point for the job server.
     '''
@@ -197,30 +199,23 @@ def render_pages(tasks, dest, opts, notification=None):
                 msg = _('Failed %s')%path
                 if opts.verbose:
                     msg += '\n' + traceback.format_exc()
-            if notification is not None:
-                notification(0.5, msg)
+            prints(msg)
+            notification(0.5, msg)
 
     return pages, failures
 
 
-class JobManager(object):
-    '''
-    Simple job manager responsible for keeping track of overall progress.
-    '''
+class Progress(object):
 
     def __init__(self, total, update):
         self.total  = total
         self.update = update
         self.done   = 0
-        self.add_job        = lambda j: j
-        self.output         = lambda j: j
-        self.start_work     = lambda j: j
-        self.job_done       = lambda j: j
 
-    def status_update(self, job):
+    def __call__(self, percent, msg=''):
         self.done += 1
         #msg = msg%os.path.basename(job.args[0])
-        self.update(float(self.done)/self.total, job.msg)
+        self.update(float(self.done)/self.total, msg)
 
 def process_pages(pages, opts, update, tdir):
     '''
@@ -229,22 +224,38 @@ def process_pages(pages, opts, update, tdir):
     from calibre.utils.PythonMagickWand import ImageMagick
     ImageMagick
 
-    job_manager = JobManager(len(pages), update)
+    progress = Progress(len(pages), update)
     server = Server()
     jobs = []
+    tasks = [(p, os.path.join(tdir, os.path.basename(p))) for p in pages]
     tasks = server.split(pages)
     for task in tasks:
-        jobs.append(ParallelJob('render_pages', lambda s:s, job_manager=job_manager,
+        jobs.append(ParallelJob('render_pages', '', progress,
                                 args=[task, tdir, opts]))
         server.add_job(jobs[-1])
-    server.wait()
-    server.killall()
+    while True:
+        time.sleep(1)
+        running = False
+        for job in jobs:
+            while True:
+                try:
+                    x = job.notifications.get_nowait()
+                    progress(*x)
+                except Empty:
+                    break
+            job.update()
+            if not job.is_finished:
+                running = True
+        if not running:
+            break
     server.close()
     ans, failures = [], []
 
     for job in jobs:
-        if job.result is None:
-            raise Exception(_('Failed to process comic: %s\n\n%s')%(job.exception, job.traceback))
+        if job.failed:
+            raw_input()
+            raise Exception(_('Failed to process comic: \n\n%s')%
+                    job.log_file.read())
         pages, failures_ = job.result
         ans += pages
         failures += failures_

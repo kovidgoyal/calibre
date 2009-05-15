@@ -10,6 +10,7 @@ pobjeda.co.me
 import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Pobjeda(BasicNewsRecipe):
     title                 = 'Pobjeda Online'
@@ -22,12 +23,13 @@ class Pobjeda(BasicNewsRecipe):
     encoding              = 'utf8'
     remove_javascript     = True
     use_embedded_content  = False
+    language              = _('Serbian')
+    lang                  = 'sr-Latn-Me'
     INDEX                 = u'http://www.pobjeda.co.me'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: serif1, serif}'
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
     
     html2lrf_options = [
                           '--comment', description
-                        , '--base-font-size', '10'
                         , '--category', category
                         , '--publisher', publisher
                         ]
@@ -59,11 +61,13 @@ class Pobjeda(BasicNewsRecipe):
             ]
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = 'sr-Latn-ME'
-        soup.html['lang']     = 'sr-Latn-ME'
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-ME"/>'
-        soup.head.insert(0,mtag)
-        return soup
+        soup.html['xml:lang'] = self.lang
+        soup.html['lang']     = self.lang
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        return self.adeify_images(soup)
 
     def get_cover_url(self):
         cover_url = None

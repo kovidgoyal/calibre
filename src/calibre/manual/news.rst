@@ -257,38 +257,26 @@ The final new feature is the :meth:`calibre.web.feeds.news.BasicNewsRecipe.prepr
 Tips for developing new recipes
 ---------------------------------
 
-The best way to develop new recipes is to use the command line interface. Create the recipe using your favorite python editor and save it to a file say :file:`myrecipe.py`. You can download content using this recipe with the command::
+The best way to develop new recipes is to use the command line interface. Create the recipe using your favorite python editor and save it to a file say :file:`myrecipe.recipe`. The `.recipe` extension is required. You can download content using this recipe with the command::
 
-    feeds2disk --debug --test myrecipe.py
+    ebook-convert myrecipe.recipe output_dir --test -vv
 
-The :command:`feeds2disk` will download all the webpages and save them to the current directory. The :option:`--debug` makes feeds2disk spit out a lot of information about what it is doing. The :option:`--test` makes it download only a couple of articles from at most two feeds. 
+The :command:`ebook-convert` will download all the webpages and save them to the directory :file:`output_dir`, creating it if necessary. The :option:`-vv` makes ebook-convert spit out a lot of information about what it is doing. The :option:`--test` makes it download only a couple of articles from at most two feeds. 
 
-Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate an LRF ebook with the command::
+Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate ebooks in different formats as shown below::
 
-    html2lrf --use-spine --page-break-before "$" index.html
-
-If the generated :term:`LRF` looks good, you can finally, run::
-
-    feeds2lrf myrecipe.py
-
-to see the final :term:`LRF` format e-book generated from your recipe. If you're satisfied with your recipe, consider attaching it to `the wiki <http://calibre.kovidgoyal.net/wiki/UserRecipes>`_, so that others can use it as well. If you feel there is enough demand to justify its inclusion into the set of built-in recipes, add a comment to the ticket http://calibre.kovidgoyal.net/ticket/405
+    ebook-convert myrecipe.recipe myrecipe.epub
+    ebook-convert myrecipe.recipe myrecipe.mobi
+    ...
 
 
-If you just want to quickly test a couple of feeds, you can use the :option:`--feeds` option::
-
-    feeds2disk --feeds "['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/headlines/politics']"
+If you're satisfied with your recipe, consider attaching it to `the wiki <http://calibre.kovidgoyal.net/wiki/UserRecipes>`_, so that others can use it as well. If you feel there is enough demand to justify its inclusion into the set of built-in recipes, add a comment to the ticket http://calibre.kovidgoyal.net/ticket/405
 
 
 .. seealso::
 
-    :ref:`feeds2disk`
-        The command line interfce for downloading content from the internet
-
-    :ref:`feeds2lrf`
-        The command line interface for downloading content fro the internet and converting it into a :term:`LRF` e-book.
-    
-    :ref:`html2lrf`
-        The command line interface for converting :term:`HTML` into a :term:`LRF` e-book.
+    :ref:`ebook-convert`
+        The command line interface for all ebook conversion.
 
 
 Further reading
@@ -305,16 +293,6 @@ To learn more about writing advanced recipes using some of the facilities, avail
     `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/src/calibre/web/feeds/recipes/>`_
         The source code for the built-in recipes that come with |app|
 
-Migrating old style profiles to recipes
-----------------------------------------
-
-In earlier versions of |app| there was a similar, if less powerful, framework for fetching news based on *Profiles*. If you have a profile that you would like to migrate to a recipe, the basic technique is simple, as they are very similar (on the surface). Common changes you have to make include:
-
-    * Replace ``DefaultProfile`` with ``BasicNewsRecipe``
-
-    * Remove ``max_recursions``
-
-    * If the server you're downloading from doesn't like multiple connects, set ``simultaneous_downloads = 1``.
 
 API documentation
 --------------------

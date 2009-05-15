@@ -8,12 +8,13 @@ nin.co.rs
 
 import re, urllib
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Nin(BasicNewsRecipe):    
     title                  = 'NIN online'
     __author__             = 'Darko Miletic'
     description            = 'Nedeljne informativne novine'
-    publisher              = 'NIN'
+    publisher              = 'NIN D.O.O.'
     category               = 'news, politics, Serbia'    
     no_stylesheets         = True
     oldest_article         = 15
@@ -28,9 +29,9 @@ class Nin(BasicNewsRecipe):
     remove_javascript      = True
     use_embedded_content   = False
     language               = _('Serbian')
-    lang                   = 'sr-RS'
+    lang                   = 'sr-Latn-RS'
     direction              = 'ltr'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold}'
     
     html2lrf_options = [
                           '--comment'  , description
@@ -70,9 +71,10 @@ class Nin(BasicNewsRecipe):
     def preprocess_html(self, soup):
         soup.html['lang'] = self.lang
         soup.html['dir' ] = self.direction
-        mtag = '<meta http-equiv="Content-Language" content="' + self.lang + '"/>'
-        mtag += '\n<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '"/>'
-        soup.head.insert(0,mtag)    
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
         for item in soup.findAll(style=True):
             del item['style']        
         return soup

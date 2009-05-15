@@ -2,7 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-import sys, os, re, logging, time, subprocess, mimetypes, \
+import sys, os, re, logging, time, mimetypes, \
        __builtin__, warnings, multiprocessing
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
@@ -91,11 +91,16 @@ def prints(*args, **kwargs):
     file = kwargs.get('file', sys.stdout)
     sep  = kwargs.get('sep', ' ')
     end  = kwargs.get('end', '\n')
+    enc = preferred_encoding
+    if 'CALIBRE_WORKER' in os.environ:
+        enc = 'utf-8'
     for i, arg in enumerate(args):
         if isinstance(arg, unicode):
-            arg = arg.encode(preferred_encoding)
+            arg = arg.encode(enc)
         if not isinstance(arg, str):
             arg = str(arg)
+            if not isinstance(arg, unicode):
+                arg = arg.decode(preferred_encoding, 'replace').encode(enc)
         file.write(arg)
         if i != len(args)-1:
             file.write(sep)

@@ -65,10 +65,10 @@ if __name__ == '__main__':
     '/Users/kovid/podofo/include/podofo'
     podofo_lib = '/usr/lib' if islinux else r'C:\podofo' if iswindows else \
             '/Users/kovid/podofo/lib'
-    if os.path.exists(os.path.join(podofo_inc, 'PdfString.h')):
+    if os.path.exists(os.path.join(podofo_inc, 'podofo.h')):
         eca = ['/EHsc'] if iswindows else []
-        optional.append(PyQtExtension('calibre.plugins.podofo', [],
-                        ['src/calibre/utils/podofo/podofo.sip'],
+        optional.append(Extension('calibre.plugins.podofo',
+                        sources=['src/calibre/utils/podofo/podofo.cpp'],
                         libraries=['podofo'], extra_compile_args=eca,
                         library_dirs=[os.environ.get('PODOFO_LIB_DIR', podofo_lib)],
                         include_dirs=\

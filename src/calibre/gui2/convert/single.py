@@ -11,7 +11,7 @@ import sys, cPickle
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
 from calibre.gui2 import ResizableDialog, NONE
-from calibre.gui2.convert import GuiRecommendations, save_specifics, \
+from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics, \
         load_specifics
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
@@ -189,6 +189,8 @@ class Config(ResizableDialog, Ui_Dialog):
 
     def setup_input_output_formats(self, db, book_id, preferred_input_format,
             preferred_output_format):
+        if preferred_output_format:
+            preferred_output_format = preferred_output_format.lower()
         available_formats = db.formats(book_id, index_is_id=True)
         if not available_formats:
             available_formats = ''

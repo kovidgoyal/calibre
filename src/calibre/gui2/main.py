@@ -13,7 +13,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    iswindows, isosx
+                    iswindows, isosx, prints
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
@@ -32,10 +32,9 @@ from calibre.gui2.main_window import MainWindow, option_parser as _option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
 from calibre.gui2.status import StatusBar
-from calibre.gui2.jobs2 import JobManager
+from calibre.gui2.jobs import JobManager, JobsDialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
-from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
     fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
@@ -44,7 +43,6 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
-from calibre.parallel import JobKilled
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SaveMenu(QMenu):
@@ -202,17 +200,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"),
                 self.edit_metadata)
+        self.__em1__ = partial(self.edit_metadata, bulk=False)
         QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'),
-                partial(self.edit_metadata, bulk=False))
+                self.__em1__)
+        self.__em2__ = partial(self.edit_metadata, bulk=True)
         QObject.connect(md.actions()[2], SIGNAL('triggered(bool)'),
-                partial(self.edit_metadata, bulk=True))
+                self.__em2__)
+        self.__em3__ = partial(self.download_metadata, covers=True)
         QObject.connect(md.actions()[4], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=True))
+                self.__em3__)
+        self.__em4__ = partial(self.download_metadata, covers=False)
         QObject.connect(md.actions()[5], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=False))
+                self.__em4__)
+        self.__em5__ = partial(self.download_metadata, covers=True,
+                    set_metadata=False)
         QObject.connect(md.actions()[6], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=True,
-                    set_metadata=False))
+                self.__em5__)
 
 
 
@@ -626,9 +629,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once device information has been read.
         '''
-        if job.exception is not None:
-            self.device_job_exception(job)
-            return
+        if job.failed:
+            return self.device_job_exception(job)
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
         self.device_info = _('Connected ')+info[0]
@@ -641,7 +643,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once metadata has been read for all books on the device.
         '''
-        if job.exception is not None:
+        if job.failed:
             if isinstance(job.exception, ExpatError):
                 error_dialog(self, _('Device database corrupted'),
                 _('''
@@ -679,21 +681,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                           'Select root folder')
         if not root:
             return
-        from calibre.gui2.add import AddRecursive
-        self._add_recursive_thread = AddRecursive(root,
-                                self.library_view.model().db, self.get_metadata,
-                                single, self)
-        self.connect(self._add_recursive_thread, SIGNAL('finished()'),
-                     self._recursive_files_added)
-        self._add_recursive_thread.start()
-
-    def _recursive_files_added(self):
-        self._add_recursive_thread.process_duplicates()
-        if self._add_recursive_thread.number_of_books_added > 0:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
-            self.library_view.model().count_changed()
-        self._add_recursive_thread = None
+        from calibre.gui2.add import Adder
+        self._adder = Adder(self,
+                self.library_view.model().db,
+                Dispatcher(self._files_added))
+        self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, checked):
         '''
@@ -734,10 +726,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         (_('LRF Books'), ['lrf']),
                         (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
                         (_('LIT Books'), ['lit']),
-                        (_('MOBI Books'), ['mobi', 'prc']),
+                        (_('MOBI Books'), ['mobi', 'prc', 'azw']),
                         (_('Text books'), ['txt', 'rtf']),
                         (_('PDF Books'), ['pdf']),
-                        (_('Comics'), ['cbz', 'cbr']),
+                        (_('Comics'), ['cbz', 'cbr', 'cbc']),
                         (_('Archives'), ['zip', 'rar']),
                         ])
         if not books:
@@ -748,39 +740,29 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:
-            on_card = self.stack.currentIndex() == 2
+            on_card = self.stack.currentIndex() >= 2
         if not paths:
             return
-        from calibre.gui2.add import AddFiles
-        self._add_files_thread = AddFiles(paths, self.default_thumbnail,
-                                          self.get_metadata,
-                                          None if to_device else \
-                                          self.library_view.model().db
-                                          )
-        self._add_files_thread.send_to_device = to_device
-        self._add_files_thread.on_card = on_card
-        self._add_files_thread.create_progress_dialog(_('Adding books...'),
-                                                _('Reading metadata...'), self)
-        self.connect(self._add_files_thread, SIGNAL('finished()'),
-                     self._files_added)
-        self._add_files_thread.start()
+        from calibre.gui2.add import Adder
+        self.__adder_func = partial(self._files_added, on_card=on_card)
+        self._adder = Adder(self,
+                None if to_device else self.library_view.model().db,
+                Dispatcher(self.__adder_func))
+        self._adder.add(paths)
 
-    def _files_added(self):
-        t = self._add_files_thread
-        self._add_files_thread = None
-        if not t.canceled:
-            if t.send_to_device:
-                self.upload_books(t.paths,
-                                  list(map(sanitize_file_name, t.names)),
-                                  t.infos, on_card=t.on_card)
-                self.status_bar.showMessage(
-                        _('Uploading books to device.'), 2000)
-            else:
-                t.process_duplicates()
-        if t.number_of_books_added > 0:
-            self.library_view.model().books_added(t.number_of_books_added)
+    def _files_added(self, paths=[], names=[], infos=[], on_card=False):
+        if paths:
+            self.upload_books(paths,
+                                list(map(sanitize_file_name, names)),
+                                infos, on_card=on_card)
+            self.status_bar.showMessage(
+                    _('Uploading books to device.'), 2000)
+        if self._adder.number_of_books_added > 0:
+            self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+
+        self._adder = None
 
 
     ############################################################################
@@ -823,8 +805,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Called once deletion is done on the device
         '''
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
-            view.model().deletion_done(job, bool(job.exception))
-        if job.exception is not None:
+            view.model().deletion_done(job, job.failed)
+        if job.failed:
             self.device_job_exception(job)
             return
 
@@ -993,9 +975,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             progress.hide()
 
     def books_saved(self, job):
-        if job.exception is not None:
-            self.device_job_exception(job)
-            return
+        if job.failed:
+            return self.device_job_exception(job)
 
     ############################################################################
 
@@ -1013,9 +994,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, recipe, callback = self.conversion_jobs.pop(job)
         pt = temp_files[0]
-        if job.exception is not None:
-            self.job_exception(job)
-            return
+        if job.failed:
+            return self.job_exception(job)
         id = self.library_view.model().add_news(pt.name, recipe)
         self.library_view.model().reset()
         sync = dynamic.get('news_to_be_synced', set([]))
@@ -1047,7 +1027,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, previous)
 
-    def auto_convert_mail(to, delete_from_library, book_ids, format):
+    def auto_convert_mail(self, to, delete_from_library, book_ids, format):
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
@@ -1057,7 +1037,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if id not in bad:
                 job = self.job_manager.run_job(Dispatcher(self.book_auto_converted_mail),
                                         func, args=args, description=desc)
-                self.conversion_jobs[job] = (temp_files, fmt, id, delete_from_library)
+                self.conversion_jobs[job] = (temp_files, fmt, id,
+                        delete_from_library, to)
 
         if changed:
             self.library_view.model().refresh_rows(rows)
@@ -1115,9 +1096,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def book_auto_converted(self, job):
         temp_files, fmt, book_id, on_card = self.conversion_jobs.pop(job)
         try:
-            if job.exception is not None:
-                self.job_exception(job)
-                return
+            if job.failed:
+                return self.job_exception(job)
             data = open(temp_files[0].name, 'rb')
             self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
             data.close()
@@ -1137,9 +1117,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_auto_converted_mail(self, job):
-        temp_files, fmt, book_id, delete_from_library = self.conversion_jobs.pop(job)
+        temp_files, fmt, book_id, delete_from_library, to = self.conversion_jobs.pop(job)
         try:
-            if job.exception is not None:
+            if job.failed:
                 self.job_exception(job)
                 return
             data = open(temp_files[0].name, 'rb')
@@ -1163,7 +1143,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
         try:
-            if job.exception is not None:
+            if job.failed:
                 self.job_exception(job)
                 return
             data = open(temp_files[-1].name, 'rb')
@@ -1192,7 +1172,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._view_file(fmt_path)
 
     def book_downloaded_for_viewing(self, job):
-        if job.exception:
+        if job.failed:
             self.device_job_exception(job)
             return
         self._view_file(job.result)
@@ -1206,12 +1186,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     args.append('--raise-window')
                 if name is not None:
                     args.append(name)
-                self.job_manager.server.run_free_job(viewer,
-                        kwdargs=dict(args=args))
+                self.job_manager.launch_gui_app(viewer,
+                        kwargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl.fromLocalFile(name))#launch(name)
-
-            time.sleep(5) # User feedback
+                time.sleep(2) # User feedback
         finally:
             self.unsetCursor()
 
@@ -1436,7 +1415,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         try:
             if 'Could not read 32 bytes on the control bus.' in \
-                    unicode(job.exception):
+                    unicode(job.details):
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
@@ -1445,16 +1424,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         except:
             pass
         try:
-            print >>sys.stderr, job.console_text()
+            prints(job.details, file=sys.stderr)
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.set_message(job.gui_text())
+            self.device_error_dialog.setDetailedText(job.details)
             self.device_error_dialog.show()
 
     def job_exception(self, job):
         try:
-            if job.exception[0] == 'DRMError':
+            if 'calibre.ebooks.DRMError' in job.details:
                 error_dialog(self, _('Conversion Error'),
                     _('<p>Could not convert: %s<p>It is a '
                       '<a href="%s">DRM</a>ed book. You must first remove the '
@@ -1464,23 +1443,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
         except:
             pass
-        only_msg = getattr(job.exception, 'only_msg', False)
+        if job.killed:
+            return
         try:
-            print job.console_text()
+            prints(job.details, file=sys.stderr)
         except:
             pass
-        if only_msg:
-            try:
-                exc = unicode(job.exception)
-            except:
-                exc = repr(job.exception)
-            error_dialog(self, _('Conversion Error'), exc).exec_()
-            return
-        if isinstance(job.exception, JobKilled):
-            return
         error_dialog(self, _('Conversion Error'),
-                _('Failed to process')+': '+unicode(job.description),
-                det_msg=job.console_text()).exec_()
+                _('<b>Failed</b>')+': '+unicode(job.description),
+                det_msg=job.details).exec_()
 
 
     def initialize_database(self):
@@ -1581,8 +1552,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if self.job_manager.has_device_jobs():
                 msg = '<p>'+__appname__ + \
                       _(''' is communicating with the device!<br>
-                      'Quitting may cause corruption on the device.<br>
-                      'Are you sure you want to quit?''')+'</p>'
+                      Quitting may cause corruption on the device.<br>
+                      Are you sure you want to quit?''')+'</p>'
 
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
@@ -1596,7 +1567,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def shutdown(self, write_settings=True):
         if write_settings:
             self.write_settings()
-        self.job_manager.terminate_all_jobs()
+        self.job_manager.server.close()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()
@@ -1647,12 +1618,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.vanity.update()
         if config.get('new_version_notification') and \
                 dynamic.get('update to version %s'%version, True):
-            d = question_dialog(self, _('Update available'),
+            if question_dialog(self, _('Update available'),
                     _('%s has been updated to version %s. '
                     'See the <a href="http://calibre.kovidgoyal.net/wiki/'
                     'Changelog">new features</a>. Visit the download pa'
-                    'ge?')%(__appname__, version))
-            if d.exec_() == QMessageBox.Yes:
+                    'ge?')%(__appname__, version)):
                 url = 'http://calibre.kovidgoyal.net/download_'+\
                     ('windows' if iswindows else 'osx' if isosx else 'linux')
                 QDesktopServices.openUrl(QUrl(url))

@@ -156,13 +156,17 @@ class BasicNewsRecipe(Recipe):
     #: :attr:`BasicNewsRecipe.filter_regexps` should be defined.
     filter_regexps        = []
 
-    #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
-    html2lrf_options      = []
-
-    #: Options to pass to html2epub to customize generation of EPUB ebooks.
-    html2epub_options     = ''
-    #: Options to pass to oeb2mobi to customize generation of MOBI ebooks.
-    oeb2mobi_options     = ''
+    #: Recipe specific options to control the conversion of the downloaded
+    #: content into an e-book. These will override any user or plugin specified
+    #: values, so only use if absolutely necessary. For example::
+    #:   conversion_options = {
+    #:     'base_font_size'   : 16,
+    #:     'tags'             : 'mytag1,mytag2',
+    #:     'title'            : 'My Title',
+    #:     'linearize_tables' : True,
+    #:   }
+    #:
+    conversion_options = {}
 
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
