@@ -18,13 +18,13 @@ except:
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
-    set_metadata as podofo_set_metadata
+    set_metadata as podofo_set_metadata, Unavailable
 
 
 def get_metadata(stream, extract_cover=True):
     try:
         mi = podofo_get_metadata(stream)
-    except:
+    except Unavailable:
         mi = get_metadata_pypdf(stream)
     stream.seek(0)
 
@@ -43,7 +43,7 @@ def set_metadata(stream, mi):
     stream.seek(0)
     try:
         return podofo_set_metadata(stream, mi)
-    except:
+    except Unavailable:
         pass
     try:
         return pdftk_set_metadata(stream, mi)
