@@ -2,8 +2,10 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''The main GUI'''
-import os, sys, textwrap, collections, traceback, time
+import os, sys, textwrap, collections, traceback, time, socket
 from xml.parsers.expat import ExpatError
+from Queue import Queue, Empty
+from threading import Thread
 from functools import partial
 from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
@@ -20,7 +22,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
-                           SingleApplication, Application, available_height, \
+                           Application, available_height, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
@@ -45,6 +47,9 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
 
+ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
+    os.path.expanduser('~/.calibre-gui.socket')
+
 class SaveMenu(QMenu):
 
     def __init__(self, parent):
@@ -57,6 +62,32 @@ class SaveMenu(QMenu):
 
     def do(self, ext, *args):
         self.emit(SIGNAL('save_fmt(PyQt_PyObject)'), ext)
+
+class Listener(Thread):
+
+    def __init__(self, listener):
+        Thread.__init__(self)
+        self.daemon = True
+        self.listener, self.queue = listener, Queue()
+        self._run = True
+        self.start()
+
+    def run(self):
+        while self._run:
+            try:
+                conn = self.listener.accept()
+                msg = conn.recv()
+                self.queue.put(msg)
+            except:
+                continue
+
+    def close(self):
+        self._run = False
+        try:
+            self.listener.close()
+        except:
+            pass
+
 
 class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     'The main GUI'
@@ -71,17 +102,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.default_thumbnail = (pixmap.width(), pixmap.height(),
                 pixmap_to_data(pixmap))
 
-    def __init__(self, single_instance, opts, actions, parent=None):
+    def __init__(self, listener, opts, actions, parent=None):
         self.preferences_action, self.quit_action = actions
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
         self.fc = __import__('calibre.utils.fontconfig', fromlist=1)
-        self.single_instance = single_instance
-        if self.single_instance is not None:
-            self.connect(self.single_instance,
-                    SIGNAL('message_received(PyQt_PyObject)'),
-                         self.another_instance_wants_to_talk)
+        self.listener = Listener(listener)
+        self.check_messages_timer = QTimer()
+        self.connect(self.check_messages_timer, SIGNAL('timeout()'),
+                self.another_instance_wants_to_talk)
+        self.check_messages_timer.start(1000)
 
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
@@ -563,7 +594,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.cover_flow.currentSlide() != index.row():
             self.cover_flow.setCurrentSlide(index.row())
 
-    def another_instance_wants_to_talk(self, msg):
+    def another_instance_wants_to_talk(self):
+        try:
+            msg = self.listener.queue.get_nowait()
+        except Empty:
+            return
         if msg.startswith('launched:'):
             argv = eval(msg[len('launched:'):])
             if len(argv) > 1:
@@ -1567,6 +1602,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def shutdown(self, write_settings=True):
         if write_settings:
             self.write_settings()
+        self.check_messages_timer.stop()
+        self.listener.close()
         self.job_manager.server.close()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
@@ -1645,8 +1682,6 @@ path_to_ebook to the database.
     return parser
 
 def main(args=sys.argv):
-    from calibre.utils.lock import singleinstance
-
     pid = os.fork() if False and islinux else -1
     if pid <= 0:
         parser = option_parser()
@@ -1659,23 +1694,26 @@ def main(args=sys.argv):
         app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
-        single_instance = None if SingleApplication is None else \
-                                  SingleApplication('calibre GUI')
-        if not singleinstance('calibre GUI'):
-            if len(args) > 1:
-                args[1] = os.path.abspath(args[1])
-            if single_instance is not None and \
-               single_instance.is_running() and \
-               single_instance.send_message('launched:'+repr(args)):
-                return 0
-            extra = '' if iswindows else \
-                    ('If you\'re sure it is not running, delete the file '
-                    '%s.'%os.path.expanduser('~/.calibre_calibre GUI.lock'))
-            QMessageBox.critical(None, _('Cannot Start ')+__appname__,
+        from multiprocessing.connection import Listener, Client
+        try:
+            listener = Listener(address=ADDRESS)
+        except socket.error, err:
+            try:
+                conn = Client(ADDRESS)
+                if len(args) > 1:
+                    args[1] = os.path.abspath(args[1])
+                conn.send('launched:'+repr(args))
+                conn.close()
+            except:
+                extra = '' if iswindows else \
+                    _('If you\'re sure it is not running, delete the file %s')\
+                    %ADDRESS
+                QMessageBox.critical(None, _('Cannot Start ')+__appname__,
                         _('<p>%s is already running. %s</p>')%(__appname__, extra))
             return 1
+
         initialize_file_icon_provider()
-        main = Main(single_instance, opts, actions)
+        main = Main(listener, opts, actions)
         sys.excepthook = main.unhandled_exception
         if len(args) > 1:
             main.add_filesystem_book(args[1])

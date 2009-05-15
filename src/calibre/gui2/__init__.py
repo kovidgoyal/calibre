@@ -461,12 +461,6 @@ class ResizableDialog(QDialog):
         nw = min(self.width(), nw)
         self.resize(nw, nh)
 
-try:
-    from calibre.utils.single_qt_application import SingleApplication
-    SingleApplication
-except:
-    SingleApplication = None
-
 gui_thread = None
 
 class Application(QApplication):

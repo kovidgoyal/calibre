@@ -101,7 +101,6 @@ class ReadMetadata(Thread):
             return
 
         for id in ids:
-            print 11111111, id
             progress(id)
 
         for job in jobs:

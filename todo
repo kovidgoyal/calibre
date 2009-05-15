@@ -3,6 +3,6 @@
 
 * Rationalize books table. Add a pubdate column, remove the uri column (and associated support in add_books) and  convert series_index to a float.
 
-* Replace single application stuff with Listener from multiprocessing
+* Refactor save to disk into separate process
 
-* Fix HTML-to-ZIP plugin
+* Testing framework
