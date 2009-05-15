@@ -9,20 +9,20 @@ from threading import Thread
 from calibre.ebooks.metadata import MetaInformation, authors_to_string, get_parser
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
-    set_metadata as podofo_set_metadata
+    set_metadata as podofo_set_metadata, Unavailable
 
 
 def get_metadata(stream):
     try:
         return podofo_get_metadata(stream)
-    except:
+    except Unavailable:
         return get_metadata_pypdf(stream)
 
 def set_metadata(stream, mi):
     stream.seek(0)
     try:
         return podofo_set_metadata(stream, mi)
-    except:
+    except Unavailable:
         pass
     try:
         return pdftk_set_metadata(stream, mi)

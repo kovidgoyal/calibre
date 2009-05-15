@@ -21,17 +21,16 @@ def get_metadata(stream):
         raise Unavailable(podofo_err)
     raw = stream.read()
     stream.seek(0)
-    p = podofo.PdfMemDocument()
-    p.Load(raw, len(raw))
-    info = p.GetInfo()
-    title = info.GetTitle().decode('utf-8').strip()
+    p = podofo.PDFDoc()
+    p.load(raw)
+    title = p.title
     if not title:
         title = getattr(stream, 'name', _('Unknown'))
         title = os.path.splitext(os.path.basename(title))[0]
-    author = info.GetAuthor().decode('utf-8').strip()
+    author = p.author
     authors = string_to_authors(author) if author else  [_('Unknown')]
     mi = MetaInformation(title, authors)
-    creator = info.GetCreator().decode('utf-8').strip()
+    creator = p.creator
     if creator:
         mi.book_producer = creator
     return mi
@@ -47,31 +46,28 @@ def set_metadata(stream, mi):
     if not podofo:
         raise Unavailable(podofo_err)
     raw = stream.read()
-    p = podofo.PdfMemDocument()
-    p.Load(raw, len(raw))
-    info = p.GetInfo()
+    p = podofo.PDFDoc()
+    p.load(raw)
     title = prep(mi.title)
     touched = False
     if title:
-        info.SetTitle(title)
+        p.title = title
         touched = True
 
     author = prep(authors_to_string(mi.authors))
     if author:
-        print repr(author)
-        info.SetAuthor(author)
+        p.author = author
         touched = True
 
     bkp = prep(mi.book_producer)
     if bkp:
-        info.SetCreator(bkp)
+        p.creator = bkp
         touched = True
 
     if touched:
-        p.SetInfo(info)
         from calibre.ptempfile import TemporaryFile
         with TemporaryFile('_pdf_set_metadata.pdf') as f:
-            p.Write(f)
+            p.save(f)
             raw = open(f, 'rb').read()
             stream.seek(0)
             stream.truncate()
