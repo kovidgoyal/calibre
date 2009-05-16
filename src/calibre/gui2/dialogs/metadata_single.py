@@ -403,7 +403,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             pix = QPixmap()
             pix.loadFromData(self.cover_fetcher.cover_data)
             if pix.isNull():
-                error_dialog(self.window, _('Bad cover'),
+                error_dialog(self, _('Bad cover'),
                              _('The cover is not a valid picture')).exec_()
             else:
                 self.cover.setPixmap(pix)

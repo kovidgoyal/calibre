@@ -99,11 +99,11 @@ class pot(OptionlessCommand):
             tempdir = tempfile.mkdtemp()
             pygettext(buf, ['-k', '__', '-p', tempdir]+files)
             src = buf.getvalue()
-            pot = os.path.join(tempdir, __appname__+'.pot')
+            pot = os.path.join(self.PATH, __appname__+'.pot')
             f = open(pot, 'wb')
             f.write(src)
             f.close()
-            print 'Translations template:', pot
+            print 'Translations template:', os.path.abspath(pot)
             return pot
         finally:
             sys.path.remove(os.path.abspath(self.PATH))
@@ -709,6 +709,7 @@ class upload(OptionlessCommand):
     description = 'Build and upload calibre to the servers'
 
     sub_commands = [
+            ('pot', None),
             ('stage1', None),
             ('stage2', None),
             ('stage3', None)
