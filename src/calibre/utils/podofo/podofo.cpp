@@ -48,10 +48,12 @@ podofo_PDFDoc_load(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
         try {
             self->doc->Load(buffer, size);
         } catch(const PdfError & err) {
-            PyErr_SetString(PyExc_ValueError, PdfError::ErrorMessage(err.GetError()));
+            const char *msg = PdfError::ErrorMessage(err.GetError());
+            if (msg == NULL) msg = err.what();
+            PyErr_SetString(PyExc_ValueError, msg);
             return NULL;
-        }
-    } else return NULL;
+    }
+} else return NULL;
 
 
     Py_INCREF(Py_None);
