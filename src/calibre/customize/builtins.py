@@ -300,6 +300,17 @@ class PDFMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.pdf import set_metadata
         set_metadata(stream, mi)
 
+class PDBMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set PDB metadata'
+    file_types  = set(['pdb'])
+    description = _('Set metadata from %s files') % 'PDB'
+    author      = 'John Schember'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.pdb import set_metadata
+        set_metadata(stream, mi)
+
 
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.mobi.input import MOBIInput

@@ -220,9 +220,11 @@ class DeviceManager(Thread):
         '''Copy books from device to disk'''
         for path in paths:
             name = path.rpartition('/')[2]
-            f = open(os.path.join(target, name), 'wb')
-            self.device.get_file(path, f)
-            f.close()
+            dest = os.path.join(target, name)
+            if os.path.abspath(dest) != os.path.abspath(path):
+                f = open(dest, 'wb')
+                self.device.get_file(path, f)
+                f.close()
 
     def save_books(self, done, paths, target):
         return self.create_job(self._save_books, done, args=[paths, target],
@@ -493,6 +495,7 @@ class DeviceGUI(object):
             return
         files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     fmts, paths=True, set_metadata=True,
+                                    specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
             ids = list(set(ids).difference(_auto_ids))
@@ -563,9 +566,9 @@ class DeviceGUI(object):
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
                 autos = '\n'.join('%s'%i for i in autos)
                 info_dialog(self, _('No suitable formats'),
-                    _('Auto converting the following books before uploading to '
-                        'the device:'), det_msg=autos, show=True)
-                self.auto_convert_mail(to, delete_from_library, auto, format)
+                    _('Auto converting the following books before sending via '
+                        'email:'), det_msg=autos, show=True)
+                self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
