@@ -18,11 +18,7 @@ from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml.pmlconverter import html_to_pml
 
-# We are using the older identity because we do not user newer features
-# (sidebar, footnotes). This will ensure compatibility with older readers.
-# If newer features are used (anything supported by dropbook but not by makebook
-# change the identity to the newer PNRdPPrs.
-IDENTITY = 'PNPdPPrs'
+IDENTITY = 'PNRdPPrs'
 
 # This is an arbitrary number that is small enough to work. The actual maximum
 # record size is unknown.

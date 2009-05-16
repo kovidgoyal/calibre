@@ -12,7 +12,6 @@ import os, re, struct, zlib
 
 from calibre import CurrentDir
 from calibre.ebooks import DRMError
-from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pml.pmlconverter import pml_to_html, \
@@ -31,6 +30,7 @@ class HeaderRecord(object):
     def __init__(self, raw):
         self.version, = struct.unpack('>H', raw[0:2])
         self.non_text_offset, = struct.unpack('>H', raw[12:14])
+        self.has_metadata, = struct.unpack('>H', raw[24:26])
         self.footnote_rec, = struct.unpack('>H', raw[28:30])
         self.sidebar_rec, =  struct.unpack('>H', raw[30:32])
         self.bookmark_offset, = struct.unpack('>H', raw[32:34])
@@ -61,6 +61,9 @@ class Reader(FormatReader):
                 raise DRMError('eReader DRM is not supported.')
             else:
                 raise EreaderError('Unknown book version %i.' % self.header_record.version)
+
+        from calibre.ebooks.metadata.pdb import get_metadata
+        self.mi = get_metadata(stream, False)
 
     def section_data(self, number):
         return self.sections[number]
@@ -144,10 +147,8 @@ class Reader(FormatReader):
         return opf_path
 
     def create_opf(self, output_dir, images):
-        mi = MetaInformation(None, None)
-
         with CurrentDir(output_dir):
-            opf = OPFCreator(output_dir, mi)
+            opf = OPFCreator(output_dir, self.mi)
 
             manifest = [('index.html', None)]
 
