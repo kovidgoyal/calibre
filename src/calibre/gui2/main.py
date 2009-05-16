@@ -14,7 +14,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QProgressDialog, QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import __version__, __appname__, islinux, sanitize_file_name, \
+from calibre import __version__, __appname__, sanitize_file_name, \
                     iswindows, isosx, prints
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
@@ -29,7 +29,6 @@ from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
-from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.main_window import MainWindow, option_parser as _option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
@@ -960,54 +959,44 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.save_to_disk(checked, True)
 
     def save_to_disk(self, checked, single_dir=False, single_format=None):
-
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self, _('Cannot save to disk'),
                     _('No books selected'), show=True)
-
-        progress = ProgressDialog(_('Saving to disk...'), min=0, max=len(rows),
-                                  parent=self)
-
-        def callback(count, msg):
-            progress.set_value(count)
-            progress.set_msg(_('Saved')+' '+msg)
-            QApplication.processEvents()
-            QApplication.sendPostedEvents()
-            QApplication.flush()
-            return not progress.canceled
-
-        dir = choose_dir(self, 'save to disk dialog',
+        path = choose_dir(self, 'save to disk dialog',
                 _('Choose destination directory'))
-        if not dir:
+        if not path:
             return
 
-        progress.show()
-        QApplication.processEvents()
-        QApplication.sendPostedEvents()
-        QApplication.flush()
-        try:
-            if self.current_view() == self.library_view:
-                failures = self.current_view().model().save_to_disk(rows, dir,
-                                        single_dir=single_dir,
-                                        callback=callback,
-                                        single_format=single_format)
-                if failures and single_format is not None:
-                    msg = _('Could not save the following books to disk, '
-                       'because the %s format is not available for them')\
-                               %single_format.upper()
-                    det_msg = ''
-                    for f in failures:
-                        det_msg += '%s\n'%f[1]
-                    warning_dialog(self, _('Could not save some ebooks'),
-                            msg, det_msg).exec_()
-                QDesktopServices.openUrl(QUrl('file:'+dir))
-            else:
-                paths = self.current_view().model().paths(rows)
-                self.device_manager.save_books(
-                        Dispatcher(self.books_saved), paths, dir)
-        finally:
-            progress.hide()
+        if self.current_view() is self.library_view:
+            from calibre.gui2.add import Saver
+            self._saver = Saver(self, self.library_view.model().db,
+                    Dispatcher(self._books_saved), rows, path,
+                    by_author=self.library_view.model().by_author,
+                    single_dir=single_dir,
+                    single_format=single_format)
+
+        else:
+            paths = self.current_view().model().paths(rows)
+            self.device_manager.save_books(
+                    Dispatcher(self.books_saved), paths, path)
+
+
+    def _books_saved(self, path, failures, error):
+        single_format = self._saver.worker.single_format
+        self._saver = None
+        if error:
+            return error_dialog(self, _('Error while saving'),
+                    _('There was an error while saving.'),
+                    error, show=True)
+        if failures and single_format:
+            single_format = single_format.upper()
+            warning_dialog(self, _('Could not save some books'),
+            _('Could not save some books') + ', ' +
+            (_('as the %s format is not available for them.')%single_format) +
+            _('Click the show details button to see which ones.'),
+            '\n'.join(failures), show=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
     def books_saved(self, job):
         if job.failed:
@@ -1681,54 +1670,111 @@ path_to_ebook to the database.
                       help=_('Log debugging information to console'))
     return parser
 
+def init_qt(args):
+    parser = option_parser()
+    opts, args = parser.parse_args(args)
+    if opts.with_library is not None and os.path.isdir(opts.with_library):
+        prefs.set('library_path', opts.with_library)
+        print 'Using library at', prefs['library_path']
+    app = Application(args)
+    actions = tuple(Main.create_application_menubar())
+    app.setWindowIcon(QIcon(':/library'))
+    QCoreApplication.setOrganizationName(ORG_NAME)
+    QCoreApplication.setApplicationName(APP_UID)
+    return app, opts, args, actions
+
+def run_gui(opts, args, actions, listener, app):
+    initialize_file_icon_provider()
+    main = Main(listener, opts, actions)
+    sys.excepthook = main.unhandled_exception
+    if len(args) > 1:
+        args[1] = os.path.abspath(args[1])
+        main.add_filesystem_book(args[1])
+    ret = app.exec_()
+    if getattr(main, 'restart_after_quit', False):
+        e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
+        print 'Restarting with:', e, sys.argv
+        os.execvp(e, sys.argv)
+    else:
+        if iswindows:
+            try:
+                main.system_tray_icon.hide()
+            except:
+                pass
+    return ret
+
+def cant_start(msg=_('If you are sure it is not running')+', ',
+        what=None):
+    d = QMessageBox(QMessageBox.Critical, _('Cannot Start ')+__appname__,
+        '<p>'+(_('%s is already running.')%__appname__)+'</p>',
+        QMessageBox.Ok)
+    base = '<p>%s</p><p>%s %s'
+    where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
+    if isosx:
+        where += _('upper right region of the screen.')
+    else:
+        where += _('lower right region of the screen.')
+    if what is None:
+        if iswindows:
+            what = _('try rebooting your computer.')
+        else:
+            what = _('try deleting the file')+': '+ADDRESS
+
+    d.setInformativeText(base%(where, msg, what))
+    d.exec_()
+    raise SystemExit(1)
+
+class RC(Thread):
+
+    def run(self):
+        from multiprocessing.connection import Client
+        self.done = False
+        self.conn = Client(ADDRESS)
+        self.done = True
+
+def communicate(args):
+    t = RC()
+    t.start()
+    time.sleep(3)
+    if not t.done:
+        f = os.path.expanduser('~/.calibre_calibre GUI.lock')
+        cant_start(what=_('try deleting the file')+': '+f)
+        raise SystemExit(1)
+
+    if len(args) > 1:
+        args[1] = os.path.abspath(args[1])
+    t.conn.send('launched:'+repr(args))
+    t.conn.close()
+    raise SystemExit(0)
+
+
 def main(args=sys.argv):
-    pid = os.fork() if False and islinux else -1
-    if pid <= 0:
-        parser = option_parser()
-        opts, args = parser.parse_args(args)
-        if opts.with_library is not None and os.path.isdir(opts.with_library):
-            prefs.set('library_path', opts.with_library)
-            print 'Using library at', prefs['library_path']
-        app = Application(args)
-        actions = tuple(Main.create_application_menubar())
-        app.setWindowIcon(QIcon(':/library'))
-        QCoreApplication.setOrganizationName(ORG_NAME)
-        QCoreApplication.setApplicationName(APP_UID)
-        from multiprocessing.connection import Listener, Client
+    app, opts, args, actions = init_qt(args)
+    from calibre.utils.lock import singleinstance
+    from multiprocessing.connection import Listener
+    si = singleinstance('calibre GUI')
+    if si:
         try:
             listener = Listener(address=ADDRESS)
-        except socket.error, err:
-            try:
-                conn = Client(ADDRESS)
-                if len(args) > 1:
-                    args[1] = os.path.abspath(args[1])
-                conn.send('launched:'+repr(args))
-                conn.close()
-            except:
-                extra = '' if iswindows else \
-                    _('If you\'re sure it is not running, delete the file %s')\
-                    %ADDRESS
-                QMessageBox.critical(None, _('Cannot Start ')+__appname__,
-                        _('<p>%s is already running. %s</p>')%(__appname__, extra))
-            return 1
-
-        initialize_file_icon_provider()
-        main = Main(listener, opts, actions)
-        sys.excepthook = main.unhandled_exception
-        if len(args) > 1:
-            main.add_filesystem_book(args[1])
-        ret = app.exec_()
-        if getattr(main, 'restart_after_quit', False):
-            e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
-            print 'Restarting with:', e, sys.argv
-            os.execvp(e, sys.argv)
-        else:
+        except socket.error:
             if iswindows:
-                try:
-                    main.system_tray_icon.hide()
-                except:
-                    pass
-            return ret
+                cant_start()
+            os.remove(ADDRESS)
+            try:
+                listener = Listener(address=ADDRESS)
+            except socket.error:
+                cant_start()
+            else:
+                return run_gui(opts, args, actions, listener, app)
+        else:
+            return run_gui(opts, args, actions, listener, app)
+    try:
+        listener = Listener(address=ADDRESS)
+    except socket.error: # Good si is correct
+        communicate(args)
+    else:
+        return run_gui(opts, args, actions, listener, app)
+
     return 0
 
 

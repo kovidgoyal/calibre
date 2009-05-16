@@ -3,6 +3,8 @@
 
 * Rationalize books table. Add a pubdate column, remove the uri column (and associated support in add_books) and  convert series_index to a float.
 
-* Refactor save to disk into separate process
-
 * Testing framework
+
+* Welcome wizard
+
+* MOBI navigation indexing support

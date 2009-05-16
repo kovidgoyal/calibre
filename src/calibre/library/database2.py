@@ -1491,7 +1491,7 @@ books_series_link      feeds
                     f.close()
                 count += 1
                 if callable(callback):
-                    if not callback(count, mi.title):
+                    if not callback(int(id), mi.title):
                         return
 
     def export_single_format_to_dir(self, dir, indices, format,
@@ -1527,7 +1527,7 @@ books_series_link      feeds
                 pass
             f.close()
             if callable(callback):
-                if not callback(count, title):
+                if not callback(int(id), title):
                     break
         return failures
 

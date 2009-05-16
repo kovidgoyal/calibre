@@ -30,6 +30,9 @@ every time you add an HTML file to the library.\
                 OptionRecommendation.HIGH)])
             of = self.temporary_file('_plugin_html2zip.zip')
             opf = glob.glob(os.path.join(tdir, '*.opf'))[0]
+            ncx = glob.glob(os.path.join(tdir, '*.ncx'))
+            if ncx:
+                os.remove(ncx[0])
             epub = initialize_container(of.name, os.path.basename(opf))
             epub.add_dir(tdir)
             epub.close()
@@ -291,7 +294,7 @@ class PDFMetadataWriter(MetadataWriterPlugin):
     name        = 'Set PDF metadata'
     file_types  = set(['pdf'])
     description = _('Set metadata in %s files') % 'PDF'
-    author      = 'John Schember'
+    author      = 'Kovid Goyal'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.pdf import set_metadata

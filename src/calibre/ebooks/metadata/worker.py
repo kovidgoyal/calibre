@@ -87,7 +87,7 @@ class ReadMetadata(Thread):
                             ids.remove(id)
                     except Empty:
                         break
-                job.update()
+                job.update(consume_notifications=False)
                 if not job.is_finished:
                     running = True
 
@@ -119,3 +119,88 @@ def read_metadata(paths, result_queue, chunk=50):
     t = ReadMetadata(tasks, result_queue)
     t.start()
     return t
+
+class SaveWorker(Thread):
+
+    def __init__(self, result_queue, db, ids, path, by_author=False,
+            single_dir=False,  single_format=None):
+        Thread.__init__(self)
+        self.daemon = True
+        self.path, self.by_author = path, by_author
+        self.single_dir, self.single_format = single_dir, single_format
+        self.ids = ids
+        self.library_path = db.library_path
+        self.canceled = False
+        self.result_queue = result_queue
+        self.error = None
+        self.start()
+
+    def run(self):
+        server = Server()
+        ids = set(self.ids)
+        tasks = server.split(list(ids))
+        jobs = set([])
+        for i, task in enumerate(tasks):
+            tids = [x[-1] for x in task]
+            job = ParallelJob('save_book',
+                    'Save books (%d of %d)'%(i, len(tasks)),
+                    lambda x,y:x,
+                    args=[tids, self.library_path, self.path, self.single_dir,
+                        self.single_format, self.by_author])
+            jobs.add(job)
+            server.add_job(job)
+
+
+        while not self.canceled:
+            time.sleep(0.2)
+            running = False
+            for job in jobs:
+                job.update(consume_notifications=False)
+                while True:
+                    try:
+                        id, title, ok = job.notifications.get_nowait()[0]
+                        if id in ids:
+                            self.result_queue.put((id, title, ok))
+                            ids.remove(id)
+                    except Empty:
+                        break
+                if not job.is_finished:
+                    running = True
+
+            if not running:
+                break
+
+        server.close()
+        time.sleep(1)
+
+        if self.canceled:
+            return
+
+        for job in jobs:
+            if job.failed:
+                prints(job.details)
+                self.error = job.details
+            if os.path.exists(job.log_path):
+                os.remove(job.log_path)
+
+
+def save_book(task, library_path, path, single_dir, single_format,
+        by_author, notification=lambda x,y:x):
+    from calibre.library.database2 import LibraryDatabase2
+    db = LibraryDatabase2(library_path)
+
+    def callback(id, title):
+        notification((id, title, True))
+        return True
+
+    if single_format is None:
+        failures = []
+        db.export_to_dir(path, task, index_is_id=True, byauthor=by_author,
+                callback=callback, single_dir=single_dir)
+    else:
+        failures = db.export_single_format_to_dir(path, task, single_format,
+                index_is_id=True, callback=callback)
+
+    for id, title in failures:
+        notification((id, title, False))
+

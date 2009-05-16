@@ -65,7 +65,7 @@ class RTFInput(InputFormatPlugin):
                 accelerators):
         from calibre.ebooks.rtf.xsl import xhtml
         from calibre.ebooks.metadata.meta import get_metadata
-        from calibre.ebooks.metadata.opf import OPFCreator
+        from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
         self.log = log
         self.log('Converting RTF to XML...')

@@ -150,7 +150,12 @@ class EbookIterator(object):
 
         if self.opf.path_to_html_toc is not None and \
            self.opf.path_to_html_toc not in self.spine:
-            self.spine.append(SpineItem(self.opf.path_to_html_toc))
+            try:
+                self.spine.append(SpineItem(self.opf.path_to_html_toc))
+            except:
+                import traceback
+                traceback.print_exc()
+
 
         sizes = [i.character_count for i in self.spine]
         self.pages = [math.ceil(i/float(self.CHARACTERS_PER_PAGE)) for i in sizes]

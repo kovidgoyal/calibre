@@ -12,6 +12,7 @@ from threading import Thread
 from Queue import Queue
 from contextlib import closing
 from binascii import unhexlify
+from calibre import prints
 
 PARALLEL_FUNCS = {
       'lrfviewer'    :
@@ -28,6 +29,9 @@ PARALLEL_FUNCS = {
 
       'read_metadata' :
       ('calibre.ebooks.metadata.worker', 'read_metadata_', 'notification'),
+
+      'save_book' :
+      ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),
 }
 
 class Progress(Thread):
@@ -64,9 +68,10 @@ def main():
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])
     with closing(Client(address, authkey=key)) as conn:
-        name, args, kwargs = conn.recv()
-        #print (name, args, kwargs)
-        #sys.stdout.flush()
+        name, args, kwargs, desc = conn.recv()
+        if desc:
+            prints(desc)
+            sys.stdout.flush()
         func, notification = get_func(name)
         notifier = Progress(conn)
         if notification:
