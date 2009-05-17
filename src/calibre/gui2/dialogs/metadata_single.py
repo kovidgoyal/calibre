@@ -419,22 +419,22 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         publisher = qstring_to_unicode(self.publisher.currentText())
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
+            self._fetch_metadata_scope = d
             with d:
-                d.exec_()
-            if d.result() == QDialog.Accepted:
-                book = d.selected_book()
-                if book:
-                    self.title.setText(book.title)
-                    self.authors.setText(authors_to_string(book.authors))
-                    if book.author_sort: self.author_sort.setText(book.author_sort)
-                    if book.publisher: self.publisher.setEditText(book.publisher)
-                    if book.isbn: self.isbn.setText(book.isbn)
-                    summ = book.comments
-                    if summ:
-                        prefix = qstring_to_unicode(self.comments.toPlainText())
-                        if prefix:
-                            prefix += '\n'
-                        self.comments.setText(prefix + summ)
+                if d.exec_() == QDialog.Accepted:
+                    book = d.selected_book()
+                    if book:
+                        self.title.setText(book.title)
+                        self.authors.setText(authors_to_string(book.authors))
+                        if book.author_sort: self.author_sort.setText(book.author_sort)
+                        if book.publisher: self.publisher.setEditText(book.publisher)
+                        if book.isbn: self.isbn.setText(book.isbn)
+                        summ = book.comments
+                        if summ:
+                            prefix = qstring_to_unicode(self.comments.toPlainText())
+                            if prefix:
+                                prefix += '\n'
+                            self.comments.setText(prefix + summ)
         else:
             error_dialog(self, _('Cannot fetch metadata'),
                          _('You must specify at least one of ISBN, Title, '

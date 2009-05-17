@@ -187,6 +187,8 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
     def terminate(self):
         if hasattr(self, 'fetcher') and self.fetcher.isRunning():
             self.fetcher.terminate()
+        if hasattr(self, '_hangcheck') and self._hangcheck.isActive():
+            self._hangcheck.stop()
 
 
     def __enter__(self, *args):
