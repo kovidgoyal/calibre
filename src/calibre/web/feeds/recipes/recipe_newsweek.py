@@ -2,7 +2,7 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re, time
+import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -12,6 +12,7 @@ class Newsweek(BasicNewsRecipe):
     __author__     = 'Kovid Goyal'
     description    = 'Weekly news and current affairs in the US'
     no_stylesheets = True
+    encoding       = 'utf-8'
     language = _('English')
     remove_tags = [
             {'class':['navbar', 'ad', 'sponsorLinksArticle', 'mm-content',
@@ -30,12 +31,12 @@ class Newsweek(BasicNewsRecipe):
 
     def find_title(self, section):
         d = {'scope':'Scope', 'thetake':'The Take', 'features':'Features',
-        None:'Departments'}
+                None:'Departments', 'culture':'Culture'}
         ans = None
         a = section.find('a', attrs={'name':True})
         if a is not None:
             ans = a['name']
-        return d[ans]
+        return d.get(ans, ans)
 
 
     def find_articles(self, section):
@@ -64,14 +65,6 @@ class Newsweek(BasicNewsRecipe):
         soup = self.get_current_issue()
         if not soup:
             raise RuntimeError('Unable to connect to newsweek.com. Try again later.')
-        img = soup.find(alt='Cover')
-        if img is not None and img.has_key('src'):
-            small = img['src']
-            match = re.search(r'(\d+)_', small.rpartition('/')[-1])
-            if match is not None:
-                self.timefmt = strftime(' [%d %b, %Y]', time.strptime(match.group(1), '%y%m%d'))
-            self.cover_url = small.replace('coversmall', 'coverlarge')
-
         sections = soup.findAll('div', attrs={'class':'featurewell'})
         titles = map(self.find_title, sections)
         articles = map(self.find_articles, sections)
@@ -113,4 +106,13 @@ class Newsweek(BasicNewsRecipe):
         if a is not None:
             href = a['href'].split('#')[0]
             return self.index_to_soup(href)
+
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup(self.INDEX)
+        link_item = soup.find('div',attrs={'class':'cover-image'})
+        if link_item and link_item.a and link_item.a.img:
+           cover_url = link_item.a.img['src']
+        return cover_url
+
 
