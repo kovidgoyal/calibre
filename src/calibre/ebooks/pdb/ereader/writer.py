@@ -16,7 +16,7 @@ from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pdb.ereader import image_name
-from calibre.ebooks.pml.pmlconverter import html_to_pml
+from calibre.ebooks.pml.pmlml import PMLMLizer
 
 IDENTITY = 'PNRdPPrs'
 
@@ -31,7 +31,7 @@ class Writer(FormatWriter):
         self.log = log
         
     def write_content(self, oeb_book, out_stream, metadata=None):
-        text = self._text(oeb_book.spine)
+        text = self._text(oeb_book)
         images = self._images(oeb_book.manifest)
         metadata = [self._metadata(metadata)]
         
@@ -41,16 +41,15 @@ class Writer(FormatWriter):
         
         lengths = [len(i) for i in sections]
         
-        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, '')
+        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].parition()[0])
         pdbHeaderBuilder.build_header(lengths, out_stream)
         
         for item in sections:
             out_stream.write(item)
 
-    def _text(self, pages):
-        pml = ''
-        for page in pages:
-            pml += html_to_pml(unicode(page)).encode('cp1252')
+    def _text(self, oeb_book):
+        pmlmlizer = PMLMLizer(ignore_tables=self.opts.linearize_tables)
+        pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252')
     
         pml_pages = []
         for i in range(0, (len(pml) / MAX_RECORD_SIZE) + 1):

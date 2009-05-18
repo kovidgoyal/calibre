@@ -12,7 +12,7 @@ from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.oeb.base import OEB_IMAGES
-from calibre.ebooks.pml.pmlconverter import html_to_pml
+from calibre.ebooks.pml.pmlml import PMLMLizer
 
 class PMLOutput(OutputFormatPlugin):
 
@@ -22,21 +22,15 @@ class PMLOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         with TemporaryDirectory('_pmlz_output') as tdir:
-            self.process_spine(oeb_book.spine, tdir)
+            pmlmlizer = PMLMLizer(ignore_tables=opts.linearize_tables)
+            content = pmlmlizer.extract_content(oeb_book, opts)
+            with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
+                out.write(content.encode('utf-8'))
+                
             self.write_images(oeb_book.manifest, tdir)
 
             pmlz = ZipFile(output_path, 'w')
             pmlz.add_dir(tdir)
-        
-    def process_spine(self, spine, out_dir):
-        for item in spine:
-            html = html_to_pml(unicode(item)).encode('utf-8')
-            
-            name = os.path.splitext(os.path.basename(item.href))[0] + '.pml'
-            path = os.path.join(out_dir, name)
-            
-            with open(path, 'wb') as out:
-                out.write(html)
         
     def write_images(self, manifest, out_dir):
         for item in manifest:
