@@ -71,12 +71,16 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
     plugInInterface = NULL; dev = NULL;
     //Create an intermediate plugin
     kr = IOCreatePlugInInterfaceForService(usbDevice, kIOUSBDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugInInterface, &score);
-    if ((kIOReturnSuccess != kr) || !plugInInterface)
-      printf("Unable to create a plug-in (%08x)\n", kr);
+    if ((kIOReturnSuccess != kr) || !plugInInterface) {
+      printf("Unable to create a plug-in (%08x)\n", kr); continue;
+    }
     //Now create the device interface
     HRESULT result = (*plugInInterface)->QueryInterface(plugInInterface, CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID), (LPVOID)&dev);
 
-    if (result || !dev) printf("Couldn't create a device interface (%08x)\n", (int) result);
+    if (result || !dev) {
+        printf("Couldn't create a device interface (%08x)\n", (int) result);
+        continue;
+    }
 
     kr = (*dev)->GetDeviceVendor(dev, &vendor);
     kr = (*dev)->GetDeviceProduct(dev, &product);
