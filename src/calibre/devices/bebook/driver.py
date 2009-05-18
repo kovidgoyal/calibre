@@ -8,7 +8,7 @@ from calibre.devices.usbms.driver import USBMS
 
 class BEBOOK(USBMS):
     # Ordered list of supported formats
-    FORMATS     = ['mobi', 'epub', 'pdf', 'mobi', 'txt']
+    FORMATS     = ['mobi', 'epub', 'pdf', 'txt']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0x8803, 0x6803]
