@@ -1590,7 +1590,7 @@ class OEBBook(object):
                 pass
         if self.encoding is not None:
             try:
-                return fix_data(data.decode(self.encoding))
+                return fix_data(data.decode(self.encoding, 'replace'))
             except UnicodeDecodeError:
                 pass
         try:

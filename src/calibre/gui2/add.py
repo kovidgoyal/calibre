@@ -1,5 +1,5 @@
 '''
-UI for adding books to the database
+UI for adding books to the database and saving books to disk
 '''
 import os
 from Queue import Queue, Empty
