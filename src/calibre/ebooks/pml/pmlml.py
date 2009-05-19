@@ -55,14 +55,19 @@ class PMLMLizer(object):
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         output = self.clean_text(output)
-        
-        output = re.sub('%s{1,1}' % os.linesep, '%s%s' % (os.linesep, os.linesep), output)
-        output = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), output)
-        output = re.sub('[ ]{2,}', ' ', output)
 
         return output
 
     def clean_text(self, text):
+        text = re.sub('(?m)^[ ]+', '', text)
+        text = re.sub('(?m)[ ]+$', '', text)
+    
+        text = re.sub('%s{1,1}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
+        text = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
+        text = re.sub('[ ]{2,}', ' ', text)
+        
+        text = re.sub(r'\\p\s*\\p', '', text)
+        
         return text
 
     def dump_text(self, elem, stylizer, tag_stack=[]):
@@ -99,10 +104,9 @@ class PMLMLizer(object):
                 text += '="50%"'
         
         # Process style information that needs holds a single tag
-        if style['page-break-before'] == 'always':
-            text += '\\p'
-        if style['page-break-after'] == 'always':
-            text += '\\p'
+        # Commented out because every page in an OEB book starts with this style
+        #if style['page-break-before'] == 'always':
+        #    text += '\\p'
         
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
@@ -145,10 +149,12 @@ class PMLMLizer(object):
         text += self.close_tags(close_tag_list)
         if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'li'):
             text += os.linesep + os.linesep
-
         
         if 'block' not in tag_stack:
             text += os.linesep + os.linesep
+
+        #if style['page-break-after'] == 'always':
+        #    text += '\\p'
         
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             text += self.elem_tail(elem, tag_stack)
