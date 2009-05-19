@@ -41,7 +41,7 @@ class Writer(FormatWriter):
         
         lengths = [len(i) for i in sections]
         
-        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].parition()[0])
+        pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].partition('\x00')[0])
         pdbHeaderBuilder.build_header(lengths, out_stream)
         
         for item in sections:
@@ -49,7 +49,7 @@ class Writer(FormatWriter):
 
     def _text(self, oeb_book):
         pmlmlizer = PMLMLizer(ignore_tables=self.opts.linearize_tables)
-        pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252')
+        pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
     
         pml_pages = []
         for i in range(0, (len(pml) / MAX_RECORD_SIZE) + 1):

@@ -13,6 +13,7 @@ import os, re
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.pdb.ereader import image_name
+from calibre import entity_to_unicode
 
 TAG_MAP = {
     'b'       : 'B',
@@ -78,9 +79,12 @@ class PMLMLizer(object):
         
         # Remove anchors that do not have links
         anchors = set(re.findall(r'(?<=\\Q=").+?(?=")', text))
-        links = set(re.findall(r'(?<=\\q=").+?(?=")', text))
+        links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
+            
+        for entity in set(re.findall('&.+?;', text)):
+            text = text.replace(entity, entity_to_unicode(entity[1:-1]))
         
         return text
 
@@ -136,10 +140,10 @@ class PMLMLizer(object):
                 href = elem.get('href')
                 if href and '://' not in href:
                     if '#' in href:
-                        href = href.partition('#')[2][1:]
+                        href = href.partition('#')[2]
                     href = os.path.splitext(os.path.basename(href))[0]
                     tag_count += 1
-                    text += '\\q="%s"' % href
+                    text += '\\q="#%s"' % href
                     tag_stack.append('q')
             # Anchor ids
             id_name = elem.get('id')
