@@ -53,20 +53,34 @@ class PMLMLizer(object):
         output = u''
         for item in self.oeb_book.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+            output += self.add_page_anchor(item.href)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         output = self.clean_text(output)
 
         return output
 
+    def add_page_anchor(self, href):
+        href = os.path.splitext(os.path.basename(href))[0]
+        return '\\Q="%s"' % href
+
     def clean_text(self, text):
+        # Remove excess spaces at beginning and end of lines
         text = re.sub('(?m)^[ ]+', '', text)
         text = re.sub('(?m)[ ]+$', '', text)
     
+        # Remove excessive newlines
         text = re.sub('%s{1,1}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
         text = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
         text = re.sub('[ ]{2,}', ' ', text)
         
+        # Remove excessive \p tags
         text = re.sub(r'\\p\s*\\p', '', text)
+        
+        # Remove anchors that do not have links
+        anchors = set(re.findall(r'(?<=\\Q=").+?(?=")', text))
+        links = set(re.findall(r'(?<=\\q=").+?(?=")', text))
+        for unused in anchors.difference(links):
+            text = text.replace('\\Q="%s"' % unused, '')
         
         return text
 
@@ -120,14 +134,17 @@ class PMLMLizer(object):
             # Anchors links
             if tag == 'a' and 'q' not in tag_stack:
                 href = elem.get('href')
-                if href and href.startswith('#'):
+                if href and '://' not in href:
+                    if '#' in href:
+                        href = href.partition('#')[2][1:]
+                    href = os.path.splitext(os.path.basename(href))[0]
                     tag_count += 1
                     text += '\\q="%s"' % href
                     tag_stack.append('q')
             # Anchor ids
             id_name = elem.get('id')
             if id_name:
-                text += '\\Q="%s"' % id_name
+                text += '\\Q="%s"' % os.path.splitext(id_name)[0]
 
             # Processes style information
             for s in STYLES:
@@ -147,7 +164,7 @@ class PMLMLizer(object):
         for i in range(0, tag_count):
             close_tag_list.insert(0, tag_stack.pop())
         text += self.close_tags(close_tag_list)
-        if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'li'):
+        if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'li', 'tr'):
             text += os.linesep + os.linesep
         
         if 'block' not in tag_stack:
