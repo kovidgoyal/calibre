@@ -2,7 +2,7 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re, string, time
+import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -13,119 +13,96 @@ class Newsweek(BasicNewsRecipe):
     description    = 'Weekly news and current affairs in the US'
     no_stylesheets = True
     language = _('English')
-
-    extra_css = '''
-    #content { font-size:normal; font-family: serif }
-    .story  { font-size:normal }
-    .HorizontalHeader {font-size:xx-large}
-    .deck {font-size:x-large}
-    '''
-    keep_only_tags = [dict(name='div', id='content')]
-
     remove_tags = [
-        dict(name=['script',  'noscript']),
-        dict(name='div',  attrs={'class':['ad', 'SocialLinks', 'SocialLinksDiv',
-                                          'channel', 'bot', 'nav', 'top',
-                                          'EmailArticleBlock',
-                                          'comments-and-social-links-wrapper',
-                                          'inline-social-links-wrapper',
-                                          'inline-social-links',
-                                          ]}),
-        dict(name='div',  attrs={'class':re.compile('box')}),
-        dict(id=['ToolBox', 'EmailMain', 'EmailArticle', 'comment-box',
-                 'nw-comments'])
-    ]
+            {'class':['navbar', 'ad', 'sponsorLinksArticle', 'mm-content',
+                'inline-social-links-wrapper', 'email-article',
+                'comments-and-social-links-wrapper', 'EmailArticleBlock']},
+            {'id' : ['footer', 'ticker-data', 'topTenVertical',
+                'digg-top-five', 'mesothorax', 'nw-comments',
+                'ToolBox', 'EmailMain']},
+            {'class': re.compile('related-cloud')},
+            ]
+    keep_only_tags = [{'class':['article HorizontalHeader', 'articlecontent']}]
+
 
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
 
+    def find_title(self, section):
+        d = {'scope':'Scope', 'thetake':'The Take', 'features':'Features',
+                None:'Departments', 'culture':'Culture'}
+        ans = None
+        a = section.find('a', attrs={'name':True})
+        if a is not None:
+            ans = a['name']
+        return d.get(ans, ans)
 
-    def get_sections(self, soup):
-        sections = []
 
-        def process_section(img):
-            articles = []
-            match = re.search(r'label_([^_.]+)', img['src'])
-            if match is None:
-                return
-            title =  match.group(1)
-            if title in ['coverstory', 'more', 'tipsheet']:
-                return
-            title = string.capwords(title)
+    def find_articles(self, section):
+        ans = []
+        for x in section.findAll('h5'):
+            title = ' '.join(x.findAll(text=True)).strip()
+            a = x.find('a')
+            if not a: continue
+            href = a['href']
+            ans.append({'title':title, 'url':href, 'description':'', 'date': strftime('%a, %d %b')})
+        if not ans:
+            for x in section.findAll('div', attrs={'class':'hdlItem'}):
+                a = x.find('a', href=True)
+                if not a : continue
+                title = ' '.join(a.findAll(text=True)).strip()
+                href = a['href']
+                if 'http://xtra.newsweek.com' in href: continue
+                ans.append({'title':title, 'url':href, 'description':'', 'date': strftime('%a, %d %b')})
 
-            for a in img.parent.findAll('a', href=True):
-                art, href = a.string, a['href']
-                if not re.search('\d+$', href) or not art or 'Preview Article' in art:
-                    continue
-                articles.append({
-                                 'title':art, 'url':href, 'description':'',
-                                 'content':'', 'date':''
-                    })
-            sections.append((title, articles))
-
-            img.parent.extract()
-
-        for img in soup.findAll(src=re.compile('/label_')):
-            process_section(img)
-
-        return sections
+        #for x in ans:
+        #    x['url'] += '/output/print'
+        return ans
 
 
     def parse_index(self):
         soup = self.get_current_issue()
         if not soup:
             raise RuntimeError('Unable to connect to newsweek.com. Try again later.')
-        img = soup.find(alt='Cover')
-        if img is not None and img.has_key('src'):
-            small = img['src']
-            match = re.search(r'(\d+)_', small.rpartition('/')[-1])
-            if match is not None:
-                self.timefmt = strftime(' [%d %b, %Y]', time.strptime(match.group(1), '%y%m%d'))
-            self.cover_url = small.replace('coversmall', 'coverlarge')
-
-        sections = self.get_sections(soup)
-        sections.insert(0, ('Main articles', []))
-
-        for tag in soup.findAll('h5'):
-            a = tag.find('a', href=True)
-            if a is not None:
-                title = self.tag_to_string(a)
-                if not title:
-                    a = 'Untitled article'
-                art = {
-                       'title' : title,
-                       'url'   : a['href'],
-                       'description':'', 'content':'',
-                       'date': strftime('%a, %d %b')
-                       }
-                if art['title'] and art['url']:
-                    sections[0][1].append(art)
-        return sections
-
+        sections = soup.findAll('div', attrs={'class':'featurewell'})
+        titles = map(self.find_title, sections)
+        articles = map(self.find_articles, sections)
+        ans = list(zip(titles, articles))
+        def fcmp(x, y):
+            tx, ty = x[0], y[0]
+            if tx == "Features": return cmp(1, 2)
+            if ty == "Features": return cmp(2, 1)
+            return cmp(tx, ty)
+        return sorted(ans, cmp=fcmp)
 
     def postprocess_html(self, soup, first_fetch):
-        divs = list(soup.findAll('div', 'pagination'))
-        if not divs:
-            return
-        divs[0].extract()
-        if len(divs) > 1:
-            soup.find('body')['style'] = 'page-break-after:avoid'
-            divs[1].extract()
-
-            h1 = soup.find('h1')
+        if not first_fetch:
+            h1 = soup.find(id='headline')
             if h1:
                 h1.extract()
-            ai = soup.find('div', 'articleInfo')
-            ai.extract()
-        else:
-            soup.find('body')['style'] = 'page-break-before:always; page-break-after:avoid;'
+            div = soup.find(attrs={'class':'articleInfo'})
+            if div:
+                div.extract()
+        divs = list(soup.findAll('div', 'pagination'))
+        if not divs:
+            return soup
+        for div in divs[1:]: div.extract()
+        all_a = divs[0].findAll('a', href=True)
+        divs[0]['style']="display:none"
+        if len(all_a) > 1:
+            all_a[-1].extract()
+        test = re.compile(self.match_regexps[0])
+        for a in soup.findAll('a', href=test):
+            if a not in all_a:
+                del a['href']
         return soup
 
     def get_current_issue(self):
-        #from urllib2 import urlopen # For some reason mechanize fails
-        #home = urlopen('http://www.newsweek.com').read()
-        soup = self.index_to_soup('http://www.newsweek.com')#BeautifulSoup(home)
-        img  = soup.find('img', alt='Current Magazine')
-        if img and img.parent.has_key('href'):
-            return self.index_to_soup(img.parent['href'])
+        soup = self.index_to_soup('http://www.newsweek.com')
+        div = soup.find('div', attrs={'class':re.compile('more-from-mag')})
+        if div is None: return None
+        a = div.find('a')
+        if a is not None:
+            href = a['href'].split('#')[0]
+            return self.index_to_soup(href)
 

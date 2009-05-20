@@ -35,7 +35,7 @@ class ConnectedWorker(Thread):
 
     def start_job(self, job):
         notification = PARALLEL_FUNCS[job.name][-1] is not None
-        self.conn.send((job.name, job.args, job.kwargs))
+        self.conn.send((job.name, job.args, job.kwargs, job.description))
         if notification:
             self.start()
         else:
@@ -204,7 +204,7 @@ class Server(Thread):
         '''
         Split a list into a list of sub lists, with the number of sub lists being
         no more than the number of workers this server supports. Each sublist contains
-        two tuples of the form (i, x) where x is an element from the original list
+        2-tuples of the form (i, x) where x is an element from the original list
         and i is the index of the element x in the original list.
         '''
         ans, count, pos = [], 0, 0

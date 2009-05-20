@@ -16,7 +16,7 @@ from urlparse import urlparse, urlunparse
 from urllib import unquote
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
 from calibre import unicode_path
@@ -262,11 +262,19 @@ class HTMLInput(InputFormatPlugin):
         ),
     ])
 
+    def decode(self, raw):
+        if self.opts.input_encoding:
+            raw = raw.decode(self.opts.input_encoding, 'replace')
+        print 111111, type(raw)
+        return xml_to_unicode(raw, verbose=self.opts.verbose,
+                strip_encoding_pats=True, resolve_entities=True)[0]
+
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         from calibre.ebooks.metadata.meta import get_metadata
 
         basedir = os.getcwd()
+        self.opts = opts
 
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
@@ -284,11 +292,14 @@ class HTMLInput(InputFormatPlugin):
             mi.render(open('metadata.opf', 'wb'))
             opfpath = os.path.abspath('metadata.opf')
 
+        opf = OPF(opfpath, os.getcwdu())
+
         if opts.dont_package:
             return opfpath
 
         from calibre.ebooks.conversion.plumber import create_oebbook
-        oeb = create_oebbook(log, opfpath, opts, self)
+        oeb = create_oebbook(log, opfpath, opts, self,
+                encoding=opts.input_encoding)
 
         from calibre.ebooks.oeb.transforms.package import Package
         Package(os.getcwdu())(oeb, opts)

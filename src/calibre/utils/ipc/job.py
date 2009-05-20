@@ -39,7 +39,7 @@ class BaseJob(object):
         self._status_text  = _('Waiting...')
         self._done_called  = False
 
-    def update(self):
+    def update(self, consume_notifications=True):
         if self.duration is not None:
             self._run_state   = self.FINISHED
             self.percent = 100
@@ -62,7 +62,7 @@ class BaseJob(object):
             self._run_state = self.RUNNING
             self._status_text = _('Working...')
 
-        while True:
+        while consume_notifications:
             try:
                 self.percent, self._message = self.notifications.get_nowait()
                 self.percent *= 100.

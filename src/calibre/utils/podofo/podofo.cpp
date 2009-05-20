@@ -6,8 +6,6 @@
 #include <podofo.h>
 using namespace PoDoFo;
 
-#include <string.h>
-
 class podofo_pdfmem_wrapper : public PdfMemDocument {
     public:
         inline void set_info(PdfInfo *i) { this->SetInfo(i); }
@@ -42,6 +40,12 @@ podofo_PDFDoc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
+static void podofo_set_exception(const PdfError &err) {
+    const char *msg = PdfError::ErrorMessage(err.GetError());
+    if (msg == NULL) msg = err.what();
+    PyErr_SetString(PyExc_ValueError, msg);
+}
+
 static PyObject *
 podofo_PDFDoc_load(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
     char *buffer; Py_ssize_t size;
@@ -50,10 +54,10 @@ podofo_PDFDoc_load(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
         try {
             self->doc->Load(buffer, size);
         } catch(const PdfError & err) {
-            PyErr_SetString(PyExc_ValueError, PdfError::ErrorMessage(err.GetError()));
+            podofo_set_exception(err);
             return NULL;
-        }
-    } else return NULL;
+    }
+} else return NULL;
 
 
     Py_INCREF(Py_None);
@@ -68,7 +72,7 @@ podofo_PDFDoc_save(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
         try {
             self->doc->Write(buffer);
         } catch(const PdfError & err) {
-            PyErr_SetString(PyExc_ValueError, PdfError::ErrorMessage(err.GetError()));
+            podofo_set_exception(err);
             return NULL;
         }
     } else return NULL;
