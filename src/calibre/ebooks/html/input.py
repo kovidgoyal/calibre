@@ -262,13 +262,6 @@ class HTMLInput(InputFormatPlugin):
         ),
     ])
 
-    def decode(self, raw):
-        if self.opts.input_encoding:
-            raw = raw.decode(self.opts.input_encoding, 'replace')
-        print 111111, type(raw)
-        return xml_to_unicode(raw, verbose=self.opts.verbose,
-                strip_encoding_pats=True, resolve_entities=True)[0]
-
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         from calibre.ebooks.metadata.meta import get_metadata
