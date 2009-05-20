@@ -640,12 +640,33 @@ class DeviceGUI(object):
                     ', '.join(sent_mails),  3000)
 
 
-    def sync_news(self):
+    def sync_news(self, send_ids=None, do_auto=True):
         if self.device_connected:
-            ids = list(dynamic.get('news_to_be_synced', set([])))
+            ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
-            files, auto = self.library_view.model().get_preferred_formats_from_ids(
-                                ids, self.device_manager.device_class.settings().format_map)
+            files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
+                                ids, self.device_manager.device_class.settings().format_map,
+                                exclude_auto=do_auto)
+            auto = []
+            if _auto_ids:
+                for id in _auto_ids:
+                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
+                    formats = formats if formats != None else []
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
+                        auto.append(id)
+            if auto != []:
+                format = None
+                for fmt in self.device_manager.device_class.settings().format_map:
+                    if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                        format = fmt
+                        break
+                if format is not None:
+                    autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                    autos = '\n'.join('%s'%i for i in autos)
+                    info_dialog(self, _('No suitable formats'),
+                        _('Auto converting the following books before uploading to '
+                            'the device:'), det_msg=autos, show=True)
+                    self.auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
@@ -667,8 +688,10 @@ class DeviceGUI(object):
             if config['upload_news_to_device'] and files:
                 remove = ids if \
                     config['delete_news_from_library_on_upload'] else []
-                on_card = self.location_view.model().free[0] < \
-                          self.location_view.model().free[1]
+                space = { self.location_view.model().free[0] : 'main',
+                    self.location_view.model().free[1] : 'carda',
+                    self.location_view.model().free[2] : 'cardb' }
+                on_card = space.get(sorted(space.keys(), reverse=True)[0], 'main')
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[[f.name for f in files], remove])
