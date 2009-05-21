@@ -10,15 +10,102 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-15 20:25+0000\n"
-"PO-Revision-Date: 2009-05-15 15:44+0000\n"
+"POT-Creation-Date: 2009-05-16 06:38+0000\n"
+"PO-Revision-Date: 2009-05-18 21:04+0000\n"
 "Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-16 05:56+0000\n"
+"X-Launchpad-Export-Date: 2009-05-21 14:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
+msgid ""
+"    %prog options\n"
+"\n"
+"    Customize calibre by loading external plugins.\n"
+"    "
+msgstr ""
+"    %prog opciones\n"
+"\n"
+"    Personalizar calibre cargando complementos externos.\n"
+"    "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
+"file.\n"
+"If you specify an OPF file instead of an HTML file, the list of links is "
+"takes from\n"
+"the <spine> element of the OPF file.\n"
+msgstr ""
+"%prog [opciones] file.html|opf\n"
+"\n"
+"Convierte un archvio HTML a un libro electrónico en formato EPUB. Sigue los\n"
+"enlaces recursivamente en el archivo HTML. Si especifica un archivo OPF en\n"
+"vez de un archivo HTML, la lista de enlaces obtiene la lista de enlaces del\n"
+"elemento <spine> del archivo OPF.\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Follow all links in an HTML file and collect them into the specified "
+"directory.\n"
+"Also collects any resources like images, stylesheets, scripts, etc.\n"
+"If an OPF file is specified instead, the list of files in its <spine> "
+"element\n"
+"is used.\n"
+msgstr ""
+"%prog [opciones] archivo.html|opf\n"
+"\n"
+"Sigue todos los enlaces en un archivo HTML y los guarda en el directorio "
+"especificado.\n"
+"También guarda todos los recursos como imágenes, hojas de estilo, scripts, "
+"etc.\n"
+"Si se trata de un archivo OPF, se usa la lista de archivos en su\n"
+"elemento <spine>.\n"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
+msgid "&Delete news from library when it is automatically sent to reader"
+msgstr ""
+"&Eliminar noticias de la biblioteca cuando se hayan enviado automáticamente "
+"al lector."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
+msgid "Could not find cover for this book. Try specifying the ISBN first."
+msgstr ""
+"No se pudo encontrar la portada de este libro. Inténtelo de nuevo "
+"especificando primero el ISBN."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
+msgid "Download &cover"
+msgstr "Des&carga portada"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
+msgid "Download all scheduled recipes at once"
+msgstr "Descarga todas las recetas planificadas de una vez"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
+msgid "Download &all scheduled"
+msgstr "Descarga &todas las planificadas"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
+msgid ""
+"%prog [options] file\n"
+"\n"
+"View an ebook.\n"
+msgstr ""
+"%prog [opciones] archivo\n"
+"\n"
+"Ver un libro electrónico.\n"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
+msgid "Chinese"
+msgstr "Chino"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -200,18 +287,6 @@ msgstr "No se ha encontrado ningún complemento válido en "
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr ""
 "La inicialización del complemento %s falló y generó la siguiente traza:"
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
-msgid ""
-"    %prog options\n"
-"\n"
-"    Customize calibre by loading external plugins.\n"
-"    "
-msgstr ""
-"    %prog opciones\n"
-"\n"
-"    Personalizar calibre cargando complementos externos.\n"
-"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:275
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -580,23 +655,6 @@ msgstr ""
 msgid "Could not find an ebook inside the archive"
 msgstr "No se pudo encontrar un libro-e dentro del archivo"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
-"file.\n"
-"If you specify an OPF file instead of an HTML file, the list of links is "
-"takes from\n"
-"the <spine> element of the OPF file.\n"
-msgstr ""
-"%prog [opciones] file.html|opf\n"
-"\n"
-"Convierte un archvio HTML a un libro electrónico en formato EPUB. Sigue los\n"
-"enlaces recursivamente en el archivo HTML. Si especifica un archivo OPF en\n"
-"vez de un archivo HTML, la lista de enlaces obtiene la lista de enlaces del\n"
-"elemento <spine> del archivo OPF.\n"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:519
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:758
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:621
@@ -720,26 +778,6 @@ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
 msgstr ""
 "El HTML de salida está bien escrito para que sea más fácil de entender por "
 "humanos."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Follow all links in an HTML file and collect them into the specified "
-"directory.\n"
-"Also collects any resources like images, stylesheets, scripts, etc.\n"
-"If an OPF file is specified instead, the list of files in its <spine> "
-"element\n"
-"is used.\n"
-msgstr ""
-"%prog [opciones] archivo.html|opf\n"
-"\n"
-"Sigue todos los enlaces en un archivo HTML y los guarda en el directorio "
-"especificado.\n"
-"También guarda todos los recursos como imágenes, hojas de estilo, scripts, "
-"etc.\n"
-"Si se trata de un archivo OPF, se usa la lista de archivos en su\n"
-"elemento <spine>.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -1298,6 +1336,16 @@ msgstr "No mostrar barra de progreso."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:328
 msgid "Apply no processing to the image"
 msgstr "Dejar imágenes sin procesar"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:333
+msgid ""
+"%prog [options] comic.cb[z|r]\n"
+"\n"
+"Convert a comic in a CBZ or CBR file to an ebook.\n"
+msgstr ""
+"%prog [options] cómic.cb[z|r]\n"
+"\n"
+"Convertir un cómic en formato CBZ o CBR en un libro electrónico.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:393
 msgid "Output written to"
@@ -2370,6 +2418,13 @@ msgstr "Enviando correo a"
 msgid "No suitable formats"
 msgstr "No hay formatos adecuados"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:489
+msgid ""
+"Could not email the following books as no suitable formats were found:"
+msgstr ""
+"No se pudieron enviar por correo los siguientes libros porque no se "
+"encontraron formatos compatibles:"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:507
 msgid "Failed to email books"
 msgstr "Falló al enviar por correo el/los libro(s)"
@@ -2401,6 +2456,16 @@ msgstr "Enviando noticias al dispositivo."
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:630
 msgid "Sending books to device."
 msgstr "Enviando libros al dispositivo"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:635
+msgid ""
+"Could not upload the following books to the device, as no suitable formats "
+"were found. Try changing the output format in the upper right corner next to "
+"the red heart and re-converting."
+msgstr ""
+"No se pudieron subir los siguientes libros al dispositivo porque no se "
+"encontraron formatos compatibles. Intente cambiar el formato de salida, en "
+"al esquina superior derecha al lado del corazón rojo, y reconviértalos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:682
 msgid "No space on device"
@@ -2842,12 +2907,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:563
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr "Enviar &noticias descargadas automáticamente al lector de libros-e"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
-msgid "&Delete news from library when it is automatically sent to reader"
-msgstr ""
-"&Eliminar noticias de la biblioteca cuando se hayan enviado automáticamente "
-"al lector."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:565
 msgid "&Number of covers to show in browse mode (needs restart):"
@@ -4021,12 +4080,6 @@ msgstr "<b>No se puede descargar la portada.</b><br/>"
 msgid "The download timed out."
 msgstr "El tiempo de descarga ha vencido."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
-msgid "Could not find cover for this book. Try specifying the ISBN first."
-msgstr ""
-"No se pudo encontrar la portada de este libro. Inténtelo de nuevo "
-"especificando primero el ISBN."
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:403
 msgid "Bad cover"
 msgstr "Portada mala"
@@ -4092,10 +4145,6 @@ msgstr "Asignar la portada del libro del formato seleccionado"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
 msgid "Reset cover to default"
 msgstr "Reiniciar portada a la de por defecto"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
-msgid "Download &cover"
-msgstr "Des&carga portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -4207,14 +4256,6 @@ msgstr "Noticias"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
 msgid "Recipes"
 msgstr "Recetas"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
-msgid "Download all scheduled recipes at once"
-msgstr "Descarga todas las recetas planificadas de una vez"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
-msgid "Download &all scheduled"
-msgstr "Descarga &todas las planificadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
 msgid "Schedule for download"
@@ -4908,6 +4949,18 @@ msgstr "Editar metadatos individualmente"
 msgid "Edit metadata in bulk"
 msgstr "Edita metadatos en bloque"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:176
+msgid "Download metadata and covers"
+msgstr "Descargar metadatos y cubiertas"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:177
+msgid "Download only metadata"
+msgstr "Descargar sólo los metadatos"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
+msgid "Download only covers"
+msgstr "Descargar sólo las portadas"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:181
 msgid "Add books from a single directory"
 msgstr "añadir libros desde un único directorio"
@@ -5092,6 +5145,10 @@ msgstr ""
 msgid "Deleting books from device."
 msgstr "Eliminando libros del dispositivo"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
+msgid "Cannot download metadata"
+msgstr "No se pueden descargar los metadatos"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:849
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:901
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:928
@@ -5099,6 +5156,30 @@ msgstr "Eliminando libros del dispositivo"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1041
 msgid "No books selected"
 msgstr "No hay libros seleccionados"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
+msgid "covers"
+msgstr "portadas"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
+msgid "metadata"
+msgstr "metadatos"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:860
+msgid "Downloading %s for %d book(s)"
+msgstr "Descargando %s para %d libro(s)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:881
+msgid "Failed to download some metadata"
+msgstr "No se pudieron descargar algunos metadatos"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:882
+msgid "Failed to download metadata for the following:"
+msgstr "No se pudieron descargar metadatos para:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
+msgid "<b>Failed to download metadata:"
+msgstr "<b>No se pudieron descartar metadatos:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:900
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:927
@@ -5309,6 +5390,14 @@ msgstr "Iniciar programa minimizado en la bandeja del sistema"
 msgid "Log debugging information to console"
 msgstr "Información del log de depuración a consola"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1641
+msgid "Cannot Start "
+msgstr "No se puede iniciar "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1642
+msgid "<p>%s is already running. %s</p>"
+msgstr "<p>%s ya está ejecutándose. %s</p>"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:335
 msgid "calibre"
 msgstr "calibre"
@@ -5480,6 +5569,14 @@ msgstr "&Salir"
 msgid "ERROR: Unhandled exception"
 msgstr "ERROR: Excepción no Contemplada"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:80
+msgid "Book has neither title nor ISBN"
+msgstr "El libro no tiene ni título ni ISBN"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:96
+msgid "No matches found for this book"
+msgstr "No se ha encontrado el libro"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:115
 msgid "Jobs:"
 msgstr "Trabajos:"
@@ -5605,6 +5702,10 @@ msgstr "Sans-serif"
 msgid "Monospace"
 msgstr "Monospace"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:117
+msgid "Remember last used &window size"
+msgstr "Recordar último tamaño de &ventana usado"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:118
 msgid "&User stylesheet"
 msgstr "Hojas de estilos de &usuario"
@@ -5612,6 +5713,11 @@ msgstr "Hojas de estilos de &usuario"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 msgid "Options to customize the ebook viewer"
 msgstr "Opciones para personalizar el visor de libros-e"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:602
+msgid "Remember last used window size"
+msgstr "Recordar último tamaño de ventana usado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:89
@@ -5730,16 +5836,6 @@ msgid ""
 msgstr ""
 "Si está especificada, la ventana del visor intentará situarse en el frente "
 "cuando se inicie el programa."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
-msgid ""
-"%prog [options] file\n"
-"\n"
-"View an ebook.\n"
-msgstr ""
-"%prog [opciones] archivo\n"
-"\n"
-"Ver un libro electrónico.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:152
 msgid "Ebook Viewer"
@@ -6806,6 +6902,11 @@ msgstr "Portugués"
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
+msgid "Hungarian"
+msgstr "Húngaro"
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
 msgid "Skipping duplicated article: %s"
 msgstr "Ignorando artículo duplicado: %s"
@@ -6813,10 +6914,6 @@ msgstr "Ignorando artículo duplicado: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
 msgstr "Ignorando artículo filtrado: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
-msgid "Chinese"
-msgstr "Chino"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:457
 msgid ""
@@ -7144,100 +7241,3 @@ msgstr "suscriptores"
 #~ msgstr ""
 #~ "No se pudo enviar por correo los siguientes libros porque no estaban en "
 #~ "formatos apropiados: <br><ul>%s</ul>"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:333
-msgid ""
-"%prog [options] comic.cb[z|r]\n"
-"\n"
-"Convert a comic in a CBZ or CBR file to an ebook.\n"
-msgstr ""
-"%prog [options] cómic.cb[z|r]\n"
-"\n"
-"Convertir un cómic en formato CBZ o CBR en un libro electrónico.\n"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:489
-msgid ""
-"Could not email the following books as no suitable formats were found:"
-msgstr ""
-"No se pudieron enviar por correo los siguientes libros porque no se "
-"encontraron formatos compatibles:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:635
-msgid ""
-"Could not upload the following books to the device, as no suitable formats "
-"were found. Try changing the output format in the upper right corner next to "
-"the red heart and re-converting."
-msgstr ""
-"No se pudieron subir los siguientes libros al dispositivo porque no se "
-"encontraron formatos compatibles. Intente cambiar el formato de salida, en "
-"al esquina superior derecha al lado del corazón rojo, y reconviértalos."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:176
-msgid "Download metadata and covers"
-msgstr "Descargar metadatos y cubiertas"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:177
-msgid "Download only metadata"
-msgstr "Descargar sólo los metadatos"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
-msgid "Download only covers"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
-msgid "Cannot download metadata"
-msgstr "No se pueden descargar los metadatos"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
-msgid "covers"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
-msgid "metadata"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:860
-msgid "Downloading %s for %d book(s)"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:881
-msgid "Failed to download some metadata"
-msgstr "No se pudieron descargar algunos metadatos"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:882
-msgid "Failed to download metadata for the following:"
-msgstr "No se pudieron descargar metadatos para:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
-msgid "<b>Failed to download metadata:"
-msgstr "<b>No se pudieron descartar metadatos:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1641
-msgid "Cannot Start "
-msgstr "No se puede iniciar "
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1642
-msgid "<p>%s is already running. %s</p>"
-msgstr "<p>%s ya está ejecutándose. %s</p>"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:80
-msgid "Book has neither title nor ISBN"
-msgstr "El libro no tiene ni título ni ISBN"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:96
-msgid "No matches found for this book"
-msgstr "No se ha encontrado el libro"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:117
-msgid "Remember last used &window size"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:602
-msgid "Remember last used window size"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
-msgid "Hungarian"
-msgstr ""

@@ -7,15 +7,105 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-15 20:25+0000\n"
-"PO-Revision-Date: 2009-05-08 03:40+0000\n"
+"POT-Creation-Date: 2009-05-16 06:38+0000\n"
+"PO-Revision-Date: 2009-05-17 02:24+0000\n"
 "Last-Translator: Miro Glavić <glavicmiro@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-16 05:56+0000\n"
+"X-Launchpad-Export-Date: 2009-05-21 14:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
+msgid ""
+"    %prog options\n"
+"\n"
+"    Customize calibre by loading external plugins.\n"
+"    "
+msgstr ""
+"    %prog opcije\n"
+"\n"
+"    Prilagodi calibre učitavanjem vanjskih priključaka.\n"
+"    "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
+"file.\n"
+"If you specify an OPF file instead of an HTML file, the list of links is "
+"takes from\n"
+"the <spine> element of the OPF file.\n"
+msgstr ""
+"%prog [opcije] datoteka.html|opf\n"
+"\n"
+"Pretvori HTML datoteku u EPUB elektroničku knjigu. Suvratno prati veze u "
+"HTML datoteci.\n"
+"Ako specificirate OPF datoteku umjesto HTML datoteke, lista veza je uzeta iz "
+"<spine> \n"
+"elementa OPF datoteke.\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Follow all links in an HTML file and collect them into the specified "
+"directory.\n"
+"Also collects any resources like images, stylesheets, scripts, etc.\n"
+"If an OPF file is specified instead, the list of files in its <spine> "
+"element\n"
+"is used.\n"
+msgstr ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Pratii sve veze u HTML datoteci i prikupi ih u specificiranom direktoriju.\n"
+"Ovo također prikuplja sve resurse kao slike, stilske liste, skripte itd.\n"
+"Ako je OPF datoteka specificirana umjesto ove, lista datoteka u njenom \n"
+"<spine> elementu je upotrijebljena.\n"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
+msgid "&Delete news from library when it is automatically sent to reader"
+msgstr "&Izbriši vijesti iz biblioteke kad su automatski poslane čitaču."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
+msgid "Could not find cover for this book. Try specifying the ISBN first."
+msgstr "Omot za ovu knjigu nije pronađen. Pokušajte prvo specificirati ISBN."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
+msgid "Download &cover"
+msgstr "Preuzmi &omot"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
+msgid "Download all scheduled recipes at once"
+msgstr "Preuzmi sve predviđene recepte odjednom"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
+msgid "Download &all scheduled"
+msgstr "Preuzmi &sve predviđeno"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1641
+msgid "Cannot Start "
+msgstr "Ne može Krenuti "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1642
+msgid "<p>%s is already running. %s</p>"
+msgstr "<p>%s je već aktivan. %s</p>"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
+msgid ""
+"%prog [options] file\n"
+"\n"
+"View an ebook.\n"
+msgstr ""
+"%prog [opcije] datoteka\n"
+"\n"
+"Pogledaj elektroničku knjigu.\n"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
+msgid "Chinese"
+msgstr "Kineski"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -196,18 +286,6 @@ msgstr "Nije pronađen važeći priključak u "
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:192
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr "Inicijalizacija priključka %s je neuspjela sa praćenjem unazad:"
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
-msgid ""
-"    %prog options\n"
-"\n"
-"    Customize calibre by loading external plugins.\n"
-"    "
-msgstr ""
-"    %prog opcije\n"
-"\n"
-"    Prilagodi calibre učitavanjem vanjskih priključaka.\n"
-"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:275
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -571,24 +649,6 @@ msgstr ""
 msgid "Could not find an ebook inside the archive"
 msgstr "Nije pronađena elektronička knjiga u arhivi"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
-"file.\n"
-"If you specify an OPF file instead of an HTML file, the list of links is "
-"takes from\n"
-"the <spine> element of the OPF file.\n"
-msgstr ""
-"%prog [opcije] datoteka.html|opf\n"
-"\n"
-"Pretvori HTML datoteku u EPUB elektroničku knjigu. Suvratno prati veze u "
-"HTML datoteci.\n"
-"Ako specificirate OPF datoteku umjesto HTML datoteke, lista veza je uzeta iz "
-"<spine> \n"
-"elementa OPF datoteke.\n"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:519
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:758
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:621
@@ -708,24 +768,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:976
 msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
 msgstr "Izlazni HTML je \"lijepo ispisan\" za lakše analiziranje sintakse"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Follow all links in an HTML file and collect them into the specified "
-"directory.\n"
-"Also collects any resources like images, stylesheets, scripts, etc.\n"
-"If an OPF file is specified instead, the list of files in its <spine> "
-"element\n"
-"is used.\n"
-msgstr ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Pratii sve veze u HTML datoteci i prikupi ih u specificiranom direktoriju.\n"
-"Ovo također prikuplja sve resurse kao slike, stilske liste, skripte itd.\n"
-"Ako je OPF datoteka specificirana umjesto ove, lista datoteka u njenom \n"
-"<spine> elementu je upotrijebljena.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -1274,6 +1316,16 @@ msgstr "Ne prikazuj traku progresa."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:328
 msgid "Apply no processing to the image"
 msgstr "Ne primijenjuj procesiranje slike."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:333
+msgid ""
+"%prog [options] comic.cb[z|r]\n"
+"\n"
+"Convert a comic in a CBZ or CBR file to an ebook.\n"
+msgstr ""
+"%prog [options] comic.cb[z|r\n"
+"\n"
+"Konvertiraj strip u CBZ ili CBR datoteci u e-knjigu.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:393
 msgid "Output written to"
@@ -2332,6 +2384,13 @@ msgstr "Slanje e-pošte"
 msgid "No suitable formats"
 msgstr "Nema odgovarajućih formata"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:489
+msgid ""
+"Could not email the following books as no suitable formats were found:"
+msgstr ""
+"Nije moguće opremiti e-mailom slijedeće knjige jer nisu pronađeni "
+"odgovarajući formati:"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:507
 msgid "Failed to email books"
 msgstr "Neuspjelo slanje knjiga e-poštom"
@@ -2363,6 +2422,16 @@ msgstr "Slanje vijesti na uređaj"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:630
 msgid "Sending books to device."
 msgstr "Slanje knjiga na uređaj"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:635
+msgid ""
+"Could not upload the following books to the device, as no suitable formats "
+"were found. Try changing the output format in the upper right corner next to "
+"the red heart and re-converting."
+msgstr ""
+"Nije moguće otpremiti slijedeće knjige na uređaj, jer nisu pronađeni "
+"odgovarajući formati. Probajte promijeniti izlazne formate u gornjem desnom "
+"kutu odmah do crvenog srca i ponovno konvertirati."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:682
 msgid "No space on device"
@@ -2802,10 +2871,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:563
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr "Automatski pošalji skinute &vijesti na čitača elektroničke knjige"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
-msgid "&Delete news from library when it is automatically sent to reader"
-msgstr "&Izbriši vijesti iz biblioteke kad su automatski poslane čitaču."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:565
 msgid "&Number of covers to show in browse mode (needs restart):"
@@ -3975,10 +4040,6 @@ msgstr "<b>Nemoguće ugrabiti omot.</b><br/>"
 msgid "The download timed out."
 msgstr "Vrijeme skidanja isteklo."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
-msgid "Could not find cover for this book. Try specifying the ISBN first."
-msgstr "Omot za ovu knjigu nije pronađen. Pokušajte prvo specificirati ISBN."
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:403
 msgid "Bad cover"
 msgstr "Loš omot"
@@ -4040,10 +4101,6 @@ msgstr "Postavi omot za knjigu iz odabranog formata"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
 msgid "Reset cover to default"
 msgstr "Vrati omot u zadano stanje"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
-msgid "Download &cover"
-msgstr "Preuzmi &omot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -4155,14 +4212,6 @@ msgstr "Vijesti"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
 msgid "Recipes"
 msgstr "Recepti"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
-msgid "Download all scheduled recipes at once"
-msgstr "Preuzmi sve predviđene recepte odjednom"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
-msgid "Download &all scheduled"
-msgstr "Preuzmi &sve predviđeno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
 msgid "Schedule for download"
@@ -4854,6 +4903,18 @@ msgstr "Uredi metapodatke pojedinačno"
 msgid "Edit metadata in bulk"
 msgstr "Uredi metapodatke grupno"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:176
+msgid "Download metadata and covers"
+msgstr "Preuzmi metapodatke i omote"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:177
+msgid "Download only metadata"
+msgstr "Preuzmi samo metapodatke"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
+msgid "Download only covers"
+msgstr "Preuzmi samo omote"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:181
 msgid "Add books from a single directory"
 msgstr "Dodaj knjige iz jednog direktorija"
@@ -5036,6 +5097,10 @@ msgstr ""
 msgid "Deleting books from device."
 msgstr "Uklanjanje knjiga sa uređaja."
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
+msgid "Cannot download metadata"
+msgstr "Nije moguće preuzeti metapodatke"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:849
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:901
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:928
@@ -5043,6 +5108,30 @@ msgstr "Uklanjanje knjiga sa uređaja."
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1041
 msgid "No books selected"
 msgstr "Niste odabrali knjigu"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
+msgid "covers"
+msgstr "omoti"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
+msgid "metadata"
+msgstr "metapodaci"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:860
+msgid "Downloading %s for %d book(s)"
+msgstr "Preuzimanje %s za %d knjige"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:881
+msgid "Failed to download some metadata"
+msgstr "Neuspjelo preuzimanje pojedinih metapodataka:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:882
+msgid "Failed to download metadata for the following:"
+msgstr "Neuspjelo preuzimanje metapodataka za slijedeće:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
+msgid "<b>Failed to download metadata:"
+msgstr "<b>Neuspjelo preuzimanje metapodataka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:900
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:927
@@ -5250,14 +5339,6 @@ msgstr "Pokretanje minimizirano na sustavni poslužavnik."
 msgid "Log debugging information to console"
 msgstr "Ubilježi informacije o uklanjanju grašaka u konzolu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1641
-msgid "Cannot Start "
-msgstr "Ne može Krenuti "
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1642
-msgid "<p>%s is already running. %s</p>"
-msgstr "<p>%s je već aktivan. %s</p>"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:335
 msgid "calibre"
 msgstr "calibre"
@@ -5428,6 +5509,14 @@ msgstr "&Prekini"
 msgid "ERROR: Unhandled exception"
 msgstr "GREŠKA: Nemanipulirani izuzetak"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:80
+msgid "Book has neither title nor ISBN"
+msgstr "Knjiga nema ni naslov niti ISBN"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:96
+msgid "No matches found for this book"
+msgstr "Nisu pronađene podudarnosti za ovu knjigu"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:115
 msgid "Jobs:"
 msgstr "Poslovi:"
@@ -5553,6 +5642,10 @@ msgstr "Sans-serif"
 msgid "Monospace"
 msgstr "Monospace"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:117
+msgid "Remember last used &window size"
+msgstr "Zapamti zadnju korištenu veličinu &zaslona"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:118
 msgid "&User stylesheet"
 msgstr "&Korisnička formatna lista"
@@ -5560,6 +5653,11 @@ msgstr "&Korisnička formatna lista"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 msgid "Options to customize the ebook viewer"
 msgstr "Opcije za prilagodbu preglednika elektroničke knjige"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:602
+msgid "Remember last used window size"
+msgstr "Zapamti zadnju korištenu veličinu zaslona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:89
@@ -5678,16 +5776,6 @@ msgid ""
 msgstr ""
 "Ako je naznačeno, kod pokretanj će preglednički prozor pokušati da dođe "
 "ispred."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
-msgid ""
-"%prog [options] file\n"
-"\n"
-"View an ebook.\n"
-msgstr ""
-"%prog [opcije] datoteka\n"
-"\n"
-"Pogledaj elektroničku knjigu.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:152
 msgid "Ebook Viewer"
@@ -6727,6 +6815,11 @@ msgstr "Portugalski"
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
+msgid "Hungarian"
+msgstr "Mađarski"
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
 msgid "Skipping duplicated article: %s"
 msgstr "Preskakanje dupliciranog artikla: %s"
@@ -6734,10 +6827,6 @@ msgstr "Preskakanje dupliciranog artikla: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
 msgstr "Preskakanje filtriranog artikla: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
-msgid "Chinese"
-msgstr "Kineski"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:457
 msgid ""
@@ -7065,92 +7154,3 @@ msgstr "pretplatnici"
 #~ msgstr ""
 #~ "Nemoguće poslati e-poštom slijedeće knjige pošto odgovarajući formati nisu "
 #~ "pronađeni: <br><ul>%s</ul>"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:333
-msgid ""
-"%prog [options] comic.cb[z|r]\n"
-"\n"
-"Convert a comic in a CBZ or CBR file to an ebook.\n"
-msgstr ""
-"%prog [options] comic.cb[z|r\n"
-"\n"
-"Konvertiraj strip u CBZ ili CBR datoteci u e-knjigu.\n"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:489
-msgid ""
-"Could not email the following books as no suitable formats were found:"
-msgstr ""
-"Nije moguće opremiti e-mailom slijedeće knjige jer nisu pronađeni "
-"odgovarajući formati:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:635
-msgid ""
-"Could not upload the following books to the device, as no suitable formats "
-"were found. Try changing the output format in the upper right corner next to "
-"the red heart and re-converting."
-msgstr ""
-"Nije moguće otpremiti slijedeće knjige na uređaj, jer nisu pronađeni "
-"odgovarajući formati. Probajte promijeniti izlazne formate u gornjem desnom "
-"kutu odmah do crvenog srca i ponovno konvertirati."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:176
-msgid "Download metadata and covers"
-msgstr "Preuzmi metapodatke i omote"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:177
-msgid "Download only metadata"
-msgstr "Preuzmi samo metapodatke"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
-msgid "Download only covers"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
-msgid "Cannot download metadata"
-msgstr "Nije moguće preuzeti metapodatke"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
-msgid "covers"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
-msgid "metadata"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:860
-msgid "Downloading %s for %d book(s)"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:881
-msgid "Failed to download some metadata"
-msgstr "Neuspjelo preuzimanje pojedinih metapodataka:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:882
-msgid "Failed to download metadata for the following:"
-msgstr "Neuspjelo preuzimanje metapodataka za slijedeće:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
-msgid "<b>Failed to download metadata:"
-msgstr "<b>Neuspjelo preuzimanje metapodataka:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:80
-msgid "Book has neither title nor ISBN"
-msgstr "Knjiga nema ni naslov niti ISBN"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:96
-msgid "No matches found for this book"
-msgstr "Nisu pronađene podudarnosti za ovu knjigu"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:117
-msgid "Remember last used &window size"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:602
-msgid "Remember last used window size"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
-msgid "Hungarian"
-msgstr ""
