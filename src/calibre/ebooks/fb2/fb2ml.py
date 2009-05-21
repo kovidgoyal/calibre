@@ -25,15 +25,9 @@ TAG_MAP = {
     'div' : 'p',
 }
 
-STYLE_MAP = {
-    'bold'   : 'strong',
-    'bolder' : 'strong',
-    'italic' : 'emphasis',
-}
-
 STYLES = [
-    'font-weight',
-    'font-style',
+    ('font-weight', {'bold'   : 'strong', 'bolder' : 'strong'}),
+    ('font-style', {'italic' : 'emphasis'}),
 ]
 
 class FB2MLizer(object):
@@ -107,8 +101,9 @@ class FB2MLizer(object):
                 fb2_text += '<%s>' % fb2_tag
                 tag_stack.append(fb2_tag)
 
+            # Processes style information
             for s in STYLES:
-                style_tag = STYLE_MAP.get(style[s], None)
+                style_tag = s[1].get(style[s[0]], None)
                 if style_tag:
                     tag_count += 1
                     fb2_text += '<%s>' % style_tag

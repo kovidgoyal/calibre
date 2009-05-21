@@ -1,27 +1,32 @@
 '''
 Write content to Mobipocket books.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 
+from collections import defaultdict
+from itertools import count
+from itertools import izip
+import random
+import re
 from struct import pack
 import time
-import random
-from cStringIO import StringIO
-import re
-from itertools import izip, count
-from collections import defaultdict
 from urlparse import urldefrag
+
 from PIL import Image
-from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
-    OEB_RASTER_IMAGES
-from calibre.ebooks.oeb.base import namespace, prefixname
-from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.mobi.palmdoc import compress_doc
+from cStringIO import StringIO
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS
+from calibre.ebooks.oeb.base import OEB_DOCS
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.ebooks.oeb.base import XHTML
+from calibre.ebooks.oeb.base import XHTML_NS
+from calibre.ebooks.oeb.base import XML_NS
+from calibre.ebooks.oeb.base import namespace
+from calibre.ebooks.oeb.base import prefixname
+from calibre.ebooks.oeb.base import urlnormalize
+from calibre.ebooks.compression.palmdoc import compress_doc
 
 # TODO:
 # - Allow override CSS (?)
@@ -174,7 +179,7 @@ class Serializer(object):
         item = hrefs[path] if path else None
         if item and item.spine_position is None:
             return False
-        path =  item.href if item else base.href
+        path = item.href if item else base.href
         href = '#'.join((path, frag)) if frag else path
         buffer.write('filepos=')
         self.href_offsets[href].append(buffer.tell())
@@ -211,8 +216,8 @@ class Serializer(object):
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer
         if not isinstance(elem.tag, basestring) \
-           or namespace(elem.tag) not in nsrmap:
-            return
+            or namespace(elem.tag) not in nsrmap:
+                return
         tag = prefixname(elem.tag, nsrmap)
         # Previous layers take care of @name
         id = elem.attrib.pop('id', None)
@@ -221,9 +226,9 @@ class Serializer(object):
             offset = self.anchor_offset or buffer.tell()
             self.id_offsets[href] = offset
         if self.anchor_offset is not None and \
-           tag == 'a' and not elem.attrib and \
-           not len(elem) and not elem.text:
-            return
+            tag == 'a' and not elem.attrib and \
+            not len(elem) and not elem.text:
+                return
         self.anchor_offset = buffer.tell()
         buffer.write('<')
         buffer.write(tag)
@@ -286,8 +291,8 @@ class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
     def __init__(self, compression=PALMDOC, imagemax=None,
-                 prefer_author_sort=False):
-        self._compression = compression or UNCOMPRESSED
+        prefer_author_sort=False):
+    self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
 
@@ -297,7 +302,7 @@ class MobiWriter(object):
         imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
         prefer_author_sort = opts.prefer_author_sort
         return cls(compression=PALMDOC, imagemax=imagemax,
-                   prefer_author_sort=prefer_author_sort)
+            prefer_author_sort=prefer_author_sort)
 
     def __call__(self, oeb, path):
         if hasattr(path, 'write'):
@@ -305,7 +310,7 @@ class MobiWriter(object):
         with open(path, 'w+b') as stream:
             return self._dump_stream(oeb, stream)
 
-    def _write(self, *data):
+    def _write(self, * data):
         for datum in data:
             self._stream.write(datum)
 

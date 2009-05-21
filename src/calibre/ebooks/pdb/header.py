@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
 '''
 Read the header data from a pdb file.
 '''
@@ -8,7 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, struct, time
+import re
+import struct
+import time
 
 class PdbHeaderReader(object):
 
@@ -35,16 +36,16 @@ class PdbHeaderReader(object):
         if number not in range(0, self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
 
-        self.stream.seek(78+number*8)
+        self.stream.seek(78 + number * 8)
         offset, a1, a2, a3, a4 = struct.unpack('>LBBBB', self.stream.read(8))[0]
-        flags, val = a1, a2<<16 | a3<<8 | a4
+        flags, val = a1, a2 << 16 | a3 << 8 | a4
         return (offset, flags, val)
 
     def section_offset(self, number):
         if number not in range(0, self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
 
-        self.stream.seek(78+number*8)
+        self.stream.seek(78 + number * 8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
 
     def section_data(self, number):

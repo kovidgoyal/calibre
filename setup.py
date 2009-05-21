@@ -89,7 +89,7 @@ if __name__ == '__main__':
                              include_dirs=['src/calibre/utils/msdes']),
 
                     Extension('calibre.plugins.cPalmdoc',
-                        sources=['src/calibre/ebooks/mobi/palmdoc.c']),
+                        sources=['src/calibre/ebooks/compression/palmdoc.c']),
 
                     PyQtExtension('calibre.plugins.pictureflow',
                                   ['src/calibre/gui2/pictureflow/pictureflow.cpp',

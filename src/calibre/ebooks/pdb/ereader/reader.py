@@ -8,16 +8,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, struct, zlib
+import os
+import re
+import struct
+import zlib
 
 from calibre import CurrentDir
 from calibre.ebooks import DRMError
-from calibre.ebooks.pdb.formatreader import FormatReader
-from calibre.ebooks.pdb.ereader import EreaderError
-from calibre.ebooks.pml.pmlconverter import pml_to_html, \
-    footnote_sidebar_to_html
-from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.compression.palmdoc import decompress_doc
+from calibre.ebooks.pdb.ereader import EreaderError
+from calibre.ebooks.pdb.formatreader import FormatReader
+from calibre.ebooks.pml.pmlconverter import footnote_sidebar_to_html
+from calibre.ebooks.pml.pmlconverter import pml_to_html
 
 class HeaderRecord(object):
     '''
@@ -32,7 +35,7 @@ class HeaderRecord(object):
         self.non_text_offset, = struct.unpack('>H', raw[12:14])
         self.has_metadata, = struct.unpack('>H', raw[24:26])
         self.footnote_rec, = struct.unpack('>H', raw[28:30])
-        self.sidebar_rec, =  struct.unpack('>H', raw[30:32])
+        self.sidebar_rec, = struct.unpack('>H', raw[30:32])
         self.bookmark_offset, = struct.unpack('>H', raw[32:34])
         self.image_data_offset, = struct.unpack('>H', raw[40:42])
         self.metadata_offset, = struct.unpack('>H', raw[44:46])
@@ -79,7 +82,7 @@ class Reader(FormatReader):
         if number < self.header_record.image_data_offset or number > self.header_record.image_data_offset + self.header_record.num_image_pages - 1:
             return 'empty', ''
         data = self.section_data(number)
-        name = data[4:4+32].strip('\x00')
+        name = data[4:4 + 32].strip('\x00')
         img = data[62:]
         return name, img
 

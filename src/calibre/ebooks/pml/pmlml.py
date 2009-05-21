@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into PML markup
 '''
 
-import os, re
+import os
+import re
 
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
@@ -38,6 +39,31 @@ STYLES = [
     ('font-style', {'italic' : 'I'}),
     ('text-decoration', {'underline' : 'u'}),
     ('text-align', {'right' : 'r', 'center' : 'c'}),
+]
+
+BLOCK_TAGS = [
+    'p',
+]
+
+BLOCK_STYLES = [
+    'block',
+]
+
+LINK_TAGS = [
+    'a',
+]
+
+SEPARATE_TAGS = [
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'p',
+    'div',
+    'li',
+    'tr',
 ]
 
 class PMLMLizer(object):
@@ -104,7 +130,7 @@ class PMLMLizer(object):
         tag_count = 0
 
         # Are we in a paragraph block?
-        if tag == 'p' or style['display'] in ('block'):
+        if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             if 'block' not in tag_stack:
                 tag_count += 1
                 tag_stack.append('block')
@@ -136,7 +162,7 @@ class PMLMLizer(object):
                 
             # Special processing of tags that require an argument.
             # Anchors links
-            if tag == 'a' and 'q' not in tag_stack:
+            if tag in LINK_TAGS and 'q' not in tag_stack:
                 href = elem.get('href')
                 if href and '://' not in href:
                     if '#' in href:
@@ -168,7 +194,7 @@ class PMLMLizer(object):
         for i in range(0, tag_count):
             close_tag_list.insert(0, tag_stack.pop())
         text += self.close_tags(close_tag_list)
-        if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'li', 'tr'):
+        if tag in SEPARATE_TAGS:
             text += os.linesep + os.linesep
         
         if 'block' not in tag_stack:

@@ -8,9 +8,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import struct, zlib
+import struct
+import zlib
 
-import Image, cStringIO
+import Image
+import cStringIO
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.oeb.base import OEB_IMAGES
