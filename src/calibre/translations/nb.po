@@ -7,104 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-15 20:25+0000\n"
-"PO-Revision-Date: 2009-04-19 19:31+0000\n"
-"Last-Translator: even <Unknown>\n"
+"POT-Creation-Date: 2009-05-16 06:38+0000\n"
+"PO-Revision-Date: 2009-05-16 08:53+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-16 05:56+0000\n"
+"X-Launchpad-Export-Date: 2009-05-21 14:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
-#: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:98
-#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:50
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:58
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:196
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:71
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:529
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1055
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1071
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1073
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:79
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:88
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:296
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:62
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:96
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:98
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:100
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:102
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:83
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:179
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:70
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:199
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:229
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:232
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:271
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:301
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:53
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:55
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:95
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:97
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:152
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:334
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:449
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:863
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:38
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:37
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1157
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1160
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:53
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:54
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:186
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:193
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:467
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:619
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:622
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:173
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:101
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:134
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:366
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:33
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:122
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:364
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:377
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:905
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:61
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:264
-#: /home/kovid/work/calibre/src/calibre/library/database.py:916
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
-#: /home/kovid/work/calibre/src/calibre/library/server.py:340
-#: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
-#: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:50
-msgid "Unknown"
-msgstr "Ukjent"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "File type"
@@ -122,925 +33,10 @@ msgstr "Ingen akseptable programtillegg ble funnet i "
 msgid "List all installed plugins"
 msgstr "Se alle Installerte programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:41
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:394
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:72
-msgid "The reader has no storage card connected."
-msgstr "Lesebrettet har ikke et lagringskort tilknyttet seg."
-
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:60
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:91
 msgid "There is insufficient free space on the storage card"
 msgstr "Det er ikke nok ledig plass på lagringskortet"
-
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:140
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:168
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:196
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:204
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:251
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:278
-msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "Finner ikke %s lagringsenheten. Venligst prøv å restarte."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:94
-msgid "Options to control the conversion to EPUB"
-msgstr "Opsjoner for å kontrollere konverteringen til EPUB"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:105
-msgid ""
-"The output EPUB file. If not specified, it is derived from the input file "
-"name."
-msgstr ""
-"Utgående EPUB fil. Hvis dette ikke er spesifisert, så blir navnet avledet "
-"fra inngående filnavn."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
-msgid ""
-"Profile of the target device this EPUB is meant for. Set to None to create a "
-"device independent EPUB. The profile is used for device specific "
-"restrictions on the EPUB. Choices are: "
-msgstr ""
-"Profilen til enheten EPUB filen skal lages for. Set til ingen for å lage en "
-"uavhenging EPUB. Profilen er brukt for spesifikke enhetsrestriksjoner på "
-"EPUB. Valgmulighetene er: "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:113
-msgid ""
-"Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
-"existing CSS declarations in the source files."
-msgstr ""
-"Filstien til et CSS stilark eller råkodet CSS. CSS vil tilsidesette enhver "
-"eksisterende CSS deklarasjoner i kildefilene."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:117
-msgid "Control auto-detection of document structure."
-msgstr "Kontrollerer auto detektering av dokument strukturen."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:122
-msgid ""
-"An XPath expression to detect chapter titles. The default is to consider "
-"<h1> or\n"
-"<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
-"\"part\" as chapter titles as \n"
-"well as any tags that have class=\"chapter\". \n"
-"The expression used must evaluate to a list of elements. To disable chapter "
-"detection,\n"
-"use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
-"for further\n"
-"help on using this feature.\n"
-msgstr ""
-"En XPath uttrykk for å detektere kapittel overskrifter. Standarden er å anta "
-"at <h1> eller\n"
-"<h2> tagger kan inneholde ordene \"chapter\",\"book\",\"section\" or "
-"\"part\" som kapittel overskrifter såvel som \n"
-"enhver andre tagger som har class=\"chapter\". \n"
-"Utrykket må evalueres etter en liste av elementer. For å fjerne kapittel "
-"detektering,\n"
-"bruk uttrykket \"/\". Kikk i XPath veiledningen i calibres bruker manual for "
-"videre hjelp \n"
-"i bruken av denne muligheten.\n"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:132
-msgid ""
-"Specify how to mark detected chapters. A value of \"pagebreak\" will insert "
-"page breaks before chapters. A value of \"rule\" will insert a line before "
-"chapters. A value of \"none\" will disable chapter marking and a value of "
-"\"both\" will use both page breaks and lines to mark chapters."
-msgstr ""
-"Spesifiser hvordan å markere detekterte kapitler. Verdien \"pagebreak\" vil "
-"sette inn sideavslutning før kapitler. Verdien \"rule\" vil sette inn en "
-"linje før kapitler. Verdien \"none\" vil ikke medføre kapittel markering og "
-"verdien \"both\" vil bruke både sideavslutning og linjer for å markere "
-"kapitler."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:139
-msgid "Path to the cover to be used for this book"
-msgstr "Filstien til omslagsbilde for boken"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:142
-msgid ""
-"Use the cover detected from the source file in preference to the specified "
-"cover."
-msgstr "Bruk omslagsbilde fra kildefilen fremfor spesifisert omslagsbilde."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:165
-msgid ""
-"Control the automatic generation of a Table of Contents. If an OPF file is "
-"detected\n"
-"and it specifies a Table of Contents, then that will be used rather than "
-"trying\n"
-"to auto-generate a Table of Contents.\n"
-msgstr ""
-"Kontrollerer den automatiske genereringen av innholdsregisteret. Hvis en OPF "
-"fil blir oppdaget \n"
-"og den inneholder et innholdsregister, så vil denne bli brukt fremfor å \n"
-"autogenerere et innholdsregister.\n"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:171
-msgid ""
-"Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
-"is: %default. Links are only added to the TOC if less than the --toc-"
-"threshold number of chapters were detected."
-msgstr ""
-"Maks antall lenker i innholdsregisteret. Angi 0 for å slå av denne "
-"funksjonen. Standard er: %default. Lenker blir bare lagt til "
-"innholdsregisteret hvis mindre enn --toc-threshold kapitler blir oppdaget."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:175
-msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr "Ikke legg til automatisk oppdagede kapitler til innholdsregisteret."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:180
-msgid ""
-"XPath expression that specifies all tags that should be added to the Table "
-"of Contents at level one. If this is specified, it takes precedence over "
-"other forms of auto-detection."
-msgstr ""
-"XPath utrykk spesifiserer alle tagger som burde bli lagt til "
-"innholdsregisteret på første nivå. Når dette er spesifisert, så vil det ha "
-"høyere prioritet enn andre former for automatisk detektering."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:184
-msgid ""
-"XPath expression that specifies all tags that should be added to the Table "
-"of Contents at level two. Each entry is added under the previous level one "
-"entry."
-msgstr ""
-"XPath uttrykket angir at alle tagger burde bli lagt til nivå to av "
-"innholdsregisteret. Hvert innlegg blir lagt til under forrige nivå en."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:192
-msgid ""
-"Path to a .ncx file that contains the table of contents to use for this "
-"ebook. The NCX file should contain links relative to the directory it is "
-"placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
-"an overview of the NCX format."
-msgstr ""
-"Filstien til en .ncx fil som inneholder innholdsregisteret for denne eboken. "
-"NCK filen burde inneholde lenker som er relative til katalogen den er "
-"plassert i. Se http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
-"en oversikt over NCX formatet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:202
-msgid "Control page layout"
-msgstr "Kontroller side oppsettet"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:204
-msgid "Set the top margin in pts. Default is %default"
-msgstr "Angi toppmargen i pts. Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:206
-msgid "Set the bottom margin in pts. Default is %default"
-msgstr "Angi bunnmargen i pts. Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:208
-msgid "Set the left margin in pts. Default is %default"
-msgstr "Angi venstremargin i pts. Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:210
-msgid "Set the right margin in pts. Default is %default"
-msgstr "Angi høyremargin i pts. Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:892
-msgid "%prog [options] LITFILE"
-msgstr "%prog [opsjoner] LITFIL"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
-msgid "Output directory. Defaults to current directory."
-msgstr "Lagringskatalog. Standard er nåværende katalog"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:898
-msgid "Legibly format extracted markup. May modify meaningful whitespace."
-msgstr ""
-"Uthentet markup fra lesbart format. Dette kan medføre at mellomrom, "
-"tabulatorer og linjeskift blir modifisert."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:901
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:731
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:580
-msgid "Useful for debugging."
-msgstr "Praktisk for feilsøking."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
-msgid "OEB ebook created in"
-msgstr "OEB bok opprettet i"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:76
-msgid "Set the title. Default: filename."
-msgstr "Angi tittel. Standard: filnavn"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
-msgid "Set the comment."
-msgstr "Angi kommentar"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
-msgid "Set the category"
-msgstr "Angi kategori"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:85
-msgid "Sort key for the title"
-msgstr "Sorteringsnøkkel for tittel"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
-msgid "Sort key for the author"
-msgstr "Sorteringsnøkkel for forfatter"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:302
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:113
-msgid "Publisher"
-msgstr "Forlag"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
-msgid "Path to file containing image to be used as cover"
-msgstr "Filstien til bokomslagsbildet"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:93
-msgid ""
-"If there is a cover graphic detected in the source file, use that instead of "
-"the specified cover."
-msgstr ""
-"Hvis et omslagsbilde blir oppdaget i kildefilen, vil det bli brukt fremfor "
-"det spesifiserte omslagsbildet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:96
-msgid "Output file name. Default is derived from input filename"
-msgstr ""
-"Utgående filnavn. Standard er at den blir avledet fra inngående filnavn."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:98
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:552
-msgid ""
-"Render HTML tables as blocks of text instead of actual tables. This is "
-"neccessary if the HTML contains very large or complex tables."
-msgstr ""
-"Viser HTML tabeller som tekstblokker fremfor tabellvisning. Dette er "
-"nødvendig hvis HTMLen inneholder store eller komplekse tabeller."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
-msgid ""
-"Specify the base font size in pts. All fonts are rescaled accordingly. This "
-"option obsoletes the --font-delta option and takes precedence over it. To "
-"use --font-delta, set this to 0. Default: %defaultpt"
-msgstr ""
-"Spesifiser standard font størrelse i prs. Alle fonter blir skalert i henhold "
-"til denne. Denne opsjonen forelder --font-delta opsjonen og tar presedens "
-"over den. For å bruke --font-delta, sett den til 0. Standard: %defaultpt"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:103
-msgid "Enable autorotation of images that are wider than the screen width."
-msgstr ""
-"Aktiver automatisk rotering av bilder som er bredere enn skjermbredden"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:106
-msgid "Set the space between words in pts. Default is %default"
-msgstr "Angi avstand mellom ordene i pts. Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:108
-msgid "Separate paragraphs by blank lines."
-msgstr "Separer paragrafer med tomme linjer"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:110
-msgid "Add a header to all the pages with title and author."
-msgstr "Angi topptekst til alle sidene med tittel og forfatter"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:116
-msgid ""
-"Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
-"it is a string it is interpreted as CSS."
-msgstr ""
-"Overkjører gjeldende CSS. Kan enten være en filsti til en CSS fil eller en "
-"streng. Hvis det er en streng, blir den tolket som CSS."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:118
-msgid ""
-"Use the <spine> element from the OPF file to determine the order in which "
-"the HTML files are appended to the LRF. The .opf file must be in the same "
-"directory as the base HTML file."
-msgstr ""
-"Bruk <spine> elementet fra OPF filen for å bestemme hvilken rekkefølge HTML "
-"filene skal legges til LRF filen. OPF filen må ligge i samme katalog som "
-"basis HTML filen."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:120
-msgid ""
-"Minimum paragraph indent (the indent of the first line of a paragraph) in "
-"pts. Default: %default"
-msgstr ""
-"Minste paragraf indentering (indenteringen til den første linjen i en "
-"paragraf) i pts. Standard: %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:122
-msgid ""
-"Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
-"FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
-"font size is decreased."
-msgstr ""
-"Øker fontstørrelsen med 2 * FONT_DELTA pts og linjeavstand med FONT_DELTA "
-"pts. FONT_DELTA kan være en fraksjon. Hvis  FONT_DELTA er negativ, så vil "
-"fontstørrelsen minskes."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:127
-msgid ""
-"Render all content as black on white instead of the colors specified by the "
-"HTML or CSS."
-msgstr ""
-"Vis alt innhold som svart på hvitt i stedet for fargene spesifisert i HTML "
-"eller CSS."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:133
-msgid ""
-"Profile of the target device for which this LRF is being generated. The "
-"profile determines things like the resolution and screen size of the target "
-"device. Default: %s Supported profiles: "
-msgstr ""
-"Profilen til lagringsenheten som denne LRF filen blir generert for. Profilen "
-"angir innstillinger som oppløsning og skjerm størrelsen til lagringsenheten. "
-"Standard: %s Støttede profiler: "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:139
-msgid "Left margin of page. Default is %default px."
-msgstr "Sidens venstremarg. Standard er %default px."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:141
-msgid "Right margin of page. Default is %default px."
-msgstr "Sidens høyremarg. Standard er %default px."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:143
-msgid "Top margin of page. Default is %default px."
-msgstr "Sidens toppmarg. Standard er %default px."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:145
-msgid "Bottom margin of page. Default is %default px."
-msgstr "Sidens bunnmarg. Standard er %default px."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:147
-msgid ""
-"Render tables in the HTML as images (useful if the document has large or "
-"complex tables)"
-msgstr ""
-"Viser tabeller i HTML som bilder (praktisk hvis dokumentet har store eller "
-"komplekse tabeller)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:149
-msgid ""
-"Multiply the size of text in rendered tables by this factor. Default is "
-"%default"
-msgstr ""
-"Multipliserer størrelsen på teksten i tabeller med denne faktoren. Standard "
-"er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:154
-msgid ""
-"The maximum number of levels to recursively process links. A value of 0 "
-"means thats links are not followed. A negative value means that <a> tags are "
-"ignored."
-msgstr ""
-"Maks antall rekurserbare nivåer for å håndtere lenker. Nullverdi innebærer "
-"at lenker ikke blir håndtert. En negativ verdi innebærer at <a> tagger blir "
-"ignorert."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:158
-msgid ""
-"A regular expression. <a> tags whose href matches will be ignored. Defaults "
-"to %default"
-msgstr ""
-"Et regulært uttrykk. <a> tagger med matchende href attributt vil bli "
-"ignorert. Standard er  %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:162
-msgid "Don't add links to the table of contents."
-msgstr "Ikke legg til lenker i innholdsregisteret."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:166
-msgid "Prevent the automatic detection chapters."
-msgstr "Forhindre automatisk detektering av kapitler."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
-msgid ""
-"The regular expression used to detect chapter titles. It is searched for in "
-"heading tags (h1-h6). Defaults to %default"
-msgstr ""
-"Regulært uttrykk brukt for å detektere kapittel overskrifter. Det blir søkt "
-"etter overskrift tagger (h1 - h6). Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:174
-msgid ""
-"If html2lrf does not find any page breaks in the html file and cannot detect "
-"chapter headings, it will automatically insert page-breaks before the tags "
-"whose names match this regular expression. Defaults to %default. You can "
-"disable it by setting the regexp to \"$\". The purpose of this option is to "
-"try to ensure that there are no really long pages as this degrades the page "
-"turn performance of the LRF. Thus this option is ignored if the current page "
-"has only a few elements."
-msgstr ""
-"Hvis det ikke finnes sideskift i HTML filen og kapittel overskrifter, så vil "
-"html2lrf automatisk legge til sideskift før elementene som matcher det "
-"regulære uttrykket. Standard er %default. Dette kan forhindres ved å sette "
-"regexp til \"$\". Meningen bak denne opsjonen er å sikre at svært lange "
-"sider ikke degraderer LRFs sideskifte ytelse. Denne opsjonen blir ignorert "
-"hvis nåværende side har få elementer."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:184
-msgid ""
-"Force a page break before tags whose names match this regular expression."
-msgstr ""
-"Plasser sideskifte foran element navn som matcher det regulære uttrykket."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:186
-msgid ""
-"Force a page break before an element having the specified attribute. The "
-"format for this option is tagname regexp,attribute name,attribute value "
-"regexp. For example to match all heading tags that have the attribute "
-"class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
-msgstr ""
-"Plasserer et sideskifte foran elementer med det spesifiserte attributtet. "
-"Formatet for denne opsjonen er elementnavn regexp, attributtnavn, "
-"attributtverdi regexp. For å matche alle elementer med attributtet "
-"class=\"chapter\" må man bruke \"h\\d,class,chapter\". Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:189
-msgid "Add detected chapters to the table of contents."
-msgstr "Legg til oppdagede kapitler til innholdsregisteret."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:192
-msgid "Preprocess Baen HTML files to improve generated LRF."
-msgstr ""
-"Førprosessere Baen HTML filer for å forbedre den genererte LRF filen."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:194
-msgid ""
-"You must add this option if processing files generated by pdftohtml, "
-"otherwise conversion will fail."
-msgstr ""
-"Hvis filene er generert med pdftohtml, må du legge til denne opsjonen for å "
-"unngå at konverteringen feiler."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:196
-msgid "Use this option on html0 files from Book Designer."
-msgstr "Bruk denne opsjonen på  html0 filer fra Book Designer."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:199
-msgid ""
-"Specify trutype font families for serif, sans-serif and monospace fonts. "
-"These fonts will be embedded in the LRF file. Note that custom fonts lead to "
-"slower page turns. For example: --serif-family \"Times New Roman\"\n"
-"    "
-msgstr ""
-"Angi trutype font familier for serif, sans-serif og monospace fonter. Disse "
-"fontene vil bli lagret i LRF filen. NB: Ikke standard fonter kan føre til "
-"tregere sideskifte. Eksempel: --serif-family \"Times New Roman\"\n"
-"    "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:207
-msgid "The serif family of fonts to embed"
-msgstr "Serif font familie"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:210
-msgid "The sans-serif family of fonts to embed"
-msgstr "Sans-serif font familie"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:213
-msgid "The monospace family of fonts to embed"
-msgstr "Monospace font familie"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:217
-msgid "Be verbose while processing"
-msgstr "Vær informativ under prosesseringen"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:219
-msgid "Convert to LRS"
-msgstr "Konverter til LRS"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:221
-msgid ""
-"Minimize memory usage at the cost of longer processing times. Use this "
-"option if you are on a memory constrained machine."
-msgstr ""
-"Minimer minne bruken på bekostning av prosesseringstid. Bruk denne opsjonen "
-"om maskinen har begrenset minne."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:223
-msgid ""
-"Specify the character encoding of the source file. If the output LRF file "
-"contains strange characters, try changing this option. A common encoding for "
-"files from windows computers is cp-1252. Another common choice is utf-8. The "
-"default is to try and guess the encoding."
-msgstr ""
-"Spesifiser tegnkoden til kildefilen. Hvis utgående LRF filen inneholder "
-"merkelige bokstaver, forsøk å endre denne opsjonen. En vanlig fil tegnkode "
-"for Windows maskiner er cp-1252. utf-8 er også et vanlig valg. Vanlig "
-"forsøks vinkel er å gjette tegnkoden."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:175
-msgid ""
-"any2lrf [options] myfile\n"
-"\n"
-"Convert any ebook format into LRF. Supported formats are:\n"
-"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a "
-"RAR or\n"
-"ZIP archive, looking for an ebook inside the archive.\n"
-"    "
-msgstr ""
-"any2lrf [opsjoner] minfil\n"
-"\n"
-"Konverterer enhver ebok format til LRF. Støttede formater er:\n"
-"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC og PDF. any2lrf vil også håndtere RAR "
-"eller ZIP arkiv ved å søke etter ebøker inni arkivet.\n"
-"    "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:190
-msgid "No file to convert specified."
-msgstr "Ingen fil angitt for konvertering"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:226
-msgid "Rendered %s"
-msgstr "Gjengitt %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:287
-msgid ""
-"Options to control the conversion of comics (CBR, CBZ) files into ebooks"
-msgstr ""
-"Opsjoner for å kontrollere konverteringen av tegneserier (CBR, CBZ) filer "
-"til digitale bøker."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:293
-msgid "Title for generated ebook. Default is to use the filename."
-msgstr "Tittel for generert digitalbok. Standard er å bruke filnavnet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:295
-msgid ""
-"Set the author in the metadata of the generated ebook. Default is %default"
-msgstr ""
-"Angi forfatter i metadataene til generert digitalbok. Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:300
-msgid "Number of colors for grayscale image conversion. Default: %default"
-msgstr ""
-"Antall farger brukt for gråskala bildekonvertering. Standard er %default"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:302
-msgid ""
-"Disable normalize (improve contrast) color range for pictures. Default: False"
-msgstr ""
-"Forhindre normalisering (forbedre kontrasten) av farge rangering for bilder. "
-"Standard: False"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:304
-msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr "Beholde bilde sideforhold. Standard er å fylle hele skjermen."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:306
-msgid "Disable sharpening."
-msgstr "Ikke foreta skjerping av bilder"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:311
-msgid "Don't split landscape images into two portrait images"
-msgstr "Ikke splitt landskapsbilder i to portrett bilder"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:315
-msgid ""
-"Used for right-to-left publications like manga. Causes landscape pages to be "
-"split into portrait pages from right to left."
-msgstr ""
-"Brukt for høyre til venstre publikasjoner som manga. Innebærer at "
-"landskapssider blir splittet til portrettbilder som leses fra høyre til "
-"venstre."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:319
-msgid ""
-"Don't sort the files found in the comic alphabetically by name. Instead use "
-"the order they were added to the comic."
-msgstr ""
-"Ikke sorter filene i tegneserien alfabetisk etter navn. Bruk rekkefølgen "
-"filene ble lagt til i tegneserien."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:323
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:20
-msgid ""
-"Be verbose, useful for debugging. Can be specified multiple times for "
-"greater verbosity."
-msgstr ""
-"Informativ modus, nyttig for feilretting. Kan bli spesifisert flere ganger "
-"for å motta ytterligere informasjon."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:325
-msgid "Don't show progress bar."
-msgstr "Ikke vis fremskrittssøyle."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:393
-msgid "Output written to"
-msgstr "Utdata blir skrevet til"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:553
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/from_comic.py:35
-msgid "Rendering comic pages..."
-msgstr "Prosesserer tegneserie sider..."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/epub/convert_from.py:17
-msgid ""
-"Usage: %prog [options] mybook.epub\n"
-"        \n"
-"        \n"
-"%prog converts mybook.epub to mybook.lrf"
-msgstr ""
-"Bruksmåte: %prog [opsjoner] minbok.epub\n"
-"        \n"
-"        \n"
-"%prog konverterer minbok.epub til minbok.lrf"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:23
-msgid ""
-"%prog [options] mybook.fb2\n"
-"\n"
-"\n"
-"%prog converts mybook.fb2 to mybook.lrf"
-msgstr ""
-"Bruk: %prog [opsjoner] minbok.epub\n"
-"        \n"
-"        \n"
-"%prog konverterer minbok.epub til minbok.lrf"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:28
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:24
-msgid "Print generated HTML to stdout and quit."
-msgstr "Skriv ut generert HTML til stdout og avslutt."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:30
-msgid "Keep generated HTML files after completing conversion to LRF."
-msgstr ""
-"Behold generert HTML filer etter å ha fullført konverteringen til LRF."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:20
-msgid "Options to control the behavior of feeds2disk"
-msgstr "Opsjoner for å kontrollere oppførselen til feeds2disk"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:22
-msgid "Options to control the behavior of html2lrf"
-msgstr "Opsjoner for å kontrollere oppførselen til html2lrf"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:44
-msgid "Fetching of recipe failed: "
-msgstr "Innehenting av oppskrift feilet: "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:321
-msgid "\tBook Designer file detected."
-msgstr "\tBook Designer fil oppdaget."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:323
-msgid "\tParsing HTML..."
-msgstr "\tProsesserer HTML..."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:346
-msgid "\tBaen file detected. Re-parsing..."
-msgstr "\tBaen fil oppdaget. Analyserer på nytt..."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:362
-msgid "Written preprocessed HTML to "
-msgstr "Skrevet førbehandlet HTML til "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:380
-msgid "Processing %s"
-msgstr "Behandler %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:394
-msgid "\tConverting to BBeB..."
-msgstr "\tKonverterer til BBeB..."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:540
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:553
-msgid "Could not parse file: %s"
-msgstr "Kunne ikke analysere fil: %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:545
-msgid "%s is an empty file"
-msgstr "%s er en innholdsløs fil"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:565
-msgid "Failed to parse link %s %s"
-msgstr "Analysering av lenken feilet %s %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:609
-msgid "Cannot add link %s to TOC"
-msgstr "Kan ikke legge til lenken %s i innholdsregisteret"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:958
-msgid "Unable to process image %s. Error: %s"
-msgstr "Kunne ikke behandle bilde %s. Feilmelding: %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1003
-msgid "Unable to process interlaced PNG %s"
-msgstr "Behandlingen av linjeflettet PNG feilet %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1018
-msgid ""
-"Could not process image: %s\n"
-"%s"
-msgstr ""
-"Behandlingen av bildet feilet: %s\n"
-"%s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
-msgid ""
-"An error occurred while processing a table: %s. Ignoring table markup."
-msgstr ""
-"Under behandlingen av en tabell inntraff det en feil: %s. Ignorer tabell "
-"markup."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
-msgid ""
-"Bad table:\n"
-"%s"
-msgstr ""
-"Dårlig tabell:\n"
-"%s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1796
-msgid "Table has cell that is too large"
-msgstr "Tabellen har en celle som er for stor"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1826
-msgid ""
-"You have to save the website %s as an html file first and then run html2lrf "
-"on it."
-msgstr "Nettstedet %s må lagres som en html fil før man kjører html2lrf."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1869
-msgid "Could not read cover image: %s"
-msgstr "Kunne ikke lese omslagsbilde: %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1872
-msgid "Cannot read from: %s"
-msgstr "Kan ikke lese fra: %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1997
-msgid "Failed to process opf file"
-msgstr "Behandlingen av opf filen feilet"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:2003
-msgid ""
-"Usage: %prog [options] mybook.html\n"
-"\n"
-"\n"
-"%prog converts mybook.html to mybook.lrf. \n"
-"%prog follows all links in mybook.html that point \n"
-"to local files recursively. Thus, you can use it to \n"
-"convert a whole tree of HTML files."
-msgstr ""
-"Bruksmåte: %prog [opsjner] minbok.html\n"
-"\n"
-"\n"
-"%prog konverterer minbok.html til minbok.lrf. \n"
-"%prog følger alle lenker rekursivt i minbok.html som peker til lokale filer. "
-"På denne måten kan du konvertere et helt filtre av HTML filer."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lit/convert_from.py:15
-msgid ""
-"Usage: %prog [options] mybook.lit\n"
-"\n"
-"\n"
-"%prog converts mybook.lit to mybook.lrf"
-msgstr ""
-"Bruksmåte: %prog [opsjoner] minbok.lit\n"
-"\n"
-"\n"
-"%prog konverterer minbok.lit til minbok.lrf"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
-msgid ""
-"%prog book.lrf\n"
-"Convert an LRF file into an LRS (XML UTF-8 encoded) file"
-msgstr ""
-"%prog bok.lrf\n"
-"Konverterer en LRF fil til en LRS (XML UTF-8 tegnkodet) fil"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
-msgid "Output LRS file"
-msgstr "Skriv ut LRS fil"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
-msgid "Parsing LRF..."
-msgstr "Analyserer LRF..."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
-msgid "Creating XML..."
-msgstr "Oppretter XML..."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
-msgid "LRS written to "
-msgstr "LRS skrevet til "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:266
-msgid "Could not read from thumbnail file:"
-msgstr "Kunne ikke lese fra thumbnail fil:"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:286
-msgid ""
-"%prog [options] file.lrs\n"
-"Compile an LRS file into an LRF file."
-msgstr ""
-"%prog [opsjoner] fil.lrs\n"
-"Kompilerer en LRS fil til en LRS fil."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
-msgid "Path to output file"
-msgstr "Filsti til utfil"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:289
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:117
-msgid "Verbose processing"
-msgstr "Informativ behandling"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:291
-msgid "Convert LRS to LRS, useful for debugging."
-msgstr "Konverter LRS til LRS, praktisk for feilsøking."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:455
-msgid "Invalid LRF file. Could not set metadata."
-msgstr "Ugyldig LRF fil. Kunne ikke angi metadata."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:580
-msgid ""
-"%prog [options] mybook.lrf\n"
-"\n"
-"\n"
-"Show/edit the metadata in an LRF file.\n"
-"\n"
-msgstr ""
-"%prog [opsjoner] minbok.lrf\n"
-"\n"
-"\n"
-"Vis/endre metadataene i en LRF fil.\n"
-"\n"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:587
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:42
-msgid "Set the book title"
-msgstr "Angi bok tittel"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
-msgid "Set sort key for the title"
-msgstr "Angi sorteringsnøkkel for tittelen"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
-msgid "Set the author"
-msgstr "Angi forfatter"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
-msgid "Set sort key for the author"
-msgstr "Angi sorteringsnøkkel for forfatter"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:46
-msgid "The category this book belongs to. E.g.: History"
-msgstr "Boksjanger. For eksempel: Historie"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:598
-msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Filsti til et bilde som vil bli brukt som denne filens thumbnail"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:601
-msgid ""
-"Path to a txt file containing the comment to be stored in the lrf file."
-msgstr ""
-"Filsti til en tekstfil som inneholder kommentarer som skal lagres i lrf "
-"filen."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:605
-msgid "Extract thumbnail from LRF file"
-msgstr "Hent ut thumbnail fra LRF filen"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
-msgid ""
-"Extract cover from LRF file. Note that the LRF format has no defined cover, "
-"so we use some heuristics to guess the cover."
-msgstr ""
-"Hent omslagsbilde fra LRF filen. Hvis LRF formatet ikke har definert et "
-"omslagsbilde, vil det bli foretatt et søk for å gjette omslagsbildet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
-msgid "Set book ID"
-msgstr "Angi bok ID"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/mobi/convert_from.py:43
-msgid ""
-"Usage: %prog [options] mybook.mobi|prc\n"
-"\n"
-"\n"
-"%prog converts mybook.mobi to mybook.lrf"
-msgstr ""
-"Bruksbeskrivelse: %prog [opsjoner] minbok.mobi|prc\n"
-"\n"
-"\n"
-"%prog konverterer minbok.mobi til minbok.lrf"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:49
-msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr ""
-"Fant ikke pdftohtml, sjekk om filstien er tilstede i PATH miljøvariabelen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:300
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:69
@@ -1066,18 +62,6 @@ msgstr "Kommentarer"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:315
 msgid "Language"
 msgstr "Språk"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
-msgid "Usage:"
-msgstr "Bruksmåte:"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:43
-msgid "Usage: %s file.lit"
-msgstr "Bruksmåte: %s fil.lit"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:115
-msgid "Usage: pdf-meta file.pdf"
-msgstr "Bruksmåte: pdf-meta fil.pdf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:840
 msgid "Foreword"
@@ -1360,14 +344,6 @@ msgstr "Kopier til utklippstavle"
 msgid "Copying <b>%s</b>"
 msgstr "Kopierer <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:43
-msgid "%sUsage%s: %s\n"
-msgstr "%sBruksområde%s: %s\n"
-
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:81
-msgid "Created by "
-msgstr "Utviklet av "
-
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:568
 msgid "Download finished"
 msgstr "Nedlasting ferdig"
@@ -1586,6 +562,95 @@ msgstr "Kovid Goyal"
 msgid "Does absolutely nothing"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
+#: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:98
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:50
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:58
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:196
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:71
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:529
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1071
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1073
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:79
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:296
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:62
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:96
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:98
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:100
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:83
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:179
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:70
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:199
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:229
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:232
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:271
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:301
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:53
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:55
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:95
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:97
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:152
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:334
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:449
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:863
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:38
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:37
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1157
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1160
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:53
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:54
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:467
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:619
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:622
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:33
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:364
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:905
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:264
+#: /home/kovid/work/calibre/src/calibre/library/database.py:916
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
+#: /home/kovid/work/calibre/src/calibre/library/server.py:340
+#: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
+#: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:50
+msgid "Unknown"
+msgstr "Ukjent"
+
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:62
 msgid "Base"
 msgstr ""
@@ -1688,10 +753,106 @@ msgstr ""
 msgid "Disable the named plugin"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:394
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:72
+msgid "The reader has no storage card connected."
+msgstr "Lesebrettet har ikke et lagringskort tilknyttet seg."
+
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:62
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:93
 msgid "There is insufficient free space in main memory"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:140
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:168
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:196
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:204
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:251
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:278
+msgid "Unable to detect the %s disk drive. Try rebooting."
+msgstr "Finner ikke %s lagringsenheten. Venligst prøv å restarte."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:94
+msgid "Options to control the conversion to EPUB"
+msgstr "Opsjoner for å kontrollere konverteringen til EPUB"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:105
+msgid ""
+"The output EPUB file. If not specified, it is derived from the input file "
+"name."
+msgstr ""
+"Utgående EPUB fil. Hvis dette ikke er spesifisert, så blir navnet avledet "
+"fra inngående filnavn."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
+msgid ""
+"Profile of the target device this EPUB is meant for. Set to None to create a "
+"device independent EPUB. The profile is used for device specific "
+"restrictions on the EPUB. Choices are: "
+msgstr ""
+"Profilen til enheten EPUB filen skal lages for. Set til ingen for å lage en "
+"uavhenging EPUB. Profilen er brukt for spesifikke enhetsrestriksjoner på "
+"EPUB. Valgmulighetene er: "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:113
+msgid ""
+"Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
+"existing CSS declarations in the source files."
+msgstr ""
+"Filstien til et CSS stilark eller råkodet CSS. CSS vil tilsidesette enhver "
+"eksisterende CSS deklarasjoner i kildefilene."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:117
+msgid "Control auto-detection of document structure."
+msgstr "Kontrollerer auto detektering av dokument strukturen."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:122
+msgid ""
+"An XPath expression to detect chapter titles. The default is to consider "
+"<h1> or\n"
+"<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
+"\"part\" as chapter titles as \n"
+"well as any tags that have class=\"chapter\". \n"
+"The expression used must evaluate to a list of elements. To disable chapter "
+"detection,\n"
+"use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
+"for further\n"
+"help on using this feature.\n"
+msgstr ""
+"En XPath uttrykk for å detektere kapittel overskrifter. Standarden er å anta "
+"at <h1> eller\n"
+"<h2> tagger kan inneholde ordene \"chapter\",\"book\",\"section\" or "
+"\"part\" som kapittel overskrifter såvel som \n"
+"enhver andre tagger som har class=\"chapter\". \n"
+"Utrykket må evalueres etter en liste av elementer. For å fjerne kapittel "
+"detektering,\n"
+"bruk uttrykket \"/\". Kikk i XPath veiledningen i calibres bruker manual for "
+"videre hjelp \n"
+"i bruken av denne muligheten.\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:132
+msgid ""
+"Specify how to mark detected chapters. A value of \"pagebreak\" will insert "
+"page breaks before chapters. A value of \"rule\" will insert a line before "
+"chapters. A value of \"none\" will disable chapter marking and a value of "
+"\"both\" will use both page breaks and lines to mark chapters."
+msgstr ""
+"Spesifiser hvordan å markere detekterte kapitler. Verdien \"pagebreak\" vil "
+"sette inn sideavslutning før kapitler. Verdien \"rule\" vil sette inn en "
+"linje før kapitler. Verdien \"none\" vil ikke medføre kapittel markering og "
+"verdien \"both\" vil bruke både sideavslutning og linjer for å markere "
+"kapitler."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:139
+msgid "Path to the cover to be used for this book"
+msgstr "Filstien til omslagsbilde for boken"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:142
+msgid ""
+"Use the cover detected from the source file in preference to the specified "
+"cover."
+msgstr "Bruk omslagsbilde fra kildefilen fremfor spesifisert omslagsbilde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:145
 msgid ""
@@ -1721,11 +882,57 @@ msgid ""
 "with 1."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:165
+msgid ""
+"Control the automatic generation of a Table of Contents. If an OPF file is "
+"detected\n"
+"and it specifies a Table of Contents, then that will be used rather than "
+"trying\n"
+"to auto-generate a Table of Contents.\n"
+msgstr ""
+"Kontrollerer den automatiske genereringen av innholdsregisteret. Hvis en OPF "
+"fil blir oppdaget \n"
+"og den inneholder et innholdsregister, så vil denne bli brukt fremfor å \n"
+"autogenerere et innholdsregister.\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:171
+msgid ""
+"Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
+"is: %default. Links are only added to the TOC if less than the --toc-"
+"threshold number of chapters were detected."
+msgstr ""
+"Maks antall lenker i innholdsregisteret. Angi 0 for å slå av denne "
+"funksjonen. Standard er: %default. Lenker blir bare lagt til "
+"innholdsregisteret hvis mindre enn --toc-threshold kapitler blir oppdaget."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:175
+msgid "Don't add auto-detected chapters to the Table of Contents."
+msgstr "Ikke legg til automatisk oppdagede kapitler til innholdsregisteret."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:177
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:180
+msgid ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level one. If this is specified, it takes precedence over "
+"other forms of auto-detection."
+msgstr ""
+"XPath utrykk spesifiserer alle tagger som burde bli lagt til "
+"innholdsregisteret på første nivå. Når dette er spesifisert, så vil det ha "
+"høyere prioritet enn andre former for automatisk detektering."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:184
+msgid ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level two. Each entry is added under the previous level one "
+"entry."
+msgstr ""
+"XPath uttrykket angir at alle tagger burde bli lagt til nivå to av "
+"innholdsregisteret. Hvert innlegg blir lagt til under forrige nivå en."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:188
 msgid ""
@@ -1734,12 +941,44 @@ msgid ""
 "entry."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:192
+msgid ""
+"Path to a .ncx file that contains the table of contents to use for this "
+"ebook. The NCX file should contain links relative to the directory it is "
+"placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
+"an overview of the NCX format."
+msgstr ""
+"Filstien til en .ncx fil som inneholder innholdsregisteret for denne eboken. "
+"NCK filen burde inneholde lenker som er relative til katalogen den er "
+"plassert i. Se http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
+"en oversikt over NCX formatet."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:198
 msgid ""
 "Normally, if the source file already has a Table of Contents, it is used in "
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:202
+msgid "Control page layout"
+msgstr "Kontroller side oppsettet"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:204
+msgid "Set the top margin in pts. Default is %default"
+msgstr "Angi toppmargen i pts. Standard er %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:206
+msgid "Set the bottom margin in pts. Default is %default"
+msgstr "Angi bunnmargen i pts. Standard er %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:208
+msgid "Set the left margin in pts. Default is %default"
+msgstr "Angi venstremargin i pts. Standard er %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:210
+msgid "Set the right margin in pts. Default is %default"
+msgstr "Angi høyremargin i pts. Standard er %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:212
 msgid ""
@@ -1935,6 +1174,32 @@ msgstr ""
 msgid "Creating LIT file from EPUB..."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:892
+msgid "%prog [options] LITFILE"
+msgstr "%prog [opsjoner] LITFIL"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
+msgid "Output directory. Defaults to current directory."
+msgstr "Lagringskatalog. Standard er nåværende katalog"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:898
+msgid "Legibly format extracted markup. May modify meaningful whitespace."
+msgstr ""
+"Uthentet markup fra lesbart format. Dette kan medføre at mellomrom, "
+"tabulatorer og linjeskift blir modifisert."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:901
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:731
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:580
+msgid "Useful for debugging."
+msgstr "Praktisk for feilsøking."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
+msgid "OEB ebook created in"
+msgstr "OEB bok opprettet i"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:725
 msgid "%prog [options] OPFFILE"
 msgstr ""
@@ -1945,11 +1210,91 @@ msgstr ""
 msgid "Output file. Default is derived from input filename."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:76
+msgid "Set the title. Default: filename."
+msgstr "Angi tittel. Standard: filnavn"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:78
 msgid ""
 "Set the author(s). Multiple authors should be set as a comma separated list. "
 "Default: %default"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
+msgid "Set the comment."
+msgstr "Angi kommentar"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
+msgid "Set the category"
+msgstr "Angi kategori"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:85
+msgid "Sort key for the title"
+msgstr "Sorteringsnøkkel for tittel"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
+msgid "Sort key for the author"
+msgstr "Sorteringsnøkkel for forfatter"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:113
+msgid "Publisher"
+msgstr "Forlag"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
+msgid "Path to file containing image to be used as cover"
+msgstr "Filstien til bokomslagsbildet"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:93
+msgid ""
+"If there is a cover graphic detected in the source file, use that instead of "
+"the specified cover."
+msgstr ""
+"Hvis et omslagsbilde blir oppdaget i kildefilen, vil det bli brukt fremfor "
+"det spesifiserte omslagsbildet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:96
+msgid "Output file name. Default is derived from input filename"
+msgstr ""
+"Utgående filnavn. Standard er at den blir avledet fra inngående filnavn."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:98
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:552
+msgid ""
+"Render HTML tables as blocks of text instead of actual tables. This is "
+"neccessary if the HTML contains very large or complex tables."
+msgstr ""
+"Viser HTML tabeller som tekstblokker fremfor tabellvisning. Dette er "
+"nødvendig hvis HTMLen inneholder store eller komplekse tabeller."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
+msgid ""
+"Specify the base font size in pts. All fonts are rescaled accordingly. This "
+"option obsoletes the --font-delta option and takes precedence over it. To "
+"use --font-delta, set this to 0. Default: %defaultpt"
+msgstr ""
+"Spesifiser standard font størrelse i prs. Alle fonter blir skalert i henhold "
+"til denne. Denne opsjonen forelder --font-delta opsjonen og tar presedens "
+"over den. For å bruke --font-delta, sett den til 0. Standard: %defaultpt"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:103
+msgid "Enable autorotation of images that are wider than the screen width."
+msgstr ""
+"Aktiver automatisk rotering av bilder som er bredere enn skjermbredden"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:106
+msgid "Set the space between words in pts. Default is %default"
+msgstr "Angi avstand mellom ordene i pts. Standard er %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:108
+msgid "Separate paragraphs by blank lines."
+msgstr "Separer paragrafer med tomme linjer"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:110
+msgid "Add a header to all the pages with title and author."
+msgstr "Angi topptekst til alle sidene med tittel og forfatter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:112
 msgid ""
@@ -1961,6 +1306,126 @@ msgstr ""
 msgid "Add extra spacing below the header. Default is %default px."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:116
+msgid ""
+"Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
+"it is a string it is interpreted as CSS."
+msgstr ""
+"Overkjører gjeldende CSS. Kan enten være en filsti til en CSS fil eller en "
+"streng. Hvis det er en streng, blir den tolket som CSS."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:118
+msgid ""
+"Use the <spine> element from the OPF file to determine the order in which "
+"the HTML files are appended to the LRF. The .opf file must be in the same "
+"directory as the base HTML file."
+msgstr ""
+"Bruk <spine> elementet fra OPF filen for å bestemme hvilken rekkefølge HTML "
+"filene skal legges til LRF filen. OPF filen må ligge i samme katalog som "
+"basis HTML filen."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:120
+msgid ""
+"Minimum paragraph indent (the indent of the first line of a paragraph) in "
+"pts. Default: %default"
+msgstr ""
+"Minste paragraf indentering (indenteringen til den første linjen i en "
+"paragraf) i pts. Standard: %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:122
+msgid ""
+"Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
+"FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
+"font size is decreased."
+msgstr ""
+"Øker fontstørrelsen med 2 * FONT_DELTA pts og linjeavstand med FONT_DELTA "
+"pts. FONT_DELTA kan være en fraksjon. Hvis  FONT_DELTA er negativ, så vil "
+"fontstørrelsen minskes."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:127
+msgid ""
+"Render all content as black on white instead of the colors specified by the "
+"HTML or CSS."
+msgstr ""
+"Vis alt innhold som svart på hvitt i stedet for fargene spesifisert i HTML "
+"eller CSS."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:133
+msgid ""
+"Profile of the target device for which this LRF is being generated. The "
+"profile determines things like the resolution and screen size of the target "
+"device. Default: %s Supported profiles: "
+msgstr ""
+"Profilen til lagringsenheten som denne LRF filen blir generert for. Profilen "
+"angir innstillinger som oppløsning og skjerm størrelsen til lagringsenheten. "
+"Standard: %s Støttede profiler: "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:139
+msgid "Left margin of page. Default is %default px."
+msgstr "Sidens venstremarg. Standard er %default px."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:141
+msgid "Right margin of page. Default is %default px."
+msgstr "Sidens høyremarg. Standard er %default px."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:143
+msgid "Top margin of page. Default is %default px."
+msgstr "Sidens toppmarg. Standard er %default px."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:145
+msgid "Bottom margin of page. Default is %default px."
+msgstr "Sidens bunnmarg. Standard er %default px."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:147
+msgid ""
+"Render tables in the HTML as images (useful if the document has large or "
+"complex tables)"
+msgstr ""
+"Viser tabeller i HTML som bilder (praktisk hvis dokumentet har store eller "
+"komplekse tabeller)"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:149
+msgid ""
+"Multiply the size of text in rendered tables by this factor. Default is "
+"%default"
+msgstr ""
+"Multipliserer størrelsen på teksten i tabeller med denne faktoren. Standard "
+"er %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:154
+msgid ""
+"The maximum number of levels to recursively process links. A value of 0 "
+"means thats links are not followed. A negative value means that <a> tags are "
+"ignored."
+msgstr ""
+"Maks antall rekurserbare nivåer for å håndtere lenker. Nullverdi innebærer "
+"at lenker ikke blir håndtert. En negativ verdi innebærer at <a> tagger blir "
+"ignorert."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:158
+msgid ""
+"A regular expression. <a> tags whose href matches will be ignored. Defaults "
+"to %default"
+msgstr ""
+"Et regulært uttrykk. <a> tagger med matchende href attributt vil bli "
+"ignorert. Standard er  %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:162
+msgid "Don't add links to the table of contents."
+msgstr "Ikke legg til lenker i innholdsregisteret."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:166
+msgid "Prevent the automatic detection chapters."
+msgstr "Forhindre automatisk detektering av kapitler."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
+msgid ""
+"The regular expression used to detect chapter titles. It is searched for in "
+"heading tags (h1-h6). Defaults to %default"
+msgstr ""
+"Regulært uttrykk brukt for å detektere kapittel overskrifter. Det blir søkt "
+"etter overskrift tagger (h1 - h6). Standard er %default"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:172
 msgid ""
 "Detect a chapter beginning at an element having the specified attribute. The "
@@ -1971,9 +1436,142 @@ msgid ""
 "all h2 tags, you would use \"h2,none,\". Default is %default"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:174
+msgid ""
+"If html2lrf does not find any page breaks in the html file and cannot detect "
+"chapter headings, it will automatically insert page-breaks before the tags "
+"whose names match this regular expression. Defaults to %default. You can "
+"disable it by setting the regexp to \"$\". The purpose of this option is to "
+"try to ensure that there are no really long pages as this degrades the page "
+"turn performance of the LRF. Thus this option is ignored if the current page "
+"has only a few elements."
+msgstr ""
+"Hvis det ikke finnes sideskift i HTML filen og kapittel overskrifter, så vil "
+"html2lrf automatisk legge til sideskift før elementene som matcher det "
+"regulære uttrykket. Standard er %default. Dette kan forhindres ved å sette "
+"regexp til \"$\". Meningen bak denne opsjonen er å sikre at svært lange "
+"sider ikke degraderer LRFs sideskifte ytelse. Denne opsjonen blir ignorert "
+"hvis nåværende side har få elementer."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:184
+msgid ""
+"Force a page break before tags whose names match this regular expression."
+msgstr ""
+"Plasser sideskifte foran element navn som matcher det regulære uttrykket."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:186
+msgid ""
+"Force a page break before an element having the specified attribute. The "
+"format for this option is tagname regexp,attribute name,attribute value "
+"regexp. For example to match all heading tags that have the attribute "
+"class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+msgstr ""
+"Plasserer et sideskifte foran elementer med det spesifiserte attributtet. "
+"Formatet for denne opsjonen er elementnavn regexp, attributtnavn, "
+"attributtverdi regexp. For å matche alle elementer med attributtet "
+"class=\"chapter\" må man bruke \"h\\d,class,chapter\". Standard er %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:189
+msgid "Add detected chapters to the table of contents."
+msgstr "Legg til oppdagede kapitler til innholdsregisteret."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:192
+msgid "Preprocess Baen HTML files to improve generated LRF."
+msgstr ""
+"Førprosessere Baen HTML filer for å forbedre den genererte LRF filen."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:194
+msgid ""
+"You must add this option if processing files generated by pdftohtml, "
+"otherwise conversion will fail."
+msgstr ""
+"Hvis filene er generert med pdftohtml, må du legge til denne opsjonen for å "
+"unngå at konverteringen feiler."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:196
+msgid "Use this option on html0 files from Book Designer."
+msgstr "Bruk denne opsjonen på  html0 filer fra Book Designer."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:199
+msgid ""
+"Specify trutype font families for serif, sans-serif and monospace fonts. "
+"These fonts will be embedded in the LRF file. Note that custom fonts lead to "
+"slower page turns. For example: --serif-family \"Times New Roman\"\n"
+"    "
+msgstr ""
+"Angi trutype font familier for serif, sans-serif og monospace fonter. Disse "
+"fontene vil bli lagret i LRF filen. NB: Ikke standard fonter kan føre til "
+"tregere sideskifte. Eksempel: --serif-family \"Times New Roman\"\n"
+"    "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:207
+msgid "The serif family of fonts to embed"
+msgstr "Serif font familie"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:210
+msgid "The sans-serif family of fonts to embed"
+msgstr "Sans-serif font familie"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:213
+msgid "The monospace family of fonts to embed"
+msgstr "Monospace font familie"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:217
+msgid "Be verbose while processing"
+msgstr "Vær informativ under prosesseringen"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:219
+msgid "Convert to LRS"
+msgstr "Konverter til LRS"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:221
+msgid ""
+"Minimize memory usage at the cost of longer processing times. Use this "
+"option if you are on a memory constrained machine."
+msgstr ""
+"Minimer minne bruken på bekostning av prosesseringstid. Bruk denne opsjonen "
+"om maskinen har begrenset minne."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:223
+msgid ""
+"Specify the character encoding of the source file. If the output LRF file "
+"contains strange characters, try changing this option. A common encoding for "
+"files from windows computers is cp-1252. Another common choice is utf-8. The "
+"default is to try and guess the encoding."
+msgstr ""
+"Spesifiser tegnkoden til kildefilen. Hvis utgående LRF filen inneholder "
+"merkelige bokstaver, forsøk å endre denne opsjonen. En vanlig fil tegnkode "
+"for Windows maskiner er cp-1252. utf-8 er også et vanlig valg. Vanlig "
+"forsøks vinkel er å gjette tegnkoden."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:164
 msgid "Converting from %s to LRF is not supported."
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:175
+msgid ""
+"any2lrf [options] myfile\n"
+"\n"
+"Convert any ebook format into LRF. Supported formats are:\n"
+"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a "
+"RAR or\n"
+"ZIP archive, looking for an ebook inside the archive.\n"
+"    "
+msgstr ""
+"any2lrf [opsjoner] minfil\n"
+"\n"
+"Konverterer enhver ebok format til LRF. Støttede formater er:\n"
+"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC og PDF. any2lrf vil også håndtere RAR "
+"eller ZIP arkiv ved å søke etter ebøker inni arkivet.\n"
+"    "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:190
+msgid "No file to convert specified."
+msgstr "Ingen fil angitt for konvertering"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:226
+msgid "Rendered %s"
+msgstr "Gjengitt %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:229
 msgid "Failed %s"
@@ -1986,11 +1584,48 @@ msgid ""
 "%s"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:287
+msgid ""
+"Options to control the conversion of comics (CBR, CBZ) files into ebooks"
+msgstr ""
+"Opsjoner for å kontrollere konverteringen av tegneserier (CBR, CBZ) filer "
+"til digitale bøker."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:293
+msgid "Title for generated ebook. Default is to use the filename."
+msgstr "Tittel for generert digitalbok. Standard er å bruke filnavnet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:295
+msgid ""
+"Set the author in the metadata of the generated ebook. Default is %default"
+msgstr ""
+"Angi forfatter i metadataene til generert digitalbok. Standard er %default"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:298
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:22
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:300
+msgid "Number of colors for grayscale image conversion. Default: %default"
+msgstr ""
+"Antall farger brukt for gråskala bildekonvertering. Standard er %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:302
+msgid ""
+"Disable normalize (improve contrast) color range for pictures. Default: False"
+msgstr ""
+"Forhindre normalisering (forbedre kontrasten) av farge rangering for bilder. "
+"Standard: False"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:304
+msgid "Maintain picture aspect ratio. Default is to fill the screen."
+msgstr "Beholde bilde sideforhold. Standard er å fylle hele skjermen."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:306
+msgid "Disable sharpening."
+msgstr "Ikke foreta skjerping av bilder"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:308
 msgid ""
@@ -1998,11 +1633,24 @@ msgid ""
 "content as well as borders."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:311
+msgid "Don't split landscape images into two portrait images"
+msgstr "Ikke splitt landskapsbilder i to portrett bilder"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:313
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:315
+msgid ""
+"Used for right-to-left publications like manga. Causes landscape pages to be "
+"split into portrait pages from right to left."
+msgstr ""
+"Brukt for høyre til venstre publikasjoner som manga. Innebærer at "
+"landskapssider blir splittet til portrettbilder som leses fra høyre til "
+"venstre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:317
 msgid ""
@@ -2010,12 +1658,33 @@ msgid ""
 "time."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:319
+msgid ""
+"Don't sort the files found in the comic alphabetically by name. Instead use "
+"the order they were added to the comic."
+msgstr ""
+"Ikke sorter filene i tegneserien alfabetisk etter navn. Bruk rekkefølgen "
+"filene ble lagt til i tegneserien."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:321
 msgid ""
 "Choose a profile for the device you are generating this file for. The "
 "default is the SONY PRS-500 with a screen size of 584x754 pixels. This is "
 "suitable for any reader with the same screen size. Choices are %s"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:323
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:20
+msgid ""
+"Be verbose, useful for debugging. Can be specified multiple times for "
+"greater verbosity."
+msgstr ""
+"Informativ modus, nyttig for feilretting. Kan bli spesifisert flere ganger "
+"for å motta ytterligere informasjon."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:325
+msgid "Don't show progress bar."
+msgstr "Ikke vis fremskrittssøyle."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:328
 msgid "Apply no processing to the image"
@@ -2028,9 +1697,291 @@ msgid ""
 "Convert a comic in a CBZ or CBR file to an ebook.\n"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:393
+msgid "Output written to"
+msgstr "Utdata blir skrevet til"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:553
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/from_comic.py:35
+msgid "Rendering comic pages..."
+msgstr "Prosesserer tegneserie sider..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/epub/convert_from.py:17
+msgid ""
+"Usage: %prog [options] mybook.epub\n"
+"        \n"
+"        \n"
+"%prog converts mybook.epub to mybook.lrf"
+msgstr ""
+"Bruksmåte: %prog [opsjoner] minbok.epub\n"
+"        \n"
+"        \n"
+"%prog konverterer minbok.epub til minbok.lrf"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:23
+msgid ""
+"%prog [options] mybook.fb2\n"
+"\n"
+"\n"
+"%prog converts mybook.fb2 to mybook.lrf"
+msgstr ""
+"Bruk: %prog [opsjoner] minbok.epub\n"
+"        \n"
+"        \n"
+"%prog konverterer minbok.epub til minbok.lrf"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:28
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:24
+msgid "Print generated HTML to stdout and quit."
+msgstr "Skriv ut generert HTML til stdout og avslutt."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:30
+msgid "Keep generated HTML files after completing conversion to LRF."
+msgstr ""
+"Behold generert HTML filer etter å ha fullført konverteringen til LRF."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:20
+msgid "Options to control the behavior of feeds2disk"
+msgstr "Opsjoner for å kontrollere oppførselen til feeds2disk"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:22
+msgid "Options to control the behavior of html2lrf"
+msgstr "Opsjoner for å kontrollere oppførselen til html2lrf"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:44
+msgid "Fetching of recipe failed: "
+msgstr "Innehenting av oppskrift feilet: "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:321
+msgid "\tBook Designer file detected."
+msgstr "\tBook Designer fil oppdaget."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:323
+msgid "\tParsing HTML..."
+msgstr "\tProsesserer HTML..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:346
+msgid "\tBaen file detected. Re-parsing..."
+msgstr "\tBaen fil oppdaget. Analyserer på nytt..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:362
+msgid "Written preprocessed HTML to "
+msgstr "Skrevet førbehandlet HTML til "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:380
+msgid "Processing %s"
+msgstr "Behandler %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:394
+msgid "\tConverting to BBeB..."
+msgstr "\tKonverterer til BBeB..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:540
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:553
+msgid "Could not parse file: %s"
+msgstr "Kunne ikke analysere fil: %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:545
+msgid "%s is an empty file"
+msgstr "%s er en innholdsløs fil"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:565
+msgid "Failed to parse link %s %s"
+msgstr "Analysering av lenken feilet %s %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:609
+msgid "Cannot add link %s to TOC"
+msgstr "Kan ikke legge til lenken %s i innholdsregisteret"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:958
+msgid "Unable to process image %s. Error: %s"
+msgstr "Kunne ikke behandle bilde %s. Feilmelding: %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1003
+msgid "Unable to process interlaced PNG %s"
+msgstr "Behandlingen av linjeflettet PNG feilet %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1018
+msgid ""
+"Could not process image: %s\n"
+"%s"
+msgstr ""
+"Behandlingen av bildet feilet: %s\n"
+"%s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
+msgid ""
+"An error occurred while processing a table: %s. Ignoring table markup."
+msgstr ""
+"Under behandlingen av en tabell inntraff det en feil: %s. Ignorer tabell "
+"markup."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
+msgid ""
+"Bad table:\n"
+"%s"
+msgstr ""
+"Dårlig tabell:\n"
+"%s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1796
+msgid "Table has cell that is too large"
+msgstr "Tabellen har en celle som er for stor"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1826
+msgid ""
+"You have to save the website %s as an html file first and then run html2lrf "
+"on it."
+msgstr "Nettstedet %s må lagres som en html fil før man kjører html2lrf."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1869
+msgid "Could not read cover image: %s"
+msgstr "Kunne ikke lese omslagsbilde: %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1872
+msgid "Cannot read from: %s"
+msgstr "Kan ikke lese fra: %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1997
+msgid "Failed to process opf file"
+msgstr "Behandlingen av opf filen feilet"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:2003
+msgid ""
+"Usage: %prog [options] mybook.html\n"
+"\n"
+"\n"
+"%prog converts mybook.html to mybook.lrf. \n"
+"%prog follows all links in mybook.html that point \n"
+"to local files recursively. Thus, you can use it to \n"
+"convert a whole tree of HTML files."
+msgstr ""
+"Bruksmåte: %prog [opsjner] minbok.html\n"
+"\n"
+"\n"
+"%prog konverterer minbok.html til minbok.lrf. \n"
+"%prog følger alle lenker rekursivt i minbok.html som peker til lokale filer. "
+"På denne måten kan du konvertere et helt filtre av HTML filer."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lit/convert_from.py:15
+msgid ""
+"Usage: %prog [options] mybook.lit\n"
+"\n"
+"\n"
+"%prog converts mybook.lit to mybook.lrf"
+msgstr ""
+"Bruksmåte: %prog [opsjoner] minbok.lit\n"
+"\n"
+"\n"
+"%prog konverterer minbok.lit til minbok.lrf"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
+msgid ""
+"%prog book.lrf\n"
+"Convert an LRF file into an LRS (XML UTF-8 encoded) file"
+msgstr ""
+"%prog bok.lrf\n"
+"Konverterer en LRF fil til en LRS (XML UTF-8 tegnkodet) fil"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
+msgid "Output LRS file"
+msgstr "Skriv ut LRS fil"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
+msgid "Parsing LRF..."
+msgstr "Analyserer LRF..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
+msgid "Creating XML..."
+msgstr "Oppretter XML..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
+msgid "LRS written to "
+msgstr "LRS skrevet til "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:266
+msgid "Could not read from thumbnail file:"
+msgstr "Kunne ikke lese fra thumbnail fil:"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:286
+msgid ""
+"%prog [options] file.lrs\n"
+"Compile an LRS file into an LRF file."
+msgstr ""
+"%prog [opsjoner] fil.lrs\n"
+"Kompilerer en LRS fil til en LRS fil."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
+msgid "Path to output file"
+msgstr "Filsti til utfil"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:289
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:117
+msgid "Verbose processing"
+msgstr "Informativ behandling"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:291
+msgid "Convert LRS to LRS, useful for debugging."
+msgstr "Konverter LRS til LRS, praktisk for feilsøking."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:455
+msgid "Invalid LRF file. Could not set metadata."
+msgstr "Ugyldig LRF fil. Kunne ikke angi metadata."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:580
+msgid ""
+"%prog [options] mybook.lrf\n"
+"\n"
+"\n"
+"Show/edit the metadata in an LRF file.\n"
+"\n"
+msgstr ""
+"%prog [opsjoner] minbok.lrf\n"
+"\n"
+"\n"
+"Vis/endre metadataene i en LRF fil.\n"
+"\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:587
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:42
+msgid "Set the book title"
+msgstr "Angi bok tittel"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
+msgid "Set sort key for the title"
+msgstr "Angi sorteringsnøkkel for tittelen"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
+msgid "Set the author"
+msgstr "Angi forfatter"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
+msgid "Set sort key for the author"
+msgstr "Angi sorteringsnøkkel for forfatter"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:46
+msgid "The category this book belongs to. E.g.: History"
+msgstr "Boksjanger. For eksempel: Historie"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:598
+msgid "Path to a graphic that will be set as this files' thumbnail"
+msgstr "Filsti til et bilde som vil bli brukt som denne filens thumbnail"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:601
+msgid ""
+"Path to a txt file containing the comment to be stored in the lrf file."
+msgstr ""
+"Filsti til en tekstfil som inneholder kommentarer som skal lagres i lrf "
+"filen."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:605
+msgid "Extract thumbnail from LRF file"
+msgstr "Hent ut thumbnail fra LRF filen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:606
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:195
@@ -2048,6 +1999,35 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book producer"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
+msgid ""
+"Extract cover from LRF file. Note that the LRF format has no defined cover, "
+"so we use some heuristics to guess the cover."
+msgstr ""
+"Hent omslagsbilde fra LRF filen. Hvis LRF formatet ikke har definert et "
+"omslagsbilde, vil det bli foretatt et søk for å gjette omslagsbildet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
+msgid "Set book ID"
+msgstr "Angi bok ID"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/mobi/convert_from.py:43
+msgid ""
+"Usage: %prog [options] mybook.mobi|prc\n"
+"\n"
+"\n"
+"%prog converts mybook.mobi to mybook.lrf"
+msgstr ""
+"Bruksbeskrivelse: %prog [opsjoner] minbok.mobi|prc\n"
+"\n"
+"\n"
+"%prog konverterer minbok.mobi til minbok.lrf"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:49
+msgid "Could not find pdftohtml, check it is in your PATH"
+msgstr ""
+"Fant ikke pdftohtml, sjekk om filstien er tilstede i PATH miljøvariabelen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:75
 msgid ""
@@ -2161,6 +2141,10 @@ msgstr ""
 msgid "Extract the cover"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
+msgid "Usage:"
+msgstr "Bruksmåte:"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/imp.py:53
 msgid "Usage: imp-meta file.imp"
 msgstr ""
@@ -2227,6 +2211,10 @@ msgid ""
 "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:43
+msgid "Usage: %s file.lit"
+msgstr "Bruksmåte: %s fil.lit"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:240
 msgid "Cover saved to"
@@ -2247,6 +2235,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1026
 msgid "Set the dc:language field"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:115
+msgid "Usage: pdf-meta file.pdf"
+msgstr "Bruksmåte: pdf-meta fil.pdf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/rb.py:59
 msgid "Usage: rb-meta file.rb"
@@ -6001,6 +5993,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/parallel.py:816
 msgid "Job stopped by user"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:43
+msgid "%sUsage%s: %s\n"
+msgstr "%sBruksområde%s: %s\n"
+
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:81
+msgid "Created by "
+msgstr "Utviklet av "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:536
 msgid "Path to the database in which books are stored"

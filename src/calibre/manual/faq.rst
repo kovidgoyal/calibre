@@ -222,6 +222,10 @@ My antivirus programs claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Your antivirus program is wrong. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
 
+How do I use purchased EPUB books with |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your SONY Reader. First, you must authorize your reader on a windows machine with Adobe DIgital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. Sometimes, the EPUB file itself is corrupted, in which case you should notify the e-book vendor.
+
 
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

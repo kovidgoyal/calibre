@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-15 20:25+0000\n"
-"PO-Revision-Date: 2009-05-13 15:48+0000\n"
-"Last-Translator: Clement Østergaard <Unknown>\n"
+"POT-Creation-Date: 2009-05-16 06:38+0000\n"
+"PO-Revision-Date: 2009-05-18 21:44+0000\n"
+"Last-Translator: Martin Grønholdt <martin.groenholdt@gmail.com>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-16 05:57+0000\n"
+"X-Launchpad-Export-Date: 2009-05-21 14:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -108,7 +108,7 @@ msgstr "Gør absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:50
 msgid "Unknown"
-msgstr "Unknown"
+msgstr "Ukendt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:62
 msgid "Base"
@@ -152,6 +152,10 @@ msgstr ""
 msgid "Read metadata from %s files"
 msgstr "Læser metadata fra %s filer"
 
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:177
+msgid "Extract cover from comic files"
+msgstr "Udtræk forside fra tegneserie-filer"
+
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:197
 msgid "Read metadata from ebooks in ZIP archives"
 msgstr "Læser metadata fra ebøger i zip-arkiver"
@@ -170,7 +174,11 @@ msgstr "Gemmer metadata i %s filer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:28
 msgid "Installed plugins"
-msgstr "installerede plugins"
+msgstr "Installerede plugins"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
+msgid "Mapping for filetype plugins"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Local plugin customization"
@@ -186,7 +194,19 @@ msgstr "Intet gyldigt plugin fundet i "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:192
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Initialiseringen af pluginet %s slog fejl med følgende backtrace:"
+msgstr "Initialiseringen af plugin %s slog fejl med følgende backtrace:"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
+msgid ""
+"    %prog options\n"
+"\n"
+"    Customize calibre by loading external plugins.\n"
+"    "
+msgstr ""
+"    %prog valgmuligheder\n"
+"\n"
+"    Tilpas Calibre ved at indlæse eksterne plugins.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:275
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -242,7 +262,7 @@ msgstr "Der er ikke tilstrækkelig plads i hovedhukommelsen"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:251
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:278
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "Kan ikke finde %s diskdrevet. Prøv at genstarte."
+msgstr "Kan ikke finde diskdrevet %s. Prøv at genstarte."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:94
 msgid "Options to control the conversion to EPUB"
@@ -253,8 +273,18 @@ msgid ""
 "The output EPUB file. If not specified, it is derived from the input file "
 "name."
 msgstr ""
-"Navnet på outputfilen. Hvis det ikke er angivet, udledes det fra input "
-"filnavnet"
+"Navnet på den EPUB fil der ønskes gemt. Hvis navnet ikke angives, udledes "
+"det fra input filnavnet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
+msgid ""
+"Profile of the target device this EPUB is meant for. Set to None to create a "
+"device independent EPUB. The profile is used for device specific "
+"restrictions on the EPUB. Choices are: "
+msgstr ""
+"Profilen på den enhed som denne EPUB skal benyttes på. Sæt til Ingen for at "
+"lave en EPUB, der ikke er enheds afhængig. Profilen benyttes til enheds "
+"specifikke begrænsninger i EPUB filen. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:113
 msgid ""
@@ -335,6 +365,19 @@ msgstr ""
 "hurtigt og bruger færre ressourcer. Imidlertid tager opdelingen tid så hvis "
 "din kildefil indeholder et højt antal sideskift, bør du deaktivere deling "
 "ved sideskift."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
+msgid ""
+"XPath expression to detect page boundaries for building a custom pagination "
+"map, as used by AdobeDE. Default is not to build an explicit pagination map."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
+msgid ""
+"XPath expression to find the name of each page in the pagination map "
+"relative to its boundary element. Default is to number all pages staring "
+"with 1."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:165
 msgid ""
@@ -519,6 +562,17 @@ msgstr ""
 msgid "Could not find an ebook inside the archive"
 msgstr "Kunne ikke finde en e-bog inden i arkivet"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
+"file.\n"
+"If you specify an OPF file instead of an HTML file, the list of links is "
+"takes from\n"
+"the <spine> element of the OPF file.\n"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:519
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:758
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:621
@@ -577,6 +631,12 @@ msgstr ""
 msgid "Control the following of links in HTML files."
 msgstr "Kontroller de følgende links i HTML-filer."
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:954
+msgid ""
+"Traverse links in HTML files breadth first. Normally, they are traversed "
+"depth first"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:956
 msgid ""
 "Maximum levels of recursion when following links in HTML files. Must be non-"
@@ -630,6 +690,18 @@ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
 msgstr ""
 "Outpu HTML bliver skrevet \"pænt\" for lettere at kunne fortolkes af "
 "mennesker."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Follow all links in an HTML file and collect them into the specified "
+"directory.\n"
+"Also collects any resources like images, stylesheets, scripts, etc.\n"
+"If an OPF file is specified instead, the list of files in its <spine> "
+"element\n"
+"is used.\n"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -907,6 +979,24 @@ msgstr ""
 "tagnavne. For fx. at finde alle h2 tags, brug \"h2,none,\". Standardværdien "
 "er %default"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:174
+msgid ""
+"If html2lrf does not find any page breaks in the html file and cannot detect "
+"chapter headings, it will automatically insert page-breaks before the tags "
+"whose names match this regular expression. Defaults to %default. You can "
+"disable it by setting the regexp to \"$\". The purpose of this option is to "
+"try to ensure that there are no really long pages as this degrades the page "
+"turn performance of the LRF. Thus this option is ignored if the current page "
+"has only a few elements."
+msgstr ""
+"Hvis html2lrf ikke finder nogle sideskift i html-filen, og ikke kan finde "
+"nogle kapiteloverskrifter, vil det automatisk indsætte sideskift før tags, "
+"hvis navne passer på dette regulære udtryk. Standardværdien er %default. Du "
+"kan deaktivere det ved at sætte udtrykket til \"$\". Formålet med denne "
+"indstilling er at sikre, at der ikke er nogle rigtig lange sider, da det går "
+"ud over ydelsen når siderne skal vendes. Derfor bliver denne indstilling "
+"ignoreret, hvis den aktuelle side har få elementer."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:184
 msgid ""
 "Force a page break before tags whose names match this regular expression."
@@ -1081,352 +1171,6 @@ msgstr ""
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr "Bevar billedformat. Standardværdien er at fylde skærmen."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:30
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
-msgid "Do not download CSS stylesheets."
-msgstr "Download ikke CSS stilark"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:41
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:97
-msgid "Username for sites that require a login to access content."
-msgstr ""
-"Brugernavn for sider, der kræver et login for at få adgang til indholdet"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:43
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:98
-msgid "Password for sites that require a login to access content."
-msgstr ""
-"Adgangskode for sider, der kræver login for at få adgang til indholdet"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:568
-msgid "Download finished"
-msgstr "Download færdig"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:570
-msgid "Failed to download the following articles:"
-msgstr "Kunne ikke downloade følgende artikler:"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:572
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:578
-msgid " from "
-msgstr " fra "
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:576
-msgid "Failed to download parts of the following articles:"
-msgstr "Kunne ikke downloade dele af følgende artikler:"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:580
-msgid "\tFailed links:"
-msgstr "\tMislykkede links:"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:699
-msgid "Trying to download cover..."
-msgstr "Prøver at downloade omslag..."
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:752
-msgid "Starting download [%d thread(s)]..."
-msgstr "Starter download [%d tråd(e)]..."
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:785
-msgid "Downloading cover from %s"
-msgstr "Downloader omslag fra %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevnik_cro.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hrt.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jutarnji.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nacional_cro.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vecernji_list.py:26
-msgid "Croatian"
-msgstr "Kroatisk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata_rs.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_b92.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_blic.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_danas.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_e_novine.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:27
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nin.py:31
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_novosti.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pescanik.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politika.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pressonline.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_rts.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tanjug.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vijesti.py:28
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vreme.py:28
-msgid "Serbian"
-msgstr "Serbisk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chr_mon.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_mail.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_telegraph.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_discover_magazine.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dna.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ecogeek.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_economist.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_endgadget.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_espn.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_exiled.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_financial_times.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_forbes.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_freakonomics.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_fudzilla.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glasgow_herald.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_globe_and_mail.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_guardian.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:27
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honoluluadvertiser.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_iht.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_indy_star.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_irish_times.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_japan_times.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_joelonsoftware.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jpost.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde_english.py:44
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_scientist.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books_no_sub.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_yorker.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_news_times.py:7
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_newsweek.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm_int.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes_sub.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_outlook_india.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_today.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_world.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politico.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_portfolio.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_reuters.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_san_fran_chronicle.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_aas.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_teleread.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_age.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_nation.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_oz.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_register.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_scotsman.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usnews.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_utne.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:17
-msgid "English"
-msgstr "Engelsk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ambito.py:61
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_clarin.py:64
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_criticadigital.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_mercurio_chile.py:61
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_pais.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_universal.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elargentino.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elcronista.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elmundo.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_granma.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_infobae.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_cuarta.py:53
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_segunda.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_tercera.py:64
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion_chile.py:54
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:25
-msgid "Spanish"
-msgstr "Spansk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
-msgid "Italian"
-msgstr "Italiensk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_courrierinternational.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cyberpresse.py:9
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_liberation.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mediapart.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mondedurable.py:13
-msgid "French"
-msgstr "Fransk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_de_standaard.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_demorgen_be.py:16
-msgid "Dutch"
-msgstr "Hollandsk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_der_standard.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diepresse.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_faznet.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ftd.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_heise.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hna.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
-msgid "German"
-msgstr "Tysk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevni_avaz.py:27
-msgid "Bosnian"
-msgstr "Bosnisk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
-msgid "Portugese"
-msgstr "Portugisisk"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
-msgid "Kovid Goyal"
-msgstr "Kovid Goyal"
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:177
-msgid "Extract cover from comic files"
-msgstr "Udtræk forside fra tegneserie-filer"
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
-msgid "Mapping for filetype plugins"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
-msgid ""
-"    %prog options\n"
-"\n"
-"    Customize calibre by loading external plugins.\n"
-"    "
-msgstr ""
-"    %prog valgmuligheder\n"
-"\n"
-"    Tilpas Calibre ved at indlæse eksterne plugins.\n"
-"    "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
-msgid ""
-"Profile of the target device this EPUB is meant for. Set to None to create a "
-"device independent EPUB. The profile is used for device specific "
-"restrictions on the EPUB. Choices are: "
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
-msgid ""
-"XPath expression to detect page boundaries for building a custom pagination "
-"map, as used by AdobeDE. Default is not to build an explicit pagination map."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
-msgid ""
-"XPath expression to find the name of each page in the pagination map "
-"relative to its boundary element. Default is to number all pages staring "
-"with 1."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
-"file.\n"
-"If you specify an OPF file instead of an HTML file, the list of links is "
-"takes from\n"
-"the <spine> element of the OPF file.\n"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:954
-msgid ""
-"Traverse links in HTML files breadth first. Normally, they are traversed "
-"depth first"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Follow all links in an HTML file and collect them into the specified "
-"directory.\n"
-"Also collects any resources like images, stylesheets, scripts, etc.\n"
-"If an OPF file is specified instead, the list of files in its <spine> "
-"element\n"
-"is used.\n"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:174
-msgid ""
-"If html2lrf does not find any page breaks in the html file and cannot detect "
-"chapter headings, it will automatically insert page-breaks before the tags "
-"whose names match this regular expression. Defaults to %default. You can "
-"disable it by setting the regexp to \"$\". The purpose of this option is to "
-"try to ensure that there are no really long pages as this degrades the page "
-"turn performance of the LRF. Thus this option is ignored if the current page "
-"has only a few elements."
-msgstr ""
-"Hvis html2lrf ikke finder nogle sideskift i html-filen, og ikke kan finde "
-"nogle kapiteloverskrifter, vil det automatisk indsætte sideskift før tags, "
-"hvis navne passer på dette regulære udtryk. Standardværdien er %default. Du "
-"kan deaktivere det ved at sætte udtrykket til \"$\". Formålet med denne "
-"indstilling er at sikre, at der ikke er nogle rigtig lange sider, da det går "
-"ud over ydelsen når siderne skal vendes. Derfor bliver denne indstilling "
-"ignoreret, hvis den aktuelle side har få elementer."
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:306
 msgid "Disable sharpening."
 msgstr ""
@@ -1436,6 +1180,8 @@ msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr ""
+"Slå trimning af tegneserie sider fra. For nogle tegneserier kan trimning "
+"fjerne del af indholdet, såvel som kanter."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:311
 msgid "Don't split landscape images into two portrait images"
@@ -1464,6 +1210,8 @@ msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
+"Sortér ikke de fundne filer i en tegneserie alfabetisk, efter navn. Sorter i "
+"den rækkefølge de blev tilføjet til tegneserien."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:321
 msgid ""
@@ -1471,6 +1219,9 @@ msgid ""
 "default is the SONY PRS-500 with a screen size of 584x754 pixels. This is "
 "suitable for any reader with the same screen size. Choices are %s"
 msgstr ""
+"Vælg en profil for den enhed du genererer filen til. Standard er SONY PRS-"
+"500 med en skærmstørrelse på 584x754 pixels. Denne profil passer til alle "
+"læsere med den samme skærmstørrelse. Du kan vælge mellem %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:323
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftrim.py:20
@@ -1487,7 +1238,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:328
 msgid "Apply no processing to the image"
-msgstr ""
+msgstr "Processer ikke billedet"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:333
 msgid ""
@@ -1498,7 +1249,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:393
 msgid "Output written to"
-msgstr ""
+msgstr "Output skrevet til"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:553
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/from_comic.py:35
@@ -1524,7 +1275,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:28
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:24
 msgid "Print generated HTML to stdout and quit."
-msgstr ""
+msgstr "Udskriv genereret HTML til stdout og afslut."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:30
 msgid "Keep generated HTML files after completing conversion to LRF."
@@ -6246,6 +5997,11 @@ msgstr ""
 "både --filter-regexp og --match-regexp er angivet vil --filter-regexp blive "
 "anvendt først."
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:30
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
+msgid "Do not download CSS stylesheets."
+msgstr "Download ikke CSS stilark"
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:33
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:90
 msgid ""
@@ -6274,6 +6030,18 @@ msgid ""
 msgstr ""
 "Opskriftens titel. Bruges som titel for alle e-bøger skabt ud fra de hentede "
 "feeds."
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:41
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:97
+msgid "Username for sites that require a login to access content."
+msgstr ""
+"Brugernavn for sider, der kræver et login for at få adgang til indholdet"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:43
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:98
+msgid "Password for sites that require a login to access content."
+msgstr ""
+"Adgangskode for sider, der kræver login for at få adgang til indholdet"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:51
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:101
@@ -6368,6 +6136,27 @@ msgstr "Henter feeds..."
 msgid "Unknown News Source"
 msgstr "Ukendt nyhedskilde"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:568
+msgid "Download finished"
+msgstr "Download færdig"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:570
+msgid "Failed to download the following articles:"
+msgstr "Kunne ikke downloade følgende artikler:"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:572
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:578
+msgid " from "
+msgstr " fra "
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:576
+msgid "Failed to download parts of the following articles:"
+msgstr "Kunne ikke downloade dele af følgende artikler:"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:580
+msgid "\tFailed links:"
+msgstr "\tMislykkede links:"
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:668
 msgid "Could not fetch article. Run with --debug to see the reason"
 msgstr ""
@@ -6377,6 +6166,14 @@ msgstr ""
 msgid "Got feeds from index page"
 msgstr "Fik feeds fra indekssiden"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:699
+msgid "Trying to download cover..."
+msgstr "Prøver at downloade omslag..."
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:752
+msgid "Starting download [%d thread(s)]..."
+msgstr "Starter download [%d tråd(e)]..."
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:768
 msgid "Feeds downloaded to %s"
 msgstr "Feeds er hentet til %s"
@@ -6384,6 +6181,10 @@ msgstr "Feeds er hentet til %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:778
 msgid "Could not download cover: %s"
 msgstr "Kunne ikke hente omslaget: %s"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:785
+msgid "Downloading cover from %s"
+msgstr "Downloader omslag fra %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:899
 msgid "Untitled Article"
@@ -6420,6 +6221,215 @@ msgstr "Hentning af artikel mislykkedes: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:85
 msgid "Fetching feed"
 msgstr "Henter feed"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevnik_cro.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hrt.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jutarnji.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nacional_cro.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vecernji_list.py:26
+msgid "Croatian"
+msgstr "Kroatisk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata_rs.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_b92.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_blic.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_danas.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_e_novine.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:27
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nin.py:31
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_novosti.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pescanik.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politika.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pressonline.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_rts.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tanjug.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vijesti.py:28
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vreme.py:28
+msgid "Serbian"
+msgstr "Serbisk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chr_mon.py:11
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_mail.py:6
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_telegraph.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_discover_magazine.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dna.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ecogeek.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_economist.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_endgadget.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_espn.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_exiled.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_financial_times.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_forbes.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_freakonomics.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_fudzilla.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glasgow_herald.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_globe_and_mail.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_guardian.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:27
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honoluluadvertiser.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_iht.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_indy_star.py:6
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_irish_times.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_japan_times.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_joelonsoftware.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jpost.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde_english.py:44
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_scientist.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books_no_sub.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_yorker.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_news_times.py:7
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_newsweek.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm_int.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes_sub.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_outlook_india.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_today.py:11
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_world.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politico.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_portfolio.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_reuters.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_san_fran_chronicle.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_aas.py:13
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_teleread.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_age.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_nation.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_oz.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_register.py:6
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_scotsman.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usnews.py:21
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_utne.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:17
+msgid "English"
+msgstr "Engelsk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ambito.py:61
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_clarin.py:64
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_criticadigital.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_mercurio_chile.py:61
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_pais.py:14
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_universal.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elargentino.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elcronista.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elmundo.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_granma.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_infobae.py:21
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_cuarta.py:53
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_segunda.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_tercera.py:64
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion_chile.py:54
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:25
+msgid "Spanish"
+msgstr "Spansk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
+msgid "Italian"
+msgstr "Italiensk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_courrierinternational.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cyberpresse.py:9
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_liberation.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mediapart.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mondedurable.py:13
+msgid "French"
+msgstr "Fransk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_de_standaard.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_demorgen_be.py:16
+msgid "Dutch"
+msgstr "Hollandsk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_der_standard.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diepresse.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_faznet.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ftd.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_heise.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hna.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
+msgid "German"
+msgstr "Tysk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevni_avaz.py:27
+msgid "Bosnian"
+msgstr "Bosnisk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+msgid "Portugese"
+msgstr "Portugisisk"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+msgid "Kovid Goyal"
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
