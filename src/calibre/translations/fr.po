@@ -6,16 +6,530 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-15 20:25+0000\n"
-"PO-Revision-Date: 2009-05-11 18:34+0000\n"
-"Last-Translator: Vincent C. <Unknown>\n"
+"POT-Creation-Date: 2009-05-16 06:38+0000\n"
+"PO-Revision-Date: 2009-05-16 09:29+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-16 05:56+0000\n"
+"X-Launchpad-Export-Date: 2009-05-21 14:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
+
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:209
+msgid "Metadata writer"
+msgstr "Éditeur de métadonnées"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
+msgid ""
+"    %prog options\n"
+"\n"
+"    Customize calibre by loading external plugins.\n"
+"    "
+msgstr ""
+"    options %prog\n"
+"\n"
+"    Personnaliser Calibre en chargeant des modules additionnels externes.\n"
+"    "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
+"file.\n"
+"If you specify an OPF file instead of an HTML file, the list of links is "
+"takes from\n"
+"the <spine> element of the OPF file.\n"
+msgstr ""
+"%prog [options] fichier.html|opf\n"
+"\n"
+"Convertit un fichier HTML vers un fichier ebook EPUB. Suit récursivement les "
+"liens dans le fichier HTML. Si vous spécifiez un fichier OPF à la place d'un "
+"fichier HTML, la liste des liens proviendra de l'élément <spine> du fichier "
+"OPF.\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Follow all links in an HTML file and collect them into the specified "
+"directory.\n"
+"Also collects any resources like images, stylesheets, scripts, etc.\n"
+"If an OPF file is specified instead, the list of files in its <spine> "
+"element\n"
+"is used.\n"
+msgstr ""
+"%prog [options] fichier.html|opf\n"
+"\n"
+"Suit tous les liens dans un fichier HTML et les collecte dans le répertoire "
+"spécifié.\n"
+"Collecte aussi toutes les ressources telles qu'image, feuilles de styles, "
+"scripts, etc.\n"
+"Si un fichier OPF est spécifié à la place, la liste des fichiers présent "
+"dans son élément <spine> est utilisée.\n"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:98
+msgid ""
+"\n"
+"%prog [options] key\n"
+"\n"
+"Fetch metadata for books from isndb.com. You can specify either the\n"
+"books ISBN ID or its title and author. If you specify the title and author,\n"
+"then more than one book may be returned.\n"
+"\n"
+"key is the account key you generate after signing up for a free account from "
+"isbndb.com.\n"
+"\n"
+msgstr ""
+"\n"
+"%prog [options] clef\n"
+"\n"
+"Récupère les méta-données des livres à partir de isndb.com. Vous pouvez "
+"spécifier soit l'identifiant ISBN des livres ou leurs titres ou l'auteur. Si "
+"vous spécifiez le titre ou l'auteur, alors plus d'un livre peut être "
+"renvoyé.\n"
+"\n"
+"clef est la clef du compte que vous avez généré après enregistrement d'un "
+"compte gratuit sur isbndb.com.\n"
+"\n"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:540
+msgid "Attached is the"
+msgstr "Le fichier attaché est"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:126
+msgid ""
+"Email\n"
+"Delivery"
+msgstr ""
+"Envoi\n"
+"D'Email"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:151
+msgid "Using: %s:%s@%s:%s and %s encryption"
+msgstr "Utilise: %s:%s@%s:%s et l'encryptage %s"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:156
+msgid "Sending..."
+msgstr "Envoi..."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:161
+msgid "Mail successfully sent"
+msgstr "Le courrier a été envoyé avec succès"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:177
+msgid "Formats to email. The first matching format will be sent."
+msgstr ""
+"Formats à envoyer par email. Le premier format qui correspond sera envoyé."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:460
+msgid "You must set the From email address"
+msgstr "Vous devez indiquer l'adresse email 'De'"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
+msgid "&Delete news from library when it is automatically sent to reader"
+msgstr ""
+"Supprimer les News de la librairie lorsque l'envoi est automatique vers "
+"l'appareil"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:578
+msgid ""
+"<p>This is what will be present in the From: field of emails sent by "
+"calibre.<br> Set it to your email address"
+msgstr ""
+"<p>Ce qui sera présent dans le champ De: des emails envoyés par calibre.<br> "
+"Indiquer ici votre adresse email"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:579
+msgid "Add an email address to which to send books"
+msgstr "Ajouter une adresse email à qui seront envoyés les livres"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:581
+msgid "Make &default"
+msgstr "Par &défaut"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:583
+msgid ""
+"<p>A mail server is useful if the service you are sending mail to only "
+"accepts email from well know mail services."
+msgstr ""
+"<p>Un serveur d'email est utile si le service auquel vous envoyez un email "
+"ne les accepte que venant de services réputés"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:601
+msgid "&Test email"
+msgstr "&Tester l'email"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:499
+msgid "&Linearize tables"
+msgstr "&Linéariser les tables"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:514
+msgid "&Page map"
+msgstr "&Plan de page"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:516
+msgid "&Boundary XPath:"
+msgstr "Xpath de limitation:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:79
+msgid ""
+"<p>calibre can find metadata for your books from two locations: <b>Google "
+"Books</b> and <b>isbndb.com</b>. <p>To use isbndb.com you must sign up for a "
+"<a href=\"http://www.isbndb.com\">free account</a> and enter your access key "
+"below."
+msgstr ""
+"<p>calibre peut trouver les méta-données pour vos livres à partir de deux "
+"emplacements: <b>Livres Google</b> et <b>isbndb.com</b>. <p>Pour utiliser "
+"isbndb.com vous devez vous enregistrer un <a "
+"href=\"http://www.isbndb.com\">compte gratuit</a> et entrer votre clef "
+"d'accès ci-dessous."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
+msgid "Could not find cover for this book. Try specifying the ISBN first."
+msgstr ""
+"Impossible de trouver la couverture de ce livre. Essayez déjà de spécifier "
+"le numéro ISBN."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
+msgid "Download &cover"
+msgstr "Télécharger la &couverture"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
+msgid "Download all scheduled recipes at once"
+msgstr "Télécharger toutes les recettes en une seule fois"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
+msgid "Download &all scheduled"
+msgstr "Télécharger toutes les planifications"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:50
+msgid "Test email settings"
+msgstr "Tester le paramétrage email"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
+msgid "Send test mail from %s to:"
+msgstr "Envoyer un email de test de %s vers:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:256
+msgid ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news "
+"recipe, by adding RSS feeds to it. <br />For most feeds, you will have to "
+"use the \"Advanced mode\" to further customize the fetch "
+"process.</p></body></html>"
+msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Créer une recette de News "
+"par défaut, en lui ajoutant des flux RSS. <br />Pour ajouter plus de flux, "
+"vous devrez utiliser ultérieurement le \"mode avancé\" pour personnaliser le "
+"processus de récupération.</p></body></html>"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1397
+msgid ""
+"<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
+"first remove the DRM using 3rd party tools."
+msgstr ""
+"<p>Impossible de convertir: %s<p>C'est un livre avec <a href=\"%s\">DRM</a>. "
+"Vous devez supprimer les DRM en utilisant un programme tiers."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1641
+msgid "Cannot Start "
+msgstr "Impossible de lancer "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1642
+msgid "<p>%s is already running. %s</p>"
+msgstr "<p>%s est déjà démarré. %s</p>"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
+msgid ""
+"%prog [options] file\n"
+"\n"
+"View an ebook.\n"
+msgstr ""
+"%prog [options] fichier\n"
+"\n"
+"Visualiser un ebook.\n"
+
+#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
+msgid "Control email delivery"
+msgstr "Contrôler l'envoi d'email"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
+msgid "Chinese"
+msgstr "Chinois"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:13
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:39
+msgid "slug"
+msgstr "lent"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:16
+msgid "category"
+msgstr "catégorie"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:17
+msgid "categories"
+msgstr "catégories"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:35
+msgid "Draft"
+msgstr "Brouillon"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:36
+msgid "Public"
+msgstr "Publique"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:41
+msgid "body"
+msgstr "corps"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:42
+msgid "tease"
+msgstr "taquin"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:43
+msgid "status"
+msgstr "statut"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:44
+msgid "allow comments"
+msgstr "Autoriser les commentaires"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:45
+msgid "publish"
+msgstr "publier"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:46
+msgid "created"
+msgstr "créé"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:47
+msgid "modified"
+msgstr "modifié"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:53
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:153
+msgid "post"
+msgstr "courrier"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:54
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:154
+msgid "posts"
+msgstr "courriers"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/admin.py:31
+msgid "Fields updated automatically by Feedjack"
+msgstr "Les champs sont automatiquement mis à jour à l'aide de Feedjack"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:17
+msgid "Date published."
+msgstr "Date de publication."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:18
+msgid "Date the post was first obtained."
+msgstr "Date à laquelle le courrier à été obtenu."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:22
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:38
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:98
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:126
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:173
+msgid "name"
+msgstr "nom"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:23
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:26
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:105
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:142
+msgid "link"
+msgstr "lien"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:27
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:61
+msgid "links"
+msgstr "liens"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:39
+msgid "url"
+msgstr "url"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:42
+msgid "Example"
+msgstr "Exemple"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:47
+msgid "welcome"
+msgstr "Bienvenu"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:48
+msgid "greets"
+msgstr "remerciements"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:50
+msgid "default site"
+msgstr "site par défaut"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:51
+msgid "posts per page"
+msgstr "courriers par page"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:52
+msgid "order posts by"
+msgstr "trier les courriers par"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:54
+msgid "tagcloud level"
+msgstr "Niveau du nuage d'étiquettes"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:55
+msgid "show tagcloud"
+msgstr "Afficher le nuage d'étiquettes"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:57
+msgid "use internal cache"
+msgstr "Utiliser le cache interne"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:58
+msgid "cache duration"
+msgstr "durée du cache"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:59
+msgid "Duration in seconds of the cached pages and data."
+msgstr "Durée en secondes pour les pages et les données mises en cache."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:63
+msgid "template"
+msgstr "modèle"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:65
+msgid ""
+"This template must be a directory in your feedjack templates directory. "
+"Leave blank to use the default template."
+msgstr ""
+"Ce modèle doit être un répertoire appartenant à vos modèles 'feedjack'. "
+"Laisser à vide pour utiliser le modèle par défaut."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:69
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:170
+msgid "site"
+msgstr "site"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:70
+msgid "sites"
+msgstr "sites"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:96
+msgid "feed url"
+msgstr "url du flux"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:99
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:175
+msgid "shortname"
+msgstr "nom court"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:100
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:178
+msgid "is active"
+msgstr "est actif"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:101
+msgid "If disabled, this feed will not be further updated."
+msgstr "Si désactivé, ce flux ne sera ultérieurement plus remis à jour."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:104
+msgid "tagline"
+msgstr "slogan"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:108
+msgid "etag"
+msgstr "e-étiquette"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:109
+msgid "last modified"
+msgstr "dernière modification"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:110
+msgid "last checked"
+msgstr "dernière vérification"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:113
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:140
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:171
+msgid "feed"
+msgstr "flux"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:114
+msgid "feeds"
+msgstr "flux"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:129
+msgid "tag"
+msgstr "étiquette"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:130
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:149
+msgid "tags"
+msgstr "étiquettes"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:143
+msgid "content"
+msgstr "contenu"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:144
+msgid "date modified"
+msgstr "date de modification"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:145
+msgid "guid"
+msgstr "identifiant globalement unique"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:147
+msgid "author email"
+msgstr "auteur de l'email"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:148
+msgid "comments"
+msgstr "commentaires"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:150
+msgid "date created"
+msgstr "date de création"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:174
+msgid "Keep blank to use the Feed's original name."
+msgstr "Laisser à vide pour utiliser le nom d'orgine du flux."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:177
+msgid "Keep blank to use the Feed's original shortname."
+msgstr "Laisser à vide pour utiliser le nom court d'orgine du flux."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:179
+msgid ""
+"If disabled, this subscriber will not appear in the site or in the site's "
+"feed."
+msgstr ""
+"Si désactivé, l'abonné n'apparaîtra pas dans le site ou dans le flux du site."
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:183
+msgid "subscriber"
+msgstr "abonné"
+
+#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:184
+msgid "subscribers"
+msgstr "abonnés"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -122,10 +636,6 @@ msgstr "Type de fichier"
 msgid "Metadata reader"
 msgstr "Lecteur de métadonnées"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:209
-msgid "Metadata writer"
-msgstr "Éditeur de métadonnées"
-
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:12
 msgid ""
 "Follow all local links in an HTML file and create a ZIP file containing all "
@@ -196,18 +706,6 @@ msgstr "Absence de plugin valide "
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:192
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr "L'initialisation du plugin %s a échoué en laissant une trace:"
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
-msgid ""
-"    %prog options\n"
-"\n"
-"    Customize calibre by loading external plugins.\n"
-"    "
-msgstr ""
-"    options %prog\n"
-"\n"
-"    Personnaliser Calibre en chargeant des modules additionnels externes.\n"
-"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:275
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -582,23 +1080,6 @@ msgstr ""
 msgid "Could not find an ebook inside the archive"
 msgstr "Ne trouve pas d'ebook dans l'archive"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
-"file.\n"
-"If you specify an OPF file instead of an HTML file, the list of links is "
-"takes from\n"
-"the <spine> element of the OPF file.\n"
-msgstr ""
-"%prog [options] fichier.html|opf\n"
-"\n"
-"Convertit un fichier HTML vers un fichier ebook EPUB. Suit récursivement les "
-"liens dans le fichier HTML. Si vous spécifiez un fichier OPF à la place d'un "
-"fichier HTML, la liste des liens proviendra de l'élément <spine> du fichier "
-"OPF.\n"
-
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:519
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:758
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:621
@@ -720,26 +1201,6 @@ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
 msgstr ""
 "La sortie HTML est \"imprimée plus joliment\" afin de faciliter l'analyse "
 "par les humains"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Follow all links in an HTML file and collect them into the specified "
-"directory.\n"
-"Also collects any resources like images, stylesheets, scripts, etc.\n"
-"If an OPF file is specified instead, the list of files in its <spine> "
-"element\n"
-"is used.\n"
-msgstr ""
-"%prog [options] fichier.html|opf\n"
-"\n"
-"Suit tous les liens dans un fichier HTML et les collecte dans le répertoire "
-"spécifié.\n"
-"Collecte aussi toutes les ressources telles qu'image, feuilles de styles, "
-"scripts, etc.\n"
-"Si un fichier OPF est spécifié à la place, la liste des fichiers présent "
-"dans son élément <spine> est utilisée.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -1307,6 +1768,16 @@ msgstr "N'affiche pas la barre de progression."
 msgid "Apply no processing to the image"
 msgstr "N'applique aucun traitement sur l'image"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:333
+msgid ""
+"%prog [options] comic.cb[z|r]\n"
+"\n"
+"Convert a comic in a CBZ or CBR file to an ebook.\n"
+msgstr ""
+"%prog [options] comic.cb[z|r]\n"
+"\n"
+"Convertir une bande dessinée en fichier CBZ ou CBR file vers un ebook.\n"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:393
 msgid "Output written to"
 msgstr "La sortie est écrite vers"
@@ -1813,31 +2284,6 @@ msgstr "Utilisation: imp-meta fichier.imp"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/rb.py:60
 msgid "No filename specified."
 msgstr "Pas de nom de fichier spécifié."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:98
-msgid ""
-"\n"
-"%prog [options] key\n"
-"\n"
-"Fetch metadata for books from isndb.com. You can specify either the\n"
-"books ISBN ID or its title and author. If you specify the title and author,\n"
-"then more than one book may be returned.\n"
-"\n"
-"key is the account key you generate after signing up for a free account from "
-"isbndb.com.\n"
-"\n"
-msgstr ""
-"\n"
-"%prog [options] clef\n"
-"\n"
-"Récupère les méta-données des livres à partir de isndb.com. Vous pouvez "
-"spécifier soit l'identifiant ISBN des livres ou leurs titres ou l'auteur. Si "
-"vous spécifiez le titre ou l'auteur, alors plus d'un livre peut être "
-"renvoyé.\n"
-"\n"
-"clef est la clef du compte que vous avez généré après enregistrement d'un "
-"compte gratuit sur isbndb.com.\n"
-"\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
 msgid "The ISBN ID of the book you want metadata for."
@@ -2389,6 +2835,13 @@ msgstr "Envoi d'un email à"
 msgid "No suitable formats"
 msgstr "Pas de format convenable"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:489
+msgid ""
+"Could not email the following books as no suitable formats were found:"
+msgstr ""
+"Impossible d'envoyer par email les livres suivants car aucun format "
+"convenable n'a été trouvé :"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:507
 msgid "Failed to email books"
 msgstr "L'envoi par email des livres a échoué"
@@ -2405,10 +2858,6 @@ msgstr "Envoyer par email:"
 msgid "News:"
 msgstr "News:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:540
-msgid "Attached is the"
-msgstr "Le fichier attaché est"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:551
 msgid "Sent news to"
 msgstr "Envoi des News vers"
@@ -2420,6 +2869,16 @@ msgstr "Envoi les News vers l'appareil."
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:630
 msgid "Sending books to device."
 msgstr "Envoie les livres dans l'appareil."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:635
+msgid ""
+"Could not upload the following books to the device, as no suitable formats "
+"were found. Try changing the output format in the upper right corner next to "
+"the red heart and re-converting."
+msgstr ""
+"Impossible de télécharger les livres suivants vers l'appareil, car aucun "
+"format convenable n'a été trouvé. Essayer en changeant le format de sortie "
+"dans le coin en haut à droite près du coeur rouge et relancer la conversion."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:682
 msgid "No space on device"
@@ -2550,14 +3009,6 @@ msgid " plugins"
 msgstr " Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:126
-msgid ""
-"Email\n"
-"Delivery"
-msgstr ""
-"Envoi\n"
-"D'Email"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:126
 msgid "General"
 msgstr "Général"
 
@@ -2581,18 +3032,6 @@ msgstr ""
 msgid "Plugins"
 msgstr "Plugins"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:151
-msgid "Using: %s:%s@%s:%s and %s encryption"
-msgstr "Utilise: %s:%s@%s:%s et l'encryptage %s"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:156
-msgid "Sending..."
-msgstr "Envoi..."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:161
-msgid "Mail successfully sent"
-msgstr "Le courrier a été envoyé avec succès"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:172
 msgid "Auto send"
 msgstr "Envoyer automatiquement"
@@ -2600,11 +3039,6 @@ msgstr "Envoyer automatiquement"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:172
 msgid "Email"
 msgstr "Email"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:177
-msgid "Formats to email. The first matching format will be sent."
-msgstr ""
-"Formats à envoyer par email. Le premier format qui correspond sera envoyé."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:178
 msgid ""
@@ -2631,10 +3065,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:466
 msgid "Bad configuration"
 msgstr "Mauvaise configuration"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:460
-msgid "You must set the From email address"
-msgstr "Vous devez indiquer l'adresse email 'De'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:467
 msgid "You must set the username and password for the mail server."
@@ -2869,12 +3299,6 @@ msgstr ""
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr "Envoyer automatiquement les i&nformations vers le lecteur d'ebook"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
-msgid "&Delete news from library when it is automatically sent to reader"
-msgstr ""
-"Supprimer les News de la librairie lorsque l'envoi est automatique vers "
-"l'appareil"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:565
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
@@ -2922,37 +3346,13 @@ msgstr ""
 msgid "Send email &from:"
 msgstr "Envoyer l'email de:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:578
-msgid ""
-"<p>This is what will be present in the From: field of emails sent by "
-"calibre.<br> Set it to your email address"
-msgstr ""
-"<p>Ce qui sera présent dans le champ De: des emails envoyés par calibre.<br> "
-"Indiquer ici votre adresse email"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:579
-msgid "Add an email address to which to send books"
-msgstr "Ajouter une adresse email à qui seront envoyés les livres"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:580
 msgid "&Add email"
 msgstr "&Ajouter un email"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:581
-msgid "Make &default"
-msgstr "Par &défaut"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:582
 msgid "&Remove email"
 msgstr "&Supprimer un email"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:583
-msgid ""
-"<p>A mail server is useful if the service you are sending mail to only "
-"accepts email from well know mail services."
-msgstr ""
-"<p>Un serveur d'email est utile si le service auquel vous envoyez un email "
-"ne les accepte que venant de services réputés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:584
 msgid "Mail &Server"
@@ -3035,10 +3435,6 @@ msgstr "&SSL"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:600
 msgid "Use Gmail"
 msgstr "Utiliser Gmail"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:601
-msgid "&Test email"
-msgstr "&Tester l'email"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:602
 msgid "Free unused diskspace from the database"
@@ -3480,10 +3876,6 @@ msgstr ""
 msgid "No text &justification"
 msgstr "Pas de &justification de texte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:499
-msgid "&Linearize tables"
-msgstr "&Linéariser les tables"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:500
 msgid "Remove &first image from source file"
 msgstr "Enleve la première image du fichier source"
@@ -3524,10 +3916,6 @@ msgstr "Marge &Basse :"
 msgid "Do not &split on page breaks"
 msgstr "Ne pas diviser sur les pages de &séparations"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:514
-msgid "&Page map"
-msgstr "&Plan de page"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:515
 msgid ""
 "<p>You can control how calibre detects page boundaries using a XPath "
@@ -3545,10 +3933,6 @@ msgstr ""
 "transposition de la mise en page d'un livre dans le ebook. Cela contrôle "
 "l'endroit où Adobe Digital Editions affiche le numéro de page dans la marge "
 "de droite.</p>"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:516
-msgid "&Boundary XPath:"
-msgstr "Xpath de limitation:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:517
 msgid "&Name XPath:"
@@ -3659,19 +4043,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:78
 msgid "Fetch metadata"
 msgstr "Récupération des meta-données"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:79
-msgid ""
-"<p>calibre can find metadata for your books from two locations: <b>Google "
-"Books</b> and <b>isbndb.com</b>. <p>To use isbndb.com you must sign up for a "
-"<a href=\"http://www.isbndb.com\">free account</a> and enter your access key "
-"below."
-msgstr ""
-"<p>calibre peut trouver les méta-données pour vos livres à partir de deux "
-"emplacements: <b>Livres Google</b> et <b>isbndb.com</b>. <p>Pour utiliser "
-"isbndb.com vous devez vous enregistrer un <a "
-"href=\"http://www.isbndb.com\">compte gratuit</a> et entrer votre clef "
-"d'accès ci-dessous."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:80
 msgid "&Access Key:"
@@ -4062,12 +4433,6 @@ msgstr "<b>Erreur à la récupération de l'image de couverture.</b><br/>"
 msgid "The download timed out."
 msgstr "Timeout lors du téléchargement."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
-msgid "Could not find cover for this book. Try specifying the ISBN first."
-msgstr ""
-"Impossible de trouver la couverture de ce livre. Essayez déjà de spécifier "
-"le numéro ISBN."
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:403
 msgid "Bad cover"
 msgstr "Mauvaise couverture"
@@ -4132,10 +4497,6 @@ msgstr "Indiquer la couverture pour le livre à partir du format sélectionné"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
 msgid "Reset cover to default"
 msgstr "Revenir à la couverture par défaut"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
-msgid "Download &cover"
-msgstr "Télécharger la &couverture"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -4247,14 +4608,6 @@ msgstr "Informations"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
 msgid "Recipes"
 msgstr "Recettes"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
-msgid "Download all scheduled recipes at once"
-msgstr "Télécharger toutes les recettes en une seule fois"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
-msgid "Download &all scheduled"
-msgstr "Télécharger toutes les planifications"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
 msgid "Schedule for download"
@@ -4424,14 +4777,6 @@ msgid "Add tag to available tags and apply it to current book"
 msgstr ""
 "Ajoute le mot-clef à la liste des mots-clefs et l'applique au livre en cours"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:50
-msgid "Test email settings"
-msgstr "Tester le paramétrage email"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:51
-msgid "Send test mail from %s to:"
-msgstr "Envoyer un email de test de %s vers:"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:105
 msgid "&Test"
@@ -4548,30 +4893,6 @@ msgstr "Personnaliser les recettes intégrées"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:254
 msgid "&Load recipe from file"
 msgstr "&Charger une recette à partir d'un fichier"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:256
-msgid ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-"type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news "
-"recipe, by adding RSS feeds to it. <br />For most feeds, you will have to "
-"use the \"Advanced mode\" to further customize the fetch "
-"process.</p></body></html>"
-msgstr ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-"type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Créer une recette de News "
-"par défaut, en lui ajoutant des flux RSS. <br />Pour ajouter plus de flux, "
-"vous devrez utiliser ultérieurement le \"mode avancé\" pour personnaliser le "
-"processus de récupération.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:260
 msgid "Recipe &title:"
@@ -4951,6 +5272,18 @@ msgstr "Editer les méta-données individuellement"
 msgid "Edit metadata in bulk"
 msgstr "Editer les méta-données par lot"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:176
+msgid "Download metadata and covers"
+msgstr "Télécharge des métadonnées et des couvertures"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:177
+msgid "Download only metadata"
+msgstr "Télécharge seulement des métadonnées"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
+msgid "Download only covers"
+msgstr "Télécharger seulement les couvertures"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:181
 msgid "Add books from a single directory"
 msgstr "Ajouter des livres à partir d'un répertoire"
@@ -5134,6 +5467,10 @@ msgstr ""
 msgid "Deleting books from device."
 msgstr "Suppression des livres dans l'appareil"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
+msgid "Cannot download metadata"
+msgstr "Impossible de télécharger les méta-données"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:849
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:901
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:928
@@ -5141,6 +5478,30 @@ msgstr "Suppression des livres dans l'appareil"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1041
 msgid "No books selected"
 msgstr "Aucun livre sélectionné"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
+msgid "covers"
+msgstr "couvertures"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
+msgid "metadata"
+msgstr "méta-données"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:860
+msgid "Downloading %s for %d book(s)"
+msgstr "Télécharge les livres %s sur %d"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:881
+msgid "Failed to download some metadata"
+msgstr "Le téléchargement d'une partie des méta-données a échoué"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:882
+msgid "Failed to download metadata for the following:"
+msgstr "Le téléchargement des méta-données a échoué pour :"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
+msgid "<b>Failed to download metadata:"
+msgstr "<b>Le téléchargement des méta-données a échoué"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:900
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:927
@@ -5266,14 +5627,6 @@ msgstr ""
 msgid "Conversion Error"
 msgstr "Erreur lors de la conversion"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1397
-msgid ""
-"<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
-"first remove the DRM using 3rd party tools."
-msgstr ""
-"<p>Impossible de convertir: %s<p>C'est un livre avec <a href=\"%s\">DRM</a>. "
-"Vous devez supprimer les DRM en utilisant un programme tiers."
-
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1444
 msgid "Invalid library location"
 msgstr "Emplacement de la librairie invalide"
@@ -5350,14 +5703,6 @@ msgstr "Démarrer en mode minimisé dans la zone de notification."
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1611
 msgid "Log debugging information to console"
 msgstr "Loggue les informations de débogage dans la console"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1641
-msgid "Cannot Start "
-msgstr "Impossible de lancer "
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1642
-msgid "<p>%s is already running. %s</p>"
-msgstr "<p>%s est déjà démarré. %s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:335
 msgid "calibre"
@@ -5530,6 +5875,14 @@ msgstr "&Quitter"
 msgid "ERROR: Unhandled exception"
 msgstr "ERREUR: Exception non traitée"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:80
+msgid "Book has neither title nor ISBN"
+msgstr "Le livre n'a ni titre ni ISBN"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:96
+msgid "No matches found for this book"
+msgstr "Aucune correspondance pour ce livre"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:115
 msgid "Jobs:"
 msgstr "Travaux :"
@@ -5655,6 +6008,10 @@ msgstr "Sans-serif"
 msgid "Monospace"
 msgstr "Monospace"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:117
+msgid "Remember last used &window size"
+msgstr "Se souvenir de la dernière taille de fenêtre utilisée"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:118
 msgid "&User stylesheet"
 msgstr "Feuille de style &utilisateur"
@@ -5662,6 +6019,11 @@ msgstr "Feuille de style &utilisateur"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 msgid "Options to customize the ebook viewer"
 msgstr "Options pour personnalier l'afficheur d'ebook"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:602
+msgid "Remember last used window size"
+msgstr "Se souvenir de la dernière taille de fenêtre utilisée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:89
@@ -5780,16 +6142,6 @@ msgid ""
 msgstr ""
 "Si spécifié, la fenêtre de l'afficheur essaiera de s'afficher au premier "
 "plan au lancement."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
-msgid ""
-"%prog [options] file\n"
-"\n"
-"View an ebook.\n"
-msgstr ""
-"%prog [options] fichier\n"
-"\n"
-"Visualiser un ebook.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:152
 msgid "Ebook Viewer"
@@ -6341,10 +6693,6 @@ msgstr "Impossible d'activer une session SSH: "
 msgid "Failed to authenticate with server: %s"
 msgstr "Impossible de s'authentifier auprès du server : %s"
 
-#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:234
-msgid "Control email delivery"
-msgstr "Contrôler l'envoi d'email"
-
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:83
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:105
 msgid "Unknown feed"
@@ -6857,6 +7205,11 @@ msgstr "Portuguais"
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
+msgid "Hungarian"
+msgstr "Hongrois"
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
 msgid "Skipping duplicated article: %s"
 msgstr "Saute l'article dupliqué: %s"
@@ -6864,10 +7217,6 @@ msgstr "Saute l'article dupliqué: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
 msgstr "Saute l'article filtré: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
-msgid "Chinese"
-msgstr "Chinois"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:457
 msgid ""
@@ -6912,273 +7261,13 @@ msgstr "Affiche des informations détaillées. Utile pour le débogage"
 msgid "title"
 msgstr "titre"
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:13
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:39
-msgid "slug"
-msgstr "lent"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:16
-msgid "category"
-msgstr "catégorie"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:17
-msgid "categories"
-msgstr "catégories"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:35
-msgid "Draft"
-msgstr "Brouillon"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:36
-msgid "Public"
-msgstr "Publique"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:41
-msgid "body"
-msgstr "corps"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:42
-msgid "tease"
-msgstr "taquin"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:43
-msgid "status"
-msgstr "statut"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:44
-msgid "allow comments"
-msgstr "Autoriser les commentaires"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:45
-msgid "publish"
-msgstr "publier"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:46
-msgid "created"
-msgstr "créé"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:47
-msgid "modified"
-msgstr "modifié"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:53
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:153
-msgid "post"
-msgstr "courrier"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:54
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:154
-msgid "posts"
-msgstr "courriers"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/admin.py:31
-msgid "Fields updated automatically by Feedjack"
-msgstr "Les champs sont automatiquement mis à jour à l'aide de Feedjack"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:17
-msgid "Date published."
-msgstr "Date de publication."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:18
-msgid "Date the post was first obtained."
-msgstr "Date à laquelle le courrier à été obtenu."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:22
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:38
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:98
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:126
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:173
-msgid "name"
-msgstr "nom"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:23
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:26
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:105
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:142
-msgid "link"
-msgstr "lien"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:27
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:61
-msgid "links"
-msgstr "liens"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:39
-msgid "url"
-msgstr "url"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:42
-msgid "Example"
-msgstr "Exemple"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:46
 msgid "description"
 msgstr "description"
 
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:47
-msgid "welcome"
-msgstr "Bienvenu"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:48
-msgid "greets"
-msgstr "remerciements"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:50
-msgid "default site"
-msgstr "site par défaut"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:51
-msgid "posts per page"
-msgstr "courriers par page"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:52
-msgid "order posts by"
-msgstr "trier les courriers par"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:54
-msgid "tagcloud level"
-msgstr "Niveau du nuage d'étiquettes"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:55
-msgid "show tagcloud"
-msgstr "Afficher le nuage d'étiquettes"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:57
-msgid "use internal cache"
-msgstr "Utiliser le cache interne"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:58
-msgid "cache duration"
-msgstr "durée du cache"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:59
-msgid "Duration in seconds of the cached pages and data."
-msgstr "Durée en secondes pour les pages et les données mises en cache."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:63
-msgid "template"
-msgstr "modèle"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:65
-msgid ""
-"This template must be a directory in your feedjack templates directory. "
-"Leave blank to use the default template."
-msgstr ""
-"Ce modèle doit être un répertoire appartenant à vos modèles 'feedjack'. "
-"Laisser à vide pour utiliser le modèle par défaut."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:69
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:170
-msgid "site"
-msgstr "site"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:70
-msgid "sites"
-msgstr "sites"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:96
-msgid "feed url"
-msgstr "url du flux"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:99
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:175
-msgid "shortname"
-msgstr "nom court"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:100
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:178
-msgid "is active"
-msgstr "est actif"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:101
-msgid "If disabled, this feed will not be further updated."
-msgstr "Si désactivé, ce flux ne sera ultérieurement plus remis à jour."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:104
-msgid "tagline"
-msgstr "slogan"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:108
-msgid "etag"
-msgstr "e-étiquette"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:109
-msgid "last modified"
-msgstr "dernière modification"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:110
-msgid "last checked"
-msgstr "dernière vérification"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:113
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:140
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:171
-msgid "feed"
-msgstr "flux"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:114
-msgid "feeds"
-msgstr "flux"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:129
-msgid "tag"
-msgstr "étiquette"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:130
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:149
-msgid "tags"
-msgstr "étiquettes"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:143
-msgid "content"
-msgstr "contenu"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:144
-msgid "date modified"
-msgstr "date de modification"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:145
-msgid "guid"
-msgstr "identifiant globalement unique"
-
 #: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:146
 msgid "author"
 msgstr "auteur"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:147
-msgid "author email"
-msgstr "auteur de l'email"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:148
-msgid "comments"
-msgstr "commentaires"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:150
-msgid "date created"
-msgstr "date de création"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:174
-msgid "Keep blank to use the Feed's original name."
-msgstr "Laisser à vide pour utiliser le nom d'orgine du flux."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:177
-msgid "Keep blank to use the Feed's original shortname."
-msgstr "Laisser à vide pour utiliser le nom court d'orgine du flux."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:179
-msgid ""
-"If disabled, this subscriber will not appear in the site or in the site's "
-"feed."
-msgstr ""
-"Si désactivé, l'abonné n'apparaîtra pas dans le site ou dans le flux du site."
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:183
-msgid "subscriber"
-msgstr "abonné"
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:184
-msgid "subscribers"
-msgstr "abonnés"
 
 #~ msgid ""
 #~ "%prog [options] comic.cb[z|r]\n"
@@ -7195,92 +7284,3 @@ msgstr "abonnés"
 #~ msgstr ""
 #~ "Impossible d'envoyer par email les livres suivants car aucun format "
 #~ "convenable n'a été trouvé :<br><ul>%s</ul>"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:333
-msgid ""
-"%prog [options] comic.cb[z|r]\n"
-"\n"
-"Convert a comic in a CBZ or CBR file to an ebook.\n"
-msgstr ""
-"%prog [options] comic.cb[z|r]\n"
-"\n"
-"Convertir une bande dessinée en fichier CBZ ou CBR file vers un ebook.\n"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:489
-msgid ""
-"Could not email the following books as no suitable formats were found:"
-msgstr ""
-"Impossible d'envoyer par email les livres suivants car aucun format "
-"convenable n'a été trouvé :"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:635
-msgid ""
-"Could not upload the following books to the device, as no suitable formats "
-"were found. Try changing the output format in the upper right corner next to "
-"the red heart and re-converting."
-msgstr ""
-"Impossible de télécharger les livres suivants vers l'appareil, car aucun "
-"format convenable n'a été trouvé. Essayer en changeant le format de sortie "
-"dans le coin en haut à droite près du coeur rouge et relancer la conversion."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:176
-msgid "Download metadata and covers"
-msgstr "Télécharge des métadonnées et des couvertures"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:177
-msgid "Download only metadata"
-msgstr "Télécharge seulement des métadonnées"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:178
-msgid "Download only covers"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
-msgid "Cannot download metadata"
-msgstr "Impossible de télécharger les méta-données"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
-msgid "covers"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:858
-msgid "metadata"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:860
-msgid "Downloading %s for %d book(s)"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:881
-msgid "Failed to download some metadata"
-msgstr "Le téléchargement d'une partie des méta-données a échoué"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:882
-msgid "Failed to download metadata for the following:"
-msgstr "Le téléchargement des méta-données a échoué pour :"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
-msgid "<b>Failed to download metadata:"
-msgstr "<b>Le téléchargement des méta-données a échoué"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:80
-msgid "Book has neither title nor ISBN"
-msgstr "Le livre n'a ni titre ni ISBN"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata.py:96
-msgid "No matches found for this book"
-msgstr "Aucune correspondance pour ce livre"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:117
-msgid "Remember last used &window size"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:602
-msgid "Remember last used window size"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
-msgid "Hungarian"
-msgstr ""

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-15 20:25+0000\n"
-"PO-Revision-Date: 2009-03-15 09:28+0000\n"
+"POT-Creation-Date: 2009-05-16 06:38+0000\n"
+"PO-Revision-Date: 2009-05-16 08:05+0000\n"
 "Last-Translator: nicke <niklas.aronsson@gmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-16 05:57+0000\n"
+"X-Launchpad-Export-Date: 2009-05-21 14:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -110,6 +110,10 @@ msgstr "Gör ingenting"
 msgid "Unknown"
 msgstr "Okänt"
 
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:62
+msgid "Base"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "File type"
 msgstr "Filtyp"
@@ -121,6 +125,13 @@ msgstr "Metadata läsare"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:209
 msgid "Metadata writer"
 msgstr "Metadata skrivare"
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:12
+msgid ""
+"Follow all local links in an HTML file and create a ZIP file containing all "
+"linked files. This plugin is run every time you add an HTML file to the "
+"library."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:32
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:43
@@ -151,43 +162,6 @@ msgstr "Läs metadata från eböcker i ZIP-arkiv"
 msgid "Read metadata from ebooks in RAR archives"
 msgstr "Läs metadata från eböcker i RAR-arkiv"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:28
-msgid "Installed plugins"
-msgstr "Installerade plugins"
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:73
-msgid "No valid plugin found in "
-msgstr "Inga "
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:281
-msgid "List all installed plugins"
-msgstr "Lista alla installerade plugins"
-
-#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:41
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:394
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:72
-msgid "The reader has no storage card connected."
-msgstr "Läsaren har inga minneskort inkopplade."
-
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:469
-msgid ""
-"The maximum number of files to download. This only applies to files from <a "
-"href> tags. Default is %default"
-msgstr ""
-"Det maximala antal filer att ladda ner. Endast för filer med <a href> "
-"taggar. Standard är %default"
-
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:62
-msgid "Base"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:12
-msgid ""
-"Follow all local links in an HTML file and create a ZIP file containing all "
-"linked files. This plugin is run every time you add an HTML file to the "
-"library."
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:218
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:228
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:238
@@ -195,6 +169,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:259
 msgid "Set metadata in %s files"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:28
+msgid "Installed plugins"
+msgstr "Installerade plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
 msgid "Mapping for filetype plugins"
@@ -207,6 +185,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Disabled plugins"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:73
+msgid "No valid plugin found in "
+msgstr "Inga "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:192
 msgid "Initialization of plugin %s failed with traceback:"
@@ -234,6 +216,10 @@ msgid ""
 "by a comma."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:281
+msgid "List all installed plugins"
+msgstr "Lista alla installerade plugins"
+
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:283
 msgid "Enable the named plugin"
 msgstr ""
@@ -241,6 +227,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:285
 msgid "Disable the named plugin"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:394
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:72
+msgid "The reader has no storage card connected."
+msgstr "Läsaren har inga minneskort inkopplade."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:60
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:91
@@ -6182,6 +6174,14 @@ msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:469
+msgid ""
+"The maximum number of files to download. This only applies to files from <a "
+"href> tags. Default is %default"
+msgstr ""
+"Det maximala antal filer att ladda ner. Endast för filer med <a href> "
+"taggar. Standard är %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:480
 msgid "Show detailed output information. Useful for debugging"
