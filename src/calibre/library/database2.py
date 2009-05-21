@@ -193,6 +193,8 @@ class ResultCache(SearchQueryParser):
         if query and query.strip():
             location = location.lower().strip()
             query = query.lower()
+            if not isinstance(query, unicode):
+                query = query.decode('utf-8')
             if location in ('tag', 'author', 'format'):
                 location += 's'
             all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats')

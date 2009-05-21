@@ -683,12 +683,13 @@ class MobiReader(object):
             image_index += 1
             try:
                 im = PILImage.open(buf)
+                im = im.convert('RGB')
             except IOError:
                 continue
 
             path = os.path.join(output_dir, '%05d.jpg'%image_index)
             self.image_names.append(os.path.basename(path))
-            im.convert('RGB').save(open(path, 'wb'), format='JPEG')
+            im.save(open(path, 'wb'), format='JPEG')
 
 def get_metadata(stream):
     from calibre.utils.logging import Log

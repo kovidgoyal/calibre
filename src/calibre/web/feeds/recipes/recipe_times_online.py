@@ -1,28 +1,39 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 timesonline.co.uk
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
-class TimesOnline(BasicNewsRecipe):
-    title                 = u'The Times Online'
-    __author__            = 'Darko Miletic'
-    description           = 'UK news'    
-    oldest_article        = 7
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    language = _('English')
+class Timesonline(BasicNewsRecipe):
+    title                  = 'The Times Online'
+    __author__             = 'Darko Miletic'
+    description            = 'UK news' 
+    publisher              = 'timesonline.co.uk'
+    category               = 'news, politics, UK'        
+    oldest_article         = 2
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
     simultaneous_downloads = 1
+    encoding               = 'cp1252'
+    lang                   = 'en-UK'
+    language               = _('English')
 
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    
+    remove_tags        = [dict(name=['embed','object'])]
     remove_tags_after  = dict(name='div', attrs={'class':'bg-666'})
-    remove_tags = [
-                     dict(name='div'  , attrs={'class':'hide-from-print padding-bottom-7' })
-                  ]
 
     feeds          = [
                         (u'Top stories from Times Online', u'http://www.timesonline.co.uk/tol/feeds/rss/topstories.xml'     ),
@@ -38,5 +49,17 @@ class TimesOnline(BasicNewsRecipe):
                      ]
 
     def print_version(self, url):
-        main = url.partition('#')[0]
-        return main + '?print=yes'
+        return url + '?print=yes'
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
+    def preprocess_html(self, soup):
+        soup.html['xml:lang'] = self.lang
+        soup.html['lang']     = self.lang
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        return self.adeify_images(soup)
+        

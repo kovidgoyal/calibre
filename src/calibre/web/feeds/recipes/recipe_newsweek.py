@@ -12,6 +12,7 @@ class Newsweek(BasicNewsRecipe):
     __author__     = 'Kovid Goyal'
     description    = 'Weekly news and current affairs in the US'
     no_stylesheets = True
+    encoding       = 'utf-8'
     language = _('English')
     remove_tags = [
             {'class':['navbar', 'ad', 'sponsorLinksArticle', 'mm-content',
@@ -105,4 +106,13 @@ class Newsweek(BasicNewsRecipe):
         if a is not None:
             href = a['href'].split('#')[0]
             return self.index_to_soup(href)
+
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup(self.INDEX)
+        link_item = soup.find('div',attrs={'class':'cover-image'})
+        if link_item and link_item.a and link_item.a.img:
+           cover_url = link_item.a.img['src']
+        return cover_url
+
 
