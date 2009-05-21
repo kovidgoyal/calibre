@@ -133,7 +133,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self._map = dict(self.category_map)
 
     def scheduled_recipes(self):
-        for recipe in self.category_map[_('Scheduled')]:
+        for recipe in self.category_map.get(_('Scheduled'), []):
             yield recipe
 
     def sort_categories(self, x, y):
