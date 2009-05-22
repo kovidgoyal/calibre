@@ -11,7 +11,6 @@ import os
 import struct
 
 from calibre import CurrentDir
-from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pml.pmlconverter import pml_to_html
 from calibre.ebooks.compression.palmdoc import decompress_doc
@@ -48,6 +47,9 @@ class Reader202(FormatReader):
         if self.header_record.version != 4:
             raise EreaderError('Unknown book version %i.' % self.header_record.version)
 
+        from calibre.ebooks.metadata.pdb import get_metadata
+        self.mi = get_metadata(stream, False)
+
     def section_data(self, number):
         return self.sections[number]
 
@@ -62,7 +64,7 @@ class Reader202(FormatReader):
         if data.startswith('PNG'):
             name = data[4:4 + 32].strip('\x00')
             img = data[62:]
-            
+
         return name, img
 
     def get_text_page(self, number):
@@ -114,7 +116,7 @@ class Reader202(FormatReader):
 
     def create_opf(self, output_dir, images):
         with CurrentDir(output_dir):
-            opf = OPFCreator(output_dir, MetaInformation(_('Unknown'), _('Unknown')))
+            opf = OPFCreator(output_dir, self.mi)
 
             manifest = [('index.html', None)]
 
