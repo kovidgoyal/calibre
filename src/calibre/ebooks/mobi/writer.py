@@ -292,7 +292,7 @@ class MobiWriter(object):
 
     def __init__(self, compression=PALMDOC, imagemax=None,
         prefer_author_sort=False):
-    self._compression = compression or UNCOMPRESSED
+        self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
 
