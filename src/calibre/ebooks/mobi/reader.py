@@ -438,7 +438,7 @@ class MobiReader(object):
             tag.attrib.pop('xmlns', '')
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
                 'state', 'city', 'street', 'address', 'content'):
-            tag.tag = 'div' if tag.tag == 'content' else 'span'
+                tag.tag = 'div' if tag.tag == 'content' else 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
                 continue
@@ -527,7 +527,7 @@ class MobiReader(object):
             opf.cover = 'images/%05d.jpg' % 1
             if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
                 * opf.cover.split('/'))):
-            opf.cover = None
+                opf.cover = None
 
         manifest = [(htmlfile, 'text/x-oeb1-document'),
             (os.path.abspath('styles.css'), 'text/css')]
