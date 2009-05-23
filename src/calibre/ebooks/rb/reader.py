@@ -70,21 +70,24 @@ class Reader(object):
         return toc
 
     def get_text(self, toc_item, output_dir):
-        if toc_item.flags != 8:
+        if toc_item.flags in (1, 2):
             return
 
         output = u''
-
         self.stream.seek(toc_item.offset)
-        count = self.read_i32()
-        self.read_i32() # Uncompressed size.
-        chunck_sizes = []
-        for i in range(count):
-            chunck_sizes.append(self.read_i32())
 
-        for size in chunck_sizes:
-            cm_chunck = self.stream.read(size)
-            output += zlib.decompress(cm_chunck).decode('cp1252' if self.encoding is None else self.encoding)
+        if toc_item.flags == 8:
+            count = self.read_i32()
+            self.read_i32() # Uncompressed size.
+            chunck_sizes = []
+            for i in range(count):
+                chunck_sizes.append(self.read_i32())
+
+            for size in chunck_sizes:
+                cm_chunck = self.stream.read(size)
+                output += zlib.decompress(cm_chunck).decode('cp1252' if self.encoding is None else self.encoding)
+        else:
+            output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding)
 
         with open(os.path.join(output_dir, toc_item.name), 'wb') as html:
             html.write(output.encode('utf-8'))
