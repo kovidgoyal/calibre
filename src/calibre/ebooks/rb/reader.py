@@ -1,5 +1,3 @@
-import os.path
-import zlib
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
@@ -8,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import struct
+import zlib
 from urllib import unquote as urlunquote
 
 from calibre import CurrentDir
