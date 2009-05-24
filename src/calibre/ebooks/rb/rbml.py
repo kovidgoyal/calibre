@@ -122,7 +122,7 @@ class RBMLizer(object):
                         href = href.partition('#')[2]
                     href = os.path.splitext(os.path.basename(href))[0]
                 tag_count += 1
-                text += '<A HREF="%s">' % href
+                text += '<A HREF="#%s">' % href
                 tag_stack.append('A')
 
         # Anchor ids
