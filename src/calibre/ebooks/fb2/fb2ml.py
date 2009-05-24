@@ -9,8 +9,10 @@ Transform OEB content into FB2 markup
 '''
 
 import os
+import re
 from base64 import b64encode
 
+from calibre import entity_to_unicode
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_IMAGES
@@ -75,7 +77,13 @@ class FB2MLizer(object):
         return images
 
     def clean_text(self, text):
-        return text.replace('&', '')
+        for entity in set(re.findall('&.+?;', text)):
+            mo = re.search('(%s)' % entity[1:-1], text)
+            text = text.replace(entity, entity_to_unicode(mo))
+
+        text = text.replace('&', '')
+
+        return text
 
     def dump_text(self, elem, stylizer, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \

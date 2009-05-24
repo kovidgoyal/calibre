@@ -88,7 +88,7 @@ class PMLMLizer(object):
 
     def add_page_anchor(self, href):
         href = os.path.splitext(os.path.basename(href))[0]
-        return '\\Q="%s"' % href
+        return u'\\Q="%s"' % href
 
     def clean_text(self, text):
         # Remove excess spaces at beginning and end of lines
@@ -108,9 +108,10 @@ class PMLMLizer(object):
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
-            
+
         for entity in set(re.findall('&.+?;', text)):
-            text = text.replace(entity, entity_to_unicode(entity[1:-1]))
+            mo = re.search('(%s)' % entity[1:-1], text)
+            text = text.replace(entity, entity_to_unicode(mo))
         
         return text
 
