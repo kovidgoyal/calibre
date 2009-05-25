@@ -65,6 +65,24 @@ podofo_PDFDoc_load(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
 }
 
 static PyObject *
+podofo_PDFDoc_open(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    char *fname;
+
+    if (PyArg_ParseTuple(args, "s", &fname)) {
+        try {
+            self->doc->Load(fname);
+        } catch(const PdfError & err) {
+            podofo_set_exception(err);
+            return NULL;
+    }
+} else return NULL;
+
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 podofo_PDFDoc_save(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
     char *buffer;
 
@@ -231,6 +249,9 @@ podofo_PDFDoc_producer_setter(podofo_PDFDoc *self, PyObject *val, void *closure)
 static PyMethodDef podofo_PDFDoc_methods[] = {
     {"load", (PyCFunction)podofo_PDFDoc_load, METH_VARARGS,
      "Load a PDF document from a byte buffer (string)"
+    },
+    {"open", (PyCFunction)podofo_PDFDoc_open, METH_VARARGS,
+     "Load a PDF document from a file path (string)"
     },
     {"save", (PyCFunction)podofo_PDFDoc_save, METH_VARARGS,
      "Save the PDF document to a path on disk"

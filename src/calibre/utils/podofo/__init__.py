@@ -6,11 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, time
 
 from calibre.constants import plugins, preferred_encoding
 from calibre.ebooks.metadata import MetaInformation, string_to_authors, \
     authors_to_string
+from calibre.utils.ipc.job import ParallelJob
+from calibre.utils.ipc.server import Server
+from calibre.ptempfile import PersistentTemporaryFile
 
 podofo, podofo_err = plugins['podofo']
 
@@ -19,21 +22,40 @@ class Unavailable(Exception): pass
 def get_metadata(stream):
     if not podofo:
         raise Unavailable(podofo_err)
-    raw = stream.read()
-    stream.seek(0)
+    pt = PersistentTemporaryFile('_podofo.pdf')
+    pt.write(stream.read())
+    pt.close()
+    server = Server(pool_size=1)
+    job = ParallelJob('read_pdf_metadata', 'Read pdf metadata',
+        lambda x,y:x,  args=[pt.name])
+    server.add_job(job)
+    while not job.is_finished:
+        time.sleep(0.1)
+        job.update()
+
+    job.update()
+    server.close()
+    if job.result is None:
+        raise ValueError('Failed to read metadata: PoDoFo crashed')
+    title, authors, creator = job.result
+
+    mi = MetaInformation(title, authors)
+    if creator:
+        mi.book_producer = creator
+    if os.path.exists(pt.name): os.remove(pt.name)
+    return mi
+
+def get_metadata_(path):
     p = podofo.PDFDoc()
-    p.load(raw)
+    p.open(path)
     title = p.title
     if not title:
         title = getattr(stream, 'name', _('Unknown'))
         title = os.path.splitext(os.path.basename(title))[0]
     author = p.author
     authors = string_to_authors(author) if author else  [_('Unknown')]
-    mi = MetaInformation(title, authors)
     creator = p.creator
-    if creator:
-        mi.book_producer = creator
-    return mi
+    return (title, authors, creator)
 
 def prep(val):
     if not val:
@@ -45,21 +67,43 @@ def prep(val):
 def set_metadata(stream, mi):
     if not podofo:
         raise Unavailable(podofo_err)
-    raw = stream.read()
+    pt = PersistentTemporaryFile('_podofo.pdf')
+    pt.write(stream.read())
+    pt.close()
+    server = Server(pool_size=1)
+    job = ParallelJob('write_pdf_metadata', 'Write pdf metadata',
+        lambda x,y:x,  args=[pt.name, mi.title, mi.authors, mi.book_producer])
+    server.add_job(job)
+    while not job.is_finished:
+        time.sleep(0.1)
+        job.update()
+
+    job.update()
+    server.close()
+    if job.result is not None:
+        stream.seek(0)
+        stream.truncate()
+        stream.write(job.result)
+        stream.flush()
+        stream.seek(0)
+
+
+
+def set_metadata_(path, title, authors, bkp):
     p = podofo.PDFDoc()
-    p.load(raw)
-    title = prep(mi.title)
+    p.open(path)
+    title = prep(title)
     touched = False
     if title:
         p.title = title
         touched = True
 
-    author = prep(authors_to_string(mi.authors))
+    author = prep(authors_to_string(authors))
     if author:
         p.author = author
         touched = True
 
-    bkp = prep(mi.book_producer)
+    bkp = prep(bkp)
     if bkp:
         p.creator = bkp
         touched = True
@@ -68,12 +112,7 @@ def set_metadata(stream, mi):
         from calibre.ptempfile import TemporaryFile
         with TemporaryFile('_pdf_set_metadata.pdf') as f:
             p.save(f)
-            raw = open(f, 'rb').read()
-            stream.seek(0)
-            stream.truncate()
-            stream.write(raw)
-            stream.flush()
-            stream.seek(0)
+            return open(f, 'rb').read()
 
 if __name__ == '__main__':
     f = '/tmp/t.pdf'
