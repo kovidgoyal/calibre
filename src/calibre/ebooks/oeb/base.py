@@ -1516,7 +1516,8 @@ class OEBBook(object):
     def __init__(self, logger,
             html_preprocessor,
             css_preprocessor=CSSPreProcessor(),
-            encoding='utf-8', pretty_print=False):
+            encoding='utf-8', pretty_print=False,
+            input_encoding='utf-8'):
         """Create empty book.  Arguments:
 
         :param:`encoding`: Default encoding for textual content read
@@ -1549,6 +1550,7 @@ class OEBBook(object):
         """
         _css_log_handler.log = logger
         self.encoding = encoding
+        self.input_encoding = input_encoding
         self.html_preprocessor = html_preprocessor
         self.css_preprocessor = css_preprocessor
         self.pretty_print = pretty_print
@@ -1588,9 +1590,9 @@ class OEBBook(object):
                 return fix_data(data.decode('utf-16'))
             except UnicodeDecodeError:
                 pass
-        if self.encoding is not None:
+        if self.input_encoding is not None:
             try:
-                return fix_data(data.decode(self.encoding, 'replace'))
+                return fix_data(data.decode(self.input_encoding, 'replace'))
             except UnicodeDecodeError:
                 pass
         try:

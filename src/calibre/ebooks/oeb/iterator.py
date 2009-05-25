@@ -130,6 +130,9 @@ class EbookIterator(object):
             plumber.opts.dont_package = True
         if hasattr(plumber.opts, 'no_process'):
             plumber.opts.no_process = True
+        if hasattr(plumber.input_plugin, '_preprocess_html_for_viewer'):
+            plumber.input_plugin._preprocess_html_for_viewer = True
+
         self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
