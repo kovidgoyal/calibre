@@ -924,9 +924,11 @@ class OPFCreator(MetaInformation):
         self.guide.set_basedir(self.base_path)
 
     def render(self, opf_stream=sys.stdout, ncx_stream=None,
-               ncx_manifest_entry=None):
+               ncx_manifest_entry=None, encoding=None):
         from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
+        if encoding is None:
+            encoding = 'utf-8'
         template = MarkupTemplate(opf_template)
         toc = getattr(self, 'toc', None)
         if self.manifest:
@@ -948,7 +950,11 @@ class OPFCreator(MetaInformation):
                 cover = os.path.abspath(os.path.join(self.base_path, cover))
             self.guide.set_cover(cover)
         self.guide.set_basedir(self.base_path)
-        opf = template.generate(__appname__=__appname__, mi=self, __version__=__version__).render('xml')
+        opf = template.generate(
+                __appname__=__appname__, mi=self,
+                __version__=__version__).render('xml', encoding=encoding)
+        opf_stream.write('<?xml version="1.0" encoding="%s" ?>\n'
+                %encoding.upper())
         opf_stream.write(opf)
         opf_stream.flush()
         if toc is not None and ncx_stream is not None:

@@ -16,7 +16,7 @@ from urlparse import urlparse, urlunparse
 from urllib import unquote
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
 from calibre import unicode_path
@@ -264,7 +264,7 @@ class HTMLInput(InputFormatPlugin):
 
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
-        from calibre.ebooks.metadata.meta import get_metadata
+        from calibre.ebooks.metadata.html import get_metadata_
 
         basedir = os.getcwd()
         self.opts = opts
@@ -275,17 +275,15 @@ class HTMLInput(InputFormatPlugin):
             opfpath = stream.name
         else:
             filelist = get_filelist(stream.name, basedir, opts, log)
-            mi = get_metadata(stream, 'html')
+            mi = get_metadata_(stream.read(), opts.input_encoding)
             mi = OPFCreator(os.getcwdu(), mi)
             mi.guide = None
             entries = [(f.path, 'application/xhtml+xml') for f in filelist]
             mi.create_manifest(entries)
             mi.create_spine([f.path for f in filelist])
 
-            mi.render(open('metadata.opf', 'wb'))
+            mi.render(open('metadata.opf', 'wb'), encoding=opts.input_encoding)
             opfpath = os.path.abspath('metadata.opf')
-
-        opf = OPF(opfpath, os.getcwdu())
 
         if opts.dont_package:
             return opfpath
