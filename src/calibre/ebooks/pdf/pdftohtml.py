@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
 
 __license__ = 'GPL 3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>, ' \
                 '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import errno, os, sys, subprocess
+import errno
+import os
+import sys
+import subprocess
 from functools import partial
 
 from calibre.ebooks import ConversionError, DRMError

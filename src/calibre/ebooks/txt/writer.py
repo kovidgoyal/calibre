@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
-'''
-Write content to TXT.
-'''
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, sys
+'''
+Write content to TXT.
+'''
 
+import os
+import re
+
+from calibre import entity_to_unicode
 from calibre.ebooks.htmlsymbols import HTML_SYMBOLS
 
 from BeautifulSoup import BeautifulSoup
@@ -83,6 +85,11 @@ class TxtWriter(object):
         for symbol in HTML_SYMBOLS:
             for code in HTML_SYMBOLS[symbol]:
                 content = content.replace(code, symbol)
+
+        for entity in set(re.findall('&.+?;', content)):
+            mo = re.search('(%s)' % entity[1:-1], content)
+            content = content.replace(entity, entity_to_unicode(mo))
+
         return content
         
     def cleanup_text(self, text):

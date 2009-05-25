@@ -8,9 +8,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import struct, zlib
+import struct
+import zlib
 
-import Image, cStringIO
+import Image
+import cStringIO
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.oeb.base import OEB_IMAGES
@@ -25,62 +27,62 @@ IDENTITY = 'PNRdPPrs'
 MAX_RECORD_SIZE = 3560
 
 class Writer(FormatWriter):
-    
+
     def __init__(self, opts, log):
         self.opts = opts
         self.log = log
-        
+
     def write_content(self, oeb_book, out_stream, metadata=None):
         text = self._text(oeb_book)
         images = self._images(oeb_book.manifest)
         metadata = [self._metadata(metadata)]
-        
+
         hr = [self._header_record(len(text), len(images))]
-        
+
         sections = hr+text+images+metadata+['MeTaInFo\x00']
-        
+
         lengths = [len(i) for i in sections]
-        
+
         pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].partition('\x00')[0])
         pdbHeaderBuilder.build_header(lengths, out_stream)
-        
+
         for item in sections:
             out_stream.write(item)
 
     def _text(self, oeb_book):
         pmlmlizer = PMLMLizer(ignore_tables=self.opts.linearize_tables)
         pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
-    
+
         pml_pages = []
         for i in range(0, (len(pml) / MAX_RECORD_SIZE) + 1):
             pml_pages.append(zlib.compress(pml[i * MAX_RECORD_SIZE : (i * MAX_RECORD_SIZE) + MAX_RECORD_SIZE]))
 
-        return pml_pages            
-        
+        return pml_pages
+
     def _images(self, manifest):
         images = []
-        
+
         for item in manifest:
             if item.media_type in OEB_IMAGES:
                 image = 'PNG '
 
                 image += image_name(item.href)
                 image = image.ljust(62, '\x00')
-                
+
                 im = Image.open(cStringIO.StringIO(item.data)).convert('P')
                 im.thumbnail((300,300), Image.ANTIALIAS)
-                
+
                 data = cStringIO.StringIO()
                 im.save(data, 'PNG')
                 data = data.getvalue()
-                
+
                 image += data
-                
+
                 if len(image) < 65505:
                     images.append(image)
-                
+
         return images
-        
+
     def _metadata(self, metadata):
         '''
         Metadata takes the form:
@@ -90,14 +92,14 @@ class Writer(FormatWriter):
         publisher\x00
         isbn\x00
         '''
-        
+
         title = _('Unknown')
         author = _('Unknown')
         copyright = ''
         publisher = ''
         isbn = ''
-        
-        if metadata != None:
+
+        if metadata:
             if len(metadata.title) >= 1:
                 title = metadata.title[0].value
             if len(metadata.creator) >= 1:
@@ -117,7 +119,7 @@ class Writer(FormatWriter):
         '''
         version = 10 # Zlib compression
         non_text_offset = text_items + 1
-        
+
         if image_items > 0:
             image_data_offset = text_items + 1
             meta_data_offset = image_data_offset + image_items
@@ -126,9 +128,9 @@ class Writer(FormatWriter):
             meta_data_offset = text_items + 1
             last_data_offset = meta_data_offset + 1
             image_data_offset = last_data_offset
-    
+
         record = ''
-        
+
         record += struct.pack('>H', version)                # [0:2]    # Version. Specifies compression and drm. 2 = palmdoc, 10 = zlib. 260 and 272 = DRM
         record += struct.pack('>H', 0)                      # [2:4]
         record += struct.pack('>H', 0)                      # [4:6]
@@ -159,6 +161,6 @@ class Writer(FormatWriter):
 
         for i in range(54, 132, 2):
             record += struct.pack('>H', 0)                  # [54:132]
-        
+
         return record
 

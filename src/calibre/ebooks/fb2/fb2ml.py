@@ -9,8 +9,10 @@ Transform OEB content into FB2 markup
 '''
 
 import os
+import re
 from base64 import b64encode
 
+from calibre import entity_to_unicode
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_IMAGES
@@ -25,15 +27,9 @@ TAG_MAP = {
     'div' : 'p',
 }
 
-STYLE_MAP = {
-    'bold'   : 'strong',
-    'bolder' : 'strong',
-    'italic' : 'emphasis',
-}
-
 STYLES = [
-    'font-weight',
-    'font-style',
+    ('font-weight', {'bold'   : 'strong', 'bolder' : 'strong'}),
+    ('font-style', {'italic' : 'emphasis'}),
 ]
 
 class FB2MLizer(object):
@@ -81,7 +77,13 @@ class FB2MLizer(object):
         return images
 
     def clean_text(self, text):
-        return text.replace('&', '')
+        for entity in set(re.findall('&.+?;', text)):
+            mo = re.search('(%s)' % entity[1:-1], text)
+            text = text.replace(entity, entity_to_unicode(mo))
+
+        text = text.replace('&', '')
+
+        return text
 
     def dump_text(self, elem, stylizer, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
@@ -107,8 +109,9 @@ class FB2MLizer(object):
                 fb2_text += '<%s>' % fb2_tag
                 tag_stack.append(fb2_tag)
 
+            # Processes style information
             for s in STYLES:
-                style_tag = STYLE_MAP.get(style[s], None)
+                style_tag = s[1].get(style[s[0]], None)
                 if style_tag:
                     tag_count += 1
                     fb2_text += '<%s>' % style_tag

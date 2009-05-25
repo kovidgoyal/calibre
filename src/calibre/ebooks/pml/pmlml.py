@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into PML markup
 '''
 
-import os, re
+import os
+import re
 
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
@@ -40,6 +41,31 @@ STYLES = [
     ('text-align', {'right' : 'r', 'center' : 'c'}),
 ]
 
+BLOCK_TAGS = [
+    'p',
+]
+
+BLOCK_STYLES = [
+    'block',
+]
+
+LINK_TAGS = [
+    'a',
+]
+
+SEPARATE_TAGS = [
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'p',
+    'div',
+    'li',
+    'tr',
+]
+
 class PMLMLizer(object):
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables
@@ -62,7 +88,7 @@ class PMLMLizer(object):
 
     def add_page_anchor(self, href):
         href = os.path.splitext(os.path.basename(href))[0]
-        return '\\Q="%s"' % href
+        return u'\\Q="%s"' % href
 
     def clean_text(self, text):
         # Remove excess spaces at beginning and end of lines
@@ -82,9 +108,10 @@ class PMLMLizer(object):
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
-            
+
         for entity in set(re.findall('&.+?;', text)):
-            text = text.replace(entity, entity_to_unicode(entity[1:-1]))
+            mo = re.search('(%s)' % entity[1:-1], text)
+            text = text.replace(entity, entity_to_unicode(mo))
         
         return text
 
@@ -104,7 +131,7 @@ class PMLMLizer(object):
         tag_count = 0
 
         # Are we in a paragraph block?
-        if tag == 'p' or style['display'] in ('block'):
+        if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             if 'block' not in tag_stack:
                 tag_count += 1
                 tag_stack.append('block')
@@ -136,7 +163,7 @@ class PMLMLizer(object):
                 
             # Special processing of tags that require an argument.
             # Anchors links
-            if tag == 'a' and 'q' not in tag_stack:
+            if tag in LINK_TAGS and 'q' not in tag_stack:
                 href = elem.get('href')
                 if href and '://' not in href:
                     if '#' in href:
@@ -168,7 +195,7 @@ class PMLMLizer(object):
         for i in range(0, tag_count):
             close_tag_list.insert(0, tag_stack.pop())
         text += self.close_tags(close_tag_list)
-        if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'li', 'tr'):
+        if tag in SEPARATE_TAGS:
             text += os.linesep + os.linesep
         
         if 'block' not in tag_stack:

@@ -640,15 +640,15 @@ class DeviceGUI(object):
                     ', '.join(sent_mails),  3000)
 
 
-    def sync_news(self, send_ids=None, do_auto=True):
+    def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
             ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, self.device_manager.device_class.settings().format_map,
-                                exclude_auto=do_auto)
+                                exclude_auto=do_auto_convert)
             auto = []
-            if _auto_ids:
+            if do_auto_convert and _auto_ids:
                 for id in _auto_ids:
                     formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
                     formats = formats if formats != None else []
