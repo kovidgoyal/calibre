@@ -36,8 +36,11 @@ def get_metadata(stream):
     job.update()
     server.close()
     if job.result is None:
-        raise ValueError('Failed to read metadata: PoDoFo crashed')
+        raise ValueError('Failed to read metadata: ' + job.details)
     title, authors, creator = job.result
+    if title == '_':
+        title = getattr(stream, 'name', _('Unknown'))
+        title = os.path.splitext(title)[0]
 
     mi = MetaInformation(title, authors)
     if creator:
@@ -50,8 +53,7 @@ def get_metadata_(path):
     p.open(path)
     title = p.title
     if not title:
-        title = getattr(stream, 'name', _('Unknown'))
-        title = os.path.splitext(os.path.basename(title))[0]
+        title = '_'
     author = p.author
     authors = string_to_authors(author) if author else  [_('Unknown')]
     creator = p.creator

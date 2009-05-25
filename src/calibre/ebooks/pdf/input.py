@@ -26,7 +26,7 @@ class PDFInput(InputFormatPlugin):
         if self._preprocess_html_for_viewer:
             from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
             prepro = HTMLPreProcessor(lambda x:x, False)
-            html = prepro(html)
+            html = prepro(html.decode('utf-8')).encode('utf-8')
 
         with open('index.html', 'wb') as index:
             index.write(html)
