@@ -123,19 +123,21 @@ class EbookIterator(object):
         self.delete_on_exit = []
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
-        from calibre.ebooks.conversion.plumber import Plumber
+        from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
         plumber = Plumber(self.pathtoebook, self.base, self.log)
         plumber.setup_options()
         if hasattr(plumber.opts, 'dont_package'):
             plumber.opts.dont_package = True
         if hasattr(plumber.opts, 'no_process'):
             plumber.opts.no_process = True
-        if hasattr(plumber.input_plugin, '_preprocess_html_for_viewer'):
-            plumber.input_plugin._preprocess_html_for_viewer = True
 
         self.pathtoopf = plumber.input_plugin(open(plumber.input, 'rb'),
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
+
+        if plumber.input_fmt.lower() == 'pdf':
+            self.pathtoopf = create_oebbook(self.log, self.pathtoopf, plumber.opts,
+                    plumber.input_plugin)
         if hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
 
