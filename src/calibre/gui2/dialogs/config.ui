@@ -12,7 +12,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Configuration</string>
+   <string>Preferences</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../images.qrc">

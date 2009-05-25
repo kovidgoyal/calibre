@@ -17,17 +17,9 @@ class PDFInput(InputFormatPlugin):
     description = 'Convert PDF files to HTML'
     file_types  = set(['pdf'])
 
-    _preprocess_html_for_viewer = False
-
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         html = pdftohtml(stream.name)
-
-        if self._preprocess_html_for_viewer:
-            from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
-            prepro = HTMLPreProcessor(lambda x:x, False)
-            html = prepro(html.decode('utf-8')).encode('utf-8')
-
 
         with open('index.html', 'wb') as index:
             index.write(html)
