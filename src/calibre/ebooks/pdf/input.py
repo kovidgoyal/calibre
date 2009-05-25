@@ -12,19 +12,25 @@ from calibre.ebooks.pdf.pdftohtml import pdftohtml
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
 class PDFInput(InputFormatPlugin):
-    
+
     name        = 'PDF Input'
     author      = 'John Schember'
     description = 'Convert PDF files to HTML'
     file_types  = set(['pdf'])
 
+    _preprocess_html_for_viewer = False
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         html = pdftohtml(stream.name)
-        
+        if self._preprocess_html_for_viewer:
+            from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
+            prepro = HTMLPreProcessor(lambda x:x, False)
+            html = prepro(html)
+
         with open('index.html', 'wb') as index:
             index.write(html)
-            
+
         from calibre.ebooks.metadata.meta import get_metadata
         mi = get_metadata(stream, 'pdf')
         opf = OPFCreator(os.getcwd(), mi)
@@ -32,5 +38,5 @@ class PDFInput(InputFormatPlugin):
         opf.create_spine(['index.html'])
         with open('metadata.opf', 'wb') as opffile:
             opf.render(opffile)
-        
+
         return os.path.join(os.getcwd(), 'metadata.opf')
