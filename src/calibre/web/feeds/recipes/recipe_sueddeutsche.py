@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Sueddeutsche(BasicNewsRecipe):
 
-    title = u'S\xc3\xbcddeutsche'
+    title = u'S\xfcddeutsche'
     description = 'News from Germany'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
