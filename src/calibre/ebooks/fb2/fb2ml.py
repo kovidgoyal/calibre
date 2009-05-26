@@ -98,25 +98,27 @@ class FB2MLizer(object):
             return u''
         
         tag = barename(elem.tag)
+        tag_count = 0
+
         if tag == 'img':
             fb2_text += '<image xlink:herf="#%s" />' % os.path.basename(elem.attrib['src'])
         
-        tag_count = 0
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            fb2_tag = TAG_MAP.get(tag, 'p')
-            if fb2_tag and fb2_tag not in tag_stack:
+
+        fb2_tag = TAG_MAP.get(tag, 'p')
+        if fb2_tag and fb2_tag not in tag_stack:
+            tag_count += 1
+            fb2_text += '<%s>' % fb2_tag
+            tag_stack.append(fb2_tag)
+
+        # Processes style information
+        for s in STYLES:
+            style_tag = s[1].get(style[s[0]], None)
+            if style_tag:
                 tag_count += 1
-                fb2_text += '<%s>' % fb2_tag
-                tag_stack.append(fb2_tag)
+                fb2_text += '<%s>' % style_tag
+                tag_stack.append(style_tag)
 
-            # Processes style information
-            for s in STYLES:
-                style_tag = s[1].get(style[s[0]], None)
-                if style_tag:
-                    tag_count += 1
-                    fb2_text += '<%s>' % style_tag
-                    tag_stack.append(style_tag)
-
+        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
             fb2_text += elem.text
         
         for item in elem:

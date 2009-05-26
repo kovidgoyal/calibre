@@ -153,39 +153,39 @@ class PMLMLizer(object):
         #if style['page-break-before'] == 'always':
         #    text += '\\p'
         
+        pml_tag = TAG_MAP.get(tag, None)
+        if pml_tag and pml_tag not in tag_stack:
+            tag_count += 1
+            text += '\\%s' % pml_tag
+            tag_stack.append(pml_tag)
+
+        # Special processing of tags that require an argument.
+        # Anchors links
+        if tag in LINK_TAGS and 'q' not in tag_stack:
+            href = elem.get('href')
+            if href and '://' not in href:
+                if '#' in href:
+                    href = href.partition('#')[2]
+                href = os.path.splitext(os.path.basename(href))[0]
+                tag_count += 1
+                text += '\\q="#%s"' % href
+                tag_stack.append('q')
+        # Anchor ids
+        id_name = elem.get('id')
+        if id_name:
+            text += '\\Q="%s"' % os.path.splitext(id_name)[0]
+
+        # Processes style information
+        for s in STYLES:
+            style_tag = s[1].get(style[s[0]], None)
+            if style_tag and style_tag not in tag_stack:
+                tag_count += 1
+                text += '\\%s' % style_tag
+                tag_stack.append(style_tag)
+        # margin
+
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            pml_tag = TAG_MAP.get(tag, None)
-            if pml_tag and pml_tag not in tag_stack:
-                tag_count += 1
-                text += '\\%s' % pml_tag
-                tag_stack.append(pml_tag)
-                
-            # Special processing of tags that require an argument.
-            # Anchors links
-            if tag in LINK_TAGS and 'q' not in tag_stack:
-                href = elem.get('href')
-                if href and '://' not in href:
-                    if '#' in href:
-                        href = href.partition('#')[2]
-                    href = os.path.splitext(os.path.basename(href))[0]
-                    tag_count += 1
-                    text += '\\q="#%s"' % href
-                    tag_stack.append('q')
-            # Anchor ids
-            id_name = elem.get('id')
-            if id_name:
-                text += '\\Q="%s"' % os.path.splitext(id_name)[0]
-
-            # Processes style information
-            for s in STYLES:
-                style_tag = s[1].get(style[s[0]], None)
-                if style_tag and style_tag not in tag_stack:
-                    tag_count += 1
-                    text += '\\%s' % style_tag
-                    tag_stack.append(style_tag)
-            # margin
-
             text += self.elem_text(elem, tag_stack)
             
         for item in elem:
