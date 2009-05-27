@@ -11,7 +11,11 @@ Transform OEB content into RTF markup
 import os
 import re
 
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
+import Image
+import cStringIO
+
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
+    OEB_IMAGES
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 TAGS = {
@@ -64,7 +68,6 @@ BLOCK_STYLES = [
 '''
 TODO:
     * Tables
-    * Images
     * Fonts
 '''
 class RTFMLizer(object):
@@ -84,6 +87,7 @@ class RTFMLizer(object):
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         output += self.footer()
+        output = self.insert_images(output)
         output = self.clean_text(output)
 
         return output
@@ -93,7 +97,36 @@ class RTFMLizer(object):
 
     def footer(self):
         return ' }'
-    
+
+    def insert_images(self, text):
+        for item in self.oeb_book.manifest:
+            if item.media_type in OEB_IMAGES:
+                src = os.path.basename(item.href)
+                data, width, height = self.image_to_hexstring(item.data)
+                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, '\n\n{\\*\\shppict{\\pict\\picw%i\\pich%i\\jpegblip \n%s}}\n\n' % (width, height, data))
+        return text
+
+    def image_to_hexstring(self, data):
+        im = Image.open(cStringIO.StringIO(data))
+        data = cStringIO.StringIO()
+        im.save(data, 'JPEG')
+        data = data.getvalue()
+        
+        raw_hex = ''
+        for char in data:
+            raw_hex += hex(ord(char)).replace('0x', '').rjust(2, '0')
+
+        hex_string = ''
+        col = 1
+        for char in raw_hex:
+            if col == 129:
+                hex_string += '\n'
+                col = 1
+            col += 1
+            hex_string += char
+
+        return (hex_string, im.size[0], im.size[1])
+
     def clean_text(self, text):
         # Remove excess spaces at beginning and end of lines
         text = re.sub('(?m)^[ ]+', '', text)
@@ -125,12 +158,23 @@ class RTFMLizer(object):
 
         tag = barename(elem.tag)
         tag_count = 0
-        
+
         # Are we in a paragraph block?
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             if 'block' not in tag_stack:
                 tag_count += 1
                 tag_stack.append('block')
+
+        # Process tags that need special processing and that do not have inner
+        # text. Usually these require an argument
+        if tag == 'img':
+            src = os.path.basename(elem.get('src'))
+            block_start = ''
+            block_end = ''
+            if 'block' not in tag_stack:
+                block_start = '{\\par \\pard \\hyphpar \\keep '
+                block_end = '}'
+            text += '%s SPECIAL_IMAGE-%s-REPLACE_ME %s' % (block_start, src, block_end)
 
         single_tag = SINGLE_TAGS.get(tag, None)
         if single_tag:
