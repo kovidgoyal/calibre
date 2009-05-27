@@ -39,6 +39,7 @@ def get_linux_data(version='1.0.0'):
                         ('debian', 'Debian Sid'),
                         ('exherbo', 'Exherbo'),
                         ('foresight', 'Foresight 2.1'),
+                        ('gentoo', 'Gentoo'),
                         ('ubuntu', 'Ubuntu Jaunty Jackalope'),
                         ('linux_mint', 'Linux Mint Gloria'),
                         ]:
