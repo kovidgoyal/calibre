@@ -116,6 +116,8 @@ class RTFMLizer(object):
         for char in data:
             raw_hex += hex(ord(char)).replace('0x', '').rjust(2, '0')
 
+        # Images must be broken up so that they are no longer than 129 chars
+        # per line
         hex_string = ''
         col = 1
         for char in raw_hex:
