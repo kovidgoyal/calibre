@@ -18,7 +18,7 @@ except:
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
-    set_metadata as podofo_set_metadata, Unavailable
+    set_metadata as podofo_set_metadata, Unavailable, write_first_page
 
 
 def get_metadata(stream, extract_cover=True):
@@ -119,29 +119,16 @@ def set_metadata_pypdf(stream, mi):
     stream.seek(0)
 
 def get_cover(stream):
-    from pyPdf import PdfFileReader, PdfFileWriter
+    stream.seek(0)
+    with TemporaryDirectory('_pdfmeta') as tdir:
+        cover_path = os.path.join(tdir, 'cover.pdf')
+        write_first_page(stream, cover_path)
+        with ImageMagick():
+            wand = NewMagickWand()
+            MagickReadImage(wand, cover_path)
+            MagickSetImageFormat(wand, 'JPEG')
+            MagickWriteImage(wand, '%s.jpg' % cover_path)
+        return open('%s.jpg' % cover_path, 'rb').read()
 
-    try:
-        with StreamReadWrapper(stream) as stream:
-            pdf = PdfFileReader(stream)
-            output = PdfFileWriter()
 
-            if len(pdf.pages) >= 1:
-                output.addPage(pdf.getPage(0))
 
-                with TemporaryDirectory('_pdfmeta') as tdir:
-                    cover_path = os.path.join(tdir, 'cover.pdf')
-
-                    with open(cover_path, "wb") as outputStream:
-                        output.write(outputStream)
-                    with ImageMagick():
-                        wand = NewMagickWand()
-                        MagickReadImage(wand, cover_path)
-                        MagickSetImageFormat(wand, 'JPEG')
-                        MagickWriteImage(wand, '%s.jpg' % cover_path)
-                    return open('%s.jpg' % cover_path, 'rb').read()
-    except:
-        import traceback
-        traceback.print_exc()
-
-    return ''

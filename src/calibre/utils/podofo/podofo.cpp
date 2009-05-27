@@ -101,6 +101,29 @@ podofo_PDFDoc_save(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
 }
 
 static PyObject *
+podofo_PDFDoc_pages_getter(podofo_PDFDoc *self, void *closure) {
+    int pages = self->doc->GetPageCount();
+    PyObject *ans = PyInt_FromLong(static_cast<long>(pages));
+    if (ans != NULL) Py_INCREF(ans);
+    return ans;
+}
+
+static PyObject *
+podofo_PDFDoc_delete_pages(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    int first_page, num_pages;
+    if (PyArg_ParseTuple(args, "ii", &first_page, &num_pages)) {
+        try {
+            self->doc->DeletePages(first_page, num_pages);
+        } catch(const PdfError & err) {
+            podofo_set_exception(err);
+            return NULL;
+        }
+    } else return NULL;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 podofo_convert_pdfstring(const PdfString &s) {
     std::string raw = s.GetStringUtf8();
 	return PyString_FromStringAndSize(raw.c_str(), raw.length());
@@ -256,33 +279,41 @@ static PyMethodDef podofo_PDFDoc_methods[] = {
     {"save", (PyCFunction)podofo_PDFDoc_save, METH_VARARGS,
      "Save the PDF document to a path on disk"
     },
+    {"delete_pages", (PyCFunction)podofo_PDFDoc_delete_pages, METH_VARARGS,
+     "delete_pages(start_page, num_pages) -> int, int\nDelete pages from the PDF document."
+    },
+
     {NULL}  /* Sentinel */
 };
 
-static PyGetSetDef podofo_PDFDoc_getseters[] = {
-    {"title", 
+static PyGetSetDef podofo_PDFDoc_getsetters[] = {
+    {(char *)"title", 
      (getter)podofo_PDFDoc_title_getter, (setter)podofo_PDFDoc_title_setter,
-     "Document title",
+     (char *)"Document title",
      NULL},
-    {"author", 
+    {(char *)"author", 
      (getter)podofo_PDFDoc_author_getter, (setter)podofo_PDFDoc_author_setter,
-     "Document author",
+     (char *)"Document author",
      NULL},
-    {"subject", 
+    {(char *)"subject", 
      (getter)podofo_PDFDoc_subject_getter, (setter)podofo_PDFDoc_subject_setter,
-     "Document subject",
+     (char *)"Document subject",
      NULL},
-    {"keywords", 
+    {(char *)"keywords", 
      (getter)podofo_PDFDoc_keywords_getter, (setter)podofo_PDFDoc_keywords_setter,
-     "Document keywords",
+     (char *)"Document keywords",
      NULL},
-    {"creator", 
+    {(char *)"creator", 
      (getter)podofo_PDFDoc_creator_getter, (setter)podofo_PDFDoc_creator_setter,
-     "Document creator",
+     (char *)"Document creator",
      NULL},
-    {"producer", 
+    {(char *)"producer", 
      (getter)podofo_PDFDoc_producer_getter, (setter)podofo_PDFDoc_producer_setter,
-     "Document producer",
+     (char *)"Document producer",
+     NULL},
+    {(char *)"pages", 
+     (getter)podofo_PDFDoc_pages_getter, NULL,
+     (char *)"Number of pages in document (read only)",
      NULL},
 
     {NULL}  /* Sentinel */
@@ -319,7 +350,7 @@ static PyTypeObject podofo_PDFDocType = {
     0,		               /* tp_iternext */
     podofo_PDFDoc_methods,             /* tp_methods */
     0,             /* tp_members */
-    podofo_PDFDoc_getseters,                         /* tp_getset */
+    podofo_PDFDoc_getsetters,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
     0,                         /* tp_descr_get */

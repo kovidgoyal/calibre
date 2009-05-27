@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time
+import os, time, shutil
 
 from calibre.constants import plugins, preferred_encoding
 from calibre.ebooks.metadata import MetaInformation, string_to_authors, \
@@ -18,6 +18,38 @@ from calibre.ptempfile import PersistentTemporaryFile
 podofo, podofo_err = plugins['podofo']
 
 class Unavailable(Exception): pass
+
+def write_first_page(stream, opath):
+    if not podofo:
+        raise Unavailable(podofo_err)
+    pt = PersistentTemporaryFile('_podofo.pdf')
+    pt.write(stream.read())
+    pt.close()
+    server = Server(pool_size=1)
+    job = ParallelJob('write_pdf_first_page', 'Extract first page of pdf',
+        lambda x,y:x,  args=[pt.name, opath])
+    server.add_job(job)
+    while not job.is_finished:
+        time.sleep(0.1)
+        job.update()
+
+    job.update()
+    server.close()
+    if not job.result:
+        raise ValueError('Failed to extract first page: ' + job.details)
+
+def write_first_page_(inpath, outpath):
+    p = podofo.PDFDoc()
+    p.open(inpath)
+    pages = p.pages
+    if pages < 1:
+        raise ValueError('PDF has no pages')
+    if pages == 1:
+        shutil.copyfile(inpath, outpath)
+        return True
+    p.delete_pages(1, pages-1)
+    p.save(outpath)
+    return True
 
 def get_metadata(stream):
     if not podofo:
