@@ -44,6 +44,12 @@ class FB2MLizer(object):
         
     def fb2mlize_spine(self):
         output = self.fb2_header()
+        if 'titlepage' in self.oeb_book.guide:
+            href = self.oeb_book.guide['titlepage'].href
+            item = self.oeb_book.manifest.hrefs[href]
+            if item.spine_position is None:
+                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+                output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         for item in self.oeb_book.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)
