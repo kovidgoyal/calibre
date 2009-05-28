@@ -30,7 +30,7 @@ class RTFOutput(OutputFormatPlugin):
 
         out_stream.seek(0)
         out_stream.truncate()
-        out_stream.write(content.encode('cp1252', 'replace'))
+        out_stream.write(content.encode('ascii', 'replace'))
 
         if close:
             out_stream.close()
