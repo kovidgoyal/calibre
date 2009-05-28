@@ -17,23 +17,22 @@ import cStringIO
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
     OEB_IMAGES
 from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.ebooks.metadata import authors_to_string
 
 TAGS = {
     'b': '\\b',
     'del': '\\deleted',
-    'h1': '\\b \\par \\pard \\hyphpar \\keep',
-    'h2': '\\b \\par \\pard \\hyphpar \\keep',
-    'h3': '\\b \\par \\pard \\hyphpar \\keep',
-    'h4': '\\b \\par \\pard \\hyphpar \\keep',
-    'h5': '\\b \\par \\pard \\hyphpar \\keep',
-    'h6': '\\b \\par \\pard \\hyphpar \\keep',
-    'li': '\\par \\pard \\hyphpar \\keep \t',
-    'p': '\\par \\pard \\hyphpar \\keep \t',
-    #'ol': '\\pn \\pnrestart \\pnlvlblt',
+    'h1': '\\b \\par \\pard \\hyphpar',
+    'h2': '\\b \\par \\pard \\hyphpar',
+    'h3': '\\b \\par \\pard \\hyphpar',
+    'h4': '\\b \\par \\pard \\hyphpar',
+    'h5': '\\b \\par \\pard \\hyphpar',
+    'h6': '\\b \\par \\pard \\hyphpar',
+    'li': '\\par \\pard \\hyphpar \t',
+    'p': '\\par \\pard \\hyphpar \t',
     'sub': '\\sub',
     'sup': '\\super',
     'u': '\\ul',
-    #'ul': '\\pn \\pnrestart \\pndec',
 }
 
 SINGLE_TAGS = {
@@ -46,7 +45,7 @@ SINGLE_TAGS_END = {
 }
 
 STYLES = [
-    ('display', {'block': '\\par \\pard \\hyphpar \\keep'}),
+    ('display', {'block': '\\par \\pard \\hyphpar'}),
     ('font-weight', {'bold': '\\b', 'bolder': '\\b'}),
     ('font-style', {'italic': '\\i'}),
     ('text-align', {'center': '\\qc', 'left': '\\ql', 'right': '\\qr'}),
@@ -96,7 +95,7 @@ class RTFMLizer(object):
         return output
 
     def header(self):
-        return u'{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033'
+        return u'{\\rtf1{\\info{\\title %s}{\\author %s}}\\ansi\\ansicpg1252\\deff0\\deflang1033' % (self.oeb_book.metadata.title[0].value, authors_to_string([x.value for x in self.oeb_book.metadata.creator]))
 
     def footer(self):
         return ' }'
@@ -145,7 +144,7 @@ class RTFMLizer(object):
         text = re.sub('[ ]{2,}', ' ', text)
 
         text = re.sub(r'(\{\\line \}\s*){3,}', r'{\\line }{\\line }', text)
-        text = re.sub(r'(\{\\line \}\s*)+\{\\par', r'{\\par', text)
+        #text = re.compile(r'(\{\\line \}\s*)+(?P<brackets>}*)\s*\{\\par').sub(lambda mo: r'%s{\\par' % mo.group('brackets'), text)
 
         # Remove non-breaking spaces
         text = text.replace(u'\xa0', ' ')
@@ -180,7 +179,7 @@ class RTFMLizer(object):
             block_start = ''
             block_end = ''
             if 'block' not in tag_stack:
-                block_start = '{\\par \\pard \\hyphpar \\keep '
+                block_start = '{\\par \\pard \\hyphpar '
                 block_end = '}'
             text += '%s SPECIAL_IMAGE-%s-REPLACE_ME %s' % (block_start, src, block_end)
 
@@ -222,6 +221,6 @@ class RTFMLizer(object):
             if 'block' in tag_stack:
                 text += '%s ' % elem.tail
             else:
-                text += '{\\par \\pard \\hyphpar \\keep %s}' % elem.tail
+                text += '{\\par \\pard \\hyphpar %s}' % elem.tail
      
         return text
