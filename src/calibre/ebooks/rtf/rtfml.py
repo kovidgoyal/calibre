@@ -37,16 +37,19 @@ TAGS = {
 }
 
 SINGLE_TAGS = {
-    'br': '{\\line }',
-    'div': '{\\line }',
+    'br': '\n{\\line }\n',
+    'div': '\n{\\line }\n',
+}
+
+SINGLE_TAGS_END = {
+    'div': '\n{\\line }\n',
 }
 
 STYLES = [
     ('display', {'block': '\\par \\pard \\hyphpar \\keep'}),
     ('font-weight', {'bold': '\\b', 'bolder': '\\b'}),
     ('font-style', {'italic': '\\i'}),
-#    ('page-break-before', {'always': '\\pagebb '}),
-    ('text-align', {'center': '\\qc', 'left': '\\ql', 'right': '\\qr', 'justify': '\\qj'}),
+    ('text-align', {'center': '\\qc', 'left': '\\ql', 'right': '\\qr'}),
     ('text-decoration', {'line-through': '\\strike', 'underline': '\\ul'}),
 ]
 
@@ -141,8 +144,11 @@ class RTFMLizer(object):
         # Remove excessive spaces
         text = re.sub('[ ]{2,}', ' ', text)
 
-        text = re.sub(r'(\{\\line \}){3,}', r'{\\line }{\\line }', text)
-        text = re.sub(r'(\{\\line \})+\{\\par', r'{\\par', text)
+        text = re.sub(r'(\{\\line \}\s*){3,}', r'{\\line }{\\line }', text)
+        text = re.sub(r'(\{\\line \}\s*)+\{\\par', r'{\\par', text)
+
+        # Remove non-breaking spaces
+        text = text.replace(u'\xa0', ' ')
 
         return text
 
@@ -207,6 +213,10 @@ class RTFMLizer(object):
             end_tag =  tag_stack.pop()
             if end_tag != 'block':
                 text += u'}'
+
+        single_tag_end = SINGLE_TAGS_END.get(tag, None)
+        if single_tag_end:
+            text += single_tag_end
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             if 'block' in tag_stack:
