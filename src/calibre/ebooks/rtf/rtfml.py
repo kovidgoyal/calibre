@@ -112,7 +112,7 @@ class RTFMLizer(object):
             if item.media_type in OEB_IMAGES:
                 src = os.path.basename(item.href)
                 data, width, height = self.image_to_hexstring(item.data)
-                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, '\n\n{\\*\\shppict{\\pict\\picw%i\\pich%i\\jpegblip \n%s}}\n\n' % (width, height, data))
+                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, '\n\n{\\*\\shppict{\\pict\\picw%i\\pich%i\\jpegblip \n%s\n}}\n\n' % (width, height, data))
         return text
 
     def image_to_hexstring(self, data):
@@ -155,6 +155,7 @@ class RTFMLizer(object):
 
         # Remove non-breaking spaces
         text = text.replace(u'\xa0', ' ')
+        text = text.replace('\n\r', '\n')
 
         return text
 
