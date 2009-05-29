@@ -29,8 +29,6 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.compression.palmdoc import compress_doc
 
 # TODO:
-# - Allow override CSS (?)
-# - Generate index records
 # - Optionally rasterize tables
 
 EXTH_CODES = {
@@ -427,30 +425,121 @@ class MobiWriter(object):
         metadata = self._oeb.metadata
         exth = self._build_exth()
         record0 = StringIO()
+        # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
-            self._text_length, self._text_nrecords, RECORD_SIZE, 0, 0))
+            self._text_length,
+            self._text_nrecords, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
         title = str(metadata.title[0])
+        # The MOBI Header
+
+        # 0x0 - 0x3
         record0.write('MOBI')
-        record0.write(pack('>IIIII', 0xe8, 2, 65001, uid, 6))
-        record0.write('\xff' * 40)
-        record0.write(pack('>I', self._text_nrecords + 1))
-        record0.write(pack('>II', 0xe8 + 16 + len(exth), len(title)))
-        record0.write(iana2mobi(str(metadata.language[0])))
+
+        # 0x4 - 0x7   : Length of header
+        # 0x8 - 0x11  : MOBI type
+        #   type    meaning
+        #   0x002   MOBI book (chapter - chapter navigation)
+        #   0x101   News - Hierarchical navigation with sections and articles
+        #   0x102   News feed - Flat navigation
+        #   0x103   News magazine - same as 1x101
+        # 0xC - 0xF   : Text encoding (65001 is utf-8)
+        # 0x10 - 0x13 : UID
+        # 0x14 - 0x17 : Generator version
+        record0.write(pack('>IIIII',
+            0xe8, 2, 65001, uid, 6))
+
+        # 0x18 - 0x1f : Unknown
+        record0.write('\xff' * 8)
+
+        # 0x20 - 0x23 : Secondary index record
+        # TODO: implement
+        record0.write('\xff' * 4)
+
+        # 0x24 - 0x3f : Unknown
+        record0.write('\xff' * 28)
+
+        # 0x40 - 0x43 : Offset of first non-text record
+        record0.write(pack('>I',
+            self._text_nrecords + 1))
+
+        # 0x44 - 0x4b : title offset, title length
+        record0.write(pack('>II',
+            0xe8 + 16 + len(exth), len(title)))
+
+        # 0x4c - 0x4f : Language specifier
+        record0.write(iana2mobi(
+            str(metadata.language[0])))
+
+        # 0x50 - 0x57 : Unknown
         record0.write('\0' * 8)
-        record0.write(pack('>II', 6, self._text_nrecords + 1))
+
+        # 0x58 - 0x5b : Format version
+        # 0x5c - 0x5f : First image record number
+        record0.write(pack('>II',
+            6, self._text_nrecords + 1))
+
+        # 0x60 - 0x63 : First HUFF/CDIC record number
+        # 0x64 - 0x67 : Number of HUFF/CDIC records
+        # 0x68 - 0x6b : First DATP record number
+        # 0x6c - 0x6f : Number of DATP records
         record0.write('\0' * 16)
+
+        # 0x70 - 0x73 : EXTH flags
         record0.write(pack('>I', 0x50))
+
+        # 0x74 - 0x93 : Unknown
         record0.write('\0' * 32)
-        record0.write(pack('>IIII', 0xffffffff, 0xffffffff, 0, 0))
+
+        # 0x94 - 0x97 : DRM offset
+        # 0x98 - 0x9b : DRM count
+        # 0x9c - 0x9f : DRM size
+        # 0xa0 - 0xa3 : DRM flags
+        record0.write(pack('>IIII',
+            0xffffffff, 0xffffffff, 0, 0))
+
+
+        # 0xa4 - 0xaf : Unknown
+        record0.write('\0'*12)
+
+        # 0xb0 - 0xb1 : First content record number
+        # 0xb2 - 0xb3 : last content record number
+        # (Includes Image, DATP, HUFF, DRM)
+        # TODO: implement
+        record0.write(pack('>I', 0xffffffff))
+
+        # 0xb4 - 0xb7 : Unknown
+        record0.write('\0'*4)
+
+        # 0xb8 - 0xbb : FCIS record number
+        record0.write(pack('>I', 0xffffffff))
+
+        # 0xbc - 0xbf : Unknown (FCIS record count?)
+        record0.write(pack('>I', 0))
+
+        # 0xc0 - 0xc3 : FLIS record number
+        record0.write(pack('>I', 0xffffffff))
+
+        # 0xc4 - 0xc7 : Unknown (FLIS record count?)
+        record0.write(pack('>I', 0))
+
+        # 0xc8 - 0xcf : Unknown
+        record0.write('\0'*8)
+
+        # 0xd0 - 0xdf : Unknown
+        record0.write(pack('>IIII', 0xffffffff, 0, 0xffffffff, 0xffffffff))
+
+        # 0xe0 - 0xe3 : Extra record data
         # The '5' is a bitmask of extra record data at the end:
         #   - 0x1: <extra multibyte bytes><size> (?)
         #   - 0x4: <uncrossable breaks><size>
         # Of course, the formats aren't quite the same.
-        # TODO: What the hell are the rest of these fields?
-        record0.write(pack('>IIIIIIIIIIIIIIIII',
-            0, 0, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff,
-            0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 5, 0xffffffff))
+        record0.write(pack('>I', 5))
+
+        # 0xe4 - 0xe7 : Primary index record
+        # TODO: Implement
+        record0.write(pack('>I', 0xffffffff))
+
         record0.write(exth)
         record0.write(title)
         record0 = record0.getvalue()
