@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.5.13\n"
-"POT-Creation-Date: 2009-05-21 07:58+PDT\n"
-"PO-Revision-Date: 2009-05-21 07:58+PDT\n"
+"Project-Id-Version: calibre 0.5.14\n"
+"POT-Creation-Date: 2009-05-29 09:39+PDT\n"
+"PO-Revision-Date: 2009-05-29 09:39+PDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -2159,8 +2159,9 @@ msgid "Compacting database. This may take a while."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:538
-#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
-msgid "Configuration"
+#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:374
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:165
+msgid "Preferences"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:539
@@ -4514,6 +4515,10 @@ msgstr ""
 msgid "Reset Quick Search"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
+msgid "Configuration"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:349
 msgid "Match any"
 msgstr ""
@@ -4601,11 +4606,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:373
 msgid "Books with the same tags"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:374
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:165
-msgid "Preferences"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:375
@@ -5569,6 +5569,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chr_mon.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
@@ -5617,6 +5618,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes_sub.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_outlook_india.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_phd_comics.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_today.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_world.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politico.py:23
@@ -5626,7 +5628,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_aas.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
@@ -5660,7 +5662,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
 msgid "English"
 msgstr ""
 
@@ -5688,6 +5690,23 @@ msgstr ""
 msgid "Spanish"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_carta.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_der_standard.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diepresse.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elektrolese.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_faznet.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ftd.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_heise.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hna.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_woz_die.py:7
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
+msgid "German"
+msgstr ""
+
 #:
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
@@ -5708,21 +5727,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_de_standaard.py:12
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_demorgen_be.py:16
 msgid "Dutch"
-msgstr ""
-
-#:
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_der_standard.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diepresse.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_faznet.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ftd.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_heise.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hna.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
-msgid "German"
 msgstr ""
 
 #:

@@ -7,7 +7,7 @@ from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QInputDialog, QAbstractTableModel, \
-                        QDialogButtonBox, QTabWidget
+                        QDialogButtonBox, QTabWidget, QBrush
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
@@ -93,6 +93,9 @@ class PluginModel(QAbstractItemModel):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         self.icon = QVariant(QIcon(':/images/plugins.svg'))
+        p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
+        self.disabled_icon = QVariant(QIcon(p))
+        self._p = p
         self.populate()
 
     def populate(self):
@@ -152,9 +155,7 @@ class PluginModel(QAbstractItemModel):
             return 0
         if index.internalId() == -1:
             return Qt.ItemIsEnabled
-        flags = Qt.ItemIsSelectable
-        if not is_disabled(self.data(index, Qt.UserRole)):
-            flags |= Qt.ItemIsEnabled
+        flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
         return flags
 
     def data(self, index, role):
@@ -175,7 +176,9 @@ class PluginModel(QAbstractItemModel):
                     ans += '\nCustomization: '+c
                 return QVariant(ans)
             if role == Qt.DecorationRole:
-                return self.icon
+                return self.disabled_icon if is_disabled(plugin) else self.icon
+            if role == Qt.ForegroundRole and is_disabled(plugin):
+                return QVariant(QBrush(Qt.gray))
             if role == Qt.UserRole:
                 return plugin
         return NONE
