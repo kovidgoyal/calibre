@@ -7,348 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-16 06:38+0000\n"
-"PO-Revision-Date: 2009-05-20 03:20+0000\n"
-"Last-Translator: Levente Szileszky <szlevi@gmail.com>\n"
+"POT-Creation-Date: 2009-05-21 15:37+0000\n"
+"PO-Revision-Date: 2009-05-21 15:27+0000\n"
+"Last-Translator: Molnár Gábor <csirkus@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-21 14:40+0000\n"
+"X-Launchpad-Export-Date: 2009-05-29 16:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:218
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:228
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:238
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:248
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:259
-msgid "Set metadata in %s files"
-msgstr "Metaadatok beállítása a %s típusú fájlokban."
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
-msgid "Mapping for filetype plugins"
-msgstr "A fájltípus beépülőmodulok leképezése"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:145
-msgid ""
-"Remove the first image from the input ebook. Useful if the first image in "
-"the source file is a cover and you are specifying an external cover."
-msgstr ""
-"Vegye ki az első képet a bemeneti e-könyvből. Ez akkor hasznos, ha az első "
-"kép a fájlban a könyvborító, és te helyette másik borítót szeretnél "
-"használni."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
-msgid ""
-"XPath expression to detect page boundaries for building a custom pagination "
-"map, as used by AdobeDE. Default is not to build an explicit pagination map."
-msgstr ""
-"XPath kifejezés az oldalhatárok észlelésére a saját lapozási táblázat "
-"elkészítéséhez (az Adobe DE használja). Alapértelmezés szerint nem készítünk "
-"lapozási táblázatot."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:188
-msgid ""
-"XPath expression that specifies all tags that should be added to the Table "
-"of Contents at level three. Each entry is added under the previous level two "
-"entry."
-msgstr ""
-"XPath kifejezés, amely meghatározza az összes tag-et, amit hozzá lehet adni "
-"a Tartalomjegyzék harmadik szintjéhez. Minden bejegyzés az előző szintű "
-"(második) bejegyzés alá kerül."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:202
-msgid "Control page layout"
-msgstr "Kontroláld az oldalelrendezést"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:215
-msgid ""
-"Remove spacing between paragraphs. Also sets a indent on paragraphs of "
-"1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
-"css. Spacing removal will not work if the source file forces inter-paragraph "
-"spacing."
-msgstr ""
-"Közök eltávolítása a szövegtömbből. Ez a beállítás automatikusan 1.5em "
-"méretű behúzást állít be a bekezdéshez. Ezt felül tudod írni, ha az --"
-"override-css kapcsolónak a p {text-indent: 0cm} paramétert adod meg. Ez nem "
-"fog működni, ha az eredeti fájlban kényszerített elrendezés van."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:221
-msgid "Do not force text to be justified in output."
-msgstr "A kimenetben a szöveg ne legyen mindenképpen sorkizárt."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:223
-msgid ""
-"Remove table markup, converting it into paragraphs. This is useful if your "
-"source file uses a table to manage layout."
-msgstr ""
-"Távolíts el a táblázatot és alakítsd át azt bekezdésekké.\r\n"
-"Ez akkor hasznos, ha a forrás táblázatot használ az elrendezés kezelésére."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:226
-msgid ""
-"Preserve the HTML tag structure while splitting large HTML files. This is "
-"only neccessary if the HTML files contain CSS that uses sibling selectors. "
-"Enabling this greatly slows down processing of large HTML files."
-msgstr ""
-"Nagy HTML fájlok tag struktúrájának megőrzése darabolás közben. Erre csak "
-"akkor van szükség, ha a HTML olyan CSS-t tartalmaz, ami 'sibling' típusú "
-"selectorokat is használ. Ez az opció jelentősen lelassíthatja nagy fájlok "
-"feldolgozását."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:30
-msgid ""
-"Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
-msgstr ""
-"Nem találtam egyértelmű elválasztási pontokat, ahol darabolni lehetne: %s Az "
-"fa mérete: %d kB."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:149
-msgid ""
-"\t\tToo much markup. Re-splitting without structure preservation. This may "
-"cause incorrect rendering."
-msgstr ""
-"\t\tTúl sok formázás. Újradarabolom a szerkezet megőrzése nélkül. Ez "
-"helytelen megjelenést eredményezhet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:962
-msgid "The author(s) of the ebook, as a & separated list."
-msgstr "A könyv szerzői '&' jelekkel elválasztott listában megadva."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:229
-msgid "Failed %s"
-msgstr "Elkútruk! %s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:280
-msgid ""
-"Failed to process comic: %s\n"
-"\n"
-"%s"
-msgstr ""
-"Elkúrtuk a képregény feldolgozását! :\n"
-"%s\n"
-"\n"
-"%s"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:302
-msgid ""
-"Disable normalize (improve contrast) color range for pictures. Default: False"
-msgstr ""
-"Normalizállás mellőzése az élénk szinű képeknél (növeli a kontrasztot). "
-"Alapértelmezett: hamis"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:304
-msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr "A képméretarány megtartása. Alapértelmezett: kijelző kitőltése"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:313
-msgid ""
-"Keep aspect ratio and scale image using screen height as image width for "
-"viewing in landscape mode."
-msgstr ""
-"Képméretarány megtartása és a képméret növelése növelése, tájképmódban lesz "
-"látható."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:315
-msgid ""
-"Used for right-to-left publications like manga. Causes landscape pages to be "
-"split into portrait pages from right to left."
-msgstr ""
-"Jobbról balra haladó kiadványoknál (pl. Manga) portréoldalakba hasítás "
-"jobbról balra."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:44
-msgid "Fetching of recipe failed: "
-msgstr "Az újság letölése nem sikerült: "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:321
-msgid "\tBook Designer file detected."
-msgstr "\tBook Designer fájl található."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:346
-msgid "\tBaen file detected. Re-parsing..."
-msgstr "\tBaen fájl található. Újraelemzés..."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:362
-msgid "Written preprocessed HTML to "
-msgstr "Az előre feldolgozott HTML kiírása ide: "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
-msgid "Do not save embedded image and font files to disk"
-msgstr "Ne mentse el a beágyazott képet és betűtípusfájlokat a lemezre"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
-msgid "Set the book classification"
-msgstr "A  könybesorolás beálítása"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
-msgid "Set the book creator"
-msgstr "A szerző beálítása"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
-msgid "Set the book producer"
-msgstr "A gyártó beálítása"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
-msgid ""
-"Extract cover from LRF file. Note that the LRF format has no defined cover, "
-"so we use some heuristics to guess the cover."
-msgstr ""
-"A borító átültetése LRF típusú fájlokból. \t\r\n"
-"Megjegyzendő, hogy az LRF formátumban nincs meghatározott borító, így "
-"sokszor Heurisztikával állítunk elő fedelet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
-msgid "Set book ID"
-msgstr "A könyv azonosítójának megadása"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:49
-msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr ""
-"Nem található egy összetevő : pdftohtml! \r\n"
-"Ellenőrizd az elérési utat."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:75
-msgid ""
-" is an image based PDF. Only conversion of text based PDFs is supported."
-msgstr ""
-" : ez egy kép-alapú PDF fájl. Csak a szöveg alapú PDF-ek konvertálása "
-"támogatott."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/reflow.py:405
-msgid "Be more verbose."
-msgstr "Bőbeszédűbb kimenet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/reflow.py:417
-msgid "You must specify a single PDF file."
-msgstr "Egy PDF fájlt kell megadnod."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:146
-msgid ""
-"This RTF file has a feature calibre does not support. Convert it to HTML and "
-"then convert it."
-msgstr ""
-"Ez az RTF fájl olyan formázásokat is tartalmaz, amiket a calibre nem "
-"támogat. Először próbáld meg HTML formátumba konvertálni, majd használd a "
-"calibre-t a további konvertáláshoz."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:44
-msgid "Set the authors"
-msgstr "Szerzők"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:48
-msgid "Set the comment"
-msgstr "Megjegyzés"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:300
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:69
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:70
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:55
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:108
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:361
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:971
-msgid "Title"
-msgstr "Cím"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:301
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:56
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:366
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:972
-msgid "Author(s)"
-msgstr "Szerző(k)"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:304
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:71
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:64
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:489
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:353
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:322
-#: /home/kovid/work/calibre/src/calibre/gui2/status.py:58
-msgid "Comments"
-msgstr "Megjegyzés"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:312
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:114
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:311
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:915
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:975
-#: /home/kovid/work/calibre/src/calibre/gui2/status.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-msgid "Tags"
-msgstr "Cimkék"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:314
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:115
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:327
-#: /home/kovid/work/calibre/src/calibre/gui2/status.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-msgid "Series"
-msgstr "Sorozat"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:315
-msgid "Language"
-msgstr "Nyelv"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:317
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:914
-msgid "Timestamp"
-msgstr "Dátum"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:204
-msgid "A comma separated list of tags to set"
-msgstr "A beállítandó cimkék vesszővel elválasztott listája"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:206
-msgid "The series to which this book belongs"
-msgstr "A sorozat, amihez ez a könyv tartozik"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:208
-msgid "The series index"
-msgstr "A könyv sorszáma a sorozatban"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:210
-msgid "The book language"
-msgstr "A könyv nyelve"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
-msgid "Usage:"
-msgstr "Használat"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/imp.py:53
-msgid "Usage: imp-meta file.imp"
-msgstr "Használat: imp-meta file.imp"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/imp.py:54
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:116
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/rb.py:60
-msgid "No filename specified."
-msgstr "Nem adtál meg fájlnevet."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
-msgid "The ISBN ID of the book you want metadata for."
-msgstr "A keresett könyv ISBN száma."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:111
-msgid "The author whose book to search for."
-msgstr "A keresett könyv szerzője."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:113
-msgid "The title of the book to search for."
-msgstr "A keresett könyv címe."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:115
-msgid "The publisher of the book to search for."
-msgstr "A keresett könyv kiadója."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:54
-msgid "LibraryThing.com timed out. Try again later."
-msgstr "A LibraryThing.com nem válaszol, próbáld meg később."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:62
-msgid " not found."
-msgstr " nem található."
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -396,7 +63,7 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:662
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -427,15 +94,15 @@ msgstr "Semmit nem csinál"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:264
 #: /home/kovid/work/calibre/src/calibre/library/database.py:916
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:500
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:512
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:897
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:932
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1241
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1421
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1444
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1495
 #: /home/kovid/work/calibre/src/calibre/library/server.py:340
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
@@ -498,9 +165,21 @@ msgstr "Tömörített könyvek metaadatait is olvassa be"
 msgid "Read metadata from ebooks in RAR archives"
 msgstr "Metaadatok olvasása a RAR-ral tömörített könyvekből is"
 
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:218
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:228
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:238
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:248
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:259
+msgid "Set metadata in %s files"
+msgstr "Metaadatok beállítása a %s típusú fájlokban."
+
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:28
 msgid "Installed plugins"
 msgstr "Telepített bővítmények"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
+msgid "Mapping for filetype plugins"
+msgstr "A fájltípus beépülőmodulok leképezése"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Local plugin customization"
@@ -664,6 +343,15 @@ msgstr ""
 "Inkább a forrásfájlban található borítót használja a beállított borító "
 "helyett, ha elérhető"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:145
+msgid ""
+"Remove the first image from the input ebook. Useful if the first image in "
+"the source file is a cover and you are specifying an external cover."
+msgstr ""
+"Vegye ki az első képet a bemeneti e-könyvből. Ez akkor hasznos, ha az első "
+"kép a fájlban a könyvborító, és te helyette másik borítót szeretnél "
+"használni."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:149
 msgid ""
 "Turn off splitting at page breaks. Normally, input files are automatically "
@@ -677,6 +365,15 @@ msgstr ""
 "eredmenyez, amelyet gyorsabban, kevesebb erőforrást igényelve lehet "
 "beolvasni. Ez a művelet azonban lassú, és ha a forrásfájlod sok oldaltörést "
 "tartalmaz, akkor érdemes alkalmazni ezt az opciót."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
+msgid ""
+"XPath expression to detect page boundaries for building a custom pagination "
+"map, as used by AdobeDE. Default is not to build an explicit pagination map."
+msgstr ""
+"XPath kifejezés az oldalhatárok észlelésére a saját lapozási táblázat "
+"elkészítéséhez (az Adobe DE használja). Alapértelmezés szerint nem készítünk "
+"lapozási táblázatot."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
 msgid ""
@@ -742,6 +439,16 @@ msgstr ""
 "tartalomjegyzékhez a második szinten. Minden bejegyzés az őt megelőző első "
 "szintű bejegyzéshez fog tartozni."
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:188
+msgid ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level three. Each entry is added under the previous level two "
+"entry."
+msgstr ""
+"XPath kifejezés, amely meghatározza az összes tag-et, amit hozzá lehet adni "
+"a Tartalomjegyzék harmadik szintjéhez. Minden bejegyzés az előző szintű "
+"(második) bejegyzés alá kerül."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:192
 msgid ""
 "Path to a .ncx file that contains the table of contents to use for this "
@@ -760,6 +467,10 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:202
+msgid "Control page layout"
+msgstr "Kontroláld az oldalelrendezést"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:204
 msgid "Set the top margin in pts. Default is %default"
@@ -793,6 +504,41 @@ msgstr ""
 "Az alapértelmezett betűméret (mértékegység: tipográfiai pont). Az "
 "alapértelmezezz érték %defaultpt. Állítsd 0-ra a betűk átméretezésének "
 "letiltásához."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:215
+msgid ""
+"Remove spacing between paragraphs. Also sets a indent on paragraphs of "
+"1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
+"css. Spacing removal will not work if the source file forces inter-paragraph "
+"spacing."
+msgstr ""
+"Közök eltávolítása a szövegtömbből. Ez a beállítás automatikusan 1.5em "
+"méretű behúzást állít be a bekezdéshez. Ezt felül tudod írni, ha az --"
+"override-css kapcsolónak a p {text-indent: 0cm} paramétert adod meg. Ez nem "
+"fog működni, ha az eredeti fájlban kényszerített elrendezés van."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:221
+msgid "Do not force text to be justified in output."
+msgstr "A kimenetben a szöveg ne legyen mindenképpen sorkizárt."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:223
+msgid ""
+"Remove table markup, converting it into paragraphs. This is useful if your "
+"source file uses a table to manage layout."
+msgstr ""
+"Távolíts el a táblázatot és alakítsd át azt bekezdésekké.\r\n"
+"Ez akkor hasznos, ha a forrás táblázatot használ az elrendezés kezelésére."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:226
+msgid ""
+"Preserve the HTML tag structure while splitting large HTML files. This is "
+"only neccessary if the HTML files contain CSS that uses sibling selectors. "
+"Enabling this greatly slows down processing of large HTML files."
+msgstr ""
+"Nagy HTML fájlok tag struktúrájának megőrzése darabolás közben. Erre csak "
+"akkor van szükség, ha a HTML olyan CSS-t tartalmaz, ami 'sibling' típusú "
+"selectorokat is használ. Ez az opció jelentősen lelassíthatja nagy fájlok "
+"feldolgozását."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:232
 msgid "Print generated OPF file to stdout"
@@ -855,6 +601,21 @@ msgstr "Meg kell adnod egy HTML fájlt bemenetként"
 msgid "%s format books are not supported"
 msgstr "A %s formátumú könyvek sajnos nem támogatottak"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:30
+msgid ""
+"Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
+msgstr ""
+"Nem találtam egyértelmű elválasztási pontokat, ahol darabolni lehetne: %s Az "
+"fa mérete: %d kB."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:149
+msgid ""
+"\t\tToo much markup. Re-splitting without structure preservation. This may "
+"cause incorrect rendering."
+msgstr ""
+"\t\tTúl sok formázás. Újradarabolom a szerkezet megőrzése nélkül. Ez "
+"helytelen megjelenést eredményezhet."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:541
 msgid "Written processed HTML to "
 msgstr "Feldolgozott HTML-t kiírtam ide: "
@@ -911,6 +672,10 @@ msgstr ""
 "Cím beállítása. Ha nincs semmi beírva, megpróbálom automatikusan "
 "megállapítani."
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:962
+msgid "The author(s) of the ebook, as a & separated list."
+msgstr "A könyv szerzői '&' jelekkel elválasztott listában megadva."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:964
 msgid "The subject(s) of this book, as a comma separated list."
 msgstr "A könyv témája/témái, vesszővel elválasztva."
@@ -965,7 +730,7 @@ msgid "%prog [options] LITFILE"
 msgstr "%prog [beállítások] LITFILE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:697
 msgid "Output directory. Defaults to current directory."
 msgstr "Célkönyvtár. Az alapértelmezett a jelenlegi könyvtár."
 
@@ -980,7 +745,7 @@ msgid "Useful for debugging."
 msgstr "Hasznos hibakeresésnél."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:721
 msgid "OEB ebook created in"
 msgstr "Az OEB e-könyvet létrehoztam ennyi idő alatt:"
 
@@ -1353,6 +1118,21 @@ msgstr "Nem adtál meg konvertálandó fájlt."
 msgid "Rendered %s"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:229
+msgid "Failed %s"
+msgstr "Elkútruk! %s"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:280
+msgid ""
+"Failed to process comic: %s\n"
+"\n"
+"%s"
+msgstr ""
+"Elkúrtuk a képregény feldolgozását! :\n"
+"%s\n"
+"\n"
+"%s"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:287
 msgid ""
 "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
@@ -1380,6 +1160,17 @@ msgid "Number of colors for grayscale image conversion. Default: %default"
 msgstr ""
 "Szürkeárnyalatok száma a képek konvertálásához. Alapértelmezés: %default"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:302
+msgid ""
+"Disable normalize (improve contrast) color range for pictures. Default: False"
+msgstr ""
+"Normalizállás mellőzése az élénk szinű képeknél (növeli a kontrasztot). "
+"Alapértelmezett: hamis"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:304
+msgid "Maintain picture aspect ratio. Default is to fill the screen."
+msgstr "A képméretarány megtartása. Alapértelmezett: kijelző kitőltése"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:306
 msgid "Disable sharpening."
 msgstr "Élesítés letiltása."
@@ -1393,6 +1184,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:311
 msgid "Don't split landscape images into two portrait images"
 msgstr "Fekvő képeket ne vágja szét két álló képre."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:313
+msgid ""
+"Keep aspect ratio and scale image using screen height as image width for "
+"viewing in landscape mode."
+msgstr ""
+"Képméretarány megtartása és a képméret növelése növelése, tájképmódban lesz "
+"látható."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:315
+msgid ""
+"Used for right-to-left publications like manga. Causes landscape pages to be "
+"split into portrait pages from right to left."
+msgstr ""
+"Jobbról balra haladó kiadványoknál (pl. Manga) portréoldalakba hasítás "
+"jobbról balra."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:317
 msgid ""
@@ -1491,9 +1298,25 @@ msgstr "Paraméterek a feeds2disk program számára"
 msgid "Options to control the behavior of html2lrf"
 msgstr "Paraméterek a html2lrf program számára"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:44
+msgid "Fetching of recipe failed: "
+msgstr "Az újság letölése nem sikerült: "
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:321
+msgid "\tBook Designer file detected."
+msgstr "\tBook Designer fájl található."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:323
 msgid "\tParsing HTML..."
 msgstr "\tHTML beolvasása..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:346
+msgid "\tBaen file detected. Re-parsing..."
+msgstr "\tBaen fájl található. Újraelemzés..."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:362
+msgid "Written preprocessed HTML to "
+msgstr "Az előre feldolgozott HTML kiírása ide: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:380
 msgid "Processing %s"
@@ -1617,6 +1440,10 @@ msgstr ""
 msgid "Output LRS file"
 msgstr "Kimeneti LRS fájl"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
+msgid "Do not save embedded image and font files to disk"
+msgstr "Ne mentse el a beágyazott képet és betűtípusfájlokat a lemezre"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
 msgstr "LRF fájl beolvasása..."
@@ -1709,6 +1536,31 @@ msgstr "Ikon kinyerése az LRF fájlból"
 msgid "Set the publisher"
 msgstr "Kiadó"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
+msgid "Set the book classification"
+msgstr "A  könybesorolás beálítása"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
+msgid "Set the book creator"
+msgstr "A szerző beálítása"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
+msgid "Set the book producer"
+msgstr "A gyártó beálítása"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
+msgid ""
+"Extract cover from LRF file. Note that the LRF format has no defined cover, "
+"so we use some heuristics to guess the cover."
+msgstr ""
+"A borító átültetése LRF típusú fájlokból. \t\r\n"
+"Megjegyzendő, hogy az LRF formátumban nincs meghatározott borító, így "
+"sokszor Heurisztikával állítunk elő fedelet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
+msgid "Set book ID"
+msgstr "A könyv azonosítójának megadása"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/mobi/convert_from.py:43
 msgid ""
 "Usage: %prog [options] mybook.mobi|prc\n"
@@ -1716,6 +1568,19 @@ msgid ""
 "\n"
 "%prog converts mybook.mobi to mybook.lrf"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:49
+msgid "Could not find pdftohtml, check it is in your PATH"
+msgstr ""
+"Nem található egy összetevő : pdftohtml! \r\n"
+"Ellenőrizd az elérési utat."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:75
+msgid ""
+" is an image based PDF. Only conversion of text based PDFs is supported."
+msgstr ""
+" : ez egy kép-alapú PDF fájl. Csak a szöveg alapú PDF-ek konvertálása "
+"támogatott."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:94
 msgid ""
@@ -1731,6 +1596,14 @@ msgid ""
 "current directory."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/reflow.py:405
+msgid "Be more verbose."
+msgstr "Bőbeszédűbb kimenet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/reflow.py:417
+msgid "You must specify a single PDF file."
+msgstr "Egy PDF fájlt kell megadnod."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:21
 msgid ""
 "%prog [options] mybook.rtf\n"
@@ -1738,6 +1611,15 @@ msgid ""
 "\n"
 "%prog converts mybook.rtf to mybook.lrf"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:146
+msgid ""
+"This RTF file has a feature calibre does not support. Convert it to HTML and "
+"then convert it."
+msgstr ""
+"Ez az RTF fájl olyan formázásokat is tartalmaz, amiket a calibre nem "
+"támogat. Először próbáld meg HTML formátumba konvertálni, majd használd a "
+"calibre-t a további konvertáláshoz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:19
 msgid ""
@@ -1747,13 +1629,107 @@ msgid ""
 "%prog converts mybook.txt to mybook.lrf"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:44
+msgid "Set the authors"
+msgstr "Szerzők"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:48
+msgid "Set the comment"
+msgstr "Megjegyzés"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:300
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:108
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:361
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:971
+msgid "Title"
+msgstr "Cím"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:972
+msgid "Author(s)"
+msgstr "Szerző(k)"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:303
 msgid "Producer"
 msgstr "Producer"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:304
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:71
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:489
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:322
+#: /home/kovid/work/calibre/src/calibre/gui2/status.py:58
+msgid "Comments"
+msgstr "Megjegyzés"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:311
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:915
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:975
+#: /home/kovid/work/calibre/src/calibre/gui2/status.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+msgid "Tags"
+msgstr "Cimkék"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:314
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:327
+#: /home/kovid/work/calibre/src/calibre/gui2/status.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+msgid "Series"
+msgstr "Sorozat"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:315
+msgid "Language"
+msgstr "Nyelv"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:317
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:914
+msgid "Timestamp"
+msgstr "Dátum"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:204
+msgid "A comma separated list of tags to set"
+msgstr "A beállítandó cimkék vesszővel elválasztott listája"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:206
+msgid "The series to which this book belongs"
+msgstr "A sorozat, amihez ez a könyv tartozik"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:208
+msgid "The series index"
+msgstr "A könyv sorszáma a sorozatban"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:210
+msgid "The book language"
+msgstr "A könyv nyelve"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:212
 msgid "Extract the cover"
 msgstr "Állítsa elő a borítót"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
+msgid "Usage:"
+msgstr "Használat"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/imp.py:53
+msgid "Usage: imp-meta file.imp"
+msgstr "Használat: imp-meta file.imp"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/imp.py:54
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:116
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/rb.py:60
+msgid "No filename specified."
+msgstr "Nem adtál meg fájlnevet."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:98
 msgid ""
@@ -1769,6 +1745,26 @@ msgid ""
 "\n"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
+msgid "The ISBN ID of the book you want metadata for."
+msgstr "A keresett könyv ISBN száma."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:111
+msgid "The author whose book to search for."
+msgstr "A keresett könyv szerzője."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:113
+msgid "The title of the book to search for."
+msgstr "A keresett könyv címe."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:115
+msgid "The publisher of the book to search for."
+msgstr "A keresett könyv kiadója."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:54
+msgid "LibraryThing.com timed out. Try again later."
+msgstr "A LibraryThing.com nem válaszol, próbáld meg később."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:61
 msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
@@ -1776,6 +1772,10 @@ msgid ""
 msgstr ""
 "A szerver túlterheltsége miatt nem tudta letölteni a borítót. Kérem próbálja "
 "meg később."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:62
+msgid " not found."
+msgstr " nem található."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:65
 msgid "LibraryThing.com server error. Try again later."
@@ -1828,11 +1828,11 @@ msgstr ""
 msgid "Creating Mobipocket file from EPUB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:694
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:695
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:718
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
@@ -3992,9 +3992,9 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:839
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:843
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1158
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:841
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:845
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1160
 msgid "News"
 msgstr ""
 
@@ -5819,20 +5819,20 @@ msgid ""
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1262
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1264
 msgid "<p>Copying books to %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1275
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1384
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1277
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1386
 msgid "Copying <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1357
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1401
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
 msgid "Compacting database"
 msgstr ""
 
@@ -6273,6 +6273,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
@@ -6289,7 +6290,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
@@ -6373,13 +6374,16 @@ msgstr ""
 msgid "Portugese"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
-msgid "Kovid Goyal"
-msgstr ""
-
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h1.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h2.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h3.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
 msgid "Hungarian"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+msgid "Kovid Goyal"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83

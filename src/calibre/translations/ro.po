@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-16 06:38+0000\n"
-"PO-Revision-Date: 2009-05-16 08:30+0000\n"
+"POT-Creation-Date: 2009-05-21 15:37+0000\n"
+"PO-Revision-Date: 2009-05-21 15:31+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-21 14:41+0000\n"
+"X-Launchpad-Export-Date: 2009-05-29 16:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -63,7 +63,7 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:662
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -94,15 +94,15 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:264
 #: /home/kovid/work/calibre/src/calibre/library/database.py:916
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:500
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:512
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:897
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:932
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1241
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1421
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1444
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1495
 #: /home/kovid/work/calibre/src/calibre/library/server.py:340
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
@@ -118,6 +118,14 @@ msgstr "Bază"
 msgid "File type"
 msgstr "Tip de fișier"
 
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:182
+msgid "Metadata reader"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:209
+msgid "Metadata writer"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:12
 msgid ""
 "Follow all local links in an HTML file and create a ZIP file containing all "
@@ -128,9 +136,54 @@ msgstr ""
 "care conţine toate fişierele legate. Acest plugin este rulat ori de câte ori "
 "adăugaţi un fişier HTML în bibliotecă."
 
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:32
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:43
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:53
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:64
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:74
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:84
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:105
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:116
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:126
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:136
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:147
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:157
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:167
+msgid "Read metadata from %s files"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:177
+msgid "Extract cover from comic files"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:197
+msgid "Read metadata from ebooks in ZIP archives"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:207
+msgid "Read metadata from ebooks in RAR archives"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:218
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:228
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:238
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:248
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:259
+msgid "Set metadata in %s files"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:28
 msgid "Installed plugins"
 msgstr "Plugin-uri instalate"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
+msgid "Mapping for filetype plugins"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
+msgid "Local plugin customization"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Disabled plugins"
@@ -140,10 +193,32 @@ msgstr "Plugin-uri dezactivate"
 msgid "No valid plugin found in "
 msgstr "Nu a fost găsit niciun plugin valid în "
 
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:192
+msgid "Initialization of plugin %s failed with traceback:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
+msgid ""
+"    %prog options\n"
+"\n"
+"    Customize calibre by loading external plugins.\n"
+"    "
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:275
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
 "Adaugă un plugin prin specificarea căii către fişierul zip ce îl conţine."
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:277
+msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:279
+msgid ""
+"Customize plugin. Specify name of plugin and customization string separated "
+"by a comma."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:281
 msgid "List all installed plugins"
@@ -206,13 +281,53 @@ msgstr ""
 "este utilizat pentru restricţii specifice dispozitivului pe EPUB. Variantele "
 "disponibile sunt: "
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:113
+msgid ""
+"Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
+"existing CSS declarations in the source files."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:117
 msgid "Control auto-detection of document structure."
 msgstr "Controlează auto-detecţia structurii documentului"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:122
+msgid ""
+"An XPath expression to detect chapter titles. The default is to consider "
+"<h1> or\n"
+"<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
+"\"part\" as chapter titles as \n"
+"well as any tags that have class=\"chapter\". \n"
+"The expression used must evaluate to a list of elements. To disable chapter "
+"detection,\n"
+"use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
+"for further\n"
+"help on using this feature.\n"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:132
+msgid ""
+"Specify how to mark detected chapters. A value of \"pagebreak\" will insert "
+"page breaks before chapters. A value of \"rule\" will insert a line before "
+"chapters. A value of \"none\" will disable chapter marking and a value of "
+"\"both\" will use both page breaks and lines to mark chapters."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:139
 msgid "Path to the cover to be used for this book"
 msgstr "Calea către coperta care să fie utilizată pentru această carte"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:142
+msgid ""
+"Use the cover detected from the source file in preference to the specified "
+"cover."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:145
+msgid ""
+"Remove the first image from the input ebook. Useful if the first image in "
+"the source file is a cover and you are specifying an external cover."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:149
 msgid ""
@@ -229,6 +344,19 @@ msgstr ""
 "iar dacă fişierul dumneavoastră sursă conţine un număr foarte mare de "
 "marcatori de sfârşit de pagină, ar trebui să dezactivaţi împărţirea după "
 "aceşti marcatori."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
+msgid ""
+"XPath expression to detect page boundaries for building a custom pagination "
+"map, as used by AdobeDE. Default is not to build an explicit pagination map."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
+msgid ""
+"XPath expression to find the name of each page in the pagination map "
+"relative to its boundary element. Default is to number all pages staring "
+"with 1."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:165
 msgid ""
@@ -286,6 +414,13 @@ msgstr ""
 "cuprins la nivelul doi. Fiecare intrare este adăugată sub intrarea "
 "precedentă de nivel unu."
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:188
+msgid ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level three. Each entry is added under the previous level two "
+"entry."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:192
 msgid ""
 "Path to a .ncx file that contains the table of contents to use for this "
@@ -297,6 +432,13 @@ msgstr ""
 "această e-carte. Fişierul NCX ar trebui să conţină legături relative la "
 "directorul în care este plasat. Vezi http://www.niso.org/workrooms/daisy/Z39-"
 "86-2005.html#NCX pentru o privire de ansamblu asupra formatului NCX."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:198
+msgid ""
+"Normally, if the source file already has a Table of Contents, it is used in "
+"preference to the auto-generated one. With this option, the auto-generated "
+"one is always used."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:202
 msgid "Control page layout"
@@ -317,6 +459,37 @@ msgstr "Setează marginea stângă în pts. Implicit este %default"
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:210
 msgid "Set the right margin in pts. Default is %default"
 msgstr "Setează marginea dreaptă în pts. Implicit este %default"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:212
+msgid ""
+"The base font size in pts. Default is %defaultpt. Set to 0 to disable "
+"rescaling of fonts."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:215
+msgid ""
+"Remove spacing between paragraphs. Also sets a indent on paragraphs of "
+"1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
+"css. Spacing removal will not work if the source file forces inter-paragraph "
+"spacing."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:221
+msgid "Do not force text to be justified in output."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:223
+msgid ""
+"Remove table markup, converting it into paragraphs. This is useful if your "
+"source file uses a table to manage layout."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:226
+msgid ""
+"Preserve the HTML tag structure while splitting large HTML files. This is "
+"only neccessary if the HTML files contain CSS that uses sibling selectors. "
+"Enabling this greatly slows down processing of large HTML files."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:232
 msgid "Print generated OPF file to stdout"
@@ -351,179 +524,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:105
 msgid "Could not find an ebook inside the archive"
 msgstr "Nu a fost găsită o e-carte în arhivă"
-
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:182
-msgid "Metadata reader"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:209
-msgid "Metadata writer"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:32
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:43
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:53
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:64
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:74
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:84
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:105
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:116
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:126
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:136
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:147
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:157
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:167
-msgid "Read metadata from %s files"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:177
-msgid "Extract cover from comic files"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:197
-msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:207
-msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:218
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:228
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:238
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:248
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:259
-msgid "Set metadata in %s files"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
-msgid "Mapping for filetype plugins"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
-msgid "Local plugin customization"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:192
-msgid "Initialization of plugin %s failed with traceback:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
-msgid ""
-"    %prog options\n"
-"\n"
-"    Customize calibre by loading external plugins.\n"
-"    "
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:277
-msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:279
-msgid ""
-"Customize plugin. Specify name of plugin and customization string separated "
-"by a comma."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:113
-msgid ""
-"Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
-"existing CSS declarations in the source files."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:122
-msgid ""
-"An XPath expression to detect chapter titles. The default is to consider "
-"<h1> or\n"
-"<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
-"\"part\" as chapter titles as \n"
-"well as any tags that have class=\"chapter\". \n"
-"The expression used must evaluate to a list of elements. To disable chapter "
-"detection,\n"
-"use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
-"for further\n"
-"help on using this feature.\n"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:132
-msgid ""
-"Specify how to mark detected chapters. A value of \"pagebreak\" will insert "
-"page breaks before chapters. A value of \"rule\" will insert a line before "
-"chapters. A value of \"none\" will disable chapter marking and a value of "
-"\"both\" will use both page breaks and lines to mark chapters."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:142
-msgid ""
-"Use the cover detected from the source file in preference to the specified "
-"cover."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:145
-msgid ""
-"Remove the first image from the input ebook. Useful if the first image in "
-"the source file is a cover and you are specifying an external cover."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
-msgid ""
-"XPath expression to detect page boundaries for building a custom pagination "
-"map, as used by AdobeDE. Default is not to build an explicit pagination map."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
-msgid ""
-"XPath expression to find the name of each page in the pagination map "
-"relative to its boundary element. Default is to number all pages staring "
-"with 1."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:188
-msgid ""
-"XPath expression that specifies all tags that should be added to the Table "
-"of Contents at level three. Each entry is added under the previous level two "
-"entry."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:198
-msgid ""
-"Normally, if the source file already has a Table of Contents, it is used in "
-"preference to the auto-generated one. With this option, the auto-generated "
-"one is always used."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:212
-msgid ""
-"The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-"rescaling of fonts."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:215
-msgid ""
-"Remove spacing between paragraphs. Also sets a indent on paragraphs of "
-"1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
-"css. Spacing removal will not work if the source file forces inter-paragraph "
-"spacing."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:221
-msgid "Do not force text to be justified in output."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:223
-msgid ""
-"Remove table markup, converting it into paragraphs. This is useful if your "
-"source file uses a table to manage layout."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:226
-msgid ""
-"Preserve the HTML tag structure while splitting large HTML files. This is "
-"only neccessary if the HTML files contain CSS that uses sibling selectors. "
-"Enabling this greatly slows down processing of large HTML files."
-msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
 msgid ""
@@ -664,7 +664,7 @@ msgid "%prog [options] LITFILE"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:697
 msgid "Output directory. Defaults to current directory."
 msgstr ""
 
@@ -679,7 +679,7 @@ msgid "Useful for debugging."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:721
 msgid "OEB ebook created in"
 msgstr ""
 
@@ -1635,11 +1635,11 @@ msgstr ""
 msgid "Creating Mobipocket file from EPUB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:694
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:695
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:718
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
@@ -3799,9 +3799,9 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:839
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:843
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1158
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:841
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:845
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1160
 msgid "News"
 msgstr ""
 
@@ -5626,20 +5626,20 @@ msgid ""
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1262
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1264
 msgid "<p>Copying books to %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1275
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1384
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1277
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1386
 msgid "Copying <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1357
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1401
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
 msgid "Compacting database"
 msgstr ""
 
@@ -6080,6 +6080,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
@@ -6096,7 +6097,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
@@ -6180,13 +6181,16 @@ msgstr ""
 msgid "Portugese"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
-msgid "Kovid Goyal"
-msgstr ""
-
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h1.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h2.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h3.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
 msgid "Hungarian"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+msgid "Kovid Goyal"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
