@@ -9,15 +9,15 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Sueddeutsche(BasicNewsRecipe):
 
-    title = u'S\xc3\xbcddeutsche'
+    title = u'S\xfcddeutsche'
     description = 'News from Germany'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
-    language = _('German')
     timefmt = ' [%d %b %Y]'
     oldest_article = 7
     max_articles_per_feed = 50
     no_stylesheets = True
+    language = _('German')
     encoding = 'iso-8859-15'
     remove_javascript = True
 
@@ -88,4 +88,6 @@ class Sueddeutsche(BasicNewsRecipe):
 
     def print_version(self, url):
         return url.replace('/text/', '/text/print.html')
+
+
 

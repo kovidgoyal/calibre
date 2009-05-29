@@ -8,7 +8,7 @@ Fetch heise.
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class HeiseDe(BasicNewsRecipe):
+class heiseDe(BasicNewsRecipe):
 
     title = 'heise'
     description = 'Computernews from Germany'
@@ -20,23 +20,26 @@ class HeiseDe(BasicNewsRecipe):
     no_stylesheets = True
 
     remove_tags = [dict(id='navi_top'),
-           dict(id='navi_bottom'),
-           dict(id='logo'),
-           dict(id='login_suche'),
-           dict(id='navi_login'),
-           dict(id='navigation'),
-           dict(id='breadcrumb'),
-           dict(id=''),
-           dict(id='sitemap'),
-           dict(id='bannerzone'),
-           dict(name='span', attrs={'class':'rsaquo'}),
-           dict(name='div', attrs={'class':'news_logo'}),
-           dict(name='p', attrs={'class':'news_option'}),
-           dict(name='p', attrs={'class':'news_navi'}),
-           dict(name='p', attrs={'class':'news_foren'})]
+		   dict(id='navi_bottom'),
+		   dict(id='logo'),
+		   dict(id='login_suche'),
+		   dict(id='navi_login'),
+		   dict(id='navigation'),
+		   dict(id='breadcrumb'),
+		   dict(id=''),
+		   dict(id='sitemap'),
+		   dict(id='bannerzone'),
+		   dict(name='span', attrs={'class':'rsaquo'}),
+		   dict(name='div', attrs={'class':'news_logo'}),
+		   dict(name='div', attrs={'class':'bcadv ISI_IGNORE'}),
+		   dict(name='p', attrs={'class':'news_option'}),
+		   dict(name='p', attrs={'class':'news_navi'}),
+		   dict(name='p', attrs={'class':'news_foren'})]
     remove_tags_after = [dict(name='p', attrs={'class':'news_foren'})]
 
     feeds =  [ ('heise', 'http://www.heise.de/newsticker/heise.rdf') ]
+
+
 
 
 

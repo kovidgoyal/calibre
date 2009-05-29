@@ -16,7 +16,7 @@ def create_man_page(prog, parser):
         else:
             usage[i] = line.replace('%prog', prog)
     lines = [
-             '.TH ' + prog.upper() + ' "1" ' + time.strftime('"%B %Y"') + 
+             '.TH ' + prog.upper() + ' "1" ' + time.strftime('"%B %Y"') +
              ' "%s (%s %s)" "%s"'%(prog, __appname__, __version__, __appname__),
              '.SH NAME',
              prog + r' \- part of '+__appname__,
@@ -25,7 +25,7 @@ def create_man_page(prog, parser):
              '.SH DESCRIPTION',
              ]
     lines += usage[1:]
-    
+
     lines += [
               '.SH OPTIONS'
               ]
@@ -39,7 +39,7 @@ def create_man_page(prog, parser):
         help = opt.help if opt.help else ''
         ans.append(help.replace('%prog', prog).replace('%default', str(opt.default)))
         return ans
-    
+
     for opt in parser.option_list:
         lines.extend(format_option(opt))
     for group in parser.option_groups:
@@ -48,12 +48,15 @@ def create_man_page(prog, parser):
             lines.extend(['.PP', group.description])
         for opt in group.option_list:
             lines.extend(format_option(opt))
-    
-    lines += ['.SH SEE ALSO', 
+
+    lines += ['.SH SEE ALSO',
               'The User Manual is available at '
               'http://calibre.kovidgoyal.net/user_manual',
               '.PP', '.B Created by '+__author__]
-    
-    return  bz2.compress('\n'.join(lines))
+
+    lines = [x if isinstance(x, unicode) else unicode(x, 'utf-8', 'replace') for
+            x in lines]
+
+    return  bz2.compress((u'\n'.join(lines)).encode('utf-8'))
 
 
