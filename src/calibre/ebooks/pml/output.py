@@ -6,7 +6,8 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-import Image, cStringIO
+import Image
+import cStringIO
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory

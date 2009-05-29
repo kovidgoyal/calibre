@@ -9,7 +9,6 @@ import os
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.txt.writer import TxtWriter, TxtNewlines
-from calibre.ebooks.metadata import authors_to_string
 
 class TXTOutput(OutputFormatPlugin):
 

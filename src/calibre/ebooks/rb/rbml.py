@@ -65,6 +65,12 @@ class RBMLizer(object):
 
     def mlize_spine(self):
         output = u'<HTML><HEAD><TITLE></TITLE></HEAD><BODY>'
+        if 'titlepage' in self.oeb_book.guide:
+            href = self.oeb_book.guide['titlepage'].href
+            item = self.oeb_book.manifest.hrefs[href]
+            if item.spine_position is None:
+                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+                output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         for item in self.oeb_book.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.add_page_anchor(item.href)

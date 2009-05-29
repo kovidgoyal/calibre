@@ -176,7 +176,7 @@ class HTMLPreProcessor(object):
         elif self.is_pdftohtml(html):
             line_length_rules = [
                 # Un wrap using punctuation
-                (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % line_length(html, .4), re.UNICODE), wrap_lines),
+                (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % line_length(html, .3), re.UNICODE), wrap_lines),
             ]
 
             rules = self.PDFTOHTML + line_length_rules
