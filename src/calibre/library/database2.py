@@ -1282,21 +1282,12 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('add', [id])
 
-    def move_library_to(self, newloc, progress=None):
-        header = _(u'<p>Copying books to %s<br><center>')%newloc
+    def move_library_to(self, newloc, progress=lambda x: x):
         books = self.conn.get('SELECT id, path, title FROM books')
-        if progress is not None:
-            progress.setValue(0)
-            progress.setLabelText(header)
-            QCoreApplication.processEvents()
-            progress.setAutoReset(False)
-            progress.setRange(0, len(books))
         if not os.path.exists(newloc):
             os.makedirs(newloc)
         old_dirs = set([])
         for i, book in enumerate(books):
-            if progress is not None:
-                progress.setLabelText(header+_(u'Copying <b>%s</b>')%book[2])
             path = book[1]
             if not path:
                 continue
@@ -1308,8 +1299,7 @@ class LibraryDatabase2(LibraryDatabase):
             if os.path.exists(srcdir):
                 shutil.copytree(srcdir, tdir)
             old_dirs.add(srcdir)
-            if progress is not None:
-                progress.setValue(i+1)
+            progress(book[2])
 
         dbpath = os.path.join(newloc, os.path.basename(self.dbpath))
         shutil.copyfile(self.dbpath, dbpath)
@@ -1323,10 +1313,6 @@ class LibraryDatabase2(LibraryDatabase):
                 shutil.rmtree(dir)
         except:
             pass
-        if progress is not None:
-            progress.reset()
-            progress.hide()
-
 
     def __iter__(self):
         for record in self.data._data:
