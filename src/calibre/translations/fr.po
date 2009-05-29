@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-16 06:38+0000\n"
+"POT-Creation-Date: 2009-05-21 15:37+0000\n"
 "PO-Revision-Date: 2009-05-16 09:29+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-21 14:40+0000\n"
+"X-Launchpad-Export-Date: 2009-05-29 16:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -577,7 +577,7 @@ msgstr "Ne fait strictement rien"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:662
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -608,15 +608,15 @@ msgstr "Ne fait strictement rien"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:264
 #: /home/kovid/work/calibre/src/calibre/library/database.py:916
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:500
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:512
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:897
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:932
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1241
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1421
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1444
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1495
 #: /home/kovid/work/calibre/src/calibre/library/server.py:340
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
@@ -1211,7 +1211,7 @@ msgid "%prog [options] LITFILE"
 msgstr "%prog [options] FichierLit"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:697
 msgid "Output directory. Defaults to current directory."
 msgstr "Dossier de récupération. Par défaut, il s'agit du dossier actuel."
 
@@ -1227,7 +1227,7 @@ msgid "Useful for debugging."
 msgstr "Utile pour déboguer"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:721
 msgid "OEB ebook created in"
 msgstr "ebook OEB créé dans"
 
@@ -2371,11 +2371,11 @@ msgstr "Utilisation: rb-meta fichier.rb"
 msgid "Creating Mobipocket file from EPUB..."
 msgstr "Créé le fichier Mobipocket à partir de l'EPUB..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:694
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:695
 msgid "%prog [options] myebook.mobi"
 msgstr "%prog [options] myebook.mobi"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:718
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
 msgid "Raw MOBI HTML saved in"
 msgstr "HTML MOBI brut sauvegardé dans"
 
@@ -4598,9 +4598,9 @@ msgstr "Ajouter une source personnalisée de News"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:839
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:843
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1158
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:841
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:845
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1160
 msgid "News"
 msgstr "Informations"
 
@@ -6587,20 +6587,20 @@ msgstr ""
 "\n"
 "Pour une aide sur commande précise: %%prog commande --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1262
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1264
 msgid "<p>Copying books to %s<br><center>"
 msgstr "<p>Copie les livres vers %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1275
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1384
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1277
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1386
 msgid "Copying <b>%s</b>"
 msgstr "Copie <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1357
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>Migre l'ancienne base vers la librairie dans %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1401
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
 msgid "Compacting database"
 msgstr "Compacte la base"
 
@@ -7101,6 +7101,7 @@ msgstr "Serbe"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
@@ -7117,7 +7118,7 @@ msgstr "Serbe"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
@@ -7201,14 +7202,17 @@ msgstr "Bosniaque"
 msgid "Portugese"
 msgstr "Portuguais"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
-msgid "Kovid Goyal"
-msgstr "Kovid Goyal"
-
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h1.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h2.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h3.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
 msgid "Hungarian"
 msgstr "Hongrois"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+msgid "Kovid Goyal"
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
 msgid "Skipping duplicated article: %s"
