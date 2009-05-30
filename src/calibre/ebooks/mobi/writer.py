@@ -307,7 +307,7 @@ class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
     def __init__(self, opts, compression=PALMDOC, imagemax=None,
-        prefer_author_sort=False):
+            prefer_author_sort=False):
         self.opts = opts
         self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE

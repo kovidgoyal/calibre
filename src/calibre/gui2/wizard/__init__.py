@@ -468,6 +468,9 @@ class Wizard(QWizard):
         p.loadFromData(server_resources['calibre.png'])
         self.setPixmap(self.LogoPixmap, p.scaledToHeight(80,
             Qt.SmoothTransformation))
+        self.setPixmap(self.WatermarkPixmap,
+            QPixmap(':/images/welcome_wizard.svg'))
+        self.setPixmap(self.BackgroundPixmap, QPixmap(':/images/wizard.svg'))
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
         self.finish_page = FinishPage()
