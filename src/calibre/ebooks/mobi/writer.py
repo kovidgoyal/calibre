@@ -438,19 +438,19 @@ class MobiWriter(object):
         toc = self._oeb.toc
         indxt, indices, c = StringIO(), StringIO(), 0
 
-        indices.write('INDX')
+        indices.write('IDXT')
         c = 0
         last_index = last_name = None
 
         def add_node(node, offset, length, count):
-            t = node.title
             if self.opts.verbose > 2:
                 self._oeb.log.debug('Adding TOC node:', node.title, 'href:',
                         node.href)
 
             pos = 0xc0 + indxt.tell()
             indices.write(pack('>H', pos))
-            indxt.write(chr(len(str(count)))+str(count))
+            name = "%4d"%count
+            indxt.write(chr(len(name)) + name)
             indxt.write(INDXT['chapter'])
             indxt.write(decint(offset, DECINT_FORWARD))
             indxt.write(decint(length, DECINT_FORWARD))
@@ -481,7 +481,7 @@ class MobiWriter(object):
             add_node(child, offset, length, c)
             last_index = c
             ctoc_offset = self._ctoc_map[child]
-            last_name = self._ctoc_name_map[child]
+            last_name = "%4d"%c
             c += 1
 
         return indxt.getvalue(), c, indices.getvalue(), last_index, last_name
@@ -520,13 +520,13 @@ class MobiWriter(object):
         indx1.write(indices)
         indx1 = indx1.getvalue()
 
-        idxt0 = last_name + pack('>H', last_index)
+        idxt0 = chr(len(last_name)) + last_name + pack('>H', last_index)
         indx0 = StringIO()
 
         tagx = TAGX['periodical' if self.opts.mobi_periodical else 'chapter']
         tagx = 'TAGX' + pack('>I', 8 + len(tagx)) + tagx
         indx0_indices_pos = 0xc0 + len(tagx) + len(idxt0)
-        indx0_indices = 'INDX' + pack('>H', 0xc0 + len(tagx))
+        indx0_indices = 'IDXT' + pack('>H', 0xc0 + len(tagx))
         # Generate record header
         header = StringIO()
 
@@ -616,15 +616,13 @@ class MobiWriter(object):
                 t = t.encode('utf-8')
                 self._last_toc_entry = t
                 self._ctoc_map[node] = ctoc.tell()
-                self._ctoc_name_map[node] = decint(len(t), DECINT_FORWARD)+t
-                ctoc.write(self._ctoc_name_map[node])
+                self._ctoc_name_map[node] = t
+                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
 
         for child in toc.iter():
             add_node(child, 'chapter')
 
         return ctoc.getvalue()
-
-
 
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
@@ -727,11 +725,10 @@ class MobiWriter(object):
         # 0xb0 - 0xb1 : First content record number
         # 0xb2 - 0xb3 : last content record number
         # (Includes Image, DATP, HUFF, DRM)
-        # TODO: implement
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack('>HH', 1, len(self._records)-1))
 
         # 0xb4 - 0xb7 : Unknown
-        record0.write('\0'*4)
+        record0.write('\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
         record0.write(pack('>I', 0xffffffff))
