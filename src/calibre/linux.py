@@ -20,7 +20,6 @@ entry_points = {
              'ebook-convert      = calibre.ebooks.conversion.cli:main',
              'markdown-calibre   = calibre.ebooks.markdown.markdown:main',
              'web2disk           = calibre.web.fetch.simple:main',
-             'feeds2disk         = calibre.web.feeds.main:main',
              'calibre-server     = calibre.library.server:main',
              'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',

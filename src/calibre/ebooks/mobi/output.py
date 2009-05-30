@@ -27,6 +27,15 @@ class MOBIOutput(OutputFormatPlugin):
         OptionRecommendation(name='toc_title', recommended_value=None,
             help=_('Title for any generated in-line table of contents.')
         ),
+        OptionRecommendation(name='mobi_periodical',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('When present, generate a periodical rather than a book.')
+        ),
+        OptionRecommendation(name='no_mobi_index',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Disable generation of MOBI index.')
+        ),
+
     ])
 
     recommendations = set([
@@ -49,7 +58,7 @@ class MOBIOutput(OutputFormatPlugin):
         rasterizer(oeb, opts)
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
-        writer = MobiWriter(imagemax=imagemax,
+        writer = MobiWriter(opts, imagemax=imagemax,
                             prefer_author_sort=opts.prefer_author_sort)
         writer(oeb, output_path)
 

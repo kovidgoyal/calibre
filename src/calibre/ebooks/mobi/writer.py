@@ -3,7 +3,8 @@ Write content to Mobipocket books.
 '''
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
+__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam> and \
+        Kovid Goyal <kovid@kovidgoyal.net>'
 
 from collections import defaultdict
 from itertools import count
@@ -56,6 +57,25 @@ PALM_MAX_IMAGE_SIZE = 63 * 1024
 OTHER_MAX_IMAGE_SIZE = 10 * 1024 * 1024
 MAX_THUMB_SIZE = 16 * 1024
 MAX_THUMB_DIMEN = (180, 240)
+
+
+TAGX = {
+        'chapter' :
+        '\x00\x00\x00\x01\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x00\x00\x00\x01',
+        'subchapter' :
+        '\x00\x00\x00\x01\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x10\x00\x16\x01\x20\x00\x17\x01\x40\x00\x00\x00\x00\x01',
+        'periodical' :
+        '\x00\x00\x00\x02\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x20\x00\x16\x01\x40\x00\x17\x01\x80\x00\x00\x00\x00\x01\x45\x01\x01\x00\x46\x01\x02\x00\x47\x01\x04\x00\x00\x00\x00\x01'
+        }
+
+INDXT = {
+        'chapter' : '\x0f',
+        'subchapter' : '\x1f',
+        'article'    : '\x3f',
+        'chapter with subchapters': '\x6f',
+        'periodical' : '\xdf',
+        'section' : '\xff',
+        }
 
 def encode(data):
     return data.encode('utf-8')
@@ -202,13 +222,11 @@ class Serializer(object):
 
     def serialize_item(self, item):
         buffer = self.buffer
-        #buffer.write('<mbp:section>')
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
         self.id_offsets[item.href] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
-        #buffer.write('</mbp:section>')
         buffer.write('<mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
@@ -288,11 +306,13 @@ class Serializer(object):
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    def __init__(self, compression=PALMDOC, imagemax=None,
+    def __init__(self, opts, compression=PALMDOC, imagemax=None,
         prefer_author_sort=False):
+        self.opts = opts
         self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
+        self._primary_index_record = None
 
     @classmethod
     def generate(cls, opts):
@@ -327,6 +347,8 @@ class MobiWriter(object):
     def _generate_content(self):
         self._map_image_names()
         self._generate_text()
+        if not self.opts.no_mobi_index:
+            self._generate_index()
         self._generate_images()
 
     def _map_image_names(self):
@@ -372,6 +394,8 @@ class MobiWriter(object):
         serializer = Serializer(self._oeb, self._images)
         breaks = serializer.breaks
         text = serializer.text
+        self._id_offsets = serializer.id_offsets
+        self._content_length = len(text)
         self._text_length = len(text)
         text = StringIO(text)
         nrecords = 0
@@ -408,10 +432,205 @@ class MobiWriter(object):
             data, overlap = self._read_text_record(text)
         self._text_nrecords = nrecords
 
+    def _generate_indxt(self, ctoc):
+        if self.opts.mobi_periodical:
+            raise NotImplementedError('Indexing for periodicals not implemented')
+        toc = self._oeb.toc
+        indxt, indices, c = StringIO(), StringIO(), 0
+
+        indices.write('INDX')
+        c = 0
+        last_index = last_name = None
+
+        def add_node(node, offset, length, count):
+            t = node.title
+            if self.opts.verbose > 2:
+                self._oeb.log.debug('Adding TOC node:', node.title, 'href:',
+                        node.href)
+
+            pos = 0xc0 + indxt.tell()
+            indices.write(pack('>H', pos))
+            indxt.write(chr(len(str(count)))+str(count))
+            indxt.write(INDXT['chapter'])
+            indxt.write(decint(offset, DECINT_FORWARD))
+            indxt.write(decint(length, DECINT_FORWARD))
+            indxt.write(decint(self._ctoc_map[node], DECINT_FORWARD))
+            indxt.write(decint(0, DECINT_FORWARD))
+
+
+        entries = list(toc.iter())[1:]
+        for i, child in enumerate(entries):
+            if not child.title or not child.title.strip():
+                continue
+            h = child.href
+            if h not in self._id_offsets:
+                self._oeb.log.warning('Could not find TOC entry:', child.title)
+                continue
+            offset = self._id_offsets[h]
+            length = None
+            for sibling in entries[i+1:]:
+                h2 = sibling.href
+                if h2 in self._id_offsets:
+                    offset2 = self._id_offsets[h2]
+                    if offset2 > offset:
+                        length = offset2 - offset
+                        break
+            if length is None:
+                length = self._content_length - offset
+
+            add_node(child, offset, length, c)
+            last_index = c
+            ctoc_offset = self._ctoc_map[child]
+            last_name = self._ctoc_name_map[child]
+            c += 1
+
+        return indxt.getvalue(), c, indices.getvalue(), last_index, last_name
+
+
+    def _generate_index(self):
+        self._oeb.log('Generating index...')
+        self._primary_index_record = None
+        ctoc = self._generate_ctoc()
+        indxt, indxt_count, indices, last_index, last_name = \
+                self._generate_indxt(ctoc)
+
+        indx1 = StringIO()
+        indx1.write('INDX'+pack('>I', 0xc0)) # header length
+
+        # 0x8 - 0xb : Unknown
+        indx1.write('\0'*4)
+
+        # 0xc - 0xf : Header type
+        indx1.write(pack('>I', 1))
+
+        # 0x10 - 0x13 : Unknown
+        indx1.write('\0'*4)
+
+        # 0x14 - 0x17 : IDXT offset
+        # 0x18 - 0x1b : IDXT count
+        indx1.write(pack('>I', 0xc0+len(indxt)))
+        indx1.write(pack('>I', indxt_count))
+
+        # 0x1c - 0x23 : Unknown
+        indx1.write('\xff'*8)
+
+        # 0x24 - 0xbf
+        indx1.write('\0'*156)
+        indx1.write(indxt)
+        indx1.write(indices)
+        indx1 = indx1.getvalue()
+
+        idxt0 = last_name + pack('>H', last_index)
+        indx0 = StringIO()
+
+        tagx = TAGX['periodical' if self.opts.mobi_periodical else 'chapter']
+        tagx = 'TAGX' + pack('>I', 8 + len(tagx)) + tagx
+        indx0_indices_pos = 0xc0 + len(tagx) + len(idxt0)
+        indx0_indices = 'INDX' + pack('>H', 0xc0 + len(tagx))
+        # Generate record header
+        header = StringIO()
+
+        header.write('INDX')
+        header.write(pack('>I', 0xc0)) # header length
+
+        # 0x08 - 0x0b : Unknown
+        header.write('\0'*4)
+
+        # 0x0c - 0x0f : Header type
+        header.write(pack('>I', 0))
+
+        # 0x10 - 0x13 : Generator ID
+        header.write(pack('>I', 6))
+
+        # 0x14 - 0x17 : IDXT offset
+        header.write(pack('>I', indx0_indices_pos))
+
+        # 0x18 - 0x1b : IDXT count
+        header.write(pack('>I', 1))
+
+        # 0x1c - 0x1f : Text encoding ?
+        header.write(pack('>I', 650001))
+
+        # 0x20 - 0x23 : Language code?
+        header.write(iana2mobi(str(self._oeb.metadata.language[0])))
+
+        # 0x24 - 0x27 : Number of TOC entries in INDX1
+        header.write(pack('>I', indxt_count))
+
+        # 0x28 - 0x2b : ORDT Offset
+        header.write('\0'*4)
+
+        # 0x2c - 0x2f : LIGT offset
+        header.write('\0'*4)
+
+        # 0x30 - 0x33 : Number of LIGT entries
+        header.write('\0'*4)
+
+        # 0x34 - 0x37 : Unknown
+        header.write(pack('>I', 1))
+
+        # 0x38 - 0xb3 : Unknown (pad?)
+        header.write('\0'*124)
+
+        # 0xb4 - 0xb7 : TAGX offset
+        header.write(pack('>I', 0xc0))
+
+        # 0xb8 - 0xbf : Unknown
+        header.write('\0'*8)
+
+        header = header.getvalue()
+
+        indx0.write(header)
+        indx0.write(tagx)
+        indx0.write(idxt0)
+        indx0.write(indx0_indices)
+        indx0 = indx0.getvalue()
+
+        self._primary_index_record = len(self._records)
+        if self.opts.verbose > 3:
+            from tempfile import mkdtemp
+            import os
+            t = mkdtemp()
+            open(os.path.join(t, 'indx0.bin'), 'wb').write(indx0)
+            open(os.path.join(t, 'indx1.bin'), 'wb').write(indx1)
+            open(os.path.join(t, 'ctoc.bin'), 'wb').write(ctoc)
+            self._oeb.log.debug('Index records dumped to', t)
+
+        self._records.extend([indx0, indx1, ctoc])
+
+    def _generate_ctoc(self):
+        if self.opts.mobi_periodical:
+            raise NotImplementedError('Indexing for periodicals not implemented')
+        toc = self._oeb.toc
+        self._ctoc_map = {}
+        self._ctoc_name_map = {}
+        self._last_toc_entry = None
+        ctoc = StringIO()
+
+        def add_node(node, cls):
+            t = node.title
+            if t and t.strip():
+                t = t.strip()
+                if not isinstance(t, unicode):
+                    t = t.decode('utf-8', 'replace')
+                t = t.encode('utf-8')
+                self._last_toc_entry = t
+                self._ctoc_map[node] = ctoc.tell()
+                self._ctoc_name_map[node] = decint(len(t), DECINT_FORWARD)+t
+                ctoc.write(self._ctoc_name_map[node])
+
+        for child in toc.iter():
+            add_node(child, 'chapter')
+
+        return ctoc.getvalue()
+
+
+
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
         images.sort()
+        self._first_image_record = None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
             try:
@@ -420,6 +639,8 @@ class MobiWriter(object):
                 self._oeb.logger.warn('Bad image file %r' % item.href)
                 continue
             self._records.append(data)
+            if self._first_image_record is None:
+                self._first_image_record = len(self._records)-1
 
     def _generate_record0(self):
         metadata = self._oeb.metadata
@@ -446,8 +667,9 @@ class MobiWriter(object):
         # 0xC - 0xF   : Text encoding (65001 is utf-8)
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
+        btype = 0x101 if self.opts.mobi_periodical else 2
         record0.write(pack('>IIIII',
-            0xe8, 2, 65001, uid, 6))
+            0xe8, btype, 65001, uid, 6))
 
         # 0x18 - 0x1f : Unknown
         record0.write('\xff' * 8)
@@ -477,7 +699,7 @@ class MobiWriter(object):
         # 0x58 - 0x5b : Format version
         # 0x5c - 0x5f : First image record number
         record0.write(pack('>II',
-            6, self._text_nrecords + 1))
+            6, self._first_image_record if self._first_image_record else 0))
 
         # 0x60 - 0x63 : First HUFF/CDIC record number
         # 0x64 - 0x67 : Number of HUFF/CDIC records
@@ -537,8 +759,8 @@ class MobiWriter(object):
         record0.write(pack('>I', 5))
 
         # 0xe4 - 0xe7 : Primary index record
-        # TODO: Implement
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack('>I', 0xffffffff if self._primary_index_record is
+            None else self._primary_index_record))
 
         record0.write(exth)
         record0.write(title)

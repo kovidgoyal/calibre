@@ -30,7 +30,7 @@ STYLE_CSS = {
   margin-left: 3.6em;
 }
 """,
-   
+
     'centered': """
 .calibre_toc_header {
   text-align: center;
@@ -48,18 +48,18 @@ class HTMLTOCAdder(object):
     def __init__(self, title=None, style='nested'):
         self.title = title
         self.style = style
-    
+
     @classmethod
     def config(cls, cfg):
         group = cfg.add_group('htmltoc', _('HTML TOC generation options.'))
-        group('toc_title', ['--toc-title'], default=None, 
+        group('toc_title', ['--toc-title'], default=None,
               help=_('Title for any generated in-line table of contents.'))
         return cfg
 
     @classmethod
     def generate(cls, opts):
         return cls(title=opts.toc_title)
-    
+
     def __call__(self, oeb, context):
         if 'toc' in oeb.guide:
             return
