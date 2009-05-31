@@ -357,7 +357,10 @@ class MobiWriter(object):
         self._map_image_names()
         self._generate_text()
         if INDEXING and not self.opts.no_mobi_index:
-            self._generate_index()
+            try:
+                self._generate_index()
+            except:
+                self._oeb.log.exception('Failed to generate index')
         self._generate_images()
 
     def _map_image_names(self):
@@ -507,6 +510,9 @@ class MobiWriter(object):
         ctoc = self._generate_ctoc()
         indxt, indxt_count, indices, last_name = \
                 self._generate_indxt(ctoc)
+        if last_name is None:
+            self._oeb.log.warn('Input document has no TOC. No idex generated.')
+            return
 
         indx1 = StringIO()
         indx1.write('INDX'+pack('>I', 0xc0)) # header length
