@@ -1335,6 +1335,8 @@ class LibraryDatabase2(LibraryDatabase):
             data.append(x)
             x['id'] = record[FIELD_MAP['id']]
             x['formats'] = []
+            if not x['authors']:
+                x['authors'] = _('Unknown')
             x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
             if authors_as_string:
                 x['authors'] = authors_to_string(x['authors'])
