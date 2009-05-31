@@ -284,39 +284,7 @@ def launch(path_or_url):
         path_or_url = 'file:'+path_or_url
     QDesktopServices.openUrl(QUrl(path_or_url))
 
-def relpath(target, base=os.curdir):
-    """
-    Return a relative path to the target from either the current dir or an optional base dir.
-    Base can be a directory specified either as absolute or relative to current dir.
-    """
-
-    #if not os.path.exists(target):
-    #    raise OSError, 'Target does not exist: '+target
-    if target == base:
-        raise ValueError('target and base are both: %s'%target)
-    if not os.path.isdir(base):
-        raise OSError, 'Base is not a directory or does not exist: '+base
-
-    base_list = (os.path.abspath(base)).split(os.sep)
-    target_list = (os.path.abspath(target)).split(os.sep)
-
-    # On the windows platform the target may be on a completely different drive from the base.
-    if iswindows and base_list[0].upper() != target_list[0].upper():
-        raise OSError, 'Target is on a different drive to base. Target: '+repr(target)+', base: '+repr(base)
-
-    # Starting from the filepath root, work out how much of the filepath is
-    # shared by base and target.
-    for i in range(min(len(base_list), len(target_list))):
-        if base_list[i] != target_list[i]: break
-    else:
-        # If we broke out of the loop, i is pointing to the first differing path elements.
-        # If we didn't break out of the loop, i is pointing to identical path elements.
-        # Increment i so that in all cases it points to the first differing path elements.
-        i+=1
-
-    rel_list = [os.pardir] * (len(base_list)-i) + target_list[i:]
-    return os.path.join(*rel_list)
-
+relpath = os.path.relpath
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 def english_sort(x, y):
     '''

@@ -511,7 +511,7 @@ class MobiWriter(object):
         indxt, indxt_count, indices, last_name = \
                 self._generate_indxt(ctoc)
         if last_name is None:
-            self._oeb.log.warn('Input document has no TOC. No idex generated.')
+            self._oeb.log.warn('Input document has no TOC. No index generated.')
             return
 
         indx1 = StringIO()
@@ -628,8 +628,8 @@ class MobiWriter(object):
         self._last_toc_entry = None
         ctoc = StringIO()
 
-        def add_node(node, cls):
-            t = node.title
+        def add_node(node, cls, title=None):
+            t = node.title if title is None else title
             if t and t.strip():
                 t = t.strip()
                 if not isinstance(t, unicode):
@@ -640,8 +640,10 @@ class MobiWriter(object):
                 self._ctoc_name_map[node] = t
                 ctoc.write(decint(len(t), DECINT_FORWARD)+t)
 
+        first = True
         for child in toc.iter():
-            add_node(child, 'chapter')
+            add_node(child, 'chapter', title='Title Page' if first else None)
+            first = False
 
         return align_block(ctoc.getvalue())
 
@@ -842,7 +844,8 @@ class MobiWriter(object):
         if INDEXING:
             # Write unknown EXTH records as 0s
             for code, size in [(204,4), (205,4), (206,4), (207,4), (300,40)]:
-                exth.write(pack('>I', code)+'\0'*size)
+                exth.write(pack('>II', code, 8+size)+'\0'*size)
+                nrecs += 1
         exth = exth.getvalue()
         trail = len(exth) % 4
         pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
