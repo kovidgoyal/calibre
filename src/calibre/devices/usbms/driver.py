@@ -85,7 +85,7 @@ class USBMS(CLI, Device):
         elif on_card == 'cardb' and not self._card_b_prefix:
             raise ValueError(_('The reader has no storage card in this slot.'))
         elif on_card and on_card not in ('carda', 'cardb'):
-            raise DeviceError(_('The reader has no storage card in this slot.'))
+            raise DeviceError(_('Selected slot: %s is not supported.' % on_card))
 
         if on_card == 'carda':
             path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
