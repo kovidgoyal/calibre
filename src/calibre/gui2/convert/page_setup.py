@@ -35,7 +35,7 @@ class PageSetupWidget(Widget, Ui_Form):
     TITLE = _('Page Setup')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'lrf_output',
+        Widget.__init__(self, parent, 'page_setup',
                 ['margin_top', 'margin_left', 'margin_right', 'margin_bottom',
                     'input_profile', 'output_profile']
                 )

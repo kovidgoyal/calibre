@@ -6,11 +6,10 @@ Fetch zdnet.
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 
 class cdnet(BasicNewsRecipe):
-    
+
     title = 'zdnet'
     description = 'zdnet security'
     __author__ = 'Oliver Niesner'
@@ -19,16 +18,10 @@ class cdnet(BasicNewsRecipe):
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 40
     no_stylesheets = True
-    encoding = 'iso-8859-1'
+    encoding = 'latin1'
 
-    #preprocess_regexps = \
-#	[(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-#		[
-#		(r'<84>', lambda match: ''),
-#		(r'<93>', lambda match: ''),
-#		]
-#	]
-    
+
+
     remove_tags = [dict(id='eyebrows'),
 		   dict(id='header'),
 		   dict(id='search'),
@@ -36,12 +29,16 @@ class cdnet(BasicNewsRecipe):
 		   dict(id=''),
 		   dict(name='div', attrs={'class':'banner'}),
 		   dict(name='p', attrs={'class':'tags'}),
+		   dict(name='a', attrs={'href':'http://www.twitter.com/ryanaraine'}),
 		   dict(name='div', attrs={'class':'special1'})]
     remove_tags_after = [dict(name='div', attrs={'class':'bloggerDesc clear'})]
-    
-    feeds =  [ ('zdnet', 'http://feeds.feedburner.com/zdnet/security') ] 
-    
+
+    feeds =  [ ('zdnet', 'http://feeds.feedburner.com/zdnet/security') ]
 
 
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
 
 

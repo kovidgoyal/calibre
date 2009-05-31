@@ -5,7 +5,7 @@ import textwrap
 import os
 import glob
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, MetadataWriterPlugin
-from calibre.constants import __version__
+from calibre.constants import numeric_version
 
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
@@ -15,7 +15,7 @@ Follow all local links in an HTML file and create a ZIP \
 file containing all linked files. This plugin is run \
 every time you add an HTML file to the library.\
 '''))
-    version = tuple(map(int, (__version__.split('.'))[:3]))
+    version = numeric_version
     file_types = set(['html', 'htm', 'xhtml', 'xhtm'])
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True

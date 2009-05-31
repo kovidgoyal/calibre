@@ -9,16 +9,14 @@ __docformat__ = 'restructuredtext en'
 Merge PDF files into a single PDF document.
 '''
 
-import os, re, sys, time
-from optparse import OptionGroup, Option
+import os, sys
 
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
-from calibre.customize.conversion import OptionRecommendation
-from calibre.ebooks.pdf.verify import is_valid_pdfs, is_encrypted, is_encrypted
-
-from pyPdf import PdfFileWriter, PdfFileReader
+from calibre.ebooks.pdf.verify import is_valid_pdfs, is_encrypted
+from calibre import prints
+from calibre.utils.podofo import podofo, podofo_err
 
 USAGE = '\n%prog %%name ' + _('''\
 file.pdf ...
@@ -35,40 +33,36 @@ def option_parser(name):
     return OptionParser(usage=usage)
 
 def print_info(pdf_path):
-    with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
-        pdf = PdfFileReader(pdf_file)
-        print _('Title:                 %s' % pdf.documentInfo.title)
-        print _('Author:                %s' % pdf.documentInfo.author)
-        print _('Subject:               %s' % pdf.documentInfo.subject)
-        print _('Creator:               %s' % pdf.documentInfo.creator)
-        print _('Producer:              %s' % pdf.documentInfo.producer)
-        #print _('Creation Date:         %s' % time.strftime('%a %b %d %H:%M:%S %Y', time.gmtime(os.path.getctime(pdf_path))))
-        #print _('Modification Date:     %s' % time.strftime('%a %b %d %H:%M:%S %Y', time.gmtime(os.path.getmtime(pdf_path))))
-        print _('Pages:                 %s' % pdf.numPages)
-        #print _('Encrypted:             %s' % pdf.isEncrypted)
-        try:
-            print _('File Size:             %s bytes' % os.path.getsize(pdf_path))
-        except: pass
-        try:
-            pdf_file.seek(0)
-            vline = pdf_file.readline()
-            mo = re.search('(?iu)^%...-(?P<version>\d+\.\d+)', vline)
-            if mo != None:
-                print _('PDF Version:           %s' % mo.group('version'))
-        except: pass
+    if not podofo:
+        raise RuntimeError('Failed to load PoDoFo with error:'+podofo_err)
+    p = podofo.PDFDoc()
+    p.open(pdf_path)
+
+    fmt = lambda x, y: '%-20s: %s'%(x, y)
+
+    print
+
+    prints(fmt(_('Title'), p.title))
+    prints(fmt(_('Author'), p.author))
+    prints(fmt(_('Subject'), p.subject))
+    prints(fmt(_('Creator'), p.creator))
+    prints(fmt(_('Producer'), p.producer))
+    prints(fmt(_('Pages'), p.pages))
+    prints(fmt(_('File Size'), os.stat(pdf_path).st_size))
+    prints(fmt(_('PDF Version'), p.version if p.version else _('Unknown')))
 
 def main(args=sys.argv, name=''):
     log = Log()
     parser = option_parser(name)
-    
+
     opts, args = parser.parse_args(args)
     args = args[1:]
-    
+
     if len(args) < 1:
         print 'Error: No PDF sepecified.\n'
         print_help(parser, log)
         return 1
-    
+
     bad_pdfs = is_valid_pdfs(args)
     if bad_pdfs != []:
         for pdf in bad_pdfs:
@@ -85,7 +79,7 @@ def main(args=sys.argv, name=''):
 
     for pdf in args:
         print_info(pdf)
-    
+
     return 0
 
 if __name__ == '__main__':

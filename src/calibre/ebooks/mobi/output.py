@@ -27,6 +27,20 @@ class MOBIOutput(OutputFormatPlugin):
         OptionRecommendation(name='toc_title', recommended_value=None,
             help=_('Title for any generated in-line table of contents.')
         ),
+        OptionRecommendation(name='mobi_periodical',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('When present, generate a periodical rather than a book.')
+        ),
+        OptionRecommendation(name='no_mobi_index',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Disable generation of MOBI index.')
+        ),
+        OptionRecommendation(name='dont_compress',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Disable compression of the file contents.')
+        ),
+
+
     ])
 
     recommendations = set([
@@ -35,7 +49,8 @@ class MOBIOutput(OutputFormatPlugin):
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
-        from calibre.ebooks.mobi.writer import PALM_MAX_IMAGE_SIZE, MobiWriter
+        from calibre.ebooks.mobi.writer import PALM_MAX_IMAGE_SIZE, \
+                MobiWriter, PALMDOC, UNCOMPRESSED
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
@@ -49,7 +64,8 @@ class MOBIOutput(OutputFormatPlugin):
         rasterizer(oeb, opts)
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
-        writer = MobiWriter(imagemax=imagemax,
+        writer = MobiWriter(opts, imagemax=imagemax,
+                compression=UNCOMPRESSED if opts.dont_compress else PALMDOC,
                             prefer_author_sort=opts.prefer_author_sort)
         writer(oeb, output_path)
 

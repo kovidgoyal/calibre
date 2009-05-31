@@ -109,6 +109,40 @@ podofo_PDFDoc_pages_getter(podofo_PDFDoc *self, void *closure) {
 }
 
 static PyObject *
+podofo_PDFDoc_version_getter(podofo_PDFDoc *self, void *closure) {
+    int version;
+    try {
+        version = self->doc->GetPdfVersion();
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+    switch(version) {
+        case ePdfVersion_1_0:
+            return Py_BuildValue("s", "1.0");
+        case ePdfVersion_1_1:
+            return Py_BuildValue("s", "1.1");
+        case ePdfVersion_1_2:
+            return Py_BuildValue("s", "1.2");
+        case ePdfVersion_1_3:
+            return Py_BuildValue("s", "1.3");
+        case ePdfVersion_1_4:
+            return Py_BuildValue("s", "1.4");
+        case ePdfVersion_1_5:
+            return Py_BuildValue("s", "1.5");
+        case ePdfVersion_1_6:
+            return Py_BuildValue("s", "1.6");
+        case ePdfVersion_1_7:
+            return Py_BuildValue("s", "1.7");
+        default:
+            return Py_BuildValue("");
+    }
+    return Py_BuildValue("");
+}
+
+
+ 
+static PyObject *
 podofo_PDFDoc_delete_pages(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
     int first_page, num_pages;
     if (PyArg_ParseTuple(args, "ii", &first_page, &num_pages)) {
@@ -314,6 +348,10 @@ static PyGetSetDef podofo_PDFDoc_getsetters[] = {
     {(char *)"pages", 
      (getter)podofo_PDFDoc_pages_getter, NULL,
      (char *)"Number of pages in document (read only)",
+     NULL},
+    {(char *)"version", 
+     (getter)podofo_PDFDoc_version_getter, NULL,
+     (char *)"The PDF version (read only)",
      NULL},
 
     {NULL}  /* Sentinel */

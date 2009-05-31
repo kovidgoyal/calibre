@@ -83,7 +83,7 @@ class MetadataWidget(Widget, Ui_Form):
         comments = unicode(self.comment.toPlainText()).strip()
         if comments:
             mi.comments = comments
-        mi.series_index = int(self.series_index.value())
+        mi.series_index = float(self.series_index.value())
         if self.series.currentIndex() > -1:
             mi.series = unicode(self.series.currentText()).strip()
         tags = [t.strip() for t in unicode(self.tags.text()).strip().split(',')]

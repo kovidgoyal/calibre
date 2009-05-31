@@ -11,11 +11,11 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
                      QToolButton, QDialog, QDesktopServices, QFileDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                     QProgressDialog, QMessageBox, QStackedLayout
+                     QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, sanitize_file_name, \
-                    iswindows, isosx, prints
+                    iswindows, isosx, prints, patheq
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
@@ -27,6 +27,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            available_width, GetMetadata
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.gui2.widgets import ProgressIndicator
+from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow, option_parser as _option_parser
@@ -297,6 +298,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.action_convert,
                 SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
+        pm = QMenu()
+        pm.addAction(self.action_preferences)
+        pm.addAction(_('Run welcome wizard'))
+        self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
+                self.run_wizard)
+        self.action_preferences.setMenu(pm)
+        self.preferences_menu = pm
+
         self.tool_bar.widgetForAction(self.action_news).\
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_edit).\
@@ -310,6 +319,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.tool_bar.widgetForAction(self.action_add).\
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_view).\
+                setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_preferences).\
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
 
@@ -1376,55 +1387,26 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.save_menu.actions()[2].setText(
                 _('Save only %s format to disk')%
                 prefs['output_format'].upper())
-            if self.library_path != d.database_location:
-                try:
-                    newloc = d.database_location
-                    if not os.path.exists(os.path.join(newloc, 'metadata.db')):
-                        if os.access(self.library_path, os.R_OK):
-                            pd = QProgressDialog('', '', 0, 100, self)
-                            pd.setWindowModality(Qt.ApplicationModal)
-                            pd.setCancelButton(None)
-                            pd.setWindowTitle(_('Copying database'))
-                            pd.show()
-                            self.status_bar.showMessage(
-                                    _('Copying library to ')+newloc)
-                            self.setCursor(Qt.BusyCursor)
-                            self.library_view.setEnabled(False)
-                            self.library_view.model().db.move_library_to(
-                                    newloc, pd)
-                    else:
-                        try:
-                            db = LibraryDatabase2(newloc)
-                            self.library_view.set_database(db)
-                        except Exception, err:
-                            traceback.print_exc()
-                            d = error_dialog(self, _('Invalid database'),
-                                _('<p>An invalid database already exists at '
-                                  '%s, delete it before trying to move the '
-                                  'existing database.<br>Error: %s')%(newloc,
-                                      str(err)))
-                            d.exec_()
-                    self.library_path = \
-                            self.library_view.model().db.library_path
-                    prefs['library_path'] =  self.library_path
-                except Exception, err:
-                    traceback.print_exc()
-                    d = error_dialog(self, _('Could not move database'),
-                            unicode(err))
-                    d.exec_()
-                finally:
-                    self.unsetCursor()
-                    self.library_view.setEnabled(True)
-                    self.status_bar.clearMessage()
-                    self.search.clear_to_help()
-                    self.status_bar.reset_info()
-                    self.library_view.sortByColumn(3, Qt.DescendingOrder)
-                    self.library_view.resizeRowsToContents()
             if hasattr(d, 'directories'):
                 set_sidebar_directories(d.directories)
             self.library_view.model().read_config()
             self.create_device_menu()
 
+
+            if not patheq(self.library_path, d.database_location):
+                newloc = d.database_location
+                move_library(self.library_path, newloc, self,
+                        self.library_moved)
+
+
+    def library_moved(self, newloc):
+        if newloc is None: return
+        db = LibraryDatabase2(newloc)
+        self.library_view.set_database(db)
+        self.status_bar.clearMessage()
+        self.search.clear_to_help()
+        self.status_bar.reset_info()
+        self.library_view.sortByColumn(3, Qt.DescendingOrder)
 
     ############################################################################
 
@@ -1652,6 +1634,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.hide()
         return True
 
+    def run_wizard(self, *args):
+        if self.confirm_quit():
+            self.run_wizard_b4_shutdown = True
+            self.restart_after_quit = True
+            try:
+                self.shutdown(write_settings=False)
+            except:
+                pass
+            QApplication.instance().quit()
+
+
 
     def closeEvent(self, e):
         self.write_settings()
@@ -1677,7 +1670,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def update_found(self, version):
         os = 'windows' if iswindows else 'osx' if isosx else 'linux'
         url = 'http://%s.kovidgoyal.net/download_%s'%(__appname__, os)
-        self.latest_version = _('<span style="color:red; font-weight:bold">'
+        self.latest_version = '<br>'+_('<span style="color:red; font-weight:bold">'
                 'Latest version: <a href="%s">%s</a></span>')%(url, version)
         self.vanity.setText(self.vanity_template%\
                 (dict(version=self.latest_version,
@@ -1726,12 +1719,19 @@ def init_qt(args):
 
 def run_gui(opts, args, actions, listener, app):
     initialize_file_icon_provider()
+    if not dynamic.get('welcome_wizard_was_run', False):
+        from calibre.gui2.wizard import wizard
+        wizard().exec_()
+        dynamic.set('welcome_wizard_was_run', True)
     main = Main(listener, opts, actions)
     sys.excepthook = main.unhandled_exception
     if len(args) > 1:
         args[1] = os.path.abspath(args[1])
         main.add_filesystem_book(args[1])
     ret = app.exec_()
+    if getattr(main, 'run_wizard_b4_shutdown', False):
+        from calibre.gui2.wizard import wizard
+        wizard().exec_()
     if getattr(main, 'restart_after_quit', False):
         e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
         print 'Restarting with:', e, sys.argv

@@ -65,7 +65,7 @@ class Jacket(object):
         comments = comments.replace('\r\n', '\n').replace('\n\n', '<br/><br/>')
         series = '<b>Series: </b>' + mi.series if mi.series else ''
         if series and mi.series_index is not None:
-            series += ' [%s]'%mi.series_index
+            series += ' [%s]'%mi.format_series_index()
         tags = mi.tags
         if not tags:
             try:

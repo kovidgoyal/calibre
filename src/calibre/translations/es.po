@@ -10,102 +10,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-16 06:38+0000\n"
-"PO-Revision-Date: 2009-05-18 21:04+0000\n"
+"POT-Creation-Date: 2009-05-21 15:37+0000\n"
+"PO-Revision-Date: 2009-05-21 15:23+0000\n"
 "Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-21 14:41+0000\n"
+"X-Launchpad-Export-Date: 2009-05-29 16:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
-msgid ""
-"    %prog options\n"
-"\n"
-"    Customize calibre by loading external plugins.\n"
-"    "
-msgstr ""
-"    %prog opciones\n"
-"\n"
-"    Personalizar calibre cargando complementos externos.\n"
-"    "
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
-"file.\n"
-"If you specify an OPF file instead of an HTML file, the list of links is "
-"takes from\n"
-"the <spine> element of the OPF file.\n"
-msgstr ""
-"%prog [opciones] file.html|opf\n"
-"\n"
-"Convierte un archvio HTML a un libro electrónico en formato EPUB. Sigue los\n"
-"enlaces recursivamente en el archivo HTML. Si especifica un archivo OPF en\n"
-"vez de un archivo HTML, la lista de enlaces obtiene la lista de enlaces del\n"
-"elemento <spine> del archivo OPF.\n"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
-msgid ""
-"%prog [options] file.html|opf\n"
-"\n"
-"Follow all links in an HTML file and collect them into the specified "
-"directory.\n"
-"Also collects any resources like images, stylesheets, scripts, etc.\n"
-"If an OPF file is specified instead, the list of files in its <spine> "
-"element\n"
-"is used.\n"
-msgstr ""
-"%prog [opciones] archivo.html|opf\n"
-"\n"
-"Sigue todos los enlaces en un archivo HTML y los guarda en el directorio "
-"especificado.\n"
-"También guarda todos los recursos como imágenes, hojas de estilo, scripts, "
-"etc.\n"
-"Si se trata de un archivo OPF, se usa la lista de archivos en su\n"
-"elemento <spine>.\n"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
-msgid "&Delete news from library when it is automatically sent to reader"
-msgstr ""
-"&Eliminar noticias de la biblioteca cuando se hayan enviado automáticamente "
-"al lector."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
-msgid "Could not find cover for this book. Try specifying the ISBN first."
-msgstr ""
-"No se pudo encontrar la portada de este libro. Inténtelo de nuevo "
-"especificando primero el ISBN."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
-msgid "Download &cover"
-msgstr "Des&carga portada"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
-msgid "Download all scheduled recipes at once"
-msgstr "Descarga todas las recetas planificadas de una vez"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
-msgid "Download &all scheduled"
-msgstr "Descarga &todas las planificadas"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
-msgid ""
-"%prog [options] file\n"
-"\n"
-"View an ebook.\n"
-msgstr ""
-"%prog [opciones] archivo\n"
-"\n"
-"Ver un libro electrónico.\n"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
-msgid "Chinese"
-msgstr "Chino"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -153,7 +66,7 @@ msgstr "No hace nada en absoluto"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:662
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -184,15 +97,15 @@ msgstr "No hace nada en absoluto"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:264
 #: /home/kovid/work/calibre/src/calibre/library/database.py:916
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:500
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:512
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:897
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:932
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1241
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1421
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1444
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1495
 #: /home/kovid/work/calibre/src/calibre/library/server.py:340
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
@@ -287,6 +200,18 @@ msgstr "No se ha encontrado ningún complemento válido en "
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr ""
 "La inicialización del complemento %s falló y generó la siguiente traza:"
+
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:269
+msgid ""
+"    %prog options\n"
+"\n"
+"    Customize calibre by loading external plugins.\n"
+"    "
+msgstr ""
+"    %prog opciones\n"
+"\n"
+"    Personalizar calibre cargando complementos externos.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:275
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -655,6 +580,23 @@ msgstr ""
 msgid "Could not find an ebook inside the archive"
 msgstr "No se pudo encontrar un libro-e dentro del archivo"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:262
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
+"file.\n"
+"If you specify an OPF file instead of an HTML file, the list of links is "
+"takes from\n"
+"the <spine> element of the OPF file.\n"
+msgstr ""
+"%prog [opciones] file.html|opf\n"
+"\n"
+"Convierte un archvio HTML a un libro electrónico en formato EPUB. Sigue los\n"
+"enlaces recursivamente en el archivo HTML. Si especifica un archivo OPF en\n"
+"vez de un archivo HTML, la lista de enlaces obtiene la lista de enlaces del\n"
+"elemento <spine> del archivo OPF.\n"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:519
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:758
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:621
@@ -779,6 +721,26 @@ msgstr ""
 "El HTML de salida está bien escrito para que sea más fácil de entender por "
 "humanos."
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/html.py:982
+msgid ""
+"%prog [options] file.html|opf\n"
+"\n"
+"Follow all links in an HTML file and collect them into the specified "
+"directory.\n"
+"Also collects any resources like images, stylesheets, scripts, etc.\n"
+"If an OPF file is specified instead, the list of files in its <spine> "
+"element\n"
+"is used.\n"
+msgstr ""
+"%prog [opciones] archivo.html|opf\n"
+"\n"
+"Sigue todos los enlaces en un archivo HTML y los guarda en el directorio "
+"especificado.\n"
+"También guarda todos los recursos como imágenes, hojas de estilo, scripts, "
+"etc.\n"
+"Si se trata de un archivo OPF, se usa la lista de archivos en su\n"
+"elemento <spine>.\n"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
 msgstr "Creando archivo LIT de EPUB..."
@@ -788,7 +750,7 @@ msgid "%prog [options] LITFILE"
 msgstr "%prog [options] LITFILE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:697
 msgid "Output directory. Defaults to current directory."
 msgstr "Directorio de salida. Por defecto es el directorio actual"
 
@@ -805,7 +767,7 @@ msgid "Useful for debugging."
 msgstr "Útil para depuración."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:721
 msgid "OEB ebook created in"
 msgstr "Libro-e OEB creado en"
 
@@ -1960,11 +1922,11 @@ msgstr "Uso: rb-meta file.rb"
 msgid "Creating Mobipocket file from EPUB..."
 msgstr "Creando archivo Mobipocket de un EPUB..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:694
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:695
 msgid "%prog [options] myebook.mobi"
 msgstr "%prog [opciones] milibroe.mobi"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:718
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
 msgid "Raw MOBI HTML saved in"
 msgstr "HTML MOBI en bruto guardado en"
 
@@ -2907,6 +2869,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:563
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr "Enviar &noticias descargadas automáticamente al lector de libros-e"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:564
+msgid "&Delete news from library when it is automatically sent to reader"
+msgstr ""
+"&Eliminar noticias de la biblioteca cuando se hayan enviado automáticamente "
+"al lector."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:565
 msgid "&Number of covers to show in browse mode (needs restart):"
@@ -4080,6 +4048,12 @@ msgstr "<b>No se puede descargar la portada.</b><br/>"
 msgid "The download timed out."
 msgstr "El tiempo de descarga ha vencido."
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:391
+msgid "Could not find cover for this book. Try specifying the ISBN first."
+msgstr ""
+"No se pudo encontrar la portada de este libro. Inténtelo de nuevo "
+"especificando primero el ISBN."
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:403
 msgid "Bad cover"
 msgstr "Portada mala"
@@ -4145,6 +4119,10 @@ msgstr "Asignar la portada del libro del formato seleccionado"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:366
 msgid "Reset cover to default"
 msgstr "Reiniciar portada a la de por defecto"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:368
+msgid "Download &cover"
+msgstr "Des&carga portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:56
 msgid "Password needed"
@@ -4246,9 +4224,9 @@ msgstr "Añadir nueva fuente de noticias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:839
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:843
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1158
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:841
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:845
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1160
 msgid "News"
 msgstr "Noticias"
 
@@ -4256,6 +4234,14 @@ msgstr "Noticias"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
 msgid "Recipes"
 msgstr "Recetas"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:167
+msgid "Download all scheduled recipes at once"
+msgstr "Descarga todas las recetas planificadas de una vez"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:168
+msgid "Download &all scheduled"
+msgstr "Descarga &todas las planificadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:169
 msgid "Schedule for download"
@@ -5837,6 +5823,16 @@ msgstr ""
 "Si está especificada, la ventana del visor intentará situarse en el frente "
 "cuando se inicie el programa."
 
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:608
+msgid ""
+"%prog [options] file\n"
+"\n"
+"View an ebook.\n"
+msgstr ""
+"%prog [opciones] archivo\n"
+"\n"
+"Ver un libro electrónico.\n"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:152
 msgid "Ebook Viewer"
 msgstr "Visor de libros-e"
@@ -6280,21 +6276,21 @@ msgstr ""
 "\n"
 "Para ver la ayuda a cada orden ejecuta: %%prog orden --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1262
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1264
 msgid "<p>Copying books to %s<br><center>"
 msgstr "<p>Copiando libros a %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1275
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1384
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1277
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1386
 msgid "Copying <b>%s</b>"
 msgstr "Copiando <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1357
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Migrando base de datos antigua a biblioteca de libros-e en %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1401
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
 msgid "Compacting database"
 msgstr "Compactando base de datos"
 
@@ -6798,6 +6794,7 @@ msgstr "Serbio"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
@@ -6814,7 +6811,7 @@ msgstr "Serbio"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
@@ -6898,14 +6895,17 @@ msgstr "Bosnio"
 msgid "Portugese"
 msgstr "Portugués"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
-msgid "Kovid Goyal"
-msgstr "Kovid Goyal"
-
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h1.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h2.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h3.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
 msgid "Hungarian"
 msgstr "Húngaro"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+msgid "Kovid Goyal"
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
 msgid "Skipping duplicated article: %s"
@@ -6914,6 +6914,10 @@ msgstr "Ignorando artículo duplicado: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
 msgstr "Ignorando artículo filtrado: %s"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
+msgid "Chinese"
+msgstr "Chino"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:457
 msgid ""

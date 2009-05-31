@@ -340,6 +340,13 @@ class MobiReader(object):
             'href':'styles.css'})
         head.insert(0, link)
         link.tail = '\n\t'
+        title = head.xpath('descendant::title')
+        if not title:
+            title = head.makeelement('title', {})
+            title.text = self.book_header.title
+            title.tail = '\n\t'
+            head.insert(0, title)
+            head.text = '\n\t'
 
         self.upshift_markup(root)
         guides = root.xpath('//guide')
@@ -460,7 +467,11 @@ class MobiReader(object):
             if attrib.has_key('align'):
                 align = attrib.pop('align').strip()
                 if align:
-                    styles.append('text-align: %s' % align)
+                    align = align.lower()
+                    if align == 'baseline':
+                        styles.append('vertical-align: '+align)
+                    else:
+                        styles.append('text-align: %s' % align)
             if tag.tag == 'hr':
                 if mobi_version == 1:
                     tag.tag = 'div'
@@ -501,13 +512,13 @@ class MobiReader(object):
                 except ValueError:
                     pass
             if styles:
-                cls = None
+                ncls = None
                 rule = '; '.join(styles)
                 for sel, srule in self.tag_css_rules.items():
                     if srule == rule:
-                        cls = sel
+                        ncls = sel
                         break
-                if cls is None:
+                if ncls is None:
                     ncls = 'calibre_%d' % i
                     self.tag_css_rules[ncls] = rule
                 cls = attrib.get('class', '')

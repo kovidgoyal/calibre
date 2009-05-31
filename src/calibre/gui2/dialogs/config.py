@@ -1,18 +1,16 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time, textwrap, sys, cStringIO
-from binascii import hexlify, unhexlify
+import os, re, time, textwrap
 
 from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QInputDialog, QAbstractTableModel, \
-                        QDialogButtonBox, QTabWidget
+                        QDialogButtonBox, QTabWidget, QBrush
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
-from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files
 from calibre.utils.config import prefs
@@ -95,6 +93,9 @@ class PluginModel(QAbstractItemModel):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         self.icon = QVariant(QIcon(':/images/plugins.svg'))
+        p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
+        self.disabled_icon = QVariant(QIcon(p))
+        self._p = p
         self.populate()
 
     def populate(self):
@@ -154,9 +155,7 @@ class PluginModel(QAbstractItemModel):
             return 0
         if index.internalId() == -1:
             return Qt.ItemIsEnabled
-        flags = Qt.ItemIsSelectable
-        if not is_disabled(self.data(index, Qt.UserRole)):
-            flags |= Qt.ItemIsEnabled
+        flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
         return flags
 
     def data(self, index, role):
@@ -177,7 +176,9 @@ class PluginModel(QAbstractItemModel):
                     ans += '\nCustomization: '+c
                 return QVariant(ans)
             if role == Qt.DecorationRole:
-                return self.icon
+                return self.disabled_icon if is_disabled(plugin) else self.icon
+            if role == Qt.ForegroundRole and is_disabled(plugin):
+                return QVariant(QBrush(Qt.gray))
             if role == Qt.UserRole:
                 return plugin
         return NONE
@@ -201,34 +202,6 @@ class CategoryModel(QStringListModel):
         if role == Qt.DecorationRole:
             return self.icons[index.row()]
         return QStringListModel.data(self, index, role)
-
-class TestEmail(QDialog, TE_Dialog):
-
-    def __init__(self, accounts, parent):
-        QDialog.__init__(self, parent)
-        TE_Dialog.__init__(self)
-        self.setupUi(self)
-        opts = smtp_prefs().parse()
-        self.test_func = parent.test_email_settings
-        self.connect(self.test_button, SIGNAL('clicked(bool)'), self.test)
-        self.from_.setText(unicode(self.from_.text())%opts.from_)
-        if accounts:
-            self.to.setText(list(accounts.keys())[0])
-        if opts.relay_host:
-            self.label.setText(_('Using: %s:%s@%s:%s and %s encryption')%
-                    (opts.relay_username, unhexlify(opts.relay_password),
-                        opts.relay_host, opts.relay_port, opts.encryption))
-
-    def test(self):
-        self.log.setPlainText(_('Sending...'))
-        self.test_button.setEnabled(False)
-        try:
-            tb = self.test_func(unicode(self.to.text()))
-            if not tb:
-                tb = _('Mail successfully sent')
-            self.log.setPlainText(tb)
-        finally:
-            self.test_button.setEnabled(True)
 
 class EmailAccounts(QAbstractTableModel):
 
@@ -477,32 +450,19 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.stackedWidget.insertWidget(2, self.conversion_options)
 
     def setup_email_page(self):
-        opts = smtp_prefs().parse()
-        if opts.from_:
-            self.email_from.setText(opts.from_)
+        def x():
+            if self._email_accounts.account_order:
+                return self._email_accounts.account_order[0]
+        self.send_email_widget.initialize(x)
+        opts = self.send_email_widget.smtp_opts
         self._email_accounts = EmailAccounts(opts.accounts)
         self.email_view.setModel(self._email_accounts)
-        if opts.relay_host:
-            self.relay_host.setText(opts.relay_host)
-        self.relay_port.setValue(opts.relay_port)
-        if opts.relay_username:
-            self.relay_username.setText(opts.relay_username)
-        if opts.relay_password:
-            self.relay_password.setText(unhexlify(opts.relay_password))
-        (self.relay_tls if opts.encryption == 'TLS' else self.relay_ssl).setChecked(True)
-        self.connect(self.relay_use_gmail, SIGNAL('clicked(bool)'),
-                     self.create_gmail_relay)
-        self.connect(self.relay_show_password, SIGNAL('stateChanged(int)'),
-         lambda
-         state:self.relay_password.setEchoMode(self.relay_password.Password if
-             state == 0 else self.relay_password.Normal))
+
         self.connect(self.email_add, SIGNAL('clicked(bool)'),
                      self.add_email_account)
         self.connect(self.email_make_default, SIGNAL('clicked(bool)'),
              lambda c: self._email_accounts.make_default(self.email_view.currentIndex()))
         self.email_view.resizeColumnsToContents()
-        self.connect(self.test_email_button, SIGNAL('clicked(bool)'),
-                self.test_email)
         self.connect(self.email_remove, SIGNAL('clicked()'),
                 self.remove_email_account)
 
@@ -516,68 +476,14 @@ class ConfigDialog(QDialog, Ui_Dialog):
         idx = self.email_view.currentIndex()
         self._email_accounts.remove(idx)
 
-    def create_gmail_relay(self, *args):
-        self.relay_username.setText('@gmail.com')
-        self.relay_password.setText('')
-        self.relay_host.setText('smtp.gmail.com')
-        self.relay_port.setValue(587)
-        self.relay_tls.setChecked(True)
-
-        info_dialog(self, _('Finish gmail setup'),
-            _('Dont forget to enter your gmail username and password')).exec_()
-        self.relay_username.setFocus(Qt.OtherFocusReason)
-        self.relay_username.setCursorPosition(0)
-
     def set_email_settings(self):
-        from_ = unicode(self.email_from.text()).strip()
-        if self._email_accounts.accounts and not from_:
-            error_dialog(self, _('Bad configuration'),
-                         _('You must set the From email address')).exec_()
-            return False
-        username = unicode(self.relay_username.text()).strip()
-        password = unicode(self.relay_password.text()).strip()
-        host = unicode(self.relay_host.text()).strip()
-        if host and not (username and password):
-            error_dialog(self, _('Bad configuration'),
-                         _('You must set the username and password for '
-                           'the mail server.')).exec_()
+        to_set = bool(self._email_accounts.accounts)
+        if not self.send_email_widget.set_email_settings(to_set):
             return False
         conf = smtp_prefs()
-        conf.set('from_', from_)
         conf.set('accounts', self._email_accounts.accounts)
-        conf.set('relay_host', host if host else None)
-        conf.set('relay_port', self.relay_port.value())
-        conf.set('relay_username', username if username else None)
-        conf.set('relay_password', hexlify(password))
-        conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL')
         return True
 
-    def test_email(self, *args):
-        if self.set_email_settings():
-          TestEmail(self._email_accounts.accounts, self).exec_()
-
-    def test_email_settings(self, to):
-        opts = smtp_prefs().parse()
-        from calibre.utils.smtp import sendmail, create_mail
-        buf = cStringIO.StringIO()
-        oout, oerr = sys.stdout, sys.stderr
-        sys.stdout = sys.stderr = buf
-        tb = None
-        try:
-            msg = create_mail(opts.from_, to, 'Test mail from calibre',
-                    'Test mail from calibre')
-            sendmail(msg, from_=opts.from_, to=[to],
-                verbose=3, timeout=30, relay=opts.relay_host,
-                username=opts.relay_username,
-                password=unhexlify(opts.relay_password),
-                encryption=opts.encryption, port=opts.relay_port)
-        except:
-            import traceback
-            tb = traceback.format_exc()
-            tb += '\n\nLog:\n' + buf.getvalue()
-        finally:
-            sys.stdout, sys.stderr = oout, oerr
-        return tb
 
     def add_plugin(self):
         path = unicode(self.plugin_path.text())
@@ -722,7 +628,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
     def browse(self):
         dir = choose_dir(self, 'database location dialog',
-                         _('Select database location'))
+                         _('Select location for books'))
         if dir:
             self.location.setText(dir)
 

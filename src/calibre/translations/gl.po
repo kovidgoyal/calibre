@@ -7,52 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-16 06:38+0000\n"
-"PO-Revision-Date: 2009-05-16 09:28+0000\n"
+"POT-Creation-Date: 2009-05-21 15:37+0000\n"
+"PO-Revision-Date: 2009-05-21 15:24+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-21 14:40+0000\n"
+"X-Launchpad-Export-Date: 2009-05-29 16:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-
-#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:41
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:394
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:72
-msgid "The reader has no storage card connected."
-msgstr "O lector non ten conectada tarxeta de almacenamento ningunha"
-
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:140
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:168
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:196
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:204
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:251
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:278
-msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "Non se puido detectar a unidade de disco %s. Probe a reiniciar."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:94
-msgid "Options to control the conversion to EPUB"
-msgstr "Opcións para controlar a conversión a EPUB"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:105
-msgid ""
-"The output EPUB file. If not specified, it is derived from the input file "
-"name."
-msgstr ""
-"Se non se especifica o ficheiro EPUB de saída empregarase o mesmo nome do "
-"ficheiro de entrada."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
-msgid ""
-"Profile of the target device this EPUB is meant for. Set to None to create a "
-"device independent EPUB. The profile is used for device specific "
-"restrictions on the EPUB. Choices are: "
-msgstr ""
-"O perfil do dispositivo de destino ao que se refire o EPUB. Escolla Ningún "
-"para crear un EPUB independente do dispositivo. O perfil úsase para "
-"establcer restricións específicas no EPUB. As opcións son: "
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -100,7 +63,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:662
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -131,15 +94,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:264
 #: /home/kovid/work/calibre/src/calibre/library/database.py:916
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:500
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:512
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:897
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:932
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1241
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1421
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1444
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1495
 #: /home/kovid/work/calibre/src/calibre/library/server.py:340
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
@@ -265,6 +228,12 @@ msgstr ""
 msgid "Disable the named plugin"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:394
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:72
+msgid "The reader has no storage card connected."
+msgstr "O lector non ten conectada tarxeta de almacenamento ningunha"
+
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:60
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:91
 msgid "There is insufficient free space on the storage card"
@@ -274,6 +243,37 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:93
 msgid "There is insufficient free space in main memory"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:140
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:168
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:196
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:204
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:251
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:278
+msgid "Unable to detect the %s disk drive. Try rebooting."
+msgstr "Non se puido detectar a unidade de disco %s. Probe a reiniciar."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:94
+msgid "Options to control the conversion to EPUB"
+msgstr "Opcións para controlar a conversión a EPUB"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:105
+msgid ""
+"The output EPUB file. If not specified, it is derived from the input file "
+"name."
+msgstr ""
+"Se non se especifica o ficheiro EPUB de saída empregarase o mesmo nome do "
+"ficheiro de entrada."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
+msgid ""
+"Profile of the target device this EPUB is meant for. Set to None to create a "
+"device independent EPUB. The profile is used for device specific "
+"restrictions on the EPUB. Choices are: "
+msgstr ""
+"O perfil do dispositivo de destino ao que se refire o EPUB. Escolla Ningún "
+"para crear un EPUB independente do dispositivo. O perfil úsase para "
+"establcer restricións específicas no EPUB. As opcións son: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:113
 msgid ""
@@ -626,7 +626,7 @@ msgid "%prog [options] LITFILE"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:697
 msgid "Output directory. Defaults to current directory."
 msgstr ""
 
@@ -641,7 +641,7 @@ msgid "Useful for debugging."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:721
 msgid "OEB ebook created in"
 msgstr ""
 
@@ -1597,11 +1597,11 @@ msgstr ""
 msgid "Creating Mobipocket file from EPUB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:694
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:695
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:718
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
@@ -3761,9 +3761,9 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:839
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:843
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1158
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:841
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:845
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1160
 msgid "News"
 msgstr ""
 
@@ -5588,20 +5588,20 @@ msgid ""
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1262
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1264
 msgid "<p>Copying books to %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1275
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1384
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1277
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1386
 msgid "Copying <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1357
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1401
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
 msgid "Compacting database"
 msgstr ""
 
@@ -6042,6 +6042,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
@@ -6058,7 +6059,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
@@ -6142,13 +6143,16 @@ msgstr ""
 msgid "Portugese"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
-msgid "Kovid Goyal"
-msgstr ""
-
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h1.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h2.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h3.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
 msgid "Hungarian"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+msgid "Kovid Goyal"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83

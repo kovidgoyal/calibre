@@ -7,269 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-05-16 06:38+0000\n"
-"PO-Revision-Date: 2009-05-16 08:35+0000\n"
+"POT-Creation-Date: 2009-05-21 15:37+0000\n"
+"PO-Revision-Date: 2009-05-21 15:32+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-21 14:41+0000\n"
+"X-Launchpad-Export-Date: 2009-05-29 16:29+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
-msgid ""
-"XPath expression to detect page boundaries for building a custom pagination "
-"map, as used by AdobeDE. Default is not to build an explicit pagination map."
-msgstr ""
-"Výraz XPath pre rozoznanie hranice strany pre vytvorenie mapy strán, tak ako "
-"je použitý v AdobeDE. Prednastavená hodnota je nevytvárať explicitnú mapu "
-"strán."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
-msgid ""
-"XPath expression to find the name of each page in the pagination map "
-"relative to its boundary element. Default is to number all pages staring "
-"with 1."
-msgstr ""
-"Výraz XPath pre zistenie mena každej strany v mape strán vo vzťahu k jej "
-"hraničnému prvku. Prednastavená hodnota je číslovať všetky strany od 1."
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:188
-msgid ""
-"XPath expression that specifies all tags that should be added to the Table "
-"of Contents at level three. Each entry is added under the previous level two "
-"entry."
-msgstr ""
-"Výraz XPath ktorý špecifikuje všetky návestia (tagy) ktoré majú byť pridané "
-"do Obsahu na úrovni tri. Každá hodnota je zadaná pod existujúcou hodnotou "
-"úrovne tri."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:421
-msgid "Choose format to send to device"
-msgstr "Vyberte formát na poslanie do zariadenia"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:515
-msgid ""
-"<p>You can control how calibre detects page boundaries using a XPath "
-"expression. To learn how to use XPath expressions see the <a "
-"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-"tutorial</a>. The page boundaries are useful only if you want a mapping from "
-"pages in a paper book, to locations in the e-book. This controls where Adobe "
-"Digital Editions displays the page numbers in the right margin.</p>"
-msgstr ""
-"<p>Pomocou XPath výrazu môžte ovplyvniť ako Calibre určuje hranice strán. "
-"Aby ste sa dozvedeli o použití XPath výrazov, navštívte <a "
-"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-"tutorial</a>. Hranice strán sú užitočné iba keď chcete namapovať strany z "
-"papierovej knihy na presné umiestnenie v e-knihe. Toto určí kde Adobe "
-"Digital Editions zobrazí čísla strán na pravom okraji strany.</p>"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:516
-msgid "&Boundary XPath:"
-msgstr "&Hraničná XPath:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:517
-msgid "&Name XPath:"
-msgstr "&Názov XPath:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:519
-msgid ""
-"<p>You can control how calibre detects chapters using a XPath expression. To "
-"learn how to use XPath expressions see the <a "
-"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-"tutorial</a></p>"
-msgstr ""
-"<p>Pomocou XPath výrazu môžte ovplyvniť ako Calibre určuje hranice strán. "
-"Aby ste sa dozvedeli o použití XPath výrazov, navštívte <a "
-"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-"tutorial</a>.</p>"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:258
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:341
-msgid "No preprocessing"
-msgstr "Žiaden pre-processing."
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:173
-msgid "at"
-msgstr "na"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:35
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:96
-msgid "Form"
-msgstr "Z"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:97
-msgid ""
-"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
-"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-"type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
-"pattern to use when trying to guess ebook metadata from filenames. </p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
-"href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
-"decoration: underline; color:#0000ff;\">reference</span></a> on the syntax "
-"of regular expressions is available.</p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" "
-"font-weight:600;\">Test</span> functionality below to test your regular "
-"expression on a few sample filenames. The group names for the various "
-"metadata entries are documented in tooltips.</p></body></html>"
-msgstr ""
-"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
-"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-"type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Zadajte Regulárny výraz "
-"ktorý sa použije na odhadnutie metadát z e-knihy z názvu súboru. </p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">K dispozícii je <a "
-"href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
-"decoration: underline; color:#0000ff;\">Referencia</span></a> na syntax "
-"Regulárnych výrazov.</p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Použite <span style=\" "
-"font-weight:600;\">Test</span> test funkcionalitu tu dole aby ste otestovali "
-"váš relulárny výraz na vzorke niekoľkých názvov súborov. Skupinové mená pre "
-"jednotlivé metadáta sú dokumentované v bublinovej nápovede</p></body></html>"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:207
-msgid "/Unknown"
-msgstr "/Neznámy"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:153
-msgid "toolBar"
-msgstr "Panel nástrojov"
-
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:496
-msgid ""
-"%prog export [options] ids\n"
-"\n"
-"Export the books specified by ids (a comma separated list) to the "
-"filesystem.\n"
-"The export operation saves all formats of the book, its cover and metadata "
-"(in\n"
-"an opf file). You can get id numbers from the list command.\n"
-msgstr ""
-"%prog export [options] ids\n"
-"\n"
-"Exportujte knihy špecifikované pomocou ids (zoznam oddelený čiarkami) na "
-"súborový systém.\n"
-"Operácia exportu uloží všetky formáty knihy, obrázok obalu knihy a metadáta "
-"\n"
-"(v súbore opf). ID čísla môžte distiť pomocou príkazu list.\n"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:33
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:90
-msgid ""
-"Specify a list of feeds to download. For example: \n"
-"\"['http://feeds.newsweek.com/newsweek/TopNews', "
-"'http://feeds.newsweek.com/headlines/politics']\"\n"
-"If you specify this option, any argument to %prog is ignored and a default "
-"recipe is used to download the feeds."
-msgstr ""
-"Zadajte zoznam \"feedov\" na stiahnutie. Napríklad:\n"
-"\"['http://feeds.newsweek.com/newsweek/TopNews', "
-"'http://feeds.newsweek.com/headlines/politics']\"\n"
-"Ak využijetre túto voľbu, akýkoľvek argument pre %prog je ignorovaný a "
-"prednastavený recept je určený aby stiahol \"feed-y\""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:37
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:94
-msgid "Be more verbose while processing."
-msgstr "Použi viac hlášok pri spracovaní"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:51
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:101
-msgid ""
-"Number of levels of links to follow on webpages that are linked to from "
-"feeds. Defaul %default"
-msgstr ""
-"Počet úrovní odkazov ktoré sa budú nasledovať na stránkach, ktoré sú "
-"prilinkované vo feedoch. Prednastavená hodnota %default"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:53
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:103
-msgid ""
-"The directory in which to store the downloaded feeds. Defaults to the "
-"current directory."
-msgstr ""
-"Adresár kam sa ukladajú stiahnuté feedy. Prednastavená hodnota je aktuálny "
-"adresár."
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:59
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:109
-msgid ""
-"Useful for recipe development. Forces max_articles_per_feed to 2 and "
-"downloads at most 2 feeds."
-msgstr ""
-"Užitečné na vývoj (testovanie pri vývoji) receptov. Natvrdo nastaví hodnotu "
-"max_articles_per_feed (max. článkov pre feed) na 2 a stiahne najviac 2 feedy."
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:63
-msgid ""
-"%%prog [options] ARG\n"
-"\n"
-"%%prog parses an online source of articles, like an RSS or ATOM feed and \n"
-"fetches the article contents organized in a nice hierarchy.\n"
-"\n"
-"ARG can be one of:\n"
-"\n"
-"file name            - %%prog will try to load a recipe from the file\n"
-"\n"
-"builtin recipe title - %%prog will load the builtin recipe and use it to "
-"fetch the feed. For e.g. Newsweek or \"The BBC\" or \"The New York Times\"\n"
-"\n"
-"recipe as a string   - %%prog will load the recipe directly from the string "
-"arg.\n"
-"\n"
-"Available builtin recipes are:\n"
-"%s\n"
-msgstr ""
-"%%prog [options] ARG\n"
-"\n"
-"%%prog spracuje on-line zdroj článkov, ako napríklad RSS alebo ATOM feed a\n"
-"stiahne obsah článku zorganizovaný v peknej hierarchii.\n"
-"\n"
-"ARG môže byť jeden z:\n"
-"\n"
-"názov súboru - %%prog sa pokúsi načítať recept zo súboru\n"
-"\n"
-"názov receptu zabudovaného v Calibre - %%prog načíta zabudovaný recept a "
-"použije ho n astiahnutie feedu.. Pre napr. Newsweek alebo \"The BBC\" alebo "
-"\"The New York Times\"\n"
-"\n"
-"recept ako reťazac - %%prog načíta recept priamo z reťazca.\n"
-"\n"
-"K dispozícii sú nasledujúce zabudované recepty:\n"
-"%s\n"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
-msgid "Italian"
-msgstr "Taliančina"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
-msgid "Kovid Goyal"
-msgstr "Kovid Goyal"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
-msgid "Skipping duplicated article: %s"
-msgstr "Preskakujem duplicitný článok: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
-msgid "Skipping filtered article: %s"
-msgstr "Preskakujem odfiltrovaný článok: %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
@@ -317,7 +63,7 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:70
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:140
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:661
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:662
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:576
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:581
@@ -348,15 +94,15 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:264
 #: /home/kovid/work/calibre/src/calibre/library/database.py:916
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:498
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:510
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:895
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:930
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1237
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:500
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:512
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:897
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:932
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1239
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1419
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1442
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1493
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1241
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1421
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1444
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1495
 #: /home/kovid/work/calibre/src/calibre/library/server.py:340
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:31
@@ -613,6 +359,24 @@ msgstr ""
 "Rozdeľovanie samotné je však dosť náročné a ak vstupná kniha obsahuje veľmi "
 "veľké množstvo zalomení strán, mali by ste rozdeľovanie vypnúť."
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
+msgid ""
+"XPath expression to detect page boundaries for building a custom pagination "
+"map, as used by AdobeDE. Default is not to build an explicit pagination map."
+msgstr ""
+"Výraz XPath pre rozoznanie hranice strany pre vytvorenie mapy strán, tak ako "
+"je použitý v AdobeDE. Prednastavená hodnota je nevytvárať explicitnú mapu "
+"strán."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
+msgid ""
+"XPath expression to find the name of each page in the pagination map "
+"relative to its boundary element. Default is to number all pages staring "
+"with 1."
+msgstr ""
+"Výraz XPath pre zistenie mena každej strany v mape strán vo vzťahu k jej "
+"hraničnému prvku. Prednastavená hodnota je číslovať všetky strany od 1."
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:165
 msgid ""
 "Control the automatic generation of a Table of Contents. If an OPF file is "
@@ -664,6 +428,16 @@ msgid ""
 msgstr ""
 "Výraz XPath určujúci tagy, ktoré sa majú pridať do obsahu na druhej úrovni. "
 "Každý záznam bude vložený pod príslušný prvoúrovňový záznam."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:188
+msgid ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level three. Each entry is added under the previous level two "
+"entry."
+msgstr ""
+"Výraz XPath ktorý špecifikuje všetky návestia (tagy) ktoré majú byť pridané "
+"do Obsahu na úrovni tri. Každá hodnota je zadaná pod existujúcou hodnotou "
+"úrovne tri."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:192
 msgid ""
@@ -933,7 +707,7 @@ msgid "%prog [options] LITFILE"
 msgstr "%prog [možnosti] LITsúbor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:895
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:696
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:697
 msgid "Output directory. Defaults to current directory."
 msgstr "Výstupný adresár. Štandardne aktuálny pracovný adresár."
 
@@ -949,7 +723,7 @@ msgid "Useful for debugging."
 msgstr "Užitočné pri hľadaní chýb v programe."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:912
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:720
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:721
 msgid "OEB ebook created in"
 msgstr "OEB elektronická kniha bude vytvorená v"
 
@@ -2088,11 +1862,11 @@ msgstr "Použitie: rb-meta súbor.rb"
 msgid "Creating Mobipocket file from EPUB..."
 msgstr "Vytváranie Mobipocket súboru z EPUB..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:694
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:695
 msgid "%prog [options] myebook.mobi"
 msgstr "%prog  [možnosti]  kniha.mobi"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:718
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
 msgid "Raw MOBI HTML saved in"
 msgstr "Neupravené MOBI HTML uložené do"
 
@@ -2495,6 +2269,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:416
 msgid "selected to send"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:421
+msgid "Choose format to send to device"
+msgstr "Vyberte formát na poslanie do zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:428
 msgid "No device"
@@ -3658,9 +3436,45 @@ msgstr "Nerozdeľovať na &zalomeniach strán"
 msgid "&Page map"
 msgstr "&Mapa stránkovania"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:515
+msgid ""
+"<p>You can control how calibre detects page boundaries using a XPath "
+"expression. To learn how to use XPath expressions see the <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+"tutorial</a>. The page boundaries are useful only if you want a mapping from "
+"pages in a paper book, to locations in the e-book. This controls where Adobe "
+"Digital Editions displays the page numbers in the right margin.</p>"
+msgstr ""
+"<p>Pomocou XPath výrazu môžte ovplyvniť ako Calibre určuje hranice strán. "
+"Aby ste sa dozvedeli o použití XPath výrazov, navštívte <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+"tutorial</a>. Hranice strán sú užitočné iba keď chcete namapovať strany z "
+"papierovej knihy na presné umiestnenie v e-knihe. Toto určí kde Adobe "
+"Digital Editions zobrazí čísla strán na pravom okraji strany.</p>"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:516
+msgid "&Boundary XPath:"
+msgstr "&Hraničná XPath:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:517
+msgid "&Name XPath:"
+msgstr "&Názov XPath:"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:518
 msgid "Automatic &chapter detection"
 msgstr "Automatické rozoznávanie &kapitol"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:519
+msgid ""
+"<p>You can control how calibre detects chapters using a XPath expression. To "
+"learn how to use XPath expressions see the <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+"tutorial</a></p>"
+msgstr ""
+"<p>Pomocou XPath výrazu môžte ovplyvniť ako Calibre určuje hranice strán. "
+"Aby ste sa dozvedeli o použití XPath výrazov, navštívte <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+"tutorial</a>.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:520
 msgid "&XPath:"
@@ -3806,6 +3620,11 @@ msgstr "Previesť %s do formátu LRF"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:366
 msgid "Set conversion defaults"
 msgstr "Štandardné nastavenie prevodu"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:258
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:341
+msgid "No preprocessing"
+msgstr "Žiaden pre-processing."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:261
 msgid ""
@@ -4307,9 +4126,9 @@ msgstr "Pridať vlastný zdroj správ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:839
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:843
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1158
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:841
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:845
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1160
 msgid "News"
 msgstr "Správy"
 
@@ -4342,6 +4161,10 @@ msgstr "&Naplánovať preberanie:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:174
 msgid "Every "
 msgstr "Každých "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:173
+msgid "at"
+msgstr "na"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:175
 msgid ""
@@ -4380,6 +4203,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:185
 msgid "Delete downloaded news older than "
 msgstr "Mazať správy staršie ako "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:35
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:96
+msgid "Form"
+msgstr "Z"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
@@ -4688,6 +4516,50 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:277
 msgid "Recipe source code (python)"
 msgstr "Zdrojový kód receptu (python)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:97
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
+"pattern to use when trying to guess ebook metadata from filenames. </p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
+"href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
+"decoration: underline; color:#0000ff;\">reference</span></a> on the syntax "
+"of regular expressions is available.</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" "
+"font-weight:600;\">Test</span> functionality below to test your regular "
+"expression on a few sample filenames. The group names for the various "
+"metadata entries are documented in tooltips.</p></body></html>"
+msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Zadajte Regulárny výraz "
+"ktorý sa použije na odhadnutie metadát z e-knihy z názvu súboru. </p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">K dispozícii je <a "
+"href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
+"decoration: underline; color:#0000ff;\">Referencia</span></a> na syntax "
+"Regulárnych výrazov.</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Použite <span style=\" "
+"font-weight:600;\">Test</span> test funkcionalitu tu dole aby ste otestovali "
+"váš relulárny výraz na vzorke niekoľkých názvov súborov. Skupinové mená pre "
+"jednotlivé metadáta sú dokumentované v bublinovej nápovede</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:104
 msgid "Regular &expression"
@@ -5768,6 +5640,10 @@ msgstr "Prejsť na..."
 msgid "Position in book"
 msgstr "Pozícia v knihe"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:207
+msgid "/Unknown"
+msgstr "/Neznámy"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:212
 msgid "Go to a reference. To get reference numbers, use the reference mode."
 msgstr "Prejsť na referenciu. Čísla referencií získate v režime referencií."
@@ -5844,6 +5720,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:152
 msgid "Ebook Viewer"
 msgstr "Prehliadač elektronických kníh"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:153
+msgid "toolBar"
+msgstr "Panel nástrojov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:156
 msgid "Next page"
@@ -6208,6 +6088,24 @@ msgstr ""
 msgid "You must specify an id and a metadata file"
 msgstr "Musíte zadať identifikačný kód a súbor s metadátami"
 
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:496
+msgid ""
+"%prog export [options] ids\n"
+"\n"
+"Export the books specified by ids (a comma separated list) to the "
+"filesystem.\n"
+"The export operation saves all formats of the book, its cover and metadata "
+"(in\n"
+"an opf file). You can get id numbers from the list command.\n"
+msgstr ""
+"%prog export [options] ids\n"
+"\n"
+"Exportujte knihy špecifikované pomocou ids (zoznam oddelený čiarkami) na "
+"súborový systém.\n"
+"Operácia exportu uloží všetky formáty knihy, obrázok obalu knihy a metadáta "
+"\n"
+"(v súbore opf). ID čísla môžte distiť pomocou príkazu list.\n"
+
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:504
 msgid "Export all books in database, ignoring the list of ids."
 msgstr ""
@@ -6252,21 +6150,21 @@ msgstr ""
 "\n"
 "Informácie o jednotlivých príkazoch: %%prog príkaz --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1262
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1264
 msgid "<p>Copying books to %s<br><center>"
 msgstr "<p>Kopírujem knihy do %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1275
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1384
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1277
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1386
 msgid "Copying <b>%s</b>"
 msgstr "Kopírujem <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1357
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>Migrujem starú databázu do knižnice elektronických kníh v %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1401
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1403
 msgid "Compacting database"
 msgstr "Zmenšujem databázu"
 
@@ -6433,6 +6331,26 @@ msgstr ""
 msgid "Do not download CSS stylesheets."
 msgstr "Nepreberať kaskádové štýly."
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:33
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:90
+msgid ""
+"Specify a list of feeds to download. For example: \n"
+"\"['http://feeds.newsweek.com/newsweek/TopNews', "
+"'http://feeds.newsweek.com/headlines/politics']\"\n"
+"If you specify this option, any argument to %prog is ignored and a default "
+"recipe is used to download the feeds."
+msgstr ""
+"Zadajte zoznam \"feedov\" na stiahnutie. Napríklad:\n"
+"\"['http://feeds.newsweek.com/newsweek/TopNews', "
+"'http://feeds.newsweek.com/headlines/politics']\"\n"
+"Ak využijetre túto voľbu, akýkoľvek argument pre %prog je ignorovaný a "
+"prednastavený recept je určený aby stiahol \"feed-y\""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:37
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:94
+msgid "Be more verbose while processing."
+msgstr "Použi viac hlášok pri spracovaní"
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:39
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:96
 msgid ""
@@ -6451,6 +6369,24 @@ msgstr "Prihlasovacie meno pre zdroje vyžadujúce prihlásenie."
 msgid "Password for sites that require a login to access content."
 msgstr "Prihlasovacie heslo pre zdroje vyžadujúce prihlásenie."
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:51
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:101
+msgid ""
+"Number of levels of links to follow on webpages that are linked to from "
+"feeds. Defaul %default"
+msgstr ""
+"Počet úrovní odkazov ktoré sa budú nasledovať na stránkach, ktoré sú "
+"prilinkované vo feedoch. Prednastavená hodnota %default"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:53
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:103
+msgid ""
+"The directory in which to store the downloaded feeds. Defaults to the "
+"current directory."
+msgstr ""
+"Adresár kam sa ukladajú stiahnuté feedy. Prednastavená hodnota je aktuálny "
+"adresár."
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:55
 msgid "Don't show the progress bar"
 msgstr "Nezobrazovať indikátor postupu"
@@ -6459,6 +6395,53 @@ msgstr "Nezobrazovať indikátor postupu"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:107
 msgid "Very verbose output, useful for debugging."
 msgstr "Veľmi podrobný výstup, užitočný pri hľadaní chýb v programe"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:59
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:109
+msgid ""
+"Useful for recipe development. Forces max_articles_per_feed to 2 and "
+"downloads at most 2 feeds."
+msgstr ""
+"Užitečné na vývoj (testovanie pri vývoji) receptov. Natvrdo nastaví hodnotu "
+"max_articles_per_feed (max. článkov pre feed) na 2 a stiahne najviac 2 feedy."
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:63
+msgid ""
+"%%prog [options] ARG\n"
+"\n"
+"%%prog parses an online source of articles, like an RSS or ATOM feed and \n"
+"fetches the article contents organized in a nice hierarchy.\n"
+"\n"
+"ARG can be one of:\n"
+"\n"
+"file name            - %%prog will try to load a recipe from the file\n"
+"\n"
+"builtin recipe title - %%prog will load the builtin recipe and use it to "
+"fetch the feed. For e.g. Newsweek or \"The BBC\" or \"The New York Times\"\n"
+"\n"
+"recipe as a string   - %%prog will load the recipe directly from the string "
+"arg.\n"
+"\n"
+"Available builtin recipes are:\n"
+"%s\n"
+msgstr ""
+"%%prog [options] ARG\n"
+"\n"
+"%%prog spracuje on-line zdroj článkov, ako napríklad RSS alebo ATOM feed a\n"
+"stiahne obsah článku zorganizovaný v peknej hierarchii.\n"
+"\n"
+"ARG môže byť jeden z:\n"
+"\n"
+"názov súboru - %%prog sa pokúsi načítať recept zo súboru\n"
+"\n"
+"názov receptu zabudovaného v Calibre - %%prog načíta zabudovaný recept a "
+"použije ho n astiahnutie feedu.. Pre napr. Newsweek alebo \"The BBC\" alebo "
+"\"The New York Times\"\n"
+"\n"
+"recept ako reťazac - %%prog načíta recept priamo z reťazca.\n"
+"\n"
+"K dispozícii sú nasledujúce zabudované recepty:\n"
+"%s\n"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:87
 msgid ""
@@ -6672,6 +6655,7 @@ msgstr "Srbština"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
@@ -6688,7 +6672,7 @@ msgstr "Srbština"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
@@ -6729,6 +6713,11 @@ msgstr "Angličtina"
 msgid "Spanish"
 msgstr "Španielčina"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
+msgid "Italian"
+msgstr "Taliančina"
+
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_courrierinternational.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cyberpresse.py:9
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:19
@@ -6767,10 +6756,25 @@ msgstr ""
 msgid "Portugese"
 msgstr "Portugalčina"
 
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h1.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h2.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h3.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
 msgid "Hungarian"
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+msgid "Kovid Goyal"
+msgstr "Kovid Goyal"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
+msgid "Skipping duplicated article: %s"
+msgstr "Preskakujem duplicitný článok: %s"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
+msgid "Skipping filtered article: %s"
+msgstr "Preskakujem odfiltrovaný článok: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
 msgid "Chinese"

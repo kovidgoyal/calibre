@@ -23,7 +23,7 @@ class TXTOutput(OutputFormatPlugin):
                         help=_('Type of newline to use. Options are %s. Default is \'system\'. '
                             'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
                             'For Mac OS X use \'unix\'. \'system\' will default to the newline '
-                            'type used by this OS.' % sorted(TxtNewlines.NEWLINE_TYPES.keys()))),
+                            'type used by this OS.') % sorted(TxtNewlines.NEWLINE_TYPES.keys())),
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -38,11 +38,11 @@ class TXTOutput(OutputFormatPlugin):
             out_stream = open(output_path, 'wb')
         else:
             out_stream = output_path
-        
+
         out_stream.seek(0)
         out_stream.truncate()
         out_stream.write(txt.encode('utf-8'))
-        
+
         if close:
             out_stream.close()
-            
+

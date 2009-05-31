@@ -109,7 +109,7 @@ class Newsweek(BasicNewsRecipe):
 
     def get_cover_url(self):
         cover_url = None
-        soup = self.index_to_soup(self.INDEX)
+        soup = self.index_to_soup('http://www.newsweek.com')
         link_item = soup.find('div',attrs={'class':'cover-image'})
         if link_item and link_item.a and link_item.a.img:
            cover_url = link_item.a.img['src']

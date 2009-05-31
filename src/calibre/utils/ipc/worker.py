@@ -27,6 +27,9 @@ PARALLEL_FUNCS = {
       'gui_convert'     :
         ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
 
+      'move_library'     :
+        ('calibre.library.move', 'move_library', 'notification'),
+
       'read_metadata' :
       ('calibre.ebooks.metadata.worker', 'read_metadata_', 'notification'),
 
@@ -36,6 +39,8 @@ PARALLEL_FUNCS = {
       'write_pdf_metadata' :
       ('calibre.utils.podofo.__init__', 'set_metadata_', None),
 
+      'write_pdf_first_page' :
+      ('calibre.utils.podofo.__init__', 'write_first_page_', None),
 
       'save_book' :
       ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),

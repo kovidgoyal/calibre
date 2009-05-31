@@ -68,7 +68,8 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
 
         msg = '%s' % '\n'.join(res)
         warning_dialog(parent, _('Could not convert some books'),
-            _('Could not convert %d of %d books, because no suitable source format was found.' % (len(res), total)),
+            _('Could not convert %d of %d books, because no suitable source'
+               ' format was found.') % (len(res), total),
             msg).exec_()
 
     return jobs, changed, bad
@@ -122,7 +123,8 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
 
         msg = '%s' % '\n'.join(res)
         warning_dialog(parent, _('Could not convert some books'),
-            _('Could not convert %d of %d books, because no suitable source format was found.' % (len(res), total)),
+            _('Could not convert %d of %d books, because no suitable '
+            'source format was found.') % (len(res), total),
             msg).exec_()
 
     return jobs, changed, bad

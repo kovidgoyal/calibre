@@ -145,7 +145,7 @@ def metadata_from_filename(name, pat=None):
             pass
         try:
             si = match.group('series_index')
-            mi.series_index = int(si)
+            mi.series_index = float(si)
         except (IndexError, ValueError, TypeError):
             pass
         try:

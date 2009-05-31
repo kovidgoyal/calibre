@@ -101,7 +101,7 @@ class EbookIterator(object):
         '''
         for item in self.opf.manifest:
             if item.mime_type and 'css' in item.mime_type.lower():
-                css = open(item.path, 'rb').read().decode('utf-8')
+                css = open(item.path, 'rb').read().decode('utf-8', 'replace')
                 for match in re.compile(r'@font-face\s*{([^}]+)}').finditer(css):
                     block  = match.group(1)
                     family = re.compile(r'font-family\s*:\s*([^;]+)').search(block)

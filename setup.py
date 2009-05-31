@@ -72,6 +72,9 @@ if __name__ == '__main__':
                         library_dirs=[os.environ.get('PODOFO_LIB_DIR', podofo_lib)],
                         include_dirs=\
                         [os.environ.get('PODOFO_INC_DIR', podofo_inc)]))
+    else:
+        print 'WARNING: PoDoFo not found on your system. Various PDF related',
+        print 'functionality will not work.'
 
     ext_modules = optional + [
 

@@ -32,12 +32,12 @@ class PDFOutput(OutputFormatPlugin):
                         level=OptionRecommendation.LOW, short_switch='u', choices=UNITS.keys(),
                         help=_('The unit of measure. Default is inch. Choices '
                         'are %s '
-                        'Note: This does not override the unit for margins!' % UNITS.keys())),
+                        'Note: This does not override the unit for margins!') % UNITS.keys()),
                     OptionRecommendation(name='paper_size', recommended_value='letter',
                         level=OptionRecommendation.LOW, choices=PAPER_SIZES.keys(),
                         help=_('The size of the paper. This size will be overridden when an '
                         'output profile is used. Default is letter. Choices '
-                        'are %s' % PAPER_SIZES.keys())),
+                        'are %s') % PAPER_SIZES.keys()),
                     OptionRecommendation(name='custom_size', recommended_value=None,
                         help=_('Custom size of the document. Use the form widthxheight '
                         'EG. `123x321` to specify the width and height. '
@@ -45,7 +45,7 @@ class PDFOutput(OutputFormatPlugin):
                     OptionRecommendation(name='orientation', recommended_value='portrait',
                         level=OptionRecommendation.LOW, choices=ORIENTATIONS.keys(),
                         help=_('The orientation of the page. Default is portrait. Choices '
-                        'are %s' % ORIENTATIONS.keys())),
+                        'are %s') % ORIENTATIONS.keys()),
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):

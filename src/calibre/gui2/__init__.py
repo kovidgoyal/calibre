@@ -19,7 +19,8 @@ from calibre.ebooks.metadata import MetaInformation
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
-ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher', 'tags', 'series']
+ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher',
+        'tags', 'series', 'pubdate']
 
 def _config():
     c = Config('gui', 'preferences for the calibre GUI')
