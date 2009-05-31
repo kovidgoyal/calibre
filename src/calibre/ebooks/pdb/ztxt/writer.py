@@ -33,7 +33,7 @@ class Writer(FormatWriter):
         self.log.info('Compressing data...')
         for i in range(0, len(txt_records)):
             self.log.debug('\tCompressing record %i' % i)
-            txt_records[i] = compressor.compress(txt_records[i].encode('utf-8'))
+            txt_records[i] = compressor.compress(txt_records[i].encode('cp1252', 'replace'))
             txt_records[i] = txt_records[i] + compressor.flush(zlib.Z_FULL_FLUSH)
             section_lengths.append(len(txt_records[i]))
             crc32 = zlib.crc32(txt_records[i], crc32) & 0xffffffff
