@@ -650,9 +650,22 @@ class MobiWriter(object):
             if self._first_image_record is None:
                 self._first_image_record = len(self._records)-1
 
+    def _generate_end_records(self):
+        self._flis_number = len(self._records)
+        self._records.append(
+        'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01')
+        fcis = 'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x00'
+        fcis += pack('>I', self._text_length)
+        fcis += '\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+        self._fcis_number = len(self._records)
+        self._records.append(fcis)
+        self._records.append('\xE9\x8E\x0D\x0A')
+
     def _generate_record0(self):
         metadata = self._oeb.metadata
         exth = self._build_exth()
+        last_content_record = len(self._records) - 1
+        self._generate_end_records()
         record0 = StringIO()
         # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
@@ -735,22 +748,22 @@ class MobiWriter(object):
         # 0xb0 - 0xb1 : First content record number
         # 0xb2 - 0xb3 : last content record number
         # (Includes Image, DATP, HUFF, DRM)
-        record0.write(pack('>HH', 1, len(self._records)-1))
+        record0.write(pack('>HH', 1, last_content_record))
 
         # 0xb4 - 0xb7 : Unknown
         record0.write('\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack('>I', self._fcis_number))
 
         # 0xbc - 0xbf : Unknown (FCIS record count?)
-        record0.write(pack('>I', 0))
+        record0.write(pack('>I', 1))
 
         # 0xc0 - 0xc3 : FLIS record number
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack('>I', self._flis_number))
 
         # 0xc4 - 0xc7 : Unknown (FLIS record count?)
-        record0.write(pack('>I', 0))
+        record0.write(pack('>I', 1))
 
         # 0xc8 - 0xcf : Unknown
         record0.write('\0'*8)
