@@ -27,7 +27,7 @@ class Concatenate(object):
             return self.ans[:-len(self.sep)]
         return self.ans
 class Connection(sqlite.Connection):
-    
+
     def get(self, *args, **kw):
         ans = self.execute(*args)
         if not kw.get('all', True):
@@ -785,8 +785,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     FROM books;
 ''')
         conn.execute('pragma user_version=12')
-        conn.commit()    
-        
+        conn.commit()
+
     def __init__(self, dbpath, row_factory=False):
         self.dbpath = dbpath
         self.conn = _connect(dbpath)
@@ -901,7 +901,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     def id(self, index):
         return self.data[index][0]
-    
+
     def row(self, id):
         for r, record in enumerate(self.data):
             if record[0] == id:
@@ -916,8 +916,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return _('Unknown')
 
     def authors(self, index, index_is_id=False):
-        ''' 
-        Authors as a comma separated list or None. 
+        '''
+        Authors as a comma separated list or None.
         In the comma separated list, commas in author names are replaced by | symbols
         '''
         if not index_is_id:
@@ -939,11 +939,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if index_is_id:
             return self.conn.get('SELECT publisher FROM meta WHERE id=?', (index,), all=False)
         return self.data[index][3]
-    
+
     def publisher_id(self, index, index_is_id=False):
         id  = index if index_is_id else self.id(index)
         return self.conn.get('SELECT publisher from books_publishers_link WHERE book=?', (id,), all=False)
-    
+
     def rating(self, index, index_is_id=False):
         if index_is_id:
             return self.conn.get('SELECT rating FROM meta WHERE id=?', (index,), all=False)
@@ -983,7 +983,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def series(self, index, index_is_id=False):
         id = self.series_id(index, index_is_id)
         return self.conn.get('SELECT name from series WHERE id=?', (id,), all=False)
-        
+
     def series_index(self, index, index_is_id=False):
         ans = None
         if not index_is_id:
@@ -991,9 +991,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         else:
             ans = self.conn.get('SELECT series_index FROM books WHERE id=?', (index,), all=False)
         try:
-            return int(ans)
+            return float(ans)
         except:
-            return 1
+            return 1.0
 
     def books_in_series(self, series_id):
         '''
@@ -1021,7 +1021,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         '''Comments as string or None'''
         id = index if index_is_id else self.id(index)
         return self.conn.get('SELECT text FROM comments WHERE book=?', (id,), all=False)
-        
+
     def formats(self, index, index_is_id=False):
         ''' Return available formats as a comma separated list '''
         id = index if index_is_id else self.id(index)
@@ -1041,11 +1041,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def all_series(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM series')]
-        
+
     def all_authors(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM authors')]
-    
+
     def all_publishers(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM publishers')]
@@ -1278,9 +1278,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.set_series(id, mi.series)
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
-    
-        
-            
+
+
+
 
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
@@ -1385,16 +1385,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def all_ids(self):
         return [i[0] for i in self.conn.get('SELECT id FROM books')]
 
-                         
 
 
-    
+
+
 
     def has_id(self, id):
         return self.conn.get('SELECT id FROM books where id=?', (id,), all=False) is not None
 
-    
-    
+
+
 
 class SearchToken(object):
 

@@ -5,7 +5,7 @@ __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 
 '''Read meta information from fb2 files'''
 
-import sys, os, mimetypes
+import mimetypes
 from base64 import b64decode
 
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
@@ -32,7 +32,7 @@ def get_metadata(stream):
                 if not exts:
                     exts = ['.jpg']
                 cdata = (exts[0][1:], b64decode(binary.string.strip()))
-                
+
     if comments:
         comments = u''.join(comments.findAll(text=True))
     series = soup.find("sequence")
@@ -42,7 +42,7 @@ def get_metadata(stream):
     if series:
         mi.series = series.get('name', None)
         try:
-            mi.series_index = int(series.get('number', None))
+            mi.series_index = float(series.get('number', None))
         except (TypeError, ValueError):
             pass
     if cdata:

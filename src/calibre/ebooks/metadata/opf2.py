@@ -442,9 +442,10 @@ class OPF(object):
     comments        = MetadataField('description')
     category        = MetadataField('category')
     series          = MetadataField('series', is_dc=False)
-    series_index    = MetadataField('series_index', is_dc=False, formatter=int, none_is=1)
+    series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
-    timestamp       = MetadataField('date', formatter=parser.parse)
+    pubdate         = MetadataField('date', formatter=parser.parse)
+    timestamp       = MetadataField('timestamp', is_dc=False, formatter=parser.parse)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):

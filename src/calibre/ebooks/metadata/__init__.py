@@ -42,6 +42,31 @@ def title_sort(title):
         title = title.replace(prep, '') + ', ' + prep
     return title.strip()
 
+coding = zip(
+[1000,900,500,400,100,90,50,40,10,9,5,4,1],
+["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+)
+
+
+
+def roman(num):
+    if num <= 0 or num >= 4000 or int(num) != num:
+        return str(num)
+    result = []
+    for d, r in coding:
+        while num >= d:
+            result.append(r)
+            num -= d
+    return ''.join(result)
+
+
+def fmt_sidx(i, fmt='%.2f', use_roman=False):
+    if i is None:
+        i = 1
+    if int(i) == i:
+        return roman(i) if use_roman else '%d'%i
+    return fmt%i
+
 
 class Resource(object):
     '''
@@ -187,7 +212,8 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language',
-                     'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'):
+                     'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
+                     'pubdate'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
 
@@ -212,7 +238,7 @@ class MetaInformation(object):
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'
+                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate'
                   ):
             setattr(self, x, getattr(mi, x, None))
 
@@ -231,7 +257,7 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
-                     'timestamp', 'lccn', 'lcc', 'ddc'):
+                     'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
@@ -262,8 +288,8 @@ class MetaInformation(object):
         try:
             x = float(self.series_index)
         except ValueError:
-            x = 1.0
-        return '%d'%x if int(x) == x else '%.2f'%x
+            x = 1
+        return fmt_sidx(x)
 
     def authors_from_string(self, raw):
         self.authors = string_to_authors(raw)
@@ -299,6 +325,8 @@ class MetaInformation(object):
             fmt('Rating', self.rating)
         if self.timestamp is not None:
             fmt('Timestamp', self.timestamp.isoformat(' '))
+        if self.pubdate is not None:
+            fmt('Published', self.pubdate.isoformat(' '))
         if self.lccn:
             fmt('LCCN', unicode(self.lccn))
         if self.lcc:
@@ -327,6 +355,8 @@ class MetaInformation(object):
         ans += [(_('Language'), unicode(self.language))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
+        if self.pubdate is not None:
+            ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)

@@ -177,7 +177,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1" colspan="2">
+                 <item row="3" column="1">
                   <widget class="QSpinBox" name="rating">
                    <property name="toolTip">
                     <string>Rating of this book. 0-5 stars</string>
@@ -309,28 +309,6 @@
                    </item>
                   </layout>
                  </item>
-                 <item row="7" column="1" colspan="2">
-                  <widget class="QSpinBox" name="series_index">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="toolTip">
-                    <string>Series index.</string>
-                   </property>
-                   <property name="whatsThis">
-                    <string>Series index.</string>
-                   </property>
-                   <property name="prefix">
-                    <string>Book </string>
-                   </property>
-                   <property name="minimum">
-                    <number>0</number>
-                   </property>
-                   <property name="maximum">
-                    <number>10000</number>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="8" column="0">
                   <widget class="QLabel" name="label_9">
                    <property name="text">
@@ -356,6 +334,19 @@
                  </item>
                  <item row="1" column="1">
                   <widget class="QLineEdit" name="authors"/>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QDoubleSpinBox" name="series_index">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="prefix">
+                    <string>Book </string>
+                   </property>
+                   <property name="maximum">
+                    <double>9999.989999999999782</double>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -640,7 +631,6 @@
   <tabstop>series</tabstop>
   <tabstop>tag_editor_button</tabstop>
   <tabstop>remove_series_button</tabstop>
-  <tabstop>series_index</tabstop>
   <tabstop>isbn</tabstop>
   <tabstop>comments</tabstop>
   <tabstop>fetch_metadata_button</tabstop>

@@ -9,15 +9,16 @@
         <dc:creator opf:role="aut" py:for="i, author in enumerate(mi.authors)" py:attrs="{'opf:file-as':mi.author_sort} if mi.author_sort and i == 0 else {}">${author}</dc:creator>
         <dc:contributor opf:role="bkp" py:with="attrs={'opf:file-as':__appname__}" py:attrs="attrs">${'%s (%s)'%(__appname__, __version__)} [http://${__appname__}.kovidgoyal.net]</dc:contributor> 
         <dc:identifier opf:scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
-        <dc:date py:if="getattr(mi, 'timestamp', None) is not None">${mi.timestamp.isoformat()}</dc:date>    
+        <dc:date py:if="getattr(mi, 'pubdate', None) is not None">${mi.pubdate.isoformat()}</dc:date>    
         <dc:language>${mi.language if mi.language else 'UND'}</dc:language>
         <dc:type py:if="getattr(mi, 'category', False)">${mi.category}</dc:type>
         <dc:description py:if="mi.comments">${mi.comments}</dc:description>
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
         <dc:identifier opf:scheme="ISBN" py:if="mi.isbn">${mi.isbn}</dc:identifier>
         <meta py:if="mi.series is not None" name="calibre:series" content="${mi.series}"/>
-        <meta py:if="mi.series_index is not None" name="calibre:series_index" content="${mi.series_index}"/>
+        <meta py:if="mi.series_index is not None" name="calibre:series_index" content="${mi.format_series_index()}"/>
         <meta py:if="mi.rating is not None" name="calibre:rating" content="${mi.rating}"/>
+        <meta py:if="mi.timestamp is not None" name="calibre:timestamp" content="${mi.timestamp.isoformat()}"/>
         <py:for each="tag in mi.tags">
         <dc:subject py:if="mi.tags is not None">${tag}</dc:subject>
         </py:for>

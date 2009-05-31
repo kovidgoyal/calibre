@@ -50,7 +50,8 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5,
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
-             'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15}
+             'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
+             'lccn':16, 'pubdate':17, 'flags':18}
 INDEX_MAP = dict(zip(FIELD_MAP.values(), FIELD_MAP.keys()))
 
 
@@ -472,6 +473,53 @@ class LibraryDatabase2(LibraryDatabase):
         FROM books;
         ''')
 
+    def upgrade_version_4(self):
+        'Rationalize books table'
+        self.conn.executescript('''
+        BEGIN TRANSACTION;
+        CREATE TEMPORARY TABLE
+        books_backup(id,title,sort,timestamp,series_index,author_sort,isbn,path);
+        INSERT INTO books_backup SELECT id,title,sort,timestamp,series_index,author_sort,isbn,path FROM books;
+        DROP TABLE books;
+        CREATE TABLE books ( id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                             title     TEXT NOT NULL DEFAULT 'Unknown' COLLATE NOCASE,
+                             sort      TEXT COLLATE NOCASE,
+                             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                             pubdate   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                             series_index REAL NOT NULL DEFAULT 1.0,
+                             author_sort TEXT COLLATE NOCASE,
+                             isbn TEXT DEFAULT "" COLLATE NOCASE,
+                             lccn TEXT DEFAULT "" COLLATE NOCASE,
+                             path TEXT NOT NULL DEFAULT "",
+                             flags INTEGER NOT NULL DEFAULT 1
+                        );
+        INSERT INTO
+            books (id,title,sort,timestamp,pubdate,series_index,author_sort,isbn,path)
+            SELECT id,title,sort,timestamp,timestamp,series_index,author_sort,isbn,path FROM books_backup;
+        DROP TABLE books_backup;
+
+        DROP VIEW meta;
+        CREATE VIEW meta AS
+        SELECT id, title,
+               (SELECT concat(name) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors,
+               (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+               (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+               timestamp,
+               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+               (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+               (SELECT text FROM comments WHERE book=books.id) comments,
+               (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+               series_index,
+               sort,
+               author_sort,
+               (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+               isbn,
+               path,
+               lccn,
+               pubdate,
+               flags
+        FROM books;
+        ''')
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
@@ -610,6 +658,16 @@ class LibraryDatabase2(LibraryDatabase):
                 return img
             return f if as_file else f.read()
 
+    def timestamp(self, index, index_is_id=False):
+        if index_is_id:
+            return self.conn.get('SELECT timestamp FROM meta WHERE id=?', (index,), all=False)
+        return self.data[index][FIELD_MAP['timestamp']]
+
+    def pubdate(self, index, index_is_id=False):
+        if index_is_id:
+            return self.conn.get('SELECT pubdate FROM meta WHERE id=?', (index,), all=False)
+        return self.data[index][FIELD_MAP['pubdate']]
+
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
         Convenience method to return metadata as a L{MetaInformation} object.
@@ -621,6 +679,7 @@ class LibraryDatabase2(LibraryDatabase):
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
+        mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -917,7 +976,7 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_comment(id, mi.comments, notify=False)
         if mi.isbn and mi.isbn.strip():
             self.set_isbn(id, mi.isbn, notify=False)
-        if mi.series_index and mi.series_index > 0:
+        if mi.series_index:
             self.set_series_index(id, mi.series_index, notify=False)
         if getattr(mi, 'timestamp', None) is not None:
             self.set_timestamp(id, mi.timestamp, notify=False)
@@ -982,6 +1041,15 @@ class LibraryDatabase2(LibraryDatabase):
             self.conn.commit()
             if notify:
                 self.notify('metadata', [id])
+
+    def set_pubdate(self, id, dt, notify=True):
+        if dt:
+            self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
+            self.data.set(id, FIELD_MAP['pubdate'], dt, row_is_id=True)
+            self.conn.commit()
+            if notify:
+                self.notify('metadata', [id])
+
 
     def set_publisher(self, id, publisher, notify=True):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
@@ -1103,17 +1171,11 @@ class LibraryDatabase2(LibraryDatabase):
 
     def set_series_index(self, id, idx, notify=True):
         if idx is None:
-            idx = 1
-        idx = int(idx)
-        self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
+            idx = 1.0
+        idx = float(idx)
+        self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
         self.conn.commit()
-        try:
-            row = self.row(id)
-            if row is not None:
-                self.data.set(row, 10, idx)
-        except ValueError:
-            pass
-        self.data.set(id, FIELD_MAP['series_index'], int(idx), row_is_id=True)
+        self.data.set(id, FIELD_MAP['series_index'], idx, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
 
@@ -1156,7 +1218,7 @@ class LibraryDatabase2(LibraryDatabase):
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
-        mi.series_index = 1
+        mi.series_index = 1.0
         mi.tags = [_('News'), recipe.title]
         obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
                               (mi.title, mi.authors[0]))
@@ -1188,7 +1250,7 @@ class LibraryDatabase2(LibraryDatabase):
     def create_book_entry(self, mi, cover=None, add_duplicates=True):
         if not add_duplicates and self.has_book(mi):
             return None
-        series_index = 1 if mi.series_index is None else mi.series_index
+        series_index = 1.0 if mi.series_index is None else mi.series_index
         aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
         title = mi.title
         if isinstance(aus, str):
@@ -1207,33 +1269,29 @@ class LibraryDatabase2(LibraryDatabase):
         return id
 
 
-    def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
+    def add_books(self, paths, formats, metadata, add_duplicates=True):
         '''
         Add a book to the database. The result cache is not updated.
         :param:`paths` List of paths to book files or file-like objects
         '''
-        formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
+        formats, metadata = iter(formats), iter(metadata)
         duplicates = []
         ids = []
         for path in paths:
             mi = metadata.next()
             format = formats.next()
-            try:
-                uri = uris.next()
-            except StopIteration:
-                uri = None
             if not add_duplicates and self.has_book(mi):
-                duplicates.append((path, format, mi, uri))
+                duplicates.append((path, format, mi))
                 continue
-            series_index = 1 if mi.series_index is None else mi.series_index
+            series_index = 1.0 if mi.series_index is None else mi.series_index
             aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
             title = mi.title
             if isinstance(aus, str):
                 aus = aus.decode(preferred_encoding, 'replace')
             if isinstance(title, str):
                 title = title.decode(preferred_encoding)
-            obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
-                              (title, uri, series_index, aus))
+            obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+                              (title, series_index, aus))
             id = obj.lastrowid
             self.data.books_added([id], self.conn)
             ids.append(id)
@@ -1251,12 +1309,11 @@ class LibraryDatabase2(LibraryDatabase):
             paths    = list(duplicate[0] for duplicate in duplicates)
             formats  = list(duplicate[1] for duplicate in duplicates)
             metadata = list(duplicate[2] for duplicate in duplicates)
-            uris     = list(duplicate[3] for duplicate in duplicates)
-            return (paths, formats, metadata, uris), len(ids)
+            return (paths, formats, metadata), len(ids)
         return None, len(ids)
 
     def import_book(self, mi, formats, notify=True):
-        series_index = 1 if mi.series_index is None else mi.series_index
+        series_index = 1.0 if mi.series_index is None else mi.series_index
         if not mi.title:
             mi.title = _('Unknown')
         if not mi.authors:
@@ -1266,8 +1323,8 @@ class LibraryDatabase2(LibraryDatabase):
             aus = aus.decode(preferred_encoding, 'replace')
         title = mi.title if isinstance(mi.title, unicode) else \
                 mi.title.decode(preferred_encoding, 'replace')
-        obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
-                          (title, None, series_index, aus))
+        obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+                          (title, series_index, aus))
         id = obj.lastrowid
         self.data.books_added([id], self.conn)
         self.set_path(id, True)
@@ -1368,12 +1425,12 @@ class LibraryDatabase2(LibraryDatabase):
         QCoreApplication.processEvents()
         db.conn.row_factory = lambda cursor, row : tuple(row)
         db.conn.text_factory = lambda x : unicode(x, 'utf-8', 'replace')
-        books = db.conn.get('SELECT id, title, sort, timestamp, uri, series_index, author_sort, isbn FROM books ORDER BY id ASC')
+        books = db.conn.get('SELECT id, title, sort, timestamp, series_index, author_sort, isbn FROM books ORDER BY id ASC')
         progress.setAutoReset(False)
         progress.setRange(0, len(books))
 
         for book in books:
-            self.conn.execute('INSERT INTO books(id, title, sort, timestamp, uri, series_index, author_sort, isbn) VALUES(?, ?, ?, ?, ?, ?, ?, ?);', book)
+            self.conn.execute('INSERT INTO books(id, title, sort, timestamp, series_index, author_sort, isbn) VALUES(?, ?, ?, ?, ?, ?, ?, ?);', book)
 
         tables = '''
 authors  ratings      tags    series    books_tags_link

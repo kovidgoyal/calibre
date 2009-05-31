@@ -119,7 +119,8 @@ class Widget(QWidget):
         elif isinstance(g, XPathEdit):
             g.edit.setText(val if val else '')
         else:
-            raise Exception('Can\'t set value %s in %s'%(repr(val), type(g)))
+            raise Exception('Can\'t set value %s in %s'%(repr(val),
+                unicode(g.objectName())))
         self.post_set_value(g, val)
 
     def set_help(self, msg):

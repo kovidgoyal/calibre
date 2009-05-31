@@ -58,7 +58,7 @@ class MergeMetadata(object):
             m.add('creator', mi.book_producer, role='bkp')
         if mi.series_index is not None:
             m.clear('series_index')
-            m.add('series_index', '%.2f'%mi.series_index)
+            m.add('series_index', mi.format_series_index())
         if mi.rating is not None:
             m.clear('rating')
             m.add('rating', '%.2f'%mi.rating)
