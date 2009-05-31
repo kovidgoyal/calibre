@@ -17,6 +17,7 @@ __appname__ = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', raw).group(1)
 
 PREFIX = "/var/www/calibre.kovidgoyal.net"
 DOWNLOADS = PREFIX+"/htdocs/downloads"
+BETAS = DOWNLOADS +'/betas'
 DOCS = PREFIX+"/htdocs/apidocs"
 USER_MANUAL = PREFIX+'/htdocs/user_manual'
 HTML2LRF = "src/calibre/ebooks/lrf/html/demo"
@@ -429,8 +430,9 @@ class upload_demo(OptionlessCommand):
 
     def run(self):
         check_call(
-           '''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' '''
-           '''--header --output=/tmp/html2lrf.lrf %s/demo.html '''
+           '''ebook-convert %s/demo.html /tmp/html2lrf.lrf '''
+           '''--title='Demonstration of html2lrf' --author='Kovid Goyal' '''
+           '''--header '''
            '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
            '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
            ''''''%(HTML2LRF,), shell=True)
@@ -442,8 +444,8 @@ class upload_demo(OptionlessCommand):
         check_call('scp /tmp/html-demo.zip divok:%s/'%(DOWNLOADS,), shell=True)
 
         check_call(
-           '''txt2lrf -t 'Demonstration of txt2lrf' -a 'Kovid Goyal' '''
-           '''--header -o /tmp/txt2lrf.lrf %s/demo.txt'''%(TXT2LRF,), shell=True)
+           ("ebook-convert %s/demo.txt /tmp/txt2lrf.lrf -t 'Demonstration of txt2lrf'"
+           "-a 'Kovid Goyal' --header ")%(TXT2LRF,), shell=True)
 
         check_call('cd src/calibre/ebooks/lrf/txt/demo/ && '
                    'zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf', shell=True)

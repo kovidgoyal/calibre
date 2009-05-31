@@ -9,13 +9,12 @@ from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
-from calibre.constants import __version__, iswindows, isosx
+from calibre.constants import numeric_version as version, iswindows, isosx
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser
 
-version = tuple([int(x) for x in __version__.split('.')])
 
 platform = 'linux'
 if iswindows:
