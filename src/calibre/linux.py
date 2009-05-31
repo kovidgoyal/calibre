@@ -135,13 +135,14 @@ def open_file(path, mode='wb'):
     return open(path, mode)
 
 def setup_completion(fatal_errors):
+    manifest = []
     try:
         print 'Setting up bash completion...',
         sys.stdout.flush()
         from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
         from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
         from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
-        from calibre.web.feeds.main import option_parser as feeds2disk
+        from calibre.web.fetch.simple import option_parser as web2disk
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.metadata.fetch import option_parser as fem_op
         from calibre.gui2.main import option_parser as guiop
@@ -151,7 +152,6 @@ def setup_completion(fatal_errors):
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
-        manifest = []
         f = open_file('/etc/bash_completion.d/calibre')
         manifest.append(f.name)
 
@@ -160,7 +160,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
-        f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
+        f.write(opts_and_words('web2disk', web2disk, feed_titles))
         f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
         f.write(opts_and_words('calibre-smtp', smtp_op, []))
         f.write('''
