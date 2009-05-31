@@ -97,6 +97,14 @@ def decint(value, direction):
         bytes[-1] |= 0x80
     return ''.join(chr(b) for b in reversed(bytes))
 
+
+def align_block(raw, multiple=4, pad='\0'):
+    l = len(raw)
+    extra = l % multiple
+    if extra == 0: return raw
+    return raw + pad*(multiple - extra)
+
+
 def rescale_image(data, maxsizeb, dimen=None):
     image = Image.open(StringIO(data))
     format = image.format
@@ -484,7 +492,8 @@ class MobiWriter(object):
             last_name = "%4d"%c
             c += 1
 
-        return indxt.getvalue(), c, indices.getvalue(), last_index, last_name
+        return align_block(indxt.getvalue()), c, \
+            align_block(indices.getvalue()), last_index, last_name
 
 
     def _generate_index(self):
@@ -521,12 +530,13 @@ class MobiWriter(object):
         indx1 = indx1.getvalue()
 
         idxt0 = chr(len(last_name)) + last_name + pack('>H', last_index)
+        idxt0 = align_block(idxt0)
         indx0 = StringIO()
 
         tagx = TAGX['periodical' if self.opts.mobi_periodical else 'chapter']
-        tagx = 'TAGX' + pack('>I', 8 + len(tagx)) + tagx
+        tagx = align_block('TAGX' + pack('>I', 8 + len(tagx)) + tagx)
         indx0_indices_pos = 0xc0 + len(tagx) + len(idxt0)
-        indx0_indices = 'IDXT' + pack('>H', 0xc0 + len(tagx))
+        indx0_indices = align_block('IDXT' + pack('>H', 0xc0 + len(tagx)))
         # Generate record header
         header = StringIO()
 
@@ -622,7 +632,7 @@ class MobiWriter(object):
         for child in toc.iter():
             add_node(child, 'chapter')
 
-        return ctoc.getvalue()
+        return align_block(ctoc.getvalue())
 
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
