@@ -172,4 +172,3 @@ class DetectStructure(object):
                                     level2.add(text, _href,
                                     play_order=self.oeb.toc.next_play_order())
 
-
