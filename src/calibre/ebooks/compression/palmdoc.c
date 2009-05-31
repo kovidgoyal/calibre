@@ -14,8 +14,6 @@
 #include <Python.h>
 #include <stdio.h>
 
-#define DELTA sizeof(Byte)*4096
-
 #define BUFFER 6000
 
 #define MIN(x, y) ( ((x) < (y)) ? (x) : (y) )
@@ -46,26 +44,25 @@ typedef struct {
 static PyObject *
 cpalmdoc_decompress(PyObject *self, PyObject *args) {
     const char *_input = NULL; Py_ssize_t input_len = 0;
+    Byte *input; char *output; Byte c; PyObject *ans;
     Py_ssize_t i = 0, o = 0, j = 0, di, n;
     if (!PyArg_ParseTuple(args, "t#", &_input, &input_len))
 		return NULL;
-    Byte *input = (Byte *)PyMem_Malloc(sizeof(Byte)*input_len);
+    input = (Byte *) PyMem_Malloc(sizeof(Byte)*input_len);
     if (input == NULL) return PyErr_NoMemory();
     // Map chars to bytes
     for (j = 0; j < input_len; j++) 
         input[j] = (_input[j] < 0) ? _input[j]+256 : _input[j];
-    char *output = (char *)PyMem_Malloc(sizeof(char)*BUFFER);
-    Byte c;
-    PyObject *ans;
+    output = (char *)PyMem_Malloc(sizeof(char)*BUFFER);
     if (output == NULL) return PyErr_NoMemory();
 
     while (i < input_len) {
         c = input[i++];
         if (c >= 1 && c <= 8)  // copy 'c' bytes
-            while (c--) output[o++] = input[i++];
+            while (c--) output[o++] = (char)input[i++];
 
         else if (c <= 0x7F)  // 0, 09-7F = self
-            output[o++] = c;
+            output[o++] = (char)c;
         
         else if (c >= 0xC0) { // space + ASCII char
             output[o++] = ' ';
@@ -107,8 +104,8 @@ cpalmdoc_do_compress(buffer *b, char *output) {
     Byte c, n;
     bool found;
     char *head;
-    head = output;
     buffer temp; 
+    head = output;
     temp.data = (Byte *)PyMem_Malloc(sizeof(Byte)*8); temp.len = 0;
     if (temp.data == NULL) return 0;
     while (i < b->len) {
@@ -151,7 +148,7 @@ cpalmdoc_do_compress(buffer *b, char *output) {
             }
             i += temp.len - 1;
             *(output++) = temp.len;
-            for (j=0; j < temp.len; j++) *(output++) = temp.data[j];
+            for (j=0; j < temp.len; j++) *(output++) = (char)temp.data[j];
         }
     }
     return output - head;
@@ -160,6 +157,7 @@ cpalmdoc_do_compress(buffer *b, char *output) {
 static PyObject *
 cpalmdoc_compress(PyObject *self, PyObject *args) {
     const char *_input = NULL; Py_ssize_t input_len = 0;
+    char *output; PyObject *ans;
     Py_ssize_t j = 0;
     buffer b;
     if (!PyArg_ParseTuple(args, "t#", &_input, &input_len))
@@ -170,11 +168,11 @@ cpalmdoc_compress(PyObject *self, PyObject *args) {
     for (j = 0; j < input_len; j++) 
         b.data[j] = (_input[j] < 0) ? _input[j]+256 : _input[j];
     b.len = input_len;
-    char *output = (char *)PyMem_Malloc(sizeof(char) * b.len);
+    output = (char *)PyMem_Malloc(sizeof(char) * b.len);
     if (output == NULL) return PyErr_NoMemory();
     j = cpalmdoc_do_compress(&b, output);
     if ( j == 0) return PyErr_NoMemory();
-    PyObject *ans = Py_BuildValue("s#", output, j);
+    ans = Py_BuildValue("s#", output, j);
     PyMem_Free(output);
     PyMem_Free(b.data);
     return ans;
