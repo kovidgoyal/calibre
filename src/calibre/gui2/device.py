@@ -688,10 +688,10 @@ class DeviceGUI(object):
             if config['upload_news_to_device'] and files:
                 remove = ids if \
                     config['delete_news_from_library_on_upload'] else []
-                space = { self.location_view.model().free[0] : 'main',
+                space = { self.location_view.model().free[0] : None,
                     self.location_view.model().free[1] : 'carda',
                     self.location_view.model().free[2] : 'cardb' }
-                on_card = space.get(sorted(space.keys(), reverse=True)[0], 'main')
+                on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[[f.name for f in files], remove])
