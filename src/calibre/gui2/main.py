@@ -785,7 +785,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:
-            on_card = self.stack.currentIndex() >= 2
+            on_card = 'carda' if self.stack.currentIndex() == 2 else 'cardb' if self.stack.currentIndex() == 3 else None
         if not paths:
             return
         from calibre.gui2.add import Adder
@@ -795,7 +795,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 Dispatcher(self.__adder_func))
         self._adder.add(paths)
 
-    def _files_added(self, paths=[], names=[], infos=[], on_card=False):
+    def _files_added(self, paths=[], names=[], infos=[], on_card=None):
         if paths:
             self.upload_books(paths,
                                 list(map(sanitize_file_name, names)),
