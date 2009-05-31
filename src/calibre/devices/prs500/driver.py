@@ -40,13 +40,14 @@ from array import array
 from functools import wraps
 from StringIO import StringIO
 
-from calibre.devices.interface import Device
+from calibre.devices.interface import DevicePlugin
 from calibre.devices.libusb import Error as USBError
 from calibre.devices.libusb import get_device_by_id
 from calibre.devices.prs500.prstypes import *
 from calibre.devices.errors import *
 from calibre.devices.prs500.books import BookList, fix_ids
 from calibre import __author__, __appname__
+from calibre.devices.usbms.deviceconfig import DeviceConfig
 
 # Protocol versions this driver has been tested with
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L]
@@ -76,12 +77,16 @@ class File(object):
         return self.name
 
 
-class PRS500(Device):
+class PRS500(DeviceConfig, DevicePlugin):
 
     """
     Implements the backend for communication with the SONY Reader.
     Each method decorated by C{safe} performs a task.
     """
+    name           = 'PRS-500 Device Interface'
+    description    = _('Communicate with the Sony PRS-500 eBook reader.')
+    author         = _('Kovid Goyal')
+    supported_platforms = ['windows', 'osx', 'linux']
 
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
@@ -181,7 +186,7 @@ class PRS500(Device):
 
         return run_session
 
-    def __init__(self, key='-1', log_packets=False, report_progress=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None) :
         """
         @param key: The key to unlock the device
         @param log_packets: If true the packet stream to/from the device is logged
@@ -620,6 +625,8 @@ class PRS500(Device):
                 data_type=FreeSpaceAnswer, \
                 command_number=FreeSpaceQuery.NUMBER)[0]
             data.append( pkt.free )
+        data = [x for x in data if x != 0]
+        data.append(0)
         return data
 
     def _exists(self, path):

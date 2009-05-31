@@ -6,9 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
-import os
-from lxml import etree
 from calibre.ebooks.oeb.base import XML, XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import XHTML_MIME, CSS_MIME
 from calibre.ebooks.oeb.base import element
@@ -33,7 +30,7 @@ STYLE_CSS = {
   margin-left: 3.6em;
 }
 """,
-   
+
     'centered': """
 .calibre_toc_header {
   text-align: center;
@@ -51,8 +48,19 @@ class HTMLTOCAdder(object):
     def __init__(self, title=None, style='nested'):
         self.title = title
         self.style = style
-    
-    def transform(self, oeb, context):
+
+    @classmethod
+    def config(cls, cfg):
+        group = cfg.add_group('htmltoc', _('HTML TOC generation options.'))
+        group('toc_title', ['--toc-title'], default=None,
+              help=_('Title for any generated in-line table of contents.'))
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls(title=opts.toc_title)
+
+    def __call__(self, oeb, context):
         if 'toc' in oeb.guide:
             return
         if not getattr(getattr(oeb, 'toc', False), 'nodes', False):

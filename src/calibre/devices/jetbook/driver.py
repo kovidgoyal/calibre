@@ -7,10 +7,16 @@ Device driver for Ectaco Jetbook firmware >= JL04_v030e
 import os, re, sys, shutil
 from itertools import cycle
 
-from calibre.devices.usbms.driver import USBMS, metadata_from_formats
+from calibre.devices.usbms.driver import USBMS
 from calibre import sanitize_file_name as sanitize
 
 class JETBOOK(USBMS):
+    name           = 'Ectaco JetBook Device Interface'
+    description    = _('Communicate with the JetBook eBook reader.')
+    author         = _('James Ralston')
+    supported_platforms = ['windows', 'osx', 'linux']
+
+
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
     FORMATS     = ['epub', 'mobi', 'prc', 'txt', 'rtf', 'pdf']
@@ -46,26 +52,33 @@ class JETBOOK(USBMS):
         names = iter(names)
         metadata = iter(metadata)
 
-        for infile in files:
+        for i, infile in enumerate(files):
             newpath = path
 
-            if self.SUPPORTS_SUB_DIRS:
-                mdata = metadata.next()
+            mdata = metadata.next()
 
-                if 'tags' in mdata.keys():
-                    for tag in mdata['tags']:
-                        if tag.startswith('/'):
-                            newpath += tag
-                            newpath = os.path.normpath(newpath)
-                            break
-
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
+            if 'tags' in mdata.keys():
+                for tag in mdata['tags']:
+                    if tag.startswith(_('News')):
+                        newpath = os.path.join(newpath, 'news')
+                        newpath = os.path.join(newpath, mdata.get('title', ''))
+                        newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                        break
+                    elif tag.startswith('/'):
+                        newpath += tag
+                        newpath = os.path.normpath(newpath)
+                        break
 
             author = sanitize(mdata.get('authors','Unknown')).replace(' ', '_')
             title = sanitize(mdata.get('title', 'Unknown')).replace(' ', '_')
             fileext = os.path.splitext(os.path.basename(names.next()))[1]
             fname = '%s#%s%s' % (author, title, fileext)
+
+            if newpath == path:
+                newpath = os.path.join(newpath, author, title)
+
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
 
             filepath = os.path.join(newpath, fname)
             paths.append(filepath)
@@ -81,6 +94,10 @@ class JETBOOK(USBMS):
             else:
                 shutil.copy2(infile, filepath)
 
+            self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
+
+        self.report_progress(1.0, _('Transferring books to device...'))
+
         return zip(paths, cycle([on_card]))
 
     @classmethod
@@ -93,6 +110,7 @@ class JETBOOK(USBMS):
 
             return txt
 
+        from calibre.devices.usbms.driver import metadata_from_formats
         mi = metadata_from_formats([path])
 
         if (mi.title==_('Unknown') or mi.authors==[_('Unknown')]) \
@@ -108,10 +126,10 @@ class JETBOOK(USBMS):
 
     def windows_sort_drives(self, drives):
         main = drives.get('main', None)
-        card = drives.get('card', None)
+        card = drives.get('carda', None)
         if card and main and card < main:
             drives['main'] = card
-            drives['card'] = main
+            drives['carda'] = main
 
         return drives
 

@@ -554,7 +554,8 @@ class PdfFileReader(object):
         if not self._override_encryption and self.isEncrypted:
             # if we don't have the encryption key:
             if not hasattr(self, '_decryption_key'):
-                raise Exception, "file has not been decrypted"
+                from calibre.ebooks import DRMError
+                raise DRMError('File contents are encrypted')
             # otherwise, decrypt here...
             import struct, md5
             pack1 = struct.pack("<i", indirectReference.idnum)[:3]

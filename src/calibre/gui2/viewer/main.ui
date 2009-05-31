@@ -27,8 +27,8 @@
       <widget class="QWidget" name="layoutWidget" >
        <layout class="QGridLayout" name="gridLayout" >
         <item row="0" column="0" >
-         <widget class="QWebView" native="1" name="view" >
-          <property name="url" stdset="0" >
+         <widget class="QWebView" name="view" >
+          <property name="url" >
            <url>
             <string>about:blank</string>
            </url>
@@ -89,6 +89,8 @@
    <addaction name="separator" />
    <addaction name="action_preferences" />
    <addaction name="action_full_screen" />
+   <addaction name="separator" />
+   <addaction name="action_print" />
   </widget>
   <widget class="QToolBar" name="tool_bar2" >
    <attribute name="toolBarArea" >
@@ -232,6 +234,15 @@
    </property>
    <property name="text" >
     <string>Toggle full screen</string>
+   </property>
+  </action>
+  <action name="action_print" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >
+     <normaloff>:/images/print.svg</normaloff>:/images/print.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Print</string>
    </property>
   </action>
  </widget>

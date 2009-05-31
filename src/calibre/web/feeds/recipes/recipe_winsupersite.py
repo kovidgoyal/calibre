@@ -13,8 +13,7 @@ class Winsupersite(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     remove_javascript     = True
-    html2lrf_options = ['--ignore-tables']
-    html2epub_options = 'linearize_tables = True'
+    conversion_options = {'linearize_tables' : True}
     remove_tags_before = dict(name='h1')
     preprocess_regexps = [
    (re.compile(r'<p>--Paul Thurrott.*</body>', re.DOTALL|re.IGNORECASE),
@@ -24,5 +23,5 @@ class Winsupersite(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser()
         br.open('http://www.winsupersite.com')
         return br
-    
+
     feeds          = [(u'Supersite for Windows', u'http://www.winsupersite.com/supersite.xml')]

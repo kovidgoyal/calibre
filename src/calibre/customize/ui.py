@@ -6,12 +6,14 @@ import os, shutil, traceback, functools, sys, re
 
 from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
                               MetadataWriterPlugin
+from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
+from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.constants import __version__, iswindows, isosx
+from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser
-
 
 version = tuple([int(x) for x in __version__.split('.')])
 
@@ -47,7 +49,7 @@ def load_plugin(path_to_zip_file):
 
     :return: A :class:`Plugin` instance.
     '''
-    print 'Loading plugin from', path_to_zip_file
+    #print 'Loading plugin from', path_to_zip_file
     if not os.access(path_to_zip_file, os.R_OK):
         raise PluginNotFound
     zf = ZipFile(path_to_zip_file)
@@ -77,6 +79,15 @@ _on_import           = {}
 _on_preprocess       = {}
 _on_postprocess      = {}
 
+def input_profiles():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, InputProfile):
+            yield plugin
+
+def output_profiles():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, OutputProfile):
+            yield plugin
 
 
 def reread_filetype_plugins():
@@ -121,7 +132,19 @@ def reread_metadata_plugins():
                     _metadata_writers[ft] = []
                 _metadata_writers[ft].append(plugin)
 
+def metadata_readers():
+    ans = set([])
+    for plugins in _metadata_readers.values():
+        for plugin in plugins:
+            ans.add(plugin)
+    return ans
 
+def metadata_writers():
+    ans = set([])
+    for plugins in _metadata_writers.values():
+        for plugin in plugins:
+            ans.add(plugin)
+    return ans
 
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
@@ -228,6 +251,47 @@ def find_plugin(name):
     for plugin in _initialized_plugins:
         if plugin.name == name:
             return plugin
+
+def input_format_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, InputFormatPlugin):
+            yield plugin
+
+def plugin_for_input_format(fmt):
+    for plugin in input_format_plugins():
+        if fmt.lower() in plugin.file_types:
+            return plugin
+
+def available_input_formats():
+    formats = set([])
+    for plugin in input_format_plugins():
+        if not is_disabled(plugin):
+            for format in plugin.file_types:
+                formats.add(format)
+    return formats
+
+def output_format_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, OutputFormatPlugin):
+            yield plugin
+
+def plugin_for_output_format(fmt):
+    for plugin in output_format_plugins():
+        if fmt.lower() == plugin.file_type:
+            return plugin
+
+def available_output_formats():
+    formats = set([])
+    for plugin in output_format_plugins():
+        if not is_disabled(plugin):
+            formats.add(plugin.file_type)
+    return formats
+
+def device_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, DevicePlugin):
+            if not is_disabled(plugin):
+                yield plugin
 
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)

@@ -11,6 +11,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os
 import itertools
 import re
+import logging
 import copy
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
@@ -106,7 +107,8 @@ class CSSSelector(etree.XPath):
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, profile=PROFILES['PRS505']):
+    def __init__(self, tree, path, oeb, profile=PROFILES['PRS505'],
+            extra_css='', user_css=''):
         self.oeb = oeb
         self.profile = profile
         self.logger = oeb.logger
@@ -115,8 +117,8 @@ class Stylizer(object):
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [HTML_CSS_STYLESHEET]
         head = xpath(tree, '/h:html/h:head')[0]
-        parser = cssutils.CSSParser()
-        parser.setFetcher(self._fetch_css_file)
+        parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
+                log=logging.getLogger('calibre.css'))
         for elem in head:
             if elem.tag == XHTML('style') and elem.text \
                and elem.get('type', CSS_MIME) in OEB_STYLES:
@@ -135,13 +137,12 @@ class Stylizer(object):
                         'Stylesheet %r referenced by file %r not in manifest' %
                         (path, item.href))
                     continue
-                if sitem in self.STYLESHEETS:
-                    stylesheet = self.STYLESHEETS[sitem]
-                else:
-                    data = self._fetch_css_file(path)[1]
-                    stylesheet = parser.parseString(data, href=path)
-                    stylesheet.namespaces['h'] = XHTML_NS
-                    self.STYLESHEETS[sitem] = stylesheet
+                stylesheets.append(sitem.data)
+        for x in (extra_css, user_css):
+            if x:
+                text = XHTML_CSS_NAMESPACE + x
+                stylesheet = parser.parseString(text, href=cssname)
+                stylesheet.namespaces['h'] = XHTML_NS
                 stylesheets.append(stylesheet)
         rules = []
         index = 0
@@ -159,9 +160,9 @@ class Stylizer(object):
         for _, _, cssdict, text, _ in rules:
             try:
                 selector = CSSSelector(text)
-            except (AssertionError, ExpressionError, etree.XPathSyntaxError,\
-                NameError, # gets thrown on OS X instead of SelectorSyntaxError
-                SelectorSyntaxError):
+            except (AssertionError, ExpressionError, etree.XPathSyntaxError,
+                    NameError, # thrown on OS X instead of SelectorSyntaxError
+                    SelectorSyntaxError):
                 continue
             for elem in selector(tree):
                 self.style(elem)._update_cssdict(cssdict)
@@ -171,9 +172,13 @@ class Stylizer(object):
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
         if path not in hrefs:
+            self.logger.warn('CSS import of missing file %r' % path)
             return (None, None)
-        data = hrefs[path].data
-        data = XHTML_CSS_NAMESPACE + data
+        item = hrefs[path]
+        if item.media_type not in OEB_STYLES:
+            self.logger.warn('CSS import of non-CSS file %r' % path)
+            return (None, None)
+        data = item.data.cssText
         return ('utf-8', data)
 
     def flatten_rule(self, rule, href, index):
@@ -286,6 +291,9 @@ class Style(object):
         self._height = None
         self._lineHeight = None
         stylizer._styles[element] = self
+
+    def set(self, prop, val):
+        self._style[prop] = val
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)

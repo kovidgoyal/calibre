@@ -2,51 +2,92 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''The main GUI'''
-import os, sys, textwrap, collections, traceback, time
+import os, sys, textwrap, collections, traceback, time, socket
 from xml.parsers.expat import ExpatError
+from Queue import Queue, Empty
+from threading import Thread
 from functools import partial
 from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
                      QToolButton, QDialog, QDesktopServices, QFileDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                     QProgressDialog, QMessageBox, QStackedLayout
+                     QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    iswindows, isosx
+from calibre import __version__, __appname__, sanitize_file_name, \
+                    iswindows, isosx, prints, patheq
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
-                           SingleApplication, Application, available_height, \
+                           Application, available_height, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
-from calibre.gui2.widgets import ProgressIndicator, WarningDialog
+from calibre.gui2.widgets import ProgressIndicator
+from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
-from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.main_window import MainWindow, option_parser as _option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager, DeviceMenu, DeviceGUI, Emailer
 from calibre.gui2.status import StatusBar
-from calibre.gui2.jobs2 import JobManager
+from calibre.gui2.jobs import JobManager, JobsDialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
-from calibre.gui2.dialogs.jobs import JobsDialog
-from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, \
-                                set_conversion_defaults, fetch_scheduled_recipe
+from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook, \
+    fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
-from calibre.parallel import JobKilled
 from calibre.gui2.dialogs.confirm_delete import confirm
+
+ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
+    os.path.expanduser('~/.calibre-gui.socket')
+
+class SaveMenu(QMenu):
+
+    def __init__(self, parent):
+        QMenu.__init__(self, _('Save single format to disk...'), parent)
+        for ext in sorted(BOOK_EXTENSIONS):
+            action = self.addAction(ext.upper())
+            setattr(self, 'do_'+ext, partial(self.do, ext))
+            self.connect(action, SIGNAL('triggered(bool)'),
+                    getattr(self, 'do_'+ext))
+
+    def do(self, ext, *args):
+        self.emit(SIGNAL('save_fmt(PyQt_PyObject)'), ext)
+
+class Listener(Thread):
+
+    def __init__(self, listener):
+        Thread.__init__(self)
+        self.daemon = True
+        self.listener, self.queue = listener, Queue()
+        self._run = True
+        self.start()
+
+    def run(self):
+        while self._run:
+            try:
+                conn = self.listener.accept()
+                msg = conn.recv()
+                self.queue.put(msg)
+            except:
+                continue
+
+    def close(self):
+        self._run = False
+        try:
+            self.listener.close()
+        except:
+            pass
+
 
 class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     'The main GUI'
@@ -61,17 +102,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.default_thumbnail = (pixmap.width(), pixmap.height(),
                 pixmap_to_data(pixmap))
 
-    def __init__(self, single_instance, opts, actions, parent=None):
+    def __init__(self, listener, opts, actions, parent=None):
         self.preferences_action, self.quit_action = actions
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
         self.fc = __import__('calibre.utils.fontconfig', fromlist=1)
-        self.single_instance = single_instance
-        if self.single_instance is not None:
-            self.connect(self.single_instance,
-                    SIGNAL('message_received(PyQt_PyObject)'),
-                         self.another_instance_wants_to_talk)
+        self.listener = Listener(listener)
+        self.check_messages_timer = QTimer()
+        self.connect(self.check_messages_timer, SIGNAL('timeout()'),
+                self.another_instance_wants_to_talk)
+        self.check_messages_timer.start(1000)
 
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
@@ -90,7 +131,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.persistent_files = []
         self.metadata_dialogs = []
         self.default_thumbnail = None
-        self.device_error_dialog = ConversionErrorDialog(self,
+        self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
@@ -136,14 +177,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.location_view,
                 SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
-
-        self.output_formats = sorted(['EPUB', 'MOBI', 'LRF'])
-        for f in self.output_formats:
-            self.output_format.addItem(f)
-        self.output_format.setCurrentIndex(self.output_formats.index(
-            prefs['output_format']))
-        self.connect(self.output_format, SIGNAL('currentIndexChanged(QString)'),
-                     self.change_output_format, Qt.QueuedConnection)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.'
@@ -198,25 +231,34 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"),
                 self.edit_metadata)
+        self.__em1__ = partial(self.edit_metadata, bulk=False)
         QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'),
-                partial(self.edit_metadata, bulk=False))
+                self.__em1__)
+        self.__em2__ = partial(self.edit_metadata, bulk=True)
         QObject.connect(md.actions()[2], SIGNAL('triggered(bool)'),
-                partial(self.edit_metadata, bulk=True))
+                self.__em2__)
+        self.__em3__ = partial(self.download_metadata, covers=True)
         QObject.connect(md.actions()[4], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=True))
+                self.__em3__)
+        self.__em4__ = partial(self.download_metadata, covers=False)
         QObject.connect(md.actions()[5], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=False))
+                self.__em4__)
+        self.__em5__ = partial(self.download_metadata, covers=True,
+                    set_metadata=False)
         QObject.connect(md.actions()[6], SIGNAL('triggered(bool)'),
-                partial(self.download_metadata, covers=True,
-                    set_metadata=False))
+                self.__em5__)
 
 
 
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
-        self.save_menu.addAction(_('Save only %s format to disk')%\
-                config.get('save_to_disk_single_format').upper())
+        self.save_menu.addAction(_('Save only %s format to disk')%
+                prefs['output_format'].upper())
+        self.save_sub_menu = SaveMenu(self)
+        self.save_menu.addMenu(self.save_sub_menu)
+        self.connect(self.save_sub_menu, SIGNAL('save_fmt(PyQt_PyObject)'),
+                self.save_specific_format_disk)
 
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
@@ -248,21 +290,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
-        cm.addSeparator()
-        cm.addAction(_('Set defaults for conversion'))
-        cm.addAction(_('Set defaults for conversion of comics'))
         self.action_convert.setMenu(cm)
         QObject.connect(cm.actions()[0],
                 SIGNAL('triggered(bool)'), self.convert_single)
         QObject.connect(cm.actions()[1],
                 SIGNAL('triggered(bool)'), self.convert_bulk)
-        QObject.connect(cm.actions()[3],
-                SIGNAL('triggered(bool)'), self.set_conversion_defaults)
-        QObject.connect(cm.actions()[4],
-                SIGNAL('triggered(bool)'), self.set_comic_conversion_defaults)
         QObject.connect(self.action_convert,
                 SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
+        pm = QMenu()
+        pm.addAction(self.action_preferences)
+        pm.addAction(_('Run welcome wizard'))
+        self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
+                self.run_wizard)
+        self.action_preferences.setMenu(pm)
+        self.preferences_menu = pm
+
         self.tool_bar.widgetForAction(self.action_news).\
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_edit).\
@@ -277,10 +320,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_view).\
                 setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_preferences).\
+                setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
 
-        QObject.connect(self.config_button,
-                SIGNAL('clicked(bool)'), self.do_config)
         self.connect(self.preferences_action, SIGNAL('triggered(bool)'),
                 self.do_config)
         self.connect(self.action_preferences, SIGNAL('triggered(bool)'),
@@ -320,7 +363,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                         similar_menu=similar_menu)
         self.memory_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None)
-        self.card_view.set_context_menu(None, None, None,
+        self.card_a_view.set_context_menu(None, None, None,
+                self.action_view, self.action_save, None, None)
+        self.card_b_view.set_context_menu(None, None, None,
                 self.action_view, self.action_save, None, None)
         QObject.connect(self.library_view,
                 SIGNAL('files_dropped(PyQt_PyObject)'),
@@ -330,11 +375,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                              ('connect_to_book_display',
                                  self.status_bar.book_info.show_data),
                              ]:
-            for view in (self.library_view, self.memory_view, self.card_view):
+            for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(target)
 
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
-        self.card_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_a_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_b_view.connect_dirtied_signal(self.upload_booklists)
 
         self.show()
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
@@ -462,18 +508,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         window.show()
                         setattr(window, '__systray_minimized', False)
 
-
-    def change_output_format(self, x):
-        of = unicode(x).strip()
-        if of != prefs['output_format']:
-            if of not in ('LRF', 'EPUB', 'MOBI'):
-                warning_dialog(self, 'Warning',
-                    ('<p>%s support is still in beta. If you find bugs, '
-                    'please report them by opening a <a href="http://cal'
-                    'ibre.kovidgoyal.net">ticket</a>.')%of).exec_()
-            prefs.set('output_format', of)
-
-
     def test_server(self, *args):
         if self.content_server.exception is not None:
             error_dialog(self, _('Failed to start content server'),
@@ -570,7 +604,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.cover_flow.currentSlide() != index.row():
             self.cover_flow.setCurrentSlide(index.row())
 
-    def another_instance_wants_to_talk(self, msg):
+    def another_instance_wants_to_talk(self):
+        try:
+            msg = self.listener.queue.get_nowait()
+        except Empty:
+            return
         if msg.startswith('launched:'):
             argv = eval(msg[len('launched:'):])
             if len(argv) > 1:
@@ -597,10 +635,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if idx == 1:
             return self.memory_view
         if idx == 2:
-            return self.card_view
+            return self.card_a_view
+        if idx == 3:
+            return self.card_b_view
 
     def booklists(self):
-        return self.memory_view.model().db, self.card_view.model().db
+        return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
 
 
@@ -618,7 +658,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.device_manager.device.__class__.__name__+\
                         _(' detected.'), 3000)
             self.device_connected = True
-            self._sync_menu.enable_device_actions(True)
+            self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix())
         else:
             self.device_connected = False
             self._sync_menu.enable_device_actions(False)
@@ -634,9 +674,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once device information has been read.
         '''
-        if job.exception is not None:
-            self.device_job_exception(job)
-            return
+        if job.failed:
+            return self.device_job_exception(job)
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
         self.device_info = _('Connected ')+info[0]
@@ -649,7 +688,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once metadata has been read for all books on the device.
         '''
-        if job.exception is not None:
+        if job.failed:
             if isinstance(job.exception, ExpatError):
                 error_dialog(self, _('Device database corrupted'),
                 _('''
@@ -662,12 +701,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             else:
                 self.device_job_exception(job)
             return
-        mainlist, cardlist = job.result
+        mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
         self.memory_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
-        self.card_view.set_database(cardlist)
-        self.card_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
-        for view in (self.memory_view, self.card_view):
+        self.card_a_view.set_database(cardalist)
+        self.card_a_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
+        self.card_b_view.set_database(cardblist)
+        self.card_b_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
+        for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
             if not view.restore_column_widths():
                 view.resizeColumnsToContents()
@@ -685,21 +726,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                           'Select root folder')
         if not root:
             return
-        from calibre.gui2.add import AddRecursive
-        self._add_recursive_thread = AddRecursive(root,
-                                self.library_view.model().db, self.get_metadata,
-                                single, self)
-        self.connect(self._add_recursive_thread, SIGNAL('finished()'),
-                     self._recursive_files_added)
-        self._add_recursive_thread.start()
-
-    def _recursive_files_added(self):
-        self._add_recursive_thread.process_duplicates()
-        if self._add_recursive_thread.number_of_books_added > 0:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
-            self.library_view.model().count_changed()
-        self._add_recursive_thread = None
+        from calibre.gui2.add import Adder
+        self._adder = Adder(self,
+                self.library_view.model().db,
+                Dispatcher(self._files_added))
+        self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, checked):
         '''
@@ -740,10 +771,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         (_('LRF Books'), ['lrf']),
                         (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
                         (_('LIT Books'), ['lit']),
-                        (_('MOBI Books'), ['mobi', 'prc']),
+                        (_('MOBI Books'), ['mobi', 'prc', 'azw']),
                         (_('Text books'), ['txt', 'rtf']),
                         (_('PDF Books'), ['pdf']),
-                        (_('Comics'), ['cbz', 'cbr']),
+                        (_('Comics'), ['cbz', 'cbr', 'cbc']),
                         (_('Archives'), ['zip', 'rar']),
                         ])
         if not books:
@@ -754,39 +785,29 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:
-            on_card = self.stack.currentIndex() == 2
+            on_card = self.stack.currentIndex() >= 2
         if not paths:
             return
-        from calibre.gui2.add import AddFiles
-        self._add_files_thread = AddFiles(paths, self.default_thumbnail,
-                                          self.get_metadata,
-                                          None if to_device else \
-                                          self.library_view.model().db
-                                          )
-        self._add_files_thread.send_to_device = to_device
-        self._add_files_thread.on_card = on_card
-        self._add_files_thread.create_progress_dialog(_('Adding books...'),
-                                                _('Reading metadata...'), self)
-        self.connect(self._add_files_thread, SIGNAL('finished()'),
-                     self._files_added)
-        self._add_files_thread.start()
+        from calibre.gui2.add import Adder
+        self.__adder_func = partial(self._files_added, on_card=on_card)
+        self._adder = Adder(self,
+                None if to_device else self.library_view.model().db,
+                Dispatcher(self.__adder_func))
+        self._adder.add(paths)
 
-    def _files_added(self):
-        t = self._add_files_thread
-        self._add_files_thread = None
-        if not t.canceled:
-            if t.send_to_device:
-                self.upload_books(t.paths,
-                                  list(map(sanitize_file_name, t.names)),
-                                  t.infos, on_card=t.on_card)
-                self.status_bar.showMessage(
-                        _('Uploading books to device.'), 2000)
-            else:
-                t.process_duplicates()
-        if t.number_of_books_added > 0:
-            self.library_view.model().books_added(t.number_of_books_added)
+    def _files_added(self, paths=[], names=[], infos=[], on_card=False):
+        if paths:
+            self.upload_books(paths,
+                                list(map(sanitize_file_name, names)),
+                                infos, on_card=on_card)
+            self.status_bar.showMessage(
+                    _('Uploading books to device.'), 2000)
+        if self._adder.number_of_books_added > 0:
+            self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+
+        self._adder = None
 
 
     ############################################################################
@@ -808,8 +829,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
             view.model().delete_books(rows)
         else:
-            view = self.memory_view if self.stack.currentIndex() == 1 \
-                    else self.card_view
+            if self.stack.currentIndex() == 1:
+                view = self.memory_view
+            elif self.stack.currentIndex() == 2:
+                view = self.card_a_view
+            else:
+                view = self.card_b_view
             paths = view.model().paths(rows)
             job = self.remove_paths(paths)
             self.delete_memory[job] = (paths, view.model())
@@ -824,9 +849,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called once deletion is done on the device
         '''
-        for view in (self.memory_view, self.card_view):
-            view.model().deletion_done(job, bool(job.exception))
-        if job.exception is not None:
+        for view in (self.memory_view, self.card_a_view, self.card_b_view):
+            view.model().deletion_done(job, job.failed)
+        if job.failed:
             self.device_job_exception(job)
             return
 
@@ -875,17 +900,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             db = self.library_view.model().refresh_ids(
                 x.updated, cr)
             if x.failures:
-                details = ['<li><b>%s:</b> %s</li>'%(title, reason) for title,
+                details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
-                details = '<p><ul>%s</ul></p>'%(''.join(details))
-                WarningDialog(_('Failed to download some metadata'),
+                details = '%s\n'%('\n'.join(details))
+                warning_dialog(_('Failed to download some metadata'),
                     _('Failed to download metadata for the following:'),
                     details, self).exec_()
         else:
-            err = _('<b>Failed to download metadata:')+\
-                    '</b><br><pre>'+x.tb+'</pre>'
-            ConversionErrorDialog(self, _('Error'), err,
-                              show=True)
+            err = _('Failed to download metadata:')
+            error_dialog(self, _('Error'), err, det_msg=x.tb).exec_()
 
 
 
@@ -938,67 +961,57 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################## Save to disk ################################
     def save_single_format_to_disk(self, checked):
-        self.save_to_disk(checked, True, config['save_to_disk_single_format'])
+        self.save_to_disk(checked, True, prefs['output_format'])
+
+    def save_specific_format_disk(self, fmt):
+        self.save_to_disk(False, True, fmt)
 
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
 
     def save_to_disk(self, checked, single_dir=False, single_format=None):
-
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot save to disk'),
-                    _('No books selected'))
-            d.exec_()
-            return
-
-        progress = ProgressDialog(_('Saving to disk...'), min=0, max=len(rows),
-                                  parent=self)
-
-        def callback(count, msg):
-            progress.set_value(count)
-            progress.set_msg(_('Saved')+' '+msg)
-            QApplication.processEvents()
-            QApplication.sendPostedEvents()
-            QApplication.flush()
-            return not progress.canceled
-
-        dir = choose_dir(self, 'save to disk dialog',
+            return error_dialog(self, _('Cannot save to disk'),
+                    _('No books selected'), show=True)
+        path = choose_dir(self, 'save to disk dialog',
                 _('Choose destination directory'))
-        if not dir:
+        if not path:
             return
 
-        progress.show()
-        QApplication.processEvents()
-        QApplication.sendPostedEvents()
-        QApplication.flush()
-        try:
-            if self.current_view() == self.library_view:
-                failures = self.current_view().model().save_to_disk(rows, dir,
-                                        single_dir=single_dir,
-                                        callback=callback,
-                                        single_format=single_format)
-                if failures and single_format is not None:
-                    msg = _('<p>Could not save the following books to disk, '
-                       'because the %s format is not available for them:<ul>')\
-                               %single_format.upper()
-                    for f in failures:
-                        msg += '<li>%s</li>'%f[1]
-                    msg += '</ul>'
-                    warning_dialog(self, _('Could not save some ebooks'),
-                            msg).exec_()
-                QDesktopServices.openUrl(QUrl('file:'+dir))
-            else:
-                paths = self.current_view().model().paths(rows)
-                self.device_manager.save_books(
-                        Dispatcher(self.books_saved), paths, dir)
-        finally:
-            progress.hide()
+        if self.current_view() is self.library_view:
+            from calibre.gui2.add import Saver
+            self._saver = Saver(self, self.library_view.model().db,
+                    Dispatcher(self._books_saved), rows, path,
+                    by_author=self.library_view.model().by_author,
+                    single_dir=single_dir,
+                    single_format=single_format)
+
+        else:
+            paths = self.current_view().model().paths(rows)
+            self.device_manager.save_books(
+                    Dispatcher(self.books_saved), paths, path)
+
+
+    def _books_saved(self, path, failures, error):
+        single_format = self._saver.worker.single_format
+        self._saver = None
+        if error:
+            return error_dialog(self, _('Error while saving'),
+                    _('There was an error while saving.'),
+                    error, show=True)
+        if failures and single_format:
+            single_format = single_format.upper()
+            warning_dialog(self, _('Could not save some books'),
+            _('Could not save some books') + ', ' +
+            (_('as the %s format is not available for them.')%single_format) +
+            _('Click the show details button to see which ones.'),
+            '\n'.join(failures), show=True)
+        QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
     def books_saved(self, job):
-        if job.exception is not None:
-            self.device_job_exception(job)
-            return
+        if job.failed:
+            return self.device_job_exception(job)
 
     ############################################################################
 
@@ -1016,9 +1029,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, recipe, callback = self.conversion_jobs.pop(job)
         pt = temp_files[0]
-        if job.exception is not None:
-            self.job_exception(job)
-            return
+        if job.failed:
+            return self.job_exception(job)
         id = self.library_view.model().add_news(pt.name, recipe)
         self.library_view.model().reset()
         sync = dynamic.get('news_to_be_synced', set([]))
@@ -1033,6 +1045,59 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Convert ####################################
 
+    def auto_convert(self, book_ids, on_card, format):
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, book_ids, True, format)
+        if jobs == []: return
+        for func, args, desc, fmt, id, temp_files in jobs:
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_auto_converted),
+                                        func, args=args, description=desc)
+                self.conversion_jobs[job] = (temp_files, fmt, id, on_card)
+
+        if changed:
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
+
+    def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format):
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, book_ids, True, format)
+        if jobs == []: return
+        for func, args, desc, fmt, id, temp_files in jobs:
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_auto_converted_mail),
+                                        func, args=args, description=desc)
+                self.conversion_jobs[job] = (temp_files, fmt, id,
+                        delete_from_library, to, fmts)
+
+        if changed:
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
+
+    def auto_convert_news(self, book_ids, format):
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_single_ebook(self, self.library_view.model().db, book_ids, True, format)
+        if jobs == []: return
+        for func, args, desc, fmt, id, temp_files in jobs:
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_auto_converted_news),
+                                        func, args=args, description=desc)
+                self.conversion_jobs[job] = (temp_files, fmt, id)
+
+        if changed:
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
+
+
     def get_books_for_conversion(self):
         rows = [r.row() for r in \
                 self.library_view.selectionModel().selectedRows()]
@@ -1040,69 +1105,121 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             d = error_dialog(self, _('Cannot convert'),
                     _('No books selected'))
             d.exec_()
-            return [], []
-        comics, others = [], []
-        db = self.library_view.model().db
-        for r in rows:
-            formats = db.formats(r)
-            if not formats: continue
-            formats = formats.lower().split(',')
-            if 'cbr' in formats or 'cbz' in formats:
-                comics.append(r)
-            else:
-                others.append(r)
-        return comics, others
-
+            return None
+        return [self.library_view.model().db.id(r) for r in rows]
 
     def convert_bulk(self, checked):
-        r = self.get_books_for_conversion()
-        if r is None:
-            return
-        comics, others = r
-
-        res  = convert_bulk_ebooks(self,
-                self.library_view.model().db, comics, others)
-        if res is None:
-            return
-        jobs, changed = res
-        for func, args, desc, fmt, id, temp_files in jobs:
-            job = self.job_manager.run_job(Dispatcher(self.book_converted),
-                                            func, args=args, description=desc)
-            self.conversion_jobs[job] = (temp_files, fmt, id)
-
-        if changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
-
-    def set_conversion_defaults(self, checked):
-        set_conversion_defaults(False, self, self.library_view.model().db)
-
-    def set_comic_conversion_defaults(self, checked):
-        set_conversion_defaults(True, self, self.library_view.model().db)
-
-    def convert_single(self, checked):
-        r = self.get_books_for_conversion()
-        if r is None: return
+        book_ids = self.get_books_for_conversion()
+        if book_ids is None: return
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
-        comics, others = r
-        jobs, changed = convert_single_ebook(self,
-                self.library_view.model().db, comics, others)
+        jobs, changed, bad = convert_bulk_ebook(self,
+                self.library_view.model().db, book_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
-            job = self.job_manager.run_job(Dispatcher(self.book_converted),
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_converted),
                                             func, args=args, description=desc)
-            self.conversion_jobs[job] = (temp_files, fmt, id)
+                self.conversion_jobs[job] = (temp_files, fmt, id)
 
         if changed:
             self.library_view.model().refresh_rows(rows)
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, previous)
 
+    def convert_single(self, checked):
+        book_ids = self.get_books_for_conversion()
+        if book_ids is None: return
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in \
+                self.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_single_ebook(self,
+                self.library_view.model().db, book_ids, out_format=prefs['output_format'])
+        for func, args, desc, fmt, id, temp_files in jobs:
+            if id not in bad:
+                job = self.job_manager.run_job(Dispatcher(self.book_converted),
+                                            func, args=args, description=desc)
+                self.conversion_jobs[job] = (temp_files, fmt, id)
+
+        if changed:
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
+
+    def book_auto_converted(self, job):
+        temp_files, fmt, book_id, on_card = self.conversion_jobs.pop(job)
+        try:
+            if job.failed:
+                return self.job_exception(job)
+            data = open(temp_files[0].name, 'rb')
+            self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+            data.close()
+            self.status_bar.showMessage(job.description + (' completed'), 2000)
+        finally:
+            for f in temp_files:
+                try:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+                except:
+                    pass
+        self.tags_view.recount()
+        if self.current_view() is self.library_view:
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, QModelIndex())
+
+        self.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
+
+    def book_auto_converted_mail(self, job):
+        temp_files, fmt, book_id, delete_from_library, to, fmts = self.conversion_jobs.pop(job)
+        try:
+            if job.failed:
+                self.job_exception(job)
+                return
+            data = open(temp_files[0].name, 'rb')
+            self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+            data.close()
+            self.status_bar.showMessage(job.description + (' completed'), 2000)
+        finally:
+            for f in temp_files:
+                try:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+                except:
+                    pass
+        self.tags_view.recount()
+        if self.current_view() is self.library_view:
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, QModelIndex())
+
+        self.send_by_mail(to, fmts, delete_from_library, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
+
+    def book_auto_converted_news(self, job):
+        temp_files, fmt, book_id = self.conversion_jobs.pop(job)
+        try:
+            if job.failed:
+                return self.job_exception(job)
+            data = open(temp_files[0].name, 'rb')
+            self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+            data.close()
+            self.status_bar.showMessage(job.description + (' completed'), 2000)
+        finally:
+            for f in temp_files:
+                try:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+                except:
+                    pass
+        self.tags_view.recount()
+        if self.current_view() is self.library_view:
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, QModelIndex())
+
+        self.sync_news(send_ids=[book_id], do_auto_convert=False)
+
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
         try:
-            if job.exception is not None:
+            if job.failed:
                 self.job_exception(job)
                 return
             data = open(temp_files[-1].name, 'rb')
@@ -1131,7 +1248,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._view_file(fmt_path)
 
     def book_downloaded_for_viewing(self, job):
-        if job.exception:
+        if job.failed:
             self.device_job_exception(job)
             return
         self._view_file(job.result)
@@ -1145,12 +1262,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     args.append('--raise-window')
                 if name is not None:
                     args.append(name)
-                self.job_manager.server.run_free_job(viewer,
-                        kwdargs=dict(args=args))
+                self.job_manager.launch_gui_app(viewer,
+                        kwargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl.fromLocalFile(name))#launch(name)
-
-            time.sleep(5) # User feedback
+                time.sleep(2) # User feedback
         finally:
             self.unsetCursor()
 
@@ -1269,57 +1385,28 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                             config['show_text_in_toolbar'] else \
                             Qt.ToolButtonIconOnly)
             self.save_menu.actions()[2].setText(
-                _('Save only %s format to disk')%config.get(
-                    'save_to_disk_single_format').upper())
-            if self.library_path != d.database_location:
-                try:
-                    newloc = d.database_location
-                    if not os.path.exists(os.path.join(newloc, 'metadata.db')):
-                        if os.access(self.library_path, os.R_OK):
-                            pd = QProgressDialog('', '', 0, 100, self)
-                            pd.setWindowModality(Qt.ApplicationModal)
-                            pd.setCancelButton(None)
-                            pd.setWindowTitle(_('Copying database'))
-                            pd.show()
-                            self.status_bar.showMessage(
-                                    _('Copying library to ')+newloc)
-                            self.setCursor(Qt.BusyCursor)
-                            self.library_view.setEnabled(False)
-                            self.library_view.model().db.move_library_to(
-                                    newloc, pd)
-                    else:
-                        try:
-                            db = LibraryDatabase2(newloc)
-                            self.library_view.set_database(db)
-                        except Exception, err:
-                            traceback.print_exc()
-                            d = error_dialog(self, _('Invalid database'),
-                                _('<p>An invalid database already exists at '
-                                  '%s, delete it before trying to move the '
-                                  'existing database.<br>Error: %s')%(newloc,
-                                      str(err)))
-                            d.exec_()
-                    self.library_path = \
-                            self.library_view.model().db.library_path
-                    prefs['library_path'] =  self.library_path
-                except Exception, err:
-                    traceback.print_exc()
-                    d = error_dialog(self, _('Could not move database'),
-                            unicode(err))
-                    d.exec_()
-                finally:
-                    self.unsetCursor()
-                    self.library_view.setEnabled(True)
-                    self.status_bar.clearMessage()
-                    self.search.clear_to_help()
-                    self.status_bar.reset_info()
-                    self.library_view.sortByColumn(3, Qt.DescendingOrder)
-                    self.library_view.resizeRowsToContents()
+                _('Save only %s format to disk')%
+                prefs['output_format'].upper())
             if hasattr(d, 'directories'):
                 set_sidebar_directories(d.directories)
             self.library_view.model().read_config()
             self.create_device_menu()
 
+
+            if not patheq(self.library_path, d.database_location):
+                newloc = d.database_location
+                move_library(self.library_path, newloc, self,
+                        self.library_moved)
+
+
+    def library_moved(self, newloc):
+        if newloc is None: return
+        db = LibraryDatabase2(newloc)
+        self.library_view.set_database(db)
+        self.status_bar.clearMessage()
+        self.search.clear_to_help()
+        self.status_bar.reset_info()
+        self.library_view.sortByColumn(3, Qt.DescendingOrder)
 
     ############################################################################
 
@@ -1342,10 +1429,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Called when a location icon is clicked (e.g. Library)
         '''
-        page = 0 if location == 'library' else 1 if location == 'main' else 2
+        page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
         view = self.memory_view if page == 1 else \
-                self.card_view if page == 2 else None
+                self.card_a_view if page == 2 else \
+                self.card_b_view if page == 3 else None
         if view:
             if view.resize_on_select:
                 view.resizeRowsToContents()
@@ -1374,7 +1462,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         try:
             if 'Could not read 32 bytes on the control bus.' in \
-                    unicode(job.exception):
+                    unicode(job.details):
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
@@ -1383,16 +1471,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         except:
             pass
         try:
-            print >>sys.stderr, job.console_text()
+            prints(job.details, file=sys.stderr)
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.set_message(job.gui_text())
+            self.device_error_dialog.setDetailedText(job.details)
             self.device_error_dialog.show()
 
     def job_exception(self, job):
         try:
-            if job.exception[0] == 'DRMError':
+            if 'calibre.ebooks.DRMError' in job.details:
                 error_dialog(self, _('Conversion Error'),
                     _('<p>Could not convert: %s<p>It is a '
                       '<a href="%s">DRM</a>ed book. You must first remove the '
@@ -1402,22 +1490,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 return
         except:
             pass
-        only_msg = getattr(job.exception, 'only_msg', False)
+        if job.killed:
+            return
         try:
-            print job.console_text()
+            prints(job.details, file=sys.stderr)
         except:
             pass
-        if only_msg:
-            try:
-                exc = unicode(job.exception)
-            except:
-                exc = repr(job.exception)
-            error_dialog(self, _('Conversion Error'), exc).exec_()
-            return
-        if isinstance(job.exception, JobKilled):
-            return
-        ConversionErrorDialog(self, _('Conversion Error'), job.gui_text(),
-                              show=True)
+        error_dialog(self, _('Conversion Error'),
+                _('<b>Failed</b>')+': '+unicode(job.description),
+                det_msg=job.details).exec_()
 
 
     def initialize_database(self):
@@ -1518,8 +1599,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if self.job_manager.has_device_jobs():
                 msg = '<p>'+__appname__ + \
                       _(''' is communicating with the device!<br>
-                      'Quitting may cause corruption on the device.<br>
-                      'Are you sure you want to quit?''')+'</p>'
+                      Quitting may cause corruption on the device.<br>
+                      Are you sure you want to quit?''')+'</p>'
 
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
@@ -1533,7 +1614,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def shutdown(self, write_settings=True):
         if write_settings:
             self.write_settings()
-        self.job_manager.terminate_all_jobs()
+        self.check_messages_timer.stop()
+        self.listener.close()
+        self.job_manager.server.close()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()
@@ -1550,6 +1633,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             pass
         self.hide()
         return True
+
+    def run_wizard(self, *args):
+        if self.confirm_quit():
+            self.run_wizard_b4_shutdown = True
+            self.restart_after_quit = True
+            try:
+                self.shutdown(write_settings=False)
+            except:
+                pass
+            QApplication.instance().quit()
+
 
 
     def closeEvent(self, e):
@@ -1584,12 +1678,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.vanity.update()
         if config.get('new_version_notification') and \
                 dynamic.get('update to version %s'%version, True):
-            d = question_dialog(self, _('Update available'),
+            if question_dialog(self, _('Update available'),
                     _('%s has been updated to version %s. '
                     'See the <a href="http://calibre.kovidgoyal.net/wiki/'
                     'Changelog">new features</a>. Visit the download pa'
-                    'ge?')%(__appname__, version))
-            if d.exec_() == QMessageBox.Yes:
+                    'ge?')%(__appname__, version)):
                 url = 'http://calibre.kovidgoyal.net/download_'+\
                     ('windows' if iswindows else 'osx' if isosx else 'linux')
                 QDesktopServices.openUrl(QUrl(url))
@@ -1611,53 +1704,118 @@ path_to_ebook to the database.
                       help=_('Log debugging information to console'))
     return parser
 
-def main(args=sys.argv):
-    from calibre.utils.lock import singleinstance
+def init_qt(args):
+    parser = option_parser()
+    opts, args = parser.parse_args(args)
+    if opts.with_library is not None and os.path.isdir(opts.with_library):
+        prefs.set('library_path', opts.with_library)
+        print 'Using library at', prefs['library_path']
+    app = Application(args)
+    actions = tuple(Main.create_application_menubar())
+    app.setWindowIcon(QIcon(':/library'))
+    QCoreApplication.setOrganizationName(ORG_NAME)
+    QCoreApplication.setApplicationName(APP_UID)
+    return app, opts, args, actions
 
-    pid = os.fork() if False and islinux else -1
-    if pid <= 0:
-        parser = option_parser()
-        opts, args = parser.parse_args(args)
-        if opts.with_library is not None and os.path.isdir(opts.with_library):
-            prefs.set('library_path', opts.with_library)
-            print 'Using library at', prefs['library_path']
-        app = Application(args)
-        actions = tuple(Main.create_application_menubar())
-        app.setWindowIcon(QIcon(':/library'))
-        QCoreApplication.setOrganizationName(ORG_NAME)
-        QCoreApplication.setApplicationName(APP_UID)
-        single_instance = None if SingleApplication is None else \
-                                  SingleApplication('calibre GUI')
-        if not singleinstance('calibre GUI'):
-            if len(args) > 1:
-                args[1] = os.path.abspath(args[1])
-            if single_instance is not None and \
-               single_instance.is_running() and \
-               single_instance.send_message('launched:'+repr(args)):
-                return 0
-            extra = '' if iswindows else \
-                    ('If you\'re sure it is not running, delete the file '
-                    '%s.'%os.path.expanduser('~/.calibre_calibre GUI.lock'))
-            QMessageBox.critical(None, _('Cannot Start ')+__appname__,
-                        _('<p>%s is already running. %s</p>')%(__appname__, extra))
-            return 1
-        initialize_file_icon_provider()
-        main = Main(single_instance, opts, actions)
-        sys.excepthook = main.unhandled_exception
-        if len(args) > 1:
-            main.add_filesystem_book(args[1])
-        ret = app.exec_()
-        if getattr(main, 'restart_after_quit', False):
-            e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
-            print 'Restarting with:', e, sys.argv
-            os.execvp(e, sys.argv)
+def run_gui(opts, args, actions, listener, app):
+    initialize_file_icon_provider()
+    if not dynamic.get('welcome_wizard_was_run', False):
+        from calibre.gui2.wizard import wizard
+        wizard().exec_()
+        dynamic.set('welcome_wizard_was_run', True)
+    main = Main(listener, opts, actions)
+    sys.excepthook = main.unhandled_exception
+    if len(args) > 1:
+        args[1] = os.path.abspath(args[1])
+        main.add_filesystem_book(args[1])
+    ret = app.exec_()
+    if getattr(main, 'run_wizard_b4_shutdown', False):
+        from calibre.gui2.wizard import wizard
+        wizard().exec_()
+    if getattr(main, 'restart_after_quit', False):
+        e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
+        print 'Restarting with:', e, sys.argv
+        os.execvp(e, sys.argv)
+    else:
+        if iswindows:
+            try:
+                main.system_tray_icon.hide()
+            except:
+                pass
+    return ret
+
+def cant_start(msg=_('If you are sure it is not running')+', ',
+        what=None):
+    d = QMessageBox(QMessageBox.Critical, _('Cannot Start ')+__appname__,
+        '<p>'+(_('%s is already running.')%__appname__)+'</p>',
+        QMessageBox.Ok)
+    base = '<p>%s</p><p>%s %s'
+    where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
+    if isosx:
+        where += _('upper right region of the screen.')
+    else:
+        where += _('lower right region of the screen.')
+    if what is None:
+        if iswindows:
+            what = _('try rebooting your computer.')
         else:
+            what = _('try deleting the file')+': '+ADDRESS
+
+    d.setInformativeText(base%(where, msg, what))
+    d.exec_()
+    raise SystemExit(1)
+
+class RC(Thread):
+
+    def run(self):
+        from multiprocessing.connection import Client
+        self.done = False
+        self.conn = Client(ADDRESS)
+        self.done = True
+
+def communicate(args):
+    t = RC()
+    t.start()
+    time.sleep(3)
+    if not t.done:
+        f = os.path.expanduser('~/.calibre_calibre GUI.lock')
+        cant_start(what=_('try deleting the file')+': '+f)
+        raise SystemExit(1)
+
+    if len(args) > 1:
+        args[1] = os.path.abspath(args[1])
+    t.conn.send('launched:'+repr(args))
+    t.conn.close()
+    raise SystemExit(0)
+
+
+def main(args=sys.argv):
+    app, opts, args, actions = init_qt(args)
+    from calibre.utils.lock import singleinstance
+    from multiprocessing.connection import Listener
+    si = singleinstance('calibre GUI')
+    if si:
+        try:
+            listener = Listener(address=ADDRESS)
+        except socket.error:
             if iswindows:
-                try:
-                    main.system_tray_icon.hide()
-                except:
-                    pass
-            return ret
+                cant_start()
+            os.remove(ADDRESS)
+            try:
+                listener = Listener(address=ADDRESS)
+            except socket.error:
+                cant_start()
+            else:
+                return run_gui(opts, args, actions, listener, app)
+        else:
+            return run_gui(opts, args, actions, listener, app)
+    try:
+        listener = Listener(address=ADDRESS)
+    except socket.error: # Good si is correct
+        communicate(args)
+    else:
+        return run_gui(opts, args, actions, listener, app)
+
     return 0
 
 
@@ -1674,3 +1832,4 @@ if __name__ == '__main__':
             d = QErrorMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
                 '%s<b>Log:</b><br>%s')%(unicode(err), unicode(tb), log))
             d.exec_()
+

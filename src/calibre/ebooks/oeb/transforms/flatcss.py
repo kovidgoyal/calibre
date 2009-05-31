@@ -6,18 +6,14 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
-import os
 import re
 import operator
 import math
-from itertools import chain
 from collections import defaultdict
 from lxml import etree
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import OEBBook
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
@@ -27,6 +23,19 @@ def asfloat(value, default):
     if not isinstance(value, (int, long, float)):
         value = default
     return float(value)
+
+def dynamic_rescale_factor(node):
+    classes = node.get('class', '').split(' ')
+    classes = [x.replace('calibre_rescale_', '') for x in classes if
+            x.startswith('calibre_rescale_')]
+    if not classes: return None
+    factor = 1.0
+    for x in classes:
+        try:
+            factor *= float(x)/100.
+        except ValueError:
+            continue
+    return factor
 
 
 class KeyMapper(object):
@@ -48,7 +57,7 @@ class KeyMapper(object):
         logb = abs(base - endp)
         result = sign * math.log(diff, logb)
         return result
-        
+
     def __getitem__(self, ssize):
         ssize = asfloat(ssize, 0)
         if ssize in self.cache:
@@ -79,7 +88,7 @@ class NullMapper(object):
 
     def __getitem__(self, ssize):
         return ssize
-    
+
 def FontMapper(sbase=None, dbase=None, dkey=None):
     if sbase and dbase and dkey:
         return KeyMapper(sbase, dbase, dkey)
@@ -98,7 +107,15 @@ class CSSFlattener(object):
         self.unfloat = unfloat
         self.untable = untable
 
-    def transform(self, oeb, context):
+    @classmethod
+    def config(cls, cfg):
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls()
+
+    def __call__(self, oeb, context):
         oeb.logger.info('Flattening CSS and remapping font sizes...')
         self.oeb = oeb
         self.context = context
@@ -110,10 +127,26 @@ class CSSFlattener(object):
     def stylize_spine(self):
         self.stylizers = {}
         profile = self.context.source
+        css = ''
         for item in self.oeb.spine:
             html = item.data
-            stylizer = Stylizer(html, item.href, self.oeb, profile)
+            body = html.find(XHTML('body'))
+            bs = body.get('style', '').split(';')
+            bs.append('margin-top: 0pt')
+            bs.append('margin-bottom: 0pt')
+            bs.append('margin-left : %fpt'%\
+                    float(self.context.margin_left))
+            bs.append('margin-right : %fpt'%\
+                    float(self.context.margin_right))
+            bs.append('text-align: '+ \
+                    ('left' if self.context.dont_justify else 'justify'))
+            body.set('style', '; '.join(bs))
+
+            stylizer = Stylizer(html, item.href, self.oeb, profile,
+                    user_css=self.context.extra_css,
+                    extra_css=css)
             self.stylizers[item] = stylizer
+
 
     def baseline_node(self, node, stylizer, sizes, csize):
         csize = stylizer.style(node)['font-size']
@@ -123,7 +156,7 @@ class CSSFlattener(object):
             self.baseline_node(child, stylizer, sizes, csize)
             if child.tail:
                 sizes[csize] += len(COLLAPSE.sub(' ', child.tail))
-    
+
     def baseline_spine(self):
         sizes = defaultdict(float)
         for item in self.oeb.spine:
@@ -153,7 +186,7 @@ class CSSFlattener(object):
                 else:
                     value = round(value / slineh) * dlineh
                     cssdict[property] = "%0.5fem" % (value / fsize)
-    
+
     def flatten_node(self, node, stylizer, names, styles, psize, left=0):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
@@ -182,10 +215,19 @@ class CSSFlattener(object):
         if 'bgcolor' in node.attrib:
             cssdict['background-color'] = node.attrib['bgcolor']
             del node.attrib['bgcolor']
-        if 'font-size' in cssdict or tag == 'body':
-            fsize = self.fmap[style['font-size']]
-            cssdict['font-size'] = "%0.5fem" % (fsize / psize)
-            psize = fsize
+        if not self.context.disable_font_rescaling:
+            _sbase = self.sbase if self.sbase is not None else \
+                self.context.source.fbase
+            dyn_rescale = dynamic_rescale_factor(node)
+            if dyn_rescale is not None:
+                fsize = self.fmap[_sbase]
+                fsize *= dyn_rescale
+                cssdict['font-size'] = '%0.5fem'%(fsize/psize)
+                psize = fsize
+            elif 'font-size' in cssdict or tag == 'body':
+                fsize = self.fmap[style['font-size']]
+                cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                psize = fsize
         if cssdict:
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)
@@ -214,6 +256,15 @@ class CSSFlattener(object):
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
+        if (self.context.remove_paragraph_spacing or
+                self.context.insert_blank_line) and tag in ('p', 'div'):
+            for prop in ('margin', 'padding', 'border'):
+                for edge in ('top', 'bottom'):
+                    cssdict['%s-%s'%(prop, edge)] = '0pt'
+            if self.context.insert_blank_line:
+                cssdict['margin-top'] = cssdict['margin-bottom'] = '0.5em'
+            if self.context.remove_paragraph_spacing:
+                cssdict['text-indent'] = '1.5em'
         if cssdict:
             items = cssdict.items()
             items.sort()
@@ -248,12 +299,16 @@ class CSSFlattener(object):
         href = item.relhref(href)
         etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
-        if stylizer.page_rule:
-            items = stylizer.page_rule.items()
-            items.sort()
-            css = '; '.join("%s: %s" % (key, val) for key, val in items)
-            style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
-            style.text = "@page { %s; }" % css
+        stylizer.page_rule['margin-top'] = '%fpt'%\
+                float(self.context.margin_top)
+        stylizer.page_rule['margin-bottom'] = '%fpt'%\
+                float(self.context.margin_bottom)
+
+        items = stylizer.page_rule.items()
+        items.sort()
+        css = '; '.join("%s: %s" % (key, val) for key, val in items)
+        style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
+        style.text = "@page { %s; }" % css
 
     def replace_css(self, css):
         manifest = self.oeb.manifest
@@ -263,7 +318,7 @@ class CSSFlattener(object):
                 manifest.remove(item)
         item = manifest.add(id, href, CSS_MIME, data=css)
         return href
-            
+
     def flatten_spine(self):
         names = defaultdict(int)
         styles = {}
@@ -280,3 +335,4 @@ class CSSFlattener(object):
         for item in self.oeb.spine:
             stylizer = self.stylizers[item]
             self.flatten_head(item, stylizer, href)
+

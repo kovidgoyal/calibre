@@ -25,6 +25,7 @@ from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
 from calibre.utils.mdns import publish as publish_zeroconf, \
                                stop_server as stop_zeroconf
+from calibre.ebooks.metadata import fmt_sidx
 
 build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
 server_resources['jquery.js'] = jquery
@@ -271,7 +272,7 @@ class LibraryServer(object):
 
     @expose
     def stanza(self):
-        ' Feeds to read calibre books on a ipod with stanza.'
+        'Feeds to read calibre books on a ipod with stanza.'
         books = []
         for record in iter(self.db):
             r = record[FIELD_MAP['formats']]
@@ -289,8 +290,8 @@ class LibraryServer(object):
                     extra.append('TAGS: %s<br />'%', '.join(tags.split(',')))
                 series = record[FIELD_MAP['series']]
                 if series:
-                    extra.append('SERIES: %s [%d]<br />'%(series,
-                                            record[FIELD_MAP['series_index']]))
+                    extra.append('SERIES: %s [%s]<br />'%(series,
+                                            fmt_sidx(record[FIELD_MAP['series_index']])))
                 fmt = 'epub' if 'EPUB' in r else 'pdb'
                 mimetype = guess_type('dummy.'+fmt)[0]
                 books.append(self.STANZA_ENTRY.generate(
@@ -339,6 +340,7 @@ class LibraryServer(object):
         for record in items[start:start+num]:
             aus = record[2] if record[2] else __builtins__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
+            r[10] = fmt_sidx(r[10])
             books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
 

@@ -31,6 +31,7 @@ class PersistentTemporaryFile(object):
                                     dir=dir)
         self._file = os.fdopen(fd, mode)
         self._name = name
+        self._fd = fd
         atexit.register(cleanup, name)
 
     def __getattr__(self, name):

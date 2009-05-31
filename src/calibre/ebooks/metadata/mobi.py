@@ -9,13 +9,9 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys
-import os
 from struct import pack, unpack
 from cStringIO import StringIO
-from calibre.ebooks.metadata import get_parser
 from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.mobi.reader import get_metadata
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
 
@@ -117,8 +113,13 @@ class MetadataUpdater(object):
 
     def update(self, mi):
         recs = []
-        from calibre.ebooks.mobi.from_any import config
-        if mi.author_sort and config().parse().prefer_author_sort:
+        try:
+             from calibre.ebooks.conversion.config import load_defaults
+             prefs = load_defaults('mobi_output')
+             pas = prefs.get('prefer_author_sort', False)
+        except:
+            pas = False
+        if mi.author_sort and pas:
             authors = mi.author_sort
             recs.append((100, authors.encode(self.codec, 'replace')))
         elif mi.authors:
@@ -182,63 +183,3 @@ def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
     mu.update(mi)
     return
-
-
-def option_parser():
-    parser = get_parser('mobi')
-    parser.remove_option('--category')
-    parser.add_option('--tags', default=None,
-                      help=_('Set the subject tags'))
-    parser.add_option('--language', default=None,
-                      help=_('Set the language'))
-    parser.add_option('--publisher', default=None,
-                      help=_('Set the publisher'))
-    parser.add_option('--isbn', default=None,
-                      help=_('Set the ISBN'))
-    return parser
-
-def main(args=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        print >>sys.stderr, 'Usage: %s file.mobi' % args[0]
-        return 1
-    fname = args[1]
-    changed = False
-    with open(fname, 'r+b') as stream:
-        mi = get_metadata(stream)
-        if opts.title:
-            mi.title = opts.title
-            changed = True
-        if opts.authors:
-            mi.authors = opts.authors.split(',')
-            changed = True
-        if opts.comment:
-            mi.comments = opts.comment
-            changed = True
-        if opts.tags is not None:
-            mi.tags = opts.tags.split(',')
-            changed = True
-        if opts.language is not None:
-            mi.language = opts.language
-            changed = True
-        if opts.publisher is not None:
-            mi.publisher = opts.publisher
-            changed = True
-        if opts.isbn is not None:
-            mi.isbn = opts.isbn
-            changed = True
-        if changed:
-            set_metadata(stream, mi)
-        print unicode(get_metadata(stream))
-    if not changed and mi.cover_data[1]:
-        cover = os.path.abspath(
-            '.'.join((os.path.splitext(os.path.basename(fname))[0],
-                      mi.cover_data[0].lower())))
-        open(cover, 'wb').write(mi.cover_data[1])
-        print _('Cover saved to'), cover
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

@@ -8,11 +8,12 @@ device. This class handles device detection.
 
 import os, subprocess, time, re
 
-from calibre.devices.interface import Device as _Device
+from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
+from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
 
-class Device(_Device):
+class Device(DeviceConfig, DevicePlugin):
     '''
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. If you are writing such a driver, inherit from this
@@ -25,10 +26,12 @@ class Device(_Device):
 
     VENDOR_NAME = None
     WINDOWS_MAIN_MEM = None
-    WINDOWS_CARD_MEM = None
+    WINDOWS_CARD_A_MEM = None
+    WINDOWS_CARD_B_MEM = None
 
     OSX_MAIN_MEM = None
-    OSX_CARD_MEM = None
+    OSX_CARD_A_MEM = None
+    OSX_CARD_B_MEM = None
 
     MAIN_MEMORY_VOLUME_LABEL  = ''
     STORAGE_CARD_VOLUME_LABEL = ''
@@ -63,18 +66,30 @@ class Device(_Device):
           </match>
       </match>
   </device>
+  <device>
+      <match key="info.category" string="volume">
+          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
+              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
+                %(BCD_start)s
+                  <match key="@info.parent:storage.lun" int="%(lun2)d">
+                          <merge key="volume.label" type="string">%(storage_card)s</merge>
+                          <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
+                  </match>
+                %(BCD_end)s
+              </match>
+          </match>
+      </match>
+  </device>
 '''
-    FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
     FDI_LUNS = {'lun0':0, 'lun1':1, 'lun2':2}
+    FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
 
-
-    def __init__(self, key='-1', log_packets=False, report_progress=None) :
-        self._main_prefix = self._card_prefix = None
+    def reset(self, key='-1', log_packets=False, report_progress=None) :
+        self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
     @classmethod
     def get_fdi(cls):
         fdi = ''
-
         for vid in cls.VENDOR_ID:
             for pid in cls.PRODUCT_ID:
                 fdi_base_values = dict(
@@ -85,7 +100,6 @@ class Device(_Device):
                                        main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                        storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                   )
-
                 fdi_base_values.update(cls.FDI_LUNS)
 
                 if cls.BCD is None:
@@ -105,7 +119,7 @@ class Device(_Device):
         self.report_progress = report_progress
 
     def card_prefix(self, end_session=True):
-        return self._card_prefix
+        return (self._card_a_prefix, self._card_b_prefix)
 
     @classmethod
     def _windows_space(cls, prefix):
@@ -125,34 +139,41 @@ class Device(_Device):
         return total_clusters * mult, free_clusters * mult
 
     def total_space(self, end_session=True):
-        msz = csz = 0
+        msz = casz = cbsz = 0
         if not iswindows:
             if self._main_prefix is not None:
                 stats = os.statvfs(self._main_prefix)
                 msz = stats.f_frsize * (stats.f_blocks + stats.f_bavail - stats.f_bfree)
-            if self._card_prefix is not None:
-                stats = os.statvfs(self._card_prefix)
-                csz = stats.f_frsize * (stats.f_blocks + stats.f_bavail - stats.f_bfree)
+            if self._card_a_prefix is not None:
+                stats = os.statvfs(self._card_a_prefix)
+                casz = stats.f_frsize * (stats.f_blocks + stats.f_bavail - stats.f_bfree)
+            if self._card_b_prefix is not None:
+                stats = os.statvfs(self._card_b_prefix)
+                cbsz = stats.f_frsize * (stats.f_blocks + stats.f_bavail - stats.f_bfree)
         else:
             msz = self._windows_space(self._main_prefix)[0]
-            csz = self._windows_space(self._card_prefix)[0]
+            casz = self._windows_space(self._card_a_prefix)[0]
+            cbsz = self._windows_space(self._card_b_prefix)[0]
 
-        return (msz, 0, csz)
+        return (msz, casz, cbsz)
 
     def free_space(self, end_session=True):
-        msz = csz = 0
+        msz = casz = cbsz = 0
         if not iswindows:
             if self._main_prefix is not None:
                 stats = os.statvfs(self._main_prefix)
                 msz = stats.f_frsize * stats.f_bavail
-            if self._card_prefix is not None:
-                stats = os.statvfs(self._card_prefix)
-                csz = stats.f_frsize * stats.f_bavail
+            if self._card_a_prefix is not None:
+                stats = os.statvfs(self._card_a_prefix)
+                casz = stats.f_frsize * stats.f_bavail
+            if self._card_b_prefix is not None:
+                stats = os.statvfs(self._card_b_prefix)
+                cbsz = stats.f_frsize * stats.f_bavail
         else:
             msz = self._windows_space(self._main_prefix)[1]
             csz = self._windows_space(self._card_prefix)[1]
 
-        return (msz, 0, csz)
+        return (msz, casz, cbsz)
 
     def windows_match_device(self, pnp_id, device_id):
         pnp_id = pnp_id.upper()
@@ -193,10 +214,12 @@ class Device(_Device):
         for drive in c.Win32_DiskDrive():
             if self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_MAIN_MEM):
                 drives['main'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_CARD_MEM):
-                drives['card'] = self.windows_get_drive_prefix(drive)
+            elif self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_CARD_A_MEM):
+                drives['carda'] = self.windows_get_drive_prefix(drive)
+            elif self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_CARD_B_MEM):
+                drives['cardb'] = self.windows_get_drive_prefix(drive)
 
-            if 'main' in drives.keys() and 'card' in drives.keys():
+            if 'main' in drives.keys() and 'carda' in drives.keys() and 'cardb' in drives.keys():
                 break
 
         if 'main' not in drives:
@@ -206,7 +229,8 @@ class Device(_Device):
 
         drives = self.windows_sort_drives(drives)
         self._main_prefix = drives.get('main')
-        self._card_prefix = drives.get('card', None)
+        self._card_a_prefix = drives.get('carda', None)
+        self._card_b_prefix = drives.get('cardb', None)
 
     @classmethod
     def run_ioreg(cls, raw=None):
@@ -237,9 +261,11 @@ class Device(_Device):
         for i, line in enumerate(lines):
             if self.OSX_MAIN_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_MAIN_MEM in line:
                 get_dev_node(lines[i+1:], 'main')
-            if self.OSX_CARD_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_CARD_MEM in line:
-                get_dev_node(lines[i+1:], 'card')
-            if len(names.keys()) == 2:
+            if self.OSX_CARD_A_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_CARD_A_MEM in line:
+                get_dev_node(lines[i+1:], 'carda')
+            if self.OSX_CARD_B_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_CARD_B_MEM in line:
+                get_dev_node(lines[i+1:], 'cardb')
+            if len(names.keys()) == 3:
                 break
         return names
 
@@ -251,10 +277,18 @@ class Device(_Device):
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
         main_pat = dev_pat % names['main']
         self._main_prefix = re.search(main_pat, mount).group(2) + os.sep
-        card_pat = names['card'] if 'card' in names.keys() else None
-        if card_pat is not None:
-            card_pat = dev_pat % card_pat
-            self._card_prefix = re.search(card_pat, mount).group(2) + os.sep
+        card_a_pat = names['carda'] if 'carda' in names.keys() else None
+        card_b_pat = names['cardb'] if 'cardb' in names.keys() else None
+
+        def get_card_prefix(pat):
+            if pat is not None:
+                pat = dev_pat % pat
+                return re.search(pat, mount).group(2) + os.sep
+            else:
+                return None
+
+        self._card_a_prefix = get_card_prefix(card_a_pat)
+        self._card_b_prefix = get_card_prefix(card_b_pat)
 
     def open_linux(self):
         import dbus
@@ -287,21 +321,24 @@ class Device(_Device):
         if not self._main_prefix:
             raise DeviceError('Could not open device for reading. Try a reboot.')
 
-        self._card_prefix = None
+        self._card_a_prefix = self._card_b_prefix = None
         cards = hm.FindDeviceStringMatch(__appname__+'.cardvolume', self.__class__.__name__)
 
-        for dev in cards:
+        def mount_card(dev):
             try:
-                self._card_prefix = conditional_mount(dev)+os.sep
-                break
+                return conditional_mount(dev)+os.sep
             except:
                 import traceback
                 print traceback
-                continue
+
+        if len(cards) >= 1:
+            self._card_a_prefix = mount_card(cards[0])
+        if len(cards) >=2:
+            self._card_b_prefix = mount_card(cards[1])
 
     def open(self):
         time.sleep(5)
-        self._main_prefix = self._card_prefix = None
+        self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         if islinux:
             try:
                 self.open_linux()

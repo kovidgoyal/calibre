@@ -6,8 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
-import os
 from cStringIO import StringIO
 from struct import pack
 from itertools import izip, count, chain
@@ -17,7 +15,6 @@ import re
 import copy
 import uuid
 import functools
-import logging
 from urlparse import urldefrag
 from urllib import unquote as urlunquote
 from lxml import etree
@@ -25,22 +22,14 @@ from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, OEB_STYLES, \
     CSS_MIME, OPF_MIME, XML_NS, XML
-from calibre.ebooks.oeb.base import namespace, barename, prefixname, \
-    urlnormalize, xpath
-from calibre.ebooks.oeb.base import Logger, OEBBook
-from calibre.ebooks.oeb.profile import Context
+from calibre.ebooks.oeb.base import prefixname, \
+    urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
-from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
-from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
-from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
-from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
 from calibre.ebooks.lit.lzx import Compressor
 import calibre
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
-from calibre.customize.ui import run_plugins_on_postprocess
 
 __all__ = ['LitWriter']
 
@@ -144,7 +133,7 @@ def warn(x):
 
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
-    
+
     def __init__(self, root, item, oeb, map=HTML_MAP):
         self.item = item
         self.logger = oeb.logger
@@ -168,7 +157,7 @@ class ReBinary(object):
 
     def is_block(self, style):
         return style['display'] not in ('inline', 'inline-block')
-            
+
     def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
         if not isinstance(elem.tag, basestring):
@@ -277,7 +266,7 @@ class ReBinary(object):
 
     def build_ahc(self):
         if len(self.anchors) > 6:
-            self.logger.log_warn("More than six anchors in file %r. " \
+            self.logger.warn("More than six anchors in file %r. " \
                 "Some links may not work properly." % self.item.href)
         data = StringIO()
         data.write(unichr(len(self.anchors)).encode('utf-8'))
@@ -300,7 +289,7 @@ def preserve(function):
             self._stream.seek(opos)
     functools.update_wrapper(wrapper, function)
     return wrapper
-    
+
 class LitWriter(object):
     def __init__(self):
         # Wow, no options
@@ -308,23 +297,23 @@ class LitWriter(object):
 
     def _litize_oeb(self):
         oeb = self._oeb
-        oeb.metadata.add('calibre-oeb2lit-version', calibre.__version__)
+        oeb.metadata.add('calibre-version', calibre.__version__)
         cover = None
         if oeb.metadata.cover:
             id = str(oeb.metadata.cover[0])
-            cover = oeb.manifest[id]
+            cover = oeb.manifest.ids[id]
             for type, title in ALL_MS_COVER_TYPES:
                 if type not in oeb.guide:
                     oeb.guide.add(type, title, cover.href)
         else:
             self._logger.warn('No suitable cover image found.')
 
-    def dump(self, oeb, path):
+    def __call__(self, oeb, path):
         if hasattr(path, 'write'):
             return self._dump_stream(oeb, path)
         with open(path, 'w+b') as stream:
             return self._dump_stream(oeb, stream)
-        
+
     def _dump_stream(self, oeb, stream):
         self._oeb = oeb
         self._logger = oeb.logger
@@ -334,7 +323,7 @@ class LitWriter(object):
         self._meta = None
         self._litize_oeb()
         self._write_content()
-        
+
     def _write(self, *data):
         for datum in data:
             self._stream.write(datum)
@@ -346,7 +335,7 @@ class LitWriter(object):
 
     def _tell(self):
         return self._stream.tell()
-        
+
     def _write_content(self):
         # Build content sections
         self._build_sections()
@@ -414,13 +403,13 @@ class LitWriter(object):
         self._write(cchunk, filler, pack('<H', len(dcounts)))
         self._writeat(pieces[2], pack('<QQ',
             piece2_offset, self._tell() - piece2_offset))
-        
+
         # Piece #3: GUID3
         piece3_offset = self._tell()
         self._write(packguid(PIECE3_GUID))
         self._writeat(pieces[3], pack('<QQ',
             piece3_offset, self._tell() - piece3_offset))
-        
+
         # Piece #4: GUID4
         piece4_offset = self._tell()
         self._write(packguid(PIECE4_GUID))
@@ -451,7 +440,7 @@ class LitWriter(object):
 
     def _djoin(self, *names):
         return '/'.join(names)
-        
+
     def _build_sections(self):
         self._add_folder('/', ROOT_OFFSET, ROOT_SIZE)
         self._build_data()
@@ -468,7 +457,7 @@ class LitWriter(object):
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                self._logger.log_warn("File %r of unknown media-type %r " \
+                self._logger.warn("File %r of unknown media-type %r " \
                     "excluded from output." % (item.href, item.media_type))
                 continue
             name = '/data/' + item.id
@@ -485,6 +474,8 @@ class LitWriter(object):
                 secnum = 1
             elif isinstance(data, unicode):
                 data = data.encode('utf-8')
+            elif hasattr(data, 'cssText'):
+                data = str(data)
             self._add_file(name, data, secnum)
             item.size = len(data)
 
@@ -561,7 +552,7 @@ class LitWriter(object):
         self._add_file('/pb1', pb1.getvalue(), 0)
         self._add_file('/pb2', pb2.getvalue(), 0)
         self._add_file('/pb3', pb3.getvalue(), 0)
-        
+
     def _build_meta(self):
         _, meta = self._oeb.to_opf1()[OPF_MIME]
         meta.attrib['ms--minimum_level'] = '0'
@@ -571,7 +562,7 @@ class LitWriter(object):
         meta = rebin.content
         self._meta = meta
         self._add_file('/meta', meta)
-        
+
     def _build_drm_storage(self):
         drmsource = u'Free as in freedom\0'.encode('utf-16-le')
         self._add_file('/DRMStorage/DRMSource', drmsource)
@@ -641,7 +632,7 @@ class LitWriter(object):
     def _build_transforms(self):
         for guid in (LZXCOMPRESS_GUID, DESENCRYPT_GUID):
             self._add_folder('::Transform/'+ guid)
-    
+
     def _calculate_deskey(self, hashdata):
         prepad = 2
         hash = mssha1.new()
@@ -658,7 +649,7 @@ class LitWriter(object):
         for i in xrange(0, len(digest)):
             key[i % 8] ^= ord(digest[i])
         return ''.join(chr(x) for x in key)
-    
+
     def _build_dchunks(self):
         ddata = []
         directory = list(self._directory)
@@ -720,53 +711,3 @@ class LitWriter(object):
         return dcounts, dchunks, ichunk
 
 
-def option_parser():
-    from calibre.utils.config import OptionParser
-    parser = OptionParser(usage=_('%prog [options] OPFFILE'))
-    parser.add_option(
-        '-o', '--output', default=None, 
-        help=_('Output file. Default is derived from input filename.'))
-    parser.add_option(
-        '-v', '--verbose', default=0, action='count',
-        help=_('Useful for debugging.'))
-    return parser
-
-def oeb2lit(opts, inpath):
-    logger = Logger(logging.getLogger('oeb2lit'))
-    logger.setup_cli_handler(opts.verbose)
-    outpath = opts.output
-    if outpath is None:
-        outpath = os.path.basename(inpath)
-        outpath = os.path.splitext(outpath)[0] + '.lit'
-    outpath = os.path.abspath(outpath)
-    context = Context('Browser', 'MSReader')
-    oeb = OEBBook(inpath, logger=logger)
-    tocadder = HTMLTOCAdder()
-    tocadder.transform(oeb, context)
-    mangler = CaseMangler()
-    mangler.transform(oeb, context)
-    fbase = context.dest.fbase
-    flattener = CSSFlattener(fbase=fbase, unfloat=True, untable=True)
-    flattener.transform(oeb, context)
-    rasterizer = SVGRasterizer()
-    rasterizer.transform(oeb, context)
-    trimmer = ManifestTrimmer()
-    trimmer.transform(oeb, context)
-    lit = LitWriter()
-    lit.dump(oeb, outpath)
-    run_plugins_on_postprocess(outpath, 'lit')
-    logger.info(_('Output written to ') + outpath)
-    
-
-def main(argv=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(argv[1:])
-    if len(args) != 1:
-        parser.print_help()
-        return 1
-    inpath = args[0]
-    oeb2lit(opts, inpath)
-    return 0
-    
-if __name__ == '__main__':
-    sys.exit(main())

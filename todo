@@ -1,14 +1,10 @@
 
 * Refactor web.fetch.simple to use per connection timeouts via the timeout kwarg for mechanize.open
 
-* Refactor IPC code to use communication logic from multiprocessing
-
-* Use multiprocessing for cpu_count instead of QThread
-
 * Rationalize books table. Add a pubdate column, remove the uri column (and associated support in add_books) and  convert series_index to a float.
+    - test adding/recusrsize adding and adding of duplicates
 
-* Replace single application stuff with Listener from multiprocessing
+* Testing framework
 
-* Refactor add books to use a separate process named calibre-worker-add
-  - Dont use the process for adding a single book
-  - Use a process pool for speed
+* MOBI navigation indexing support
+

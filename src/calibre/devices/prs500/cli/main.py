@@ -13,7 +13,7 @@ from calibre import __version__, iswindows, __appname__
 from calibre.devices.errors import PathError 
 from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
-from calibre.devices import devices
+from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
@@ -39,8 +39,8 @@ class FileFormatter(object):
         self.name        = file.name
         self.path        = file.path
     
-    @apply
-    def mode_string():
+    @dynamic_property
+    def mode_string(self):
         doc=""" The mode string for this file. There are only two modes read-only and read-write """
         def fget(self):
             mode, x = "-", "-"      
@@ -50,8 +50,8 @@ class FileFormatter(object):
             return mode
         return property(doc=doc, fget=fget)
     
-    @apply
-    def isdir_name():
+    @dynamic_property
+    def isdir_name(self):
         doc='''Return self.name + '/' if self is a directory'''
         def fget(self):
             name = self.name
@@ -61,8 +61,8 @@ class FileFormatter(object):
         return property(doc=doc, fget=fget)
             
     
-    @apply
-    def name_in_color():
+    @dynamic_property
+    def name_in_color(self):
         doc=""" The name in ANSI text. Directories are blue, ebooks are green """
         def fget(self):
             cname = self.name
@@ -75,22 +75,22 @@ class FileFormatter(object):
             return cname
         return property(doc=doc, fget=fget)
     
-    @apply
-    def human_readable_size():
+    @dynamic_property
+    def human_readable_size(self):
         doc=""" File size in human readable form """
         def fget(self):
             return human_readable(self.size)
         return property(doc=doc, fget=fget)
     
-    @apply
-    def modification_time():
+    @dynamic_property
+    def modification_time(self):
         doc=""" Last modified time in the Linux ls -l format """
         def fget(self):
             return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
         return property(doc=doc, fget=fget)
     
-    @apply
-    def creation_time():
+    @dynamic_property
+    def creation_time(self):
         doc=""" Last modified time in the Linux ls -l format """
         def fget(self):
             return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.ctime))
@@ -203,9 +203,10 @@ def main():
         _wmi = wmi.WMI()
     scanner = DeviceScanner(_wmi)
     scanner.scan()
-    for d in devices():
+    for d in device_plugins():
         if scanner.is_device_connected(d):
-            dev = d(log_packets=options.log_packets)
+            dev = d
+            dev.reset(log_packets=options.log_packets)
     
     if dev is None:
         print >>sys.stderr, 'Unable to find a connected ebook reader.'

@@ -4,22 +4,21 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Miscellaneous widgets used in the GUI
 '''
 import re, os, traceback
-from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
+from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
-                        QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
-                        QPixmap, QMovie, QPalette
-from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
+                        QSyntaxHighlighter, QCursor, QColor, QWidget, \
+                        QPixmap, QMovie, QPalette, QTimer, QDialog, \
+                        QAbstractListModel, QVariant, Qt, SIGNAL, \
                          QRegExp, QSettings, QSize, QModelIndex
 
-from calibre.gui2.jobs2 import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, \
                          qstring_to_unicode, error_dialog
+from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.utils.fontconfig import find_font_families
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
-from calibre.gui2.dialogs.warning_ui import Ui_Dialog as Ui_WarningDialog
 
 class ProgressIndicator(QWidget):
 
@@ -55,16 +54,6 @@ class ProgressIndicator(QWidget):
         if self.movie.state() == self.movie.Running:
             self.movie.setPaused(True)
             self.setVisible(False)
-
-
-class WarningDialog(QDialog, Ui_WarningDialog):
-
-    def __init__(self, title, msg, details, parent=None):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.setWindowTitle(title)
-        self.msg.setText(msg)
-        self.details.setText(details)
 
 class FilenamePattern(QWidget, Ui_Form):
 
@@ -171,21 +160,24 @@ class LocationModel(QAbstractListModel):
         QAbstractListModel.__init__(self, parent)
         self.icons = [QVariant(QIcon(':/library')),
                       QVariant(QIcon(':/images/reader.svg')),
+                      QVariant(QIcon(':/images/sd.svg')),
                       QVariant(QIcon(':/images/sd.svg'))]
         self.text = [_('Library\n%d\nbooks'),
                      _('Reader\n%s\navailable'),
-                     _('Card\n%s\navailable')]
-        self.free = [-1, -1]
+                     _('Card A\n%s\navailable'),
+                     _('Card B\n%s\navailable')]
+        self.free = [-1, -1, -1]
         self.count = 0
         self.highlight_row = 0
         self.tooltips = [
                          _('Click to see the list of books available on your computer'),
                          _('Click to see the list of books in the main memory of your reader'),
-                         _('Click to see the list of books on the storage card in your reader')
+                         _('Click to see the list of books on storage card A in your reader'),
+                         _('Click to see the list of books on storage card B in your reader')
                          ]
 
-    def rowCount(self, parent):
-        return 1 + sum([1 for i in self.free if i >= 0])
+    def rowCount(self, *args):
+        return 1 + len([i for i in self.free if i >= 0])
 
     def data(self, index, role):
         row = index.row()
@@ -218,9 +210,14 @@ class LocationModel(QAbstractListModel):
 
     def update_devices(self, cp=None, fs=[-1, -1, -1]):
         self.free[0] = fs[0]
-        self.free[1] = max(fs[1:])
-        if cp == None:
+        self.free[1] = fs[1]
+        self.free[2] = fs[2]
+        if cp != None:
+            self.free[1] = fs[1] if fs[1] else -1
+            self.free[2] = fs[2] if fs[2] else -1
+        else:
             self.free[1] = -1
+            self.free[2] = -1
         self.reset()
 
     def location_changed(self, row):
@@ -244,13 +241,38 @@ class LocationView(QListView):
     def current_changed(self, current, previous):
         if current.isValid():
             i = current.row()
-            location = 'library' if i == 0 else 'main' if i == 1 else 'card'
+            location = 'library' if i == 0 else 'main' if i == 1 else 'carda' if i == 2 else 'cardb'
             self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
             self.model().location_changed(i)
 
     def location_changed(self, row):
-        if 0 <= row and row <= 2:
+        if 0 <= row and row <= 3:
             self.model().location_changed(row)
+
+class DetailView(QDialog, Ui_Dialog):
+
+    def __init__(self, parent, job):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.setWindowTitle(job.description)
+        self.job = job
+        self.next_pos = 0
+        self.update()
+        self.timer = QTimer(self)
+        self.connect(self.timer, SIGNAL('timeout()'), self.update)
+        self.timer.start(1000)
+
+
+    def update(self):
+        f = self.job.log_file
+        f.seek(self.next_pos)
+        more = f.read()
+        self.next_pos = f.tell()
+        if more:
+            self.log.appendPlainText(more.decode('utf-8', 'replace'))
+        vbar = self.log.verticalScrollBar()
+        vbar.setValue(vbar.maximum())
+
 
 class JobsView(TableView):
 
@@ -262,8 +284,8 @@ class JobsView(TableView):
         row = index.row()
         job = self.model().row_to_job(row)
         d = DetailView(self, job)
-        self.connect(self.model(), SIGNAL('output_received()'), d.update)
         d.exec_()
+        d.timer.stop()
 
 
 class FontFamilyModel(QAbstractListModel):
@@ -277,7 +299,7 @@ class FontFamilyModel(QAbstractListModel):
             print 'WARNING: Could not load fonts'
             traceback.print_exc()
         self.families.sort()
-        self.families[:0] = ['None']
+        self.families[:0] = [_('None')]
 
     def rowCount(self, *args):
         return len(self.families)
@@ -296,6 +318,31 @@ class FontFamilyModel(QAbstractListModel):
 
     def index_of(self, family):
         return self.families.index(family.strip())
+
+class BasicComboModel(QAbstractListModel):
+
+    def __init__(self, items, *args):
+        QAbstractListModel.__init__(self, *args)
+        self.items = [i for i in items]
+        self.items.sort()
+
+    def rowCount(self, *args):
+        return len(self.items)
+
+    def data(self, index, role):
+        try:
+            item = self.items[index.row()]
+        except:
+            traceback.print_exc()
+            return NONE
+        if role == Qt.DisplayRole:
+            return QVariant(item)
+        if role == Qt.FontRole:
+            return QVariant(QFont(item))
+        return NONE
+
+    def index_of(self, item):
+        return self.items.index(item.strip())
 
 
 class BasicListItem(QListWidgetItem):
@@ -517,12 +564,12 @@ class PythonHighlighter(QSyntaxHighlighter):
             return
 
         for regex, format in PythonHighlighter.Rules:
-            i = text.indexOf(regex)
+            i = regex.indexIn(text)
             while i >= 0:
                 length = regex.matchedLength()
                 self.setFormat(i, length,
                                PythonHighlighter.Formats[format])
-                i = text.indexOf(regex, i + length)
+                i = regex.indexIn(text, i + length)
 
         # Slow but good quality highlighting for comments. For more
         # speed, comment this out and add the following to __init__:
@@ -547,12 +594,12 @@ class PythonHighlighter(QSyntaxHighlighter):
 
         self.setCurrentBlockState(NORMAL)
 
-        if text.indexOf(self.stringRe) != -1:
+        if self.stringRe.indexIn(text) != -1:
             return
         # This is fooled by triple quotes inside single quoted strings
-        for i, state in ((text.indexOf(self.tripleSingleRe),
+        for i, state in ((self.tripleSingleRe.indexIn(text),
                           TRIPLESINGLE),
-                         (text.indexOf(self.tripleDoubleRe),
+                         (self.tripleDoubleRe.indexIn(text),
                           TRIPLEDOUBLE)):
             if self.previousBlockState() == state:
                 if i == -1:

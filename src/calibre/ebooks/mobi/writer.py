@@ -1,43 +1,35 @@
 '''
 Write content to Mobipocket books.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
+__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam> and \
+        Kovid Goyal <kovid@kovidgoyal.net>'
 
-import sys
-import os
+from collections import defaultdict
+from itertools import count
+from itertools import izip
+import random
+import re
 from struct import pack
 import time
-import random
-from cStringIO import StringIO
-import re
-from itertools import izip, count
-from collections import defaultdict
 from urlparse import urldefrag
-import logging
+
 from PIL import Image
-from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
-    OEB_RASTER_IMAGES
-from calibre.ebooks.oeb.base import namespace, prefixname
-from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.base import Logger, OEBBook
-from calibre.ebooks.oeb.profile import Context
-from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
-from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
-from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
-from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
-from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
-from calibre.ebooks.mobi.palmdoc import compress_doc
+from cStringIO import StringIO
 from calibre.ebooks.mobi.langcodes import iana2mobi
-from calibre.ebooks.mobi.mobiml import MBP_NS, MobiMLizer
-from calibre.customize.ui import run_plugins_on_postprocess
-from calibre.utils.config import Config, StringConfig
+from calibre.ebooks.mobi.mobiml import MBP_NS
+from calibre.ebooks.oeb.base import OEB_DOCS
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.ebooks.oeb.base import XHTML
+from calibre.ebooks.oeb.base import XHTML_NS
+from calibre.ebooks.oeb.base import XML_NS
+from calibre.ebooks.oeb.base import namespace
+from calibre.ebooks.oeb.base import prefixname
+from calibre.ebooks.oeb.base import urlnormalize
+from calibre.ebooks.compression.palmdoc import compress_doc
 
 # TODO:
-# - Allow override CSS (?)
-# - Generate index records
 # - Optionally rasterize tables
 
 EXTH_CODES = {
@@ -66,6 +58,25 @@ OTHER_MAX_IMAGE_SIZE = 10 * 1024 * 1024
 MAX_THUMB_SIZE = 16 * 1024
 MAX_THUMB_DIMEN = (180, 240)
 
+
+TAGX = {
+        'chapter' :
+        '\x00\x00\x00\x01\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x00\x00\x00\x01',
+        'subchapter' :
+        '\x00\x00\x00\x01\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x10\x00\x16\x01\x20\x00\x17\x01\x40\x00\x00\x00\x00\x01',
+        'periodical' :
+        '\x00\x00\x00\x02\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x20\x00\x16\x01\x40\x00\x17\x01\x80\x00\x00\x00\x00\x01\x45\x01\x01\x00\x46\x01\x02\x00\x47\x01\x04\x00\x00\x00\x00\x01'
+        }
+
+INDXT = {
+        'chapter' : '\x0f',
+        'subchapter' : '\x1f',
+        'article'    : '\x3f',
+        'chapter with subchapters': '\x6f',
+        'periodical' : '\xdf',
+        'section' : '\xff',
+        }
+
 def encode(data):
     return data.encode('utf-8')
 
@@ -85,6 +96,14 @@ def decint(value, direction):
     elif direction == DECINT_BACKWARD:
         bytes[-1] |= 0x80
     return ''.join(chr(b) for b in reversed(bytes))
+
+
+def align_block(raw, multiple=4, pad='\0'):
+    l = len(raw)
+    extra = l % multiple
+    if extra == 0: return raw
+    return raw + pad*(multiple - extra)
+
 
 def rescale_image(data, maxsizeb, dimen=None):
     image = Image.open(StringIO(data))
@@ -186,7 +205,7 @@ class Serializer(object):
         item = hrefs[path] if path else None
         if item and item.spine_position is None:
             return False
-        path =  item.href if item else base.href
+        path = item.href if item else base.href
         href = '#'.join((path, frag)) if frag else path
         buffer.write('filepos=')
         self.href_offsets[href].append(buffer.tell())
@@ -211,20 +230,18 @@ class Serializer(object):
 
     def serialize_item(self, item):
         buffer = self.buffer
-        #buffer.write('<mbp:section>')
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
         self.id_offsets[item.href] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
-        #buffer.write('</mbp:section>')
         buffer.write('<mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer
         if not isinstance(elem.tag, basestring) \
-           or namespace(elem.tag) not in nsrmap:
-            return
+            or namespace(elem.tag) not in nsrmap:
+                return
         tag = prefixname(elem.tag, nsrmap)
         # Previous layers take care of @name
         id = elem.attrib.pop('id', None)
@@ -233,9 +250,9 @@ class Serializer(object):
             offset = self.anchor_offset or buffer.tell()
             self.id_offsets[href] = offset
         if self.anchor_offset is not None and \
-           tag == 'a' and not elem.attrib and \
-           not len(elem) and not elem.text:
-            return
+            tag == 'a' and not elem.attrib and \
+            not len(elem) and not elem.text:
+                return
         self.anchor_offset = buffer.tell()
         buffer.write('<')
         buffer.write(tag)
@@ -293,22 +310,33 @@ class Serializer(object):
                 buffer.write('%010d' % ioff)
 
 
+
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    def __init__(self, compression=None, imagemax=None,
-                 prefer_author_sort=False):
+    def __init__(self, opts, compression=PALMDOC, imagemax=None,
+            prefer_author_sort=False):
+        self.opts = opts
         self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
+        self._primary_index_record = None
 
-    def dump(self, oeb, path):
+    @classmethod
+    def generate(cls, opts):
+        """Generate a Writer instance from command-line options."""
+        imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
+        prefer_author_sort = opts.prefer_author_sort
+        return cls(compression=PALMDOC, imagemax=imagemax,
+            prefer_author_sort=prefer_author_sort)
+
+    def __call__(self, oeb, path):
         if hasattr(path, 'write'):
             return self._dump_stream(oeb, path)
         with open(path, 'w+b') as stream:
             return self._dump_stream(oeb, stream)
 
-    def _write(self, *data):
+    def _write(self, * data):
         for datum in data:
             self._stream.write(datum)
 
@@ -327,6 +355,8 @@ class MobiWriter(object):
     def _generate_content(self):
         self._map_image_names()
         self._generate_text()
+        if not self.opts.no_mobi_index:
+            self._generate_index()
         self._generate_images()
 
     def _map_image_names(self):
@@ -372,6 +402,8 @@ class MobiWriter(object):
         serializer = Serializer(self._oeb, self._images)
         breaks = serializer.breaks
         text = serializer.text
+        self._id_offsets = serializer.id_offsets
+        self._content_length = len(text)
         self._text_length = len(text)
         text = StringIO(text)
         nrecords = 0
@@ -408,10 +440,205 @@ class MobiWriter(object):
             data, overlap = self._read_text_record(text)
         self._text_nrecords = nrecords
 
+    def _generate_indxt(self, ctoc):
+        if self.opts.mobi_periodical:
+            raise NotImplementedError('Indexing for periodicals not implemented')
+        toc = self._oeb.toc
+        indxt, indices, c = StringIO(), StringIO(), 0
+
+        indices.write('IDXT')
+        c = 0
+        last_index = last_name = None
+
+        def add_node(node, offset, length, count):
+            if self.opts.verbose > 2:
+                self._oeb.log.debug('Adding TOC node:', node.title, 'href:',
+                        node.href)
+
+            pos = 0xc0 + indxt.tell()
+            indices.write(pack('>H', pos))
+            name = "%4d"%count
+            indxt.write(chr(len(name)) + name)
+            indxt.write(INDXT['chapter'])
+            indxt.write(decint(offset, DECINT_FORWARD))
+            indxt.write(decint(length, DECINT_FORWARD))
+            indxt.write(decint(self._ctoc_map[node], DECINT_FORWARD))
+            indxt.write(decint(0, DECINT_FORWARD))
+
+
+        entries = list(toc.iter())[1:]
+        for i, child in enumerate(entries):
+            if not child.title or not child.title.strip():
+                continue
+            h = child.href
+            if h not in self._id_offsets:
+                self._oeb.log.warning('Could not find TOC entry:', child.title)
+                continue
+            offset = self._id_offsets[h]
+            length = None
+            for sibling in entries[i+1:]:
+                h2 = sibling.href
+                if h2 in self._id_offsets:
+                    offset2 = self._id_offsets[h2]
+                    if offset2 > offset:
+                        length = offset2 - offset
+                        break
+            if length is None:
+                length = self._content_length - offset
+
+            add_node(child, offset, length, c)
+            last_index = c
+            ctoc_offset = self._ctoc_map[child]
+            last_name = "%4d"%c
+            c += 1
+
+        return align_block(indxt.getvalue()), c, \
+            align_block(indices.getvalue()), last_index, last_name
+
+
+    def _generate_index(self):
+        self._oeb.log('Generating index...')
+        self._primary_index_record = None
+        ctoc = self._generate_ctoc()
+        indxt, indxt_count, indices, last_index, last_name = \
+                self._generate_indxt(ctoc)
+
+        indx1 = StringIO()
+        indx1.write('INDX'+pack('>I', 0xc0)) # header length
+
+        # 0x8 - 0xb : Unknown
+        indx1.write('\0'*4)
+
+        # 0xc - 0xf : Header type
+        indx1.write(pack('>I', 1))
+
+        # 0x10 - 0x13 : Unknown
+        indx1.write('\0'*4)
+
+        # 0x14 - 0x17 : IDXT offset
+        # 0x18 - 0x1b : IDXT count
+        indx1.write(pack('>I', 0xc0+len(indxt)))
+        indx1.write(pack('>I', indxt_count))
+
+        # 0x1c - 0x23 : Unknown
+        indx1.write('\xff'*8)
+
+        # 0x24 - 0xbf
+        indx1.write('\0'*156)
+        indx1.write(indxt)
+        indx1.write(indices)
+        indx1 = indx1.getvalue()
+
+        idxt0 = chr(len(last_name)) + last_name + pack('>H', last_index)
+        idxt0 = align_block(idxt0)
+        indx0 = StringIO()
+
+        tagx = TAGX['periodical' if self.opts.mobi_periodical else 'chapter']
+        tagx = align_block('TAGX' + pack('>I', 8 + len(tagx)) + tagx)
+        indx0_indices_pos = 0xc0 + len(tagx) + len(idxt0)
+        indx0_indices = align_block('IDXT' + pack('>H', 0xc0 + len(tagx)))
+        # Generate record header
+        header = StringIO()
+
+        header.write('INDX')
+        header.write(pack('>I', 0xc0)) # header length
+
+        # 0x08 - 0x0b : Unknown
+        header.write('\0'*4)
+
+        # 0x0c - 0x0f : Header type
+        header.write(pack('>I', 0))
+
+        # 0x10 - 0x13 : Generator ID
+        header.write(pack('>I', 6))
+
+        # 0x14 - 0x17 : IDXT offset
+        header.write(pack('>I', indx0_indices_pos))
+
+        # 0x18 - 0x1b : IDXT count
+        header.write(pack('>I', 1))
+
+        # 0x1c - 0x1f : Text encoding ?
+        header.write(pack('>I', 650001))
+
+        # 0x20 - 0x23 : Language code?
+        header.write(iana2mobi(str(self._oeb.metadata.language[0])))
+
+        # 0x24 - 0x27 : Number of TOC entries in INDX1
+        header.write(pack('>I', indxt_count))
+
+        # 0x28 - 0x2b : ORDT Offset
+        header.write('\0'*4)
+
+        # 0x2c - 0x2f : LIGT offset
+        header.write('\0'*4)
+
+        # 0x30 - 0x33 : Number of LIGT entries
+        header.write('\0'*4)
+
+        # 0x34 - 0x37 : Unknown
+        header.write(pack('>I', 1))
+
+        # 0x38 - 0xb3 : Unknown (pad?)
+        header.write('\0'*124)
+
+        # 0xb4 - 0xb7 : TAGX offset
+        header.write(pack('>I', 0xc0))
+
+        # 0xb8 - 0xbf : Unknown
+        header.write('\0'*8)
+
+        header = header.getvalue()
+
+        indx0.write(header)
+        indx0.write(tagx)
+        indx0.write(idxt0)
+        indx0.write(indx0_indices)
+        indx0 = indx0.getvalue()
+
+        self._primary_index_record = len(self._records)
+        if self.opts.verbose > 3:
+            from tempfile import mkdtemp
+            import os
+            t = mkdtemp()
+            open(os.path.join(t, 'indx0.bin'), 'wb').write(indx0)
+            open(os.path.join(t, 'indx1.bin'), 'wb').write(indx1)
+            open(os.path.join(t, 'ctoc.bin'), 'wb').write(ctoc)
+            self._oeb.log.debug('Index records dumped to', t)
+
+        self._records.extend([indx0, indx1, ctoc])
+
+    def _generate_ctoc(self):
+        if self.opts.mobi_periodical:
+            raise NotImplementedError('Indexing for periodicals not implemented')
+        toc = self._oeb.toc
+        self._ctoc_map = {}
+        self._ctoc_name_map = {}
+        self._last_toc_entry = None
+        ctoc = StringIO()
+
+        def add_node(node, cls):
+            t = node.title
+            if t and t.strip():
+                t = t.strip()
+                if not isinstance(t, unicode):
+                    t = t.decode('utf-8', 'replace')
+                t = t.encode('utf-8')
+                self._last_toc_entry = t
+                self._ctoc_map[node] = ctoc.tell()
+                self._ctoc_name_map[node] = t
+                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+
+        for child in toc.iter():
+            add_node(child, 'chapter')
+
+        return align_block(ctoc.getvalue())
+
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
         images.sort()
+        self._first_image_record = None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
             try:
@@ -420,35 +647,141 @@ class MobiWriter(object):
                 self._oeb.logger.warn('Bad image file %r' % item.href)
                 continue
             self._records.append(data)
+            if self._first_image_record is None:
+                self._first_image_record = len(self._records)-1
+
+    def _generate_end_records(self):
+        self._flis_number = len(self._records)
+        self._records.append(
+        'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01')
+        fcis = 'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x00'
+        fcis += pack('>I', self._text_length)
+        fcis += '\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+        self._fcis_number = len(self._records)
+        self._records.append(fcis)
+        self._records.append('\xE9\x8E\x0D\x0A')
 
     def _generate_record0(self):
         metadata = self._oeb.metadata
         exth = self._build_exth()
+        last_content_record = len(self._records) - 1
+        self._generate_end_records()
         record0 = StringIO()
+        # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
-            self._text_length, self._text_nrecords, RECORD_SIZE, 0, 0))
+            self._text_length,
+            self._text_nrecords, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
         title = str(metadata.title[0])
+        # The MOBI Header
+
+        # 0x0 - 0x3
         record0.write('MOBI')
-        record0.write(pack('>IIIII', 0xe8, 2, 65001, uid, 6))
-        record0.write('\xff' * 40)
-        record0.write(pack('>I', self._text_nrecords + 1))
-        record0.write(pack('>II', 0xe8 + 16 + len(exth), len(title)))
-        record0.write(iana2mobi(str(metadata.language[0])))
+
+        # 0x4 - 0x7   : Length of header
+        # 0x8 - 0x11  : MOBI type
+        #   type    meaning
+        #   0x002   MOBI book (chapter - chapter navigation)
+        #   0x101   News - Hierarchical navigation with sections and articles
+        #   0x102   News feed - Flat navigation
+        #   0x103   News magazine - same as 1x101
+        # 0xC - 0xF   : Text encoding (65001 is utf-8)
+        # 0x10 - 0x13 : UID
+        # 0x14 - 0x17 : Generator version
+        btype = 0x101 if self.opts.mobi_periodical else 2
+        record0.write(pack('>IIIII',
+            0xe8, btype, 65001, uid, 6))
+
+        # 0x18 - 0x1f : Unknown
+        record0.write('\xff' * 8)
+
+        # 0x20 - 0x23 : Secondary index record
+        # TODO: implement
+        record0.write('\xff' * 4)
+
+        # 0x24 - 0x3f : Unknown
+        record0.write('\xff' * 28)
+
+        # 0x40 - 0x43 : Offset of first non-text record
+        record0.write(pack('>I',
+            self._text_nrecords + 1))
+
+        # 0x44 - 0x4b : title offset, title length
+        record0.write(pack('>II',
+            0xe8 + 16 + len(exth), len(title)))
+
+        # 0x4c - 0x4f : Language specifier
+        record0.write(iana2mobi(
+            str(metadata.language[0])))
+
+        # 0x50 - 0x57 : Unknown
         record0.write('\0' * 8)
-        record0.write(pack('>II', 6, self._text_nrecords + 1))
+
+        # 0x58 - 0x5b : Format version
+        # 0x5c - 0x5f : First image record number
+        record0.write(pack('>II',
+            6, self._first_image_record if self._first_image_record else 0))
+
+        # 0x60 - 0x63 : First HUFF/CDIC record number
+        # 0x64 - 0x67 : Number of HUFF/CDIC records
+        # 0x68 - 0x6b : First DATP record number
+        # 0x6c - 0x6f : Number of DATP records
         record0.write('\0' * 16)
+
+        # 0x70 - 0x73 : EXTH flags
         record0.write(pack('>I', 0x50))
+
+        # 0x74 - 0x93 : Unknown
         record0.write('\0' * 32)
-        record0.write(pack('>IIII', 0xffffffff, 0xffffffff, 0, 0))
+
+        # 0x94 - 0x97 : DRM offset
+        # 0x98 - 0x9b : DRM count
+        # 0x9c - 0x9f : DRM size
+        # 0xa0 - 0xa3 : DRM flags
+        record0.write(pack('>IIII',
+            0xffffffff, 0xffffffff, 0, 0))
+
+
+        # 0xa4 - 0xaf : Unknown
+        record0.write('\0'*12)
+
+        # 0xb0 - 0xb1 : First content record number
+        # 0xb2 - 0xb3 : last content record number
+        # (Includes Image, DATP, HUFF, DRM)
+        record0.write(pack('>HH', 1, last_content_record))
+
+        # 0xb4 - 0xb7 : Unknown
+        record0.write('\0\0\0\x01')
+
+        # 0xb8 - 0xbb : FCIS record number
+        record0.write(pack('>I', self._fcis_number))
+
+        # 0xbc - 0xbf : Unknown (FCIS record count?)
+        record0.write(pack('>I', 1))
+
+        # 0xc0 - 0xc3 : FLIS record number
+        record0.write(pack('>I', self._flis_number))
+
+        # 0xc4 - 0xc7 : Unknown (FLIS record count?)
+        record0.write(pack('>I', 1))
+
+        # 0xc8 - 0xcf : Unknown
+        record0.write('\0'*8)
+
+        # 0xd0 - 0xdf : Unknown
+        record0.write(pack('>IIII', 0xffffffff, 0, 0xffffffff, 0xffffffff))
+
+        # 0xe0 - 0xe3 : Extra record data
         # The '5' is a bitmask of extra record data at the end:
         #   - 0x1: <extra multibyte bytes><size> (?)
         #   - 0x4: <uncrossable breaks><size>
         # Of course, the formats aren't quite the same.
-        # TODO: What the hell are the rest of these fields?
-        record0.write(pack('>IIIIIIIIIIIIIIIII',
-            0, 0, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff,
-            0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 5, 0xffffffff))
+        record0.write(pack('>I', 5))
+
+        # 0xe4 - 0xe7 : Primary index record
+        record0.write(pack('>I', 0xffffffff if self._primary_index_record is
+            None else self._primary_index_record))
+
         record0.write(exth)
         record0.write(title)
         record0 = record0.getvalue()
@@ -532,103 +865,4 @@ class MobiWriter(object):
             self._write(record)
 
 
-def config(defaults=None):
-    desc = _('Options to control the conversion to MOBI')
-    _profiles = list(sorted(Context.PROFILES.keys()))
-    if defaults is None:
-        c = Config('mobi', desc)
-    else:
-        c = StringConfig(defaults, desc)
 
-    mobi = c.add_group('mobipocket', _('Mobipocket-specific options.'))
-    mobi('compress', ['--compress'], default=False,
-         help=_('Compress file text using PalmDOC compression. '
-               'Results in smaller files, but takes a long time to run.'))
-    mobi('rescale_images', ['--rescale-images'], default=False,
-        help=_('Modify images to meet Palm device size limitations.'))
-    mobi('toc_title', ['--toc-title'], default=None,
-         help=_('Title for any generated in-line table of contents.'))
-    mobi('ignore_tables', ['--ignore-tables'], default=False,
-         help=_('Render HTML tables as blocks of text instead of actual '
-                'tables. This is neccessary if the HTML contains very large '
-                'or complex tables.'))
-    mobi('prefer_author_sort', ['--prefer-author-sort'], default=False,
-         help=_('When present, use the author sorting information for '
-                'generating the Mobipocket author metadata.'))
-    profiles = c.add_group('profiles', _('Device renderer profiles. '
-        'Affects conversion of font sizes, image rescaling and rasterization '
-        'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
-    profiles('source_profile', ['--source-profile'],
-             default='Browser', choices=_profiles,
-             help=_("Source renderer profile. Default is %default."))
-    profiles('dest_profile', ['--dest-profile'],
-             default='CybookG3', choices=_profiles,
-             help=_("Destination renderer profile. Default is %default."))
-    c.add_opt('encoding', ['--encoding'], default=None,
-              help=_('Character encoding for HTML files. Default is to auto detect.'))
-    return c
-
-
-def option_parser():
-    c = config()
-    parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
-    parser.add_option(
-        '-o', '--output', default=None,
-        help=_('Output file. Default is derived from input filename.'))
-    parser.add_option(
-        '-v', '--verbose', default=0, action='count',
-        help=_('Useful for debugging.'))
-    return parser
-
-def oeb2mobi(opts, inpath):
-    logger = Logger(logging.getLogger('oeb2mobi'))
-    logger.setup_cli_handler(opts.verbose)
-    outpath = opts.output
-    if outpath is None:
-        outpath = os.path.basename(inpath)
-        outpath = os.path.splitext(outpath)[0] + '.mobi'
-    source = opts.source_profile
-    if source not in Context.PROFILES:
-        logger.error(_('Unknown source profile %r') % source)
-        return 1
-    dest = opts.dest_profile
-    if dest not in Context.PROFILES:
-        logger.error(_('Unknown destination profile %r') % dest)
-        return 1
-    compression = PALMDOC if opts.compress else UNCOMPRESSED
-    imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
-    context = Context(source, dest)
-    oeb = OEBBook(inpath, logger=logger, encoding=opts.encoding)
-    tocadder = HTMLTOCAdder(title=opts.toc_title)
-    tocadder.transform(oeb, context)
-    mangler = CaseMangler()
-    mangler.transform(oeb, context)
-    fbase = context.dest.fbase
-    fkey = context.dest.fnums.values()
-    flattener = CSSFlattener(
-        fbase=fbase, fkey=fkey, unfloat=True, untable=True)
-    flattener.transform(oeb, context)
-    rasterizer = SVGRasterizer()
-    rasterizer.transform(oeb, context)
-    trimmer = ManifestTrimmer()
-    trimmer.transform(oeb, context)
-    mobimlizer = MobiMLizer(ignore_tables=opts.ignore_tables)
-    mobimlizer.transform(oeb, context)
-    writer = MobiWriter(compression=compression, imagemax=imagemax,
-                        prefer_author_sort=opts.prefer_author_sort)
-    writer.dump(oeb, outpath)
-    run_plugins_on_postprocess(outpath, 'mobi')
-    logger.info(_('Output written to ') + outpath)
-
-def main(argv=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(argv[1:])
-    if len(args) != 1:
-        parser.print_help()
-        return 1
-    inpath = args[0]
-    retval = oeb2mobi(opts, inpath)
-    return retval
-
-if __name__ == '__main__':
-    sys.exit(main())

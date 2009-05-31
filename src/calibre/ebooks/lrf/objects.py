@@ -2,7 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import struct, array, zlib, cStringIO, collections, re
 
-from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE, entity_to_unicode
+from calibre.ebooks.lrf import LRFParseError, PRS500_PROFILE
+from calibre import entity_to_unicode
 from calibre.ebooks.lrf.tags import Tag
 
 ruby_tags = {

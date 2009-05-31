@@ -72,6 +72,9 @@ if __name__ == '__main__':
                         library_dirs=[os.environ.get('PODOFO_LIB_DIR', podofo_lib)],
                         include_dirs=\
                         [os.environ.get('PODOFO_INC_DIR', podofo_inc)]))
+    else:
+        print 'WARNING: PoDoFo not found on your system. Various PDF related',
+        print 'functionality will not work.'
 
     ext_modules = optional + [
 
@@ -87,6 +90,9 @@ if __name__ == '__main__':
                              sources=['src/calibre/utils/msdes/msdesmodule.c',
                                       'src/calibre/utils/msdes/des.c'],
                              include_dirs=['src/calibre/utils/msdes']),
+
+                    Extension('calibre.plugins.cPalmdoc',
+                        sources=['src/calibre/ebooks/compression/palmdoc.c']),
 
                     PyQtExtension('calibre.plugins.pictureflow',
                                   ['src/calibre/gui2/pictureflow/pictureflow.cpp',

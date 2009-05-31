@@ -1,0 +1,87 @@
+# -*- coding: utf-8 -*-
+'''
+Read the header data from a pdb file.
+'''
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
+
+import re
+import struct
+import time
+
+class PdbHeaderReader(object):
+
+    def __init__(self, stream):
+        self.stream = stream
+        self.ident = self.identity()
+        self.num_sections = self.section_count()
+        self.title = self.name()
+
+    def identity(self):
+        self.stream.seek(60)
+        ident = self.stream.read(8)
+        return ident
+
+    def section_count(self):
+        self.stream.seek(76)
+        return struct.unpack('>H', self.stream.read(2))[0]
+
+    def name(self):
+        self.stream.seek(0)
+        return self.stream.read(32).replace('\x00', '')
+
+    def full_section_info(self, number):
+        if number not in range(0, self.num_sections):
+            raise ValueError('Not a valid section number %i' % number)
+
+        self.stream.seek(78 + number * 8)
+        offset, a1, a2, a3, a4 = struct.unpack('>LBBBB', self.stream.read(8))[0]
+        flags, val = a1, a2 << 16 | a3 << 8 | a4
+        return (offset, flags, val)
+
+    def section_offset(self, number):
+        if number not in range(0, self.num_sections):
+            raise ValueError('Not a valid section number %i' % number)
+
+        self.stream.seek(78 + number * 8)
+        return struct.unpack('>LBBBB', self.stream.read(8))[0]
+
+    def section_data(self, number):
+        if number not in range(0, self.num_sections):
+            raise ValueError('Not a valid section number %i' % number)
+
+        start = self.section_offset(number)
+        if number == self.num_sections -1:
+            self.stream.seek(0, 2)
+            end = self.stream.tell()
+        else:
+            end = self.section_offset(number + 1)
+        self.stream.seek(start)
+        return self.stream.read(end - start)
+
+
+class PdbHeaderBuilder(object):
+
+    def __init__(self, identity, title):
+        self.identity = identity.ljust(3, '\x00')[:8]
+        self.title = re.sub('[^-A-Za-z0-9]+', '_', title).ljust(32, '\x00')[:32]
+
+    def build_header(self, section_lengths, out_stream):
+        '''
+        section_lengths = Lenght of each section in file.
+        '''
+
+        now = int(time.time())
+        nrecords = len(section_lengths)
+
+        out_stream.write(self.title + struct.pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0))
+        out_stream.write(self.identity + struct.pack('>IIH', nrecords, 0, nrecords))
+
+        offset = 78 + (8 * nrecords) + 2
+        for id, record in enumerate(section_lengths):
+            out_stream.write(struct.pack('>LBBBB', long(offset), 0, 0, 0, 0))
+            offset += record
+        out_stream.write('\x00\x00')
+

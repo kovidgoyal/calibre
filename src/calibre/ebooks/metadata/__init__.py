@@ -6,13 +6,12 @@ __docformat__ = 'restructuredtext en'
 """
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
-import os, mimetypes, sys
+import os, mimetypes, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
 
 from calibre import relpath
-from calibre.utils.config import OptionParser
 
 def string_to_authors(raw):
     raw = raw.replace('&&', u'\uffff')
@@ -35,18 +34,39 @@ def author_to_author_sort(author):
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
 
-def get_parser(extension):
-    ''' Return an option parser with the basic metadata options already setup'''
-    parser = OptionParser(usage='%prog [options] myfile.'+extension+'\n\nRead and write metadata from an ebook file.')
-    parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help=_("Set the book title"), default=None)
-    parser.add_option("-a", "--authors", action="store", type="string", \
-                    dest="authors", help=_("Set the authors"), default=None)
-    parser.add_option("-c", "--category", action="store", type="string", \
-                    dest="category", help=_("The category this book belongs to. E.g.: History"), default=None)
-    parser.add_option('--comment', dest='comment', default=None, action='store',
-                      help=_('Set the comment'))
-    return parser
+_title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+def title_sort(title):
+    match = _title_pat.search(title)
+    if match:
+        prep = match.group(1)
+        title = title.replace(prep, '') + ', ' + prep
+    return title.strip()
+
+coding = zip(
+[1000,900,500,400,100,90,50,40,10,9,5,4,1],
+["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+)
+
+
+
+def roman(num):
+    if num <= 0 or num >= 4000 or int(num) != num:
+        return str(num)
+    result = []
+    for d, r in coding:
+        while num >= d:
+            result.append(r)
+            num -= d
+    return ''.join(result)
+
+
+def fmt_sidx(i, fmt='%.2f', use_roman=False):
+    if i is None:
+        i = 1
+    if int(i) == i:
+        return roman(i) if use_roman else '%d'%i
+    return fmt%i
+
 
 class Resource(object):
     '''
@@ -192,13 +212,14 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language',
-                     'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'):
+                     'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
+                     'pubdate'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
 
     def __init__(self, title, authors=(_('Unknown'),)):
         '''
-        @param title: title or "Unknown" or a MetaInformation object
+        @param title: title or ``_('Unknown')`` or a MetaInformation object
         @param authors: List of strings or []
         '''
         mi = None
@@ -217,7 +238,7 @@ class MetaInformation(object):
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc'
+                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate'
                   ):
             setattr(self, x, getattr(mi, x, None))
 
@@ -236,17 +257,23 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
-                     'timestamp', 'lccn', 'lcc', 'ddc'):
+                     'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
                     setattr(self, attr, val)
 
-        self.tags += mi.tags
+        if mi.tags:
+            self.tags += mi.tags
         self.tags = list(set(self.tags))
 
-        if getattr(mi, 'cover_data', None) and mi.cover_data[0] is not None:
-            self.cover_data = mi.cover_data
+        if getattr(mi, 'cover_data', False):
+            other_cover = mi.cover_data[-1]
+            self_cover = self.cover_data[-1] if self.cover_data else ''
+            if not self_cover: self_cover = ''
+            if not other_cover: other_cover = ''
+            if len(other_cover) > len(self_cover):
+                self.cover_data = mi.cover_data
 
         my_comments = getattr(self, 'comments', '')
         other_comments = getattr(mi, 'comments', '')
@@ -261,40 +288,53 @@ class MetaInformation(object):
         try:
             x = float(self.series_index)
         except ValueError:
-            x = 1.0
-        return '%d'%x if int(x) == x else '%.2f'%x
+            x = 1
+        return fmt_sidx(x)
+
+    def authors_from_string(self, raw):
+        self.authors = string_to_authors(raw)
 
     def __unicode__(self):
-        ans = u''
-        ans += u'Title    : ' + unicode(self.title) + u'\n'
+        ans = []
+        def fmt(x, y):
+            ans.append(u'%-20s: %s'%(unicode(x), unicode(y)))
+
+        fmt('Title', self.title)
+        if self.title_sort:
+            fmt('Title sort', self.title_sort)
         if self.authors:
-            ans += u'Author   : ' + (' & '.join(self.authors) if self.authors is not None else _('Unknown'))
-            ans += ((' [' + self.author_sort + ']') if self.author_sort else '') + u'\n'
+            fmt('Author(s)',  authors_to_string(self.authors) + \
+               ((' [' + self.author_sort + ']') if self.author_sort else ''))
         if self.publisher:
-            ans += u'Publisher: '+ unicode(self.publisher) + u'\n'
+            fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
-            ans += u'Producer : '+ unicode(self.book_producer) + u'\n'
+            fmt('Book Producer', self.book_producer)
         if self.category:
             ans += u'Category : ' + unicode(self.category) + u'\n'
         if self.comments:
-            ans += u'Comments : ' + unicode(self.comments) + u'\n'
+            fmt('Comments', self.comments)
         if self.isbn:
-            ans += u'ISBN     : '     + unicode(self.isbn) + u'\n'
+            fmt('ISBN', self.isbn)
         if self.tags:
-            ans += u'Tags     : ' + u', '.join([unicode(t) for t in self.tags]) + '\n'
+            fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
         if self.series:
-            ans += u'Series   : '+unicode(self.series) + ' #%s\n'%self.format_series_index()
+            fmt('Series', self.series + ' #%s'%self.format_series_index())
         if self.language:
-            ans += u'Language : '     + unicode(self.language) + u'\n'
+            fmt('Language', self.language)
+        if self.rating is not None:
+            fmt('Rating', self.rating)
         if self.timestamp is not None:
-            ans += u'Timestamp : ' + self.timestamp.isoformat(' ') + u'\n'
+            fmt('Timestamp', self.timestamp.isoformat(' '))
+        if self.pubdate is not None:
+            fmt('Published', self.pubdate.isoformat(' '))
         if self.lccn:
-            ans += u'LCCN : ' + unicode(self.lccn) + u'\n'
+            fmt('LCCN', unicode(self.lccn))
         if self.lcc:
-            ans += u'LCC : ' + unicode(self.lcc) + u'\n'
+            fmt('LCC', unicode(self.lcc))
         if self.ddc:
-            ans += u'DDC : ' + unicode(self.ddc) + u'\n'
-        return ans.strip()
+            fmt('DDC', unicode(self.ddc))
+
+        return u'\n'.join(ans)
 
     def to_html(self):
         ans = [(_('Title'), unicode(self.title))]
@@ -315,6 +355,8 @@ class MetaInformation(object):
         ans += [(_('Language'), unicode(self.language))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
+        if self.pubdate is not None:
+            ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)
@@ -323,4 +365,4 @@ class MetaInformation(object):
         return self.__unicode__().encode('utf-8')
 
     def __nonzero__(self):
-        return bool(self.title or self.author or self.comments or self.category)
+        return bool(self.title or self.author or self.comments or self.tags)

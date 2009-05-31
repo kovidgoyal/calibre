@@ -20,7 +20,7 @@ from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata import string_to_authors, fmt_sidx
 
 class LibraryDelegate(QItemDelegate):
     COLOR    = QColor("blue")
@@ -98,40 +98,38 @@ class DateDelegate(QStyledItemDelegate):
         qde.setCalendarPopup(True)
         return qde
 
-class BooksModel(QAbstractTableModel):
-    coding = zip(
-    [1000,900,500,400,100,90,50,40,10,9,5,4,1],
-    ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
-    )
+class PubDateDelegate(QStyledItemDelegate):
 
+    def displayText(self, val, locale):
+        return val.toDate().toString('MMM yyyy')
+
+    def createEditor(self, parent, option, index):
+        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
+        qde.setDisplayFormat('MM yyyy')
+        qde.setMinimumDate(QDate(101,1,1))
+        qde.setCalendarPopup(True)
+        return qde
+
+
+class BooksModel(QAbstractTableModel):
     headers = {
                         'title'     : _("Title"),
                         'authors'   : _("Author(s)"),
                         'size'      : _("Size (MB)"),
                         'timestamp' : _("Date"),
+                        'pubdate'   : _('Published'),
                         'rating'    : _('Rating'),
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
                         'series'    : _("Series"),
                         }
 
-    @classmethod
-    def roman(cls, num):
-        if num <= 0 or num >= 4000 or int(num) != num:
-            return str(num)
-        result = []
-        for d, r in cls.coding:
-            while num >= d:
-                result.append(r)
-                num -= d
-        return ''.join(result)
-
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.column_map = config['column_map']
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
-                              'tags', 'series', 'timestamp']
+                              'tags', 'series', 'timestamp', 'pubdate']
         self.default_image = QImage(':/images/book.svg')
         self.sorted_on = ('timestamp', Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
@@ -157,8 +155,12 @@ class BooksModel(QAbstractTableModel):
                 tidx = self.column_map.index('timestamp')
             except ValueError:
                 tidx = -1
+            try:
+                pidx = self.column_map.index('pubdate')
+            except ValueError:
+                pidx = -1
 
-            self.emit(SIGNAL('columns_sorted(int,int)'), idx, tidx)
+            self.emit(SIGNAL('columns_sorted(int,int,int)'), idx, tidx, pidx)
 
 
     def set_database(self, db):
@@ -186,8 +188,8 @@ class BooksModel(QAbstractTableModel):
         self.db = None
         self.reset()
 
-    def add_books(self, paths, formats, metadata, uris=[], add_duplicates=False):
-        ret = self.db.add_books(paths, formats, metadata, uris,
+    def add_books(self, paths, formats, metadata, add_duplicates=False):
+        ret = self.db.add_books(paths, formats, metadata,
                                  add_duplicates=add_duplicates)
         self.count_changed()
         return ret
@@ -204,19 +206,9 @@ class BooksModel(QAbstractTableModel):
         ''' Return list indices of all cells in index.row()'''
         return [ self.index(index.row(), c) for c in range(self.columnCount(None))]
 
-    def save_to_disk(self, rows, path, single_dir=False, single_format=None,
-                     callback=None):
-        rows = [row.row() for row in rows]
-        if single_format is None:
-            return self.db.export_to_dir(path, rows,
-                                         self.sorted_on[0] == 'authors',
-                                         single_dir=single_dir,
-                                         callback=callback)
-        else:
-            return self.db.export_single_format_to_dir(path, rows,
-                                                       single_format,
-                                                       callback=callback)
-
+    @property
+    def by_author(self):
+        return self.sorted_on[0] == 'authors'
 
     def delete_books(self, indices):
         ids = map(self.id, indices)
@@ -323,7 +315,7 @@ class BooksModel(QAbstractTableModel):
         series = self.db.series(idx)
         if series:
             sidx = self.db.series_index(idx)
-            sidx = self.__class__.roman(sidx) if self.use_roman_numbers else str(sidx)
+            sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
             data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
 
         return data
@@ -397,31 +389,45 @@ class BooksModel(QAbstractTableModel):
         else:
             return metadata
 
-    def get_preferred_formats_from_ids(self, ids, all_formats, mode='r+b'):
+    def get_preferred_formats_from_ids(self, ids, formats, paths=False,
+                              set_metadata=False, specific_format=None,
+                              exclude_auto=False, mode='r+b'):
         ans = []
+        need_auto = []
+        if specific_format is not None:
+            formats = [specific_format.lower()]
         for id in ids:
             format = None
             fmts = self.db.formats(id, index_is_id=True)
             if not fmts:
                 fmts = ''
-            available_formats = set(fmts.lower().split(','))
-            for f in all_formats:
-                if f.lower() in available_formats:
-                    format = f.lower()
+            db_formats = set(fmts.lower().split(','))
+            available_formats = set([f.lower() for f in formats])
+            u = available_formats.intersection(db_formats)
+            for f in formats:
+                if f.lower() in u:
+                    format = f
                     break
-            if format is None:
-                ans.append(format)
+            if format is not None:
+                pt = PersistentTemporaryFile(suffix='.'+format)
+                pt.write(self.db.format(id, format, index_is_id=True))
+                pt.flush()
+                if set_metadata:
+                    _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
+                                  format)
+                pt.close() if paths else pt.seek(0)
+                ans.append(pt)
             else:
-                f = self.db.format(id, format, index_is_id=True, as_file=True,
-                                   mode=mode)
-                ans.append(f)
-        return ans
-
-
+                need_auto.append(id)
+                if not exclude_auto:
+                    ans.append(None)
+        return ans, need_auto
 
     def get_preferred_formats(self, rows, formats, paths=False,
-                              set_metadata=False, specific_format=None):
+                              set_metadata=False, specific_format=None,
+                              exclude_auto=False):
         ans = []
+        need_auto = []
         if specific_format is not None:
             formats = [specific_format.lower()]
         for row in (row.row() for row in rows):
@@ -446,8 +452,10 @@ class BooksModel(QAbstractTableModel):
                 pt.close() if paths else pt.seek(0)
                 ans.append(pt)
             else:
-                ans.append(None)
-        return ans
+                need_auto.append(row)
+                if not exclude_auto:
+                    ans.append(None)
+        return ans, need_auto
 
     def id(self, row):
         return self.db.id(getattr(row, 'row', lambda:row)())
@@ -486,6 +494,7 @@ class BooksModel(QAbstractTableModel):
         ridx = FIELD_MAP['rating']
         pidx = FIELD_MAP['publisher']
         tmdx = FIELD_MAP['timestamp']
+        pddx = FIELD_MAP['pubdate']
         srdx = FIELD_MAP['series']
         tgdx = FIELD_MAP['tags']
         siix = FIELD_MAP['series_index']
@@ -498,6 +507,12 @@ class BooksModel(QAbstractTableModel):
 
         def timestamp(r):
             dt = self.db.data[r][tmdx]
+            if dt:
+                dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
+                return QDate(dt.year, dt.month, dt.day)
+
+        def pubdate(r):
+            dt = self.db.data[r][pddx]
             if dt:
                 dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
                 return QDate(dt.year, dt.month, dt.day)
@@ -520,8 +535,8 @@ class BooksModel(QAbstractTableModel):
         def series(r):
             series = self.db.data[r][srdx]
             if series:
-                return series  + ' [%d]'%self.db.data[r][siix]
-
+                idx = fmt_sidx(self.db.data[r][siix])
+                return series + ' [%s]'%idx
         def size(r):
             size = self.db.data[r][sidx]
             if size:
@@ -532,6 +547,7 @@ class BooksModel(QAbstractTableModel):
                    'authors'  : authors,
                    'size'     : size,
                    'timestamp': timestamp,
+                   'pubdate' : pubdate,
                    'rating'   : rating,
                    'publisher': publisher,
                    'tags'     : tags,
@@ -571,7 +587,7 @@ class BooksModel(QAbstractTableModel):
             if column not in self.editable_cols:
                 return False
             val = int(value.toInt()[0]) if column == 'rating' else \
-                  value.toDate() if column == 'timestamp' else \
+                  value.toDate() if column in ('timestamp', 'pubdate') else \
                   unicode(value.toString())
             id = self.db.id(row)
             if column == 'rating':
@@ -579,10 +595,10 @@ class BooksModel(QAbstractTableModel):
                 val *= 2
                 self.db.set_rating(id, val)
             elif column == 'series':
-                pat = re.compile(r'\[(\d+)\]')
+                pat = re.compile(r'\[([.0-9]+)\]')
                 match = pat.search(val)
                 if match is not None:
-                    self.db.set_series_index(id, int(match.group(1)))
+                    self.db.set_series_index(id, float(match.group(1)))
                     val = pat.sub('', val)
                 val = val.strip()
                 if val:
@@ -592,6 +608,11 @@ class BooksModel(QAbstractTableModel):
                     return False
                 dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
                 self.db.set_timestamp(id, dt)
+            elif column == 'pubdate':
+                if val.isNull() or not val.isValid():
+                    return False
+                dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
+                self.db.set_pubdate(id, dt)
             else:
                 self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
@@ -619,29 +640,35 @@ class BooksView(TableView):
         TableView.__init__(self, parent)
         self.rating_delegate = LibraryDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
+        self.pubdate_delegate = PubDateDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         try:
-            self.columns_sorted(self._model.column_map.index('rating'),
-                                self._model.column_map.index('timestamp'))
+            cm = self._model.column_map
+            self.columns_sorted(cm.index('rating') if 'rating' in cm else -1,
+                            cm.index('timestamp') if 'timestamp' in cm else -1,
+                            cm.index('pubdate') if 'pubdate' in cm else -1)
         except ValueError:
             pass
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        self.connect(self._model, SIGNAL('columns_sorted(int, int)'), self.columns_sorted, Qt.QueuedConnection)
+        self.connect(self._model, SIGNAL('columns_sorted(int,int,int)'),
+                self.columns_sorted, Qt.QueuedConnection)
 
-    def columns_sorted(self, rating_col, timestamp_col):
+    def columns_sorted(self, rating_col, timestamp_col, pubdate_col):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
-                    self.timestamp_delegate):
+                    self.timestamp_delegate, self.pubdate_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
         if rating_col > -1:
             self.setItemDelegateForColumn(rating_col, self.rating_delegate)
         if timestamp_col > -1:
             self.setItemDelegateForColumn(timestamp_col, self.timestamp_delegate)
+        if pubdate_col > -1:
+            self.setItemDelegateForColumn(pubdate_col, self.pubdate_delegate)
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, similar_menu=None):
@@ -1078,3 +1105,4 @@ class SearchBox(QLineEdit):
         self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
         self.end(False)
         self.initial_state = False
+

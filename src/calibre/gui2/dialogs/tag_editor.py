@@ -1,19 +1,19 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog, QMessageBox
+from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import qstring_to_unicode
 from calibre.gui2 import question_dialog, error_dialog
 
 class TagEditor(QDialog, Ui_TagEditor):
-    
+
     def __init__(self, window, db, index=None):
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
-        
+
         self.db = db
         self.index = index
         if self.index is not None:
@@ -27,16 +27,16 @@ class TagEditor(QDialog, Ui_TagEditor):
                 self.applied_tags.addItem(tag)
         else:
             tags = []
-        
+
         self.tags = tags
-        
+
         all_tags = [tag for tag in self.db.all_tags()]
         all_tags = list(set(all_tags))
         all_tags.sort()
         for tag in all_tags:
             if tag not in tags:
                 self.available_tags.addItem(tag)
-                
+
         self.connect(self.apply_button,   SIGNAL('clicked()'), self.apply_tags)
         self.connect(self.unapply_button, SIGNAL('clicked()'), self.unapply_tags)
         self.connect(self.add_tag_button, SIGNAL('clicked()'), self.add_tag)
@@ -44,8 +44,8 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.connect(self.add_tag_input,  SIGNAL('returnPressed()'), self.add_tag)
         self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
         self.connect(self.applied_tags,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
-        
-    
+
+
     def delete_tags(self, item=None):
         confirms, deletes = [], []
         items = self.available_tags.selectedItems() if item is None else [item]
@@ -56,47 +56,47 @@ class TagEditor(QDialog, Ui_TagEditor):
             if self.db.is_tag_used(qstring_to_unicode(item.text())):
                 confirms.append(item)
             else:
-                deletes.append(item)    
+                deletes.append(item)
         if confirms:
             ct = ', '.join([qstring_to_unicode(item.text()) for item in confirms])
-            d = question_dialog(self, 'Are your sure?', 
-                                '<p>The following tags are used by one or more books. Are you certain you want to delete them?<br>'+ct)
-            if d.exec_() == QMessageBox.Yes:
+            if question_dialog(self, _('Are your sure?'),
+                '<p>'+_('The following tags are used by one or more books. '
+                    'Are you certain you want to delete them?')+'<br>'+ct):
                 deletes += confirms
-        
+
         for item in deletes:
             self.db.delete_tag(qstring_to_unicode(item.text()))
             self.available_tags.takeItem(self.available_tags.row(item))
-        
-    
+
+
     def apply_tags(self, item=None):
-        items = self.available_tags.selectedItems() if item is None else [item]  
+        items = self.available_tags.selectedItems() if item is None else [item]
         for item in items:
             tag = qstring_to_unicode(item.text())
             self.tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
-        
+
         self.tags.sort()
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
-                
-            
-    
+
+
+
     def unapply_tags(self, item=None):
-        items = self.applied_tags.selectedItems() if item is None else [item] 
+        items = self.applied_tags.selectedItems() if item is None else [item]
         for item in items:
             tag = qstring_to_unicode(item.text())
             self.tags.remove(tag)
             self.available_tags.addItem(tag)
-            
+
         self.tags.sort()
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
-            
+
         self.available_tags.sortItems()
-    
+
     def add_tag(self):
         tags = qstring_to_unicode(self.add_tag_input.text()).split(',')
         for tag in tags:
@@ -105,10 +105,10 @@ class TagEditor(QDialog, Ui_TagEditor):
                 self.available_tags.takeItem(self.available_tags.row(item))
             if tag not in self.tags:
                 self.tags.append(tag)
-                
+
         self.tags.sort()
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
-            
+
         self.add_tag_input.setText('')

@@ -1,29 +1,92 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time, textwrap, sys, cStringIO
-from binascii import hexlify, unhexlify
+import os, re, time, textwrap
 
 from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
                         QStringListModel, QAbstractItemModel, QFont, \
-                        SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, QBrush, \
-                        QModelIndex, QInputDialog, QAbstractTableModel
+                        SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
+                        QModelIndex, QInputDialog, QAbstractTableModel, \
+                        QDialogButtonBox, QTabWidget, QBrush
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
-from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.epub.iterator import is_supported
+from calibre.ebooks.oeb.iterator import is_supported
 from calibre.library import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
-                                 plugin_customization, add_plugin, remove_plugin
+                                 plugin_customization, add_plugin, \
+                                 remove_plugin, input_format_plugins, \
+                                 output_format_plugins, available_output_formats
 from calibre.utils.smtp import config as smtp_prefs
+from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.page_setup import PageSetupWidget
+from calibre.gui2.convert.structure_detection import StructureDetectionWidget
+from calibre.ebooks.conversion.plumber import Plumber
+from calibre.utils.logging import Log
+from calibre.gui2.convert.toc import TOCWidget
+
+class ConfigTabs(QTabWidget):
+
+    def __init__(self, parent):
+        QTabWidget.__init__(self, parent)
+        log = Log()
+        log.outputs = []
+
+        self.plumber = Plumber('dummt.epub', 'dummy.epub', log)
+
+        def widget_factory(cls):
+            return cls(self, self.plumber.get_option_by_name,
+                self.plumber.get_option_help, None, None)
+
+        lf = widget_factory(LookAndFeelWidget)
+        ps = widget_factory(PageSetupWidget)
+        sd = widget_factory(StructureDetectionWidget)
+        toc = widget_factory(TOCWidget)
+
+        self.widgets = [lf, ps, sd, toc]
+
+        for plugin in input_format_plugins():
+            name = plugin.name.lower().replace(' ', '_')
+            try:
+                input_widget = __import__('calibre.gui2.convert.'+name,
+                        fromlist=[1])
+                pw = input_widget.PluginWidget
+                pw.ICON = ':/images/forward.svg'
+                pw.HELP = _('Options specific to the input format.')
+                self.widgets.append(widget_factory(pw))
+            except ImportError:
+                continue
+
+        for plugin in output_format_plugins():
+            name = plugin.name.lower().replace(' ', '_')
+            try:
+                output_widget = __import__('calibre.gui2.convert.'+name,
+                        fromlist=[1])
+                pw = output_widget.PluginWidget
+                pw.ICON = ':/images/forward.svg'
+                pw.HELP = _('Options specific to the input format.')
+                self.widgets.append(widget_factory(pw))
+            except ImportError:
+                continue
+
+        for widget in self.widgets:
+            self.addTab(widget, widget.TITLE.replace('\n', ' ').replace('&',
+            '&&'))
+
+    def commit(self):
+        for widget in self.widgets:
+            if not widget.pre_commit_check():
+                return False
+            widget.commit(save_defaults=True)
+        return True
+
 
 class PluginModel(QAbstractItemModel):
 
@@ -126,10 +189,12 @@ class CategoryModel(QStringListModel):
 
     def __init__(self, *args):
         QStringListModel.__init__(self, *args)
-        self.setStringList([_('General'), _('Interface'), _('Email\nDelivery'),
+        self.setStringList([_('General'), _('Interface'), _('Conversion'),
+                            _('Email\nDelivery'),
                             _('Advanced'), _('Content\nServer'), _('Plugins')])
         self.icons = list(map(QVariant, map(QIcon,
             [':/images/dialog_information.svg', ':/images/lookfeel.svg',
+                ':/images/convert.svg',
              ':/images/mail.svg', ':/images/view.svg',
              ':/images/network-server.svg', ':/images/plugins.svg'])))
 
@@ -137,34 +202,6 @@ class CategoryModel(QStringListModel):
         if role == Qt.DecorationRole:
             return self.icons[index.row()]
         return QStringListModel.data(self, index, role)
-
-class TestEmail(QDialog, TE_Dialog):
-
-    def __init__(self, accounts, parent):
-        QDialog.__init__(self, parent)
-        TE_Dialog.__init__(self)
-        self.setupUi(self)
-        opts = smtp_prefs().parse()
-        self.test_func = parent.test_email_settings
-        self.connect(self.test_button, SIGNAL('clicked(bool)'), self.test)
-        self.from_.setText(unicode(self.from_.text())%opts.from_)
-        if accounts:
-            self.to.setText(list(accounts.keys())[0])
-        if opts.relay_host:
-            self.label.setText(_('Using: %s:%s@%s:%s and %s encryption')%
-                    (opts.relay_username, unhexlify(opts.relay_password),
-                        opts.relay_host, opts.relay_port, opts.encryption))
-
-    def test(self):
-        self.log.setPlainText(_('Sending...'))
-        self.test_button.setEnabled(False)
-        try:
-            tb = self.test_func(unicode(self.to.text()))
-            if not tb:
-                tb = _('Mail successfully sent')
-            self.log.setPlainText(tb)
-        finally:
-            self.test_button.setEnabled(True)
 
 class EmailAccounts(QAbstractTableModel):
 
@@ -328,12 +365,15 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
         self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
 
-        self.book_exts = sorted(BOOK_EXTENSIONS)
-        for ext in self.book_exts:
-            self.single_format.addItem(ext.upper(), QVariant(ext))
+        output_formats = sorted(available_output_formats())
+        output_formats.remove('oeb')
+        for f in output_formats:
+            self.output_format.addItem(f.upper())
+        default_index = \
+            self.output_format.findText(prefs['output_format'].upper())
+        self.output_format.setCurrentIndex(default_index if default_index != -1 else 0)
 
-        single_format = config['save_to_disk_single_format']
-        self.single_format.setCurrentIndex(self.book_exts.index(single_format))
+
         self.cover_browse.setValue(config['cover_flow_queue_length'])
         self.systray_notifications.setChecked(not config['disable_tray_notification'])
         from calibre.translations.compiled import translations
@@ -355,17 +395,17 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
         self.pdf_metadata.setChecked(prefs['read_file_metadata'])
 
-        added_html = False
-        for ext in self.book_exts:
+        exts = set([])
+        for ext in BOOK_EXTENSIONS:
             ext = ext.lower()
             ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
             if ext == 'lrf' or is_supported('book.'+ext):
-                if ext == 'html' and added_html:
-                    continue
-                self.viewer.addItem(ext.upper())
-                self.viewer.item(self.viewer.count()-1).setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
-                self.viewer.item(self.viewer.count()-1).setCheckState(Qt.Checked if ext.upper() in config['internally_viewed_formats'] else Qt.Unchecked)
-                added_html = ext == 'html'
+                exts.add(ext)
+
+        for ext in sorted(exts):
+            self.viewer.addItem(ext.upper())
+            self.viewer.item(self.viewer.count()-1).setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
+            self.viewer.item(self.viewer.count()-1).setCheckState(Qt.Checked if ext.upper() in config['internally_viewed_formats'] else Qt.Unchecked)
         self.viewer.sortItems()
         self.start.setEnabled(not getattr(self.server, 'is_running', False))
         self.test.setEnabled(not self.start.isEnabled())
@@ -403,34 +443,26 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.delete_news.setEnabled(bool(self.sync_news.isChecked()))
         self.connect(self.sync_news, SIGNAL('toggled(bool)'),
                 self.delete_news.setEnabled)
+        self.setup_conversion_options()
+
+    def setup_conversion_options(self):
+        self.conversion_options = ConfigTabs(self)
+        self.stackedWidget.insertWidget(2, self.conversion_options)
 
     def setup_email_page(self):
-        opts = smtp_prefs().parse()
-        if opts.from_:
-            self.email_from.setText(opts.from_)
+        def x():
+            if self._email_accounts.account_order:
+                return self._email_accounts.account_order[0]
+        self.send_email_widget.initialize(x)
+        opts = self.send_email_widget.smtp_opts
         self._email_accounts = EmailAccounts(opts.accounts)
         self.email_view.setModel(self._email_accounts)
-        if opts.relay_host:
-            self.relay_host.setText(opts.relay_host)
-        self.relay_port.setValue(opts.relay_port)
-        if opts.relay_username:
-            self.relay_username.setText(opts.relay_username)
-        if opts.relay_password:
-            self.relay_password.setText(unhexlify(opts.relay_password))
-        (self.relay_tls if opts.encryption == 'TLS' else self.relay_ssl).setChecked(True)
-        self.connect(self.relay_use_gmail, SIGNAL('clicked(bool)'),
-                     self.create_gmail_relay)
-        self.connect(self.relay_show_password, SIGNAL('stateChanged(int)'),
-         lambda
-         state:self.relay_password.setEchoMode(self.relay_password.Password if
-             state == 0 else self.relay_password.Normal))
+
         self.connect(self.email_add, SIGNAL('clicked(bool)'),
                      self.add_email_account)
         self.connect(self.email_make_default, SIGNAL('clicked(bool)'),
              lambda c: self._email_accounts.make_default(self.email_view.currentIndex()))
         self.email_view.resizeColumnsToContents()
-        self.connect(self.test_email_button, SIGNAL('clicked(bool)'),
-                self.test_email)
         self.connect(self.email_remove, SIGNAL('clicked()'),
                 self.remove_email_account)
 
@@ -444,68 +476,14 @@ class ConfigDialog(QDialog, Ui_Dialog):
         idx = self.email_view.currentIndex()
         self._email_accounts.remove(idx)
 
-    def create_gmail_relay(self, *args):
-        self.relay_username.setText('@gmail.com')
-        self.relay_password.setText('')
-        self.relay_host.setText('smtp.gmail.com')
-        self.relay_port.setValue(587)
-        self.relay_tls.setChecked(True)
-
-        info_dialog(self, _('Finish gmail setup'),
-            _('Dont forget to enter your gmail username and password')).exec_()
-        self.relay_username.setFocus(Qt.OtherFocusReason)
-        self.relay_username.setCursorPosition(0)
-
     def set_email_settings(self):
-        from_ = unicode(self.email_from.text()).strip()
-        if self._email_accounts.accounts and not from_:
-            error_dialog(self, _('Bad configuration'),
-                         _('You must set the From email address')).exec_()
-            return False
-        username = unicode(self.relay_username.text()).strip()
-        password = unicode(self.relay_password.text()).strip()
-        host = unicode(self.relay_host.text()).strip()
-        if host and not (username and password):
-            error_dialog(self, _('Bad configuration'),
-                         _('You must set the username and password for '
-                           'the mail server.')).exec_()
+        to_set = bool(self._email_accounts.accounts)
+        if not self.send_email_widget.set_email_settings(to_set):
             return False
         conf = smtp_prefs()
-        conf.set('from_', from_)
         conf.set('accounts', self._email_accounts.accounts)
-        conf.set('relay_host', host if host else None)
-        conf.set('relay_port', self.relay_port.value())
-        conf.set('relay_username', username if username else None)
-        conf.set('relay_password', hexlify(password))
-        conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL')
         return True
 
-    def test_email(self, *args):
-        if self.set_email_settings():
-          TestEmail(self._email_accounts.accounts, self).exec_()
-
-    def test_email_settings(self, to):
-        opts = smtp_prefs().parse()
-        from calibre.utils.smtp import sendmail, create_mail
-        buf = cStringIO.StringIO()
-        oout, oerr = sys.stdout, sys.stderr
-        sys.stdout = sys.stderr = buf
-        tb = None
-        try:
-            msg = create_mail(opts.from_, to, 'Test mail from calibre',
-                    'Test mail from calibre')
-            sendmail(msg, from_=opts.from_, to=[to],
-                verbose=3, timeout=30, relay=opts.relay_host,
-                username=opts.relay_username,
-                password=unhexlify(opts.relay_password),
-                encryption=opts.encryption, port=opts.relay_port)
-        except:
-            import traceback
-            tb = traceback.format_exc()
-            tb += '\n\nLog:\n' + buf.getvalue()
-        finally:
-            sys.stdout, sys.stderr = oout, oerr
-        return tb
 
     def add_plugin(self):
         path = unicode(self.plugin_path.text())
@@ -528,11 +506,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         index = self.plugin_view.currentIndex()
         if index.isValid():
             plugin = self._plugin_model.index_to_plugin(index)
-            if not plugin.can_be_disabled:
-                error_dialog(self,_('Plugin cannot be disabled'),
-                             _('The plugin: %s cannot be disabled')%plugin.name).exec_()
-                return
             if op == 'toggle':
+                if not plugin.can_be_disabled:
+                    error_dialog(self,_('Plugin cannot be disabled'),
+                                 _('The plugin: %s cannot be disabled')%plugin.name).exec_()
+                    return
                 if is_disabled(plugin):
                     enable_plugin(plugin)
                 else:
@@ -543,11 +521,28 @@ class ConfigDialog(QDialog, Ui_Dialog):
                     info_dialog(self, _('Plugin not customizable'),
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
-                help = plugin.customization_help()
-                text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
-                                                help)
-                if ok:
-                    customize_plugin(plugin, unicode(text))
+                if hasattr(plugin, 'config_widget'):
+                    config_dialog = QDialog(self)
+                    button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+
+                    config_dialog.connect(button_box, SIGNAL('accepted()'), config_dialog.accept)
+                    config_dialog.connect(button_box, SIGNAL('rejected()'), config_dialog.reject)
+
+                    config_widget = plugin.config_widget()
+                    v = QVBoxLayout(config_dialog)
+                    v.addWidget(config_widget)
+                    v.addWidget(button_box)
+                    config_dialog.exec_()
+
+                    if config_dialog.result() == QDialog.Accepted:
+                        plugin.save_settings(config_widget)
+                        self._plugin_model.refresh_plugin(plugin)
+                else:
+                    help = plugin.customization_help()
+                    text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
+                                                    help)
+                    if ok:
+                        customize_plugin(plugin, unicode(text))
                     self._plugin_model.refresh_plugin(plugin)
             if op == 'remove':
                 if remove_plugin(plugin):
@@ -633,7 +628,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
     def browse(self):
         dir = choose_dir(self, 'database location dialog',
-                         _('Select database location'))
+                         _('Select location for books'))
         if dir:
             self.location.setText(dir)
 
@@ -655,6 +650,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
             return
         if not self.set_email_settings():
             return
+        if not self.conversion_options.commit():
+            return
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
@@ -672,7 +669,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
         prefs['worker_process_priority'] = p
         prefs['read_file_metadata'] = bool(self.pdf_metadata.isChecked())
-        config['save_to_disk_single_format'] = self.book_exts[self.single_format.currentIndex()]
+        prefs['output_format'] = unicode(self.output_format.currentText()).upper()
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
         config['systray_icon'] = self.systray_icon.checkState() == Qt.Checked

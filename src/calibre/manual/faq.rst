@@ -17,39 +17,11 @@ E-book Format Conversion
 
 What formats does |app| support conversion to/from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| supports the conversion of the following formats:
+|app| supports the conversion of many input formats to many output formats.
+It can convert every input format in the following list, to every output format.
 
-+----------------------------+------------------------------------------------------------------+
-|                            |          **Output formats**                                      |
-|                            +------------------+-----------------------+-----------------------+
-|                            |      EPUB        |         LRF           |         MOBI          |
-+===================+========+==================+=======================+=======================+
-|                   |  MOBI  |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  LIT   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  PRC** |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  EPUB  |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  ODT   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  FB2   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  HTML  |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-| **Input formats** |  CBR   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  CBZ   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  RTF   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  TXT   |       ✔          |          ✔            |          ✔            |
-|                   |        |                  |                       |                       |
-|                   |  PDF   |       ✔          |          ✔            |          ✔            | 
-|                   |        |                  |                       |                       |
-|                   |  LRS   |                  |          ✔            |                       |
-+-------------------+--------+------------------+-----------------------+-----------------------+
+*Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, MOBI, ODT, PDF, PRC**, RTF, TXT
+*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PDF, TXT
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
 
@@ -64,7 +36,7 @@ The PDF conversion tries to extract the text and images from the PDF file and co
 are also represented as vector diagrams, thus they cannot be extracted.
 
 How do I convert a collection of HTML files in a specific order?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
  
    <html>

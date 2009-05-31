@@ -169,8 +169,8 @@ class ManifestItem(Resource):
                 res.mime_type = mt
             return res
 
-    @apply
-    def media_type():
+    @dynamic_property
+    def media_type(self):
         def fget(self):
             return self.mime_type
         def fset(self, val):
@@ -387,6 +387,8 @@ class MetadataField(object):
                 ans = self.formatter(ans)
             except:
                 return None
+        if hasattr(ans, 'strip'):
+            ans = ans.strip()
         return ans
 
     def __get__(self, obj, type=None):
@@ -440,9 +442,10 @@ class OPF(object):
     comments        = MetadataField('description')
     category        = MetadataField('category')
     series          = MetadataField('series', is_dc=False)
-    series_index    = MetadataField('series_index', is_dc=False, formatter=int, none_is=1)
+    series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
-    timestamp       = MetadataField('date', formatter=parser.parse)
+    pubdate         = MetadataField('date', formatter=parser.parse)
+    timestamp       = MetadataField('timestamp', is_dc=False, formatter=parser.parse)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):
@@ -620,8 +623,8 @@ class OPF(object):
         for item in self.iterguide():
             item.set('href', get_href(item))
 
-    @apply
-    def authors():
+    @dynamic_property
+    def authors(self):
 
         def fget(self):
             ans = []
@@ -640,8 +643,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def author_sort():
+    @dynamic_property
+    def author_sort(self):
 
         def fget(self):
             matches = self.authors_path(self.metadata)
@@ -663,8 +666,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def title_sort():
+    @dynamic_property
+    def title_sort(self):
 
         def fget(self):
             matches = self.title_path(self.metadata)
@@ -686,8 +689,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def tags():
+    @dynamic_property
+    def tags(self):
 
         def fget(self):
             ans = []
@@ -704,8 +707,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def isbn():
+    @dynamic_property
+    def isbn(self):
 
         def fget(self):
             for match in self.isbn_path(self.metadata):
@@ -721,8 +724,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def application_id():
+    @dynamic_property
+    def application_id(self):
 
         def fget(self):
             for match in self.application_id_path(self.metadata):
@@ -738,8 +741,8 @@ class OPF(object):
 
         return property(fget=fget, fset=fset)
 
-    @apply
-    def book_producer():
+    @dynamic_property
+    def book_producer(self):
 
         def fget(self):
             for match in self.bkp_path(self.metadata):
@@ -776,8 +779,8 @@ class OPF(object):
                             return cpath
 
 
-    @apply
-    def cover():
+    @dynamic_property
+    def cover(self):
 
         def fget(self):
             if self.guide is not None:
@@ -922,13 +925,16 @@ class OPFCreator(MetaInformation):
         self.guide.set_basedir(self.base_path)
 
     def render(self, opf_stream=sys.stdout, ncx_stream=None,
-               ncx_manifest_entry=None):
+               ncx_manifest_entry=None, encoding=None):
         from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
+        if encoding is None:
+            encoding = 'utf-8'
         template = MarkupTemplate(opf_template)
+        toc = getattr(self, 'toc', None)
         if self.manifest:
             self.manifest.set_basedir(self.base_path)
-            if ncx_manifest_entry is not None:
+            if ncx_manifest_entry is not None and toc is not None:
                 if not os.path.isabs(ncx_manifest_entry):
                     ncx_manifest_entry = os.path.join(self.base_path, ncx_manifest_entry)
                 remove = [i for i in self.manifest if i.id == 'ncx']
@@ -945,10 +951,13 @@ class OPFCreator(MetaInformation):
                 cover = os.path.abspath(os.path.join(self.base_path, cover))
             self.guide.set_cover(cover)
         self.guide.set_basedir(self.base_path)
-        opf = template.generate(__appname__=__appname__, mi=self, __version__=__version__).render('xml')
+        opf = template.generate(
+                __appname__=__appname__, mi=self,
+                __version__=__version__).render('xml', encoding=encoding)
+        opf_stream.write('<?xml version="1.0" encoding="%s" ?>\n'
+                %encoding.upper())
         opf_stream.write(opf)
         opf_stream.flush()
-        toc = getattr(self, 'toc', None)
         if toc is not None and ncx_stream is not None:
             toc.render(ncx_stream, self.application_id)
             ncx_stream.flush()
@@ -1018,57 +1027,3 @@ def suite():
 
 def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
-
-
-def option_parser():
-    from calibre.ebooks.metadata import get_parser
-    parser = get_parser('opf')
-    parser.add_option('--language', default=None, help=_('Set the dc:language field'))
-    return parser
-
-def main(args=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        return 1
-    opfpath = os.path.abspath(args[1])
-    basedir = os.path.dirname(opfpath)
-    mi = MetaInformation(OPF(open(opfpath, 'rb'), basedir))
-    write = False
-    if opts.title is not None:
-        mi.title = opts.title
-        write = True
-    if opts.authors is not None:
-        aus = [i.strip() for i in opts.authors.split(',')]
-        mi.authors = aus
-        write = True
-    if opts.category is not None:
-        mi.category = opts.category
-        write = True
-    if opts.comment is not None:
-        mi.comments = opts.comment
-        write = True
-    if opts.language is not None:
-        mi.language = opts.language
-        write = True
-    if write:
-        mo = OPFCreator(basedir, mi)
-        ncx = cStringIO.StringIO()
-        mo.render(open(args[1], 'wb'), ncx)
-        ncx = ncx.getvalue()
-        if ncx:
-            f = glob.glob(os.path.join(os.path.dirname(args[1]), '*.ncx'))
-            if f:
-                f = open(f[0], 'wb')
-            else:
-                f = open(os.path.splitext(args[1])[0]+'.ncx', 'wb')
-            f.write(ncx)
-            f.close()
-    print MetaInformation(OPF(open(opfpath, 'rb'), basedir))
-    return 0
-
-
-
-if __name__ == '__main__':
-    sys.exit(main())

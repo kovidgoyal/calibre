@@ -49,13 +49,12 @@ recipe_modules = ['recipe_' + r for r in (
 
 import re, imp, inspect, time, os
 from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
-from calibre.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.path import path
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import __appname__, english_sort
 
-basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
+basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe)
 basic_recipe_names = (i.__name__ for i in basic_recipes)
 
 
@@ -86,7 +85,7 @@ def compile_recipe(src):
     Compile the code in src and return the first object that is a recipe or profile.
     @param src: Python source code
     @type src: string
-    @return: Recipe/Profile class or None, if no such class was found in C{src}
+    @return: Recipe class or None, if no such class was found in C{src}
     '''
     global _tdir, _crep
     if _tdir is None or not os.path.exists(_tdir):
@@ -100,7 +99,6 @@ def compile_recipe(src):
     src = re.sub(r'from __future__.*', '', src)
     f = open(temp, 'wb')
     src = 'from %s.web.feeds.news import BasicNewsRecipe, AutomaticNewsRecipe\n'%__appname__ + src
-    src = 'from %s.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile\n'%__appname__ + src
     src = '# coding: utf-8\n' + src
     src = 'from __future__ import with_statement\n' + src
 
@@ -111,7 +109,7 @@ def compile_recipe(src):
     module = imp.load_module(temp.namebase, *module)
     classes = inspect.getmembers(module,
             lambda x : inspect.isclass(x) and \
-                issubclass(x, (DefaultProfile, BasicNewsRecipe)) and \
+                issubclass(x, (BasicNewsRecipe,)) and \
                 x not in basic_recipes)
     if not classes:
         return None
@@ -122,11 +120,10 @@ def compile_recipe(src):
 def get_builtin_recipe(title):
     '''
     Return a builtin recipe/profile class whose title == C{title} or None if no such
-    recipe exists. Also returns a flag that is True iff the found recipe is really
-    an old-style Profile.
+    recipe exists.
 
     @type title: string
-    @rtype: class or None, boolean
+    @rtype: class or None
     '''
     for r in recipes:
         if r.title == title:

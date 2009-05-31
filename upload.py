@@ -139,7 +139,7 @@ class resources(OptionlessCommand):
     RESOURCES = dict(
         opf_template    = 'ebooks/metadata/opf.xml',
         ncx_template    = 'ebooks/metadata/ncx.xml',
-        fb2_xsl         = 'ebooks/lrf/fb2/fb2.xsl',
+        fb2_xsl         = 'ebooks/fb2/fb2.xsl',
         metadata_sqlite = 'library/metadata_sqlite.sql',
         jquery          = 'gui2/viewer/jquery.js',
         jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
@@ -312,6 +312,8 @@ class gui(OptionlessCommand):
                 dat = dat.replace('import images_rc', 'from calibre.gui2 import images_rc')
                 dat = dat.replace('from library import', 'from calibre.gui2.library import')
                 dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
+                dat = dat.replace('from convert.xpath_wizard import',
+                    'from calibre.gui2.convert.xpath_wizard import')
                 dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
 
                 # Workaround bug in Qt 4.4 on Windows

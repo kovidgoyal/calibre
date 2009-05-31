@@ -6,17 +6,38 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, cStringIO
 from threading import Thread
 
-from calibre.ebooks.metadata import MetaInformation, authors_to_string, get_parser
+from calibre import StreamReadWrapper
+from calibre.ptempfile import TemporaryDirectory
+try:
+    from calibre.utils.PythonMagickWand import \
+        NewMagickWand, MagickReadImage, MagickSetImageFormat, \
+        MagickWriteImage, ImageMagick
+    _imagemagick_loaded = True
+except:
+    _imagemagick_loaded = False
+from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
-    set_metadata as podofo_set_metadata, Unavailable
+    set_metadata as podofo_set_metadata, Unavailable, write_first_page
 
 
-def get_metadata(stream):
+def get_metadata(stream, extract_cover=True):
     try:
-        return podofo_get_metadata(stream)
+        mi = podofo_get_metadata(stream)
     except Unavailable:
-        return get_metadata_pypdf(stream)
+        mi = get_metadata_pypdf(stream)
+    stream.seek(0)
+
+    if extract_cover and _imagemagick_loaded:
+        try:
+            cdata = get_cover(stream)
+            if cdata is not None:
+                mi.cover_data = ('jpg', cdata)
+        except:
+            import traceback
+            traceback.print_exc()
+    return mi
+
 
 def set_metadata(stream, mi):
     stream.seek(0)
@@ -34,11 +55,9 @@ def set_metadata(stream, mi):
 def get_metadata_pypdf(stream):
     """ Return metadata as a L{MetaInfo} object """
     from pyPdf import PdfFileReader
-    from calibre import FileWrapper
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
-    stream.seek(0)
     try:
-        with FileWrapper(stream) as stream:
+        with StreamReadWrapper(stream) as stream:
             info = PdfFileReader(stream).getDocumentInfo()
             if info.title:
                 mi.title = info.title
@@ -78,16 +97,13 @@ def set_metadata_pypdf(stream, mi):
     from pyPdf import PdfFileReader, PdfFileWriter
     raw = cStringIO.StringIO(stream.read())
     orig_pdf = PdfFileReader(raw)
-
     title = mi.title if mi.title else orig_pdf.documentInfo.title
     author = authors_to_string(mi.authors) if mi.authors else orig_pdf.documentInfo.author
-
     out_pdf = PdfFileWriter(title=title, author=author)
     out_str = cStringIO.StringIO()
     writer = MetadataWriter(out_pdf, out_str)
     for page in orig_pdf.pages:
         out_pdf.addPage(page)
-
     writer.start()
     writer.join(10) # Wait 10 secs for writing to complete
     out_pdf.killed = True
@@ -102,27 +118,17 @@ def set_metadata_pypdf(stream, mi):
     stream.write(out_str.read())
     stream.seek(0)
 
-def option_parser():
-    p = get_parser('pdf')
-    p.remove_option('--category')
-    p.remove_option('--comment')
-    return p
+def get_cover(stream):
+    stream.seek(0)
+    with TemporaryDirectory('_pdfmeta') as tdir:
+        cover_path = os.path.join(tdir, 'cover.pdf')
+        write_first_page(stream, cover_path)
+        with ImageMagick():
+            wand = NewMagickWand()
+            MagickReadImage(wand, cover_path)
+            MagickSetImageFormat(wand, 'JPEG')
+            MagickWriteImage(wand, '%s.jpg' % cover_path)
+        return open('%s.jpg' % cover_path, 'rb').read()
 
-def main(args=sys.argv):
-    #p = option_parser()
-    #opts, args = p.parse_args(args)
-    if len(args) != 2:
-        print >>sys.stderr, _('Usage: pdf-meta file.pdf')
-        print >>sys.stderr, _('No filename specified.')
-        return 1
 
-    stream = open(os.path.abspath(os.path.expanduser(args[1])), 'r+b')
-    #mi = MetaInformation(opts.title, opts.authors)
-    #if mi.title or mi.authors:
-    #    set_metadata(stream, mi)
-    print unicode(get_metadata(stream)).encode('utf-8')
 
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

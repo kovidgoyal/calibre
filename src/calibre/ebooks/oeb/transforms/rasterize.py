@@ -6,7 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
 import os
 from urlparse import urldefrag
 import base64
@@ -20,9 +19,9 @@ from PyQt4.QtGui import QImage
 from PyQt4.QtGui import QPainter
 from PyQt4.QtSvg import QSvgRenderer
 from PyQt4.QtGui import QApplication
-from calibre.ebooks.oeb.base import XHTML_NS, XHTML, SVG_NS, SVG, XLINK
-from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME, JPEG_MIME
-from calibre.ebooks.oeb.base import xml2str, xpath, namespace, barename
+from calibre.ebooks.oeb.base import XHTML, XLINK
+from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
+from calibre.ebooks.oeb.base import xml2str, xpath
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 
@@ -34,7 +33,15 @@ class SVGRasterizer(object):
         if QApplication.instance() is None:
             QApplication([])
 
-    def transform(self, oeb, context):
+    @classmethod
+    def config(cls, cfg):
+        return cfg
+
+    @classmethod
+    def generate(cls, opts):
+        return cls()
+    
+    def __call__(self, oeb, context):
         oeb.logger.info('Rasterizing SVG images...')
         self.oeb = oeb
         self.profile = context.dest
@@ -80,7 +87,7 @@ class SVGRasterizer(object):
         hrefs = self.oeb.manifest.hrefs
         for elem in xpath(svg, '//svg:*[@xl:href]'):
             href = urlnormalize(elem.attrib[XLINK('href')])
-            path, frag = urldefrag(href)
+            path = urldefrag(href)[0]
             if not path:
                 continue
             abshref = item.abshref(path)

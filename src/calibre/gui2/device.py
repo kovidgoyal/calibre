@@ -1,7 +1,7 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, traceback, Queue, time, socket
+import os, traceback, Queue, time, socket, cStringIO
 from threading import Thread, RLock
 from itertools import repeat
 from functools import partial
@@ -10,42 +10,62 @@ from binascii import unhexlify
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, QPixmap, \
                      Qt
 
-from calibre.devices import devices
+from calibre.customize.ui import available_input_formats, available_output_formats, \
+    device_plugins
+from calibre.devices.interface import DevicePlugin
 from calibre.constants import iswindows
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
-from calibre.parallel import Job
+from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-                                   pixmap_to_data
+                                   pixmap_to_data, warning_dialog, \
+                                   info_dialog
 from calibre.ebooks.metadata import authors_to_string
-from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.devices.interface import Device
 from calibre import sanitize_file_name, preferred_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 
-def warning(title, msg, details, parent):
-    from calibre.gui2.widgets import WarningDialog
-    WarningDialog(title, msg, details, parent).exec_()
+class DeviceJob(BaseJob):
 
-
-class DeviceJob(Job):
-
-    def __init__(self, func, *args, **kwargs):
-        Job.__init__(self, *args, **kwargs)
+    def __init__(self, func, done, job_manager, args=[], kwargs={},
+            description=''):
+        BaseJob.__init__(self, description, done=done)
         self.func = func
+        self.args, self.kwargs = args, kwargs
+        self.exception = None
+        self.job_manager = job_manager
+        self._details = _('No details available.')
+
+    def start_work(self):
+        self.start_time = time.time()
+        self.job_manager.changed_queue.put(self)
+
+    def job_done(self):
+        self.duration = time.time() - self.start_time
+        self.percent = 1
+        self.job_manager.changed_queue.put(self)
+
+    def report_progress(self, percent, msg=''):
+        self.notifications.put((percent, msg))
+        self.job_manager.changed_queue.put(self)
 
     def run(self):
         self.start_work()
         try:
             self.result = self.func(*self.args, **self.kwargs)
         except (Exception, SystemExit), err:
+            self.failed = True
+            self._details = unicode(err) + '\n\n' + \
+                traceback.format_exc()
             self.exception = err
-            self.traceback = traceback.format_exc()
         finally:
             self.job_done()
+
+    @property
+    def log_file(self):
+        return cStringIO.StringIO(self._details.encode('utf-8'))
 
 
 class DeviceManager(Thread):
@@ -57,7 +77,7 @@ class DeviceManager(Thread):
         '''
         Thread.__init__(self)
         self.setDaemon(True)
-        self.devices        = [[d, False] for d in devices()]
+        self.devices        = [[d, False] for d in device_plugins()]
         self.device         = None
         self.device_class   = None
         self.sleep_time     = sleep_time
@@ -74,7 +94,8 @@ class DeviceManager(Thread):
             connected = self.scanner.is_device_connected(device[0])
             if connected and not device[1]:
                 try:
-                    dev = device[0]()
+                    dev = device[0]
+                    dev.reset()
                     if iswindows:
                         import pythoncom
                         pythoncom.CoInitialize()
@@ -116,7 +137,7 @@ class DeviceManager(Thread):
                 job = self.next()
                 if job is not None:
                     self.current_job = job
-                    self.device.set_progress_reporter(job.update_status)
+                    self.device.set_progress_reporter(job.report_progress)
                     self.current_job.run()
                     self.current_job = None
                 else:
@@ -150,9 +171,10 @@ class DeviceManager(Thread):
 
     def _books(self):
         '''Get metadata from device'''
-        mainlist = self.device.books(oncard=False, end_session=False)
-        cardlist = self.device.books(oncard=True)
-        return (mainlist, cardlist)
+        mainlist = self.device.books(oncard=None, end_session=False)
+        cardalist = self.device.books(oncard='carda')
+        cardblist = self.device.books(oncard='cardb')
+        return (mainlist, cardalist, cardblist)
 
     def books(self, done):
         '''Return callable that returns the list of books on device as two booklists'''
@@ -167,12 +189,12 @@ class DeviceManager(Thread):
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
-    def _upload_books(self, files, names, on_card=False, metadata=None):
+    def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
         return self.device.upload_books(files, names, on_card,
                                         metadata=metadata, end_session=False)
 
-    def upload_books(self, done, files, names, on_card=False, titles=None,
+    def upload_books(self, done, files, names, on_card=None, titles=None,
                      metadata=None):
         desc = _('Upload %d books to device')%len(names)
         if titles:
@@ -198,9 +220,11 @@ class DeviceManager(Thread):
         '''Copy books from device to disk'''
         for path in paths:
             name = path.rpartition('/')[2]
-            f = open(os.path.join(target, name), 'wb')
-            self.device.get_file(path, f)
-            f.close()
+            dest = os.path.join(target, name)
+            if os.path.abspath(dest) != os.path.abspath(path):
+                f = open(dest, 'wb')
+                self.device.get_file(path, f)
+                f.close()
 
     def save_books(self, done, paths, target):
         return self.create_job(self._save_books, done, args=[paths, target],
@@ -267,24 +291,27 @@ class DeviceMenu(QMenu):
                 self.connect(action2, SIGNAL('a_s(QAction)'),
                             self.action_triggered)
 
-
-
-
         _actions = [
                 ('main:', False, False,  ':/images/reader.svg',
                     _('Send to main memory')),
-                ('card:0', False, False, ':/images/sd.svg',
-                    _('Send to storage card')),
+                ('carda:0', False, False, ':/images/sd.svg',
+                    _('Send to storage card A')),
+                ('cardb:0', False, False, ':/images/sd.svg',
+                    _('Send to storage card B')),
                 '-----',
                 ('main:', True, False,   ':/images/reader.svg',
                     _('Send to main memory')),
-                ('card:0', True, False,  ':/images/sd.svg',
-                    _('Send to storage card')),
+                ('carda:0', True, False,  ':/images/sd.svg',
+                    _('Send to storage card A')),
+                ('cardb:0', True, False,  ':/images/sd.svg',
+                    _('Send to storage card B')),
                 '-----',
                 ('main:', False, True,  ':/images/reader.svg',
                     _('Send specific format to main memory')),
-                ('card:0', False, True, ':/images/sd.svg',
-                    _('Send specific format to storage card')),
+                ('carda:0', False, True, ':/images/sd.svg',
+                    _('Send specific format to storage card A')),
+                ('cardb:0', False, True, ':/images/sd.svg',
+                    _('Send specific format to storage card B')),
 
                 ]
         if default_account is not None:
@@ -344,10 +371,25 @@ class DeviceMenu(QMenu):
                 self.action_triggered(action)
                 break
 
-    def enable_device_actions(self, enable):
+    def enable_device_actions(self, enable, card_prefix=(None, None)):
         for action in self.actions:
-            if action.dest[:4] in ('main', 'card'):
-                action.setEnabled(enable)
+            if action.dest in ('main:', 'carda:0', 'cardb:0'):
+                if not enable:
+                    action.setEnabled(False)
+                else:
+                    if action.dest == 'main:':
+                        action.setEnabled(True)
+                    elif action.dest == 'carda:0':
+                        if card_prefix and card_prefix[0] != None:
+                            action.setEnabled(True)
+                        else:
+                            action.setEnabled(False)
+                    elif action.dest == 'cardb:0':
+                        if card_prefix and card_prefix[1] != None:
+                            action.setEnabled(True)
+                        else:
+                            action.setEnabled(False)
+
 
 class Emailer(Thread):
 
@@ -419,35 +461,49 @@ class DeviceGUI(object):
         fmt = None
         if specific:
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
-                                self.device_manager.device_class.FORMATS)
+                                self.device_manager.device_class.settings().format_map)
             d.exec_()
             fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
-        if dest in ('main', 'card'):
+        if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
                 error_dialog(self, _('No device'),
                         _('Cannot send: No device is connected')).exec_()
                 return
-            on_card = dest == 'card'
-            if on_card and not self.device_manager.has_card():
+            if dest == 'carda' and not self.device_manager.has_card():
                 error_dialog(self, _('No card'),
                         _('Cannot send: Device has no storage card')).exec_()
                 return
+            if dest == 'cardb' and not self.device_manager.has_card():
+                error_dialog(self, _('No card'),
+                        _('Cannot send: Device has no storage card')).exec_()
+                return
+            if dest == 'main':
+                on_card = None
+            else:
+                on_card = dest
             self.sync_to_device(on_card, delete, fmt)
         elif dest == 'mail':
             to, fmts = sub_dest.split(';')
             fmts = [x.strip().lower() for x in fmts.split(',')]
             self.send_by_mail(to, fmts, delete)
 
-    def send_by_mail(self, to, fmts, delete_from_library):
-        rows = self.library_view.selectionModel().selectedRows()
-        if not rows or len(rows) == 0:
+    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None,
+            do_auto_convert=True, specific_format=None):
+        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
+        if not ids or len(ids) == 0:
             return
-        ids = iter(self.library_view.model().id(r) for r in rows)
+        files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
+                                    fmts, paths=True, set_metadata=True,
+                                    specific_format=specific_format,
+                                    exclude_auto=do_auto_convert)
+        if do_auto_convert:
+            ids = list(set(ids).difference(_auto_ids))
+        else:
+            _auto_ids = []
+
         full_metadata = self.library_view.model().get_metadata(
-                                        rows, full_metadata=True)[-1]
-        files = self.library_view.model().get_preferred_formats(rows,
-                                    fmts, paths=True, set_metadata=True)
+                                        ids, full_metadata=True, rows_are_ids=True)[-1]
         files = [getattr(f, 'name', None) for f in files]
 
         bad, remove_ids, jobnames = [], [], []
@@ -482,12 +538,44 @@ class DeviceGUI(object):
                     attachments, to_s, subjects, texts, attachment_names)
             self.status_bar.showMessage(_('Sending email to')+' '+to, 3000)
 
+        auto = []
+        if _auto_ids != []:
+            for id in _auto_ids:
+                if specific_format == None:
+                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
+                    formats = formats if formats != None else []
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(fmts).intersection(available_output_formats())) != []:
+                        auto.append(id)
+                    else:
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+                else:
+                    if specific_format in available_output_formats():
+                        auto.append(id)
+                    else:
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+
+        if auto != []:
+            format = None
+            for fmt in fmts:
+                if fmt in list(set(fmts).intersection(set(available_output_formats()))):
+                    format = fmt
+                    break
+            if format is None:
+                bad += auto
+            else:
+                autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                autos = '\n'.join('%s'%i for i in autos)
+                info_dialog(self, _('No suitable formats'),
+                    _('Auto converting the following books before sending via '
+                        'email:'), det_msg=autos, show=True)
+                self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
+
         if bad:
-            bad = u'\n'.join(u'<li>%s</li>'%(i,) for i in bad)
-            details = u'<p><ul>%s</ul></p>'%bad
-            warning(_('No suitable formats'),
+            bad = '\n'.join('%s'%(i,) for i in bad)
+            d = warning_dialog(self, _('No suitable formats'),
                 _('Could not email the following books '
-                'as no suitable formats were found:'), details, self)
+                'as no suitable formats were found:'), bad)
+            d.exec_()
 
     def emails_sent(self, results, remove=[]):
         errors, good = [], []
@@ -500,14 +588,14 @@ class DeviceGUI(object):
                 good.append(title)
         if errors:
             errors = '\n'.join([
-                    '<li><b>%s</b><br>%s<br>%s<br></li>' %
-                    (title, e, tb.replace('\n', '<br>')) for \
+                    '%s\n\n%s\n%s\n' %
+                    (title, e, tb) for \
                             title, e, tb in errors
                     ])
-            ConversionErrorDialog(self, _('Failed to email books'),
-                    '<p>'+_('Failed to email the following books:')+\
-                            '<ul>%s</ul>'%errors,
-                        show=True)
+            error_dialog(self, _('Failed to email books'),
+                    _('Failed to email the following books:'),
+                            '%s'%errors
+                        )
         else:
             self.status_bar.showMessage(_('Sent by email:') + ', '.join(good),
                     5000)
@@ -517,7 +605,7 @@ class DeviceGUI(object):
         p.loadFromData(data)
         if not p.isNull():
             ht = self.device_manager.device_class.THUMBNAIL_HEIGHT \
-                    if self.device_manager else Device.THUMBNAIL_HEIGHT
+                    if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             return (p.width(), p.height(), pixmap_to_data(p))
 
@@ -527,7 +615,7 @@ class DeviceGUI(object):
                 for account, x in opts.accounts.items() if x[1]]
         sent_mails = []
         for account, fmts in accounts:
-            files = self.library_view.model().\
+            files, auto = self.library_view.model().\
                     get_preferred_formats_from_ids([id], fmts)
             files = [f.name for f in files if f is not None]
             if not files:
@@ -552,12 +640,33 @@ class DeviceGUI(object):
                     ', '.join(sent_mails),  3000)
 
 
-    def sync_news(self):
+    def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
-            ids = list(dynamic.get('news_to_be_synced', set([])))
+            ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
-            files = self.library_view.model().get_preferred_formats_from_ids(
-                                ids, self.device_manager.device_class.FORMATS)
+            files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
+                                ids, self.device_manager.device_class.settings().format_map,
+                                exclude_auto=do_auto_convert)
+            auto = []
+            if do_auto_convert and _auto_ids:
+                for id in _auto_ids:
+                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
+                    formats = formats if formats != None else []
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
+                        auto.append(id)
+            if auto != []:
+                format = None
+                for fmt in self.device_manager.device_class.settings().format_map:
+                    if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                        format = fmt
+                        break
+                if format is not None:
+                    autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                    autos = '\n'.join('%s'%i for i in autos)
+                    info_dialog(self, _('No suitable formats'),
+                        _('Auto converting the following books before uploading to '
+                            'the device:'), det_msg=autos, show=True)
+                    self.auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
@@ -579,8 +688,10 @@ class DeviceGUI(object):
             if config['upload_news_to_device'] and files:
                 remove = ids if \
                     config['delete_news_from_library_on_upload'] else []
-                on_card = self.location_view.model().free[0] < \
-                          self.location_view.model().free[1]
+                space = { self.location_view.model().free[0] : 'main',
+                    self.location_view.model().free[1] : 'carda',
+                    self.location_view.model().free[2] : 'cardb' }
+                on_card = space.get(sorted(space.keys(), reverse=True)[0], 'main')
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[[f.name for f in files], remove])
@@ -588,21 +699,29 @@ class DeviceGUI(object):
 
 
     def sync_to_device(self, on_card, delete_from_library,
-            specific_format=None):
-        rows = self.library_view.selectionModel().selectedRows()
-        if not self.device_manager or not rows or len(rows) == 0:
+            specific_format=None, send_ids=None, do_auto_convert=True):
+        ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
+        if not self.device_manager or not ids or len(ids) == 0:
             return
-        ids = iter(self.library_view.model().id(r) for r in rows)
-        metadata = self.library_view.model().get_metadata(rows)
+
+        _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
+                                    self.device_manager.device_class.settings().format_map,
+                                    paths=True, set_metadata=True,
+                                    specific_format=specific_format,
+                                    exclude_auto=do_auto_convert)
+        if do_auto_convert:
+            ids = list(set(ids).difference(_auto_ids))
+        else:
+            _auto_ids = []
+
+        metadata = self.library_view.model().get_metadata(ids, True)
+        ids = iter(ids)
         for mi in metadata:
             cdata = mi['cover']
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
-        _files   = self.library_view.model().get_preferred_formats(rows,
-                                    self.device_manager.device_class.FORMATS,
-                                    paths=True, set_metadata=True,
-                                    specific_format=specific_format)
+
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
@@ -628,14 +747,47 @@ class DeviceGUI(object):
         remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
+
+        auto = []
+        if _auto_ids != []:
+            for id in _auto_ids:
+                if specific_format == None:
+                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
+                    formats = formats if formats != None else []
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
+                        auto.append(id)
+                    else:
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+                else:
+                    if specific_format in available_output_formats():
+                        auto.append(id)
+                    else:
+                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+
+        if auto != []:
+            format = None
+            for fmt in self.device_manager.device_class.settings().format_map:
+                if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                    format = fmt
+                    break
+            if format is None:
+                bad += auto
+            else:
+                autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
+                autos = '\n'.join('%s'%i for i in autos)
+                info_dialog(self, _('No suitable formats'),
+                    _('Auto converting the following books before uploading to '
+                        'the device:'), det_msg=autos, show=True)
+                self.auto_convert(auto, on_card, format)
+
         if bad:
-            bad = u'\n'.join(u'<li>%s</li>'%(i,) for i in bad)
-            details = u'<p><ul>%s</ul></p>'%bad
-            warning(_('No suitable formats'),
+            bad = '\n'.join('%s'%(i,) for i in bad)
+            d = warning_dialog(self, _('No suitable formats'),
                     _('Could not upload the following books to the device, '
                 'as no suitable formats were found. Try changing the output '
                 'format in the upper right corner next to the red heart and '
-                're-converting.'), details, self)
+                're-converting.'), bad)
+            d.exec_()
 
     def upload_booklists(self):
         '''
@@ -648,13 +800,13 @@ class DeviceGUI(object):
         '''
         Called once metadata has been uploaded.
         '''
-        if job.exception is not None:
+        if job.failed:
             self.device_job_exception(job)
             return
         cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
 
-    def upload_books(self, files, names, metadata, on_card=False, memory=None):
+    def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''
         Upload books to device.
         :param files: List of either paths to files or file like objects
@@ -693,7 +845,7 @@ class DeviceGUI(object):
 
         self.upload_booklists()
 
-        view = self.card_view if on_card else self.memory_view
+        view = self.card_a_view if on_card == 'carda' else self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
         for f in files:

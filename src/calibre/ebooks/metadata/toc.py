@@ -86,8 +86,8 @@ class TOC(list):
             for i in obj.flat():
                 yield i
 
-    @apply
-    def abspath():
+    @dynamic_property
+    def abspath(self):
         doc='Return the file this toc entry points to as a absolute path to a file on the system.'
         def fget(self):
             if self.href is None:

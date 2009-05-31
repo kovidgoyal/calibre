@@ -80,7 +80,7 @@ class MobiMLizer(object):
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables
 
-    def transform(self, oeb, context):
+    def __call__(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
         self.profile = profile = context.dest

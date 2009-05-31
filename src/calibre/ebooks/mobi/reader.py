@@ -1,11 +1,17 @@
-from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Read data from .mobi files
 '''
 
-import sys, struct, os, cStringIO, re, functools, datetime
+import datetime
+import functools
+import os
+import re
+import struct
+import textwrap
+
+import cStringIO
 
 try:
     from PIL import Image as PILImage
@@ -21,8 +27,8 @@ from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
-from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
+from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
@@ -36,10 +42,12 @@ class EXTHHeader(object):
         pos = 0
         self.mi = MetaInformation(_('Unknown'), [_('Unknown')])
         self.has_fake_cover = True
+        left = self.num_items
 
-        for i in range(self.num_items):
-            id, size = struct.unpack('>LL', raw[pos:pos+8])
-            content = raw[pos+8:pos+size]
+        while left > 0:
+            left -= 1
+            id, size = struct.unpack('>LL', raw[pos:pos + 8])
+            content = raw[pos + 8:pos + size]
             pos += size
             if id >= 100 and id < 200:
                 self.process_metadata(id, content, codec)
@@ -85,7 +93,7 @@ class EXTHHeader(object):
         elif id == 106:
             try:
                 self.mi.publish_date = datetime.datetime.strptime(
-                        content, '%Y-%m-%d',).date()
+                    content, '%Y-%m-%d', ).date()
             except:
                 pass
         elif id == 108:
@@ -96,7 +104,8 @@ class EXTHHeader(object):
 
 class BookHeader(object):
 
-    def __init__(self, raw, ident):
+    def __init__(self, raw, ident, user_encoding, log):
+        self.log = log
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
         self.encryption_type, = struct.unpack('>H', raw[12:14])
@@ -114,19 +123,19 @@ class BookHeader(object):
         else:
             self.ancient = False
             self.doctype = raw[16:20]
-            self.length, self.type, self.codepage, self.unique_id, self.version = \
-                     struct.unpack('>LLLLL', raw[20:40])
+            self.length, self.type, self.codepage, self.unique_id, \
+                self.version = struct.unpack('>LLLLL', raw[20:40])
 
 
             try:
                 self.codec = {
-                          1252  : 'cp1252',
-                          65001 : 'utf-8',
-                          }[self.codepage]
+                    1252: 'cp1252',
+                    65001: 'utf-8',
+                    }[self.codepage]
             except (IndexError, KeyError):
-                print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
-                self.codec = 'cp1252'
-
+                self.codec = 'cp1252' if user_encoding is None else user_encoding
+                log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
+                    self.codec))
             if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length:
                 self.extra_flags = 0
             else:
@@ -144,35 +153,32 @@ class BookHeader(object):
             self.language = main_language.get(langid, 'ENGLISH')
             self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
             self.mobi_version = struct.unpack('>I', raw[0x68:0x6c])[0]
-            self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c+4])[0]
+            self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c + 4])[0]
 
             self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
             self.exth = None
             if not isinstance(self.title, unicode):
                 self.title = self.title.decode(self.codec, 'replace')
             if self.exth_flag & 0x40:
-                self.exth = EXTHHeader(raw[16+self.length:], self.codec, self.title)
+                self.exth = EXTHHeader(raw[16 + self.length:], self.codec, self.title)
                 self.exth.mi.uid = self.unique_id
                 self.exth.mi.language = self.language
 
 
 class MetadataHeader(BookHeader):
-    def __init__(self, stream):
+    def __init__(self, stream, log):
         self.stream = stream
-
         self.ident = self.identity()
         self.num_sections = self.section_count()
-
         if self.num_sections >= 2:
             header = self.header()
-            BookHeader.__init__(self, header, self.ident)
+            BookHeader.__init__(self, header, self.ident, None, log)
         else:
             self.exth = None
 
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8).upper()
-
         if ident not in ['BOOKMOBI', 'TEXTREAD']:
             raise MobiError('Unknown book type: %s' % ident)
         return ident
@@ -182,12 +188,11 @@ class MetadataHeader(BookHeader):
         return struct.unpack('>H', self.stream.read(2))[0]
 
     def section_offset(self, number):
-        self.stream.seek(78+number*8)
+        self.stream.seek(78 + number * 8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
 
     def header(self):
         section_headers = []
-
         # First section with the metadata
         section_headers.append(self.section_offset(0))
         # Second section used to get the lengh of the first
@@ -195,20 +200,16 @@ class MetadataHeader(BookHeader):
 
         end_off = section_headers[1]
         off = section_headers[0]
-
         self.stream.seek(off)
         return self.stream.read(end_off - off)
 
     def section_data(self, number):
         start = self.section_offset(number)
-
         if number == self.num_sections -1:
             end = os.stat(self.stream.name).st_size
         else:
             end = self.section_offset(number + 1)
-
         self.stream.seek(start)
-
         return self.stream.read(end - start)
 
 
@@ -216,9 +217,24 @@ class MobiReader(object):
     PAGE_BREAK_PAT = re.compile(r'(<[/]{0,1}mbp:pagebreak\s*[/]{0,1}>)+', re.IGNORECASE)
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
 
-    def __init__(self, filename_or_stream, verbose=False):
-        self.verbose = verbose
+    def __init__(self, filename_or_stream, log, user_encoding=None, debug=None):
+        self.log = log
+        self.debug = debug
         self.embedded_mi = None
+        self.base_css_rules = textwrap.dedent('''
+                blockquote { margin: 0em 0em 0em 1.25em; text-align: justify }
+
+                p { margin: 0em; text-align: justify }
+
+                .bold { font-weight: bold }
+
+                .italic { font-style: italic }
+
+                .mbp_pagebreak {
+                    page-break-after: always; margin: 0; display: block
+                }
+                ''')
+        self.tag_css_rules = {}
 
         if hasattr(filename_or_stream, 'read'):
             stream = filename_or_stream
@@ -232,15 +248,15 @@ class MobiReader(object):
         self.name     = self.header[:32].replace('\x00', '')
         self.num_sections, = struct.unpack('>H', raw[76:78])
 
-        self.ident = self.header[0x3C:0x3C+8].upper()
+        self.ident = self.header[0x3C:0x3C + 8].upper()
         if self.ident not in ['BOOKMOBI', 'TEXTREAD']:
-            raise MobiError('Unknown book type: %s'%self.ident)
+            raise MobiError('Unknown book type: %s' % self.ident)
 
         self.sections = []
         self.section_headers = []
         for i in range(self.num_sections):
-            offset, a1, a2, a3, a4 = struct.unpack('>LBBBB', raw[78+i*8:78+i*8+8])
-            flags, val = a1, a2<<16 | a3<<8 | a4
+            offset, a1, a2, a3, a4 = struct.unpack('>LBBBB', raw[78 + i * 8:78 + i * 8 + 8])
+            flags, val = a1, a2 << 16 | a3 << 8 | a4
             self.section_headers.append((offset, flags, val))
 
         def section(section_number):
@@ -255,35 +271,40 @@ class MobiReader(object):
             self.sections.append((section(i), self.section_headers[i]))
 
 
-        self.book_header = BookHeader(self.sections[0][0], self.ident)
+        self.book_header = BookHeader(self.sections[0][0], self.ident,
+            user_encoding, self.log)
         self.name = self.name.decode(self.book_header.codec, 'replace')
 
-    def extract_content(self, output_dir=os.getcwdu()):
+    def extract_content(self, output_dir, parse_cache):
         output_dir = os.path.abspath(output_dir)
         if self.book_header.encryption_type != 0:
             raise DRMError(self.name)
 
         processed_records = self.extract_text()
+        if self.debug is not None:
+            parse_cache['calibre_raw_mobi_markup'] = self.mobi_html
         self.add_anchors()
-        self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
+        self.processed_html = self.processed_html.decode(self.book_header.codec,
+            'ignore')
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
         e2u = functools.partial(entity_to_unicode,
-                                exceptions=['lt', 'gt', 'amp', 'apos', 'quot'])
+            exceptions=['lt', 'gt', 'amp', 'apos', 'quot'])
         self.processed_html = re.sub(r'&(\S+?);', e2u,
-                                     self.processed_html)
+            self.processed_html)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup_html()
 
-        if self.verbose:
-            print 'Parsing HTML...'
+        self.log.debug('Parsing HTML...')
         root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
-            print 'Markup contains unclosed <p> tags, parsing using BeatifulSoup'
+            self.log.warning('Markup contains unclosed <p> tags, parsing using',
+                'BeatifulSoup')
             root = soupparser.fromstring(self.processed_html)
         if root.tag != 'html':
+            self.log.warn('File does not have opening <html> tag')
             nroot = html.fromstring('<html><head></head><body></body></html>')
             bod = nroot.find('body')
             for child in list(root):
@@ -293,7 +314,7 @@ class MobiReader(object):
 
         htmls = list(root.xpath('//html'))
         if len(htmls) > 1:
-            print 'Markup contains multiple <html> tags'
+            self.log.warn('Markup contains multiple <html> tags')
             # Keep only the largest head and body
             bodies, heads = root.xpath('//body'), root.xpath('//head')
             def sz(x): return len(list(x.iter()))
@@ -315,15 +336,10 @@ class MobiReader(object):
             head = root.makeelement('head', {})
             root.insert(0, head)
         head.text = '\n\t'
-        style = head.makeelement('style', {'type':'text/css'})
-        head.insert(0, style)
-        style.tail = '\n\t'
-        style.text = '''
-                blockquote { margin: 0em 0em 0em 1.25em; text-align: justify }
-                p { margin: 0em; text-align: justify }
-                .bold { font-weight: bold }
-                .italic { font-style: italic }
-        '''
+        link = head.makeelement('link', {'type':'text/css',
+            'href':'styles.css'})
+        head.insert(0, link)
+        link.tail = '\n\t'
 
         self.upshift_markup(root)
         guides = root.xpath('//guide')
@@ -336,35 +352,45 @@ class MobiReader(object):
         fname = self.name.encode('ascii', 'replace')
         fname = re.sub(r'[\x08\x15\0]+', '', fname)
         htmlfile = os.path.join(output_dir,
-                                sanitize_file_name(fname)+'.html')
+            sanitize_file_name(fname) + '.html')
         try:
             for ref in guide.xpath('descendant::reference'):
                 if ref.attrib.has_key('href'):
-                    ref.attrib['href'] = os.path.basename(htmlfile)+ref.attrib['href']
+                    ref.attrib['href'] = os.path.basename(htmlfile) + ref.attrib['href']
         except AttributeError:
             pass
-        if self.verbose:
-            print 'Serializing...'
-        with open(htmlfile, 'wb') as f:
-            raw = html.tostring(root, encoding='utf-8', method='xml',
-                         include_meta_content_type=True, pretty_print=True)
-            raw = raw.replace('<head>',
-            '<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n')
-            f.write(raw)
+        parse_cache[htmlfile] = root
         self.htmlfile = htmlfile
+        ncx = cStringIO.StringIO()
+        opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
+        self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
+        opf.render(open(self.created_opf_path, 'wb'), ncx,
+            ncx_manifest_entry=ncx_manifest_entry)
+        ncx = ncx.getvalue()
+        if ncx:
+            ncx_path = os.path.join(os.path.dirname(htmlfile), 'toc.ncx')
+            open(ncx_path, 'wb').write(ncx)
+
+        with open('styles.css', 'wb') as s:
+            s.write(self.base_css_rules + '\n\n')
+            for cls, rule in self.tag_css_rules.items():
+                if isinstance(rule, unicode):
+                    rule = rule.encode('utf-8')
+                s.write('.%s { %s }\n\n' % (cls, rule))
+
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
-            if self.verbose:
-                print 'Creating OPF...'
+            self.log.debug('Creating OPF...')
             ncx = cStringIO.StringIO()
-            opf = self.create_opf(htmlfile, guide, root)
-            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)
+            opf, ncx_manifest_entry  = self.create_opf(htmlfile, guide, root)
+            opf.render(open(os.path.splitext(htmlfile)[0] + '.opf', 'wb'), ncx,
+                ncx_manifest_entry)
             ncx = ncx.getvalue()
             if ncx:
-                open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
+                open(os.path.splitext(htmlfile)[0] + '.ncx', 'wb').write(ncx)
 
     def read_embedded_metadata(self, root, elem, guide):
-        raw = '<package>'+html.tostring(elem, encoding='utf-8')+'</package>'
+        raw = '<package>' + html.tostring(elem, encoding='utf-8') + '</package>'
         stream = cStringIO.StringIO(raw)
         opf = OPF(stream)
         self.embedded_mi = MetaInformation(opf)
@@ -374,7 +400,7 @@ class MobiReader(object):
                     href = ref.get('href', '')
                     if href.startswith('#'):
                         href = href[1:]
-                    anchors = root.xpath('//*[@id="%s"]'%href)
+                    anchors = root.xpath('//*[@id="%s"]' % href)
                     if anchors:
                         cpos = anchors[0]
                         reached = False
@@ -388,33 +414,30 @@ class MobiReader(object):
                                 break
                     break
 
-
     def cleanup_html(self):
-        if self.verbose:
-            print 'Cleaning up HTML...'
+        self.log.debug('Cleaning up HTML...')
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
-            self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
+            self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
 
     def upshift_markup(self, root):
-        if self.verbose:
-            print 'Converting style information to CSS...'
+        self.log.debug('Converting style information to CSS...')
         size_map = {
-                    'xx-small' : '0.5',
-                    'x-small'  : '1',
-                    'small'    : '2',
-                    'medium'   : '3',
-                    'large'    : '4',
-                    'x-large'  : '5',
-                    'xx-large' : '6',
-                    }
+            'xx-small': '0.5',
+            'x-small': '1',
+            'small': '2',
+            'medium': '3',
+            'large': '4',
+            'x-large': '5',
+            'xx-large': '6',
+            }
         mobi_version = self.book_header.mobi_version
-        for tag in root.iter(etree.Element):
+        for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                           'state', 'city', 'street', 'address', 'content'):
+                'state', 'city', 'street', 'address', 'content'):
                 tag.tag = 'div' if tag.tag == 'content' else 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
@@ -433,7 +456,7 @@ class MobiReader(object):
                 if width:
                     styles.append('text-indent: %s' % width)
                     if width.startswith('-'):
-                        styles.append('margin-left: %s'%(width[1:]))
+                        styles.append('margin-left: %s' % (width[1:]))
             if attrib.has_key('align'):
                 align = attrib.pop('align').strip()
                 if align:
@@ -466,8 +489,7 @@ class MobiReader(object):
             elif tag.tag == 'pre':
                 if not tag.text:
                     tag.tag = 'div'
-            if styles:
-                attrib['style'] = '; '.join(styles)
+
             if 'filepos-id' in attrib:
                 attrib['id'] = attrib.pop('filepos-id')
                 if 'name' in attrib and attrib['name'] != attrib['id']:
@@ -478,20 +500,37 @@ class MobiReader(object):
                     attrib['href'] = "#filepos%d" % int(filepos)
                 except ValueError:
                     pass
+            if styles:
+                cls = None
+                rule = '; '.join(styles)
+                for sel, srule in self.tag_css_rules.items():
+                    if srule == rule:
+                        cls = sel
+                        break
+                if cls is None:
+                    ncls = 'calibre_%d' % i
+                    self.tag_css_rules[ncls] = rule
+                cls = attrib.get('class', '')
+                cls = cls + (' ' if cls else '') + ncls
+                attrib['class'] = cls
 
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
+        if mi is None:
+            mi = MetaInformation(self.book_header.title, [_('Unknown')])
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
-            opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
+            opf.cover = 'images/%05d.jpg' % (self.book_header.exth.cover_offset + 1)
         elif mi.cover is not None:
             opf.cover = mi.cover
         else:
-            opf.cover = 'images/%05d.jpg'%1
+            opf.cover = 'images/%05d.jpg' % 1
             if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
-                                               *opf.cover.split('/'))):
+                * opf.cover.split('/'))):
                 opf.cover = None
-        manifest = [(htmlfile, 'text/x-oeb1-document')]
+
+        manifest = [(htmlfile, 'text/x-oeb1-document'),
+            (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
         for i in getattr(self, 'image_names', []):
             manifest.append((os.path.join(bp, 'images/', i), 'image/jpeg'))
@@ -504,8 +543,11 @@ class MobiReader(object):
             for ref in opf.guide:
                 if ref.type.lower() == 'toc':
                     toc = ref.href()
+
+        ncx_manifest_entry = None
         if toc:
-            elems = root.xpath('//*[@id="%s"]'%toc.partition('#')[-1])
+            ncx_manifest_entry = 'toc.ncx'
+            elems = root.xpath('//*[@id="%s"]' % toc.partition('#')[-1])
             tocobj = None
             ent_pat = re.compile(r'&(\S+?);')
             if elems:
@@ -520,18 +562,18 @@ class MobiReader(object):
                         if href and re.match('\w+://', href) is None:
                             try:
                                 text = u' '.join([t.strip() for t in \
-                                                x.xpath('descendant::text()')])
+                                    x.xpath('descendant::text()')])
                             except:
                                 text = ''
                             text = ent_pat.sub(entity_to_unicode, text)
                             tocobj.add_item(toc.partition('#')[0], href[1:],
-                                            text)
+                                text)
                     if reached and x.get('class', None) == 'mbp_pagebreak':
                         break
             if tocobj is not None:
                 opf.set_toc(tocobj)
 
-        return opf
+        return opf, ncx_manifest_entry
 
 
     def sizeof_trailing_entries(self, data):
@@ -562,19 +604,18 @@ class MobiReader(object):
         return data[:len(data)-trail_size]
 
     def extract_text(self):
-        if self.verbose:
-            print 'Extracting text...'
-        text_sections = [self.text_section(i) for i in range(1, self.book_header.records+1)]
-        processed_records = list(range(0, self.book_header.records+1))
+        self.log.debug('Extracting text...')
+        text_sections = [self.text_section(i) for i in range(1, self.book_header.records + 1)]
+        processed_records = list(range(0, self.book_header.records + 1))
 
         self.mobi_html = ''
 
         if self.book_header.compression_type == 'DH':
             huffs = [self.sections[i][0] for i in
-                  range(self.book_header.huff_offset,
-                        self.book_header.huff_offset+self.book_header.huff_number)]
+                range(self.book_header.huff_offset,
+                    self.book_header.huff_offset + self.book_header.huff_number)]
             processed_records += list(range(self.book_header.huff_offset,
-                        self.book_header.huff_offset+self.book_header.huff_number))
+                self.book_header.huff_offset + self.book_header.huff_number))
             huff = HuffReader(huffs)
             self.mobi_html = huff.decompress(text_sections)
 
@@ -585,7 +626,7 @@ class MobiReader(object):
         elif self.book_header.compression_type == '\x00\x01':
             self.mobi_html = ''.join(text_sections)
         else:
-            raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
+            raise MobiError('Unknown compression algorithm: %s' % repr(self.book_header.compression_type))
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
         self.mobi_html = self.mobi_html.replace('\0', '')
@@ -594,15 +635,14 @@ class MobiReader(object):
 
     def replace_page_breaks(self):
         self.processed_html = self.PAGE_BREAK_PAT.sub(
-            '<div class="mbp_pagebreak" style="page-break-after: always; margin: 0; display: block" />',
+            '<div class="mbp_pagebreak" />',
             self.processed_html)
 
     def add_anchors(self):
-        if self.verbose:
-            print 'Adding anchors...'
+        self.log.debug('Adding anchors...')
         positions = set([])
         link_pattern = re.compile(r'''<[^<>]+filepos=['"]{0,1}(\d+)[^<>]*>''',
-                                  re.IGNORECASE)
+            re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
@@ -618,10 +658,10 @@ class MobiReader(object):
             if r > -1 and (r < l or l == end or l == -1):
                 p = self.mobi_html.rfind('<', 0, end + 1)
                 if pos < end and p > -1 and \
-                   not end_tag_re.match(self.mobi_html[p:r]) and \
-                   not self.mobi_html[p:r+1].endswith('/>'):
-                    anchor = ' filepos-id="filepos%d"'
-                    end = r
+                    not end_tag_re.match(self.mobi_html[p:r]) and \
+                    not self.mobi_html[p:r + 1].endswith('/>'):
+                        anchor = ' filepos-id="filepos%d"'
+                        end = r
                 else:
                     end = r + 1
             self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
@@ -630,8 +670,7 @@ class MobiReader(object):
 
 
     def extract_images(self, processed_records, output_dir):
-        if self.verbose:
-            print 'Extracting images...'
+        self.log.debug('Extracting images...')
         output_dir = os.path.abspath(os.path.join(output_dir, 'images'))
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -640,7 +679,7 @@ class MobiReader(object):
         start = getattr(self.book_header, 'first_image_index', -1)
         if start > self.num_sections or start < 0:
             # BAEN PRC files have bad headers
-            start=0
+            start = 0
         for i in range(start, self.num_sections):
             if i in processed_records:
                 continue
@@ -654,25 +693,28 @@ class MobiReader(object):
             except IOError:
                 continue
 
-            path = os.path.join(output_dir, '%05d.jpg'%image_index)
+            path = os.path.join(output_dir, '%05d.jpg' % image_index)
             self.image_names.append(os.path.basename(path))
             im.save(open(path, 'wb'), format='JPEG')
 
 def get_metadata(stream):
+    from calibre.utils.logging import Log
+    log = Log()
+
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
     try:
-        mh = MetadataHeader(stream)
+        mh = MetadataHeader(stream, log)
 
         if mh.exth is not None:
             if mh.exth.mi is not None:
                 mi = mh.exth.mi
         else:
             with TemporaryDirectory('_mobi_meta_reader') as tdir:
-                mr = MobiReader(stream)
-                mr.extract_content(tdir)
+                mr = MobiReader(stream, log)
+                parse_cache = {}
+                mr.extract_content(tdir, parse_cache)
                 if mr.embedded_mi is not None:
                     mi = mr.embedded_mi
-
         if hasattr(mh.exth, 'cover_offset'):
             cover_index = mh.first_image_index + mh.exth.cover_offset
             data  = mh.section_data(int(cover_index))
@@ -684,43 +726,5 @@ def get_metadata(stream):
         im.convert('RGBA').save(obuf, format='JPEG')
         mi.cover_data = ('jpg', obuf.getvalue())
     except:
-        import traceback
-        traceback.print_exc()
-
+        log.exception()
     return mi
-
-
-def option_parser():
-    from calibre.utils.config import OptionParser
-    parser = OptionParser(usage=_('%prog [options] myebook.mobi'))
-    parser.add_option('-o', '--output-dir', default='.',
-                      help=_('Output directory. Defaults to current directory.'))
-    parser.add_option('-v', '--verbose', default=False, action='store_true',
-                      help='Useful for debugging.')
-    return parser
-
-
-def main(args=sys.argv):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        return 1
-
-    mr = MobiReader(args[1], verbose=opts.verbose)
-    opts.output_dir = os.path.abspath(opts.output_dir)
-    mr.extract_content(opts.output_dir)
-    if opts.verbose:
-        oname = os.path.join(opts.output_dir, 'debug-raw.html')
-        dat = mr.mobi_html
-        if isinstance(dat, unicode):
-            dat = dat.encode('utf-8')
-        open(oname, 'wb').write(dat)
-        print _('Raw MOBI HTML saved in'), oname
-
-    print _('OEB ebook created in'), opts.output_dir
-
-    return 0
-
-if __name__ == '__main__':
-    sys.exit(main())

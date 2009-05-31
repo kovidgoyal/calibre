@@ -7,7 +7,7 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import logging, os, cStringIO, time, traceback, re, urlparse, sys
+import os, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
@@ -15,11 +15,12 @@ from contextlib import nested, closing
 from PyQt4.Qt import QApplication, QFile, QIODevice
 
 
-from calibre import browser, __appname__, iswindows, LoggingInterface, \
+from calibre import browser, __appname__, iswindows, \
                     strftime, __version__, preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.ebooks.lrf import entity_to_unicode
+from calibre import entity_to_unicode
+from calibre.web import Recipe
 from calibre.ebooks import render_html
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
@@ -31,7 +32,7 @@ from calibre.ptempfile import PersistentTemporaryFile, \
                               PersistentTemporaryDirectory
 
 
-class BasicNewsRecipe(object, LoggingInterface):
+class BasicNewsRecipe(Recipe):
     '''
     Abstract base class that contains logic needed in all feed fetchers.
     '''
@@ -155,13 +156,17 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: :attr:`BasicNewsRecipe.filter_regexps` should be defined.
     filter_regexps        = []
 
-    #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
-    html2lrf_options      = []
-
-    #: Options to pass to html2epub to customize generation of EPUB ebooks.
-    html2epub_options     = ''
-    #: Options to pass to oeb2mobi to customize generation of MOBI ebooks.
-    oeb2mobi_options     = ''
+    #: Recipe specific options to control the conversion of the downloaded
+    #: content into an e-book. These will override any user or plugin specified
+    #: values, so only use if absolutely necessary. For example::
+    #:   conversion_options = {
+    #:     'base_font_size'   : 16,
+    #:     'tags'             : 'mytag1,mytag2',
+    #:     'title'            : 'My Title',
+    #:     'linearize_tables' : True,
+    #:   }
+    #:
+    conversion_options = {}
 
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
@@ -230,23 +235,23 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: use :member:`extra_css` in your recipe to customize look and feel.
     template_css = u'''
             .article_date {
-                font-size: x-small; color: gray; font-family: monospace;
+                color: gray; font-family: monospace;
             }
 
             .article_description {
-                font-size: small; font-family: sans; text-indent: 0pt;
+                font-family: sans; text-indent: 0pt;
             }
 
             a.article {
-                font-weight: bold; font-size: large;
+                font-weight: bold;
             }
 
             a.feed {
-                font-weight: bold; font-size: large;
+                font-weight: bold;
             }
 
             .navbar {
-                font-family:monospace; font-size:8pt
+                font-family:monospace;
             }
 '''
 
@@ -429,7 +434,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         '''
         raise NotImplementedError
 
-    def get_obfuscated_article(self, url, logger):
+    def get_obfuscated_article(self, url):
         '''
         If you set :member:`articles_are_obfuscated` this method is called with
         every article URL. It should return the path to a file on the filesystem
@@ -442,38 +447,33 @@ class BasicNewsRecipe(object, LoggingInterface):
         '''
         raise NotImplementedError
 
-    def __init__(self, options, parser, progress_reporter):
+    def __init__(self, options, log, progress_reporter):
         '''
         Initialize the recipe.
         :param options: Parsed commandline options
         :param parser:  Command line option parser. Used to intelligently merge options.
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
-        LoggingInterface.__init__(self, logging.getLogger('feeds2disk'))
+        self.log = log
         if not isinstance(self.title, unicode):
             self.title = unicode(self.title, 'utf-8', 'replace')
 
-        for attr in ('username', 'password', 'lrf', 'output_dir', 'verbose', 'debug', 'test'):
-            setattr(self, attr, getattr(options, attr))
+        self.debug = options.verbose > 1
+        self.output_dir = os.getcwd()
+        self.verbose = options.verbose
+        self.test = options.test
+        self.username = options.username
+        self.password = options.password
+        self.lrf = options.lrf
+
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
             self.max_articles_per_feed = 2
             self.simultaneous_downloads = min(4, self.simultaneous_downloads)
 
-
         if self.debug:
-            logging.getLogger('feeds2disk').setLevel(logging.DEBUG)
             self.verbose = True
         self.report_progress = progress_reporter
-
-        self.username = self.password = None
-        #: If True optimize downloading for eventual conversion to LRF
-        self.lrf = False
-        defaults = parser.get_default_values()
-
-        for opt in options.__dict__.keys():
-            if getattr(options, opt) != getattr(defaults, opt, None):
-                setattr(self, opt, getattr(options, opt))
 
         if isinstance(self.feeds, basestring):
             self.feeds = eval(self.feeds)
@@ -491,7 +491,6 @@ class BasicNewsRecipe(object, LoggingInterface):
             '--timeout', str(self.timeout),
             '--max-recursions', str(self.recursions),
             '--delay', str(self.delay),
-            '--timeout', str(self.timeout),
             ]
         if self.encoding is not None:
             web2disk_cmdline.extend(['--encoding', self.encoding])
@@ -518,9 +517,6 @@ class BasicNewsRecipe(object, LoggingInterface):
             self.simultaneous_downloads = 1
 
         self.navbar = templates.NavBarTemplate()
-        self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine', '--header', '--encoding', 'utf-8'])
-        if '--base-font-size' not in self.html2lrf_options:
-            self.html2lrf_options.extend(['--base-font-size', '12'])
         self.failed_downloads = []
         self.partial_failures = []
 
@@ -555,7 +551,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         return self.postprocess_html(soup, first_fetch)
 
 
-    def download(self, for_lrf=False):
+    def download(self):
         '''
         Download and pre-process all articles from the feeds in this recipe.
         This method should be called only one on a particular Recipe instance.
@@ -567,28 +563,29 @@ class BasicNewsRecipe(object, LoggingInterface):
             res = self.build_index()
             self.report_progress(1, _('Download finished'))
             if self.failed_downloads:
-                self.log_warning(_('Failed to download the following articles:'))
+                self.log.warning(_('Failed to download the following articles:'))
                 for feed, article, debug in self.failed_downloads:
-                    self.log_warning(article.title+_(' from ')+feed.title)
-                    self.log_debug(article.url)
-                    self.log_debug(debug)
+                    self.log.warning(article.title+_(' from ')+feed.title)
+                    self.log.debug(article.url)
+                    self.log.debug(debug)
             if self.partial_failures:
-                self.log_warning(_('Failed to download parts of the following articles:'))
+                self.log.warning(_('Failed to download parts of the following articles:'))
                 for feed, atitle, aurl, debug in self.partial_failures:
-                    self.log_warning(atitle + _(' from ') + feed)
-                    self.log_debug(aurl)
-                    self.log_warning(_('\tFailed links:'))
+                    self.log.warning(atitle + _(' from ') + feed)
+                    self.log.debug(aurl)
+                    self.log.warning(_('\tFailed links:'))
                     for l, tb in debug:
-                        self.log_warning(l)
-                        self.log_debug(tb)
+                        self.log.warning(l)
+                        self.log.debug(tb)
             return res
         finally:
             self.cleanup()
 
     def feeds2index(self, feeds):
         templ = templates.IndexTemplate()
+        css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
         return templ.generate(self.title, self.timefmt, feeds,
-                              extra_css=self.extra_css).render(doctype='xhtml')
+                              extra_css=css).render(doctype='xhtml')
 
     @classmethod
     def description_limiter(cls, src):
@@ -639,24 +636,16 @@ class BasicNewsRecipe(object, LoggingInterface):
 
 
         templ = templates.FeedTemplate()
+        css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
         return templ.generate(feed, self.description_limiter,
-                              extra_css=self.extra_css).render(doctype='xhtml')
+                              extra_css=css).render(doctype='xhtml')
 
 
-    def create_logger(self, feed_number, article_number):
-        logger = logging.getLogger('feeds2disk.article_%d_%d'%(feed_number, article_number))
-        out = cStringIO.StringIO()
-        handler = logging.StreamHandler(out)
-        handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
-        handler.setLevel(logging.INFO if self.verbose else logging.WARNING)
-        if self.debug:
-            handler.setLevel(logging.DEBUG)
-        logger.addHandler(handler)
-        return logger, out
-
-    def _fetch_article(self, url, dir, logger, f, a, num_of_feeds):
+    def _fetch_article(self, url, dir, f, a, num_of_feeds):
         self.web2disk_options.browser = self.get_browser() if self.multithreaded_fetch else self.browser
-        fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map, (url, f, a, num_of_feeds))
+        fetcher = RecursiveFetcher(self.web2disk_options, self.log,
+                self.image_map, self.css_map,
+                (url, f, a, num_of_feeds))
         fetcher.base_dir = dir
         fetcher.current_dir = dir
         fetcher.show_progress = False
@@ -668,21 +657,21 @@ class BasicNewsRecipe(object, LoggingInterface):
             raise Exception(_('Could not fetch article. Run with --debug to see the reason'))
         return res, path, failures
 
-    def fetch_article(self, url, dir, logger, f, a, num_of_feeds):
-        return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
+    def fetch_article(self, url, dir, f, a, num_of_feeds):
+        return self._fetch_article(url, dir, f, a, num_of_feeds)
 
-    def fetch_obfuscated_article(self, url, dir, logger, f, a, num_of_feeds):
-        path = os.path.abspath(self.get_obfuscated_article(url, logger))
+    def fetch_obfuscated_article(self, url, dir, f, a, num_of_feeds):
+        path = os.path.abspath(self.get_obfuscated_article(url))
         url = ('file:'+path) if iswindows else ('file://'+path)
-        return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
+        return self._fetch_article(url, dir, f, a, num_of_feeds)
 
-    def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
+    def fetch_embedded_article(self, article, dir, f, a, num_of_feeds):
         templ = templates.EmbeddedContent()
         raw = templ.generate(article).render('html')
         with PersistentTemporaryFile('_feeds2disk.html') as pt:
             pt.write(raw)
             url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
-        return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
+        return self._fetch_article(url, dir,  f, a, num_of_feeds)
 
 
     def build_index(self):
@@ -723,7 +712,6 @@ class BasicNewsRecipe(object, LoggingInterface):
                 art_dir = os.path.join(feed_dir, 'article_%d'%a)
                 if not os.path.isdir(art_dir):
                     os.makedirs(art_dir)
-                logger, stream = self.create_logger(f, a)
                 try:
                     url = self.print_version(article.url)
                 except NotImplementedError:
@@ -733,10 +721,9 @@ class BasicNewsRecipe(object, LoggingInterface):
                 func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \
                             ((self.fetch_obfuscated_article if self.articles_are_obfuscated \
                               else self.fetch_article), url)
-                req = WorkRequest(func, (arg, art_dir, logger, f, a, len(feed)),
+                req = WorkRequest(func, (arg, art_dir, f, a, len(feed)),
                                       {}, (f, a), self.article_downloaded,
                                       self.error_in_article_download)
-                req.stream = stream
                 req.feed = feed
                 req.article = article
                 req.feed_dir = feed_dir
@@ -775,8 +762,8 @@ class BasicNewsRecipe(object, LoggingInterface):
             cu = self.get_cover_url()
         except Exception, err:
             cu = None
-            self.log_error(_('Could not download cover: %s')%str(err))
-            self.log_debug(traceback.format_exc())
+            self.log.error(_('Could not download cover: %s')%str(err))
+            self.log.debug(traceback.format_exc())
         if cu is not None:
             ext = cu.rpartition('.')[-1]
             if '?' in ext:
@@ -848,8 +835,8 @@ class BasicNewsRecipe(object, LoggingInterface):
             f.write(html.encode('utf-8'))
         renderer = render_html(hf)
         if renderer.tb is not None:
-            self.logger.warning('Failed to render default cover')
-            self.logger.debug(renderer.tb)
+            self.log.warning('Failed to render default cover')
+            self.log.debug(renderer.tb)
         else:
             cover_file.write(renderer.data)
             cover_file.flush()
@@ -870,7 +857,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         manifest.append(os.path.join(dir, 'index.ncx'))
         cpath = getattr(self, 'cover_path', None)
         if cpath is None:
-            pf = PersistentTemporaryFile('_recipe_cover.jpg')
+            pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
             self.default_cover(pf)
             cpath =  pf.name
         if cpath is not None and os.access(cpath, os.R_OK):
@@ -951,7 +938,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         a = request.requestID[1]
 
         article = request.article
-        self.log_debug(_('\nDownloaded article %s from %s\n%s')%(article.title, article.url, request.stream.getvalue().decode('utf-8', 'ignore')))
+        self.log.debug(_('\nDownloaded article %s from %s')%(article.title, article.url))
         article.orig_url = article.url
         article.url = 'article_%d/index.html'%a
         article.downloaded = True
@@ -963,11 +950,11 @@ class BasicNewsRecipe(object, LoggingInterface):
 
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        self.log_error(_('Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
+        self.log.error(_('Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
         debug = request.stream.getvalue().decode('utf-8', 'ignore')
-        self.log_debug(debug)
-        self.log_debug(traceback)
-        self.log_debug('\n')
+        self.log.debug(debug)
+        self.log.debug(traceback)
+        self.log.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article download failed: %s')%request.article.title)
         self.failed_downloads.append((request.feed, request.article, debug))
 
@@ -997,7 +984,7 @@ class BasicNewsRecipe(object, LoggingInterface):
                 feed.populate_from_preparsed_feed(msg, [])
                 feed.description = unicode(err)
                 parsed_feeds.append(feed)
-                self.log_exception(msg)
+                self.log.exception(msg)
 
 
         remove = [f for f in parsed_feeds if len(f) == 0 and
@@ -1091,7 +1078,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
         index = os.path.abspath(self.custom_index())
         url = 'file:'+index if iswindows else 'file://'+index
         self.web2disk_options.browser = self.browser
-        fetcher = RecursiveFetcher(self.web2disk_options, self.logger)
+        fetcher = RecursiveFetcher(self.web2disk_options, self.log)
         fetcher.base_dir = self.output_dir
         fetcher.current_dir = self.output_dir
         fetcher.show_progress = False
@@ -1103,7 +1090,7 @@ class AutomaticNewsRecipe(BasicNewsRecipe):
 
     keep_only_tags = [dict(name=['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])]
 
-    def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
+    def fetch_embedded_article(self, article, dir, f, a, num_of_feeds):
         if self.use_embedded_content:
             self.web2disk_options.keep_only_tags = []
-        return BasicNewsRecipe.fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds)
+        return BasicNewsRecipe.fetch_embedded_article(self, article, dir, f, a, num_of_feeds)

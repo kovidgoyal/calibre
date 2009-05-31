@@ -54,6 +54,8 @@ Customizing e-book download
 
 .. automember:: BasicNewsRecipe.timefmt
 
+.. automember:: BasicNewsRecipe.conversion_options
+
 .. automember:: BasicNewsRecipe.feeds
 
 .. automember:: BasicNewsRecipe.no_stylesheets
