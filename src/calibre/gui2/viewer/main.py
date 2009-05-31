@@ -55,7 +55,7 @@ class Worker(Thread):
         try:
             Thread.run(self)
             self.exception = self.traceback = None
-        except Exception, err:
+        except Exception as err:
             self.exception = err
             self.traceback = traceback.format_exc()
 
@@ -544,7 +544,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 error_dialog(self, _('DRM Error'), _('<p>This book is protected by <a href="%s">DRM</a>')%'http://wiki.mobileread.com/wiki/DRM').exec_()
             else:
                 error_dialog(self, _('Could not open ebook'),
-                        unicode(worker.exception), det_msg=worker.traceback, show=True)
+                        unicode(worker.exception.reason), det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf)
