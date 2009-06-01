@@ -32,8 +32,6 @@ class ClimateProgress(BasicNewsRecipe):
     
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
 
-    remove_tags = [dict(name='a', attrs={'rel':'bookmark'})]
-    
     feeds = [(u'Posts', u'http://feeds.feedburner.com/climateprogress/lCrX')]
     
     def preprocess_html(self, soup):
