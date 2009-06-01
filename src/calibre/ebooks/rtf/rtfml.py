@@ -11,7 +11,12 @@ Transform OEB content into RTF markup
 import os
 import re
 
-import Image
+try:
+    from PIL import Image
+    Image
+except ImportError:
+    import Image
+
 import cStringIO
 
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
@@ -73,7 +78,7 @@ TODO:
     * Fonts
 '''
 class RTFMLizer(object):
-    
+
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables
 
@@ -120,7 +125,7 @@ class RTFMLizer(object):
         data = cStringIO.StringIO()
         im.save(data, 'JPEG')
         data = data.getvalue()
-        
+
         raw_hex = ''
         for char in data:
             raw_hex += hex(ord(char)).replace('0x', '').rjust(2, '0')
@@ -230,5 +235,5 @@ class RTFMLizer(object):
                 text += '%s ' % elem.tail
             else:
                 text += '{\\par \\pard \\hyphpar %s}' % elem.tail
-     
+
         return text
