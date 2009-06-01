@@ -93,6 +93,8 @@ def freeze():
                 'dateutil', 'dns', 'email']
 
     includes += ['calibre.web.feeds.recipes.'+r for r in recipe_modules]
+    includes += [x.split('/')[-1].rpartition('.')[0] for x in \
+            glob.glob('src/calibre/gui2/convert/*.py')]
 
     LOADER = '/tmp/loader.py'
     open(LOADER, 'wb').write('# This script is never actually used.\nimport sys')

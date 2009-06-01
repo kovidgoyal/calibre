@@ -49,6 +49,12 @@ class PageSetupWidget(Widget, Ui_Form):
             x.setMouseTracking(True)
             self.connect(x, SIGNAL('entered(QModelIndex)'), self.show_desc)
         self.initialize_options(get_option, get_help, db, book_id)
+        it = unicode(self.opt_input_profile.toolTip())
+        self.opt_input_profile.setToolTip('<p>'+it.replace('t.','t.\n<br>'))
+        it = unicode(self.opt_output_profile.toolTip())
+        self.opt_output_profile.setToolTip('<p>'+it.replace('t.','ce.\n<br>'))
+
+
 
     def show_desc(self, index):
         desc = index.model().data(index, Qt.StatusTipRole).toString()

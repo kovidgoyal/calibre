@@ -347,7 +347,7 @@ def main():
                                        'PyQt4.QtSvg', 'PyQt4.QtWebKit', 'commands',
                                        'mechanize', 'ClientForm', 'usbobserver',
                                        'genshi', 'calibre.web.feeds.recipes.*',
-                                       'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
+                                       'calibre.gui2.convert.*',
                                        'keyword', 'codeop', 'pydoc', 'readline',
                                        'BeautifulSoup', 'calibre.ebooks.lrf.fonts.prs500.*',
                                        'dateutil', 'email.iterators',

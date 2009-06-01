@@ -642,7 +642,7 @@ class MobiWriter(object):
 
         first = True
         for child in toc.iter():
-            add_node(child, 'chapter', title='Title Page' if first else None)
+            add_node(child, 'chapter')#, title='Title Page' if first else None)
             first = False
 
         return align_block(ctoc.getvalue())
