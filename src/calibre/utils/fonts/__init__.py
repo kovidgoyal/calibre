@@ -135,7 +135,7 @@ class FontConfig(Thread):
                     })
             except UnicodeDecodeError:
                 continue
-        return fonts if all else fonts[0]
+        return fonts if all else (fonts[0] if fonts else None)
 
 fontconfig = FontConfig()
 fontconfig.start()
