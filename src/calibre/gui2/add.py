@@ -39,9 +39,10 @@ class RecursiveFind(QThread):
 
 class Adder(QObject):
 
-    def __init__(self, parent, db, callback):
+    def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)
         self.pd = ProgressDialog(_('Adding...'), parent=parent)
+        self.spare_server = spare_server
         self.db = db
         self.pd.setModal(True)
         self.pd.show()
@@ -79,7 +80,8 @@ class Adder(QObject):
             tasks.append((i, b))
             self.ids[i] = b
             self.nmap[i] = os.path.basename(b[0])
-        self.worker = read_metadata(tasks, self.rq)
+        self.worker = read_metadata(tasks, self.rq,
+                spare_server=self.spare_server)
         self.pd.set_min(0)
         self.pd.set_max(len(self.ids))
         self.pd.value = 0
@@ -165,9 +167,11 @@ class Adder(QObject):
 class Saver(QObject):
 
     def __init__(self, parent, db, callback, rows, path,
-            by_author=False, single_dir=False, single_format=None):
+            by_author=False, single_dir=False, single_format=None,
+            spare_server=None):
         QObject.__init__(self, parent)
         self.pd = ProgressDialog(_('Saving...'), parent=parent)
+        self.spare_server = spare_server
         self.db = db
         self.pd.setModal(True)
         self.pd.show()
@@ -183,7 +187,7 @@ class Saver(QObject):
 
         from calibre.ebooks.metadata.worker import SaveWorker
         self.worker = SaveWorker(self.rq, db, self.ids, path, by_author,
-                single_dir, single_format)
+                single_dir, single_format, spare_server=self.spare_server)
         self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
         self.timer = QTimer(self)
         self.connect(self.timer, SIGNAL('timeout()'), self.update)

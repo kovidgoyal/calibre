@@ -18,6 +18,7 @@ from calibre import __version__, __appname__, sanitize_file_name, \
                     iswindows, isosx, prints, patheq
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
+from calibre.utils.ipc.server import Server
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
@@ -104,6 +105,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def __init__(self, listener, opts, actions, parent=None):
         self.preferences_action, self.quit_action = actions
+        self.spare_servers = []
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
@@ -460,6 +462,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
         self.setMaximumHeight(max_available_height())
+        ####################### Start spare job server ########################
+        QTimer.singleShot(1000, self.add_spare_server)
 
         ####################### Setup device detection ########################
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
@@ -490,7 +494,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.action_sync, SIGNAL('triggered(bool)'),
                 self._sync_menu.trigger_default)
 
+    def add_spare_server(self, *args):
+        self.spare_servers.append(Server())
 
+    @property
+    def spare_server(self):
+        try:
+            QTimer.singleShot(1000, self.add_spare_server)
+            return self.spare_servers.pop()
+        except:
+            pass
 
     def no_op(self, *args):
         pass
@@ -730,7 +743,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         from calibre.gui2.add import Adder
         self._adder = Adder(self,
                 self.library_view.model().db,
-                Dispatcher(self._files_added))
+                Dispatcher(self._files_added), spare_server=self.spare_server)
         self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, checked):
@@ -793,7 +806,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.__adder_func = partial(self._files_added, on_card=on_card)
         self._adder = Adder(self,
                 None if to_device else self.library_view.model().db,
-                Dispatcher(self.__adder_func))
+                Dispatcher(self.__adder_func), spare_server=self.spare_server)
         self._adder.add(paths)
 
     def _files_added(self, paths=[], names=[], infos=[], on_card=None):
@@ -986,7 +999,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     Dispatcher(self._books_saved), rows, path,
                     by_author=self.library_view.model().by_author,
                     single_dir=single_dir,
-                    single_format=single_format)
+                    single_format=single_format,
+                    spare_server=self.spare_server)
 
         else:
             paths = self.current_view().model().paths(rows)
@@ -1618,6 +1632,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.check_messages_timer.stop()
         self.listener.close()
         self.job_manager.server.close()
+        while self.spare_servers:
+            self.spare_servers.pop().close()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()

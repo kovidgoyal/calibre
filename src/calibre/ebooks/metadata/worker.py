@@ -53,8 +53,9 @@ class Progress(object):
 
 class ReadMetadata(Thread):
 
-    def __init__(self, tasks, result_queue):
+    def __init__(self, tasks, result_queue, spare_server=None):
         self.tasks, self.result_queue = tasks, result_queue
+        self.spare_server = spare_server
         self.canceled = False
         Thread.__init__(self)
         self.daemon = True
@@ -67,7 +68,7 @@ class ReadMetadata(Thread):
             for b in t:
                 ids.add(b[0])
         progress = Progress(self.result_queue, self.tdir)
-        server = Server()
+        server = Server() if self.spare_server is None else self.spare_server
         for i, task in enumerate(self.tasks):
             job = ParallelJob('read_metadata',
                 'Read metadata (%d of %d)'%(i, len(self.tasks)),
@@ -110,20 +111,20 @@ class ReadMetadata(Thread):
                 os.remove(job.log_path)
 
 
-def read_metadata(paths, result_queue, chunk=50):
+def read_metadata(paths, result_queue, chunk=50, spare_server=None):
     tasks = []
     pos = 0
     while pos < len(paths):
         tasks.append(paths[pos:pos+chunk])
         pos += chunk
-    t = ReadMetadata(tasks, result_queue)
+    t = ReadMetadata(tasks, result_queue, spare_server=spare_server)
     t.start()
     return t
 
 class SaveWorker(Thread):
 
     def __init__(self, result_queue, db, ids, path, by_author=False,
-            single_dir=False,  single_format=None):
+            single_dir=False,  single_format=None, spare_server=None):
         Thread.__init__(self)
         self.daemon = True
         self.path, self.by_author = path, by_author
@@ -133,10 +134,11 @@ class SaveWorker(Thread):
         self.canceled = False
         self.result_queue = result_queue
         self.error = None
+        self.spare_server = spare_server
         self.start()
 
     def run(self):
-        server = Server()
+        server = Server() if self.spare_server is None else self.spare_server
         ids = set(self.ids)
         tasks = server.split(list(ids))
         jobs = set([])
