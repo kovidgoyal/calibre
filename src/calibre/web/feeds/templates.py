@@ -161,7 +161,7 @@ class FeedTemplate(Template):
             False)" style="padding-bottom:0.5em" class="calibre_rescale_100">
                 <a class="article calibre_rescale_120" href="${article.url}">${article.title}</a>
                 <span class="article_date">${article.localtime.strftime(" [%a, %d %b %H:%M]")}</span>
-                <div class="article_decription calibre_rescale_70" py:if="article.summary">
+                <div class="article_description calibre_rescale_70" py:if="article.summary">
                     ${Markup(cutoff(article.text_summary))}
                 </div>
             </li>
