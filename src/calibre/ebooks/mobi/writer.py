@@ -446,9 +446,12 @@ class MobiWriter(object):
             nrecords += 1
             offset += RECORD_SIZE
             data, overlap = self._read_text_record(text)
-        extra = len(''.join(buf))%4
-        if extra > 0 and INDEXING:
-            self._records[-1] += '\0'*(4-extra)
+        if INDEXING:
+            extra = sum(map(len, buf))%4
+            if extra == 0:
+                extra = 4
+            self._records.append('\0'*(4-extra))
+            nrecords += 1
         self._text_nrecords = nrecords
 
     def _generate_indxt(self, ctoc):
