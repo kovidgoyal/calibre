@@ -707,6 +707,15 @@ class stage1(OptionlessCommand):
                 ('upload_demo', None),
                 ]
 
+class betas(OptionlessCommand):
+    description = 'Build an upload beta builds to the servers'
+
+    sub_commands = [ ('stage2', None) ]
+
+    def run(self):
+        OptionlessCommand.run(self)
+        check_call('scp dist/* divok:'+BETAS, shell=True)
+
 class upload(OptionlessCommand):
     description = 'Build and upload calibre to the servers'
 

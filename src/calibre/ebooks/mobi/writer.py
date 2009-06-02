@@ -735,7 +735,7 @@ class MobiWriter(object):
         # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
             self._text_length,
-            self._text_nrecords, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
+            self._text_nrecords-1, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
         title = str(metadata.title[0])
         # The MOBI Header
