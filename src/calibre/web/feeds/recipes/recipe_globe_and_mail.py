@@ -8,46 +8,37 @@ globeandmail.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class GlobeAndMail(BasicNewsRecipe):
-    
+
     title = 'Globe and Mail'
     __author__ = 'Kovid Goyal'
     language = _('English')
+    oldest_article = 2.0
+    no_stylesheets = True
     description = 'Canada\'s national newspaper'
-    keep_only_tags = [dict(id='content')]
-    remove_tags    = [dict(attrs={'class':'nav'}), dict(id=['related', 'TPphoto', 'secondaryNav', 'articleBottomToolsHolder'])]
-    
-    def parse_index(self):
-        src = self.browser.open('http://www.theglobeandmail.com/frontpage/').read()
-        soup =  BeautifulSoup(src)
-        
-        feeds = []
-        articles = []
-        feed = 'Front Page'
-        for tag in soup.findAll(['h3', 'h4']):
-            if tag.name == 'h3':
-                a = tag.find('a', href=True)
-                if a is not None:
-                    href = 'http://www.theglobeandmail.com' + a['href'].strip()
-                    text = a.find(text=True)
-                    if text:
-                        text = text.strip()
-                        desc = ''
-                        summary = tag.findNextSiblings('p', attrs={'class':'summary'}, limit=1)
-                        if summary:
-                            desc = self.tag_to_string(summary[0], False)
-                        articles.append({
-                                         'title': text,
-                                         'url'  : href,
-                                         'desc' : desc,
-                                         'date' : '', 
-                                         })
-            elif tag.name == 'h4':
-                if articles:
-                    feeds.append((feed, articles))
-                articles = []
-                feed = self.tag_to_string(tag, False)
-                        
-        return feeds
+    remove_tags_before = dict(id="article-top")
+    remove_tags = [
+            {'id':['util', 'article-tabs', 'comments', 'article-relations',
+            'gallery-controls', 'video', 'galleryLoading']},
+            ]
+    remove_tags_after = dict(id='article-content')
+
+    feeds = [
+            ('Latest headlines', 'http://www.theglobeandmail.com/?service=rss'),
+            ('Top stories', 'http://www.theglobeandmail.com/?service=rss&feed=topstories'),
+            ('National', 'http://www.theglobeandmail.com/news/national/?service=rss'),
+            ('Politics', 'http://www.theglobeandmail.com/news/politics/?service=rss'),
+            ('World', 'http://www.theglobeandmail.com/news/world/?service=rss'),
+            ('Business', 'http://www.theglobeandmail.com/report-on-business/?service=rss'),
+            ('Opinions', 'http://www.theglobeandmail.com/news/opinions/?service=rss'),
+            ('Columnists', 'http://www.theglobeandmail.com/news/opinions/columnists/?service=rss'),
+            ('Globe Investor', 'http://www.theglobeandmail.com/globe-investor/?service=rss'),
+            ('Sports', 'http://www.theglobeandmail.com/sports/?service=rss'),
+            ('Technology', 'http://www.theglobeandmail.com/news/technology/?service=rss'),
+            ('Arts', 'http://www.theglobeandmail.com/news/arts/?service=rss'),
+            ('Life', 'http://www.theglobeandmail.com/life/?service=rss'),
+            ('Blogs', 'http://www.theglobeandmail.com/blogs/?service=rss'),
+            ('Real Estate', 'http://www.theglobeandmail.com/real-estate/?service=rss'),
+            ('Auto', 'http://www.theglobeandmail.com/auto/?service=rss'),
+            ]
