@@ -67,7 +67,9 @@ TAGX = {
         'subchapter' :
         '\x00\x00\x00\x01\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x10\x00\x16\x01\x20\x00\x17\x01\x40\x00\x00\x00\x00\x01',
         'periodical' :
-        '\x00\x00\x00\x02\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x20\x00\x16\x01\x40\x00\x17\x01\x80\x00\x00\x00\x00\x01\x45\x01\x01\x00\x46\x01\x02\x00\x47\x01\x04\x00\x00\x00\x00\x01'
+        '\x00\x00\x00\x02\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x20\x00\x16\x01\x40\x00\x17\x01\x80\x00\x00\x00\x00\x01\x45\x01\x01\x00\x46\x01\x02\x00\x47\x01\x04\x00\x00\x00\x00\x01',
+        'secondary_book':'\x00\x00\x00\x01\x01\x01\x01\x00\x00\x00\x00\x01',
+        'secondary_periodical':'\x00\x00\x00\x01\x01\x01\x01\x00\x0b\x03\x02\x00\x00\x00\x00\x01'
         }
 
 INDXT = {
@@ -608,16 +610,61 @@ class MobiWriter(object):
         indx0 = indx0.getvalue()
 
         self._primary_index_record = len(self._records)
+        self._records.extend([indx0, indx1, ctoc])
+
+        # Write secondary index records
+        tagx = TAGX['secondary_'+\
+                ('periodical' if self.opts.mobi_periodical else 'book')]
+        tagx_len = 8 + len(tagx)
+
+        indx0 = StringIO()
+        indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)
+        indx0.write(pack('>I', 0x02))
+        indx0.write(pack('>I', 0xc0+tagx_len+4))
+        indx0.write(pack('>I', 1))
+        indx0.write(pack('>I', 65001))
+        indx0.write('\xff'*4)
+        indx0.write(pack('>I', 1))
+        indx0.write('\0'*4)
+        indx0.write('\0'*136)
+        indx0.write(pack('>I', 0xc0))
+        indx0.write('\0'*8)
+        indx0.write('TAGX'+pack('>I', tagx_len)+tagx)
+        if self.opts.mobi_periodical:
+            raise NotImplementedError
+        else:
+            indx0.write('\0'*3 + '\x01' + 'IDXT' + '\0\xd4\0\0')
+        indx1 = StringIO()
+        indx1.write('INDX' + pack('>I', 0xc0) + '\0'*4)
+        indx1.write(pack('>I', 1))
+        extra = 0xf0 if self.opts.mobi_periodical else 4
+        indx1.write('\0'*4 + pack('>I', 0xc0+extra))
+        num = 4 if self.opts.mobi_periodical else 1
+        indx1.write(pack('>I', num))
+        indx1.write('\xff'*8)
+        indx1.write('\0'*(0xc0-indx1.tell()))
+        if self.opts.mobi_periodical:
+            raise NotImplementedError
+        else:
+            indx1.write('\0\x01\x80\0')
+        indx1.write('IDXT')
+        if self.opts.mobi_periodical:
+            raise NotImplementedError
+        else:
+            indx1.write('\0\xc0\0\0')
+
+        indx0, indx1 = indx0.getvalue(), indx1.getvalue()
+        self._records.extend((indx0, indx1))
         if self.opts.verbose > 3:
             from tempfile import mkdtemp
             import os
             t = mkdtemp()
-            open(os.path.join(t, 'indx0.bin'), 'wb').write(indx0)
-            open(os.path.join(t, 'indx1.bin'), 'wb').write(indx1)
-            open(os.path.join(t, 'ctoc.bin'), 'wb').write(ctoc)
+            for i, n in enumerate(['sindx1', 'sindx0', 'ctoc', 'indx0', 'indx1']):
+                open(os.path.join(t, n+'.bin'), 'wb').write(self._records[-(i+1)])
             self._oeb.log.debug('Index records dumped to', t)
 
-        self._records.extend([indx0, indx1, ctoc])
+
+
 
     def _generate_ctoc(self):
         if self.opts.mobi_periodical:
@@ -711,8 +758,8 @@ class MobiWriter(object):
         record0.write('\xff' * 8)
 
         # 0x20 - 0x23 : Secondary index record
-        # TODO: implement
-        record0.write('\xff' * 4)
+        record0.write(pack('>I', 0xffffffff if self._primary_index_record is
+            None else self._primary_index_record+3))
 
         # 0x24 - 0x3f : Unknown
         record0.write('\xff' * 28)
