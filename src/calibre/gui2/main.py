@@ -107,7 +107,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
-        self.fc = __import__('calibre.utils.fontconfig', fromlist=1)
+        from calibre.utils.fonts import fontconfig
+        self.fc = fontconfig
         self.listener = Listener(listener)
         self.check_messages_timer = QTimer()
         self.connect(self.check_messages_timer, SIGNAL('timeout()'),
@@ -1735,7 +1736,12 @@ def run_gui(opts, args, actions, listener, app):
     if getattr(main, 'restart_after_quit', False):
         e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
         print 'Restarting with:', e, sys.argv
-        os.execvp(e, sys.argv)
+        if hasattr(sys, 'frameworks_dir'):
+            app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
+            import subprocess
+            subprocess.Popen('sleep 3s; open '+app, shell=True)
+        else:
+            os.execvp(e, sys.argv)
     else:
         if iswindows:
             try:
@@ -1829,7 +1835,9 @@ if __name__ == '__main__':
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             log = open(logfile).read().decode('utf-8', 'ignore')
-            d = QErrorMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
-                '%s<b>Log:</b><br>%s')%(unicode(err), unicode(tb), log))
-            d.exec_()
+            d = QErrorMessage()
+            d.showMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
+                '%s<b>Log:</b><br>%s')%(unicode(err),
+                    unicode(tb).replace('\n', '<br>'),
+                    log.replace('\n', '<br>')))
 

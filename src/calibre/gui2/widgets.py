@@ -16,7 +16,7 @@ from calibre.gui2 import human_readable, NONE, TableView, \
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
-from calibre.utils.fontconfig import find_font_families
+from calibre.utils.fonts import fontconfig
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
 
@@ -293,7 +293,7 @@ class FontFamilyModel(QAbstractListModel):
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
         try:
-            self.families = find_font_families()
+            self.families = fontconfig.find_font_families()
         except:
             self.families = []
             print 'WARNING: Could not load fonts'

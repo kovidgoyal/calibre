@@ -27,7 +27,6 @@ entry_points = {
              'librarything       = calibre.ebooks.metadata.library_thing:main',
              'calibre-debug      = calibre.debug:main',
              'calibredb          = calibre.library.cli:main',
-             'calibre-fontconfig = calibre.utils.fontconfig:main',
              'calibre-parallel   = calibre.utils.ipc.worker:main',
              'calibre-customize  = calibre.customize.ui:main',
              'calibre-complete   = calibre.utils.complete:main',

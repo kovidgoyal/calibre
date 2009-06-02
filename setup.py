@@ -76,7 +76,20 @@ if __name__ == '__main__':
         print 'WARNING: PoDoFo not found on your system. Various PDF related',
         print 'functionality will not work.'
 
+    fc_inc = '/usr/include/fontconfig' if islinux else \
+            r'C:\cygwin\home\kovid\fontconfig\include\fontconfig' if iswindows else \
+            '/Users/kovid/fontconfig/include/fontconfig'
+    fc_lib = '/usr/lib' if islinux else \
+            r'C:\cygwin\home\kovid\fontconfig\lib' if iswindows else \
+            '/Users/kovid/fontconfig/lib'
+
     ext_modules = optional + [
+
+                   Extension('calibre.plugins.fontconfig',
+                       sources = ['src/calibre/utils/fonts/fontconfig.c'],
+                       include_dirs = [os.environ.get('FC_INC_DIR', fc_inc)],
+                       libraries=['fontconfig'],
+                       library_dirs=[os.environ.get('FC_LIB_DIR', fc_lib)]),
 
                    Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',

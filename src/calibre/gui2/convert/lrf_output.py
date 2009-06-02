@@ -16,6 +16,7 @@ font_family_model = None
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('LRF Output')
+    HELP = _('Options specific to')+' LRF '+_('output')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'lrf_output',

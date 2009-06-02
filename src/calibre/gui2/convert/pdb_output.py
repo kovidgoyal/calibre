@@ -14,6 +14,7 @@ format_model = None
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('PDB Output')
+    HELP = _('Options specific to')+' PDB '+_('output')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'pdb_output', ['format'])

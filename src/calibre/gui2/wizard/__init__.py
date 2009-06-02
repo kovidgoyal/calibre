@@ -23,6 +23,7 @@ from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
 from calibre.gui2.wizard.finish_ui import Ui_WizardPage as FinishUI
 from calibre.gui2.wizard.kindle_ui import Ui_WizardPage as KindleUI
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
+from calibre.gui2 import min_available_height, available_width
 
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
@@ -483,6 +484,15 @@ class Wizard(QWizard):
         self.setPage(self.stanza_page.ID, self.stanza_page)
 
         self.device_extra_page = None
+        nh, nw = min_available_height()-75, available_width()-30
+        if nh < 0:
+            nh = 580
+        if nw < 0:
+            nw = 400
+        nh = min(400, nh)
+        nw = min(580, nw)
+        self.resize(nw, nh)
+
 
     def accept(self):
         self.device_page.commit()

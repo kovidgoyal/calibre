@@ -59,7 +59,6 @@ class ConfigTabs(QTabWidget):
                         fromlist=[1])
                 pw = input_widget.PluginWidget
                 pw.ICON = ':/images/forward.svg'
-                pw.HELP = _('Options specific to the input format.')
                 self.widgets.append(widget_factory(pw))
             except ImportError:
                 continue
@@ -71,14 +70,15 @@ class ConfigTabs(QTabWidget):
                         fromlist=[1])
                 pw = output_widget.PluginWidget
                 pw.ICON = ':/images/forward.svg'
-                pw.HELP = _('Options specific to the input format.')
                 self.widgets.append(widget_factory(pw))
             except ImportError:
                 continue
 
-        for widget in self.widgets:
+        for i, widget in enumerate(self.widgets):
             self.addTab(widget, widget.TITLE.replace('\n', ' ').replace('&',
             '&&'))
+            self.setTabToolTip(i, widget.HELP if widget.HELP else widget.TITLE)
+        self.setUsesScrollButtons(True)
 
     def commit(self):
         for widget in self.widgets:
