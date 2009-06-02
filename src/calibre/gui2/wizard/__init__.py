@@ -63,6 +63,13 @@ class Kindle(Device):
     manufacturer = 'Amazon'
     id = 'kindle'
 
+class KindleDX(Kindle):
+
+    output_profile = 'kindle_dx'
+    output_format  = 'MOBI'
+    name = 'Kindle DX'
+    id = 'kindledx'
+
 class Sony500(Device):
 
     output_profile = 'sony'
@@ -307,7 +314,7 @@ class DevicePage(QWizardPage, DeviceUI):
     def nextId(self):
         idx = list(self.device_view.selectionModel().selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.UserRole)
-        if dev is Kindle:
+        if dev in (Kindle, KindleDX):
             return KindlePage.ID
         if dev is iPhone:
             return StanzaPage.ID
