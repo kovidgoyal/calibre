@@ -710,7 +710,7 @@ class stage1(OptionlessCommand):
 class betas(OptionlessCommand):
     description = 'Build an upload beta builds to the servers'
 
-    sub_commands = [ ('stage2', None) ]
+    sub_commands = [ ('update', None), ('stage2', None) ]
 
     def run(self):
         OptionlessCommand.run(self)

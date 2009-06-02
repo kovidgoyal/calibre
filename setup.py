@@ -53,7 +53,7 @@ if __name__ == '__main__':
                         tag_release, upload_demo, build_linux, build_windows, \
                         build_osx, upload_installers, upload_user_manual, \
                         upload_to_pypi, stage3, stage2, stage1, upload, \
-                        upload_rss
+                        upload_rss, betas
 
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
@@ -212,6 +212,7 @@ if __name__ == '__main__':
                       'stage2' : stage2,
                       'stage1' : stage1,
                       'publish' : upload,
+                      'betas'  : betas,
                       },
          )
 
