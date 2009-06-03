@@ -23,7 +23,7 @@ class DRMError(ValueError):
     pass
 
 BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'xhtm',
-                   'html', 'xhtml', 'pdf', 'prc', 'mobi', 'azw',
+                   'html', 'xhtml', 'pdf', 'prc', 'mobi', 'azw', 'doc',
                    'epub', 'fb2', 'djvu', 'lrx', 'cbr', 'cbz', 'oebzip',
                    'rb', 'imp', 'odt']
 

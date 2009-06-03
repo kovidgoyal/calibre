@@ -7,6 +7,7 @@ device. This class handles device detection.
 '''
 
 import os, subprocess, time, re
+from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
@@ -289,6 +290,72 @@ class Device(DeviceConfig, DevicePlugin):
 
         self._card_a_prefix = get_card_prefix(card_a_pat)
         self._card_b_prefix = get_card_prefix(card_b_pat)
+
+    def find_device_nodes(self):
+
+        def walk(base):
+            base = os.path.abspath(os.path.realpath(base))
+            for x in os.listdir(base):
+                p = os.path.join(base, x)
+                if os.path.islink(p) or not os.access(p, os.R_OK):
+                    continue
+                isfile = os.path.isfile(p)
+                yield p, isfile
+                if not isfile:
+                    for y, q in walk(p):
+                        yield y, q
+
+        def raw2num(raw):
+            raw = raw.lower()
+            if not raw.startswith('0x'):
+                raw = '0x' + raw
+            return int(raw, 16)
+
+        # Find device node based on vendor, product and bcd
+        d, j = os.path.dirname, os.path.join
+        usb_dir = None
+
+        def test(val, attr):
+            q = getattr(self, attr)
+            if q is None: return True
+            return q == val or val in q
+
+        for x, isfile in walk('/sys/devices'):
+            if isfile and x.endswith('idVendor'):
+                usb_dir = d(x)
+                for y in ('idProduct',):
+                    if not os.access(j(usb_dir, y), os.R_OK):
+                        usb_dir = None
+                        continue
+                e = lambda q : raw2num(open(j(usb_dir, q)).read())
+                ven, prod = map(e, ('idVendor', 'idProduct'))
+                if not (test(ven, 'VENDOR_ID') and test(prod, 'PRODUCT_ID')):
+                    usb_dir = None
+                    continue
+                if self.BCD is not None:
+                    if not os.access(j(usb_dir, 'bcdDevice'), os.R_OK) or \
+                            not test(e('bcdDevice'), 'BCD'):
+                        usb_dir = None
+                        continue
+                    else:
+                        break
+                else:
+                    break
+        if usb_dir is None:
+            raise DeviceError(_('Unable to detect the %s disk drive.')
+                    %self.__class__.__name__)
+
+        devnodes = []
+        for x, isfile in walk(usb_dir):
+            if not isfile and '/block/' in x:
+                parts = x.split('/')
+                idx = parts.index('block')
+                if idx == len(parts)-2:
+                    devnodes.append(parts[idx+1])
+        devnodes.sort()
+        devnodes += list(repeat(None, 2))
+        return devnodes[:3]
+
 
     def open_linux(self):
         import dbus
