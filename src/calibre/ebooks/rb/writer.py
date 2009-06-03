@@ -1,4 +1,3 @@
-import os.path
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
@@ -9,7 +8,12 @@ import os
 import struct
 import zlib
 
-import Image
+try:
+    from PIL import Image
+    Image
+except ImportError:
+    import Image
+
 import cStringIO
 
 from calibre.ebooks.rb.rbml import RBMLizer
@@ -121,7 +125,7 @@ class RBWriter(object):
                 name = unique_name(name, used_names)
                 used_names.append(name)
                 self.name_map[os.path.basename(item.href)] = name
-                
+
                 images.append((name, data))
 
         return images
@@ -140,4 +144,4 @@ class RBWriter(object):
         text += 'BODY=index.html\n'
 
         return text
-    
+

@@ -15,7 +15,6 @@ from lxml import etree
 from dateutil import parser
 
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre import relpath
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
@@ -86,8 +85,8 @@ class Resource(object):
         if self.path == basedir:
             return ''+frag
         try:
-            rpath = relpath(self.path, basedir)
-        except OSError: # On windows path and basedir could be on different drives
+            rpath = os.path.relpath(self.path, basedir)
+        except ValueError: # On windows path and basedir could be on different drives
             rpath = self.path
         if isinstance(rpath, unicode):
             rpath = rpath.encode('utf-8')
@@ -560,7 +559,7 @@ class OPF(object):
                 has_path = True
                 break
         if not has_path:
-            href = relpath(path, self.base_dir).replace(os.sep, '/')
+            href = os.path.relpath(path, self.base_dir).replace(os.sep, '/')
             item = self.create_manifest_item(href, media_type)
             manifest = self.manifest_ppath(self.root)[0]
             manifest.append(item)

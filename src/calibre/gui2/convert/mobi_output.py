@@ -13,6 +13,8 @@ from calibre.gui2.convert import Widget
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('MOBI Output')
+    HELP = _('Options specific to')+' MOBI '+_('output')
+
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'mobi_output',

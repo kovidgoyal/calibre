@@ -543,8 +543,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             if isinstance(worker.exception, DRMError):
                 error_dialog(self, _('DRM Error'), _('<p>This book is protected by <a href="%s">DRM</a>')%'http://wiki.mobileread.com/wiki/DRM').exec_()
             else:
+                r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
-                        unicode(worker.exception.reason), det_msg=worker.traceback, show=True)
+                        unicode(r), det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf)

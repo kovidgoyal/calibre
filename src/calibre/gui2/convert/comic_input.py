@@ -13,6 +13,7 @@ from calibre.gui2.convert import Widget
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('Comic Input')
+    HELP = _('Options specific to')+' comic '+_('input')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'comic_input',

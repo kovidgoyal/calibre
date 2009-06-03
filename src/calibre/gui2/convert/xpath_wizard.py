@@ -38,7 +38,7 @@ class Wizard(QDialog):
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
-        self.resize(400, 300)
+        self.resize(440, 480)
         self.verticalLayout = QVBoxLayout(self)
         self.widget = WizardWidget(self)
         self.verticalLayout.addWidget(self.widget)

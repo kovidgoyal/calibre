@@ -101,6 +101,10 @@ class Worker(object):
             contents = os.path.join(self.osx_contents_dir, 'console.app', 'Contents')
             resources = os.path.join(contents, 'Resources')
             fd = os.path.join(contents, 'Frameworks')
+            sp = os.path.join(resources, 'lib', 'python'+sys.version[:3], 'site-packages.zip')
+            self.osx_prefix = 'import sys; sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
+            self.osx_prefix += 'sys.path.insert(0, %s); '%repr(sp)
+
             self._env['PYTHONHOME']  = resources
             self._env['MAGICK_HOME'] = os.path.join(fd, 'ImageMagick')
             self._env['DYLD_LIBRARY_PATH'] = os.path.join(fd, 'ImageMagick', 'lib')
@@ -124,7 +128,7 @@ class Worker(object):
             priority = prefs['worker_process_priority']
         cmd = [exe]
         if isosx:
-            cmd += ['-c', 'from calibre.utils.worker import main; main()']
+            cmd += ['-c', self.osx_prefix + 'from calibre.utils.ipc.worker import main; main()']
         args = {
                 'env' : env,
                 'cwd' : _cwd,

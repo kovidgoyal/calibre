@@ -235,7 +235,22 @@ class KindleOutput(OutputProfile):
     def tags_to_string(cls, tags):
         return 'ttt '.join(tags)+'ttt '
 
+class KindleDXOutput(OutputProfile):
+
+    name        = 'Kindle DX'
+    short_name  = 'kindle_dx'
+    description = _('This profile is intended for the Amazon Kindle DX.')
+
+    # Screen size is a best guess
+    screen_size               = (1200, 824)
+    dpi                       = 150.0
+    comic_screen_size         = (1180, 800)
+
+    @classmethod
+    def tags_to_string(cls, tags):
+        return 'ttt '.join(tags)+'ttt '
+
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,
-        SonyReaderLandscapeOutput]
+        SonyReaderLandscapeOutput, KindleDXOutput]

@@ -39,11 +39,11 @@ def config():
                      'Firstname Lastname.'))
     c.add_opt('title_sort', ['--title-sort'],
               help=_('The version of the title to be used for sorting. '
-                     'If unspecified, and the title is specified, it will ' 
+                     'If unspecified, and the title is specified, it will '
                      'be auto-generated from the title.'))
     c.add_opt('author_sort', ['--author-sort'],
               help=_('String to be used when sorting by author. '
-                     'If unspecified, and the author(s) are specified, it will ' 
+                     'If unspecified, and the author(s) are specified, it will '
                      'be auto-generated from the author(s).'))
     c.add_opt('cover', ['--cover'],
               help=_('Set the cover to the specified file.'))
@@ -67,7 +67,7 @@ def config():
               help=_('Set the book producer.'))
     c.add_opt('language', ['-l', '--language'],
               help=_('Set the language.'))
-    
+
     c.add_opt('get_cover', ['--get-cover'],
               help=_('Get the cover from the ebook and save it at as the '
                      'specified file.'))
@@ -76,9 +76,9 @@ def config():
                      'be written to the OPF file.'))
     c.add_opt('from_opf', ['--from-opf'],
               help=_('Read metadata from the specified OPF file and use it to '
-                     'set metadata in the ebook. Metadata specified on the'
+                     'set metadata in the ebook. Metadata specified on the '
                      'command line will override metadata read from the OPF file'))
-    
+
     c.add_opt('lrf_bookid', ['--lrf-bookid'],
               help=_('Set the BookID in LRF files'))
     return c
@@ -99,16 +99,16 @@ def do_set_metadata(opts, mi, stream, stream_type):
     mi = MetaInformation(mi)
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
-    
+
     from_opf = getattr(opts, 'from_opf', None)
     if from_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPF
         opf_mi = MetaInformation(OPF(open(from_opf, 'rb')))
         mi.smart_update(opf_mi)
-        
+
     for pref in config().option_set.preferences:
-        if pref.name in ('to_opf', 'from_opf', 'authors', 'title_sort', 
-                         'author_sort', 'get_cover', 'cover', 'tags', 
+        if pref.name in ('to_opf', 'from_opf', 'authors', 'title_sort',
+                         'author_sort', 'get_cover', 'cover', 'tags',
                          'lrf_bookid'):
             continue
         val = getattr(opts, pref.name, None)
@@ -125,13 +125,13 @@ def do_set_metadata(opts, mi, stream, stream_type):
         mi.title_sort = title_sort(opts.title)
     if getattr(opts, 'tags', None) is not None:
         mi.tags = [t.strip() for t in opts.tags.split(',')]
-    
+
     if getattr(opts, 'cover', None) is not None:
         ext = os.path.splitext(opts.cover)[1].replace('.', '').upper()
         mi.cover_data = (ext, open(opts.cover, 'rb').read())
-    
+
     set_metadata(stream, mi, stream_type)
-    
+
 
 def main(args=sys.argv):
     parser = option_parser()
@@ -143,7 +143,7 @@ def main(args=sys.argv):
     path = args[1]
     stream = open(path, 'r+b')
     stream_type = os.path.splitext(path)[1].replace('.', '').lower()
-    
+
     trying_to_set = False
     for pref in config().option_set.preferences:
         if pref.name in ('to_opf', 'get_cover'):
@@ -158,7 +158,7 @@ def main(args=sys.argv):
     if trying_to_set:
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))
     prints(metadata)
-    
+
     if trying_to_set:
         stream.seek(0)
         do_set_metadata(opts, mi, stream, stream_type)
@@ -176,14 +176,14 @@ def main(args=sys.argv):
         prints(metadata)
         if lrf is not None:
             prints('\tBookID:', lrf.book_id)
-        
+
     if opts.to_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPFCreator
         opf = OPFCreator(os.getcwdu(), mi)
         with open(opts.opf, 'wb') as f:
             opf.render(f)
         prints(_('OPF created in'), opts.opf)
-    
+
     if opts.get_cover is not None:
         if mi.cover_data and mi.cover_data[1]:
             with open(opts.get_cover, 'wb') as f:
@@ -191,7 +191,7 @@ def main(args=sys.argv):
                 prints(_('Cover saved to'), f.name)
         else:
             prints(_('No cover found'), file=sys.stderr)
-    
+
     return 0
 
 if __name__ == '__main__':

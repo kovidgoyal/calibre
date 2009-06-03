@@ -11,7 +11,12 @@ __docformat__ = 'restructuredtext en'
 import struct
 import zlib
 
-import Image
+try:
+    from PIL import Image
+    Image
+except ImportError:
+    import Image
+
 import cStringIO
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter

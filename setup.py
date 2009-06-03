@@ -53,7 +53,7 @@ if __name__ == '__main__':
                         tag_release, upload_demo, build_linux, build_windows, \
                         build_osx, upload_installers, upload_user_manual, \
                         upload_to_pypi, stage3, stage2, stage1, upload, \
-                        upload_rss
+                        upload_rss, betas
 
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
@@ -76,7 +76,20 @@ if __name__ == '__main__':
         print 'WARNING: PoDoFo not found on your system. Various PDF related',
         print 'functionality will not work.'
 
+    fc_inc = '/usr/include/fontconfig' if islinux else \
+            r'C:\cygwin\home\kovid\fontconfig\include\fontconfig' if iswindows else \
+            '/Users/kovid/fontconfig/include/fontconfig'
+    fc_lib = '/usr/lib' if islinux else \
+            r'C:\cygwin\home\kovid\fontconfig\lib' if iswindows else \
+            '/Users/kovid/fontconfig/lib'
+
     ext_modules = optional + [
+
+                   Extension('calibre.plugins.fontconfig',
+                       sources = ['src/calibre/utils/fonts/fontconfig.c'],
+                       include_dirs = [os.environ.get('FC_INC_DIR', fc_inc)],
+                       libraries=['fontconfig'],
+                       library_dirs=[os.environ.get('FC_LIB_DIR', fc_lib)]),
 
                    Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
@@ -199,6 +212,7 @@ if __name__ == '__main__':
                       'stage2' : stage2,
                       'stage1' : stage1,
                       'publish' : upload,
+                      'betas'  : betas,
                       },
          )
 

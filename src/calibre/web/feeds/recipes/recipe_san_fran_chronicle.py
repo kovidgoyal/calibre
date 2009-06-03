@@ -12,19 +12,19 @@ class SanFranciscoChronicle(BasicNewsRecipe):
     title                 = u'San Francisco Chronicle'
     __author__            = u'Darko Miletic'
     description           = u'San Francisco news'
-    language = _('English')    
+    language =  _('English')
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
 
-    keep_only_tags    = [dict(name='td' , attrs={'class':'column1 w627'})]
+    remove_tags_before = {'class':'articleheadings'}
     remove_tags_after =  dict(name='div', attrs={'id':'articlecontent' })
     remove_tags = [
                      dict(name='div', attrs={'class':'tools tools_top'})
                     ,dict(name='div', attrs={'id':'articlebox'        })
                   ]
 
-    feeds          = [  
+    feeds          = [
                          (u'Top News Stories', u'http://www.sfgate.com/rss/feeds/news.xml')
                      ]

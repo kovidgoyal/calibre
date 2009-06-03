@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import os, re, sys
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.customize.ui import input_profiles, output_profiles, \
@@ -551,6 +551,13 @@ OptionRecommendation(name='list_recipes',
 
         self.read_user_metadata()
 
+    def flush(self):
+        try:
+            sys.stdout.flush()
+            sys.stderr.flush()
+        except:
+            pass
+
     def run(self):
         '''
         Run the conversion pipeline
@@ -566,11 +573,13 @@ OptionRecommendation(name='list_recipes',
                 self.log('\t'+title)
             self.log('%d recipes available'%len(titles))
             raise SystemExit(0)
+        self.flush()
 
         # Run any preprocess plugins
         from calibre.customize.ui import run_plugins_on_preprocess
         self.input = run_plugins_on_preprocess(self.input)
 
+        self.flush()
         # Create an OEBBook from the input file. The input plugin does all the
         # heavy lifting.
         accelerators = {}
@@ -595,11 +604,13 @@ OptionRecommendation(name='list_recipes',
             self.oeb = create_oebbook(self.log, self.oeb, self.opts,
                     self.input_plugin)
         pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
+        self.flush()
         pr(0., _('Running transforms on ebook...'))
 
         from calibre.ebooks.oeb.transforms.guide import Clean
         Clean()(self.oeb, self.opts)
         pr(0.1)
+        self.flush()
 
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
@@ -608,10 +619,12 @@ OptionRecommendation(name='list_recipes',
         MergeMetadata()(self.oeb, self.user_metadata,
                 self.opts.prefer_metadata_cover)
         pr(0.2)
+        self.flush()
 
         from calibre.ebooks.oeb.transforms.structure import DetectStructure
         DetectStructure()(self.oeb, self.opts)
         pr(0.35)
+        self.flush()
 
         from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
         fbase = self.opts.base_font_size
@@ -626,6 +639,7 @@ OptionRecommendation(name='list_recipes',
         from calibre.ebooks.oeb.transforms.jacket import Jacket
         Jacket()(self.oeb, self.opts, self.user_metadata)
         pr(0.4)
+        self.flush()
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
             self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
@@ -651,6 +665,7 @@ OptionRecommendation(name='list_recipes',
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
         pr(0.9)
+        self.flush()
 
         from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
 
@@ -660,6 +675,7 @@ OptionRecommendation(name='list_recipes',
 
         self.oeb.toc.rationalize_play_orders()
         pr(1.)
+        self.flush()
 
         self.log.info('Creating %s...'%self.output_plugin.name)
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)
@@ -669,6 +685,7 @@ OptionRecommendation(name='list_recipes',
                 self.opts, self.log)
         self.ui_reporter(1.)
         self.log(self.output_fmt.upper(), 'output written to', self.output)
+        self.flush()
 
 def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
         encoding='utf-8'):

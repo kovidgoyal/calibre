@@ -7,6 +7,15 @@ __docformat__ = 'restructuredtext en'
 Command line interface to conversion sub-system
 '''
 
+import sys, os
+from optparse import OptionGroup, Option
+
+from calibre.utils.config import OptionParser
+from calibre.utils.logging import Log
+from calibre.constants import preferred_encoding
+from calibre.customize.conversion import OptionRecommendation
+
+
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
 
@@ -32,14 +41,6 @@ option.
 
 For full documentation of the conversion system see
 ''') + 'http://calibre.kovidgoyal.net/user_manual/conversion.html'
-
-import sys, os
-from optparse import OptionGroup, Option
-
-from calibre.utils.config import OptionParser
-from calibre.utils.logging import Log
-from calibre.constants import preferred_encoding
-from calibre.customize.conversion import OptionRecommendation
 
 def print_help(parser, log):
     help = parser.format_help().encode(preferred_encoding, 'replace')

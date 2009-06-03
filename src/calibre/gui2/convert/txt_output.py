@@ -14,6 +14,7 @@ newline_model = None
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('TXT Output')
+    HELP = _('Options specific to')+' TXT '+_('output')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'txt_output', ['newline'])

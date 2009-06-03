@@ -35,7 +35,8 @@ class PRS500_PROFILE(object):
     name = 'prs500'
 
 def find_custom_fonts(options, logger):
-    from calibre.utils.fontconfig import files_for_family
+    from calibre.utils.fonts import fontconfig
+    files_for_family = fontconfig.files_for_family
     fonts = {'serif' : None, 'sans' : None, 'mono' : None}
     def family(cmd):
         return cmd.split(',')[-1].strip()

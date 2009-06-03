@@ -175,6 +175,7 @@ def main(args=sys.argv):
                                              'BeautifulSoup', 'pyreadline',
                                              'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*',
+                                             'calibre.gui2.convert.*',
                                              'calibre.ebooks.lrf.fonts.prs500.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],

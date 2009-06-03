@@ -15,6 +15,7 @@ orientation_model = None
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('PDF Output')
+    HELP = _('Options specific to')+' PDF '+_('output')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'pdf_output', ['paper_size', 'orientation'])

@@ -74,9 +74,9 @@ class USBMS(CLI, Device):
                 self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
                 if path_to_ext(filename) in self.FORMATS:
                     bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
-                    
+
         self.report_progress(1.0, _('Getting list of books on device...'))
-        
+
         return bl
 
     def _sanity_check(self, on_card, files):
@@ -85,7 +85,7 @@ class USBMS(CLI, Device):
         elif on_card == 'cardb' and not self._card_b_prefix:
             raise ValueError(_('The reader has no storage card in this slot.'))
         elif on_card and on_card not in ('carda', 'cardb'):
-            raise DeviceError(_('Selected slot: %s is not supported.' % on_card))
+            raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
 
         if on_card == 'carda':
             path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
@@ -165,7 +165,7 @@ class USBMS(CLI, Device):
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
-        
+
         return zip(paths, cycle([on_card]))
 
     def add_books_to_metadata(self, locations, metadata, booklists):

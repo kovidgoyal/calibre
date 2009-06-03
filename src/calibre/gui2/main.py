@@ -18,6 +18,7 @@ from calibre import __version__, __appname__, sanitize_file_name, \
                     iswindows, isosx, prints, patheq
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
+from calibre.utils.ipc.server import Server
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
@@ -104,10 +105,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def __init__(self, listener, opts, actions, parent=None):
         self.preferences_action, self.quit_action = actions
+        self.spare_servers = []
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
-        self.fc = __import__('calibre.utils.fontconfig', fromlist=1)
+        from calibre.utils.fonts import fontconfig
+        self.fc = fontconfig
         self.listener = Listener(listener)
         self.check_messages_timer = QTimer()
         self.connect(self.check_messages_timer, SIGNAL('timeout()'),
@@ -459,6 +462,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
         self.setMaximumHeight(max_available_height())
+        ####################### Start spare job server ########################
+        QTimer.singleShot(1000, self.add_spare_server)
 
         ####################### Setup device detection ########################
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
@@ -489,7 +494,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.action_sync, SIGNAL('triggered(bool)'),
                 self._sync_menu.trigger_default)
 
+    def add_spare_server(self, *args):
+        self.spare_servers.append(Server())
 
+    @property
+    def spare_server(self):
+        try:
+            QTimer.singleShot(1000, self.add_spare_server)
+            return self.spare_servers.pop()
+        except:
+            pass
 
     def no_op(self, *args):
         pass
@@ -729,7 +743,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         from calibre.gui2.add import Adder
         self._adder = Adder(self,
                 self.library_view.model().db,
-                Dispatcher(self._files_added))
+                Dispatcher(self._files_added), spare_server=self.spare_server)
         self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, checked):
@@ -792,7 +806,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.__adder_func = partial(self._files_added, on_card=on_card)
         self._adder = Adder(self,
                 None if to_device else self.library_view.model().db,
-                Dispatcher(self.__adder_func))
+                Dispatcher(self.__adder_func), spare_server=self.spare_server)
         self._adder.add(paths)
 
     def _files_added(self, paths=[], names=[], infos=[], on_card=None):
@@ -985,7 +999,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     Dispatcher(self._books_saved), rows, path,
                     by_author=self.library_view.model().by_author,
                     single_dir=single_dir,
-                    single_format=single_format)
+                    single_format=single_format,
+                    spare_server=self.spare_server)
 
         else:
             paths = self.current_view().model().paths(rows)
@@ -1617,6 +1632,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.check_messages_timer.stop()
         self.listener.close()
         self.job_manager.server.close()
+        while self.spare_servers:
+            self.spare_servers.pop().close()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()
@@ -1670,7 +1687,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def update_found(self, version):
         os = 'windows' if iswindows else 'osx' if isosx else 'linux'
         url = 'http://%s.kovidgoyal.net/download_%s'%(__appname__, os)
-        self.latest_version = '<br>'+_('<span style="color:red; font-weight:bold">'
+        self.latest_version = '<br>' + _('<span style="color:red; font-weight:bold">'
                 'Latest version: <a href="%s">%s</a></span>')%(url, version)
         self.vanity.setText(self.vanity_template%\
                 (dict(version=self.latest_version,
@@ -1735,7 +1752,12 @@ def run_gui(opts, args, actions, listener, app):
     if getattr(main, 'restart_after_quit', False):
         e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
         print 'Restarting with:', e, sys.argv
-        os.execvp(e, sys.argv)
+        if hasattr(sys, 'frameworks_dir'):
+            app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
+            import subprocess
+            subprocess.Popen('sleep 3s; open '+app, shell=True)
+        else:
+            os.execvp(e, sys.argv)
     else:
         if iswindows:
             try:
@@ -1829,7 +1851,9 @@ if __name__ == '__main__':
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             log = open(logfile).read().decode('utf-8', 'ignore')
-            d = QErrorMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
-                '%s<b>Log:</b><br>%s')%(unicode(err), unicode(tb), log))
-            d.exec_()
+            d = QErrorMessage()
+            d.showMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
+                '%s<b>Log:</b><br>%s')%(unicode(err),
+                    unicode(tb).replace('\n', '<br>'),
+                    log.replace('\n', '<br>')))
 
