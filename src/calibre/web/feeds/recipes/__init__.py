@@ -45,6 +45,7 @@ recipe_modules = ['recipe_' + r for r in (
            'straitstimes', 'index_hu', 'pcworld_hu', 'hrt', 'rts',
            'h1', 'h2', 'h3', 'phd_comics', 'woz_die', 'elektrolese',
            'climate_progress', 'carta', 'slashdot', 'publico',
+           'the_budget_fashionista'
           )]
 
 import re, imp, inspect, time, os

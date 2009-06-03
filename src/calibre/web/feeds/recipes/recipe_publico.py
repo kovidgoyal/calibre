@@ -23,11 +23,11 @@ class Publico(BasicNewsRecipe):
     feeds          = [
                         (u'Geral', u'http://feeds.feedburner.com/PublicoUltimaHora'),
                         (u'Internacional', u'http://www.publico.clix.pt/rss.ashx?idCanal=11'),
-                        (u'Política', u'http://www.publico.clix.pt/rss.ashx?idCanal=12'),
-                        (u'Ciências', u'http://www.publico.clix.pt/rss.ashx?idCanal=13'),
+                        (u'Pol\xc3\xadtica', u'http://www.publico.clix.pt/rss.ashx?idCanal=12'),
+                        (u'Ci\xc3\xaancias', u'http://www.publico.clix.pt/rss.ashx?idCanal=13'),
                         (u'Desporto', u'http://desporto.publico.pt/rss.ashx'),
                         (u'Economia', u'http://www.publico.clix.pt/rss.ashx?idCanal=57'),
-                        (u'Educação', u'http://www.publico.clix.pt/rss.ashx?idCanal=58'),
+                        (u'Educa\xc3\xa7\xc3\xa3o', u'http://www.publico.clix.pt/rss.ashx?idCanal=58'),
                         (u'Local', u'http://www.publico.clix.pt/rss.ashx?idCanal=59'),
                         (u'Media e Tecnologia', u'http://www.publico.clix.pt/rss.ashx?idCanal=61'),
                         (u'Sociedade', u'http://www.publico.clix.pt/rss.ashx?idCanal=62')
