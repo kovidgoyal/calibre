@@ -1,5 +1,6 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__copyright__ = '''2009, John Schember <john at nachtimwald.com>
+                    and Kovid Goyal <kovid@kovidgoyal.net>'''
 '''
 Generic device driver. This is not a complete stand alone driver. It is
 intended to be subclassed with the relevant parts implemented for a particular
@@ -367,7 +368,11 @@ class Device(DeviceConfig, DevicePlugin):
                     if ok[node]:
                         devnodes.append(node)
         devnodes += list(repeat(None, 3))
-        return tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
+        ans = tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
+        return self.linux_swap_drives(ans)
+
+    def linux_swap_drives(self, drives):
+        return drives
 
     def node_mountpoint(self, node):
         for line in open('/proc/mounts').readlines():

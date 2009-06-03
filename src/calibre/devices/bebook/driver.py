@@ -43,6 +43,14 @@ class BEBOOK(USBMS):
 
         return drives
 
+    def linux_swap_drives(self, drives):
+        if len(drives) < 2: return drives
+        drives = list(drives)
+        t = drives[0]
+        drives[0] = drives[1]
+        drives[1] = t
+        return tuple(drives)
+
 
 class BEBOOK_MINI(BEBOOK):
     name           = 'BeBook Mini driver'

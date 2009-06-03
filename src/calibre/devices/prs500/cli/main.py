@@ -217,7 +217,7 @@ def main():
         if command == "df":
             total = dev.total_space(end_session=False)
             free = dev.free_space()
-            where = ("Memory", "Stick", "Card")
+            where = ("Memory", "Card A", "Card B")
             print "Filesystem\tSize \tUsed \tAvail \tUse%"
             for i in range(3):
                 print "%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),\
