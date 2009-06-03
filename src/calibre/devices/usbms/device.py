@@ -342,6 +342,7 @@ class Device(DeviceConfig, DevicePlugin):
                         break
                 else:
                     break
+
         if usb_dir is None:
             raise DeviceError(_('Unable to detect the %s disk drive.')
                     %self.__class__.__name__)
@@ -363,8 +364,8 @@ class Device(DeviceConfig, DevicePlugin):
                             ok[node] = False
                     except:
                         ok[node] = False
-                    devnodes.append(node)
-        devnodes.sort()
+                    if ok[node]:
+                        devnodes.append(node)
         devnodes += list(repeat(None, 3))
         return tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
 
@@ -458,7 +459,6 @@ class Device(DeviceConfig, DevicePlugin):
                 if not mp.endswith('/'): mp += '/'
                 setattr(self, prefix, mp)
                 prefix, typ = '_card_b_prefix', 'cardb'
-
 
     def open(self):
         time.sleep(5)
