@@ -21,6 +21,7 @@ DEPENDENCIES = [
             ('dnspython', '1.6.0', 'dnspython', 'dnspython', 'dnspython', 'dnspython'),
             ('poppler', '0.10.5', 'poppler', 'poppler', 'poppler', 'poppler'),
             ('podofo', '0.7', 'podofo', 'podofo', 'podofo', 'podofo'),
+            ('pmount', '0.9.19', 'pmount', 'pmount', 'pmount', 'pmount'),
             ]
 
 

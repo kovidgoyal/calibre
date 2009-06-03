@@ -60,9 +60,8 @@ class PRS505(CLI, Device):
                             <cache xmlns="http://www.kinoma.com/FskCache/1">
                             </cache>
                             '''.encode('utf8'))
-                    return True
+                return True
             except:
-                self._card_prefix = None
                 import traceback
                 traceback.print_exc()
             return False
@@ -226,5 +225,5 @@ class PRS505(CLI, Device):
                 f.close()
         write_card_prefix(self._card_a_prefix, 1)
         write_card_prefix(self._card_b_prefix, 2)
-        
+
         self.report_progress(1.0, _('Sending metadata to device...'))

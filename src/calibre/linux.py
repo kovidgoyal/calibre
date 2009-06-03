@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Post installation script for linux '''
 import sys, os, shutil
-from subprocess import check_call, call
+from subprocess import check_call
 
 from calibre import __version__, __appname__
 from calibre.customize.ui import device_plugins
@@ -263,49 +263,6 @@ def setup_udev_rules(group_file, reload, fatal_errors):
                '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
              )
     udev.close()
-    fdi = open_file('/usr/share/hal/fdi/policy/20thirdparty/10-calibre.fdi')
-    manifest.append(fdi.name)
-    fdi.write('<?xml version="1.0" encoding="UTF-8"?>\n\n<deviceinfo version="0.2">\n')
-    for cls in DEVICES:
-        fdi.write(\
-'''
-  <device>
-      <match key="usb_device.vendor_id" int="%(vendor_id)s">
-          <match key="usb_device.product_id" int="%(product_id)s">
-              <match key="usb_device.device_revision_bcd" int="%(bcd)s">
-                  <merge key="calibre.deviceclass" type="string">%(cls)s</merge>
-              </match>
-          </match>
-      </match>
-  </device>
-'''%dict(cls=cls.__class__.__name__, vendor_id=cls.VENDOR_ID, product_id=cls.PRODUCT_ID,
-         prog=__appname__, bcd=cls.BCD))
-        fdi.write('\n'+cls.get_fdi())
-    fdi.write('\n</deviceinfo>\n')
-    fdi.close()
-    if reload:
-        called = False
-        for hal in ('hald', 'hal', 'haldaemon'):
-            hal = os.path.join('/etc/init.d', hal)
-            if os.access(hal, os.X_OK):
-                call((hal, 'restart'))
-                called = True
-                break
-        if not called and os.access('/etc/rc.d/rc.hald', os.X_OK):
-            call(('/etc/rc.d/rc.hald', 'restart'))
-
-        try:
-            check_call('udevadm control --reload_rules', shell=True)
-        except:
-            try:
-                check_call('udevcontrol reload_rules', shell=True)
-            except:
-                try:
-                    check_call('/etc/init.d/udev reload', shell=True)
-                except:
-                    if fatal_errors:
-                        raise Exception("Couldn't reload udev, you may have to reboot")
-                    print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
     return manifest
 
 def option_parser():
@@ -314,7 +271,7 @@ def option_parser():
     parser.add_option('--use-destdir', action='store_true', default=False, dest='destdir',
                       help='If set, respect the environment variable DESTDIR when installing files')
     parser.add_option('--do-not-reload-udev-hal', action='store_true', dest='dont_reload', default=False,
-                      help='If set, do not try to reload udev rules and HAL FDI files')
+                      help='Does nothing. Present for legacy reasons.')
     parser.add_option('--group-file', default='/etc/group', dest='group_file',
                       help='File from which to read group information. Default: %default')
     parser.add_option('--dont-check-root', action='store_true', default=False, dest='no_root',
