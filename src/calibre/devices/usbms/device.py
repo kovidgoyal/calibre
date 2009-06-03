@@ -403,7 +403,6 @@ class Device(DeviceConfig, DevicePlugin):
             mp = self.node_mountpoint(node)
             if mp is not None:
                 return mp, 0
-
             if type == 'main':
                 label = self.MAIN_MEMORY_VOLUME_LABEL
             if type == 'carda':
@@ -413,17 +412,17 @@ class Device(DeviceConfig, DevicePlugin):
                 if label is None:
                     label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
             extra = 0
+            label = label.replace(' ', '_')
             while True:
-                q = ' (%d)'%extra if extra else ''
+                q = '_(%d)'%extra if extra else ''
                 if not os.path.exists('/media/'+label+q):
                     break
                 extra += 1
             if extra:
-                label += ' (%d)'%extra
+                label += '_(%d)'%extra
 
             def do_mount(node, label):
                 cmd = ['pmount', '-w', '-s']
-                label = label.replace(' ', '_')
                 try:
                     p = subprocess.Popen(cmd + [node, label])
                 except OSError:
