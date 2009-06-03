@@ -3,14 +3,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
 Provides a command-line and optional graphical interface to the SONY Reader PRS-500.
 
-For usage information run the script. 
+For usage information run the script.
 """
 
 import StringIO, sys, time, os
 from optparse import OptionParser
 
 from calibre import __version__, iswindows, __appname__
-from calibre.devices.errors import PathError 
+from calibre.devices.errors import PathError
 from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
@@ -29,7 +29,7 @@ def human_readable(size):
     return size + suffix
 
 class FileFormatter(object):
-    def __init__(self, file, term):    
+    def __init__(self, file, term):
         self.term = term
         self.is_dir      = file.is_dir
         self.is_readonly = file.is_readonly
@@ -38,18 +38,18 @@ class FileFormatter(object):
         self.wtime       = file.wtime
         self.name        = file.name
         self.path        = file.path
-    
+
     @dynamic_property
     def mode_string(self):
         doc=""" The mode string for this file. There are only two modes read-only and read-write """
         def fget(self):
-            mode, x = "-", "-"      
+            mode, x = "-", "-"
             if self.is_dir: mode, x = "d", "x"
             if self.is_readonly: mode += "r-"+x+"r-"+x+"r-"+x
             else: mode += "rw"+x+"rw"+x+"rw"+x
             return mode
         return property(doc=doc, fget=fget)
-    
+
     @dynamic_property
     def isdir_name(self):
         doc='''Return self.name + '/' if self is a directory'''
@@ -59,8 +59,8 @@ class FileFormatter(object):
                 name += '/'
             return name
         return property(doc=doc, fget=fget)
-            
-    
+
+
     @dynamic_property
     def name_in_color(self):
         doc=""" The name in ANSI text. Directories are blue, ebooks are green """
@@ -71,24 +71,24 @@ class FileFormatter(object):
             if self.is_dir: cname = blue + self.name + normal
             else:
                 ext = self.name[self.name.rfind("."):]
-                if ext in (".pdf", ".rtf", ".lrf", ".lrx", ".txt"): cname = green + self.name + normal        
+                if ext in (".pdf", ".rtf", ".lrf", ".lrx", ".txt"): cname = green + self.name + normal
             return cname
         return property(doc=doc, fget=fget)
-    
+
     @dynamic_property
     def human_readable_size(self):
         doc=""" File size in human readable form """
         def fget(self):
             return human_readable(self.size)
         return property(doc=doc, fget=fget)
-    
+
     @dynamic_property
     def modification_time(self):
         doc=""" Last modified time in the Linux ls -l format """
         def fget(self):
             return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
         return property(doc=doc, fget=fget)
-    
+
     @dynamic_property
     def creation_time(self):
         doc=""" Last modified time in the Linux ls -l format """
@@ -104,7 +104,7 @@ def info(dev):
     print "Mime type:       ", info[3]
 
 def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, ll=False, cols=0):
-    def col_split(l, cols): # split list l into columns 
+    def col_split(l, cols): # split list l into columns
         rows = len(l) / cols
         if len(l) % cols:
             rows += 1
@@ -112,8 +112,8 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
         for i in range(rows):
             m.append(l[i::rows])
         return m
-    
-    def row_widths(table): # Calculate widths for each column in the row-wise table      
+
+    def row_widths(table): # Calculate widths for each column in the row-wise table
         tcols = len(table[0])
         rowwidths = [ 0 for i in range(tcols) ]
         for row in table:
@@ -122,19 +122,19 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
                 rowwidths[c] = len(item) if len(item) > rowwidths[c] else rowwidths[c]
                 c += 1
         return rowwidths
-    
-    output = StringIO.StringIO()    
+
+    output = StringIO.StringIO()
     if path.endswith("/") and len(path) > 1: path = path[:-1]
     dirs = dev.list(path, recurse)
     for dir in dirs:
-        if recurse: print >>output, dir[0] + ":" 
+        if recurse: print >>output, dir[0] + ":"
         lsoutput, lscoloutput = [], []
         files = dir[1]
         maxlen = 0
         if ll: # Calculate column width for size column
             for file in files:
                 size = len(str(file.size))
-                if human_readable_size: 
+                if human_readable_size:
                     file = FileFormatter(file, term)
                     size = len(file.human_readable_size)
                 if size > maxlen: maxlen = size
@@ -148,29 +148,29 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
                 size = str(file.size)
                 if human_readable_size: size = file.human_readable_size
                 print >>output, file.mode_string, ("%"+str(maxlen)+"s")%size, file.modification_time, name
-        if not ll and len(lsoutput) > 0:          
+        if not ll and len(lsoutput) > 0:
             trytable = []
             for colwidth in range(MINIMUM_COL_WIDTH, cols):
                 trycols = int(cols/colwidth)
-                trytable = col_split(lsoutput, trycols)    
+                trytable = col_split(lsoutput, trycols)
                 works = True
                 for row in trytable:
                     row_break = False
                     for item in row:
-                        if len(item) > colwidth - 1: 
+                        if len(item) > colwidth - 1:
                             works, row_break = False, True
                             break
                     if row_break: break
                 if works: break
             rowwidths = row_widths(trytable)
             trytablecol = col_split(lscoloutput, len(trytable[0]))
-            for r in range(len(trytable)):          
+            for r in range(len(trytable)):
                 for c in range(len(trytable[r])):
                     padding = rowwidths[c] - len(trytable[r][c])
                     print >>output, trytablecol[r][c], "".ljust(padding),
-                print >>output    
+                print >>output
         print >>output
-    listing = output.getvalue().rstrip()+ "\n"    
+    listing = output.getvalue().rstrip()+ "\n"
     output.close()
     return listing
 
@@ -179,20 +179,20 @@ def main():
     cols = term.COLS
     if not cols: # On windows terminal width is unknown
         cols = 80
-    
+
     parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat, rm\n\n"+
     "For help on a particular command: %prog command", version=__appname__+" version: " + __version__)
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
-                    "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
+                    "The numbers in the left column are byte offsets that allow the packet size to be read off easily.",
     dest="log_packets", action="store_true", default=False)
     parser.remove_option("-h")
     parser.disable_interspersed_args() # Allow unrecognized options
     options, args = parser.parse_args()
-    
+
     if len(args) < 1:
         parser.print_help()
         return 1
-    
+
     command = args[0]
     args = args[1:]
     dev = None
@@ -207,27 +207,27 @@ def main():
         if scanner.is_device_connected(d):
             dev = d
             dev.reset(log_packets=options.log_packets)
-    
+
     if dev is None:
         print >>sys.stderr, 'Unable to find a connected ebook reader.'
         return 1
-        
+
     try:
         dev.open()
         if command == "df":
             total = dev.total_space(end_session=False)
             free = dev.free_space()
             where = ("Memory", "Stick", "Card")
-            print "Filesystem\tSize \tUsed \tAvail \tUse%"      
+            print "Filesystem\tSize \tUsed \tAvail \tUse%"
             for i in range(3):
                 print "%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),\
                                                                             str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%")
         elif command == "books":
             print "Books in main memory:"
-            for book in dev.books(): 
+            for book in dev.books():
                 print book
             print "\nBooks on storage card:"
-            for book in dev.books(oncard=True): print book      
+            for book in dev.books(oncard=True): print book
         elif command == "mkdir":
             parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a directory on the device\n\npath must begin with / or card:/")
             if len(args) != 1:
@@ -245,7 +245,7 @@ def main():
             if len(args) != 1:
                 parser.print_help()
                 return 1
-            print ls(dev, args[0], term, color=options.color, recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),      
+            print ls(dev, args[0], term, color=options.color, recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),
         elif command == "info":
             info(dev)
         elif command == "cp":
@@ -259,22 +259,22 @@ def main():
             parser.add_option('-f', '--force', dest='force', action='store_true', default=False,
                               help='Overwrite the destination file if it exists already.')
             options, args = parser.parse_args(args)
-            if len(args) != 2: 
+            if len(args) != 2:
                 parser.print_help()
                 return 1
             if args[0].startswith("prs500:"):
                 outfile = args[1]
                 path = args[0][7:]
-                if path.endswith("/"): path = path[:-1]      
+                if path.endswith("/"): path = path[:-1]
                 if os.path.isdir(outfile):
-                    outfile = os.path.join(outfile, path[path.rfind("/")+1:]) 
+                    outfile = os.path.join(outfile, path[path.rfind("/")+1:])
                 try:
                     outfile = open(outfile, "wb")
                 except IOError, e:
                     print >> sys.stderr, e
                     parser.print_help()
                     return 1
-                dev.get_file(path, outfile)        
+                dev.get_file(path, outfile)
                 outfile.close()
             elif args[1].startswith("prs500:"):
                 try:
@@ -299,7 +299,7 @@ def main():
             outfile = sys.stdout
             parser = OptionParser(usage="usage: %prog cat path\nShow file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/")
             options, args = parser.parse_args(args)
-            if len(args) != 1: 
+            if len(args) != 1:
                 parser.print_help()
                 return 1
             if args[0].endswith("/"): path = args[0][:-1]
@@ -311,15 +311,15 @@ def main():
                                   "and must begin with / or card:/\n\n"+\
                                   "rm will DELETE the file. Be very CAREFUL")
             options, args = parser.parse_args(args)
-            if len(args) != 1: 
+            if len(args) != 1:
                 parser.print_help()
                 return 1
-            dev.rm(args[0])      
+            dev.rm(args[0])
         elif command == "touch":
             parser = OptionParser(usage="usage: %prog touch path\nCreate an empty file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+
             "Unfortunately, I cant figure out how to update file times on the device, so if path already exists, touch does nothing" )
             options, args = parser.parse_args(args)
-            if len(args) != 1: 
+            if len(args) != 1:
                 parser.print_help()
                 return 1
             dev.touch(args[0])

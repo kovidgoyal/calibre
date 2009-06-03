@@ -6,7 +6,8 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import os, subprocess, time, re
+import os, subprocess, time, re, sys, glob
+from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
@@ -35,6 +36,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     MAIN_MEMORY_VOLUME_LABEL  = ''
     STORAGE_CARD_VOLUME_LABEL = ''
+    STORAGE_CARD2_VOLUME_LABEL = None
 
     FDI_TEMPLATE = \
 '''
@@ -290,51 +292,172 @@ class Device(DeviceConfig, DevicePlugin):
         self._card_a_prefix = get_card_prefix(card_a_pat)
         self._card_b_prefix = get_card_prefix(card_b_pat)
 
-    def open_linux(self):
-        import dbus
-        bus = dbus.SystemBus()
-        hm  = dbus.Interface(bus.get_object("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager"), "org.freedesktop.Hal.Manager")
+    def find_device_nodes(self):
 
-        def conditional_mount(dev):
-            mmo = bus.get_object("org.freedesktop.Hal", dev)
-            label = mmo.GetPropertyString('volume.label', dbus_interface='org.freedesktop.Hal.Device')
-            is_mounted = mmo.GetPropertyString('volume.is_mounted', dbus_interface='org.freedesktop.Hal.Device')
-            mount_point = mmo.GetPropertyString('volume.mount_point', dbus_interface='org.freedesktop.Hal.Device')
-            fstype = mmo.GetPropertyString('volume.fstype', dbus_interface='org.freedesktop.Hal.Device')
-            if is_mounted:
-                return str(mount_point)
-            mmo.Mount(label, fstype, ['umask=077', 'uid='+str(os.getuid()), 'sync'],
-                          dbus_interface='org.freedesktop.Hal.Device.Volume')
-            return os.path.normpath('/media/'+label)+'/'
+        def walk(base):
+            base = os.path.abspath(os.path.realpath(base))
+            for x in os.listdir(base):
+                p = os.path.join(base, x)
+                if os.path.islink(p) or not os.access(p, os.R_OK):
+                    continue
+                isfile = os.path.isfile(p)
+                yield p, isfile
+                if not isfile:
+                    for y, q in walk(p):
+                        yield y, q
 
-        mm = hm.FindDeviceStringMatch(__appname__+'.mainvolume', self.__class__.__name__)
-        if not mm:
-            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%(self.__class__.__name__,))
-        self._main_prefix = None
-        for dev in mm:
-            try:
-                self._main_prefix = conditional_mount(dev)+os.sep
-                break
-            except dbus.exceptions.DBusException:
+        def raw2num(raw):
+            raw = raw.lower()
+            if not raw.startswith('0x'):
+                raw = '0x' + raw
+            return int(raw, 16)
+
+        # Find device node based on vendor, product and bcd
+        d, j = os.path.dirname, os.path.join
+        usb_dir = None
+
+        def test(val, attr):
+            q = getattr(self, attr)
+            if q is None: return True
+            return q == val or val in q
+
+        for x, isfile in walk('/sys/devices'):
+            if isfile and x.endswith('idVendor'):
+                usb_dir = d(x)
+                for y in ('idProduct',):
+                    if not os.access(j(usb_dir, y), os.R_OK):
+                        usb_dir = None
+                        continue
+                e = lambda q : raw2num(open(j(usb_dir, q)).read())
+                ven, prod = map(e, ('idVendor', 'idProduct'))
+                if not (test(ven, 'VENDOR_ID') and test(prod, 'PRODUCT_ID')):
+                    usb_dir = None
+                    continue
+                if self.BCD is not None:
+                    if not os.access(j(usb_dir, 'bcdDevice'), os.R_OK) or \
+                            not test(e('bcdDevice'), 'BCD'):
+                        usb_dir = None
+                        continue
+                    else:
+                        break
+                else:
+                    break
+
+        if usb_dir is None:
+            raise DeviceError(_('Unable to detect the %s disk drive.')
+                    %self.__class__.__name__)
+
+        devnodes, ok = [], {}
+        for x, isfile in walk(usb_dir):
+            if not isfile and '/block/' in x:
+                parts = x.split('/')
+                idx = parts.index('block')
+                if idx == len(parts)-2:
+                    sz = j(x, 'size')
+                    node = parts[idx+1]
+                    try:
+                        exists = int(open(sz).read()) > 0
+                        if exists:
+                            node = self.find_largest_partition(x)
+                            ok[node] = True
+                        else:
+                            ok[node] = False
+                    except:
+                        ok[node] = False
+                    if ok[node]:
+                        devnodes.append(node)
+        devnodes += list(repeat(None, 3))
+        return tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
+
+    def node_mountpoint(self, node):
+        for line in open('/proc/mounts').readlines():
+            line = line.split()
+            if line[0] == node:
+                return line[1]
+        return None
+
+    def find_largest_partition(self, path):
+        node = path.split('/')[-1]
+        nodes = []
+        for x in glob.glob(path+'/'+node+'*'):
+            sz = x + '/size'
+
+            if not os.access(sz, os.R_OK):
                 continue
-
-        if not self._main_prefix:
-            raise DeviceError('Could not open device for reading. Try a reboot.')
-
-        self._card_a_prefix = self._card_b_prefix = None
-        cards = hm.FindDeviceStringMatch(__appname__+'.cardvolume', self.__class__.__name__)
-
-        def mount_card(dev):
             try:
-                return conditional_mount(dev)+os.sep
+                sz = int(open(sz).read())
             except:
-                import traceback
-                print traceback
+                continue
+            if sz > 0:
+                nodes.append((x.split('/')[-1], sz))
 
-        if len(cards) >= 1:
-            self._card_a_prefix = mount_card(cards[0])
-        if len(cards) >=2:
-            self._card_b_prefix = mount_card(cards[1])
+        nodes.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        if not nodes:
+            return node
+        return nodes[-1][0]
+
+
+    def open_linux(self):
+
+        def mount(node, type):
+            mp = self.node_mountpoint(node)
+            if mp is not None:
+                return mp, 0
+            if type == 'main':
+                label = self.MAIN_MEMORY_VOLUME_LABEL
+            if type == 'carda':
+                label = self.STORAGE_CARD_VOLUME_LABEL
+            if type == 'cardb':
+                label = self.STORAGE_CARD2_VOLUME_LABEL
+                if label is None:
+                    label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
+            extra = 0
+            label = label.replace(' ', '_')
+            while True:
+                q = '_(%d)'%extra if extra else ''
+                if not os.path.exists('/media/'+label+q):
+                    break
+                extra += 1
+            if extra:
+                label += '_(%d)'%extra
+
+            def do_mount(node, label):
+                cmd = ['pmount', '-w', '-s']
+                try:
+                    p = subprocess.Popen(cmd + [node, label])
+                except OSError:
+                    raise DeviceError(_('You must install the pmount package.'))
+                while p.poll() is None:
+                    time.sleep(0.1)
+                return p.returncode
+
+            ret = do_mount(node, label)
+            if ret != 0:
+                return None, ret
+            return self.node_mountpoint(node)+'/', 0
+
+
+        main, carda, cardb = self.find_device_nodes()
+        if main is None:
+            raise DeviceError(_('Unable to detect the %s disk drive.')
+                    %self.__class__.__name__)
+
+        mp, ret = mount(main, 'main')
+        if mp is None:
+            raise DeviceError(
+            _('Unable to mount main memory (Error code: %d)')%ret)
+        if not mp.endswith('/'): mp += '/'
+        self._main_prefix = mp
+        cards = [x for x in (carda, cardb) if x is not None]
+        prefix, typ = '_card_a_prefix', 'carda'
+        for card in cards:
+            mp, ret = mount(card, typ)
+            if mp is None:
+                print >>sys.stderr, 'Unable to mount card (Error code: %d)'%ret
+            else:
+                if not mp.endswith('/'): mp += '/'
+                setattr(self, prefix, mp)
+                prefix, typ = '_card_b_prefix', 'cardb'
 
     def open(self):
         time.sleep(5)

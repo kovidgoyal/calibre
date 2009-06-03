@@ -7,18 +7,13 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.customize.conversion import OutputFormatPlugin, \
-        OptionRecommendation
+from calibre.customize.conversion import OutputFormatPlugin
 
 class LITOutput(OutputFormatPlugin):
 
     name = 'LIT Output'
     author = 'Marshall T. Vandegrift'
     file_type = 'lit'
-
-    recommendations = set([
-        ('dont_split_on_page_breaks', False, OptionRecommendation.HIGH),
-        ])
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
@@ -27,9 +22,7 @@ class LITOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.ebooks.lit.writer import LitWriter
         from calibre.ebooks.oeb.transforms.split import Split
-        split = Split(not self.opts.dont_split_on_page_breaks,
-                max_flow_size=0
-                )
+        split = Split(split_on_page_breaks=True, max_flow_size=0)
         split(self.oeb, self.opts)
 
 

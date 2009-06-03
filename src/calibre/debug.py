@@ -87,6 +87,7 @@ def migrate(old, new):
     print 'Database migrated to', os.path.abspath(new)
 
 def debug_device_driver():
+    from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner
     s = DeviceScanner()
     s.scan()
@@ -113,17 +114,15 @@ def debug_device_driver():
         raw = Device.run_ioreg()
         open('/tmp/ioreg.txt', 'wb').write(raw)
         print 'ioreg output saved to /tmp/ioreg.txt'
-    from calibre.devices import devices
-    for dev in devices():
-        print 'Looking for', dev.__name__
+    for dev in device_plugins():
+        print 'Looking for', dev.__class__.__name__
         connected = s.is_device_connected(dev)
         if connected:
             print 'Device Connected:', dev
             print 'Trying to open device...'
-            d = dev()
-            d.open()
-            print 'Main memory:', repr(d._main_prefix)
-            print 'Total space:', d.total_space()
+            dev.open()
+            print 'Main memory:', repr(dev._main_prefix)
+            print 'Total space:', dev.total_space()
             break
 
 def add_simple_plugin(path_to_plugin):
