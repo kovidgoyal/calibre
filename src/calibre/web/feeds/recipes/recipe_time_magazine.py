@@ -6,56 +6,90 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 time.com
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Time(BasicNewsRecipe):
     title                 = u'Time'
     __author__            = 'Kovid Goyal'
-    description           = 'Weekly magazine'    
-    oldest_article        = 7
-    max_articles_per_feed = 100
+    description           = 'Weekly magazine'
     encoding = 'utf-8'
     no_stylesheets        = True
     language = _('English')
-    use_embedded_content  = False
-    
-    keep_only_tags = [dict(name='div', attrs={'class':'tout1'})]
-    remove_tags_after = [dict(id='connectStory')]
-    remove_tags    = [
-                      dict(name='ul', attrs={'class':['button', 'find']}),
-                      dict(name='div', attrs={'class':['nav', 'header', 'sectheader', 
-                                                       'searchWrap', 'subNav', 
-                                                       'artTools', 'connect',
-                                                       'similarrecs']}),
-                      dict(name='div', id=['articleSideBar', 'connectStory']),
-                      dict(name='dl', id=['links']),                                 
-                      ]
 
-    feeds          = [
-                       (u'Top Stories', u'http://feedproxy.google.com/time/topstories')
-                       ,(u'Nation', u'http://feedproxy.google.com/time/nation')
-                       ,(u'Business & Tech', u'http://feedproxy.google.com/time/business')
-                       ,(u'Science & Tech', u'http://feedproxy.google.com/time/scienceandhealth')
-                       ,(u'World', u'http://feedproxy.google.com/time/world')
-                       ,(u'Entertainment', u'http://feedproxy.google.com/time/entertainment')
-                       ,(u'Politics', u'http://feedproxy.google.com/time/politics')
-                       ,(u'Travel', u'http://feedproxy.google.com/time/travel')
-                     ]
-    
-    def get_article_url(self, article):
-        return article.get('guid',  article['link'])
-    
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://www.time.com/time/')
-        img = soup.find('img', alt='Current Time.com Cover', width='107')
+    remove_tags_before = dict(id="artHd")
+    remove_tags_after = {'class':"ltCol"}
+    remove_tags    = [
+            {'class':['articleTools', 'enlarge', 'search']},
+            {'id':['quigoArticle', 'contentTools', 'articleSideBar', 'header', 'navTop']},
+            {'target':'_blank'},
+                      ]
+    recursions = 1
+    match_regexps = [r'/[0-9,]+-(2|3|4|5|6|7|8|9)(,\d+){0,1}.html']
+
+
+    def parse_index(self):
+        soup = self.index_to_soup('http://www.time.com/time/magazine')
+        img = soup.find('a', title="View Large Cover", href=True)
         if img is not None:
-            return img.get('src', None)
-        
-    def print_version(self, url):
-        try:
-            soup = self.index_to_soup(url)
-            print_link = soup.find('a', {'id':'prt'})
-            return 'http://www.time.com' + print_link['href']
-        except:
-            self.log_exception('Failed to find print version for '+url)
-        return ''
+            cover_url = 'http://www.time.com'+img['href']
+            try:
+                nsoup = self.index_to_soup(cover_url)
+                img = nsoup.find('img', src=re.compile('archive/covers'))
+                if img is not None:
+                    self.cover_url = img['src']
+            except:
+                self.log.exception('Failed to fetch cover')
+
+
+        feeds = []
+        parent = soup.find(id='tocGuts')
+        for seched in parent.findAll(attrs={'class':'toc_seched'}):
+            section = self.tag_to_string(seched).capitalize()
+            articles = list(self.find_articles(seched))
+            feeds.append((section, articles))
+
+        return feeds
+
+    def find_articles(self, seched):
+        for a in seched.findNextSiblings('a', href=True, attrs={'class':'toc_hed'}):
+            yield {
+                    'title' : self.tag_to_string(a),
+                    'url'   : 'http://www.time.com'+a['href'],
+                    'date'  : '',
+                    'description' : self.article_description(a)
+                    }
+
+    def article_description(self, a):
+        ans = []
+        while True:
+            t = a.nextSibling
+            if t is None:
+                break
+            a = t
+            if getattr(t, 'name', False):
+                if t.get('class', '') == 'toc_parens' or t.name == 'br':
+                    continue
+                if t.name in ('div', 'a'):
+                    break
+                ans.append(self.tag_to_string(t))
+            else:
+                ans.append(unicode(t))
+        return u' '.join(ans).replace(u'\xa0', u'').strip()
+
+    def postprocess_html(self, soup, first_page):
+        div = soup.find(attrs={'class':'artPag'})
+        if div is not None:
+            div.extract()
+        if not first_page:
+            for cls in ('photoBkt', 'artHd'):
+                div = soup.find(attrs={'class':cls})
+                if div is not None:
+                    div.extract()
+            div = soup.find(attrs={'class':'artTxt'})
+            if div is not None:
+                p = div.find('p')
+                if p is not None:
+                    p.extract()
+
+        return soup

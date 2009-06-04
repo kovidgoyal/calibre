@@ -951,12 +951,10 @@ class BasicNewsRecipe(Recipe):
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
         self.log.error(_('Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
-        debug = request.stream.getvalue().decode('utf-8', 'ignore')
-        self.log.debug(debug)
         self.log.debug(traceback)
         self.log.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article download failed: %s')%request.article.title)
-        self.failed_downloads.append((request.feed, request.article, debug))
+        self.failed_downloads.append((request.feed, request.article, traceback))
 
     def parse_feeds(self):
         '''
