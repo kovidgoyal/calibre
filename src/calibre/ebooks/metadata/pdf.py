@@ -18,7 +18,16 @@ except:
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
-    set_metadata as podofo_set_metadata, Unavailable, write_first_page
+    set_metadata as podofo_set_metadata, Unavailable, write_first_page, \
+    get_metadata_quick
+
+def get_quick_metadata(stream):
+    raw = stream.read()
+    mi = get_metadata_quick(raw)
+    if mi.title == '_':
+        mi.title = getattr(stream, 'name', _('Unknown'))
+        mi.title = mi.title.rpartition('.')[0]
+    return mi
 
 
 def get_metadata(stream, extract_cover=True):

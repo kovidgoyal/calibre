@@ -211,8 +211,15 @@ class USBMS(CLI, Device):
 
     @classmethod
     def metadata_from_path(cls, path):
+        return cls.metadata_from_formats([path])
+
+    @classmethod
+    def metadata_from_formats(cls, fmts):
         from calibre.ebooks.metadata.meta import metadata_from_formats
-        return metadata_from_formats([path])
+        from calibre.customize.ui import quick_metadata
+        with quick_metadata:
+            return metadata_from_formats(fmts)
+
 
     @classmethod
     def book_from_path(cls, path):

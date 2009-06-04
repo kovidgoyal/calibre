@@ -376,13 +376,14 @@ class Device(DeviceConfig, DevicePlugin):
 
     def node_mountpoint(self, node):
 
-        def de_octal(raw):
-            return re.sub(r'\\0\d+', lambda m: chr(int(m.group()[1:], 8)), raw)
+        def de_mangle(raw):
+            return raw.replace('\\040', ' ').replace('\\011', '\t').replace('\\012',
+                    '\n').replace('\\0134', '\\')
 
         for line in open('/proc/mounts').readlines():
             line = line.split()
             if line[0] == node:
-                return de_octal(line[1])
+                return de_mangle(line[1])
         return None
 
     def find_largest_partition(self, path):

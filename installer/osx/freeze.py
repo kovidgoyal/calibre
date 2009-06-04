@@ -19,7 +19,7 @@ from modulegraph.find_modules import find_modules
 PYTHON = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
 
 class BuildAPP(py2app):
-    QT_PREFIX = '/Users/kovid/qt'
+    QT_PREFIX = '/Volumes/sw/qt'
     LOADER_TEMPLATE = \
 r'''#!/usr/bin/env python
 import os, sys, glob

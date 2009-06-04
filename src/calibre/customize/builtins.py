@@ -182,7 +182,9 @@ class PDFMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files')%'PDF'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.pdf import get_metadata
+        from calibre.ebooks.metadata.pdf import get_metadata, get_quick_metadata
+        if self.quick:
+            return get_quick_metadata(stream)
         return get_metadata(stream)
 
 class RARMetadataReader(MetadataReaderPlugin):

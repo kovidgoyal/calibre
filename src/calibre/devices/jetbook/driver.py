@@ -110,8 +110,7 @@ class JETBOOK(USBMS):
 
             return txt
 
-        from calibre.devices.usbms.driver import metadata_from_formats
-        mi = metadata_from_formats([path])
+        mi = cls.metadata_from_formats([path])
 
         if (mi.title==_('Unknown') or mi.authors==[_('Unknown')]) \
                 and '#' in mi.title:
