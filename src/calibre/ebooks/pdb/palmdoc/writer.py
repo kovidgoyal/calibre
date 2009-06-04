@@ -34,7 +34,7 @@ class Writer(FormatWriter):
         self.log.info('Compessing data...')
         for i in range(0, len(txt_records)):
             self.log.debug('\tCompressing record %i' % i)
-            txt_records[i] = compress_doc(txt_records[i].encode('cp1252', 'replace'))
+            txt_records[i] = compress_doc(txt_records[i])
             section_lengths.append(len(txt_records[i]))
 
         out_stream.seek(0)
@@ -46,7 +46,7 @@ class Writer(FormatWriter):
 
     def _generate_text(self, spine):
         txt_writer = TxtWriter(TxtNewlines('system').newline, self.log)
-        txt = txt_writer.dump(spine)
+        txt = txt_writer.dump(spine).encode(self.opts.output_encoding, 'replace')
 
         txt_length = len(txt)
 
