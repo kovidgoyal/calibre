@@ -53,8 +53,7 @@ class KINDLE(USBMS):
 
     @classmethod
     def metadata_from_path(cls, path):
-        from calibre.ebooks.metadata.meta import metadata_from_formats
-        mi = metadata_from_formats([path])
+        mi = cls.metadata_from_formats([path])
         if mi.title == _('Unknown') or ('-asin' in mi.title and '-type' in mi.title):
             match = cls.WIRELESS_FILE_NAME_PATTERN.match(os.path.basename(path))
             if match is not None:
