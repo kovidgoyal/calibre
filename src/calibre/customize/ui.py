@@ -145,6 +145,20 @@ def metadata_writers():
             ans.add(plugin)
     return ans
 
+class QuickMetadata(object):
+
+    def __init__(self):
+        self.quick = False
+
+    def __enter__(self):
+        self.quick = True
+
+    def __exit__(self, *args):
+        self.quick = False
+
+quick_metadata = QuickMetadata()
+
+
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
     ftype = ftype.lower().strip()
@@ -153,6 +167,7 @@ def get_file_type_metadata(stream, ftype):
             if not is_disabled(plugin):
                 with plugin:
                     try:
+                        plugin.quick = quick_metadata.quick
                         mi = plugin.get_metadata(stream, ftype.lower().strip())
                         break
                     except:

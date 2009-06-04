@@ -80,6 +80,21 @@ def get_metadata(stream):
     if os.path.exists(pt.name): os.remove(pt.name)
     return mi
 
+def get_metadata_quick(raw):
+    p = podofo.PDFDoc()
+    p.load(raw)
+    title = p.title
+    if not title:
+        title = '_'
+    author = p.author
+    authors = string_to_authors(author) if author else  [_('Unknown')]
+    creator = p.creator
+    mi = MetaInformation(title, authors)
+    if creator:
+        mi.book_producer = creator
+    return mi
+
+
 def get_metadata_(path):
     p = podofo.PDFDoc()
     p.open(path)
