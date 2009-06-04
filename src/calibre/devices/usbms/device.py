@@ -1,5 +1,6 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__copyright__ = '''2009, John Schember <john at nachtimwald.com>
+                    and Kovid Goyal <kovid@kovidgoyal.net>'''
 '''
 Generic device driver. This is not a complete stand alone driver. It is
 intended to be subclassed with the relevant parts implemented for a particular
@@ -367,13 +368,21 @@ class Device(DeviceConfig, DevicePlugin):
                     if ok[node]:
                         devnodes.append(node)
         devnodes += list(repeat(None, 3))
-        return tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
+        ans = tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
+        return self.linux_swap_drives(ans)
+
+    def linux_swap_drives(self, drives):
+        return drives
 
     def node_mountpoint(self, node):
+
+        def de_octal(raw):
+            return re.sub(r'\\0\d+', lambda m: chr(int(m.group()[1:], 8)), raw)
+
         for line in open('/proc/mounts').readlines():
             line = line.split()
             if line[0] == node:
-                return line[1]
+                return de_octal(line[1])
         return None
 
     def find_largest_partition(self, path):
