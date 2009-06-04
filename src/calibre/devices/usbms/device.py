@@ -375,10 +375,14 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def node_mountpoint(self, node):
+
+        def de_octal(raw):
+            return re.sub(r'\\0\d+', lambda m: chr(int(m.group()[1:], 8)), raw)
+
         for line in open('/proc/mounts').readlines():
             line = line.split()
             if line[0] == node:
-                return line[1]
+                return de_octal(line[1])
         return None
 
     def find_largest_partition(self, path):
