@@ -41,6 +41,8 @@ def days_in_month(year, month):
     return ans
 
 def rationalize_country(country):
+    if not country:
+        return 'Unknown'
     if re.match('(?i)(US|USA|America)', country):
         country = 'USA'
     elif re.match('(?i)(UK|Britain|england)', country):
