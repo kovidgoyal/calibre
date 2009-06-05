@@ -493,9 +493,15 @@ class Device(DeviceConfig, DevicePlugin):
 
     def eject_windows(self):
         pass
-        
+
     def eject_osx(self):
-        pass
+        for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
+            x = getattr(self, x, None)
+            if x is not None:
+                try:
+                    subprocess.Popen(['diskutil', 'eject', x])
+                except:
+                    pass
 
     def eject_linux(self):
         drives = self.find_device_nodes()
