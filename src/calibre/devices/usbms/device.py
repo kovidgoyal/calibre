@@ -492,7 +492,26 @@ class Device(DeviceConfig, DevicePlugin):
                 self.open_osx()
 
     def eject_windows(self):
-        pass
+        from calibre.constants import plugins
+        from threading import Thread
+        winutil, winutil_err = plugins['winutil']
+        drives = []
+        for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
+            x = getattr(self, x, None)
+            if x is not None:
+                drives.append(x[0].upper())
+
+        def do_it(drives):
+            for d in drives:
+                try:
+                    winutil.eject_drive(d)
+                except:
+                    pass
+
+        t = Thread(target=do_it, args=[drives])
+        t.daemon = True
+        t.start()
+        self.__save_win_eject_thread = t
 
     def eject_osx(self):
         for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):

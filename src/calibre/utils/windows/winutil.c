@@ -271,7 +271,7 @@ get_all_removable_disks(struct tagDrives *g_drives)
 	// Loop for all drives (MAX_DRIVES = 26)
 
 
-    for(nLoopIndex = 0; nLoopIndex< MAX_DRIVES; nLoopIndex++)
+    for(nLoopIndex = 0; nLoopIndex < MAX_DRIVES; nLoopIndex++)
     {
         // if a drive is present,
 		if(dwDriveMask & 1)
@@ -305,6 +305,213 @@ get_all_removable_disks(struct tagDrives *g_drives)
 	return TRUE;
 
 }
+
+static DEVINST 
+GetDrivesDevInstByDeviceNumber(long DeviceNumber,
+          UINT DriveType, char* szDosDeviceName)
+{
+    GUID *guid;
+    HDEVINFO hDevInfo;
+    DWORD dwIndex, dwBytesReturned;
+    BOOL bRet, IsFloppy;
+    BYTE Buf[1024];
+    PSP_DEVICE_INTERFACE_DETAIL_DATA pspdidd;
+    long res;
+    HANDLE hDrive;
+    STORAGE_DEVICE_NUMBER sdn;
+
+    IsFloppy = (strstr(szDosDeviceName, "\\Floppy") != NULL); // is there a better way?
+
+    switch (DriveType) {
+    case DRIVE_REMOVABLE:
+        if ( IsFloppy ) {
+        guid = (GUID*)&GUID_DEVINTERFACE_FLOPPY;
+        } else {
+        guid = (GUID*)&GUID_DEVINTERFACE_DISK;
+        }
+        break;
+    case DRIVE_FIXED:
+        guid = (GUID*)&GUID_DEVINTERFACE_DISK;
+        break;
+    case DRIVE_CDROM:
+        guid = (GUID*)&GUID_DEVINTERFACE_CDROM;
+        break;
+    default:
+        PyErr_SetString(PyExc_ValueError, "Invalid drive type");
+        return 0;
+    }
+
+    // Get device interface info set handle
+    // for all devices attached to system
+    hDevInfo = SetupDiGetClassDevs(guid, NULL, NULL,
+                        DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+
+    if (hDevInfo == INVALID_HANDLE_VALUE)  {
+        PyErr_SetString(PyExc_ValueError, "Invalid handle value");
+        return 0;
+    }
+
+    // Retrieve a context structure for a device interface
+    // of a device information set.
+    dwIndex = 0;
+    bRet = FALSE;
+
+    
+    pspdidd =
+        (PSP_DEVICE_INTERFACE_DETAIL_DATA)Buf;
+    SP_DEVICE_INTERFACE_DATA         spdid;
+    SP_DEVINFO_DATA                  spdd;
+    DWORD                            dwSize;
+
+    spdid.cbSize = sizeof(spdid);
+
+    while ( TRUE )  {
+        bRet = SetupDiEnumDeviceInterfaces(hDevInfo, NULL,
+            guid, dwIndex, &spdid);
+        if ( !bRet ) {
+        break;
+        }
+
+        dwSize = 0;
+        SetupDiGetDeviceInterfaceDetail(hDevInfo,
+        &spdid, NULL, 0, &dwSize, NULL);
+
+        if ( dwSize!=0 && dwSize<=sizeof(Buf) ) {
+        pspdidd->cbSize = sizeof(*pspdidd); // 5 Bytes!
+
+        ZeroMemory((PVOID)&spdd, sizeof(spdd));
+        spdd.cbSize = sizeof(spdd);
+
+        res =
+            SetupDiGetDeviceInterfaceDetail(hDevInfo, &
+                                            spdid, pspdidd,
+                                            dwSize, &dwSize,
+                                            &spdd);
+        if ( res ) {
+            hDrive = CreateFile(pspdidd->DevicePath,0,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE,
+                        NULL, OPEN_EXISTING, 0, NULL);
+            if ( hDrive != INVALID_HANDLE_VALUE ) {
+            dwBytesReturned = 0;
+            res = DeviceIoControl(hDrive,
+                            IOCTL_STORAGE_GET_DEVICE_NUMBER,
+                            NULL, 0, &sdn, sizeof(sdn),
+                            &dwBytesReturned, NULL);
+            if ( res ) {
+                if ( DeviceNumber == (long)sdn.DeviceNumber ) {
+                CloseHandle(hDrive);
+                SetupDiDestroyDeviceInfoList(hDevInfo);
+                return spdd.DevInst;
+                }
+            }
+            CloseHandle(hDrive);
+            }
+        }
+        }
+        dwIndex++;
+    }
+
+    SetupDiDestroyDeviceInfoList(hDevInfo);
+    PyErr_SetString(PyExc_ValueError, "Invalid device number");
+
+    return 0;
+}
+
+
+
+static BOOL
+eject_drive_letter(char DriveLetter) {
+    char szRootPath[4], szDevicePath[3], szVolumeAccessPath[7], szDosDeviceName[MAX_PATH];
+    long DeviceNumber, res, tries;
+    HANDLE hVolume; 
+    STORAGE_DEVICE_NUMBER sdn;
+    DWORD dwBytesReturned;
+    DEVINST DevInst;
+    ULONG Status;
+    ULONG ProblemNumber;
+    PNP_VETO_TYPE VetoType;
+    WCHAR VetoNameW[MAX_PATH];
+    BOOL bSuccess;
+    DEVINST DevInstParent;
+    
+    szRootPath[0] = DriveLetter; szRootPath[1] = ':'; szRootPath[2] = '\\'; szRootPath[3] = (char)0;
+    szDevicePath[0] = DriveLetter; szDevicePath[1] = ':'; szDevicePath[2] = (char)0;
+    szVolumeAccessPath[0] = '\\'; szVolumeAccessPath[1] = '\\'; szVolumeAccessPath[2] = '.';
+    szVolumeAccessPath[3] = '\\'; szVolumeAccessPath[4] = DriveLetter; szVolumeAccessPath[5] = ':';
+    szVolumeAccessPath[6] = (char)0;
+
+
+    DeviceNumber = -1;
+
+    hVolume = CreateFile(szVolumeAccessPath, 0,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE,
+                        NULL, OPEN_EXISTING, 0, NULL);
+    if (hVolume == INVALID_HANDLE_VALUE) {
+        PyErr_SetString(PyExc_ValueError, "Invalid handle value for drive letter");
+        return FALSE;
+    }
+
+    dwBytesReturned = 0;
+    res = DeviceIoControl(hVolume,
+                        IOCTL_STORAGE_GET_DEVICE_NUMBER,
+                        NULL, 0, &sdn, sizeof(sdn),
+                        &dwBytesReturned, NULL);
+    if ( res ) {
+        DeviceNumber = sdn.DeviceNumber;
+    }
+    CloseHandle(hVolume);
+
+    if ( DeviceNumber == -1 ) {
+        PyErr_SetString(PyExc_ValueError, "Can't find drive number");
+        return FALSE;
+    }
+
+    res = QueryDosDevice(szDevicePath, szDosDeviceName, MAX_PATH);
+    if ( !res ) {
+       PyErr_SetString(PyExc_ValueError, "Can't find dos device");
+       return FALSE;
+    }
+
+    DevInst = GetDrivesDevInstByDeviceNumber(DeviceNumber,
+                  DriveType, szDosDeviceName);
+    if (DevInst == 0) return FALSE;
+
+    DevInstParent = 0;
+    Status = 0;
+    ProblemNumber = 0;
+    PNP_VETO_TYPE VetoType;
+    bSuccess = FALSE;
+
+    res = CM_Get_Parent(&DevInstParent, DevInst, 0);
+
+    for ( tries = 0; tries < 3; tries++ ) {
+        VetoNameW[0] = 0;
+
+        res = CM_Request_Device_EjectW(DevInstParent,
+                &VetoType, VetoNameW, MAX_PATH, 0);
+
+        bSuccess = (res==CR_SUCCESS &&
+                            VetoType==PNP_VetoTypeUnknown);
+        if ( bSuccess )  {
+            break;
+        }
+
+        Sleep(500); // required to give the next tries a chance!
+    }
+    if (!bSuccess)  PyErr_SetString(PyExc_ValueError, "Failed to eject drive after three tries");
+    return bSuccess;
+}
+
+static PyObject *
+winutil_eject_drive(PyObject *self, PyObject *args) {
+    char DriveLetter;
+
+    if (!PyArg_ParseTuple(args, "c", &DriveLetter)) return NULL;
+
+    if (!eject_drive_letter(DriveLetter)) return NULL;
+    Py_RETURN_NONE;
+}
+
 
 PSP_DEVICE_INTERFACE_DETAIL_DATA
 get_device_grandparent(HDEVINFO hDevInfo, DWORD index, PWSTR buf, PWSTR volume_id,
@@ -696,6 +903,10 @@ See the library reference manual for formatting codes. When the time tuple\n\
 is not present, current time as returned by localtime() is used. format must\n\
 be a unicode string. Returns unicode strings."
      },
+
+	{"eject_drive", winutil_eject_drive, METH_VARARGS,
+			"eject_drive(drive_letter)\n\nEject a drive. Raises an exception on failure."
+	},
 
     {NULL, NULL, 0, NULL}
 };

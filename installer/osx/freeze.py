@@ -230,7 +230,7 @@ _check_symlinks_prescript()
         all_functions = main_functions['console'] + main_functions['gui']
         print
         print 'Adding PoDoFo'
-        pdf = glob.glob(os.path.expanduser('/Volumes/sw/podofo/*.dylib'))[0]
+        pdf = glob.glob(os.path.expanduser('/Volumes/sw/podofo/libpodofo.0.7.0.dylib'))[0]
         shutil.copyfile(pdf, os.path.join(frameworks_dir, os.path.basename(pdf)))
 
 
