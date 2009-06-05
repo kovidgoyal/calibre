@@ -278,8 +278,11 @@ class LibraryServer(object):
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
             if 'EPUB' in r or 'PDB' in r:
+                z = record[FIELD_MAP['authors']]
+                if not z:
+                    z = _('Unknown')
                 authors = ' & '.join([i.replace('|', ',') for i in
-                                      record[FIELD_MAP['authors']].split(',')])
+                                      z.split(',')])
                 extra = []
                 rating = record[FIELD_MAP['rating']]
                 if rating > 0:

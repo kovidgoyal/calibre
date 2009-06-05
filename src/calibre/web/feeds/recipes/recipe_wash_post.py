@@ -30,7 +30,7 @@ class WashingtonPost(BasicNewsRecipe):
 
 
     def get_article_url(self, article):
-        return article.get('feedburner_origlink', article.get('link', None))
+        return article.get('pheedo_origlink', article.get('link', None))
 
     def print_version(self, url):
         return url.rpartition('.')[0] + '_pf.html'

@@ -79,7 +79,7 @@ class DevicePlugin(Plugin):
         are pending GUI jobs that need to communicate with the device.
         '''
         raise NotImplementedError()
-        
+
     def set_progress_reporter(self, report_progress):
         '''
         @param report_progress: Function that is called with a % progress
