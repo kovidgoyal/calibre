@@ -77,7 +77,8 @@ class DeviceManager(Thread):
         '''
         Thread.__init__(self)
         self.setDaemon(True)
-        self.devices        = [[d, False] for d in device_plugins()]
+        # [Device driver, Showing in GUI, Ejected]
+        self.devices        = [[d, False, False] for d in device_plugins()]
         self.device         = None
         self.device_class   = None
         self.sleep_time     = sleep_time
@@ -93,6 +94,8 @@ class DeviceManager(Thread):
         for device in self.devices:
             connected = self.scanner.is_device_connected(device[0])
             if connected and not device[1]:
+                if device[2]:
+                    continue
                 try:
                     dev = device[0]
                     dev.reset()
@@ -119,13 +122,23 @@ class DeviceManager(Thread):
                         job.abort(Exception(_('Device no longer connected.')))
                     except Queue.Empty:
                         break
+                device[2] = False
                 self.device = None
                 self.connected_slot(False)
                 device[1] ^= True
 
     def umount_device(self):
-        self.device.eject()
-        self.device = None
+        if self.device is not None:
+            self.device.eject()
+            dev = None
+            for x in self.devices:
+                if x[0] is self.device:
+                    dev = x
+                    break
+            if dev is not None:
+                dev[2] = True
+            self.connected_slot(False)
+
 
     def next(self):
         if not self.jobs.empty():
