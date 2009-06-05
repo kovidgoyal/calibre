@@ -123,6 +123,10 @@ class DeviceManager(Thread):
                 self.connected_slot(False)
                 device[1] ^= True
 
+    def umount_device(self):
+        self.device.eject()
+        self.device = None
+
     def next(self):
         if not self.jobs.empty():
             try:
@@ -852,5 +856,3 @@ class DeviceGUI(object):
             getattr(f, 'close', lambda : True)()
         if memory and memory[1]:
             self.library_view.model().delete_books_by_id(memory[1])
-
-

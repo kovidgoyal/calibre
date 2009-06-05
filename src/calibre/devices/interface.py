@@ -67,11 +67,19 @@ class DevicePlugin(Plugin):
         For example: For devices that present themselves as USB Mass storage
         devices, this method would be responsible for mounting the device or
         if the device has been automounted, for finding out where it has been
-        mounted. The driver for the PRS505 has a implementation of this function
-        that should serve as a good example for USB Mass storage devices.
+        mounted. The base class within USBMS device.py has a implementation of
+        this function that should serve as a good example for USB Mass storage
+        devices.
         '''
         raise NotImplementedError()
 
+    def eject(self):
+        '''
+        Un-mount / eject the device from the OS. This does not check if there
+        are pending GUI jobs that need to communicate with the device.
+        '''
+        raise NotImplementedError()
+        
     def set_progress_reporter(self, report_progress):
         '''
         @param report_progress: Function that is called with a % progress
