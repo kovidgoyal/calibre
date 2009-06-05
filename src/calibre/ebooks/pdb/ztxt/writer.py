@@ -50,7 +50,7 @@ class Writer(FormatWriter):
         
     def _generate_text(self, spine):
         txt_writer = TxtWriter(TxtNewlines('system').newline, self.log)
-        txt = txt_writer.dump(spine)
+        txt = txt_writer.dump(spine).encode(self.opts.output_encoding, 'replace')
         
         txt_length = len(txt)
         

@@ -279,6 +279,9 @@ class PRS500(DeviceConfig, DevicePlugin):
         if res.code != 0:
             raise ProtocolError("Could not set time on device")
 
+    def eject(self):
+        pass
+
     def close(self):
         """ Release device interface """
         try:

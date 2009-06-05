@@ -9,7 +9,8 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
                         QPixmap, QMovie, QPalette, QTimer, QDialog, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, \
-                         QRegExp, QSettings, QSize, QModelIndex
+                        QRegExp, QSettings, QSize, QModelIndex, \
+                        QAbstractButton, QPainter
 
 from calibre.gui2 import human_readable, NONE, TableView, \
                          qstring_to_unicode, error_dialog
@@ -234,6 +235,13 @@ class LocationView(QListView):
         self.setCursor(Qt.PointingHandCursor)
         self.currentChanged = self.current_changed
 
+        self.eject_button = EjectButton(self)
+        self.eject_button.hide()
+
+        self.connect(self, SIGNAL('entered(QModelIndex)'), self.show_eject)
+        self.connect(self, SIGNAL('viewportEntered()'), self.hide_eject)
+        self.connect(self.eject_button, SIGNAL('clicked()'), lambda: self.emit(SIGNAL('umount_device()')))
+
     def count_changed(self, new_count):
         self.model().count = new_count
         self.model().reset()
@@ -248,6 +256,33 @@ class LocationView(QListView):
     def location_changed(self, row):
         if 0 <= row and row <= 3:
             self.model().location_changed(row)
+
+    def show_eject(self, location):
+        self.eject_button.hide()
+
+        if location.row() == 1:
+            rect = self.visualRect(location)
+
+            self.eject_button.resize(rect.height()/2, rect.height()/2)
+
+            x, y = rect.left(), rect.top()
+            x = x + (rect.width() - self.eject_button.width() - 2)
+            y += 6
+
+            self.eject_button.move(x, y)
+            self.eject_button.show()
+
+    def hide_eject(self):
+        self.eject_button.hide()
+
+
+class EjectButton(QAbstractButton):
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setClipRect(event.rect());
+        painter.drawPixmap(0, 0, QPixmap(':/images/eject').scaledToHeight(event.rect().height(), Qt.SmoothTransformation))
+
 
 class DetailView(QDialog, Ui_Dialog):
 
@@ -617,4 +652,3 @@ class PythonHighlighter(QSyntaxHighlighter):
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
-

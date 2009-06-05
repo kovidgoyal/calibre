@@ -10,10 +10,9 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from calibre.ebooks.pdb.ereader import image_name
-from calibre.ebooks.htmlsymbols import HTML_SYMBOLS
+from htmlentitydefs import codepoint2name
 
-from BeautifulSoup import BeautifulSoup
+from calibre.ebooks.pdb.ereader import image_name
 
 PML_HTML_RULES = [
     (re.compile(r'\\p'), lambda match: '<br /><br style="page-break-after: always;" />'),
@@ -71,10 +70,12 @@ def pml_to_html(pml):
     for rule in PML_HTML_RULES:
         html = rule[0].sub(rule[1], html)
 
-    for symbol in HTML_SYMBOLS.keys():
-        if ord(symbol) > 128:
-            html = html.replace(symbol, HTML_SYMBOLS[symbol][len(HTML_SYMBOLS[symbol]) - 1])
-        
+    # Turn special characters into entities.
+    cps = [ord(c) for c in set(html)]
+    cps = set(cps).intersection(codepoint2name.keys()).difference([60, 62])
+    for cp in cps:
+        html = html.replace(unichr(cp), '&%s;' % codepoint2name[cp])
+
     return html
 
 def footnote_sidebar_to_html(id, pml):

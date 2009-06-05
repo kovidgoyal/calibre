@@ -45,6 +45,9 @@
           <height>75</height>
          </size>
         </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>

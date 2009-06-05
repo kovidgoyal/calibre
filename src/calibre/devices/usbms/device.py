@@ -491,3 +491,39 @@ class Device(DeviceConfig, DevicePlugin):
                 time.sleep(3)
                 self.open_osx()
 
+    def eject_windows(self):
+        pass
+        
+    def eject_osx(self):
+        pass
+
+    def eject_linux(self):
+        drives = self.find_device_nodes()
+        for drive in drives:
+            if drive:
+                cmd = ['pumount']
+                try:
+                    p = subprocess.Popen(cmd + [drive])
+                except:
+                    pass
+                while p.poll() is None:
+                    time.sleep(0.1)
+
+    def eject(self):
+        if islinux:
+            try:
+                self.eject_linux()
+            except:
+                pass
+        if iswindows:
+            try:
+                self.eject_windows()
+            except:
+                pass
+        if isosx:
+            try:
+                self.eject_osx()
+            except:
+                pass
+        self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+

@@ -22,6 +22,11 @@ class PDBOutput(OutputFormatPlugin):
             short_switch='f', choices=FORMAT_WRITERS.keys(),
             help=(_('Format to use inside the pdb container. Choices are:')+\
             ' %s' % FORMAT_WRITERS.keys())),
+        OptionRecommendation(name='output_encoding', recommended_value='cp1252',
+            level=OptionRecommendation.LOW,
+            help=_('Specify the character encoding of the output document. ' \
+            'The default is cp1252. Note: This option is not honored by all ' \
+            'formats.')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):

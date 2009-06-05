@@ -176,10 +176,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('activated(QSystemTrayIcon::ActivationReason)'),
                 self.system_tray_icon_activated)
         self.tool_bar.contextMenuEvent = self.no_op
+
+        ####################### Start spare job server ########################
+        QTimer.singleShot(1000, self.add_spare_server)
+
+        ####################### Setup device detection ########################
+        self.device_manager = DeviceManager(Dispatcher(self.device_detected),
+                self.job_manager)
+        self.device_manager.start()
+
+        
         ####################### Location View ########################
         QObject.connect(self.location_view,
                 SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
+        QObject.connect(self.location_view,
+                SIGNAL('umount_device()'),
+                        self.device_manager.umount_device)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.'
@@ -462,13 +475,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
         self.setMaximumHeight(max_available_height())
-        ####################### Start spare job server ########################
-        QTimer.singleShot(1000, self.add_spare_server)
-
-        ####################### Setup device detection ########################
-        self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager)
-        self.device_manager.start()
 
 
         if config['autolaunch_server']:

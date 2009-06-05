@@ -15,6 +15,7 @@ except ImportError:
 import cStringIO
 
 from calibre.customize.conversion import OutputFormatPlugin
+from calibre.customize.conversion import OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.oeb.base import OEB_IMAGES
@@ -26,12 +27,20 @@ class PMLOutput(OutputFormatPlugin):
     author = 'John Schember'
     file_type = 'pmlz'
 
+    options = set([
+        OptionRecommendation(name='output_encoding', recommended_value='cp1252',
+            level=OptionRecommendation.LOW,
+            help=_('Specify the character encoding of the output document. ' \
+            'The default is cp1252. Note: This option is not honored by all ' \
+            'formats.')),
+    ])
+
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         with TemporaryDirectory('_pmlz_output') as tdir:
             pmlmlizer = PMLMLizer(ignore_tables=opts.linearize_tables)
             content = pmlmlizer.extract_content(oeb_book, opts)
             with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
-                out.write(content.encode('utf-8'))
+                out.write(content.encode(self.opts.output_encoding, 'replace'))
 
             self.write_images(oeb_book.manifest, tdir)
 
