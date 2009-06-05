@@ -29,6 +29,7 @@ from calibre.ebooks.oeb.base import prefixname
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.compression.palmdoc import compress_doc
 
+INDEXING = True
 
 # TODO:
 # - Optionally rasterize tables
@@ -59,6 +60,17 @@ OTHER_MAX_IMAGE_SIZE = 10 * 1024 * 1024
 MAX_THUMB_SIZE = 16 * 1024
 MAX_THUMB_DIMEN = (180, 240)
 
+
+TAGX = {
+        'chapter' :
+        '\x00\x00\x00\x01\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x00\x00\x00\x01',
+        'subchapter' :
+        '\x00\x00\x00\x01\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x10\x00\x16\x01\x20\x00\x17\x01\x40\x00\x00\x00\x00\x01',
+        'periodical' :
+        '\x00\x00\x00\x02\x01\x01\x01\x00\x02\x01\x02\x00\x03\x01\x04\x00\x04\x01\x08\x00\x05\x01\x10\x00\x15\x01\x20\x00\x16\x01\x40\x00\x17\x01\x80\x00\x00\x00\x00\x01\x45\x01\x01\x00\x46\x01\x02\x00\x47\x01\x04\x00\x00\x00\x00\x01',
+        'secondary_book':'\x00\x00\x00\x01\x01\x01\x01\x00\x00\x00\x00\x01',
+        'secondary_periodical':'\x00\x00\x00\x01\x01\x01\x01\x00\x0b\x03\x02\x00\x00\x00\x00\x01'
+        }
 
 INDXT = {
         'chapter' : '\x0f',
@@ -346,7 +358,7 @@ class MobiWriter(object):
     def _generate_content(self):
         self._map_image_names()
         self._generate_text()
-        if not self.opts.no_mobi_index:
+        if INDEXING and not self.opts.no_mobi_index:
             try:
                 self._generate_index()
             except:
@@ -434,10 +446,12 @@ class MobiWriter(object):
             nrecords += 1
             offset += RECORD_SIZE
             data, overlap = self._read_text_record(text)
-
-        extra = sum(map(len, buf))%4
-        self._records.append('\0'*(4-extra))
-        nrecords += 1
+        if INDEXING:
+            extra = sum(map(len, buf))%4
+            if extra == 0:
+                extra = 4
+            self._records.append('\0'*(4-extra))
+            nrecords += 1
         self._text_nrecords = nrecords
 
     def _generate_indxt(self, ctoc):
@@ -535,8 +549,10 @@ class MobiWriter(object):
         idxt0 = align_block(idxt0)
         indx0 = StringIO()
 
-        indx0_indices_pos = 0xc0 + len(idxt0)
-        indx0_indices = align_block('IDXT' + pack('>H', 0xc0 ))
+        tagx = TAGX['periodical' if self.opts.mobi_periodical else 'chapter']
+        tagx = align_block('TAGX' + pack('>I', 8 + len(tagx)) + tagx)
+        indx0_indices_pos = 0xc0 + len(tagx) + len(idxt0)
+        indx0_indices = align_block('IDXT' + pack('>H', 0xc0 + len(tagx)))
         # Generate record header
         header = StringIO()
 
@@ -583,7 +599,7 @@ class MobiWriter(object):
         header.write('\0'*124)
 
         # 0xb4 - 0xb7 : TAGX offset
-        header.write(pack('>I', 0))
+        header.write(pack('>I', 0xc0))
 
         # 0xb8 - 0xbf : Unknown
         header.write('\0'*8)
@@ -591,6 +607,7 @@ class MobiWriter(object):
         header = header.getvalue()
 
         indx0.write(header)
+        indx0.write(tagx)
         indx0.write(idxt0)
         indx0.write(indx0_indices)
         indx0 = indx0.getvalue()
@@ -598,11 +615,54 @@ class MobiWriter(object):
         self._primary_index_record = len(self._records)
         self._records.extend([indx0, indx1, ctoc])
 
+        # Write secondary index records
+        tagx = TAGX['secondary_'+\
+                ('periodical' if self.opts.mobi_periodical else 'book')]
+        tagx_len = 8 + len(tagx)
+
+        indx0 = StringIO()
+        indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)
+        indx0.write(pack('>I', 0x02))
+        indx0.write(pack('>I', 0xc0+tagx_len+4))
+        indx0.write(pack('>I', 1))
+        indx0.write(pack('>I', 65001))
+        indx0.write('\xff'*4)
+        indx0.write(pack('>I', 1))
+        indx0.write('\0'*4)
+        indx0.write('\0'*136)
+        indx0.write(pack('>I', 0xc0))
+        indx0.write('\0'*8)
+        indx0.write('TAGX'+pack('>I', tagx_len)+tagx)
+        if self.opts.mobi_periodical:
+            raise NotImplementedError
+        else:
+            indx0.write('\0'*3 + '\x01' + 'IDXT' + '\0\xd4\0\0')
+        indx1 = StringIO()
+        indx1.write('INDX' + pack('>I', 0xc0) + '\0'*4)
+        indx1.write(pack('>I', 1))
+        extra = 0xf0 if self.opts.mobi_periodical else 4
+        indx1.write('\0'*4 + pack('>I', 0xc0+extra))
+        num = 4 if self.opts.mobi_periodical else 1
+        indx1.write(pack('>I', num))
+        indx1.write('\xff'*8)
+        indx1.write('\0'*(0xc0-indx1.tell()))
+        if self.opts.mobi_periodical:
+            raise NotImplementedError
+        else:
+            indx1.write('\0\x01\x80\0')
+        indx1.write('IDXT')
+        if self.opts.mobi_periodical:
+            raise NotImplementedError
+        else:
+            indx1.write('\0\xc0\0\0')
+
+        indx0, indx1 = indx0.getvalue(), indx1.getvalue()
+        self._records.extend((indx0, indx1))
         if self.opts.verbose > 3:
             from tempfile import mkdtemp
             import os
             t = mkdtemp()
-            for i, n in enumerate(['ctoc', 'indx0', 'indx1']):
+            for i, n in enumerate(['sindx1', 'sindx0', 'ctoc', 'indx0', 'indx1']):
                 open(os.path.join(t, n+'.bin'), 'wb').write(self._records[-(i+1)])
             self._oeb.log.debug('Index records dumped to', t)
 
@@ -654,13 +714,23 @@ class MobiWriter(object):
                 self._first_image_record = len(self._records)-1
 
     def _generate_end_records(self):
+        self._flis_number = len(self._records)
+        self._records.append(
+        'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
+        '\xff'*4)
+        fcis = 'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
+        fcis += pack('>I', self._text_length)
+        fcis += '\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+        self._fcis_number = len(self._records)
+        self._records.append(fcis)
         self._records.append('\xE9\x8E\x0D\x0A')
 
     def _generate_record0(self):
         metadata = self._oeb.metadata
         exth = self._build_exth()
         last_content_record = len(self._records) - 1
-        self._generate_end_records()
+        if INDEXING:
+            self._generate_end_records()
         record0 = StringIO()
         # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
@@ -691,7 +761,8 @@ class MobiWriter(object):
         record0.write('\xff' * 8)
 
         # 0x20 - 0x23 : Secondary index record
-        record0.write(pack('>I', 0))
+        record0.write(pack('>I', 0xffffffff if self._primary_index_record is
+            None else self._primary_index_record+3))
 
         # 0x24 - 0x3f : Unknown
         record0.write('\xff' * 28)
@@ -748,16 +819,16 @@ class MobiWriter(object):
         record0.write('\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        record0.write(pack('>I', 0))
+        record0.write(pack('>I', self._fcis_number))
 
         # 0xbc - 0xbf : Unknown (FCIS record count?)
-        record0.write(pack('>I', 0))
+        record0.write(pack('>I', 1))
 
         # 0xc0 - 0xc3 : FLIS record number
-        record0.write(pack('>I', 0))
+        record0.write(pack('>I', self._flis_number))
 
         # 0xc4 - 0xc7 : Unknown (FLIS record count?)
-        record0.write(pack('>I', 0))
+        record0.write(pack('>I', 1))
 
         # 0xc8 - 0xcf : Unknown
         record0.write('\0'*8)
@@ -819,6 +890,11 @@ class MobiWriter(object):
             index = self._add_thumbnail(item)
             if index is not None:
                 exth.write(pack('>III', 0xca, 0x0c, index - 1))
+                nrecs += 1
+        if INDEXING:
+            # Write unknown EXTH records as 0s
+            for code, size in [(204,4), (205,4), (206,4), (207,4), (300,40)]:
+                exth.write(pack('>II', code, 8+size)+'\0'*size)
                 nrecs += 1
         exth = exth.getvalue()
         trail = len(exth) % 4

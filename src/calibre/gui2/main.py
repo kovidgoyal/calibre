@@ -185,7 +185,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.job_manager)
         self.device_manager.start()
 
-        
+
         ####################### Location View ########################
         QObject.connect(self.location_view,
                 SIGNAL('location_selected(PyQt_PyObject)'),
@@ -665,6 +665,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
     ########################## Connect to device ##############################
+
     def device_detected(self, connected):
         '''
         Called when a device is connected to the computer.
