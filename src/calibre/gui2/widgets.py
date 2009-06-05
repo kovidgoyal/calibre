@@ -257,6 +257,9 @@ class LocationView(QListView):
         if 0 <= row and row <= 3:
             self.model().location_changed(row)
 
+    def leaveEvent(self, event):
+        self.eject_button.hide()
+
     def show_eject(self, location):
         self.eject_button.hide()
 
