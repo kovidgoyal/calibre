@@ -12,13 +12,13 @@ import os
 import re
 from base64 import b64encode
 
+from lxml import etree
+
 from calibre import entity_to_unicode
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.constants import __appname__, __version__
-
-from BeautifulSoup import BeautifulSoup
 
 TAG_MAP = {
     'b' : 'strong',
@@ -57,11 +57,10 @@ class FB2MLizer(object):
         output += self.fb2mlize_images()
         output += self.fb2_footer()
         output = self.clean_text(output)
-        return BeautifulSoup(output.encode('utf-8')).prettify()
+        return etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
-        return u'<?xml version="1.0" encoding="utf-8"?> ' \
-        '<FictionBook xmlns:xlink="http://www.w3.org/1999/xlink" ' \
+        return u'<FictionBook xmlns:xlink="http://www.w3.org/1999/xlink" ' \
         'xmlns="http://www.gribuser.ru/xml/fictionbook/2.0"> ' \
         '<description><title-info><book-title>%s</book-title> ' \
         '</title-info><document-info> ' \
