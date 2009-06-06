@@ -19,39 +19,7 @@ podofo, podofo_err = plugins['podofo']
 
 class Unavailable(Exception): pass
 
-def write_first_page(stream, opath):
-    if not podofo:
-        raise Unavailable(podofo_err)
-    pt = PersistentTemporaryFile('_podofo.pdf')
-    pt.write(stream.read())
-    pt.close()
-    server = Server(pool_size=1)
-    job = ParallelJob('write_pdf_first_page', 'Extract first page of pdf',
-        lambda x,y:x,  args=[pt.name, opath])
-    server.add_job(job)
-    while not job.is_finished:
-        time.sleep(0.1)
-        job.update()
-
-    job.update()
-    server.close()
-    if not job.result:
-        raise ValueError('Failed to extract first page: ' + job.details)
-
-def write_first_page_(inpath, outpath):
-    p = podofo.PDFDoc()
-    p.open(inpath)
-    pages = p.pages
-    if pages < 1:
-        raise ValueError('PDF has no pages')
-    if pages == 1:
-        shutil.copyfile(inpath, outpath)
-        return True
-    p.delete_pages(1, pages-1)
-    p.save(outpath)
-    return True
-
-def get_metadata(stream):
+def get_metadata(stream, cpath=None):
     if not podofo:
         raise Unavailable(podofo_err)
     pt = PersistentTemporaryFile('_podofo.pdf')
@@ -59,7 +27,7 @@ def get_metadata(stream):
     pt.close()
     server = Server(pool_size=1)
     job = ParallelJob('read_pdf_metadata', 'Read pdf metadata',
-        lambda x,y:x,  args=[pt.name])
+        lambda x,y:x,  args=[pt.name, cpath])
     server.add_job(job)
     while not job.is_finished:
         time.sleep(0.1)
@@ -69,7 +37,10 @@ def get_metadata(stream):
     server.close()
     if job.result is None:
         raise ValueError('Failed to read metadata: ' + job.details)
-    title, authors, creator = job.result
+    title, authors, creator, ok = job.result
+    if not ok:
+        print 'Failed to extract cover:'
+        print job.details
     if title == '_':
         title = getattr(stream, 'name', _('Unknown'))
         title = os.path.splitext(title)[0]
@@ -78,6 +49,8 @@ def get_metadata(stream):
     if creator:
         mi.book_producer = creator
     if os.path.exists(pt.name): os.remove(pt.name)
+    if ok:
+        mi.cover = cpath
     return mi
 
 def get_metadata_quick(raw):
@@ -95,7 +68,7 @@ def get_metadata_quick(raw):
     return mi
 
 
-def get_metadata_(path):
+def get_metadata_(path, cpath=None):
     p = podofo.PDFDoc()
     p.open(path)
     title = p.title
@@ -104,7 +77,23 @@ def get_metadata_(path):
     author = p.author
     authors = string_to_authors(author) if author else  [_('Unknown')]
     creator = p.creator
-    return (title, authors, creator)
+    ok = True
+    try:
+        if cpath is not None:
+            pages = p.pages
+            if pages < 1:
+                raise ValueError('PDF has no pages')
+            if True or pages == 1:
+                shutil.copyfile(path, cpath)
+            else:
+                p.extract_first_page()
+                p.save(cpath)
+    except:
+        import traceback
+        traceback.print_exc()
+        ok = False
+
+    return (title, authors, creator, ok)
 
 def prep(val):
     if not val:
