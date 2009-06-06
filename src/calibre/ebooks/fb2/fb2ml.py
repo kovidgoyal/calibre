@@ -12,19 +12,19 @@ import os
 import re
 from base64 import b64encode
 
+from lxml import etree
+
 from calibre import entity_to_unicode
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.constants import __appname__, __version__
 
-from BeautifulSoup import BeautifulSoup
-
 TAG_MAP = {
     'b' : 'strong',
     'i' : 'emphasis',
     'p' : 'p',
-    'div' : 'p',
+    'li' : 'p'
 }
 
 STYLES = [
@@ -57,11 +57,10 @@ class FB2MLizer(object):
         output += self.fb2mlize_images()
         output += self.fb2_footer()
         output = self.clean_text(output)
-        return BeautifulSoup(output.encode('utf-8')).prettify()
+        return etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
-        return u'<?xml version="1.0" encoding="utf-8"?> ' \
-        '<FictionBook xmlns:xlink="http://www.w3.org/1999/xlink" ' \
+        return u'<FictionBook xmlns:xlink="http://www.w3.org/1999/xlink" ' \
         'xmlns="http://www.gribuser.ru/xml/fictionbook/2.0"> ' \
         '<description><title-info><book-title>%s</book-title> ' \
         '</title-info><document-info> ' \
@@ -110,11 +109,12 @@ class FB2MLizer(object):
             fb2_text += '<image xlink:herf="#%s" />' % os.path.basename(elem.attrib['src'])
         
 
-        fb2_tag = TAG_MAP.get(tag, 'p')
+        fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack:
             tag_count += 1
             fb2_text += '<%s>' % fb2_tag
             tag_stack.append(fb2_tag)
+
 
         # Processes style information
         for s in STYLES:
@@ -133,7 +133,6 @@ class FB2MLizer(object):
         close_tag_list = []
         for i in range(0, tag_count):
             close_tag_list.insert(0, tag_stack.pop())
-            
         fb2_text += self.close_tags(close_tag_list)
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
@@ -151,4 +150,3 @@ class FB2MLizer(object):
             fb2_text += '</%s>' % fb2_tag
 
         return fb2_text
-

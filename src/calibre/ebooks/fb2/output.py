@@ -30,7 +30,7 @@ class FB2Output(OutputFormatPlugin):
         
         out_stream.seek(0)
         out_stream.truncate()
-        out_stream.write(fb2_content)
+        out_stream.write(fb2_content.encode('utf-8'))
         
         if close:
             out_stream.close()
