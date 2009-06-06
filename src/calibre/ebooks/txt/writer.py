@@ -118,8 +118,9 @@ class TxtWriter(object):
         return text
 
     def unix_newlines(self, text):
-        text = text.replace('\r\n', '\n')
-        text = text.replace('\r', '\n')
+        text = text.replace('\r\n', ' ')
+        text = text.replace('\n', ' ')
+        text = text.replace('\r', ' ')
         
         return text
         
