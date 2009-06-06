@@ -143,18 +143,15 @@ podofo_PDFDoc_version_getter(podofo_PDFDoc *self, void *closure) {
 
  
 static PyObject *
-podofo_PDFDoc_delete_pages(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
-    int first_page, num_pages;
-    if (PyArg_ParseTuple(args, "ii", &first_page, &num_pages)) {
-        try {
-            self->doc->DeletePages(first_page, num_pages);
-        } catch(const PdfError & err) {
-            podofo_set_exception(err);
-            return NULL;
-        }
-    } else return NULL;
-    Py_INCREF(Py_None);
-    return Py_None;
+podofo_PDFDoc_extract_first_page(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
+    int i, num_pages;
+    try {
+        while (self->doc->GetPageCount() > 1) self->doc->GetPagesTree()->DeletePage(1);
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -313,8 +310,8 @@ static PyMethodDef podofo_PDFDoc_methods[] = {
     {"save", (PyCFunction)podofo_PDFDoc_save, METH_VARARGS,
      "Save the PDF document to a path on disk"
     },
-    {"delete_pages", (PyCFunction)podofo_PDFDoc_delete_pages, METH_VARARGS,
-     "delete_pages(start_page, num_pages) -> int, int\nDelete pages from the PDF document."
+    {"extract_first_page", (PyCFunction)podofo_PDFDoc_extract_first_page, METH_VARARGS,
+     "extract_first_page() -> Remove all but the first page."
     },
 
     {NULL}  /* Sentinel */

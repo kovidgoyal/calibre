@@ -308,7 +308,7 @@ get_all_removable_disks(struct tagDrives *g_drives)
 
 static DEVINST 
 GetDrivesDevInstByDeviceNumber(long DeviceNumber,
-          UINT DriveType, char* szDosDeviceName)
+          UINT DriveType, LPWSTR szDosDeviceName)
 {
     GUID *guid;
     HDEVINFO hDevInfo;
@@ -319,8 +319,12 @@ GetDrivesDevInstByDeviceNumber(long DeviceNumber,
     long res;
     HANDLE hDrive;
     STORAGE_DEVICE_NUMBER sdn;
+    SP_DEVICE_INTERFACE_DATA         spdid;
+    SP_DEVINFO_DATA                  spdd;
+    DWORD                            dwSize;
 
-    IsFloppy = (strstr(szDosDeviceName, "\\Floppy") != NULL); // is there a better way?
+
+    IsFloppy = (wcsstr(szDosDeviceName, L"\\Floppy") != NULL); // is there a better way?
 
     switch (DriveType) {
     case DRIVE_REMOVABLE:
@@ -357,12 +361,7 @@ GetDrivesDevInstByDeviceNumber(long DeviceNumber,
     bRet = FALSE;
 
     
-    pspdidd =
-        (PSP_DEVICE_INTERFACE_DETAIL_DATA)Buf;
-    SP_DEVICE_INTERFACE_DATA         spdid;
-    SP_DEVINFO_DATA                  spdd;
-    DWORD                            dwSize;
-
+    pspdidd =  (PSP_DEVICE_INTERFACE_DETAIL_DATA)Buf;
     spdid.cbSize = sizeof(spdid);
 
     while ( TRUE )  {
@@ -420,8 +419,11 @@ GetDrivesDevInstByDeviceNumber(long DeviceNumber,
 
 
 static BOOL
-eject_drive_letter(char DriveLetter) {
-    char szRootPath[4], szDevicePath[3], szVolumeAccessPath[7], szDosDeviceName[MAX_PATH];
+eject_drive_letter(WCHAR DriveLetter) {
+    LPWSTR szRootPath = L"X:\\", 
+           szDevicePath = L"X:", 
+           szVolumeAccessPath = L"\\\\.\\X:";
+    WCHAR  szDosDeviceName[MAX_PATH];
     long DeviceNumber, res, tries;
     HANDLE hVolume; 
     STORAGE_DEVICE_NUMBER sdn;
@@ -429,17 +431,15 @@ eject_drive_letter(char DriveLetter) {
     DEVINST DevInst;
     ULONG Status;
     ULONG ProblemNumber;
+    UINT DriveType;
     PNP_VETO_TYPE VetoType;
     WCHAR VetoNameW[MAX_PATH];
     BOOL bSuccess;
     DEVINST DevInstParent;
     
-    szRootPath[0] = DriveLetter; szRootPath[1] = ':'; szRootPath[2] = '\\'; szRootPath[3] = (char)0;
-    szDevicePath[0] = DriveLetter; szDevicePath[1] = ':'; szDevicePath[2] = (char)0;
-    szVolumeAccessPath[0] = '\\'; szVolumeAccessPath[1] = '\\'; szVolumeAccessPath[2] = '.';
-    szVolumeAccessPath[3] = '\\'; szVolumeAccessPath[4] = DriveLetter; szVolumeAccessPath[5] = ':';
-    szVolumeAccessPath[6] = (char)0;
-
+    szRootPath[0] = DriveLetter;
+    szDevicePath[0] = DriveLetter;
+    szVolumeAccessPath[4] = DriveLetter;
 
     DeviceNumber = -1;
 
@@ -472,6 +472,8 @@ eject_drive_letter(char DriveLetter) {
        return FALSE;
     }
 
+    DriveType = GetDriveType(szRootPath);
+
     DevInst = GetDrivesDevInstByDeviceNumber(DeviceNumber,
                   DriveType, szDosDeviceName);
     if (DevInst == 0) return FALSE;
@@ -479,7 +481,6 @@ eject_drive_letter(char DriveLetter) {
     DevInstParent = 0;
     Status = 0;
     ProblemNumber = 0;
-    PNP_VETO_TYPE VetoType;
     bSuccess = FALSE;
 
     res = CM_Get_Parent(&DevInstParent, DevInst, 0);
@@ -508,7 +509,7 @@ winutil_eject_drive(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "c", &DriveLetter)) return NULL;
 
-    if (!eject_drive_letter(DriveLetter)) return NULL;
+    if (!eject_drive_letter((WCHAR)DriveLetter)) return NULL;
     Py_RETURN_NONE;
 }
 

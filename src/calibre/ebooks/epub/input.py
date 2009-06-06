@@ -28,7 +28,7 @@ class EPUBInput(InputFormatPlugin):
             f.write(raw[1024:])
 
     @classmethod
-    def process_ecryption(cls, encfile, opf, log):
+    def process_encryption(cls, encfile, opf, log):
         key = None
         m = re.search(r'(?i)(urn:uuid:[0-9a-f-]+)', open(opf, 'rb').read())
         if m:

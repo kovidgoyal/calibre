@@ -59,6 +59,16 @@ if __name__ == '__main__':
                             'calibre_postinstall = calibre.linux:post_install')
     optional = []
 
+    if iswindows:
+        optional.append(Extension('calibre.plugins.winutil',
+                sources=['src/calibre/utils/windows/winutil.c'],
+                libraries=['shell32', 'setupapi'],
+                include_dirs=os.environ.get('INCLUDE',
+                        'C:/WinDDK/6001.18001/inc/api/;'
+                        'C:/WinDDK/6001.18001/inc/crt/').split(';'),
+                extra_compile_args=['/X']
+                ))
+
 
     podofo_inc = '/usr/include/podofo' if islinux else \
     'C:\\podofo\\include\\podofo' if iswindows else \
@@ -82,6 +92,7 @@ if __name__ == '__main__':
     fc_lib = '/usr/lib' if islinux else \
             r'C:\cygwin\home\kovid\fontconfig\lib' if iswindows else \
             '/Users/kovid/fontconfig/lib'
+
 
     ext_modules = optional + [
 
@@ -113,15 +124,6 @@ if __name__ == '__main__':
                                    ['src/calibre/gui2/pictureflow/pictureflow.sip']
                                   )
                  ]
-    if iswindows:
-        ext_modules.append(Extension('calibre.plugins.winutil',
-                sources=['src/calibre/utils/windows/winutil.c'],
-                libraries=['shell32', 'setupapi'],
-                include_dirs=os.environ.get('INCLUDE',
-                        'C:/WinDDK/6001.18001/inc/api/;'
-                        'C:/WinDDK/6001.18001/inc/crt/').split(';'),
-                extra_compile_args=['/X']
-                ))
     if isosx:
         ext_modules.append(Extension('calibre.plugins.usbobserver',
                 sources=['src/calibre/devices/usbobserver/usbobserver.c'],

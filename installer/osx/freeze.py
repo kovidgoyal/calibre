@@ -31,6 +31,7 @@ resources_dir = os.path.join(base_dir, 'Resources')
 frameworks_dir = os.path.join(base_dir, 'Frameworks')
 base_name = os.path.splitext(name)[0]
 python = os.path.join(base_dir, 'MacOS', 'python')
+qt_plugins = os.path.join(os.path.realpath(base_dir), 'MacOS')
 loader_path = os.path.join(dirpath, base_name+'.py')
 loader = open(loader_path, 'w')
 site_packages = glob.glob(resources_dir+'/lib/python*/site-packages.zip')[0]
@@ -46,9 +47,10 @@ print >>loader, '%(function)s()'
 loader.close()
 os.chmod(loader_path, 0700)
 os.environ['PYTHONHOME']        = resources_dir
-os.environ['FC_CONFIG_DIR']     = os.path.join(resources_dir, 'fonts')
+os.environ['FONTCONFIG_PATH']   = os.path.join(resources_dir, 'fonts')
 os.environ['MAGICK_HOME']       = os.path.join(frameworks_dir, 'ImageMagick')
 os.environ['DYLD_LIBRARY_PATH'] = os.path.join(frameworks_dir, 'ImageMagick', 'lib')
+os.environ['QT_PLUGIN_PATH']    = qt_plugins
 args = [path, loader_path] + sys.argv[1:]
 os.execv(python, args)
     '''
@@ -259,19 +261,11 @@ _check_symlinks_prescript()
             dest = os.path.join(frameworks_dir, os.path.basename(f))
             if os.path.exists(dest):
                 os.remove(dest)
-            os.link(f, dest)
+            shutil.copyfile(f, dest)
         dst = os.path.join(resource_dir, 'fonts')
         if os.path.exists(dst):
             shutil.rmtree(dst)
         shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
-        for x in os.listdir('/usr/local/etc/fonts'):
-            dst = os.path.join(frameworks_dir, x)
-            y = os.path.join('/usr/local/etc/fonts', x)
-            if os.path.isdir(dst):
-                if os.path.exists(dst): shutil.rmtree(dst)
-                shutil.copytree(y, dst)
-            else:
-                os.link(y, dst)
 
         print
         print 'Adding IPython'

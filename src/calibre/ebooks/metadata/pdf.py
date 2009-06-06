@@ -18,8 +18,7 @@ except:
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
-    set_metadata as podofo_set_metadata, Unavailable, write_first_page, \
-    get_metadata_quick
+    set_metadata as podofo_set_metadata, Unavailable, get_metadata_quick
 
 def get_quick_metadata(stream):
     raw = stream.read()
@@ -32,19 +31,18 @@ def get_quick_metadata(stream):
 
 def get_metadata(stream, extract_cover=True):
     try:
-        mi = podofo_get_metadata(stream)
+        with TemporaryDirectory('_pdfmeta') as tdir:
+            cpath = os.path.join(tdir, 'cover.pdf')
+            if not extract_cover:
+                cpath = None
+            mi = podofo_get_metadata(stream, cpath=cpath)
+            if mi.cover is not None:
+                cdata = get_cover(mi.cover)
+                mi.cover = None
+                if cdata is not None:
+                    mi.cover_data = ('jpg', cdata)
     except Unavailable:
         mi = get_metadata_pypdf(stream)
-    stream.seek(0)
-
-    if extract_cover and _imagemagick_loaded:
-        try:
-            cdata = get_cover(stream)
-            if cdata is not None:
-                mi.cover_data = ('jpg', cdata)
-        except:
-            import traceback
-            traceback.print_exc()
     return mi
 
 
@@ -127,17 +125,13 @@ def set_metadata_pypdf(stream, mi):
     stream.write(out_str.read())
     stream.seek(0)
 
-def get_cover(stream):
-    stream.seek(0)
-    with TemporaryDirectory('_pdfmeta') as tdir:
-        cover_path = os.path.join(tdir, 'cover.pdf')
-        write_first_page(stream, cover_path)
-        with ImageMagick():
-            wand = NewMagickWand()
-            MagickReadImage(wand, cover_path)
-            MagickSetImageFormat(wand, 'JPEG')
-            MagickWriteImage(wand, '%s.jpg' % cover_path)
-        return open('%s.jpg' % cover_path, 'rb').read()
+def get_cover(cover_path):
+    with ImageMagick():
+        wand = NewMagickWand()
+        MagickReadImage(wand, cover_path)
+        MagickSetImageFormat(wand, 'JPEG')
+        MagickWriteImage(wand, '%s.jpg' % cover_path)
+    return open('%s.jpg' % cover_path, 'rb').read()
 
 
 

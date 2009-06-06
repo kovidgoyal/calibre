@@ -108,6 +108,11 @@ class Worker(object):
             self._env['PYTHONHOME']  = resources
             self._env['MAGICK_HOME'] = os.path.join(fd, 'ImageMagick')
             self._env['DYLD_LIBRARY_PATH'] = os.path.join(fd, 'ImageMagick', 'lib')
+            self._env['FONTCONFIG_PATH'] = \
+                os.path.join(os.path.realpath(resources), 'fonts')
+            self._env['QT_PLUGIN_PATH'] = \
+                    os.path.join(self.osx_contents_dir, 'MacOS')
+
         if isfrozen and not (iswindows or isosx):
             self._env['LD_LIBRARY_PATH'] = getattr(sys, 'frozen_path') + ':'\
                     + os.environ.get('LD_LIBRARY_PATH', '')

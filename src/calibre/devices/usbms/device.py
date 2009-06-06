@@ -174,7 +174,8 @@ class Device(DeviceConfig, DevicePlugin):
                 cbsz = stats.f_frsize * stats.f_bavail
         else:
             msz = self._windows_space(self._main_prefix)[1]
-            csz = self._windows_space(self._card_prefix)[1]
+            casz = self._windows_space(self._card_a_prefix)[1]
+            cbsz = self._windows_space(self._card_b_prefix)[1]
 
         return (msz, casz, cbsz)
 
@@ -422,14 +423,13 @@ class Device(DeviceConfig, DevicePlugin):
                 if label is None:
                     label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
             extra = 0
-            label = label.replace(' ', '_')
             while True:
                 q = '_(%d)'%extra if extra else ''
                 if not os.path.exists('/media/'+label+q):
                     break
                 extra += 1
             if extra:
-                label += '_(%d)'%extra
+                label += ' (%d)'%extra
 
             def do_mount(node, label):
                 cmd = ['pmount', '-w', '-s']
@@ -504,7 +504,7 @@ class Device(DeviceConfig, DevicePlugin):
         def do_it(drives):
             for d in drives:
                 try:
-                    winutil.eject_drive(d)
+                    winutil.eject_drive(bytes(d)[0])
                 except:
                     pass
 
