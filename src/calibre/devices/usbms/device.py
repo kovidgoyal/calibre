@@ -504,7 +504,7 @@ class Device(DeviceConfig, DevicePlugin):
         def do_it(drives):
             for d in drives:
                 try:
-                    winutil.eject_drive(d)
+                    winutil.eject_drive(bytes(d)[0])
                 except:
                     pass
 
