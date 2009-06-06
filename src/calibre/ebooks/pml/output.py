@@ -40,7 +40,7 @@ class PMLOutput(OutputFormatPlugin):
             pmlmlizer = PMLMLizer(ignore_tables=opts.linearize_tables)
             content = pmlmlizer.extract_content(oeb_book, opts)
             with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
-                out.write(content.encode(self.opts.output_encoding, 'replace'))
+                out.write(content.encode(opts.output_encoding, 'replace'))
 
             self.write_images(oeb_book.manifest, tdir)
 
