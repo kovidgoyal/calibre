@@ -28,11 +28,6 @@
        <layout class="QGridLayout" name="gridLayout" >
         <item row="0" column="0" >
          <widget class="QWebView" name="view" >
-          <property name="url" >
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
          </widget>
         </item>
         <item row="0" column="1" >
