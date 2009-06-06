@@ -46,7 +46,7 @@ class TXTOutput(OutputFormatPlugin):
 
         out_stream.seek(0)
         out_stream.truncate()
-        out_stream.write(txt.encode(self.opts.output_encoding, 'replace'))
+        out_stream.write(txt.encode(opts.output_encoding, 'replace'))
 
         if close:
             out_stream.close()
