@@ -67,7 +67,6 @@ def get_metadata_quick(raw):
         mi.book_producer = creator
     return mi
 
-
 def get_metadata_(path, cpath=None):
     p = podofo.PDFDoc()
     p.open(path)

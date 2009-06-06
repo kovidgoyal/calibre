@@ -174,7 +174,8 @@ class Device(DeviceConfig, DevicePlugin):
                 cbsz = stats.f_frsize * stats.f_bavail
         else:
             msz = self._windows_space(self._main_prefix)[1]
-            csz = self._windows_space(self._card_prefix)[1]
+            casz = self._windows_space(self._card_a_prefix)[1]
+            cbsz = self._windows_space(self._card_b_prefix)[1]
 
         return (msz, casz, cbsz)
 

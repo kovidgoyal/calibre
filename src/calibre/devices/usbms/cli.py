@@ -48,9 +48,9 @@ class CLI(object):
             (self._card_b_prefix and path.startswith(self._card_b_prefix))):
             path = self._main_prefix + path[1:]
         elif path.startswith('carda:'):
-            path = path.replace('carda:', self._card_prefix[:-1])
+            path = path.replace('carda:', self._card_a_prefix[:-1])
         elif path.startswith('cardb:'):
-            path = path.replace('cardb:', self._card_prefix[:-1])
+            path = path.replace('cardb:', self._card_b_prefix[:-1])
         return path
 
     def list(self, path, recurse=False, end_session=True, munge=True):
