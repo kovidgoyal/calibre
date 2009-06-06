@@ -24,7 +24,7 @@ TAG_MAP = {
     'b' : 'strong',
     'i' : 'emphasis',
     'p' : 'p',
-    'div' : 'p',
+    'li' : 'p'
 }
 
 STYLES = [
@@ -109,11 +109,12 @@ class FB2MLizer(object):
             fb2_text += '<image xlink:herf="#%s" />' % os.path.basename(elem.attrib['src'])
         
 
-        fb2_tag = TAG_MAP.get(tag, 'p')
+        fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack:
             tag_count += 1
             fb2_text += '<%s>' % fb2_tag
             tag_stack.append(fb2_tag)
+
 
         # Processes style information
         for s in STYLES:
@@ -132,7 +133,6 @@ class FB2MLizer(object):
         close_tag_list = []
         for i in range(0, tag_count):
             close_tag_list.insert(0, tag_stack.pop())
-            
         fb2_text += self.close_tags(close_tag_list)
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
@@ -150,4 +150,3 @@ class FB2MLizer(object):
             fb2_text += '</%s>' % fb2_tag
 
         return fb2_text
-
