@@ -62,9 +62,9 @@ if __name__ == '__main__':
 
     podofo_inc = '/usr/include/podofo' if islinux else \
     'C:\\podofo\\include\\podofo' if iswindows else \
-    '/Volumes/sw/podofo/include/podofo'
+    '/usr/local/include/podofo'
     podofo_lib = '/usr/lib' if islinux else r'C:\podofo' if iswindows else \
-            '/Volumes/sw/podofo/lib'
+            '/usr/local/lib'
     podofo_inc = os.environ.get('PODOFO_INC_DIR', podofo_inc)
     if os.path.exists(os.path.join(podofo_inc, 'podofo.h')):
         optional.append(Extension('calibre.plugins.podofo',

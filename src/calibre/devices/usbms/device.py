@@ -7,14 +7,7 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import glob
-import os
-import re
-import struct
-import subprocess
-import sys
-import time
-
+import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -499,29 +492,26 @@ class Device(DeviceConfig, DevicePlugin):
                 self.open_osx()
 
     def eject_windows(self):
-        win32file = __import__('win32file', globals(), locals(), [], -1)
-        win32con = __import__('win32con', globals(), locals(), [], -1)
-        win32shell = __import__('win32com.shell.shell', globals(), locals(), [], -1)
-        win32shellcon = __import__('win32com.shell.shellcon', globals(), locals(), [], -1)
-
-        FSCTL_LOCK_VOLUME = 0x0090018
-        FSCTL_DISMOUNT_VOLUME = 0x00090020
-        IOCTL_STORAGE_MEDIA_REMOVAL = 0x002D4804
-        IOCTL_STORAGE_EJECT_MEDIA = 0x002D4808
-
+        from calibre.constants import plugins
+        from threading import Thread
+        winutil, winutil_err = plugins['winutil']
+        drives = []
         for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
             x = getattr(self, x, None)
             if x is not None:
-                vol = win32file.CreateFile(x, win32con.GENERIC_READ | win32con.GENERIC_WRITE, win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE, None, win32con.OPEN_EXISTING, 0, None)
+                drives.append(x[0].upper())
+
+        def do_it(drives):
+            for d in drives:
                 try:
-                    win32file.DeviceIoControl(vol, FSCTL_LOCK_VOLUME, '', 0, None)
-                    win32file.DeviceIoControl(vol, FSCTL_DISMOUNT_VOLUME, '', 0, None)
-                    win32file.DeviceIoControl(vol, IOCTL_STORAGE_MEDIA_REMOVAL, struct.pack('B', 0), 0, None)
-                    win32file.DeviceIoControl(vol, IOCTL_STORAGE_EJECT_MEDIA, '', 0, None)
-                    time.sleep(2)
-                    win32shell.SHChangeNotify(win32shellcon.SHCNE_DRIVEREMOVED, win32shellcon.SHCNF_PATH, x)
-                finally:
-                    win32file.CloseHandle(vol)
+                    winutil.eject_drive(d)
+                except:
+                    pass
+
+        t = Thread(target=do_it, args=[drives])
+        t.daemon = True
+        t.start()
+        self.__save_win_eject_thread = t
 
     def eject_osx(self):
         for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):

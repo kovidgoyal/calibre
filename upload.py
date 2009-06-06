@@ -548,7 +548,7 @@ class build_windows(VMInstaller):
 
 class build_osx(VMInstaller):
     description = 'Build OS X app bundle'
-    VM = '/vmware/Mac OSX/Mac OSX.vmx'
+    VM = '/mnt/backup/calibre_os_x/Mac OSX.vmx'
     if not os.path.exists(VM):
         VM = '/home/kovid/calibre_os_x/Mac OSX.vmx'
 

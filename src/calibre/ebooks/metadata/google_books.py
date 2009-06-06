@@ -77,6 +77,7 @@ class Query(object):
         if verbose:
             print 'Query:', self.url
         feed = etree.fromstring(browser.open(self.url).read())
+        #print etree.tostring(feed, pretty_print=True)
         total = int(total_results(feed)[0].text)
         start = int(start_index(feed)[0].text)
         entries = entry(feed)
@@ -104,12 +105,9 @@ class ResultList(list):
         except:
             report(verbose)
 
-
-
     def get_title(self, entry):
         candidates = [x.text for x in title(entry)]
-        candidates.sort(cmp=lambda x,y: cmp(len(x), len(y)), reverse=True)
-        return candidates[0]
+        return ': '.join(candidates)
 
     def get_authors(self, entry):
         m = creator(entry)
@@ -182,7 +180,7 @@ class ResultList(list):
             self.get_identifiers(x, mi)
             mi.tags = self.get_tags(x, verbose)
             mi.publisher = self.get_publisher(x, verbose)
-            mi.timestamp = self.get_date(x, verbose)
+            mi.pubdate = self.get_date(x, verbose)
             mi.language = self.get_language(x, verbose)
             self.append(mi)
 

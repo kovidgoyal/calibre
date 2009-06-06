@@ -230,7 +230,7 @@ _check_symlinks_prescript()
         all_functions = main_functions['console'] + main_functions['gui']
         print
         print 'Adding PoDoFo'
-        pdf = glob.glob(os.path.expanduser('/Volumes/sw/podofo/*.dylib'))[0]
+        pdf = glob.glob(os.path.expanduser('/Volumes/sw/podofo/libpodofo.0.7.00.dylib'))[0]
         shutil.copyfile(pdf, os.path.join(frameworks_dir, os.path.basename(pdf)))
 
 
@@ -264,6 +264,14 @@ _check_symlinks_prescript()
         if os.path.exists(dst):
             shutil.rmtree(dst)
         shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
+        for x in os.listdir('/usr/local/etc/fonts'):
+            dst = os.path.join(frameworks_dir, x)
+            y = os.path.join('/usr/local/etc/fonts', x)
+            if os.path.isdir(dst):
+                if os.path.exists(dst): shutil.rmtree(dst)
+                shutil.copytree(y, dst)
+            else:
+                os.link(y, dst)
 
         print
         print 'Adding IPython'
