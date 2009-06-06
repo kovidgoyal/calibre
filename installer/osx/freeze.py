@@ -264,6 +264,14 @@ _check_symlinks_prescript()
         if os.path.exists(dst):
             shutil.rmtree(dst)
         shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
+        for x in os.listdir('/usr/local/etc/fonts'):
+            dst = os.path.join(frameworks_dir, x)
+            y = os.path.join('/usr/local/etc/fonts', x)
+            if os.path.isdir(dst):
+                if os.path.exists(dst): shutil.rmtree(dst)
+                shutil.copytree(y, dst)
+            else:
+                os.link(y, dst)
 
         print
         print 'Adding IPython'

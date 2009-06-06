@@ -7,14 +7,18 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, operator, os, re, logging
+import sys, textwrap, operator, os, re, logging, cStringIO
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from threading import Thread
 
 import cherrypy
-from PyQt4.Qt import QImage, QApplication, QByteArray, Qt, QBuffer
+try:
+    from PIL import Image as PILImage
+    PILImage
+except ImportError:
+    import Image as PILImage
 
 from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
@@ -195,25 +199,21 @@ class LibraryServer(object):
         updated = datetime.utcfromtimestamp(os.stat(path).st_mtime) if path and os.access(path, os.R_OK) else build_time
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         try:
-            if QApplication.instance() is None:
-                QApplication([])
-
-            im = QImage()
-            im.loadFromData(cover)
-            if im.isNull():
+            f = cStringIO.StringIO(cover)
+            try:
+                im = PILImage.open(f)
+            except IOError:
                 raise cherrypy.HTTPError(404, 'No valid cover found')
-            width, height = im.width(), im.height()
+            width, height = im.size
             scaled, width, height = fit_image(width, height,
                 60 if thumbnail else self.max_cover_width,
                 80 if thumbnail else self.max_cover_height)
             if not scaled:
                 return cover
-            im = im.scaled(width, height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            ba = QByteArray()
-            buf = QBuffer(ba)
-            buf.open(QBuffer.WriteOnly)
-            im.save(buf, 'PNG')
-            return str(ba.data())
+            im = im.resize((int(width), int(height)), PILImage.ANTIALIAS)
+            of = cStringIO.StringIO()
+            im.convert('RGB').save(of, 'JPEG')
+            return of.getvalue()
         except Exception, err:
             import traceback
             traceback.print_exc()
@@ -294,7 +294,7 @@ class LibraryServer(object):
                 series = record[FIELD_MAP['series']]
                 if series:
                     extra.append('SERIES: %s [%s]<br />'%(series,
-                                            fmt_sidx(record[FIELD_MAP['series_index']])))
+                                            fmt_sidx(float(record[FIELD_MAP['series_index']]))))
                 fmt = 'epub' if 'EPUB' in r else 'pdb'
                 mimetype = guess_type('dummy.'+fmt)[0]
                 books.append(self.STANZA_ENTRY.generate(
@@ -343,7 +343,7 @@ class LibraryServer(object):
         for record in items[start:start+num]:
             aus = record[2] if record[2] else __builtins__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
-            r[10] = fmt_sidx(r[10])
+            record[10] = fmt_sidx(float(record[10]))
             books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
 
