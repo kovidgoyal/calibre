@@ -422,14 +422,13 @@ class Device(DeviceConfig, DevicePlugin):
                 if label is None:
                     label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
             extra = 0
-            label = label.replace(' ', '_')
             while True:
                 q = '_(%d)'%extra if extra else ''
                 if not os.path.exists('/media/'+label+q):
                     break
                 extra += 1
             if extra:
-                label += '_(%d)'%extra
+                label += ' (%d)'%extra
 
             def do_mount(node, label):
                 cmd = ['pmount', '-w', '-s']
