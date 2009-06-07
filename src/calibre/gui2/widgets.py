@@ -180,17 +180,23 @@ class LocationModel(QAbstractListModel):
     def rowCount(self, *args):
         return 1 + len([i for i in self.free if i >= 0])
 
+    def get_device_row(self, row):
+        if row == 1 and self.free[1] == -1 and self.free[2] > -1:
+            row = 2
+        return row
+
     def data(self, index, role):
         row = index.row()
+        drow = self.get_device_row(row)
         data = NONE
         if role == Qt.DisplayRole:
-            text = self.text[row]%(human_readable(self.free[row-1])) if row > 0 \
-                            else self.text[row]%self.count
+            text = self.text[drow]%(human_readable(self.free[drow-1])) if row > 0 \
+                            else self.text[drow]%self.count
             data = QVariant(text)
         elif role == Qt.DecorationRole:
-            data = self.icons[row]
+            data = self.icons[drow]
         elif role == Qt.ToolTipRole:
-            data = QVariant(self.tooltips[row])
+            data = QVariant(self.tooltips[drow])
         elif role == Qt.SizeHintRole:
             data = QVariant(QSize(155, 90))
         elif role == Qt.FontRole:
@@ -216,9 +222,6 @@ class LocationModel(QAbstractListModel):
         cpa, cpb = cp
         self.free[1] = fs[1] if fs[1] is not None and cpa is not None else -1
         self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
-        if self.free[1] < 0 and self.free[2] >= 0:
-            self.free[1] = self.free[2]
-            self.free[2] = -1
         self.reset()
 
     def location_changed(self, row):
@@ -281,10 +284,29 @@ class LocationView(QListView):
 
 class EjectButton(QAbstractButton):
 
+    def __init__(self, parent):
+        QAbstractButton.__init__(self, parent)
+        self.mouse_over = False
+
+    def enterEvent(self, event):
+        self.mouse_over = True
+
+    def leaveEvent(self, event):
+        self.mouse_over = False
+
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setClipRect(event.rect());
-        painter.drawPixmap(0, 0, QPixmap(':/images/eject').scaledToHeight(event.rect().height(), Qt.SmoothTransformation))
+        painter.setClipRect(event.rect())
+        image = QPixmap(':/images/eject').scaledToHeight(event.rect().height(),
+            Qt.SmoothTransformation)
+
+        if not self.mouse_over:
+            alpha_mask = QPixmap(image.width(), image.height())
+            color = QColor(128, 128, 128)
+            alpha_mask.fill(color)
+            image.setAlphaChannel(alpha_mask)
+
+        painter.drawPixmap(0, 0, image)
 
 
 class DetailView(QDialog, Ui_Dialog):
