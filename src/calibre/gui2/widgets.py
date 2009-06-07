@@ -216,9 +216,6 @@ class LocationModel(QAbstractListModel):
         cpa, cpb = cp
         self.free[1] = fs[1] if fs[1] is not None and cpa is not None else -1
         self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
-        if self.free[1] < 0 and self.free[2] >= 0:
-            self.free[1] = self.free[2]
-            self.free[2] = -1
         self.reset()
 
     def location_changed(self, row):
