@@ -475,7 +475,7 @@ class LitWriter(object):
             elif isinstance(data, unicode):
                 data = data.encode('utf-8')
             elif hasattr(data, 'cssText'):
-                data = str(data)
+                data = str(item)
             self._add_file(name, data, secnum)
             item.size = len(data)
 
