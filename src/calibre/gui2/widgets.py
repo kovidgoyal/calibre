@@ -171,10 +171,10 @@ class LocationModel(QAbstractListModel):
         self.count = 0
         self.highlight_row = 0
         self.tooltips = [
-                         _('Click to see the list of books available on your computer'),
-                         _('Click to see the list of books in the main memory of your reader'),
-                         _('Click to see the list of books on storage card A in your reader'),
-                         _('Click to see the list of books on storage card B in your reader')
+                         _('Click to see the books available on your computer'),
+                         _('Click to see the books in the main memory of your reader'),
+                         _('Click to see the books on storage card A in your reader'),
+                         _('Click to see the books on storage card B in your reader')
                          ]
 
     def rowCount(self, *args):
@@ -209,15 +209,15 @@ class LocationModel(QAbstractListModel):
     def headerData(self, section, orientation, role):
         return NONE
 
-    def update_devices(self, cp=None, fs=[-1, -1, -1]):
+    def update_devices(self, cp=(None, None), fs=[-1, -1, -1]):
         self.free[0] = fs[0]
         self.free[1] = fs[1]
         self.free[2] = fs[2]
-        if cp != None:
-            self.free[1] = fs[1] if fs[1] else -1
-            self.free[2] = fs[2] if fs[2] else -1
-        else:
-            self.free[1] = -1
+        cpa, cpb = cp
+        self.free[1] = fs[1] if fs[1] is not None and cpa is not None else -1
+        self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
+        if self.free[1] < 0 and self.free[2] >= 0:
+            self.free[1] = self.free[2]
             self.free[2] = -1
         self.reset()
 

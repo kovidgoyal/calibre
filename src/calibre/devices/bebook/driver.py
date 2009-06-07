@@ -22,7 +22,7 @@ class BEBOOK(USBMS):
 
     VENDOR_NAME      = 'LINUX'
     WINDOWS_MAIN_MEM = 'FILE-STOR_GADGET'
-    WINDOWS_CARD_MEM = 'FILE-STOR_GADGET'
+    WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
     OSX_MAIN_MEM = 'BeBook Internal Memory'
     OSX_CARD_A_MEM = 'BeBook Storage Card'
