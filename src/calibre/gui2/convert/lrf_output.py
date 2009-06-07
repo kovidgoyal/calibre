@@ -6,6 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from PyQt4.Qt import Qt
 
 from calibre.gui2.convert.lrf_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -42,8 +43,10 @@ class PluginWidget(Widget, Ui_Form):
 
 
     def set_value_handler(self, g, val):
-        if val is None and unicode(g.objectName()) in ('opt_serif_family',
+        if unicode(g.objectName()) in ('opt_serif_family',
                 'opt_sans_family', 'opt_mono_family'):
+            idx = g.findText(val, Qt.MatchFixedString)
+            if idx < 0:
+                idx = 0
             g.setCurrentIndex(0)
-            return True
         return False

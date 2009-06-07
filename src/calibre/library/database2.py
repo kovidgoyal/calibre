@@ -521,6 +521,43 @@ class LibraryDatabase2(LibraryDatabase):
         FROM books;
         ''')
 
+    def upgrade_version_5(self):
+        'Update indexes/triggers for new books table'
+        self.conn.executescript('''
+        BEGIN TRANSACTION;
+        CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE);
+        CREATE INDEX books_idx ON books (sort COLLATE NOCASE);
+        CREATE TRIGGER books_delete_trg
+            AFTER DELETE ON books
+            BEGIN
+                DELETE FROM books_authors_link WHERE book=OLD.id;
+                DELETE FROM books_publishers_link WHERE book=OLD.id;
+                DELETE FROM books_ratings_link WHERE book=OLD.id;
+                DELETE FROM books_series_link WHERE book=OLD.id;
+                DELETE FROM books_tags_link WHERE book=OLD.id;
+                DELETE FROM data WHERE book=OLD.id;
+                DELETE FROM comments WHERE book=OLD.id;
+                DELETE FROM conversion_options WHERE book=OLD.id;
+        END;
+        CREATE TRIGGER books_insert_trg
+            AFTER INSERT ON books
+            BEGIN
+            UPDATE books SET sort=title_sort(NEW.title) WHERE id=NEW.id;
+        END;
+        CREATE TRIGGER books_update_trg
+            AFTER UPDATE ON books
+            BEGIN
+            UPDATE books SET sort=title_sort(NEW.title) WHERE id=NEW.id;
+        END;
+
+        UPDATE books SET sort=title_sort(title) WHERE sort IS NULL;
+
+        END TRANSACTION;
+        '''
+        )
+
+
+
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
         return datetime.utcfromtimestamp(os.stat(self.dbpath).st_mtime)

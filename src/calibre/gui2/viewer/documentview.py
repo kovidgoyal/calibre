@@ -187,11 +187,11 @@ class Document(QWebPage):
             return unicode(ans.toString())
         return ans
 
-    def scroll_by(self, x=0, y=0):
-        self.javascript('window.scrollBy(%d, %d)'%(x, y))
+    def scroll_by(self, dx=0, dy=0):
+        self.mainFrame().scroll(dx, dy)
 
     def scroll_to(self, x=0, y=0):
-        self.javascript('window.scrollTo(%d, %d)'%(x, y))
+        self.mainFrame().setScrollPosition(QPoint(x, y))
 
     def jump_to_anchor(self, anchor):
         self.javascript('document.location.hash = "%s"'%anchor)
@@ -205,72 +205,54 @@ class Document(QWebPage):
     def bookmark(self):
         return self.javascript('calculate_bookmark(%d)'%(self.ypos+25), 'string')
 
-    @dynamic_property
+    @property
     def at_bottom(self):
-        def fget(self):
-            return self.height - self.ypos <= self.window_height
-        return property(fget=fget)
+        return self.height - self.ypos <= self.window_height
 
-    @dynamic_property
+    @property
     def at_top(self):
-        def fget(self):
-            return self.ypos <= 0
-        return property(fget=fget)
-
+        return self.ypos <=0
 
     def test(self):
         pass
 
-    @dynamic_property
+    @property
     def ypos(self):
-        def fget(self):
-            return self.javascript('window.pageYOffset', 'int')
-        return property(fget=fget)
+        return self.mainFrame().scrollPosition().y()
 
-    @dynamic_property
+    @property
     def window_height(self):
-        def fget(self):
-            return self.javascript('window.innerHeight', 'int')
-        return property(fget=fget)
+        return self.javascript('window.innerHeight', 'int')
 
-    @dynamic_property
+    @property
     def window_width(self):
-        def fget(self):
-            return self.javascript('window.innerWidth', 'int')
-        return property(fget=fget)
+        return self.javascript('window.innerWidth', 'int')
 
-    @dynamic_property
+    @property
     def xpos(self):
-        def fget(self):
-            return self.javascript('window.pageXOffset', 'int')
-        return property(fget=fget)
+        return self.mainFrame().scrollPosition().x()
 
-    @dynamic_property
+    @property
     def scroll_fraction(self):
-        def fget(self):
-            try:
-                return float(self.ypos)/(self.height-self.window_height)
-            except ZeroDivisionError:
-                return 0.
-        return property(fget=fget)
+        try:
+            return float(self.ypos)/(self.height-self.window_height)
+        except ZeroDivisionError:
+            return 0.
 
-    @dynamic_property
+    @property
     def hscroll_fraction(self):
-        def fget(self):
+        try:
             return float(self.xpos)/self.width
-        return property(fget=fget)
+        except ZeroDivisionError:
+            return 0.
 
-    @dynamic_property
+    @property
     def height(self):
-        def fget(self):
-            return self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
-        return property(fget=fget)
+        return self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
 
-    @dynamic_property
+    @property
     def width(self):
-        def fget(self):
-            return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
-        return property(fget=fget)
+        return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
 class EntityDeclarationProcessor(object):
 
@@ -346,23 +328,17 @@ class DocumentView(QWebView):
     def sizeHint(self):
         return self._size_hint
 
-    @dynamic_property
+    @property
     def scroll_fraction(self):
-        def fget(self):
-            return self.document.scroll_fraction
-        return property(fget=fget)
+        return self.document.scroll_fraction
 
-    @dynamic_property
+    @property
     def hscroll_fraction(self):
-        def fget(self):
-            return self.document.hscroll_fraction
-        return property(fget=fget)
+        return self.document.hscroll_fraction
 
-    @dynamic_property
+    @property
     def content_size(self):
-        def fget(self):
-            return self.document.width, self.document.height
-        return property(fget=fget)
+        return self.document.width, self.document.height
 
     def search(self, text):
         return self.findText(text)
@@ -393,8 +369,6 @@ class DocumentView(QWebView):
             self.scrollbar.setVisible(delta > 0)
 
     def load_finished(self, ok):
-        self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        self.document.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         self._size_hint = self.document.mainFrame().contentsSize()
         scrolled = False
         if self.to_bottom:
@@ -413,6 +387,8 @@ class DocumentView(QWebView):
                 self.document.set_reference_prefix('%d.'%(spine_index+1))
             if scrolled:
                 self.manager.scrolled(self.document.scroll_fraction)
+        self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
+        self.document.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
 
     @classmethod
@@ -435,21 +411,18 @@ class DocumentView(QWebView):
         self.scroll_by(y=overlap)
 
     def previous_page(self):
+        delta_y = self.document.window_height - 25
         if self.document.at_top:
             if self.manager is not None:
                 self.manager.previous_document()
                 self.to_bottom = True
         else:
             opos = self.document.ypos
-            while True:
-                delta = abs(opos-self.document.ypos)
-                if delta > self.size().height():
-                    self.wheel_event(down=True)
-                    break
-                pre = self.document.ypos
-                self.wheel_event(down=False)
-                if pre == self.document.ypos:
-                    break
+            upper_limit = opos - delta_y
+            if upper_limit < 0:
+                upper_limit = 0
+            if upper_limit < opos:
+                self.document.scroll_to(self.document.xpos, upper_limit)
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
 
@@ -476,7 +449,6 @@ class DocumentView(QWebView):
             self.find_next_blank_line( self.height() - (self.document.ypos-opos) )
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
-
 
     def scroll_by(self, x=0, y=0, notify=True):
         old_pos = self.document.ypos
