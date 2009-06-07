@@ -180,17 +180,23 @@ class LocationModel(QAbstractListModel):
     def rowCount(self, *args):
         return 1 + len([i for i in self.free if i >= 0])
 
+    def get_device_row(self, row):
+        if row == 2 and self.free[1] == -1 and self.free[2] > -1:
+            row = 3
+        return row
+
     def data(self, index, role):
         row = index.row()
+        drow = self.get_device_row(row)
         data = NONE
         if role == Qt.DisplayRole:
-            text = self.text[row]%(human_readable(self.free[row-1])) if row > 0 \
-                            else self.text[row]%self.count
+            text = self.text[drow]%(human_readable(self.free[drow-1])) if row > 0 \
+                            else self.text[drow]%self.count
             data = QVariant(text)
         elif role == Qt.DecorationRole:
-            data = self.icons[row]
+            data = self.icons[drow]
         elif role == Qt.ToolTipRole:
-            data = QVariant(self.tooltips[row])
+            data = QVariant(self.tooltips[drow])
         elif role == Qt.SizeHintRole:
             data = QVariant(QSize(155, 90))
         elif role == Qt.FontRole:

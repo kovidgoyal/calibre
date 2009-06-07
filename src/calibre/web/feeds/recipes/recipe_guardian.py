@@ -26,7 +26,6 @@ class Guardian(BasicNewsRecipe):
     extra_css = 'h2 {font-size: medium;} \n h1 {text-align: left;}'
 
     feeds = [
-
         ('Front Page', 'http://www.guardian.co.uk/rss'),
         ('Business', 'http://www.guardian.co.uk/business/rss'),
         ('Sport', 'http://www.guardian.co.uk/sport/rss'),
@@ -37,4 +36,4 @@ class Guardian(BasicNewsRecipe):
         ('Environment', 'http://www.guardian.co.uk/environment/rss'),
         ('Comment','http://www.guardian.co.uk/commentisfree/rss'),
         ]
-    
+

@@ -365,8 +365,8 @@ class Device(DeviceConfig, DevicePlugin):
                             ok[node] = False
                     except:
                         ok[node] = False
-                    if ok[node]:
-                        devnodes.append(node)
+                    devnodes.append(node)
+
         devnodes += list(repeat(None, 3))
         ans = tuple(['/dev/'+x if ok.get(x, False) else None for x in devnodes[:3]])
         return self.linux_swap_drives(ans)
@@ -423,7 +423,7 @@ class Device(DeviceConfig, DevicePlugin):
                     label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
             extra = 0
             while True:
-                q = '_(%d)'%extra if extra else ''
+                q = ' (%d)'%extra if extra else ''
                 if not os.path.exists('/media/'+label+q):
                     break
                 extra += 1
@@ -457,16 +457,16 @@ class Device(DeviceConfig, DevicePlugin):
             _('Unable to mount main memory (Error code: %d)')%ret)
         if not mp.endswith('/'): mp += '/'
         self._main_prefix = mp
-        cards = [x for x in (carda, cardb) if x is not None]
-        prefix, typ = '_card_a_prefix', 'carda'
-        for card in cards:
+        cards = [(carda, '_card_a_prefix', 'carda'),
+                 (cardb, '_card_b_prefix', 'cardb')]
+        for card, prefix, typ in cards:
+            if card is None: continue
             mp, ret = mount(card, typ)
             if mp is None:
                 print >>sys.stderr, 'Unable to mount card (Error code: %d)'%ret
             else:
                 if not mp.endswith('/'): mp += '/'
                 setattr(self, prefix, mp)
-                prefix, typ = '_card_b_prefix', 'cardb'
 
     def open(self):
         time.sleep(5)
