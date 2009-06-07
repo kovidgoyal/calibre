@@ -541,7 +541,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             QApplication.processEvents()
         if worker.exception is not None:
             if isinstance(worker.exception, DRMError):
-                error_dialog(self, _('DRM Error'), _('<p>This book is protected by <a href="%s">DRM</a>')%'http://wiki.mobileread.com/wiki/DRM').exec_()
+                error_dialog(self, _('DRM Error'),
+                        _('<p>This book is protected by <a href="%s">DRM</a>')
+                        %'http://wiki.mobileread.com/wiki/DRM').exec_()
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
