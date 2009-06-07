@@ -92,6 +92,6 @@ class Jacket(object):
     def __call__(self, oeb, opts, metadata):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         if opts.remove_first_image:
-            self.remove_fisrt_image()
+            self.remove_first_image()
         if opts.insert_metadata:
             self.insert_metadata(metadata)
