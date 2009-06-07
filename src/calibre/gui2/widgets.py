@@ -278,10 +278,29 @@ class LocationView(QListView):
 
 class EjectButton(QAbstractButton):
 
+    def __init__(self, parent):
+        QAbstractButton.__init__(self, parent)
+        self.mouse_over = False
+
+    def enterEvent(self, event):
+        self.mouse_over = True
+
+    def leaveEvent(self, event):
+        self.mouse_over = False
+
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setClipRect(event.rect());
-        painter.drawPixmap(0, 0, QPixmap(':/images/eject').scaledToHeight(event.rect().height(), Qt.SmoothTransformation))
+        painter.setClipRect(event.rect())
+        image = QPixmap(':/images/eject').scaledToHeight(event.rect().height(),
+            Qt.SmoothTransformation)
+
+        if not self.mouse_over:
+            alpha_mask = QPixmap(image.width(), image.height())
+            color = QColor(128, 128, 128)
+            alpha_mask.fill(color)
+            image.setAlphaChannel(alpha_mask)
+
+        painter.drawPixmap(0, 0, image)
 
 
 class DetailView(QDialog, Ui_Dialog):
