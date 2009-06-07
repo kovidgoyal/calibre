@@ -953,9 +953,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().refresh_ids([id])
 
         for row in rows:
+            self._metadata_view_id = self.library_view.model().db.id(row.row())
             d = MetadataSingleDialog(self, row.row(),
                                     self.library_view.model().db,
                                     accepted_callback=accepted)
+            self.connect(d, SIGNAL('view_format(PyQt_PyObject)'),
+                    self.metadata_view_format)
             d.exec_()
         if rows:
             current = self.library_view.currentIndex()
@@ -1268,6 +1271,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         fmt_path = self.library_view.model().db.format_abspath(row, format)
         if fmt_path:
             self._view_file(fmt_path)
+
+    def metadata_view_format(self, fmt):
+        fmt_path = self.library_view.model().db.\
+                format_abspath(self._metadata_view_id,
+                        fmt, index_is_id=True)
+        if fmt_path:
+            self._view_file(fmt_path)
+
 
     def book_downloaded_for_viewing(self, job):
         if job.failed:

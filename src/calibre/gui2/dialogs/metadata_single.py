@@ -249,6 +249,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.connect(self.formats, SIGNAL('itemDoubleClicked(QListWidgetItem*)'),
+                self.show_format)
         self.connect(self.button_set_cover, SIGNAL('clicked()'), self.set_cover)
         self.connect(self.reset_cover, SIGNAL('clicked()'), self.do_reset_cover)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
@@ -302,6 +304,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             pm.loadFromData(cover)
             if not pm.isNull():
                 self.cover.setPixmap(pm)
+
+    def show_format(self, item, *args):
+        fmt = item.ext
+        self.emit(SIGNAL('view_format(PyQt_PyObject)'), fmt)
 
     def deduce_author_sort(self):
         au = unicode(self.authors.text())
