@@ -229,6 +229,12 @@ class LocationModel(QAbstractListModel):
         self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
                 self.index(0), self.index(self.rowCount(QModelIndex())-1))
 
+    def location_for_row(self, row):
+        if row == 0: return 'library'
+        if row == 1: return 'main'
+        if row == 3: return 'cardb'
+        return 'carda' if self.free[1] > -1 else 'cardb'
+
 class LocationView(QListView):
 
     def __init__(self, parent):
@@ -252,7 +258,7 @@ class LocationView(QListView):
     def current_changed(self, current, previous):
         if current.isValid():
             i = current.row()
-            location = 'library' if i == 0 else 'main' if i == 1 else 'carda' if i == 2 else 'cardb'
+            location = self.model().location_for_row(i)
             self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
             self.model().location_changed(i)
 
