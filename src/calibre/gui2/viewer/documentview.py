@@ -351,6 +351,7 @@ class DocumentView(QWebView):
         html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
         self.setHtml(html, QUrl.fromLocalFile(path))
+        self.turn_off_internal_scrollbars()
 
     def load_started(self):
         if self.manager is not None:
@@ -387,6 +388,10 @@ class DocumentView(QWebView):
                 self.document.set_reference_prefix('%d.'%(spine_index+1))
             if scrolled:
                 self.manager.scrolled(self.document.scroll_fraction)
+
+        self.turn_off_internal_scrollbars()
+
+    def turn_off_internal_scrollbars(self):
         self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
         self.document.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
@@ -432,20 +437,17 @@ class DocumentView(QWebView):
                         Qt.NoButton, Qt.NoModifier))
 
     def next_page(self):
+        delta_y = self.document.window_height - 25
         if self.document.at_bottom:
             if self.manager is not None:
                 self.manager.next_document()
         else:
             opos = self.document.ypos
-            while True:
-                delta = abs(opos-self.document.ypos)
-                if delta > self.size().height():
-                    self.wheel_event(down=False)
-                    break
-                pre = self.document.ypos
-                self.wheel_event(down=True)
-                if pre == self.document.ypos:
-                    break
+            lower_limit = opos + delta_y
+            max_y = self.document.height - self.document.window_height
+            lower_limit = min(max_y, lower_limit)
+            if lower_limit > opos:
+                self.document.scroll_to(self.document.xpos, lower_limit)
             self.find_next_blank_line( self.height() - (self.document.ypos-opos) )
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
