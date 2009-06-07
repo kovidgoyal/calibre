@@ -181,8 +181,8 @@ class LocationModel(QAbstractListModel):
         return 1 + len([i for i in self.free if i >= 0])
 
     def get_device_row(self, row):
-        if row == 1 and self.free[1] == -1 and self.free[2] > -1:
-            row = 2
+        if row == 2 and self.free[1] == -1 and self.free[2] > -1:
+            row = 3
         return row
 
     def data(self, index, role):
