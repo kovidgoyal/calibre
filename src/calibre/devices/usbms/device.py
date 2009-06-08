@@ -179,13 +179,19 @@ class Device(DeviceConfig, DevicePlugin):
 
         return (msz, casz, cbsz)
 
-    def windows_match_device(self, pnp_id, device_id):
-        pnp_id = pnp_id.upper()
+    def windows_match_device(self, drive, attr):
+        pnp_id = str(drive.PNPDeviceID).upper()
+        device_id = getattr(self, attr)
+        if device_id is None or \
+                'VEN_' + str(self.VENDOR_NAME).upper() not in pnp_id:
+            return False
+        if isinstance(device_id, basestring):
+            device_id = [device_id]
 
-        if device_id and pnp_id is not None:
-            device_id = device_id.upper()
+        for x in device_id:
+            x = x.upper()
 
-            if 'VEN_' + self.VENDOR_NAME in pnp_id and 'PROD_' + device_id in pnp_id:
+            if 'PROD_' + x in pnp_id:
                 return True
 
         return False
@@ -211,18 +217,32 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def open_windows(self):
+
+        def matches_q(drive, attr):
+            q = getattr(self, attr)
+            if q is None: return False
+            if isinstance(q, basestring):
+                q = [q]
+            pnp = str(drive.PNPDeviceID)
+            for x in q:
+                if x in pnp:
+                    return True
+            return False
+
+
         time.sleep(6)
         drives = {}
         wmi = __import__('wmi', globals(), locals(), [], -1)
         c = wmi.WMI(find_classes=False)
         for drive in c.Win32_DiskDrive():
-            if self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_CARD_A_MEM):
+            if self.windows_match_device(drive, 'WINDOWS_CARD_A_MEM'):
                 drives['carda'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_CARD_B_MEM):
+            elif self.windows_match_device(drive, 'WINDOWS_CARD_B_MEM'):
                 drives['cardb'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_MAIN_MEM):
+            elif self.windows_match_device(drive, 'WINDOWS_MAIN_MEM'):
                 drives['main'] = self.windows_get_drive_prefix(drive)
-            if 'main' in drives.keys() and 'carda' in drives.keys() and 'cardb' in drives.keys():
+            if 'main' in drives.keys() and 'carda' in drives.keys() and \
+                    'cardb' in drives.keys():
                 break
 
         if 'main' not in drives:
