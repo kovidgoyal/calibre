@@ -216,6 +216,12 @@ class LocationModel(QAbstractListModel):
         return NONE
 
     def update_devices(self, cp=(None, None), fs=[-1, -1, -1]):
+        if cp is None:
+            cp = (None, None)
+        if isinstance(cp, (str, unicode)):
+            cp = (cp, None)
+        if len(fs) < 3:
+            fs = list(fs) + [0]
         self.free[0] = fs[0]
         self.free[1] = fs[1]
         self.free[2] = fs[2]
