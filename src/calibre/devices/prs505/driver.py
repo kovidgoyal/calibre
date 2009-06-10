@@ -26,7 +26,7 @@ class PRS505(CLI, Device):
     PRODUCT_ID   = [0x031e]   #: Product Id for the PRS-505
     BCD          = [0x229, 0x1000]  #: Needed to disambiguate 505 and 700 on linux
 
-    VENDOR_NAME  = 'SONY'
+    VENDOR_NAME        = 'SONY'
     WINDOWS_MAIN_MEM   = 'PRS-505'
     WINDOWS_CARD_A_MEM = ['PRS-505/UC:MS', 'PRS-505/CE:MS']
     WINDOWS_CARD_B_MEM = ['PRS-505/UC:SD', 'PRS-505/CE:SD']

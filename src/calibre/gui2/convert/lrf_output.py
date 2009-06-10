@@ -49,4 +49,5 @@ class PluginWidget(Widget, Ui_Form):
             if idx < 0:
                 idx = 0
             g.setCurrentIndex(0)
+            return True
         return False
