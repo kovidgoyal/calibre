@@ -550,6 +550,7 @@ File ::8D7A36A6-4517-E995-E989-2E522E7A1438 -name calibre-smtp.exe.local -parent
 File ::9E4E5E8F-30C0-E631-9516-2AE01A5CA0E9 -name ebook-device.exe.local -parent 8E5D85A4-7608-47A1-CF7C-309060D5FF40
 File ::7BE6B538-70D5-A7EB-5F91-E14CE57B394B -name calibre-complete.exe.local -parent 8E5D85A4-7608-47A1-CF7C-309060D5FF40
 File ::F54BC3BB-5F21-3D81-043E-603D53754CFC -name pdftohtml.exe.manifest -parent 8E5D85A4-7608-47A1-CF7C-309060D5FF40
+File ::C4E40030-3EE0-8B05-E6B9-89E81433EE1F -name phonon4.dll -parent 8E5D85A4-7608-47A1-CF7C-309060D5FF40
 Component ::F6829AB7-9F66-4CEE-CA0E-21F54C6D3609 -setup Install -active Yes -platforms {AIX-ppc FreeBSD-4-x86 FreeBSD-x86 HPUX-hppa Linux-x86 Solaris-sparc Windows FreeBSD-5-x86 FreeBSD-6-x86 FreeBSD-7-x86 Linux-x86_64 Solaris-x86} -name Main -parent Components
 SetupType ::D9ADE41C-B744-690C-2CED-CF826BF03D2E -setup Install -active Yes -platforms {AIX-ppc FreeBSD-4-x86 FreeBSD-x86 HPUX-hppa Linux-x86 Solaris-sparc Windows FreeBSD-5-x86 FreeBSD-6-x86 FreeBSD-7-x86 Linux-x86_64 Solaris-x86} -name Typical -parent SetupTypes
 
