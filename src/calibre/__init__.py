@@ -277,7 +277,16 @@ class StreamReadWrapper(object):
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
-    return multiprocessing.cpu_count()
+    ans = -1
+    try:
+        ans = multiprocessing.cpu_count()
+    except:
+        from PyQt4.Qt import QThread
+        ans = QThread.idealThreadCount()
+    if ans < 1:
+        ans = 1
+    return ans
+
 
 def launch(path_or_url):
     if os.path.exists(path_or_url):
