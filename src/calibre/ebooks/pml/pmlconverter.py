@@ -60,6 +60,8 @@ PML_HTML_RULES = [
     (re.compile(r'(?<=[^\\])\\X[0-4]'), lambda match: ''),
     (re.compile(r'(?<=[^\\])\\Sp'), lambda match: ''),
     (re.compile(r'(?<=[^\\])\\Sb'), lambda match: ''),
+    # Remove invalid single item pml codes.
+    (re.compile(r'(?<=[^\\])\\.'), lambda match: ''),
     
     # Replace \\ with \.
     (re.compile(r'\\\\'), lambda match: '\\'),
@@ -69,12 +71,6 @@ def pml_to_html(pml):
     html = pml
     for rule in PML_HTML_RULES:
         html = rule[0].sub(rule[1], html)
-
-    # Turn special characters into entities.
-    cps = [ord(c) for c in set(html)]
-    cps = set(cps).intersection(codepoint2name.keys()).difference([60, 62])
-    for cp in cps:
-        html = html.replace(unichr(cp), '&%s;' % codepoint2name[cp])
 
     return html
 
