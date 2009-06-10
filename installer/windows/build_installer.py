@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import sys, time, subprocess, os, re
 from calibre import __appname__, __version__
 
-INSTALLJAMMER = '/usr/local/installjammer/installjammer' 
+INSTALLJAMMER = '/usr/local/installjammer/installjammer'
 
 sv = re.sub(r'[a-z]\d+', '', __version__)
 
