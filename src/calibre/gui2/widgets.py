@@ -247,14 +247,13 @@ class LocationView(QListView):
         QListView.__init__(self, parent)
         self.setModel(LocationModel(self))
         self.reset()
-        self.setCursor(Qt.PointingHandCursor)
         self.currentChanged = self.current_changed
 
         self.eject_button = EjectButton(self)
         self.eject_button.hide()
 
-        self.connect(self, SIGNAL('entered(QModelIndex)'), self.show_eject)
-        self.connect(self, SIGNAL('viewportEntered()'), self.hide_eject)
+        self.connect(self, SIGNAL('entered(QModelIndex)'), self.item_entered)
+        self.connect(self, SIGNAL('viewportEntered()'), self.viewport_entered)
         self.connect(self.eject_button, SIGNAL('clicked()'), lambda: self.emit(SIGNAL('umount_device()')))
 
     def count_changed(self, new_count):
@@ -273,9 +272,11 @@ class LocationView(QListView):
             self.model().location_changed(row)
 
     def leaveEvent(self, event):
+        self.unsetCursor()
         self.eject_button.hide()
 
-    def show_eject(self, location):
+    def item_entered(self, location):
+        self.setCursor(Qt.PointingHandCursor)
         self.eject_button.hide()
 
         if location.row() == 1:
@@ -290,7 +291,8 @@ class LocationView(QListView):
             self.eject_button.move(x, y)
             self.eject_button.show()
 
-    def hide_eject(self):
+    def viewport_entered(self):
+        self.unsetCursor()
         self.eject_button.hide()
 
 
