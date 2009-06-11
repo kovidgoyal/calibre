@@ -112,19 +112,19 @@ class PluginModel(QAbstractItemModel):
             return QModelIndex()
 
         if parent.isValid():
-            return self.createIndex(row, column, parent.row())
+            return self.createIndex(row, column, 1+parent.row())
         else:
-            return self.createIndex(row, column, -1)
+            return self.createIndex(row, column, 0)
 
     def parent(self, index):
-        if not index.isValid() or index.internalId() == -1:
+        if not index.isValid() or index.internalId() == 0:
             return QModelIndex()
-        return self.createIndex(index.internalId(), 0, -1)
+        return self.createIndex(index.internalId()-1, 0, 0)
 
     def rowCount(self, parent):
         if not parent.isValid():
             return len(self.categories)
-        if parent.internalId() == -1:
+        if parent.internalId() == 0:
             category = self.categories[parent.row()]
             return len(self._data[category])
         return 0
