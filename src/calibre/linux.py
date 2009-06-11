@@ -334,7 +334,7 @@ def post_install():
         os.chdir(config_dir)
         for f in os.listdir('.'):
             if os.stat(f).st_uid == 0:
-                os.unlink(f)
+                os.rmdir(f)
 
 def binary_install():
     manifest = os.path.join(getattr(sys, 'frozen_path'), 'manifest')
