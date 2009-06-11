@@ -300,9 +300,9 @@ class MobiReader(object):
         root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
-            self.log.warning('Markup contains unclosed <p> tags, parsing using',
-                'BeatifulSoup')
+            self.log.warning('Malformed markup, parsing using BeatifulSoup')
             root = soupparser.fromstring(self.processed_html)
+
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
             nroot = html.fromstring('<html><head></head><body></body></html>')
@@ -313,6 +313,7 @@ class MobiReader(object):
             root = nroot
 
         htmls = list(root.xpath('//html'))
+
         if len(htmls) > 1:
             self.log.warn('Markup contains multiple <html> tags')
             # Keep only the largest head and body
@@ -428,6 +429,7 @@ class MobiReader(object):
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
+        self.processed_html = re.sub('\x14|\x15', '', self.processed_html)
 
     def upshift_markup(self, root):
         self.log.debug('Converting style information to CSS...')
