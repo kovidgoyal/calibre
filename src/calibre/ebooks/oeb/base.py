@@ -765,7 +765,14 @@ class Manifest(object):
                     data = etree.fromstring(data)
                 except:
                     data=data.replace(':=', '=').replace(':>', '>')
-                    data = etree.fromstring(data)
+                    try:
+                        data = etree.fromstring(data)
+                    except etree.XMLSyntaxError:
+                        self.oeb.logger.warn('Stripping comments from %s'%
+                                self.href)
+                        data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
+                                data)
+                        data = etree.fromstring(data)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
                 ns = namespace(data.tag)
