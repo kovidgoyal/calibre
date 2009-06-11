@@ -54,6 +54,7 @@ class LRFOptions(object):
         self.minimize_memory_usage = False
         self.autorotation = opts.enable_autorotation
         self.header_separation = (self.profile.dpi/72.) * opts.header_separation
+        self.headerformat = opts.header_format
 
 
         for x in ('top', 'bottom', 'left', 'right'):
