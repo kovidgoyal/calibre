@@ -315,18 +315,24 @@ class MobiReader(object):
         htmls = list(root.xpath('//html'))
 
         if len(htmls) > 1:
-            self.log.warn('Markup contains multiple <html> tags')
-            # Keep only the largest head and body
+            self.log.warn('Markup contains multiple <html> tags, merging.')
+            # Merge all <head> and <body> sections
+            for h in htmls:
+                p = h.getparent()
+                if hasattr(p, 'remove'):
+                    p.remove(h)
             bodies, heads = root.xpath('//body'), root.xpath('//head')
-            def sz(x): return len(list(x.iter()))
-            def scmp(x, y): return cmp(sz(x), sz(y))
-            body = list(sorted(bodies, cmp=scmp))
-            head = list(sorted(heads, cmp=scmp))
             for x in root: root.remove(x)
-            if head:
-                root.append(head[-1])
-            if body:
-                root.append(body[-1])
+            head, body = map(root.makeelement, ('head', 'body'))
+            for h in heads:
+                for x in h:
+                    h.remove(x)
+                    head.append(x)
+            for b in bodies:
+                for x in b:
+                    b.remove(x)
+                    body.append(x)
+            root.append(head), root.append(body)
         for x in root.xpath('//script'):
             x.getparent().remove(x)
 
