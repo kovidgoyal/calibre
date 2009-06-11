@@ -810,6 +810,12 @@ class Manifest(object):
             r = [x for x in data.iterdescendants(etree.Element) if 'microsoft-com' in x.tag]
             for x in r:
                 x.tag = XHTML('span')
+
+            # Remove lang redefinition inserted by the amazing Microsoft Word!
+            body = xpath(data, '/h:html/h:body')[0]
+            for key in list(body.attrib.keys()):
+                if key == 'lang' or key.endswith('}lang'):
+                    body.attrib.pop(key)
             return data
 
         def _parse_css(self, data):
