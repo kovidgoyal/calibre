@@ -182,12 +182,12 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.reset()
 
     def index(self, row, column, parent):
-        return self.createIndex(row, column, parent.row() if parent.isValid() else -1)
+        return self.createIndex(row, column, parent.row()+1 if parent.isValid() else 0)
 
     def parent(self, index):
-        if index.internalId() == -1:
+        if index.internalId() == 0:
             return QModelIndex()
-        return self.createIndex(index.internalId(), 0, -1)
+        return self.createIndex(index.internalId()-1, 0, 0)
 
     def columnCount(self, parent):
         if not parent.isValid() or not parent.parent().isValid():
