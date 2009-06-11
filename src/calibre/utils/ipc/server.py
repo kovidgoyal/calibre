@@ -11,12 +11,12 @@ from math import ceil
 from threading import Thread, RLock
 from Queue import Queue, Empty
 from multiprocessing.connection import Listener
-from multiprocessing import cpu_count
 from collections import deque
 from binascii import hexlify
 
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
+from calibre import detect_ncpus as cpu_count
 
 _counter = 0
 

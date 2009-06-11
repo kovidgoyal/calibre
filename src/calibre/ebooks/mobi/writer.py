@@ -88,6 +88,7 @@ def encode(data):
 DECINT_FORWARD = 0
 DECINT_BACKWARD = 1
 def decint(value, direction):
+    # Encode vwi
     bytes = []
     while True:
         b = value & 0x7f
@@ -324,6 +325,8 @@ class MobiWriter(object):
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
         self._primary_index_record = None
+        self._HTMLRecords = []
+        self._tbSequence = ""
 
     @classmethod
     def generate(cls, opts):
@@ -358,7 +361,8 @@ class MobiWriter(object):
     def _generate_content(self):
         self._map_image_names()
         self._generate_text()
-        if INDEXING and not self.opts.no_mobi_index:
+        #if INDEXING and not self.opts.no_mobi_index:
+        if INDEXING :
             try:
                 self._generate_index()
             except:
@@ -403,6 +407,130 @@ class MobiWriter(object):
         text.seek(npos)
         return data, overlap
 
+    def _build_HTMLRecords_Data_List(self):
+        # Assemble a HTMLRecordData instance for each HTML record
+
+        numberOfHTMLRecords = ( self._content_length // RECORD_SIZE ) + 1
+
+        # Create a list of HTMLRecordData class instances
+        x = numberOfHTMLRecords
+        while x:
+            self._HTMLRecords.append(HTMLRecordData())
+            x -= 1
+
+        toc = self._oeb.toc
+        myIndex = 0
+        myEndingRecord = 0
+        entries = list(toc.iter())[1:]
+        # borrowed from _generate_indxt
+        for i, child in enumerate(entries):
+            if not child.title or not child.title.strip():
+                continue
+            h = child.href
+            if h not in self._id_offsets:
+                self._oeb.log.warning('Could not find TOC entry:', child.title)
+                continue
+            offset = self._id_offsets[h]
+            length = None
+            for sibling in entries[i+1:]:
+                h2 = sibling.href
+                if h2 in self._id_offsets:
+                    offset2 = self._id_offsets[h2]
+                    if offset2 > offset:
+                        length = offset2 - offset
+                        break
+            if length is None:
+                length = self._content_length - offset
+
+            # Calculate the HTML record for this entry
+            myStartingRecord = offset // RECORD_SIZE
+
+            # If no one has taken the openingNode slot, it must be us
+            if self._HTMLRecords[myStartingRecord].openingNode == -1 :
+                self._HTMLRecords[myStartingRecord].openingNode = myIndex
+
+            # Bump the node count for this HTML record
+            # Special case if we're the first so we get a true node count
+            if self._HTMLRecords[myStartingRecord].currentSectionNodeCount == -1:
+                self._HTMLRecords[myStartingRecord].currentSectionNodeCount = 1
+            else:
+                self._HTMLRecords[myStartingRecord].currentSectionNodeCount += 1
+
+            # Calculate the ending HTMLRecord of this entry
+            myEndingRecord = (offset + length) // RECORD_SIZE
+
+            # Tell the future HTML records about us
+            if myEndingRecord > myStartingRecord :
+                interimSpanRecord = myStartingRecord + 1
+                while interimSpanRecord <= myEndingRecord :
+                    self._HTMLRecords[interimSpanRecord].continuingNode = myIndex
+                    self._HTMLRecords[interimSpanRecord].currentSectionNodeCount = 1
+                    interimSpanRecord += 1
+
+            ctoc_offset = self._ctoc_map[child]
+            last_name = "%04d" % myIndex
+            myIndex += 1
+        '''
+        # Dump the accumulated HTML Record Data
+        x = 0
+        while x < len(self._HTMLRecords):
+            self._HTMLRecords[x].dumpData(x, self._oeb)
+            x += 1
+        '''
+    def _build_TBS_Book(self, nrecords, lastrecord):
+
+        # Variables for trailing byte sequence
+        tbsType = 0x00
+        tbSequence = ""
+        #print "_build_TBS_Book: nrecords = %d, lastrecord = %d" % (nrecords, lastrecord)
+        # Generate TBS for type 0x002 - mobi_book
+        if nrecords == 0 :
+            # First HTML record is a special case
+            if self._HTMLRecords[nrecords].currentSectionNodeCount == 1 :
+                tbsType = 2
+            else :
+                tbsType = 6
+
+            tbSequence = decint(tbsType, DECINT_BACKWARD)
+            tbSequence += decint(0x00, DECINT_BACKWARD)
+            # Don't write a nodecount for opening type 2 record
+            if tbsType != 2 :
+                tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
+            tbSequence += decint(len(tbSequence) + 1, DECINT_BACKWARD)
+
+        else :
+            # Determine tbsType for HTMLRecords > 0
+            if nrecords == lastrecord and self._HTMLRecords[nrecords].currentSectionNodeCount == 1 :
+                # Ending record with singleton node
+                tbsType = 2
+
+            elif self._HTMLRecords[nrecords].continuingNode > 0 and self._HTMLRecords[nrecords].openingNode == -1 :
+                # This is a span-only record
+                tbsType = 3
+                # Zero out the nodeCount with a pre-formed vwi
+                self._HTMLRecords[nrecords].currentSectionNodeCount = 0x80
+
+            else :
+                tbsType = 6
+
+
+            # Shift the openingNode index << 3
+            shiftedNCXEntry = self._HTMLRecords[nrecords].continuingNode << 3
+            # Add the TBS type
+            shiftedNCXEntry |= tbsType
+
+            # Assemble the TBS
+            tbSequence = decint(shiftedNCXEntry, DECINT_BACKWARD)
+            tbSequence += decint(0x00, DECINT_BACKWARD)
+            # Don't write a nodecount for terminating type 2 record
+            if tbsType != 2 :
+                tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
+            tbSequence += decint(len(tbSequence) + 1, DECINT_BACKWARD)
+
+        # print "record %d: tbsType %d" % (nrecords, tbsType)
+        self._tbSequence = tbSequence
+
+
     def _generate_text(self):
         self._oeb.logger.info('Serializing markup content...')
         serializer = Serializer(self._oeb, self._images)
@@ -414,10 +542,25 @@ class MobiWriter(object):
         text = StringIO(text)
         buf = []
         nrecords = 0
+        lastrecord = (self._content_length // RECORD_SIZE )
+
         offset = 0
+
         if self._compression != UNCOMPRESSED:
             self._oeb.logger.info('Compressing markup content...')
         data, overlap = self._read_text_record(text)
+
+        # GR borrowed this from generate_index
+        # We seem to need it before calling self._build_HTMLRecords_Data_List()
+        ctoc = self._generate_ctoc()
+
+        # Build the HTMLRecords list so we can assemble the trailing bytes sequences in the following while loop
+        toc = self._oeb.toc
+        entries = list(toc.iter())[1:]
+        hasNCXEntries = True if len(entries) else False
+        if hasNCXEntries :
+            self._build_HTMLRecords_Data_List()
+
         while len(data) > 0:
             if self._compression == PALMDOC:
                 data = compress_doc(data)
@@ -428,24 +571,59 @@ class MobiWriter(object):
             nextra = 0
             pbreak = 0
             running = offset
-            while breaks and (breaks[0] - offset) < RECORD_SIZE:
-                pbreak = (breaks.pop(0) - running) >> 3
-                encoded = decint(pbreak, DECINT_FORWARD)
-                record.write(encoded)
-                running += pbreak << 3
-                nextra += len(encoded)
-            lsize = 1
-            while True:
-                size = decint(nextra + lsize, DECINT_BACKWARD)
-                if len(size) == lsize:
-                    break
-                lsize += 1
-            record.write(size)
+
+            # Write Trailing Byte Sequence
+            if INDEXING and hasNCXEntries :
+                # Dispatch to different TBS generators based upon publication type
+                booktype = 0x101 if self.opts.mobi_periodical else 0x002
+                if booktype == 0x002 :
+                    self._build_TBS_Book(nrecords, lastrecord)
+                #elif booktype == flatPeriodical :
+                #    tbSequence = self._build_TBS_FlatPeriodicalTBS()
+                #elif booktype == structuredPeriodical :
+                #    tbSequence = self._build_TBS_StructuredPeriodicalTBS()
+                else :
+                    raise NotImplementedError('Indexing for periodicals not implemented')
+
+                # Dump the current HTML Record Data / TBS
+                # GR diagnostics
+                if False :
+                    self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+                    outstr = ''
+                    for eachbyte in self._tbSequence:
+                        outstr += '0x%02X ' % ord(eachbyte)
+                    self._oeb.logger.info('    Trailing Byte Sequence: %s\n' % outstr)
+
+                # Write the sequence
+                record.write(self._tbSequence)
+
+            else :
+                # Marshall's original code
+                while breaks and (breaks[0] - offset) < RECORD_SIZE:
+                    # .pop returns item, removes it from list
+                    pbreak = (breaks.pop(0) - running) >> 3
+                    self._oeb.logger.info('pbreak = 0x%X' % pbreak )
+                    encoded = decint(pbreak, DECINT_FORWARD)
+                    record.write(encoded)
+                    running += pbreak << 3
+                    nextra += len(encoded)
+
+                lsize = 1
+                while True:
+                    size = decint(nextra + lsize, DECINT_BACKWARD)
+                    if len(size) == lsize:
+                        break
+                    lsize += 1
+
+                # Writing vwi length byte here
+                record.write(size)
+
             self._records.append(record.getvalue())
             buf.append(self._records[-1])
             nrecords += 1
             offset += RECORD_SIZE
             data, overlap = self._read_text_record(text)
+
         if INDEXING:
             extra = sum(map(len, buf))%4
             if extra == 0:
@@ -455,6 +633,7 @@ class MobiWriter(object):
         self._text_nrecords = nrecords
 
     def _generate_indxt(self, ctoc):
+
         if self.opts.mobi_periodical:
             raise NotImplementedError('Indexing for periodicals not implemented')
         toc = self._oeb.toc
@@ -471,7 +650,7 @@ class MobiWriter(object):
 
             pos = 0xc0 + indxt.tell()
             indices.write(pack('>H', pos))
-            name = "%4d"%count
+            name = "%04d"%count
             indxt.write(chr(len(name)) + name)
             indxt.write(INDXT['chapter'])
             indxt.write(decint(offset, DECINT_FORWARD))
@@ -502,7 +681,7 @@ class MobiWriter(object):
 
             add_node(child, offset, length, c)
             ctoc_offset = self._ctoc_map[child]
-            last_name = "%4d"%c
+            last_name = "%04d"%c
             c += 1
 
         return align_block(indxt.getvalue()), c, \
@@ -510,7 +689,7 @@ class MobiWriter(object):
 
 
     def _generate_index(self):
-        self._oeb.log('Generating index...')
+        self._oeb.log('Generating primary index...')
         self._primary_index_record = None
         ctoc = self._generate_ctoc()
         indxt, indxt_count, indices, last_name = \
@@ -519,6 +698,8 @@ class MobiWriter(object):
             self._oeb.log.warn('Input document has no TOC. No index generated.')
             return
 
+        # GR: indx0 => INDX0[0]
+        #     indx1 => INDX1[0]
         indx1 = StringIO()
         indx1.write('INDX'+pack('>I', 0xc0)) # header length
 
@@ -575,7 +756,9 @@ class MobiWriter(object):
         header.write(pack('>I', 1))
 
         # 0x1c - 0x1f : Text encoding ?
-        header.write(pack('>I', 650001))
+        # header.write(pack('>I', 650001))
+        # GR: This needs to be either 0xFDE9 or 0x4E4
+        header.write(pack('>I', 0xFDE9))
 
         # 0x20 - 0x23 : Language code?
         header.write(iana2mobi(str(self._oeb.metadata.language[0])))
@@ -615,56 +798,58 @@ class MobiWriter(object):
         self._primary_index_record = len(self._records)
         self._records.extend([indx0, indx1, ctoc])
 
-        # Write secondary index records
-        tagx = TAGX['secondary_'+\
-                ('periodical' if self.opts.mobi_periodical else 'book')]
-        tagx_len = 8 + len(tagx)
+        # Turn this off for now
+        if False:
+            # Write secondary index records
+            tagx = TAGX['secondary_'+\
+                    ('periodical' if self.opts.mobi_periodical else 'book')]
+            tagx_len = 8 + len(tagx)
 
-        indx0 = StringIO()
-        indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)
-        indx0.write(pack('>I', 0x02))
-        indx0.write(pack('>I', 0xc0+tagx_len+4))
-        indx0.write(pack('>I', 1))
-        indx0.write(pack('>I', 65001))
-        indx0.write('\xff'*4)
-        indx0.write(pack('>I', 1))
-        indx0.write('\0'*4)
-        indx0.write('\0'*136)
-        indx0.write(pack('>I', 0xc0))
-        indx0.write('\0'*8)
-        indx0.write('TAGX'+pack('>I', tagx_len)+tagx)
-        if self.opts.mobi_periodical:
-            raise NotImplementedError
-        else:
-            indx0.write('\0'*3 + '\x01' + 'IDXT' + '\0\xd4\0\0')
-        indx1 = StringIO()
-        indx1.write('INDX' + pack('>I', 0xc0) + '\0'*4)
-        indx1.write(pack('>I', 1))
-        extra = 0xf0 if self.opts.mobi_periodical else 4
-        indx1.write('\0'*4 + pack('>I', 0xc0+extra))
-        num = 4 if self.opts.mobi_periodical else 1
-        indx1.write(pack('>I', num))
-        indx1.write('\xff'*8)
-        indx1.write('\0'*(0xc0-indx1.tell()))
-        if self.opts.mobi_periodical:
-            raise NotImplementedError
-        else:
-            indx1.write('\0\x01\x80\0')
-        indx1.write('IDXT')
-        if self.opts.mobi_periodical:
-            raise NotImplementedError
-        else:
-            indx1.write('\0\xc0\0\0')
+            indx0 = StringIO()
+            indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)
+            indx0.write(pack('>I', 0x02))
+            indx0.write(pack('>I', 0xc0+tagx_len+4))
+            indx0.write(pack('>I', 1))
+            indx0.write(pack('>I', 65001))
+            indx0.write('\xff'*4)
+            indx0.write(pack('>I', 1))
+            indx0.write('\0'*4)
+            indx0.write('\0'*136)
+            indx0.write(pack('>I', 0xc0))
+            indx0.write('\0'*8)
+            indx0.write('TAGX'+pack('>I', tagx_len)+tagx)
+            if self.opts.mobi_periodical:
+                raise NotImplementedError
+            else:
+                indx0.write('\0'*3 + '\x01' + 'IDXT' + '\0\xd4\0\0')
+            indx1 = StringIO()
+            indx1.write('INDX' + pack('>I', 0xc0) + '\0'*4)
+            indx1.write(pack('>I', 1))
+            extra = 0xf0 if self.opts.mobi_periodical else 4
+            indx1.write('\0'*4 + pack('>I', 0xc0+extra))
+            num = 4 if self.opts.mobi_periodical else 1
+            indx1.write(pack('>I', num))
+            indx1.write('\xff'*8)
+            indx1.write('\0'*(0xc0-indx1.tell()))
+            if self.opts.mobi_periodical:
+                raise NotImplementedError
+            else:
+                indx1.write('\0\x01\x80\0')
+            indx1.write('IDXT')
+            if self.opts.mobi_periodical:
+                raise NotImplementedError
+            else:
+                indx1.write('\0\xc0\0\0')
 
-        indx0, indx1 = indx0.getvalue(), indx1.getvalue()
-        self._records.extend((indx0, indx1))
-        if self.opts.verbose > 3:
-            from tempfile import mkdtemp
-            import os
-            t = mkdtemp()
-            for i, n in enumerate(['sindx1', 'sindx0', 'ctoc', 'indx0', 'indx1']):
-                open(os.path.join(t, n+'.bin'), 'wb').write(self._records[-(i+1)])
-            self._oeb.log.debug('Index records dumped to', t)
+            indx0, indx1 = indx0.getvalue(), indx1.getvalue()
+            self._records.extend((indx0, indx1))
+            if self.opts.verbose > 3:
+                from tempfile import mkdtemp
+                import os
+                t = mkdtemp()
+                for i, n in enumerate(['sindx1', 'sindx0', 'ctoc', 'indx0', 'indx1']):
+                    open(os.path.join(t, n+'.bin'), 'wb').write(self._records[-(i+1)])
+                self._oeb.log.debug('Index records dumped to', t)
 
 
 
@@ -714,16 +899,22 @@ class MobiWriter(object):
                 self._first_image_record = len(self._records)-1
 
     def _generate_end_records(self):
-        self._flis_number = len(self._records)
-        self._records.append(
-        'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
-        '\xff'*4)
-        fcis = 'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
-        fcis += pack('>I', self._text_length)
-        fcis += '\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
-        self._fcis_number = len(self._records)
-        self._records.append(fcis)
-        self._records.append('\xE9\x8E\x0D\x0A')
+        if True:
+            self._flis_number = len(self._records)
+            self._records.append('\xE9\x8E\x0D\x0A')
+
+        else:
+            # This adds the binary blobs of FLIS and FCIS, which don't seem to be necessary
+            self._flis_number = len(self._records)
+            self._records.append(
+            'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
+            '\xff'*4)
+            fcis = 'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
+            fcis += pack('>I', self._text_length)
+            fcis += '\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+            self._fcis_number = len(self._records)
+            self._records.append(fcis)
+            self._records.append('\xE9\x8E\x0D\x0A')
 
     def _generate_record0(self):
         metadata = self._oeb.metadata
@@ -760,9 +951,14 @@ class MobiWriter(object):
         # 0x18 - 0x1f : Unknown
         record0.write('\xff' * 8)
 
+
         # 0x20 - 0x23 : Secondary index record
-        record0.write(pack('>I', 0xffffffff if self._primary_index_record is
-            None else self._primary_index_record+3))
+        # Turned off as it seems unnecessary
+        if True:
+            record0.write(pack('>I', 0xffffffff))
+        else:
+            record0.write(pack('>I', 0xffffffff if self._primary_index_record is
+                None else self._primary_index_record+3))
 
         # 0x24 - 0x3f : Unknown
         record0.write('\xff' * 28)
@@ -819,16 +1015,33 @@ class MobiWriter(object):
         record0.write('\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        record0.write(pack('>I', self._fcis_number))
+        # Turned off, these are optional and not understood yet
+        if True:
+            # 0xb8 - 0xbb : FCIS record number
+            record0.write(pack('>I', 0xffffffff))
 
-        # 0xbc - 0xbf : Unknown (FCIS record count?)
-        record0.write(pack('>I', 1))
+            # 0xbc - 0xbf : Unknown (FCIS record count?)
+            record0.write(pack('>I', 0xffffffff))
 
-        # 0xc0 - 0xc3 : FLIS record number
-        record0.write(pack('>I', self._flis_number))
+            # 0xc0 - 0xc3 : FLIS record number
+            record0.write(pack('>I', 0xffffffff))
 
-        # 0xc4 - 0xc7 : Unknown (FLIS record count?)
-        record0.write(pack('>I', 1))
+            # 0xc4 - 0xc7 : Unknown (FLIS record count?)
+            record0.write(pack('>I', 1))
+
+        else:
+            # Write these if FCIS/FLIS turned on
+            # 0xb8 - 0xbb : FCIS record number
+            record0.write(pack('>I', self._fcis_number))
+
+            # 0xbc - 0xbf : Unknown (FCIS record count?)
+            record0.write(pack('>I', 1))
+
+            # 0xc0 - 0xc3 : FLIS record number
+            record0.write(pack('>I', self._flis_number))
+
+            # 0xc4 - 0xc7 : Unknown (FLIS record count?)
+            record0.write(pack('>I', 1))
 
         # 0xc8 - 0xcf : Unknown
         record0.write('\0'*8)
@@ -839,9 +1052,14 @@ class MobiWriter(object):
         # 0xe0 - 0xe3 : Extra record data
         # The '5' is a bitmask of extra record data at the end:
         #   - 0x1: <extra multibyte bytes><size> (?)
+        #   - 0x2: <indexing description of this HTML record><size> GR
         #   - 0x4: <uncrossable breaks><size>
         # Of course, the formats aren't quite the same.
-        record0.write(pack('>I', 5))
+        # GR: Use 2 for indexed files
+        if INDEXING :
+            record0.write(pack('>I', 2))
+        else:
+            record0.write(pack('>I', 5))
 
         # 0xe4 - 0xe7 : Primary index record
         record0.write(pack('>I', 0xffffffff if self._primary_index_record is
@@ -891,11 +1109,14 @@ class MobiWriter(object):
             if index is not None:
                 exth.write(pack('>III', 0xca, 0x0c, index - 1))
                 nrecs += 1
-        if INDEXING:
+
+        # Not sure what these are, but not needed for indexing
+        if False :
             # Write unknown EXTH records as 0s
             for code, size in [(204,4), (205,4), (206,4), (207,4), (300,40)]:
                 exth.write(pack('>II', code, 8+size)+'\0'*size)
                 nrecs += 1
+
         exth = exth.getvalue()
         trail = len(exth) % 4
         pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
@@ -934,4 +1155,74 @@ class MobiWriter(object):
         for record in self._records:
             self._write(record)
 
+
+class HTMLRecordData(object):
+    def __init__(self):
+        self._continuingNode = -1
+        self._continuingNodeParent = -1
+        self._openingNode = -1
+        self._openingNodeParent = -1
+        self._currentSectionNodeCount = -1
+        self._nextSectionNumber = -1
+        self._nextSectionOpeningNode = -1
+        self._nextSectionNodeCount = -1
+
+    def getContinuingNode(self):
+        return self._continuingNode
+    def setContinuingNode(self, value):
+        self._continuingNode = value
+    continuingNode = property(getContinuingNode, setContinuingNode, None, None)
+
+    def getContinuingNodeParent(self):
+        return self._continuingNodeParent
+    def setContinuingNodeParent(self, value):
+        self._continuingNodeParent = value
+    continuingNodeParent = property(getContinuingNodeParent, setContinuingNodeParent, None, None)
+
+    def getOpeningNode(self):
+        return self._openingNode
+    def setOpeningNode(self, value):
+        self._openingNode = value
+    openingNode = property(getOpeningNode, setOpeningNode, None, None)
+
+    def getOpeningNodeParent(self):
+        return self._openingNodeParent
+    def setOpeningNodeParent(self, value):
+        self._openingNodeParent = value
+    openingNodeParent = property(getOpeningNodeParent, setOpeningNodeParent, None, None)
+
+    def getCurrentSectionNodeCount(self):
+        return self._currentSectionNodeCount
+    def setCurrentSectionNodeCount(self, value):
+        self._currentSectionNodeCount = value
+    currentSectionNodeCount = property(getCurrentSectionNodeCount, setCurrentSectionNodeCount, None, None)
+
+    def getNextSectionNumber(self):
+        return self._nextSectionNumber
+    def setNextSectionNumber(self, value):
+        self._nextSectionNumber = value
+    nextSectionNumber = property(getNextSectionNumber, setNextSectionNumber, None, None)
+
+    def getNextSectionOpeningNode(self):
+        return self._nextSectionOpeningNode
+    def setNextSectionOpeningNode(self, value):
+        self._nextSectionOpeningNode = value
+    nextSectionOpeningNode = property(getNextSectionOpeningNode, setNextSectionOpeningNode, None, None)
+
+    def getNextSectionNodeCount(self):
+        return self._nextSectionNodeCount
+    def setNextSectionNodeCount(self, value):
+        self._nextSectionNodeCount = value
+    nextSectionNodeCount = property(getNextSectionNodeCount, setNextSectionNodeCount, None, None)
+
+    def dumpData(self, recordNumber, oeb):
+        oeb.logger.info( "---  Summary of HTML Record 0x%x [%d] indexing  ---" % (recordNumber, recordNumber) )
+        oeb.logger.info( "            continuingNode: %03d" % self.continuingNode )
+        oeb.logger.info( "      continuingNodeParent: %03d" % self.continuingNodeParent )
+        oeb.logger.info( "               openingNode: %03d" % self.openingNode )
+        oeb.logger.info( "         openingNodeParent: %03d" % self.openingNodeParent )
+        oeb.logger.info( "   currentSectionNodeCount: %03d" % self.currentSectionNodeCount )
+        oeb.logger.info( "         nextSectionNumber: %03d" % self.nextSectionNumber )
+        oeb.logger.info( "    nextSectionOpeningNode: %03d" % self.nextSectionOpeningNode )
+        oeb.logger.info( "      nextSectionNodeCount: %03d" % self.nextSectionNodeCount )
 

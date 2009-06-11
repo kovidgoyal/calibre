@@ -279,7 +279,7 @@ class Stylizer(object):
 
 
 class Style(object):
-    UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)$')
+    UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
 
     def __init__(self, element, stylizer):
         self._element = element
@@ -362,6 +362,11 @@ class Style(object):
             elif unit == 'em':
                 font = font or self.fontSize
                 result = value * font
+            elif unit in ('ex', 'en'):
+                # This is a hack for ex since we have no way to know
+                # the x-height of the font
+                font = font or self.fontSize
+                result = value * font * 0.5
             elif unit == 'pc':
                 result = value * 12.0
             elif unit == 'mm':

@@ -23,7 +23,6 @@ entry_points = {
              'calibre-server     = calibre.library.server:main',
              'lrf2lrs            = calibre.ebooks.lrf.lrfparser:main',
              'lrs2lrf            = calibre.ebooks.lrf.lrs.convert_from:main',
-             'isbndb             = calibre.ebooks.metadata.isbndb:main',
              'librarything       = calibre.ebooks.metadata.library_thing:main',
              'calibre-debug      = calibre.debug:main',
              'calibredb          = calibre.library.cli:main',
