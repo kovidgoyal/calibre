@@ -385,7 +385,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.action_view, self.action_save, None, None)
         QObject.connect(self.library_view,
                 SIGNAL('files_dropped(PyQt_PyObject)'),
-                        self.files_dropped)
+                        self.files_dropped, Qt.QueuedConnection)
         for func, target in [
                              ('connect_to_search_box', self.search),
                              ('connect_to_book_display',
