@@ -61,8 +61,9 @@ def roman(num):
 
 
 def fmt_sidx(i, fmt='%.2f', use_roman=False):
-    if i is None:
+    if i is None or i == '':
         i = 1
+    i = float(i)
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
     try:
