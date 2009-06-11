@@ -696,7 +696,7 @@
   <customwidget>
    <class>TagsView</class>
    <extends>QTreeView</extends>
-   <header>tags.h</header>
+   <header>calibre/gui2/tag_view.h</header>
   </customwidget>
  </customwidgets>
  <resources>

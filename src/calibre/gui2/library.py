@@ -726,7 +726,7 @@ class BooksView(TableView):
         paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
         event.accept()
-        self.emit(SIGNAL('files_dropped(PyQt_PyObject)'), paths, Qt.QueuedConnection)
+        self.emit(SIGNAL('files_dropped(PyQt_PyObject)'), paths)
 
 
     def set_database(self, db):

@@ -63,14 +63,13 @@ def roman(num):
 def fmt_sidx(i, fmt='%.2f', use_roman=False):
     if i is None or i == '':
         i = 1
-    i = float(i)
+    try:
+        i = float(i)
+    except TypeError:
+        return str(i)
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
-    try:
-        return fmt%i
-    except TypeError:
-        return fmt%float(i)
-
+    return fmt%i
 
 class Resource(object):
     '''

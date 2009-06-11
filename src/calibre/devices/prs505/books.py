@@ -403,8 +403,9 @@ def fix_ids(main, carda, cardb):
         for child in db.root_element.childNodes:
             if child.nodeType == child.ELEMENT_NODE and child.hasAttribute('id'):
                 id_map[child.getAttribute('id')] = str(cid)
-                child.setAttribute("sourceid",
-                    '0' if getattr(child, 'tagName', '').endswith('playlist') else '1')
+                child.setAttribute('sourceid', '1')
+                #child.setAttribute("sourceid",
+                #    '0' if getattr(child, 'tagName', '').endswith('playlist') else '1')
                 child.setAttribute('id', str(cid))
                 cid += 1
 

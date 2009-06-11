@@ -491,12 +491,12 @@ class MobiWriter(object):
             else :
                 tbsType = 6
 
-            tbSequence = decint(tbsType, DECINT_BACKWARD)
-            tbSequence += decint(0x00, DECINT_BACKWARD)
+            tbSequence = decint(tbsType, DECINT_FORWARD)
+            tbSequence += decint(0x00, DECINT_FORWARD)
             # Don't write a nodecount for opening type 2 record
             if tbsType != 2 :
                 tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
-            tbSequence += decint(len(tbSequence) + 1, DECINT_BACKWARD)
+            tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
 
         else :
             # Determine tbsType for HTMLRecords > 0
@@ -520,12 +520,12 @@ class MobiWriter(object):
             shiftedNCXEntry |= tbsType
 
             # Assemble the TBS
-            tbSequence = decint(shiftedNCXEntry, DECINT_BACKWARD)
-            tbSequence += decint(0x00, DECINT_BACKWARD)
+            tbSequence = decint(shiftedNCXEntry, DECINT_FORWARD)
+            tbSequence += decint(0x00, DECINT_FORWARD)
             # Don't write a nodecount for terminating type 2 record
             if tbsType != 2 :
                 tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
-            tbSequence += decint(len(tbSequence) + 1, DECINT_BACKWARD)
+            tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
 
         # print "record %d: tbsType %d" % (nrecords, tbsType)
         self._tbSequence = tbSequence
