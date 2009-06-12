@@ -79,6 +79,7 @@ class KINDLE_DX(KINDLE):
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
 
+    FORMATS     = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'pdf', 'txt']
 
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
