@@ -509,8 +509,13 @@ class DocumentView(QWebView):
                     self.manager.previous_document()
                     event.accept()
                     return
+
         ret = QWebView.wheelEvent(self, event)
-        self.scroll_by(0, event.delta() * -1)
+        if event.orientation() == Qt.Vertical:
+            self.scroll_by(0, event.delta() * -1)
+        else:
+            self.scroll_by(event.delta() * -1, 0)
+
         if self.manager is not None:
             self.manager.scrolled(self.scroll_fraction)
         return ret
