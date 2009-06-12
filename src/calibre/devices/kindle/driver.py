@@ -72,3 +72,16 @@ class KINDLE2(KINDLE):
 
     PRODUCT_ID = [0x0002]
     BCD        = [0x0100]
+
+class KINDLE_DX(KINDLE):
+    name           = 'Kindle DX Device Interface'
+    description    = _('Communicate with the Kindle 2 eBook reader.')
+    author         = _('John Schember')
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    FORMATS     = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'pdf', 'txt']
+
+    PRODUCT_ID = [0x0003]
+    BCD        = [0x0100]
+
+

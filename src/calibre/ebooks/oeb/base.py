@@ -823,6 +823,7 @@ class Manifest(object):
             for key in list(body.attrib.keys()):
                 if key == 'lang' or key.endswith('}lang'):
                     body.attrib.pop(key)
+
             return data
 
         def _parse_css(self, data):

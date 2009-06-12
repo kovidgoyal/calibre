@@ -350,8 +350,7 @@ from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybookg3.driver import CYBOOKG3
 from calibre.devices.eb600.driver import EB600
 from calibre.devices.jetbook.driver import JETBOOK
-from calibre.devices.kindle.driver import KINDLE
-from calibre.devices.kindle.driver import KINDLE2
+from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.prs500.driver import PRS500
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prs700.driver import PRS700
@@ -397,6 +396,7 @@ plugins += [
     JETBOOK,
     KINDLE,
     KINDLE2,
+    KINDLE_DX,
     PRS500,
     PRS505,
     PRS700,

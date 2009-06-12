@@ -300,9 +300,9 @@ class MobiReader(object):
         root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
-            self.log.warning('Markup contains unclosed <p> tags, parsing using',
-                'BeatifulSoup')
+            self.log.warning('Malformed markup, parsing using BeatifulSoup')
             root = soupparser.fromstring(self.processed_html)
+
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
             nroot = html.fromstring('<html><head></head><body></body></html>')
@@ -313,19 +313,26 @@ class MobiReader(object):
             root = nroot
 
         htmls = list(root.xpath('//html'))
+
         if len(htmls) > 1:
-            self.log.warn('Markup contains multiple <html> tags')
-            # Keep only the largest head and body
+            self.log.warn('Markup contains multiple <html> tags, merging.')
+            # Merge all <head> and <body> sections
+            for h in htmls:
+                p = h.getparent()
+                if hasattr(p, 'remove'):
+                    p.remove(h)
             bodies, heads = root.xpath('//body'), root.xpath('//head')
-            def sz(x): return len(list(x.iter()))
-            def scmp(x, y): return cmp(sz(x), sz(y))
-            body = list(sorted(bodies, cmp=scmp))
-            head = list(sorted(heads, cmp=scmp))
             for x in root: root.remove(x)
-            if head:
-                root.append(head[-1])
-            if body:
-                root.append(body[-1])
+            head, body = map(root.makeelement, ('head', 'body'))
+            for h in heads:
+                for x in h:
+                    h.remove(x)
+                    head.append(x)
+            for b in bodies:
+                for x in b:
+                    b.remove(x)
+                    body.append(x)
+            root.append(head), root.append(body)
         for x in root.xpath('//script'):
             x.getparent().remove(x)
 
@@ -428,6 +435,7 @@ class MobiReader(object):
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
+        self.processed_html = re.sub('\x14|\x15', '', self.processed_html)
 
     def upshift_markup(self, root):
         self.log.debug('Converting style information to CSS...')

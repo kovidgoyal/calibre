@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Newline Type:</string>
+      <string>Line ending style:</string>
      </property>
     </widget>
    </item>

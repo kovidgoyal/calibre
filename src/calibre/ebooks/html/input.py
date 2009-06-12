@@ -233,7 +233,7 @@ class HTMLInput(InputFormatPlugin):
     name        = 'HTML Input'
     author      = 'Kovid Goyal'
     description = 'Convert HTML and OPF files to an OEB'
-    file_types  = set(['opf', 'html', 'htm', 'xhtml', 'xhtm'])
+    file_types  = set(['opf', 'html', 'htm', 'xhtml', 'xhtm', 'shtm', 'shtml'])
 
     options = set([
         OptionRecommendation(name='breadth_first',
