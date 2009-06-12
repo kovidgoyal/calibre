@@ -488,6 +488,8 @@ class DocumentView(QWebView):
         return QWebView.changeEvent(self, event)
 
     def paintEvent(self, event):
+        self.turn_off_internal_scrollbars()
+
         painter = QPainter(self)
         self.document.mainFrame().render(painter, event.region())
         if not self.isEnabled():
@@ -507,7 +509,15 @@ class DocumentView(QWebView):
                     self.manager.previous_document()
                     event.accept()
                     return
+
         ret = QWebView.wheelEvent(self, event)
+
+        scroll_amount = (event.delta() / 120.0) * .2 * -1
+        if event.orientation() == Qt.Vertical:
+            self.scroll_by(0, self.document.viewportSize().height() * scroll_amount)
+        else:
+            self.scroll_by(self.document.viewportSize().width() * scroll_amount, 0)
+
         if self.manager is not None:
             self.manager.scrolled(self.scroll_fraction)
         return ret
