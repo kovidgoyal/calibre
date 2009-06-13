@@ -47,7 +47,7 @@ recipe_modules = ['recipe_' + r for r in (
            'climate_progress', 'carta', 'slashdot', 'publico',
            'the_budget_fashionista', 'elperiodico_catalan',
            'elperiodico_spanish', 'expansion_spanish', 'lavanguardia',
-           'marca',
+           'marca', 'kellog_faculty', 'kellog_insight',
           )]
 
 import re, imp, inspect, time, os

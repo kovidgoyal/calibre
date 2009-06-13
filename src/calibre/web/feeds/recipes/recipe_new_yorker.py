@@ -7,13 +7,13 @@ newyorker.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class NewYorker(BasicNewsRecipe):
     title                 = 'The New Yorker'
     __author__            = 'Darko Miletic'
-    description           = 'The best of US journalism'    
-    oldest_article        = 7
+    description           = 'The best of US journalism'
+    oldest_article        = 15
     language              = _('English')
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -21,14 +21,14 @@ class NewYorker(BasicNewsRecipe):
     publisher             = 'Conde Nast Publications'
     category              = 'news, politics, USA'
     encoding              = 'cp1252'
-                    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     keep_only_tags = [dict(name='div', attrs={'id':'printbody'})]
     remove_tags_after = dict(name='div',attrs={'id':'articlebody'})
