@@ -153,7 +153,7 @@ class Config(ResizableDialog, Ui_Dialog):
         except ImportError:
             pass
         input_widget = None
-        name = 'calibre.gui2.convert.%s' % self.plumber.input_plugin.name.lower().replace(' ', '_')
+        name = self.plumber.input_plugin.name.lower().replace(' ', '_')
         try:
             input_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
