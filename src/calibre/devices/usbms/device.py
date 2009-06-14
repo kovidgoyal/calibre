@@ -265,6 +265,8 @@ class Device(DeviceConfig, DevicePlugin):
         return subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
                                 stdout=subprocess.PIPE).communicate()[0]
 
+    def osx_sort_names(self, names):
+        return names
 
     def get_osx_mountpoints(self, raw=None):
         raw = self.run_ioreg(raw)
@@ -290,7 +292,7 @@ class Device(DeviceConfig, DevicePlugin):
                 get_dev_node(lines[i+1:], 'cardb')
             if len(names.keys()) == 3:
                 break
-        return names
+        return self.osx_sort_names(names)
 
     def open_osx(self):
         mount = subprocess.Popen('mount', shell=True,  stdout=subprocess.PIPE).stdout.read()

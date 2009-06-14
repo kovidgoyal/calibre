@@ -1,8 +1,11 @@
 __license__   = 'GPL v3'
 __copyright__ = '2009, Tijmen Ruizendaal <tijmen at mybebook.com>'
+
 '''
 Device driver for BeBook
 '''
+
+import re
 
 from calibre.devices.usbms.driver import USBMS
 
@@ -24,8 +27,8 @@ class BEBOOK(USBMS):
     WINDOWS_MAIN_MEM = 'FILE-STOR_GADGET'
     WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
-    OSX_MAIN_MEM = 'BeBook Internal Memory'
-    OSX_CARD_A_MEM = 'BeBook Storage Card'
+    OSX_MAIN_MEM = 'Linux File-Stor Gadget Media'
+    OSX_CARD_A_MEM = 'Linux File-Stor Gadget Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'BeBook Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'BeBook Storage Card'
@@ -42,6 +45,23 @@ class BEBOOK(USBMS):
             drives['carda'] = main
 
         return drives
+
+    def osx_sort_names(self, names):
+        main = names.get('main', None)
+        card = names.get('carda', None)
+
+        main_num = int(re.findall('\d+', main)[0]) if main else None
+        card_num = int(re.findall('\d+', card)[0]) if card else None
+
+        if card_num is not None and main_num is not None and card_num < main_num:
+            names['main'] = card
+            names['carda'] = main
+
+        if card and not main:
+            names['main'] = card
+            names['carda'] = None
+
+        return names
 
     def linux_swap_drives(self, drives):
         if len(drives) < 2: return drives
