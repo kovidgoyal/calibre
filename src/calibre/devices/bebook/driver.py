@@ -50,8 +50,14 @@ class BEBOOK(USBMS):
         main = names.get('main', None)
         card = names.get('carda', None)
 
-        main_num = int(re.findall('\d+', main)[0]) if main else None
-        card_num = int(re.findall('\d+', card)[0]) if card else None
+        try:
+            main_num = int(re.findall('\d+', main)[0]) if main else None
+        except:
+            main_num = None
+        try:
+            card_num = int(re.findall('\d+', card)[0]) if card else None
+        except:
+            card_num = None
 
         if card_num is not None and main_num is not None and card_num < main_num:
             names['main'] = card
