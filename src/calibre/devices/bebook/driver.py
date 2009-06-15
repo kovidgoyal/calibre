@@ -44,6 +44,10 @@ class BEBOOK(USBMS):
             drives['main'] = card
             drives['carda'] = main
 
+        if card and not main:
+            drives['main'] = card
+            drives['carda'] = None
+
         return drives
 
     def osx_sort_names(self, names):
