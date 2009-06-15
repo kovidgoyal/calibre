@@ -130,7 +130,11 @@ class HTMLPreProcessor(object):
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   # Clean up spaces
-                  (re.compile(u'(?<=[\.,:;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
+                  (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
+                  # Connect paragraphs split by -
+                  (re.compile(u'(?<=[^\s][-–])[\s]*(</p>)*[\s]*(<p>)*\s*(?=[^\s])'), lambda match: ''),
+                  # Remove - that splits words
+                  (re.compile(u'(?<=[^\s])[-–]+(?=[^\s])'), lambda match: ''),
                   # Add space before and after italics
                   (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
                   (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
