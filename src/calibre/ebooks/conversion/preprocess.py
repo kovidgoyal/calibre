@@ -21,7 +21,9 @@ _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 def sanitize_head(match):
     x = match.group(1)
     x = _span_pat.sub('', x)
-    return '<head>\n'+x+'\n</head>'
+    x = ('\n%s' % x) if not x.startswith('\n') else x
+    x += '\n' if not x.endswith('\n') else ''
+    return '<head>%s</head>' % x
 
 def chap_head(match):
     chap = match.group('chap')
