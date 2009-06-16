@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, sys, textwrap
+import traceback, sys, textwrap, re
 from threading import Thread
 
 from calibre import preferred_encoding
@@ -90,6 +90,8 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
            verbose=0):
     assert not(title is None and author is None and publisher is None and \
                    isbn is None)
+    if isbn is not None:
+        isbn = re.sub(r'[^a-zA-Z0-9]', '', isbn).upper()
     fetchers = [FetchGoogle(title, author, publisher, isbn, verbose)]
     if isbndb_key:
         fetchers.append(FetchISBNDB(title, author, publisher, isbn, verbose,
