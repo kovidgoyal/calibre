@@ -48,6 +48,7 @@ recipe_modules = ['recipe_' + r for r in (
            'the_budget_fashionista', 'elperiodico_catalan',
            'elperiodico_spanish', 'expansion_spanish', 'lavanguardia',
            'marca', 'kellog_faculty', 'kellog_insight',
+           'theeconomictimes_india',
           )]
 
 import re, imp, inspect, time, os
