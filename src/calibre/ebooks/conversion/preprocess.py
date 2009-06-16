@@ -21,9 +21,7 @@ _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 def sanitize_head(match):
     x = match.group(1)
     x = _span_pat.sub('', x)
-    x = ('\n%s' % x) if not x.startswith('\n') else x
-    x += '\n' if not x.endswith('\n') else ''
-    return '<head>%s</head>' % x
+    return '<head>\n%s\n</head>' % x
 
 def chap_head(match):
     chap = match.group('chap')
@@ -86,7 +84,7 @@ class HTMLPreProcessor(object):
     PREPROCESS = [
                   # Some idiotic HTML generators (Frontpage I'm looking at you)
                   # Put all sorts of crap into <head>. This messes up lxml
-                  (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE|re.DOTALL),
+                  (re.compile(r'<head[^>]*>\n*(.*?)\n*</head>', re.IGNORECASE|re.DOTALL),
                    sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
