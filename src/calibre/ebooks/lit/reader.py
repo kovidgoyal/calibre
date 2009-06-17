@@ -370,7 +370,7 @@ class ManifestItem(object):
     def __init__(self, original, internal, mime_type, offset, root, state):
         self.original = original
         self.internal = internal
-        self.mime_type = mime_type
+        self.mime_type = mime_type.lower() if hasattr(mime_type, 'lower') else mime_type
         self.offset = offset
         self.root = root
         self.state = state

@@ -849,6 +849,38 @@ class Manifest(object):
 
             return data
 
+        def _parse_txt(self, data):
+            if '<html>' in data:
+                return self._parse_xhtml(data)
+            from xml.sax.saxutils import escape
+            self.oeb.log.debug('Converting', self.href, '...')
+            paras = []
+            lines = []
+            for l in data.splitlines():
+                if not l:
+                    if lines:
+                        paras.append('<p>'+'\n'.join(lines)+'</p>')
+                    lines = []
+                lines.append(escape(l))
+
+            if lines:
+                paras.append('<p>'+'\n'.join(lines)+'</p>')
+            title = self.oeb.metadata.title
+            if title:
+                title = unicode(title[0])
+            else:
+                title = 'No title'
+            data = '''\
+            <html>
+                <head><title>%s</title></head>
+                <body>%s</body>
+            </html>
+            '''%(title, '\n'.join(paras))
+            data = self._parse_xhtml(data)
+            print etree.tostring(data)
+            return data
+
+
         def _parse_css(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
@@ -895,12 +927,17 @@ class Manifest(object):
                     data = self._loader(self.href)
                 if not isinstance(data, basestring):
                     pass # already parsed
-                elif self.media_type in OEB_DOCS:
+                elif self.media_type.lower() in OEB_DOCS:
                     data = self._parse_xhtml(data)
-                elif self.media_type[-4:] in ('+xml', '/xml'):
+                elif self.media_type.lower()[-4:] in ('+xml', '/xml'):
                     data = etree.fromstring(data)
-                elif self.media_type in OEB_STYLES:
+                elif self.media_type.lower() in OEB_STYLES:
                     data = self._parse_css(data)
+                elif 'text' in self.media_type.lower():
+                    self.oeb.log.warn('%s contains data in TXT format'%self.href,
+                            'converting to HTML')
+                    data = self._parse_txt(data)
+                    self.media_type = XHTML_MIME
                 self._data = data
                 return data
             def fset(self, value):

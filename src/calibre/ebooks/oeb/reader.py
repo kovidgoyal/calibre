@@ -247,6 +247,8 @@ class OEBReader(object):
             if media_type is None or media_type == 'text/xml':
                 guessed = guess_type(href)[0]
                 media_type = guessed or media_type or BINARY_MIME
+            if hasattr(media_type, 'lower'):
+                media_type = media_type.lower()
             fallback = elem.get('fallback')
             if href in manifest.hrefs:
                 self.logger.warn(u'Duplicate manifest entry for %r' % href)
