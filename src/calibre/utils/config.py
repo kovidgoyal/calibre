@@ -497,6 +497,8 @@ class DynamicConfig(dict):
                 raw = f.read()
                 try:
                     d = cPickle.loads(raw) if raw.strip() else {}
+                except SystemError:
+                    pass
                 except:
                     import traceback
                     traceback.print_exc()
