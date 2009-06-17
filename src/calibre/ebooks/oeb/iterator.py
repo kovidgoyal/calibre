@@ -20,7 +20,7 @@ from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
 from calibre.ebooks.epub.output import EPUBOutput
 
-TITLEPAGE = EPUBOutput.TITLEPAGE_COVER
+TITLEPAGE = EPUBOutput.TITLEPAGE_COVER.decode('utf-8')
 
 def character_count(html):
     '''
@@ -149,7 +149,8 @@ class EbookIterator(object):
         if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
             cfile = os.path.join(os.path.dirname(self.spine[0]),
                     'calibre_iterator_cover.html')
-            open(cfile, 'wb').write(TITLEPAGE%cover)
+            chtml = (TITLEPAGE%cover).encode('utf-8')
+            open(cfile, 'wb').write(chtml)
             self.spine[0:0] = [SpineItem(cfile)]
             self.delete_on_exit.append(cfile)
 
