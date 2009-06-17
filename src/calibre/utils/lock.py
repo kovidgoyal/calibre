@@ -14,11 +14,11 @@ class LockError(Exception):
     pass
 
 class ExclusiveFile(object):
-    
-    def __init__(self, path, timeout=10):
+
+    def __init__(self, path, timeout=15):
         self.path = path
         self.timeout = timeout
-        
+
     def __enter__(self):
         self.file  = open(self.path, 'a+b')
         self.file.seek(0)
@@ -42,12 +42,11 @@ class ExclusiveFile(object):
             self.file.close()
             raise LockError
         return self.file
-                
+
     def __exit__(self, type, value, traceback):
-        self.file.close()
         if iswindows:
             win32api.CloseHandle(self.mutex)
-
+        self.file.close()
 
 def _clean_lock_file(file):
     try:
@@ -62,10 +61,10 @@ def _clean_lock_file(file):
 
 def singleinstance(name):
     '''
-    Return True if no other instance of the application identified by name is running, 
+    Return True if no other instance of the application identified by name is running,
     False otherwise.
     @param name: The name to lock.
-    @type name: string 
+    @type name: string
     '''
     if iswindows:
         mutexname = 'mutexforsingleinstanceof'+__appname__+name
@@ -82,5 +81,5 @@ def singleinstance(name):
             return True
         except IOError:
             return False
-        
+
     return False
