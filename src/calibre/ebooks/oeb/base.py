@@ -321,6 +321,27 @@ def urlnormalize(href):
     parts = (urlquote(part) for part in parts)
     return urlunparse(parts)
 
+def merge_multiple_html_heads_and_bodies(root, log=None):
+    heads, bodies = xpath(root, '//h:head'), xpath(root, '//h:body')
+    if not (len(heads) > 1 or len(bodies) > 1): return root
+    for child in root: root.remove(child)
+    head = root.makeelement(XHTML('head'))
+    body = root.makeelement(XHTML('body'))
+    for h in heads:
+        for x in h:
+            head.append(x)
+    for b in bodies:
+        for x in b:
+            body.append(x)
+    map(root.append, (head, body))
+    if log is not None:
+        log.warn('Merging multiple <head> and <body> sections')
+    return root
+
+
+
+
+
 class DummyHandler(logging.Handler):
 
     def __init__(self):
@@ -786,6 +807,8 @@ class Manifest(object):
                 for elem in data:
                     nroot.append(elem)
                 data = nroot
+
+            data = merge_multiple_html_heads_and_bodies(data, self.oeb.logger)
             # Ensure has a <head/>
             head = xpath(data, '/h:html/h:head')
             head = head[0] if head else None
