@@ -40,7 +40,7 @@ class SVGRasterizer(object):
     @classmethod
     def generate(cls, opts):
         return cls()
-    
+
     def __call__(self, oeb, context):
         oeb.logger.info('Rasterizing SVG images...')
         self.oeb = oeb
@@ -98,7 +98,7 @@ class SVGRasterizer(object):
             data = "data:%s;base64,%s" % (linkee.media_type, data)
             elem.attrib[XLINK('href')] = data
         return svg
-            
+
     def rasterize_spine(self):
         for item in self.oeb.spine:
             html = item.data
@@ -182,12 +182,12 @@ class SVGRasterizer(object):
             elem.text = None
         for child in elem:
             elem.remove(child)
-    
+
     def rasterize_cover(self):
         covers = self.oeb.metadata.cover
         if not covers:
             return
-        cover = self.oeb.manifest.ids[str(covers[0])]
+        cover = self.oeb.manifest.ids[unicode(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
         width = (self.profile.width / 72) * self.profile.dpi

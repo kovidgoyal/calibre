@@ -478,15 +478,15 @@ class MobiWriter(object):
         # Variables for trailing byte sequence
         tbsType = 0x00
         tbSequence = ""
-        
+
         # Generate TBS for type 0x002 - mobi_book
         if self._initialIndexRecordFound == False :
-            
+
             # Is there any indexed content yet?
             if self._HTMLRecords[nrecords].currentSectionNodeCount == -1 :
                 # No indexing data - write vwi length of 1 only
                 tbSequence = decint(len(tbSequence) + 1, DECINT_FORWARD)
-                
+
             else :
                 # First indexed HTML record is a special case
                 # One or more nodes
@@ -495,7 +495,7 @@ class MobiWriter(object):
                     tbsType = 2
                 else :
                     tbsType = 6
-    
+
                 tbSequence = decint(tbsType, DECINT_FORWARD)
                 tbSequence += decint(0x00, DECINT_FORWARD)
                 # Don't write a nodecount for opening type 2 record
@@ -1104,7 +1104,7 @@ class MobiWriter(object):
                 exth.write(data)
                 nrecs += 1
         if oeb.metadata.cover:
-            id = str(oeb.metadata.cover[0])
+            id = unicode(oeb.metadata.cover[0])
             item = oeb.manifest.ids[id]
             href = item.href
             index = self._images[href] - 1

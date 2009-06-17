@@ -725,7 +725,7 @@ class Manifest(object):
             self._data = data
 
         def __repr__(self):
-            return 'Item(id=%r, href=%r, media_type=%r)' \
+            return u'Item(id=%r, href=%r, media_type=%r)' \
                 % (self.id, self.href, self.media_type)
 
         def _parse_xhtml(self, data):
