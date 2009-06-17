@@ -66,7 +66,8 @@ class OEBReader(object):
         """
         self.oeb = oeb
         self.logger = self.log = oeb.logger
-        oeb.container = self.Container(path)
+        oeb.container = self.Container(path, self.logger)
+        oeb.container.log = oeb.log
         opf = self._read_opf()
         self._all_from_opf(opf)
         return oeb

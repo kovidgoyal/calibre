@@ -407,7 +407,8 @@ def preserve(function):
 class LitFile(object):
     PIECE_SIZE = 16
 
-    def __init__(self, filename_or_stream):
+    def __init__(self, filename_or_stream, log):
+        self._warn = log.warn
         if hasattr(filename_or_stream, 'read'):
             self.stream = filename_or_stream
         else:
@@ -428,7 +429,7 @@ class LitFile(object):
         self.read_drm()
 
     def warn(self, msg):
-        print "WARNING: %s" % (msg,)
+        self._warn(msg)
 
     def magic():
         @preserve
@@ -844,8 +845,9 @@ class LitFile(object):
 class LitContainer(object):
     """Simple Container-interface, read-only accessor for LIT files."""
 
-    def __init__(self, filename_or_stream):
-        self._litfile = LitFile(filename_or_stream)
+    def __init__(self, filename_or_stream, log):
+        self._litfile = LitFile(filename_or_stream, log)
+        self.log = log
 
     def namelist(self):
         return self._litfile.paths.keys()

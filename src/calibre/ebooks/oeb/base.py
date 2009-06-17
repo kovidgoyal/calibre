@@ -375,6 +375,10 @@ class NullContainer(object):
 
     For use with book formats which do not support container-like access.
     """
+
+    def __init__(self, log):
+        self.log = log
+
     def read(self, path):
         raise OEBError('Attempt to read from NullContainer')
 
@@ -390,7 +394,8 @@ class NullContainer(object):
 class DirContainer(object):
     """Filesystem directory container."""
 
-    def __init__(self, path):
+    def __init__(self, path, log):
+        self.log = log
         path = unicode(path)
         ext = os.path.splitext(path)[1].lower()
         if ext == '.opf':
@@ -1632,7 +1637,7 @@ class OEBBook(object):
         self.pretty_print = pretty_print
         self.logger = self.log = logger
         self.version = '2.0'
-        self.container = NullContainer()
+        self.container = NullContainer(self.log)
         self.metadata = Metadata(self)
         self.uid = None
         self.manifest = Manifest(self)

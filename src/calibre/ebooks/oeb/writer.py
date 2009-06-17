@@ -59,7 +59,7 @@ class OEBWriter(object):
             path = os.path.dirname(path)
         if not os.path.isdir(path):
             os.mkdir(path)
-        output = DirContainer(path)
+        output = DirContainer(path, oeb.log)
         for item in oeb.manifest.values():
             output.write(item.href, str(item))
         if version == 1:
