@@ -6,7 +6,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, os, uuid, copy
+import sys, os, uuid, copy, re
 from itertools import izip
 from urlparse import urldefrag, urlparse
 from urllib import unquote as urlunquote
@@ -107,8 +107,14 @@ class OEBReader(object):
         except etree.XMLSyntaxError:
             repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
             data = ENTITY_RE.sub(repl, data)
-            opf = etree.fromstring(data)
-            self.logger.warn('OPF contains invalid HTML named entities')
+            try:
+                opf = etree.fromstring(data)
+                self.logger.warn('OPF contains invalid HTML named entities')
+            except etree.XMLSyntaxError:
+                data = re.sub(r'(?is)<tours>.+</tours>', '', data)
+                self.logger.warn('OPF contains invalid tours section')
+                opf = etree.fromstring(data)
+
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
             raise OEBError('Invalid namespace %r for OPF document' % ns)
