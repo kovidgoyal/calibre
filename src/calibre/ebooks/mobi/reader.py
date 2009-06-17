@@ -114,6 +114,7 @@ class BookHeader(object):
         if len(raw) <= 16:
             self.codec = 'cp1251'
             self.extra_flags = 0
+            self.title = _('Unknown')
             self.language = 'ENGLISH'
             self.sublanguage = 'NEUTRAL'
             self.exth_flag, self.exth = 0, None
