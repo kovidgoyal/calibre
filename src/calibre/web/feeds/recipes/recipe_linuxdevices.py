@@ -4,12 +4,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Fetch Linuxdevices.
 '''
-
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Sueddeutsche(BasicNewsRecipe):
-    
+
     title = u'Linuxdevices'
     description = 'News about Linux driven Hardware'
     __author__ = 'Oliver Niesner'
@@ -18,6 +18,7 @@ class Sueddeutsche(BasicNewsRecipe):
     max_articles_per_feed = 50
     no_stylesheets = True
     html2epub_options = 'linearize_tables = True\nbase_font_size2=14'
+    html2lrf_options = ['--ignore-tables']
     encoding = 'latin1'
 
 
@@ -71,8 +72,32 @@ class Sueddeutsche(BasicNewsRecipe):
                    dict(id='nnav-logo'),
                    dict(id='nnav-oly'),
                    dict(id='readcomment')]
-    
 
 
-    feeds =  [ (u'Linuxdevices', u'http://www.linuxdevices.com/backend/headlines.rss') ] 
+
+    feeds =  [ (u'Linuxdevices', u'http://www.linuxdevices.com/backend/headlines.rss') ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(re.compile('^a')):
+            item.extract()
+        match = re.compile(r"^Related")
+        for item in soup.findAll('b', text=match):
+            item.extract()
+        for item in soup.findAll(re.compile('^li')):
+            item.extract()
+        for item in soup.findAll(re.compile('^ul')):
+            item.extract()
+        for item in soup.find(re.compile('^br')):
+            item.extract()
+        for item in soup.findAll('br', limit=10):
+            item.extract()
+        return soup
+
+
+    def postprocess_html(self, soup, first):
+        for tag in soup.findAll(name=['table', 'tr', 'td']):
+            tag.name = 'div'
+        return soup
+
+
 
