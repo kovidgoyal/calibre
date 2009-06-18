@@ -54,10 +54,15 @@ function calculate_bookmark(y) {
     return sel + "|" + ratio;
 }
 
+function animated_scrolling_done() {
+    window.py_bridge.animated_scroll_done();
+}
+
 function scroll_to_bookmark(bookmark) {
     bm = bookmark.split("|");
     var ratio = 0.7 * parseFloat(bm[1]);
-    $.scrollTo($(bm[0]), 1000, {over:ratio});
+    $.scrollTo($(bm[0]), 1000,
+        {over:ratio, onAfter:function(){window.py_bridge.animated_scroll_done()}});
 }
 
 '''
@@ -112,7 +117,8 @@ function goto_reference(ref) {
     if (num < 0) {alert("Invalid reference: "+ref); return;}
     var p = $("p");
     if (num >= p.length) {alert("Reference not found: "+ref); return;}
-    $.scrollTo($(p[num]), 1000);
+    $.scrollTo($(p[num]), 1000,
+        {onAfter:function(){window.py_bridge.animated_scroll_done()}});
 }
 
 '''
