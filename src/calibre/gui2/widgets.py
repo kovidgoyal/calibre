@@ -34,8 +34,6 @@ class ProgressIndicator(QWidget):
         self.status = QLabel(self)
         self.status.setWordWrap(True)
         self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
-        self.status.font().setBold(True)
-        self.status.font().setPointSize(self.font().pointSize()+6)
         self.setVisible(False)
 
     def start(self, msg=''):
@@ -47,7 +45,7 @@ class ProgressIndicator(QWidget):
         self.ml.move(int((self.size().width()-self.ml.size().width())/2.), 0)
         self.status.resize(self.size().width(), self.size().height()-self.ml.size().height()-10)
         self.status.move(0, self.ml.size().height()+10)
-        self.status.setText(msg)
+        self.status.setText('<h1>'+msg+'</h1>')
         self.setVisible(True)
         self.movie.setPaused(False)
 

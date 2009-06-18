@@ -72,8 +72,6 @@ class ProgressIndicator(QWidget):
         self.status = QLabel(self)
         self.status.setWordWrap(True)
         self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
-        self.status.font().setBold(True)
-        self.status.font().setPointSize(self.font().pointSize()+6)
         self.setVisible(False)
 
     def start(self, msg=''):
@@ -85,7 +83,7 @@ class ProgressIndicator(QWidget):
         self.ml.move(int((self.size().width()-self.ml.size().width())/2.), 0)
         self.status.resize(self.size().width(), self.size().height()-self.ml.size().height()-10)
         self.status.move(0, self.ml.size().height()+10)
-        self.status.setText(msg)
+        self.status.setText('<h1>'+msg+'</h1>')
         self.setVisible(True)
         self.movie.setPaused(False)
 
@@ -140,7 +138,9 @@ class Metadata(QLabel):
 
     def show_opf(self, opf, ext=''):
         mi = MetaInformation(opf)
-        html = '<h2 align="center">%s</h2>%s\n<b>Source Type</b> %s'%(_('Metadata'), u''.join(mi.to_html()), ext)
+        html = '<h2 align="center">%s</h2>%s\n<b>%s:</b> %s'\
+                %(_('Metadata'), u''.join(mi.to_html()),
+                        _('Book format'), ext.upper())
         self.setText(html)
 
     def setVisible(self, x):
@@ -189,7 +189,7 @@ class HelpfulLineEdit(QLineEdit):
 
 class EbookViewer(MainWindow, Ui_EbookViewer):
 
-    def __init__(self, pathtoebook=None):
+    def __init__(self, pathtoebook=None, debug_javascript=False):
         MainWindow.__init__(self, None)
         self.setupUi(self)
         self.iterator          = None
@@ -219,6 +219,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.search.setToolTip(_('Search for text in book'))
         self.tool_bar2.insertWidget(self.action_find_next, self.search)
         self.view.set_manager(self)
+        self.view.document.debug_javascript = debug_javascript
         self.pi = ProgressIndicator(self)
         self.toc.setVisible(False)
         self.action_quit = QAction(self)
@@ -630,6 +631,8 @@ def config(defaults=None):
                      'front when started.'))
     c.add_opt('remember_window_size', default=False,
         help=_('Remember last used window size'))
+    c.add_opt('debug_javascript', ['--debug-javascript'], default=False,
+        help=_('Print javascript alert and console messages to the console'))
 
     return c
 
@@ -651,7 +654,8 @@ def main(args=sys.argv):
         app.setWindowIcon(QIcon(':/images/viewer.svg'))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)
-        main = EbookViewer(args[1] if len(args) > 1 else None)
+        main = EbookViewer(args[1] if len(args) > 1 else None,
+                debug_javascript=opts.debug_javascript)
         sys.excepthook = main.unhandled_exception
         main.show()
         if opts.raise_window:

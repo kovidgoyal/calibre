@@ -1,27 +1,5 @@
 bookmarks = '''
 
-function find_enclosing_block(y) {
-    var elements = $("*", document.body);
-    var min = 0;
-    var temp, left, top, elem, width, height, ratio;
-    for (i = 0; i < elements.length; i++) {
-        elem = $(elements[i]);
-        temp = elem.offset();
-        left = temp.left; top = temp.top;
-        width = elem.width(); height = elem.height();
-        if (top > y+50) break;
-        for ( x = 40; x < window.innerWidth; x += 20) {
-            if (x >= left && x <= left+width && y >= top && y <= top+height) {
-                if (min == 0 || min.height() > height) { min = elem; break; }
-            }
-        }
-        if (min != 0 && min.height() < 200) break;
-    }
-    if (y <= 0) return document.body;
-    if (min == 0) { return find_enclosing_block(y-20); }
-    return min;
-}
-
 function selector_in_parent(elem) {
     var num = elem.prevAll().length;
     var sel = " > *:eq("+num+") ";
@@ -38,8 +16,37 @@ function selector(elem) {
     return sel;
 }
 
+function find_closest_enclosing_block(top) {
+    var START = top-1000;
+    var STOP = top;
+    var matches = [];
+    var elem, temp;
+    var width = 1000;
+
+    for (y = START; y < STOP; y += 20) {
+        for ( x = 0; x < width; x += 20) {
+            elem = document.elementFromPoint(x, y);
+            try {
+                elem = $(elem);
+                temp = elem.offset().top
+                matches.push(elem);
+                if (Math.abs(temp - START) < 25) { y = STOP; break}
+            } catch(error) {}
+        }
+    }
+
+    var miny = Math.abs(matches[0].offset().top - START), min_elem = matches[0];
+
+    for (i = 1; i < matches.length; i++) {
+        elem = matches[i];
+        temp = Math.abs(elem.offset().top - START);
+        if ( temp < miny ) { miny = temp; min_elem = elem; }
+    }
+    return min_elem;
+}
+
 function calculate_bookmark(y) {
-    var elem = find_enclosing_block(y);
+    var elem = find_closest_enclosing_block(y);
     var sel = selector(elem);
     var ratio = (y - elem.offset().top)/elem.height();
     if (ratio > 1) { ratio = 1; }
