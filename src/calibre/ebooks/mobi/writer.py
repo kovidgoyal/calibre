@@ -427,7 +427,7 @@ class MobiWriter(object):
         # borrowed from _generate_indxt
         for i, child in enumerate(entries):
             if not child.title or not child.title.strip():
-                continue
+                child.title = _('Unnamed')
             h = child.href
             if h not in self._id_offsets:
                 self._oeb.log.warning('Could not find TOC entry:', child.title)
@@ -869,21 +869,24 @@ class MobiWriter(object):
         self._last_toc_entry = None
         ctoc = StringIO()
 
-        def add_node(node, cls, title=None):
-            t = node.title if title is None else title
-            if t and t.strip():
-                t = t.strip()
-                if not isinstance(t, unicode):
-                    t = t.decode('utf-8', 'replace')
-                t = t.encode('utf-8')
-                self._last_toc_entry = t
-                self._ctoc_map[node] = ctoc.tell()
-                self._ctoc_name_map[node] = t
-                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+        def add_node(node, cls):
+            t = node.title
+            if not t:
+                t = _('Unnamed')
+            t = t.strip()
+            if not isinstance(t, unicode):
+                t = t.decode('utf-8', 'replace')
+            t = t.encode('utf-8')
+            self._last_toc_entry = t
+            self._ctoc_map[node] = ctoc.tell()
+            self._ctoc_name_map[node] = t
+            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
 
         first = True
         for child in toc.iter():
-            add_node(child, 'chapter')#, title='Title Page' if first else None)
+            if not child.title:
+                child.title = _('Unnamed')
+            add_node(child, 'chapter')
             first = False
 
         return align_block(ctoc.getvalue())
