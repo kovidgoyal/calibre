@@ -138,9 +138,11 @@ class Metadata(QLabel):
         self.setWordWrap(True)
         self.setVisible(False)
 
-    def show_opf(self, opf):
+    def show_opf(self, opf, ext=''):
         mi = MetaInformation(opf)
-        html = '<h2 align="center">%s</h2>%s'%(_('Metadata'), u''.join(mi.to_html()))
+        html = '<h2 align="center">%s</h2>%s\n<b>%s:</b> %s'\
+                %(_('Metadata'), u''.join(mi.to_html()),
+                        _('Book format'), ext.upper())
         self.setText(html)
 
     def setVisible(self, x):
@@ -550,7 +552,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                         unicode(r), det_msg=worker.traceback, show=True)
             self.close_progress_indicator()
         else:
-            self.metadata.show_opf(self.iterator.opf)
+            self.metadata.show_opf(self.iterator.opf, os.path.splitext(pathtoebook)[1][1:])
             title = self.iterator.opf.title
             if not title:
                 title = os.path.splitext(os.path.basename(pathtoebook))[0]
