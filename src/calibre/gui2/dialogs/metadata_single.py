@@ -1,15 +1,18 @@
-from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 '''
 The dialog used to edit meta information for a book as well as
 add/remove formats
 '''
-import os, time, traceback
+
+import os
+import re
+import time
+import traceback
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompleter
-
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, pixmap_to_data, choose_images, ResizableDialog
@@ -422,7 +425,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
     def fetch_metadata(self):
-        isbn   = qstring_to_unicode(self.isbn.text())
+        isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text()))
         title  = qstring_to_unicode(self.title.text())
         author = string_to_authors(unicode(self.authors.text()))[0]
         publisher = qstring_to_unicode(self.publisher.currentText())

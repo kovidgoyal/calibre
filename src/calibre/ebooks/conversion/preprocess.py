@@ -21,7 +21,7 @@ _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 def sanitize_head(match):
     x = match.group(1)
     x = _span_pat.sub('', x)
-    return '<head>\n'+x+'\n</head>'
+    return '<head>\n%s\n</head>' % x
 
 def chap_head(match):
     chap = match.group('chap')
@@ -84,7 +84,7 @@ class HTMLPreProcessor(object):
     PREPROCESS = [
                   # Some idiotic HTML generators (Frontpage I'm looking at you)
                   # Put all sorts of crap into <head>. This messes up lxml
-                  (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE|re.DOTALL),
+                  (re.compile(r'<head[^>]*>\n*(.*?)\n*</head>', re.IGNORECASE|re.DOTALL),
                    sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
@@ -130,7 +130,11 @@ class HTMLPreProcessor(object):
                   # Have paragraphs show better
                   (re.compile(r'<br.*?>'), lambda match : '<p>'),
                   # Clean up spaces
-                  (re.compile(u'(?<=[\.,:;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
+                  (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
+                  # Connect paragraphs split by -
+                  (re.compile(u'(?<=[^\s][-–])[\s]*(</p>)*[\s]*(<p>)*\s*(?=[^\s])'), lambda match: ''),
+                  # Remove - that splits words
+                  (re.compile(u'(?<=[^\s])[-–]+(?=[^\s])'), lambda match: ''),
                   # Add space before and after italics
                   (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
                   (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),

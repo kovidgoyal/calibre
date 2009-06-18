@@ -639,7 +639,6 @@ class MobiWriter(object):
         self._text_nrecords = nrecords
 
     def _generate_indxt(self, ctoc):
-
         if self.opts.mobi_periodical:
             raise NotImplementedError('Indexing for periodicals not implemented')
         toc = self._oeb.toc

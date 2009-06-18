@@ -344,8 +344,6 @@ class DetailView(QDialog, Ui_Dialog):
         self.next_pos = f.tell()
         if more:
             self.log.appendPlainText(more.decode('utf-8', 'replace'))
-        vbar = self.log.verticalScrollBar()
-        vbar.setValue(vbar.maximum())
 
 
 class JobsView(TableView):

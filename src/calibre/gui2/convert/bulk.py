@@ -95,14 +95,13 @@ class BulkConfig(Config):
         self.stack.setCurrentIndex(idx)
 
     def setup_output_formats(self, db, preferred_output_format):
-        available_formats = ''
-        available_formats = set([x.lower() for x in
-            available_formats.split(',')])
+        if preferred_output_format:
+            preferred_output_format = preferred_output_format.lower()
         output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
         preferred_output_format = preferred_output_format if \
-            preferred_output_format in output_formats else \
-            sort_formats_by_preference(output_formats,
+            preferred_output_format and preferred_output_format \
+            in output_formats else sort_formats_by_preference(output_formats,
                     OUTPUT_FORMAT_PREFERENCES)[0]
         self.output_formats.addItems(list(map(QString, [x.upper() for x in
             output_formats])))
