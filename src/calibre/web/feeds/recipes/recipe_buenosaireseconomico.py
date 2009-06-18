@@ -1,0 +1,71 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+elargentino.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+class BsAsEconomico(BasicNewsRecipe):
+    title                 = 'Buenos Aires Economico'
+    __author__            = 'Darko Miletic'
+    description           = 'Revista Argentina'
+    publisher             = 'ElArgentino.com'
+    category              = 'news, politics, economy, Argentina'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    language              = _('Spanish')
+    lang                  = 'es-AR'
+    direction             = 'ltr'
+    INDEX                 = 'http://www.elargentino.com/medios/121/Buenos-Aires-Economico.html'
+    extra_css             = ' .titulo{font-size: x-large; font-weight: bold} .volantaImp{font-size: small; font-weight: bold} '
+
+    html2lrf_options = [
+                          '--comment'  , description
+                        , '--category' , category
+                        , '--publisher', publisher
+                        ]
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
+
+    keep_only_tags = [dict(name='div', attrs={'class':'ContainerPop'})]
+
+    remove_tags = [dict(name='link')]
+
+    feeds = [(u'Articulos', u'http://www.elargentino.com/Highlights.aspx?ParentType=Section&ParentId=121&Content-Type=text/xml&ChannelDesc=Buenos%20Aires%20Econ%C3%B3mico')]
+
+    def print_version(self, url):
+        main, sep, article_part = url.partition('/nota-')
+        article_id, rsep, rrest = article_part.partition('-')
+        return u'http://www.elargentino.com/Impresion.aspx?Id=' + article_id
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        return soup
+
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup(self.INDEX)
+        cover_item = soup.find('div',attrs={'class':'colder'})
+        if cover_item:
+           clean_url = self.image_url_processor(None,cover_item.div.img['src'])
+           cover_url = 'http://www.elargentino.com' + clean_url + '&height=600'
+        return cover_url
+
+    def image_url_processor(self, baseurl, url):
+        base, sep, rest = url.rpartition('?Id=')
+        img, sep2, rrest = rest.partition('&')
+        return base + sep + img
