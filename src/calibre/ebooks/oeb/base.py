@@ -759,28 +759,33 @@ class Manifest(object):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = self.oeb.html_preprocessor(data)
+            orig_data = data
             # Try with more & more drastic measures to parse
-            try:
-                data = etree.fromstring(data)
-            except etree.XMLSyntaxError:
-                repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-                data = ENTITY_RE.sub(repl, data)
+            def first_pass(data):
                 try:
                     data = etree.fromstring(data)
                 except etree.XMLSyntaxError:
-                    # TODO: Factor out HTML->XML coercion
-                    self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
-                    data = html.fromstring(data)
-                    data.attrib.pop('xmlns', None)
-                    for elem in data.iter(tag=etree.Comment):
-                        if elem.text:
-                            elem.text = elem.text.strip('-')
-                    data = etree.tostring(data, encoding=unicode)
+                    repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
+                    data = ENTITY_RE.sub(repl, data)
                     try:
                         data = etree.fromstring(data)
                     except etree.XMLSyntaxError:
-                        data = etree.fromstring(data, parser=RECOVER_PARSER)
+                        self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
+                        data = html.fromstring(data)
+                        data.attrib.pop('xmlns', None)
+                        for elem in data.iter(tag=etree.Comment):
+                            if elem.text:
+                                elem.text = elem.text.strip('-')
+                        data = etree.tostring(data, encoding=unicode)
+                        try:
+                            data = etree.fromstring(data)
+                        except etree.XMLSyntaxError:
+                            data = etree.fromstring(data, parser=RECOVER_PARSER)
+                return data
+            data = first_pass(data)
             # Force into the XHTML namespace
+            if barename(data.tag) != 'html':
+                data = first_pass('<html>'+data+'</html>')
             if barename(data.tag) != 'html':
                 raise NotHTML(
                     'File %r does not appear to be (X)HTML' % self.href)
