@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os, math, re
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, QFont
+                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, \
+                     QFont, QObject, QApplication, pyqtSignature
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -72,6 +73,20 @@ def config(defaults=None):
 
     return c
 
+class PythonJS(QObject):
+
+    def __init__(self, callback):
+        QObject.__init__(self, QApplication.instance())
+        self.setObjectName("py_bridge")
+        self._callback = callback
+
+    @pyqtSignature("QString")
+    def callback(self, msg):
+        print "callback called"
+        self._callback(msg)
+
+
+
 class ConfigDialog(QDialog, Ui_Dialog):
 
     def __init__(self, *args):
@@ -88,6 +103,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
+
 
     def accept(self, *args):
         c = config()
@@ -125,7 +141,10 @@ class Document(QWebPage):
 
     def __init__(self, *args):
         QWebPage.__init__(self, *args)
+        self.setObjectName("py_bridge")
         self.debug_javascript = False
+        #self.js_bridge = PythonJS(self.js_callback)
+
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
         pal = self.palette()
@@ -160,11 +179,16 @@ class Document(QWebPage):
         self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile(pt.name))
 
     def load_javascript_libraries(self):
+        self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         from calibre.resources import jquery, jquery_scrollTo
         self.javascript(jquery)
         self.javascript(jquery_scrollTo)
         self.javascript(bookmarks)
         self.javascript(referencing)
+
+    @pyqtSignature("")
+    def animated_scroll_done(self):
+        self.emit(SIGNAL('animated_scroll_done()'))
 
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
@@ -302,6 +326,12 @@ class DocumentView(QWebView):
         self.connect(self.document, SIGNAL('linkClicked(QUrl)'), self.link_clicked)
         self.connect(self.document, SIGNAL('linkHovered(QString,QString,QString)'), self.link_hovered)
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
+        self.connect(self.document, SIGNAL('animated_scroll_done()'),
+                self.animated_scroll_done, Qt.QueuedConnection)
+
+    def animated_scroll_done(self):
+        if self.manager is not None:
+            self.manager.scrolled(self.document.scroll_fraction)
 
     def reference_mode(self, enable):
         self._reference_mode = enable
