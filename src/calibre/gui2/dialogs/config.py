@@ -153,7 +153,7 @@ class PluginModel(QAbstractItemModel):
     def flags(self, index):
         if not index.isValid():
             return 0
-        if index.internalId() == -1:
+        if index.internalId() == 0:
             return Qt.ItemIsEnabled
         flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
         return flags
@@ -161,7 +161,7 @@ class PluginModel(QAbstractItemModel):
     def data(self, index, role):
         if not index.isValid():
             return NONE
-        if index.internalId() == -1:
+        if index.internalId() == 0:
             if role == Qt.DisplayRole:
                 category = self.categories[index.row()]
                 return QVariant(category + _(' plugins'))

@@ -356,7 +356,7 @@ from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prs700.driver import PRS700
 
 
-plugins = []
+plugins = [HTML2ZIP]
 plugins += [
     ComicInput,
     EPUBInput,
