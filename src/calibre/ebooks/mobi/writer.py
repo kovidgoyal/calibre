@@ -325,6 +325,8 @@ class MobiWriter(object):
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
         self._primary_index_record = None
+        self._hasValideNCXEntries = False
+        self._ctoc = ""
         self._HTMLRecords = []
         self._tbSequence = ""
         self._initialIndexRecordFound = False
@@ -364,7 +366,7 @@ class MobiWriter(object):
         self._map_image_names()
         self._generate_text()
         #if INDEXING and not self.opts.no_mobi_index:
-        if INDEXING :
+        if INDEXING and self._hasValidNCXEntries :
             try:
                 self._generate_index()
             except:
@@ -411,6 +413,8 @@ class MobiWriter(object):
 
     def _build_HTMLRecords_Data_List(self):
         # Assemble a HTMLRecordData instance for each HTML record
+        # Return True if valid, False if invalid
+        self._oeb.logger.info('Indexing navPoints ...')
 
         numberOfHTMLRecords = ( self._content_length // RECORD_SIZE ) + 1
 
@@ -423,17 +427,28 @@ class MobiWriter(object):
         toc = self._oeb.toc
         myIndex = 0
         myEndingRecord = 0
+        previousOffset = 0
+        previousLength = 0
+        offset = 0
+        length = 0
         entries = list(toc.iter())[1:]
-        # borrowed from _generate_indxt
+
+
+        # Get offset, length per entry
         for i, child in enumerate(entries):
+
+            '''
             if not child.title or not child.title.strip():
-                child.title = _('Unnamed')
+                child.title = "(none)"
+            '''
             h = child.href
             if h not in self._id_offsets:
                 self._oeb.log.warning('Could not find TOC entry:', child.title)
                 continue
             offset = self._id_offsets[h]
+
             length = None
+
             for sibling in entries[i+1:]:
                 h2 = sibling.href
                 if h2 in self._id_offsets:
@@ -441,8 +456,24 @@ class MobiWriter(object):
                     if offset2 > offset:
                         length = offset2 - offset
                         break
+
             if length is None:
                 length = self._content_length - offset
+
+            # Look a gap between nodes
+            if (i) :
+                if offset != previousOffset + previousLength :
+                    self._oeb.log.warning("\tnodes %d and %d have a gap:" % (i-1, i))
+                    self._oeb.log.warning("\tnode %d offset: 0x%X \t node %d: offset: 0x%X length: 0x%X" % \
+                        (i, offset, i-1, previousOffset, previousLength) )
+                    self._oeb.log.warning('Failed to generate index')
+                    # Zero out self._HTMLRecords, return False
+                    self._HTMLRecords = []
+                    last_name = None
+                    return False
+
+            previousOffset = offset
+            previousLength = length
 
             # Calculate the HTML record for this entry
             myStartingRecord = offset // RECORD_SIZE
@@ -461,19 +492,30 @@ class MobiWriter(object):
             # Calculate the ending HTMLRecord of this entry
             myEndingRecord = (offset + length) // RECORD_SIZE
 
-            # Tell the future HTML records about us
             if myEndingRecord > myStartingRecord :
                 interimSpanRecord = myStartingRecord + 1
                 while interimSpanRecord <= myEndingRecord :
                     self._HTMLRecords[interimSpanRecord].continuingNode = myIndex
                     self._HTMLRecords[interimSpanRecord].currentSectionNodeCount = 1
                     interimSpanRecord += 1
+                if self.opts.verbose > 3 :self._oeb.logger.info("\tnode %03d %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
+                    (myIndex, child.title if child.title.strip() > "" else "(missing)", myStartingRecord, interimSpanRecord, offset, length) )
+            else :
+                if self.opts.verbose > 3 : self._oeb.logger.info("\tnode %03d %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
+                    (myIndex, child.title if child.title.strip() > "" else "(missing)", myStartingRecord, myStartingRecord, offset, length) )
 
             ctoc_offset = self._ctoc_map[child]
-            last_name = "%04d" % myIndex
+            last_name = "%04X" % myIndex
             myIndex += 1
 
+        # Successfully parsed the entries
+        return True
+
+
     def _build_TBS_Book(self, nrecords, lastrecord):
+        if self.opts.verbose > 3 and False :
+            self._oeb.logger.info("_build_TBS_Book: HTML record %d of %d" % (nrecords, lastrecord) )
+            self._HTMLRecords[nrecords].dumpData(nrecords,self._oeb)
 
         # Variables for trailing byte sequence
         tbsType = 0x00
@@ -533,7 +575,9 @@ class MobiWriter(object):
                 tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
             tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
 
-        # print "record %d: tbsType %d" % (nrecords, tbsType)
+        if self.opts.verbose > 3  and False:
+            self._oeb.logger.info("record %d: tbsType %d" % (nrecords, tbsType) )
+
         self._tbSequence = tbSequence
 
 
@@ -556,16 +600,16 @@ class MobiWriter(object):
             self._oeb.logger.info('Compressing markup content...')
         data, overlap = self._read_text_record(text)
 
-        # GR borrowed this from generate_index
-        # We seem to need it before calling self._build_HTMLRecords_Data_List()
-        ctoc = self._generate_ctoc()
+        # We need entries[] before calling self._build_HTMLRecords_Data_List()
+        self._ctoc = self._generate_ctoc()
 
         # Build the HTMLRecords list so we can assemble the trailing bytes sequences in the following while loop
         toc = self._oeb.toc
         entries = list(toc.iter())[1:]
-        hasNCXEntries = True if len(entries) else False
-        if hasNCXEntries :
-            self._build_HTMLRecords_Data_List()
+        if len(entries) :
+            self._hasValidNCXEntries = self._build_HTMLRecords_Data_List()
+        else :
+            self._hasValidNCXEntries = False
 
         while len(data) > 0:
             if self._compression == PALMDOC:
@@ -579,7 +623,7 @@ class MobiWriter(object):
             running = offset
 
             # Write Trailing Byte Sequence
-            if INDEXING and hasNCXEntries :
+            if INDEXING and self._hasValidNCXEntries:
                 # Dispatch to different TBS generators based upon publication type
                 booktype = 0x101 if self.opts.mobi_periodical else 0x002
                 if booktype == 0x002 :
@@ -639,6 +683,7 @@ class MobiWriter(object):
         self._text_nrecords = nrecords
 
     def _generate_indxt(self, ctoc):
+
         if self.opts.mobi_periodical:
             raise NotImplementedError('Indexing for periodicals not implemented')
         toc = self._oeb.toc
@@ -655,7 +700,7 @@ class MobiWriter(object):
 
             pos = 0xc0 + indxt.tell()
             indices.write(pack('>H', pos))
-            name = "%04d"%count
+            name = "%04X"%count
             indxt.write(chr(len(name)) + name)
             indxt.write(INDXT['chapter'])
             indxt.write(decint(offset, DECINT_FORWARD))
@@ -666,8 +711,6 @@ class MobiWriter(object):
 
         entries = list(toc.iter())[1:]
         for i, child in enumerate(entries):
-            if not child.title or not child.title.strip():
-                continue
             h = child.href
             if h not in self._id_offsets:
                 self._oeb.log.warning('Could not find TOC entry:', child.title)
@@ -686,7 +729,7 @@ class MobiWriter(object):
 
             add_node(child, offset, length, c)
             ctoc_offset = self._ctoc_map[child]
-            last_name = "%04d"%c
+            last_name = "%04X"%c
             c += 1
 
         return align_block(indxt.getvalue()), c, \
@@ -696,9 +739,9 @@ class MobiWriter(object):
     def _generate_index(self):
         self._oeb.log('Generating primary index...')
         self._primary_index_record = None
-        ctoc = self._generate_ctoc()
+
         indxt, indxt_count, indices, last_name = \
-                self._generate_indxt(ctoc)
+                self._generate_indxt(self._ctoc)
         if last_name is None:
             self._oeb.log.warn('Input document has no TOC. No index generated.')
             return
@@ -801,7 +844,7 @@ class MobiWriter(object):
         indx0 = indx0.getvalue()
 
         self._primary_index_record = len(self._records)
-        self._records.extend([indx0, indx1, ctoc])
+        self._records.extend([indx0, indx1, self._ctoc])
 
         # Turn this off for now
         if False:
@@ -862,30 +905,36 @@ class MobiWriter(object):
     def _generate_ctoc(self):
         if self.opts.mobi_periodical:
             raise NotImplementedError('Indexing for periodicals not implemented')
+        self._oeb.logger.info('Generating CTOC ...')
+
         toc = self._oeb.toc
         self._ctoc_map = {}
         self._ctoc_name_map = {}
         self._last_toc_entry = None
         ctoc = StringIO()
 
-        def add_node(node, cls):
-            t = node.title
-            if not t:
-                t = _('Unnamed')
-            t = t.strip()
-            if not isinstance(t, unicode):
-                t = t.decode('utf-8', 'replace')
-            t = t.encode('utf-8')
-            self._last_toc_entry = t
-            self._ctoc_map[node] = ctoc.tell()
-            self._ctoc_name_map[node] = t
-            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+        def add_node(node, cls, title=None):
+            t = node.title if title is None else title
+
+            if t and t.strip():
+                t = t.strip()
+                if not isinstance(t, unicode):
+                    t = t.decode('utf-8', 'replace')
+                t = t.encode('utf-8')
+                self._last_toc_entry = t
+                self._ctoc_map[node] = ctoc.tell()
+                self._ctoc_name_map[node] = t
+                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+            else :
+                t = "(none)".encode('utf-8')
+                self._last_toc_entry = t
+                self._ctoc_map[node] = ctoc.tell()
+                self._ctoc_name_map[node] = t
+                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
 
         first = True
         for child in toc.iter():
-            if not child.title:
-                child.title = _('Unnamed')
-            add_node(child, 'chapter')
+            add_node(child, 'chapter')#, title='Title Page' if first else None)
             first = False
 
         return align_block(ctoc.getvalue())
