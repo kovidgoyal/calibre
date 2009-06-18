@@ -126,7 +126,7 @@ class EbookIterator(object):
         from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
         plumber = Plumber(self.pathtoebook, self.base, self.log)
         plumber.setup_options()
-        if hasattr(plumber.opts, 'dont_package'):
+        if self.pathtoebook.lower().endswith('.opf'):
             plumber.opts.dont_package = True
         if hasattr(plumber.opts, 'no_process'):
             plumber.opts.no_process = True

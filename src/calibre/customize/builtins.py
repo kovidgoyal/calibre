@@ -16,7 +16,7 @@ file containing all linked files. This plugin is run \
 every time you add an HTML file to the library.\
 '''))
     version = numeric_version
-    file_types = set(['html', 'htm', 'xhtml', 'xhtm'])
+    file_types = set(['html', 'htm', 'xhtml', 'xhtm', 'shtm', 'shtml'])
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 

@@ -60,6 +60,10 @@ class DetectStructure(object):
                         style += '; '
                     elem.set('style', style+'page-break-before:always')
 
+        for node in self.oeb.toc.iter():
+            if not node.title or not node.title.strip():
+                node.title = _('Unnamed')
+
     def detect_chapters(self):
         self.detected_chapters = []
         if self.opts.chapter:
