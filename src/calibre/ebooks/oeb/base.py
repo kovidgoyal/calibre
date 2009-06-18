@@ -321,6 +321,27 @@ def urlnormalize(href):
     parts = (urlquote(part) for part in parts)
     return urlunparse(parts)
 
+def merge_multiple_html_heads_and_bodies(root, log=None):
+    heads, bodies = xpath(root, '//h:head'), xpath(root, '//h:body')
+    if not (len(heads) > 1 or len(bodies) > 1): return root
+    for child in root: root.remove(child)
+    head = root.makeelement(XHTML('head'))
+    body = root.makeelement(XHTML('body'))
+    for h in heads:
+        for x in h:
+            head.append(x)
+    for b in bodies:
+        for x in b:
+            body.append(x)
+    map(root.append, (head, body))
+    if log is not None:
+        log.warn('Merging multiple <head> and <body> sections')
+    return root
+
+
+
+
+
 class DummyHandler(logging.Handler):
 
     def __init__(self):
@@ -354,6 +375,10 @@ class NullContainer(object):
 
     For use with book formats which do not support container-like access.
     """
+
+    def __init__(self, log):
+        self.log = log
+
     def read(self, path):
         raise OEBError('Attempt to read from NullContainer')
 
@@ -369,7 +394,8 @@ class NullContainer(object):
 class DirContainer(object):
     """Filesystem directory container."""
 
-    def __init__(self, path):
+    def __init__(self, path, log):
+        self.log = log
         path = unicode(path)
         ext = os.path.splitext(path)[1].lower()
         if ext == '.opf':
@@ -725,7 +751,7 @@ class Manifest(object):
             self._data = data
 
         def __repr__(self):
-            return 'Item(id=%r, href=%r, media_type=%r)' \
+            return u'Item(id=%r, href=%r, media_type=%r)' \
                 % (self.id, self.href, self.media_type)
 
         def _parse_xhtml(self, data):
@@ -786,6 +812,8 @@ class Manifest(object):
                 for elem in data:
                     nroot.append(elem)
                 data = nroot
+
+            data = merge_multiple_html_heads_and_bodies(data, self.oeb.logger)
             # Ensure has a <head/>
             head = xpath(data, '/h:html/h:head')
             head = head[0] if head else None
@@ -825,6 +853,38 @@ class Manifest(object):
                     body.attrib.pop(key)
 
             return data
+
+        def _parse_txt(self, data):
+            if '<html>' in data:
+                return self._parse_xhtml(data)
+            from xml.sax.saxutils import escape
+            self.oeb.log.debug('Converting', self.href, '...')
+            paras = []
+            lines = []
+            for l in data.splitlines():
+                if not l:
+                    if lines:
+                        paras.append('<p>'+'\n'.join(lines)+'</p>')
+                    lines = []
+                lines.append(escape(l))
+
+            if lines:
+                paras.append('<p>'+'\n'.join(lines)+'</p>')
+            title = self.oeb.metadata.title
+            if title:
+                title = unicode(title[0])
+            else:
+                title = 'No title'
+            data = '''\
+            <html>
+                <head><title>%s</title></head>
+                <body>%s</body>
+            </html>
+            '''%(title, '\n'.join(paras))
+            data = self._parse_xhtml(data)
+            print etree.tostring(data)
+            return data
+
 
         def _parse_css(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')
@@ -872,12 +932,17 @@ class Manifest(object):
                     data = self._loader(self.href)
                 if not isinstance(data, basestring):
                     pass # already parsed
-                elif self.media_type in OEB_DOCS:
+                elif self.media_type.lower() in OEB_DOCS:
                     data = self._parse_xhtml(data)
-                elif self.media_type[-4:] in ('+xml', '/xml'):
+                elif self.media_type.lower()[-4:] in ('+xml', '/xml'):
                     data = etree.fromstring(data)
-                elif self.media_type in OEB_STYLES:
+                elif self.media_type.lower() in OEB_STYLES:
                     data = self._parse_css(data)
+                elif 'text' in self.media_type.lower():
+                    self.oeb.log.warn('%s contains data in TXT format'%self.href,
+                            'converting to HTML')
+                    data = self._parse_txt(data)
+                    self.media_type = XHTML_MIME
                 self._data = data
                 return data
             def fset(self, value):
@@ -1572,7 +1637,7 @@ class OEBBook(object):
         self.pretty_print = pretty_print
         self.logger = self.log = logger
         self.version = '2.0'
-        self.container = NullContainer()
+        self.container = NullContainer(self.log)
         self.metadata = Metadata(self)
         self.uid = None
         self.manifest = Manifest(self)

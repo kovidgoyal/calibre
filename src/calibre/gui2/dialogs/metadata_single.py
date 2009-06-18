@@ -425,7 +425,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
     def fetch_metadata(self):
-        isbn   = re.sub('[^\d]', '', qstring_to_unicode(self.isbn.text()))
+        isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text()))
         title  = qstring_to_unicode(self.title.text())
         author = string_to_authors(unicode(self.authors.text()))[0]
         publisher = qstring_to_unicode(self.publisher.currentText())

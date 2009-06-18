@@ -688,7 +688,7 @@ OptionRecommendation(name='list_recipes',
         self.flush()
 
 def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
-        encoding='utf-8'):
+        encoding='utf-8', populate=True):
     '''
     Create an OEBBook.
     '''
@@ -697,6 +697,8 @@ def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
             opts.preprocess_html)
     oeb = OEBBook(log, html_preprocessor,
             pretty_print=opts.pretty_print, input_encoding=encoding)
+    if not populate:
+        return oeb
     # Read OEB Book into OEBBook
     log('Parsing all content...')
     if reader is None:

@@ -56,6 +56,7 @@ class EPUBOutput(OutputFormatPlugin):
     TITLEPAGE_COVER = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>Cover</title>
         <style type="text/css" title="override_css">
             @page {padding: 0pt; margin:0pt}

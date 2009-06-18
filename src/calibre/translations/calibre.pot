@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.0b5\n"
-"POT-Creation-Date: 2009-06-11 15:24+PDT\n"
-"PO-Revision-Date: 2009-06-11 15:24+PDT\n"
+"Project-Id-Version: calibre 0.6.0b6\n"
+"POT-Creation-Date: 2009-06-17 21:18+PDT\n"
+"PO-Revision-Date: 2009-06-17 21:18+PDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -33,6 +33,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:404
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:50
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:52
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:312
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:315
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:223
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:253
@@ -57,15 +59,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:43
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:69
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:78
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:149
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:535
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:117
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:150
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:540
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:724
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:798
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:803
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:162
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:165
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:826
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:831
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:169
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:172
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:82
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:102
@@ -354,6 +357,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:70
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:79
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:26
 msgid "John Schember"
 msgstr ""
@@ -413,6 +417,7 @@ msgid "Communicate with the Kindle eBook reader."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:69
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:78
 msgid "Communicate with the Kindle 2 eBook reader."
 msgstr ""
 
@@ -867,15 +872,15 @@ msgstr ""
 msgid "Split all HTML files larger than this size (in KB). This is necessary as most EPUB readers cannot handle large file sizes. The default of %defaultKB is the size required for Adobe Digital Editions."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:241
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:242
 msgid "Traverse links in HTML files breadth first. Normally, they are traversed depth first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:249
 msgid "Maximum levels of recursion when following links in HTML files. Must be non-negative. 0 implies that no links in the root HTML file are followed. Default is %default."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:257
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:258
 msgid "Normally this input plugin re-arranges all the input files into a standard folder hierarchy. Only use this option if you know what you are doing as it can result in various nasty side effects in the rest of of the conversion pipeline."
 msgstr ""
 
@@ -1356,74 +1361,81 @@ msgstr ""
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1177
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:430
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:875
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:888
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:65
+msgid "Unnamed"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1243
 msgid "Cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1178
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1244
 msgid "Title Page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1179
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1245
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:166
 msgid "Table of Contents"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1180
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1246
 msgid "Index"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1181
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1247
 msgid "Glossary"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1182
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1248
 msgid "Acknowledgements"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1183
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1249
 msgid "Bibliography"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1184
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1250
 msgid "Colophon"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1185
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1251
 msgid "Copyright"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1186
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1252
 msgid "Dedication"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1187
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1253
 msgid "Epigraph"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1188
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1254
 msgid "Foreword"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1189
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1255
 msgid "List of Illustrations"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1190
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1256
 msgid "List of Tables"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1191
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1257
 msgid "Notes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1192
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1258
 msgid "Preface"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1193
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1259
 msgid "Main Text"
 msgstr ""
 
@@ -2488,7 +2500,7 @@ msgid "TXT Output"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:32
-msgid "Newline Type:"
+msgid "Line ending style:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_edit_ui.py:42
@@ -5882,39 +5894,39 @@ msgstr ""
 msgid "Created by "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:536
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:538
 msgid "Path to the database in which books are stored"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:538
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:540
 msgid "Pattern to guess metadata from filenames"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:540
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:542
 msgid "Access key for isbndb.com"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:542
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:544
 msgid "Default timeout for network operations (seconds)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:544
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:546
 msgid "Path to directory in which your library of books is stored"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:546
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:548
 msgid "The language in which to display the user interface"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:548
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:550
 msgid "The default output format for ebook conversions."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:550
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:552
 msgid "Read metadata from files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:552
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:554
 msgid "The priority of worker processes"
 msgstr ""
 
@@ -6147,6 +6159,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_joelonsoftware.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jpost.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde_english.py:44
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_kellog_faculty.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_kellog_insight.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
@@ -6194,6 +6208,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_oz.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_register.py:6
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_scotsman.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theeconomictimes_india.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:18

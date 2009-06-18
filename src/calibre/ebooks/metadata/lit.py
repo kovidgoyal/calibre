@@ -11,7 +11,8 @@ from calibre.ebooks.metadata.opf2 import OPF
 
 def get_metadata(stream):
     from calibre.ebooks.lit.reader import LitContainer
-    litfile = LitContainer(stream)
+    from calibre.utils.logging import Log
+    litfile = LitContainer(stream, Log())
     src = litfile.get_metadata().encode('utf-8')
     litfile = litfile._litfile
     opf = OPF(cStringIO.StringIO(src), os.getcwd())

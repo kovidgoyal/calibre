@@ -235,12 +235,13 @@ class Device(DeviceConfig, DevicePlugin):
         wmi = __import__('wmi', globals(), locals(), [], -1)
         c = wmi.WMI(find_classes=False)
         for drive in c.Win32_DiskDrive():
-            if self.windows_match_device(drive, 'WINDOWS_MAIN_MEM') and not drives.get('main', None):
-                drives['main'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(drive, 'WINDOWS_CARD_A_MEM') and not drives.get('carda', None):
+            if self.windows_match_device(drive, 'WINDOWS_CARD_A_MEM') and not drives.get('carda', None):
                 drives['carda'] = self.windows_get_drive_prefix(drive)
             elif self.windows_match_device(drive, 'WINDOWS_CARD_B_MEM') and not drives.get('cardb', None):
                 drives['cardb'] = self.windows_get_drive_prefix(drive)
+            elif self.windows_match_device(drive, 'WINDOWS_MAIN_MEM') and not drives.get('main', None):
+                drives['main'] = self.windows_get_drive_prefix(drive)
+
             if 'main' in drives.keys() and 'carda' in drives.keys() and \
                     'cardb' in drives.keys():
                 break

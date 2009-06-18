@@ -21,7 +21,8 @@ def freeze():
 
 
     QTDIR          = '/usr/lib/qt4'
-    QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit')
+    QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml',
+            'QtWebKit', 'QtDBus')
 
     binary_excludes = ['libGLcore*', 'libGL*', 'libnvidia*']
 

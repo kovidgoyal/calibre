@@ -205,7 +205,12 @@ class CSSFlattener(object):
                     fnums = self.context.source.fnums
                     if size[0] in ('+', '-'):
                         # Oh, the warcrimes
-                        cssdict['font-size'] = fnums[3+int(size)]
+                        esize = 3 + int(size)
+                        if esize < 1:
+                            esize = 1
+                        if esize > 7:
+                            esize = 7
+                        cssdict['font-size'] = fnums[esize]
                     else:
                         cssdict['font-size'] = fnums[int(size)]
                 del node.attrib['size']

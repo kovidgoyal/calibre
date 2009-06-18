@@ -11,15 +11,18 @@ __docformat__ = 'restructuredtext en'
 Input plugin for HTML or OPF ebooks.
 '''
 
-import os, re, sys
+import os, re, sys, uuid
 from urlparse import urlparse, urlunparse
 from urllib import unquote
+from functools import partial
+from itertools import izip
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
+from calibre.constants import islinux
 from calibre import unicode_path
+from calibre.startup import get_lang
 
 class Link(object):
     '''
@@ -119,8 +122,6 @@ class HTMLFile(object):
             match = self.TITLE_PAT.search(src)
             self.title = match.group(1) if match is not None else self.title
             self.find_links(src)
-
-
 
     def __eq__(self, other):
         return self.path == getattr(other, 'path', other)
@@ -264,37 +265,163 @@ class HTMLInput(InputFormatPlugin):
 
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
-        from calibre.ebooks.metadata.html import get_metadata_
-
         basedir = os.getcwd()
         self.opts = opts
 
         if hasattr(stream, 'name'):
             basedir = os.path.dirname(stream.name)
-        if file_ext == 'opf':
-            opfpath = stream.name
-        else:
-            filelist = get_filelist(stream.name, basedir, opts, log)
-            mi = get_metadata_(stream.read(), opts.input_encoding)
-            mi = OPFCreator(os.getcwdu(), mi)
-            mi.guide = None
-            entries = [(f.path, 'application/xhtml+xml') for f in filelist]
-            mi.create_manifest(entries)
-            mi.create_spine([f.path for f in filelist])
 
-            mi.render(open('metadata.opf', 'wb'), encoding=opts.input_encoding)
-            opfpath = os.path.abspath('metadata.opf')
-
-        if opts.dont_package:
-            return opfpath
+        if file_ext != 'opf':
+            if opts.dont_package:
+                raise ValueError('The --dont-package option is not supported for an HTML input file')
+            from calibre.ebooks.metadata.html import get_metadata
+            oeb = self.create_oebbook(stream.name, basedir, opts, log,
+                    get_metadata(stream))
+            return oeb
 
         from calibre.ebooks.conversion.plumber import create_oebbook
-        oeb = create_oebbook(log, opfpath, opts, self,
+        return create_oebbook(log, stream.name, opts, self,
                 encoding=opts.input_encoding)
 
-        from calibre.ebooks.oeb.transforms.package import Package
-        Package(os.getcwdu())(oeb, opts)
+    def create_oebbook(self, htmlpath, basedir, opts, log, mi):
+        from calibre.ebooks.conversion.plumber import create_oebbook
+        from calibre.ebooks.oeb.base import DirContainer, \
+            rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES, \
+            xpath
+        from calibre import guess_type
+        import cssutils
+        oeb = create_oebbook(log, None, opts, self,
+                encoding=opts.input_encoding, populate=False)
+        self.oeb = oeb
 
+        metadata = oeb.metadata
+        if mi.title:
+            metadata.add('title', mi.title)
+        if mi.authors:
+            for a in mi.authors:
+                metadata.add('creator', a, attrib={'role':'aut'})
+        if mi.publisher:
+            metadata.add('publisher', mi.publisher)
+        if mi.isbn:
+            metadata.add('identifier', mi.isbn, attrib={'scheme':'ISBN'})
+        if not metadata.language:
+            oeb.logger.warn(u'Language not specified')
+            metadata.add('language', get_lang())
+        if not metadata.creator:
+            oeb.logger.warn('Creator not specified')
+            metadata.add('creator', self.oeb.translate(__('Unknown')))
+        if not metadata.title:
+            oeb.logger.warn('Title not specified')
+            metadata.add('title', self.oeb.translate(__('Unknown')))
+
+        bookid = "urn:uuid:%s" % str(uuid.uuid4())
+        metadata.add('identifier', bookid, id='calibre-uuid')
+        for ident in metadata.identifier:
+            if 'id' in ident.attrib:
+                self.oeb.uid = metadata.identifier[0]
+                break
+
+
+        filelist = get_filelist(htmlpath, basedir, opts, log)
+        htmlfile_map = {}
+        for f in filelist:
+            path = f.path
+            oeb.container = DirContainer(os.path.dirname(path), log)
+            bname = os.path.basename(path)
+            id, href = oeb.manifest.generate(id='html', href=bname)
+            htmlfile_map[path] = href
+            item = oeb.manifest.add(id, href, 'text/html')
+            oeb.spine.add(item, True)
+
+        self.added_resources = {}
+        self.log = log
+        for path, href in htmlfile_map.items():
+            if not islinux:
+                path = path.lower()
+            self.added_resources[path] = href
+        self.urlnormalize, self.DirContainer = urlnormalize, DirContainer
+        self.urldefrag = urldefrag
+        self.guess_type, self.BINARY_MIME = guess_type, BINARY_MIME
+
+        for f in filelist:
+            path = f.path
+            dpath = os.path.dirname(path)
+            oeb.container = DirContainer(dpath, log)
+            item = oeb.manifest.hrefs[htmlfile_map[path]]
+            rewrite_links(item.data, partial(self.resource_adder, base=dpath))
+
+        for item in oeb.manifest.values():
+            if item.media_type in OEB_STYLES:
+                dpath = None
+                for path, href in self.added_resources.items():
+                    if href == item.href:
+                        dpath = os.path.dirname(path)
+                        break
+                cssutils.replaceUrls(item.data,
+                        partial(self.resource_adder, base=dpath))
+
+        toc = self.oeb.toc
+        self.oeb.auto_generated_toc = True
+        titles = []
+        headers = []
+        for item in self.oeb.spine:
+            if not item.linear: continue
+            html = item.data
+            title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
+            title = re.sub(r'\s+', ' ', title.strip())
+            if title:
+                titles.append(title)
+            headers.append('(unlabled)')
+            for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
+                expr = '/h:html/h:body//h:%s[position()=1]/text()'
+                header = ''.join(xpath(html, expr % tag))
+                header = re.sub(r'\s+', ' ', header.strip())
+                if header:
+                    headers[-1] = header
+                    break
+        use = titles
+        if len(titles) > len(set(titles)):
+            use = headers
+        for title, item in izip(use, self.oeb.spine):
+            if not item.linear: continue
+            toc.add(title, item.href)
+
+        oeb.container = DirContainer(os.getcwdu(), oeb.log)
         return oeb
+
+
+    def resource_adder(self, link_, base=None):
+        link = self.urlnormalize(link_)
+        link, frag = self.urldefrag(link)
+        link = unquote(link).replace('/', os.sep)
+        if not link.strip():
+            return link_
+        if base and not os.path.isabs(link):
+            link = os.path.join(base, link)
+        link = os.path.abspath(link)
+        if not os.access(link, os.R_OK):
+            return link_
+        if not islinux:
+            link = link.lower()
+        if link not in self.added_resources:
+            id, href = self.oeb.manifest.generate(id='added',
+                    href=os.path.basename(link))
+            self.oeb.log.debug('Added', link)
+            self.oeb.container = self.DirContainer(os.path.dirname(link),
+                    self.oeb.log)
+            # Load into memory
+            guessed = self.guess_type(href)[0]
+            media_type = guessed or self.BINARY_MIME
+
+            self.oeb.manifest.add(id, href, media_type).data
+            self.added_resources[link] = href
+
+        nlink = self.added_resources[link]
+        if frag:
+            nlink = '#'.join((nlink, frag))
+        return nlink
+
+
+
 
 

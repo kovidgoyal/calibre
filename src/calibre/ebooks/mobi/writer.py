@@ -327,6 +327,8 @@ class MobiWriter(object):
         self._primary_index_record = None
         self._HTMLRecords = []
         self._tbSequence = ""
+        self._initialIndexRecordFound = False
+
 
     @classmethod
     def generate(cls, opts):
@@ -425,7 +427,7 @@ class MobiWriter(object):
         # borrowed from _generate_indxt
         for i, child in enumerate(entries):
             if not child.title or not child.title.strip():
-                continue
+                child.title = _('Unnamed')
             h = child.href
             if h not in self._id_offsets:
                 self._oeb.log.warning('Could not find TOC entry:', child.title)
@@ -470,36 +472,40 @@ class MobiWriter(object):
             ctoc_offset = self._ctoc_map[child]
             last_name = "%04d" % myIndex
             myIndex += 1
-        '''
-        # Dump the accumulated HTML Record Data
-        x = 0
-        while x < len(self._HTMLRecords):
-            self._HTMLRecords[x].dumpData(x, self._oeb)
-            x += 1
-        '''
+
     def _build_TBS_Book(self, nrecords, lastrecord):
 
         # Variables for trailing byte sequence
         tbsType = 0x00
         tbSequence = ""
-        #print "_build_TBS_Book: nrecords = %d, lastrecord = %d" % (nrecords, lastrecord)
-        # Generate TBS for type 0x002 - mobi_book
-        if nrecords == 0 :
-            # First HTML record is a special case
-            if self._HTMLRecords[nrecords].currentSectionNodeCount == 1 :
-                tbsType = 2
-            else :
-                tbsType = 6
 
-            tbSequence = decint(tbsType, DECINT_FORWARD)
-            tbSequence += decint(0x00, DECINT_FORWARD)
-            # Don't write a nodecount for opening type 2 record
-            if tbsType != 2 :
-                tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
-            tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
+        # Generate TBS for type 0x002 - mobi_book
+        if self._initialIndexRecordFound == False :
+
+            # Is there any indexed content yet?
+            if self._HTMLRecords[nrecords].currentSectionNodeCount == -1 :
+                # No indexing data - write vwi length of 1 only
+                tbSequence = decint(len(tbSequence) + 1, DECINT_FORWARD)
+
+            else :
+                # First indexed HTML record is a special case
+                # One or more nodes
+                self._initialIndexRecordFound = True
+                if self._HTMLRecords[nrecords].currentSectionNodeCount == 1 :
+                    tbsType = 2
+                else :
+                    tbsType = 6
+
+                tbSequence = decint(tbsType, DECINT_FORWARD)
+                tbSequence += decint(0x00, DECINT_FORWARD)
+                # Don't write a nodecount for opening type 2 record
+                if tbsType != 2 :
+                    # Check that <> -1
+                    tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
+                tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
 
         else :
-            # Determine tbsType for HTMLRecords > 0
+            # Determine tbsType for indexed HTMLRecords
             if nrecords == lastrecord and self._HTMLRecords[nrecords].currentSectionNodeCount == 1 :
                 # Ending record with singleton node
                 tbsType = 2
@@ -633,7 +639,6 @@ class MobiWriter(object):
         self._text_nrecords = nrecords
 
     def _generate_indxt(self, ctoc):
-
         if self.opts.mobi_periodical:
             raise NotImplementedError('Indexing for periodicals not implemented')
         toc = self._oeb.toc
@@ -726,7 +731,7 @@ class MobiWriter(object):
         indx1.write(indices)
         indx1 = indx1.getvalue()
 
-        idxt0 = chr(len(last_name)) + last_name + pack('>H', indxt_count)
+        idxt0 = chr(len(last_name)) + last_name + pack('>H', indxt_count + 1)
         idxt0 = align_block(idxt0)
         indx0 = StringIO()
 
@@ -764,7 +769,7 @@ class MobiWriter(object):
         header.write(iana2mobi(str(self._oeb.metadata.language[0])))
 
         # 0x24 - 0x27 : Number of TOC entries in INDX1
-        header.write(pack('>I', indxt_count))
+        header.write(pack('>I', indxt_count + 1))
 
         # 0x28 - 0x2b : ORDT Offset
         header.write('\0'*4)
@@ -863,21 +868,24 @@ class MobiWriter(object):
         self._last_toc_entry = None
         ctoc = StringIO()
 
-        def add_node(node, cls, title=None):
-            t = node.title if title is None else title
-            if t and t.strip():
-                t = t.strip()
-                if not isinstance(t, unicode):
-                    t = t.decode('utf-8', 'replace')
-                t = t.encode('utf-8')
-                self._last_toc_entry = t
-                self._ctoc_map[node] = ctoc.tell()
-                self._ctoc_name_map[node] = t
-                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+        def add_node(node, cls):
+            t = node.title
+            if not t:
+                t = _('Unnamed')
+            t = t.strip()
+            if not isinstance(t, unicode):
+                t = t.decode('utf-8', 'replace')
+            t = t.encode('utf-8')
+            self._last_toc_entry = t
+            self._ctoc_map[node] = ctoc.tell()
+            self._ctoc_name_map[node] = t
+            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
 
         first = True
         for child in toc.iter():
-            add_node(child, 'chapter')#, title='Title Page' if first else None)
+            if not child.title:
+                child.title = _('Unnamed')
+            add_node(child, 'chapter')
             first = False
 
         return align_block(ctoc.getvalue())
@@ -1098,7 +1106,7 @@ class MobiWriter(object):
                 exth.write(data)
                 nrecs += 1
         if oeb.metadata.cover:
-            id = str(oeb.metadata.cover[0])
+            id = unicode(oeb.metadata.cover[0])
             item = oeb.manifest.ids[id]
             href = item.href
             index = self._images[href] - 1

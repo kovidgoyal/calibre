@@ -6,7 +6,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, os, uuid, copy
+import sys, os, uuid, copy, re
 from itertools import izip
 from urlparse import urldefrag, urlparse
 from urllib import unquote as urlunquote
@@ -66,7 +66,8 @@ class OEBReader(object):
         """
         self.oeb = oeb
         self.logger = self.log = oeb.logger
-        oeb.container = self.Container(path)
+        oeb.container = self.Container(path, self.logger)
+        oeb.container.log = oeb.log
         opf = self._read_opf()
         self._all_from_opf(opf)
         return oeb
@@ -107,8 +108,14 @@ class OEBReader(object):
         except etree.XMLSyntaxError:
             repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
             data = ENTITY_RE.sub(repl, data)
-            opf = etree.fromstring(data)
-            self.logger.warn('OPF contains invalid HTML named entities')
+            try:
+                opf = etree.fromstring(data)
+                self.logger.warn('OPF contains invalid HTML named entities')
+            except etree.XMLSyntaxError:
+                data = re.sub(r'(?is)<tours>.+</tours>', '', data)
+                self.logger.warn('OPF contains invalid tours section')
+                opf = etree.fromstring(data)
+
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
             raise OEBError('Invalid namespace %r for OPF document' % ns)
@@ -241,6 +248,8 @@ class OEBReader(object):
             if media_type is None or media_type == 'text/xml':
                 guessed = guess_type(href)[0]
                 media_type = guessed or media_type or BINARY_MIME
+            if hasattr(media_type, 'lower'):
+                media_type = media_type.lower()
             fallback = elem.get('fallback')
             if href in manifest.hrefs:
                 self.logger.warn(u'Duplicate manifest entry for %r' % href)
@@ -530,7 +539,7 @@ class OEBReader(object):
 
     def _locate_cover_image(self):
         if self.oeb.metadata.cover:
-            id = str(self.oeb.metadata.cover[0])
+            id = unicode(self.oeb.metadata.cover[0])
             item = self.oeb.manifest.ids.get(id, None)
             if item is not None and item.media_type in OEB_IMAGES:
                 return item

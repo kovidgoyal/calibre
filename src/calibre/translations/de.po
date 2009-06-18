@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-07 21:00+0000\n"
+"POT-Creation-Date: 2009-06-11 22:36+0000\n"
 "PO-Revision-Date: 2009-06-06 23:44+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-06-10 20:32+0000\n"
+"X-Launchpad-Export-Date: 2009-06-18 04:20+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -61,12 +61,12 @@ msgstr "Macht gar nix"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:69
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:78
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:149
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:531
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:715
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:535
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:719
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:791
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:796
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:798
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:803
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:162
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:165
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:82
@@ -418,7 +418,7 @@ msgstr "John Schember"
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:151
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:467
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:80
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:937
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:941
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1259
@@ -532,21 +532,21 @@ msgstr "Sende Metadaten ans Gerät..."
 msgid "Communicate with the Sony PRS-700 eBook reader."
 msgstr "Kommunikation mit dem Sony PRS-700 eBook Reader."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:230
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:280
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:250
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:300
 msgid "Unable to detect the %s disk drive. Try rebooting."
 msgstr "Konnte das Laufwerk %s nicht finden. Versuchen Sie einen Neustart."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:348
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:451
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:368
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:471
 msgid "Unable to detect the %s disk drive."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:438
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:458
 msgid "You must install the pmount package."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:457
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:477
 msgid "Unable to mount main memory (Error code: %d)"
 msgstr ""
 
@@ -1448,23 +1448,23 @@ msgstr ""
 msgid "Set book ID"
 msgstr "Geben Sie die Buch ID an"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:77
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:78
 msgid "Enable autorotation of images that are wider than the screen width."
 msgstr ""
 "Automatische Rotation von Bildern, die breiter als die Bildschirmbreite "
 "sind, einschalten."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:81
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:82
 msgid "Set the space between words in pts. Default is %default"
 msgstr ""
 "Wählen Sie den Abstand in Punkt zwischen einzelnen Wörtern. Die "
 "Voreinstellung ist %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:84
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:85
 msgid "Add a header to all the pages with title and author."
 msgstr "Kopfzeile mit Titel und Autor für alle Seiten einfügen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:87
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:88
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
@@ -1472,13 +1472,13 @@ msgstr ""
 "Wählen Sie das Format der Kopfzeile. %a wird durch den Autor und %t durch "
 "den Titel ersetzt. Die Voreinstellung ist %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:91
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:92
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
 "Zusätzlichen Abstand unter der Überschrift hinzufügen. Voreinstellung ist "
 "%default Punkt."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:95
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
@@ -1486,7 +1486,7 @@ msgstr ""
 "Mindest-Zeileneinzug von Paragraphen (Zeileneinzug der ersten Zeile eines "
 "Paragraphen) in Punkt. Voreinstellung: %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:99
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:100
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
@@ -1494,7 +1494,7 @@ msgstr ""
 "Tabellen in HTML als Bilder rendern (hilfreich, wenn das Dokument große oder "
 "komplexe Tabellen enthält)"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:105
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
@@ -1502,19 +1502,19 @@ msgstr ""
 "Textgröße in gerenderten Tabellen um diesen Faktor erhöhen. Voreinstellung "
 "ist %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:108
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:109
 msgid "The serif family of fonts to embed"
 msgstr "Serife Schriftartfamilie einbetten"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:111
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid "The sans-serif family of fonts to embed"
 msgstr "Serifenlose Schriftartfamilie einbetten"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:114
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:115
 msgid "The monospace family of fonts to embed"
 msgstr "Nichtproportionale Schriftartfamilie einbetten"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:139
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:140
 msgid "Comic"
 msgstr "Comic"
 
@@ -1566,7 +1566,7 @@ msgstr "Bemerkung"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:942
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1002
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:80
 msgid "Tags"
 msgstr "Etiketten"
 
@@ -1574,7 +1574,7 @@ msgstr "Etiketten"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:319
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:80
 msgid "Series"
 msgstr "Reihe"
 
@@ -1799,74 +1799,74 @@ msgstr "Erstellen des MOBI Index ausschalten."
 msgid "Disable compression of the file contents."
 msgstr "Komprimierung der Datei Inhalte ausschalten."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1164
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1177
 msgid "Cover"
 msgstr "Umschlagbild"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1165
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1178
 msgid "Title Page"
 msgstr "Titelseite"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1166
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1179
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:166
 msgid "Table of Contents"
 msgstr "Inhaltsverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1167
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1180
 msgid "Index"
 msgstr "Index"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1168
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1181
 msgid "Glossary"
 msgstr "Glossar"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1169
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1182
 msgid "Acknowledgements"
 msgstr "Danksagung"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1170
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1183
 msgid "Bibliography"
 msgstr "Literaturverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1171
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1184
 msgid "Colophon"
 msgstr "Schlussschrift"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1172
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1185
 msgid "Copyright"
 msgstr "Copyright"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1173
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1186
 msgid "Dedication"
 msgstr "Widmung"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1174
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1187
 msgid "Epigraph"
 msgstr "Epigraph"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1175
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1188
 msgid "Foreword"
 msgstr "Vorwort"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1176
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1189
 msgid "List of Illustrations"
 msgstr "Abbildungsverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1177
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1190
 msgid "List of Tables"
 msgstr "Tabellenverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1178
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1191
 msgid "Notes"
 msgstr "Anmerkungen"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1179
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1192
 msgid "Preface"
 msgstr "Vorwort"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1180
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1193
 msgid "Main Text"
 msgstr "Haupttext"
 
@@ -3306,7 +3306,7 @@ msgstr "Pfad"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:80
 msgid "Formats"
 msgstr "Formate"
 
@@ -5050,7 +5050,7 @@ msgstr "Bewertung"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:313
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:368
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:376
 msgid "None"
 msgstr "Keine"
 
@@ -5840,11 +5840,11 @@ msgstr ""
 msgid "Click to browse books by tags"
 msgstr "Bücher anhand von Etiketten durchsuchen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:80
 msgid "Authors"
 msgstr "Autoren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tags.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:80
 msgid "Publishers"
 msgstr "Herausgeber"
 
@@ -5890,16 +5890,19 @@ msgstr ""
 msgid "Export Bookmarks"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:52
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:60
-msgid "Pickled Bookmarks (*.pickle)"
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:54
+msgid "Saved Bookmarks (*.pickle)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Import Bookmarks"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
+msgid "Pickled Bookmarks (*.pickle)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
 msgid "Name"
 msgstr ""
 
@@ -6345,7 +6348,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:43
 msgid ""
 "Choose a location for your books. When you add books to calibre, they will "
-"be stored here:"
+"be copied here:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:44
@@ -7142,8 +7145,8 @@ msgstr "Serbisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glasgow_herald.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_globe_and_mail.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_guardian.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:27
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:14
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honoluluadvertiser.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_iht.py:15
@@ -7229,6 +7232,8 @@ msgstr "Englisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elargentino.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elcronista.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elmundo.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elperiodico_spanish.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_expansion_spanish.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_granma.py:24
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_infobae.py:21
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde.py:23
@@ -7240,6 +7245,8 @@ msgstr "Englisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion_chile.py:54
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa.py:60
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lavanguardia.py:25
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_marca.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:25
 msgid "Spanish"
 msgstr "Spanisch"
@@ -7283,6 +7290,10 @@ msgstr "Niederländisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevni_avaz.py:27
 msgid "Bosnian"
 msgstr "Bosnisch"
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elperiodico_catalan.py:25
+msgid "Catalan"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47

@@ -29,11 +29,7 @@ class MOBIOutput(OutputFormatPlugin):
         ),
         OptionRecommendation(name='mobi_periodical',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('When present, generate a periodical rather than a book.')
-        ),
-        OptionRecommendation(name='no_mobi_index',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Disable generation of MOBI index.')
+            help=_('Generate a periodical rather than a book.')
         ),
         OptionRecommendation(name='dont_compress',
             recommended_value=False, level=OptionRecommendation.LOW,
