@@ -16,6 +16,7 @@ from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.js import bookmarks, referencing
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import iswindows
+from calibre import prints
 
 def load_builtin_fonts():
     from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
@@ -124,6 +125,7 @@ class Document(QWebPage):
 
     def __init__(self, *args):
         QWebPage.__init__(self, *args)
+        self.debug_javascript = False
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
         pal = self.palette()
@@ -186,6 +188,20 @@ class Document(QWebPage):
         if typ == 'string':
             return unicode(ans.toString())
         return ans
+
+    def javaScriptConsoleMessage(self, msg, lineno, msgid):
+        if self.debug_javascript:
+            prints( 'JS:', msgid, lineno)
+            prints(msg)
+            prints(' ')
+        else:
+            return QWebPage.javaScriptConsoleMessage(self, msg, lineno, msgid)
+
+    def javaScriptAlert(self, frame, msg):
+        if self.debug_javascript:
+            prints(msg)
+        else:
+            return QWebPage.javaScriptAlert(self, frame, msg)
 
     def scroll_by(self, dx=0, dy=0):
         self.mainFrame().scroll(dx, dy)
@@ -272,6 +288,7 @@ class DocumentView(QWebView):
 
     def __init__(self, *args):
         QWidget.__init__(self, *args)
+        self.debug_javascript = False
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
         self.initial_pos = 0.0
