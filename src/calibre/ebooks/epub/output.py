@@ -217,7 +217,7 @@ class EPUBOutput(OutputFormatPlugin):
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
         '''
-        from calibre.ebooks.oeb.base import XPNSMAP, XHTML
+        from calibre.ebooks.oeb.base import XPNSMAP, XHTML, OEB_STYLES
         from lxml.etree import XPath as _XPath
         from functools import partial
         XPath = partial(_XPath, namespaces=XPNSMAP)
@@ -276,12 +276,6 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:img[@src]')(root):
                 tag.set('src', tag.get('src', '').replace('&', ''))
 
-            stylesheet = self.oeb.manifest.hrefs['stylesheet.css']
-            stylesheet.data.add('a { color: inherit; text-decoration: inherit; '
-                    'cursor: default; }')
-            stylesheet.data.add('a[href] { color: blue; '
-                    'text-decoration: underline; cursor:pointer; }')
-
             special_chars = re.compile(u'[\u200b\u00ad]')
             for elem in root.iterdescendants():
                 if getattr(elem, 'text', False):
@@ -290,6 +284,20 @@ class EPUBOutput(OutputFormatPlugin):
                 if getattr(elem, 'tail', False):
                     elem.tail = special_chars.sub('', elem.tail)
                     elem.tail = elem.tail.replace(u'\u2011', '-')
+
+        stylesheet = None
+        for item in self.oeb.manifest:
+            if item.media_type.lower() in OEB_STYLES:
+                stylesheet = item
+                break
+
+        if stylesheet is not None:
+            stylesheet.data.add('a { color: inherit; text-decoration: inherit; '
+                    'cursor: default; }')
+            stylesheet.data.add('a[href] { color: blue; '
+                    'text-decoration: underline; cursor:pointer; }')
+        else:
+            self.oeb.log.warn('No stylesheet found')
 
 
 
