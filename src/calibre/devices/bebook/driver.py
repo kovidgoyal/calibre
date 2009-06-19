@@ -63,7 +63,7 @@ class BEBOOK(USBMS):
         except:
             card_num = None
 
-        if card_num is not None and main_num is not None and card_num < main_num:
+        if card_num is not None and main_num is not None and card_num > main_num:
             names['main'] = card
             names['carda'] = main
 
