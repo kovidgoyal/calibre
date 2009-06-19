@@ -115,18 +115,20 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
             out_file.close()
             temp_files = []
 
+            lrecs = list(recs)
+
             if d.opf_file is not None:
-                recs.append(('read_metadata_from_opf', d.opf_file.name,
+                lrecs.append(('read_metadata_from_opf', d.opf_file.name,
                     OptionRecommendation.HIGH))
                 temp_files.append(d.opf_file)
             if d.cover_file is not None:
-                recs.append(('cover', d.cover_file.name,
+                lrecs.append(('cover', d.cover_file.name,
                     OptionRecommendation.HIGH))
                 temp_files.append(d.cover_file)
 
             desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
 
-            args = [in_file, out_file.name, recs]
+            args = [in_file, out_file.name, lrecs]
             temp_files.append(out_file)
             jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
 
