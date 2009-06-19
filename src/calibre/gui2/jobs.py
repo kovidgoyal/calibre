@@ -73,7 +73,8 @@ class JobManager(QAbstractTableModel):
                 if col == 1:
                     return QVariant(job.status_text)
                 if col == 2:
-                    return QVariant(job.percent)
+                    p = 100. if job.is_finished else job.percent
+                    return QVariant(p)
                 if col == 3:
                     rtime = job.running_time
                     if rtime is None:
