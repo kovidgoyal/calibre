@@ -190,6 +190,10 @@ class Document(QWebPage):
     def animated_scroll_done(self):
         self.emit(SIGNAL('animated_scroll_done()'))
 
+    @pyqtSignature("QString")
+    def debug(self, msg):
+        prints(msg)
+
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
 

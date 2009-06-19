@@ -228,7 +228,7 @@ class Config(ResizableDialog, Ui_Dialog):
                 return
             x = w.commit(save_defaults=False)
             recs.update(x)
-        self.opf_path, self.cover_path = self.mw.opf_file, self.mw.cover_file
+        self.opf_file, self.cover_file = self.mw.opf_file, self.mw.cover_file
         self._recommendations = recs
         if self.db is not None:
             recs['gui_preferred_input_format'] = self.input_format

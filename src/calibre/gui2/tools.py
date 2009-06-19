@@ -48,12 +48,21 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                 out_file = PersistentTemporaryFile('.' + d.output_format)
                 out_file.write(d.output_format)
                 out_file.close()
+                temp_files = []
 
                 desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
 
                 recs = cPickle.loads(d.recommendations)
                 args = [in_file, out_file.name, recs]
-                temp_files = [out_file]
+                if d.opf_file is not None:
+                    recs.append(('read_metadata_from_opf', d.opf_file.name,
+                        OptionRecommendation.HIGH))
+                    temp_files.append(d.opf_file)
+                if d.cover_file is not None:
+                    recs.append(('cover', d.cover_file.name,
+                        OptionRecommendation.HIGH))
+                    temp_files.append(d.cover_file)
+                temp_files.append(out_file)
                 jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
@@ -104,11 +113,21 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
             out_file = PersistentTemporaryFile('.' + output_format)
             out_file.write(output_format)
             out_file.close()
+            temp_files = []
+
+            if d.opf_file is not None:
+                recs.append(('read_metadata_from_opf', d.opf_file.name,
+                    OptionRecommendation.HIGH))
+                temp_files.append(d.opf_file)
+            if d.cover_file is not None:
+                recs.append(('cover', d.cover_file.name,
+                    OptionRecommendation.HIGH))
+                temp_files.append(d.cover_file)
 
             desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
 
             args = [in_file, out_file.name, recs]
-            temp_files = [out_file]
+            temp_files.append(out_file)
             jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
 
             changed = True
