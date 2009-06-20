@@ -31,6 +31,8 @@ class WizardWidget(QWidget, Ui_Form):
                 q = '[re:test(@%s, "%s", "i")]'%(attr, val)
             else:
                 q = '[@%s]'%attr
+        elif val:
+            q = '[re:test(., "%s", "i")]'%(val)
         expr = '//'+tag + q
         return expr
 
