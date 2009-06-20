@@ -227,6 +227,7 @@ class LocationModel(QAbstractListModel):
         self.free[1] = fs[1] if fs[1] is not None and cpa is not None else -1
         self.free[2] = fs[2] if fs[2] is not None and cpb is not None else -1
         self.reset()
+        self.emit(SIGNAL('devicesChanged()'))
 
     def location_changed(self, row):
         self.highlight_row = row
@@ -253,6 +254,7 @@ class LocationView(QListView):
         self.connect(self, SIGNAL('entered(QModelIndex)'), self.item_entered)
         self.connect(self, SIGNAL('viewportEntered()'), self.viewport_entered)
         self.connect(self.eject_button, SIGNAL('clicked()'), lambda: self.emit(SIGNAL('umount_device()')))
+        self.connect(self.model(), SIGNAL('devicesChanged()'), self.eject_button.hide)
 
     def count_changed(self, new_count):
         self.model().count = new_count
