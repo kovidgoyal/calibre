@@ -180,16 +180,25 @@ class PRS505(CLI, Device):
 
         return zip(paths, sizes, ctimes, cycle([on_card]))
 
-    @classmethod
-    def add_books_to_metadata(cls, locations, metadata, booklists):
+    def add_books_to_metadata(self, locations, metadata, booklists):
         metadata = iter(metadata)
         for location in locations:
             info = metadata.next()
             path = location[0]
             blist = 2 if location[3] == 'cardb' else 1 if location[3] == 'carda' else 0
-            name = path.rpartition(os.sep)[2]
-            name = (cls.CARD_PATH_PREFIX+'/' if blist else 'database/media/books/') + name
+            
+            if path.startswith(self._main_prefix):
+                name = path.replace(self._main_prefix, '')
+            elif path.startswith(self._card_a_prefix):
+                name = path.replace(self._card_a_prefix, '')
+            elif path.startswith(self._card_b_prefix):
+                name = path.replace(self._card_b_prefix, '')
+
+            name = name.replace('\\', '/')
             name = name.replace('//', '/')
+            if name.startswith('/'):
+                name = name[1:]
+
             booklists[blist].add_book(info, name, *location[1:-1])
         fix_ids(*booklists)
 
