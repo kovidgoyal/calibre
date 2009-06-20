@@ -7,7 +7,7 @@ import uuid
 from urllib import unquote, quote
 
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 from calibre.ebooks.lrf import entity_to_unicode
 from calibre.ebooks.metadata import Resource, ResourceCollection
@@ -270,11 +270,7 @@ class OPF(MetaInformation):
                 role = 'aut'
             if role == 'aut' and elem.string:
                 raw = self.ENTITY_PATTERN.sub(entity_to_unicode, elem.string)
-                au = raw.split(',')
-                ans = []
-                for i in au:
-                    ans.extend(i.split('&'))
-                return [a.strip() for a in ans]
+                return string_to_authors(raw)
         return []
 
     def get_author_sort(self):

@@ -15,7 +15,7 @@ try:
     _imagemagick_loaded = True
 except:
     _imagemagick_loaded = False
-from calibre.ebooks.metadata import MetaInformation, authors_to_string
+from calibre.ebooks.metadata import MetaInformation, string_to_authors, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
     set_metadata as podofo_set_metadata, Unavailable, get_metadata_quick
@@ -69,12 +69,8 @@ def get_metadata_pypdf(stream):
             if info.title:
                 mi.title = info.title
             if info.author:
-                src = info.author.split('&')
-                authors = []
-                for au in src:
-                    authors += au.split(',')
-                mi.authors = authors
                 mi.author = info.author
+                mi.authors = string_to_authors(info.author)
             if info.subject:
                 mi.category = info.subject
     except Exception, err:

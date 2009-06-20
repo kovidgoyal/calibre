@@ -4,7 +4,7 @@ __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 
 import sys, os
 
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 MAGIC = ['\x00\x01BOOKDOUG', '\x00\x02BOOKDOUG']
 
@@ -34,11 +34,7 @@ def get_metadata(stream):
         if title:
             mi.title = title
         if author:
-            src = author.split('&')
-            authors = []
-            for au in src:
-                authors += au.split(',')
-            mi.authors = authors
+            mi.authors = string_to_authors(author)
             mi.author = author
         if category:
             mi.category = category

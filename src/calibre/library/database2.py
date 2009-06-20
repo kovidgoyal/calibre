@@ -993,7 +993,7 @@ class LibraryDatabase2(LibraryDatabase):
                 mi.authors = [_('Unknown')]
         authors = []
         for a in mi.authors:
-            authors += a.split('&')
+            authors += string_to_authors(a)
         self.set_authors(id, authors, notify=False)
         if mi.author_sort:
             self.set_author_sort(id, mi.author_sort, notify=False)
