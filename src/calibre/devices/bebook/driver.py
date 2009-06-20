@@ -35,12 +35,10 @@ class BEBOOK(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    FDI_LUNS = {'lun0':1, 'lun1':0, 'lun2':2}
-
     def windows_sort_drives(self, drives):
         main = drives.get('main', None)
         card = drives.get('carda', None)
-        if card and main and card < main:
+        if card and main and card > main:
             drives['main'] = card
             drives['carda'] = main
 
@@ -63,7 +61,7 @@ class BEBOOK(USBMS):
         except:
             card_num = None
 
-        if card_num is not None and main_num is not None and card_num < main_num:
+        if card_num is not None and main_num is not None and card_num > main_num:
             names['main'] = card
             names['carda'] = main
 
