@@ -78,7 +78,7 @@ class PMLMLizer(object):
         
     def pmlmlize_spine(self):
         output = u''
-        if 'titlepage' in self.oeb_book.guide
+        if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating title page...')
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
