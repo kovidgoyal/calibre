@@ -315,7 +315,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
         pm = QMenu()
-        pm.addAction(self.action_preferences)
+        pm.addAction(self.preferences_action)
         pm.addAction(_('Run welcome wizard'))
         self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
                 self.run_wizard)
@@ -515,6 +515,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         pass
 
     def system_tray_icon_activated(self, r):
+        print r
         if r == QSystemTrayIcon.Trigger:
             if self.isVisible():
                 self.hide_windows()
