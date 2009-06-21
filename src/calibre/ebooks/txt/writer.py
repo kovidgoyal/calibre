@@ -24,6 +24,7 @@ class TxtWriter(object):
     def dump(self, spine):
         out = u''
         for item in spine:
+            self.log.debug('Processing %s...' % item.href)
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
             content = self.strip_html(content)
@@ -40,6 +41,7 @@ class TxtWriter(object):
         return out
 
     def strip_html(self, text):
+        self.log.debug('\tStripping html...')
         stripped = u''
 
         # Remove unnecessary tags
@@ -77,6 +79,7 @@ class TxtWriter(object):
         return stripped
 
     def replace_html_symbols(self, content):
+        self.log.debug('\tReplacing entities with unicode...')
         for entity in set(re.findall('&.+?;', content)):
             mo = re.search('(%s)' % entity[1:-1], content)
             content = content.replace(entity, entity_to_unicode(mo))
@@ -84,6 +87,7 @@ class TxtWriter(object):
         return content
 
     def cleanup_text(self, text):
+        self.log.debug('\tClean up text...')
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
         text = text.replace(u'\xa0', ' ')
@@ -114,6 +118,7 @@ class TxtWriter(object):
         return text
 
     def remove_newlines(self, text):
+        self.log.debug('\tRemove newlines for processing...')
         text = text.replace('\r\n', ' ')
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
@@ -121,6 +126,7 @@ class TxtWriter(object):
         return text
 
     def specified_newlines(self, text):
+        self.log.debug('\tReplacing newlines with selected type...')
         if self.newline == '\n':
             return text
 

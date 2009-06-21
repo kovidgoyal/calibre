@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -9,11 +8,12 @@ __docformat__ = 'restructuredtext en'
 Write content to PDF.
 '''
 
-import os, shutil
+import os
+import shutil
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
-    orientation, size
+    orientation
 from calibre.ebooks.metadata import authors_to_string
 
 from PyQt4 import QtCore

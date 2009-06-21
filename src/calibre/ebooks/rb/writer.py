@@ -64,6 +64,7 @@ class RBWriter(object):
                 flags = 0
             toc_items.append(TocItem(name.ljust(32, '\x00')[:32], size, flags))
 
+        self.log.debug('Writing file header...')
         out_stream.write(HEADER)
         out_stream.write(struct.pack('<I', 0))
         out_stream.write(struct.pack('<IH', 0, 0))
@@ -82,6 +83,7 @@ class RBWriter(object):
 
         out_stream.write(info[0][1])
 
+        self.log.debug('Writing compressed RB HTHML...')
         # Compressed text with proper heading
         out_stream.write(struct.pack('<I', len(text[0][1])))
         out_stream.write(struct.pack('<I', text_size))
@@ -90,6 +92,7 @@ class RBWriter(object):
         for chunck in text[0][1]:
             out_stream.write(chunck)
 
+        self.log.debug('Writing images...')
         for item in hidx+images:
             out_stream.write(item[1])
 
@@ -98,7 +101,7 @@ class RBWriter(object):
         out_stream.write(struct.pack('<I', total_size))
 
     def _text(self, oeb_book):
-        rbmlizer = RBMLizer(name_map=self.name_map, ignore_tables=self.opts.linearize_tables)
+        rbmlizer = RBMLizer(log, name_map=self.name_map)
         text = rbmlizer.extract_content(oeb_book, self.opts).encode('cp1252', 'xmlcharrefreplace')
         size = len(text)
 

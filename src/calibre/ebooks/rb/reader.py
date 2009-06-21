@@ -102,14 +102,17 @@ class Reader(object):
             img.write(data)
 
     def extract_content(self, output_dir):
+        self.log.debug('Extracting content from file...')
         html = []
         images = []
         
         for item in self.toc:
             if item.name.lower().endswith('html'):
+                self.log.debug('HTML item %s found...' % item.name)
                 html.append(item.name)
                 self.get_text(item, output_dir)
             if item.name.lower().endswith('png'):
+                self.log.debug('PNG item %s found...' % item.name)
                 images.append(item.name)
                 self.get_image(item, output_dir)
 

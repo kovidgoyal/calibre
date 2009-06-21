@@ -37,13 +37,14 @@ class PMLOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         with TemporaryDirectory('_pmlz_output') as tdir:
-            pmlmlizer = PMLMLizer(ignore_tables=opts.linearize_tables)
+            pmlmlizer = PMLMLizer(log)
             content = pmlmlizer.extract_content(oeb_book, opts)
             with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
                 out.write(content.encode(opts.output_encoding, 'replace'))
 
             self.write_images(oeb_book.manifest, tdir)
 
+            log.debug('Compressing output...')
             pmlz = ZipFile(output_path, 'w')
             pmlz.add_dir(tdir)
 

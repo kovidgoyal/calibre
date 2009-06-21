@@ -67,24 +67,26 @@ SEPARATE_TAGS = [
 ]
 
 class PMLMLizer(object):
-    def __init__(self, ignore_tables=False):
-        self.ignore_tables = ignore_tables
+    def __init__(self, log):
+        self.log = log
         
     def extract_content(self, oeb_book, opts):
-        oeb_book.logger.info('Converting XHTML to PML markup...')
+        self.log.info('Converting XHTML to PML markup...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.pmlmlize_spine()
         
     def pmlmlize_spine(self):
         output = u''
-        if 'titlepage' in self.oeb_book.guide:
+        if 'titlepage' in self.oeb_book.guide
+            self.log.debug('Generating title page...')
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         for item in self.oeb_book.spine:
+            self.log.debug('Converting %s to PML markup...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.add_page_anchor(item.href)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)

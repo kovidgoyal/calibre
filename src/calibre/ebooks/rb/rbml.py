@@ -52,12 +52,12 @@ STYLES = [
 
 class RBMLizer(object):
 
-    def __init__(self, name_map={}, ignore_tables=False):
+    def __init__(self, log, name_map={}):
+        self.log = log
         self.name_map = name_map
-        self.ignore_tables = ignore_tables
 
     def extract_content(self, oeb_book, opts):
-        oeb_book.logger.info('Converting XHTML to RB markup...')
+        self.log.info('Converting XHTML to RB markup...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.mlize_spine()
@@ -66,12 +66,14 @@ class RBMLizer(object):
     def mlize_spine(self):
         output = u'<HTML><HEAD><TITLE></TITLE></HEAD><BODY>'
         if 'titlepage' in self.oeb_book.guide:
+            self.log.debug('Generating cover page...')
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         for item in self.oeb_book.spine:
+            self.log.debug('Converting %s to RocketBook HTML...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.add_page_anchor(item.href)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)

@@ -16,7 +16,7 @@ class FB2Output(OutputFormatPlugin):
     file_type = 'fb2'
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):    
-        fb2mlizer = FB2MLizer(ignore_tables=opts.linearize_tables)
+        fb2mlizer = FB2MLizer(log)
         fb2_content = fb2mlizer.extract_content(oeb_book, opts)
 
         close = False
