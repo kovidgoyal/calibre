@@ -44,7 +44,7 @@ class PMLInput(InputFormatPlugin):
 
         self.log.debug('Converting PML to HTML...')
         html = pml_to_html(pml_stream.read().decode(ienc)) 
-        html_stream.write('<html><head><title /></head><body>' + html.encode('utf-8') + '</body></html>')
+        html_stream.write('<html><head><title /></head><body>' + html.encode('utf-8', 'replace') + '</body></html>')
 
         if pclose:
             pml_stream.close()

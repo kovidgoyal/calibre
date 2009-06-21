@@ -73,9 +73,9 @@ class Reader132(FormatReader):
 
     def decompress_text(self, number):
         if self.header_record.version == 2:
-            return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
+            return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         if self.header_record.version == 10:
-            return zlib.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
+            return zlib.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
     def get_image(self, number):
         if number < self.header_record.image_data_offset or number > self.header_record.image_data_offset + self.header_record.num_image_pages - 1:

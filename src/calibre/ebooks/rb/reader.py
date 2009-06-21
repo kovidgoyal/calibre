@@ -84,9 +84,9 @@ class Reader(object):
 
             for size in chunck_sizes:
                 cm_chunck = self.stream.read(size)
-                output += zlib.decompress(cm_chunck).decode('cp1252' if self.encoding is None else self.encoding)
+                output += zlib.decompress(cm_chunck).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         else:
-            output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding)
+            output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
         with open(os.path.join(output_dir, toc_item.name), 'wb') as html:
             html.write(output.encode('utf-8'))

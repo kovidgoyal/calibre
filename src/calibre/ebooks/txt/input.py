@@ -22,7 +22,7 @@ class TXTInput(InputFormatPlugin):
         if options.input_encoding:
             ienc = options.input_encoding
         log.debug('Reading text from file...')
-        txt = stream.read().decode(ienc)
+        txt = stream.read().decode(ienc, 'replace')
 
         log.debug('Running text though markdown conversion...')
         try:
