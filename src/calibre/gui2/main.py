@@ -315,10 +315,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
         pm = QMenu()
-        pm.addAction(self.action_preferences)
+        ap = self.action_preferences
+        pm.addAction(ap.icon(), ap.text())
         pm.addAction(_('Run welcome wizard'))
         self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
                 self.run_wizard)
+        self.connect(pm.actions()[0], SIGNAL('triggered(bool)'),
+                self.do_config)
+
         self.action_preferences.setMenu(pm)
         self.preferences_menu = pm
 
