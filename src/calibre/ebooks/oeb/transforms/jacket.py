@@ -10,7 +10,7 @@ import textwrap
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XPNSMAP
+from calibre.ebooks.oeb.base import XPath, XPNSMAP
 from calibre import guess_type
 
 class Jacket(object):
@@ -41,10 +41,11 @@ class Jacket(object):
     ''')
 
     def remove_first_image(self):
+        path = XPath('//h:img[@src]')
         for i, item in enumerate(self.oeb.spine):
             if i > 2: break
-            for img in item.data.xpath('//h:img[@src]', namespace=XPNSMAP):
-                href = item.abshref(img.get('src'))
+            for img in path(item.data):
+                href  = item.abshref(img.get('src'))
                 image = self.oeb.manifest.hrefs.get(href, None)
                 if image is not None:
                     self.log('Removing first image', img.get('src'))
