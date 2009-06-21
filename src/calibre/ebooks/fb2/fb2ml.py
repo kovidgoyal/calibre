@@ -82,10 +82,6 @@ class FB2MLizer(object):
         return images
 
     def clean_text(self, text):
-        for entity in set(re.findall('&.+?;', text)):
-            mo = re.search('(%s)' % entity[1:-1], text)
-            text = text.replace(entity, entity_to_unicode(mo))
-
         text = text.replace('&', '')
 
         return text
