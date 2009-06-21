@@ -54,7 +54,7 @@ class Reader202(FormatReader):
         return self.sections[number]
 
     def decompress_text(self, number):
-            return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding)
+            return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
     def get_image(self, number):
         name = None

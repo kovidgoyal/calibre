@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -9,9 +8,8 @@ __docformat__ = 'restructuredtext en'
 Convert OEB ebook format to PDF.
 '''
 
-#unit, papersize, orientation, custom_size, profile
-
-import os, glob
+import glob
+import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
@@ -54,14 +52,17 @@ class PDFOutput(OutputFormatPlugin):
         self.metadata = oeb_book.metadata
 
         if input_plugin.is_image_collection:
+            log.debug('Converting input as an image collection...')
             self.convert_images(input_plugin.get_images())
         else:
+            log.debug('Converting input as a text based book...')
             self.convert_text(oeb_book)
 
     def convert_images(self, images):
         self.write(ImagePDFWriter, images)
 
     def convert_text(self, oeb_book):
+        self.log.debug('Serializing oeb input to disk for processing...')
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
@@ -86,6 +87,7 @@ class PDFOutput(OutputFormatPlugin):
 
         out_stream.seek(0)
         out_stream.truncate()
+        self.log.debug('Rendering pages to PDF...')
         writer.dump(items, out_stream, PDFMetadata(self.metadata))
 
         if close:

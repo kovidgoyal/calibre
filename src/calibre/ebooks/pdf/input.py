@@ -24,10 +24,12 @@ class PDFInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        log.debug('Converting file to html...')
         # The main html file will be named index.html
         pdftohtml(os.getcwd(), stream.name, options.no_images)
 
         from calibre.ebooks.metadata.meta import get_metadata
+        log.debug('Retrieving document metadata...')
         mi = get_metadata(stream, 'pdf')
         opf = OPFCreator(os.getcwd(), mi)
 
@@ -42,9 +44,11 @@ class PDFInput(InputFormatPlugin):
             new_i = i.replace('-', '')
             os.rename(i, new_i)
             manifest.append((new_i, None))
+        log.debug('Generating manifest...')
         opf.create_manifest(manifest)
 
         opf.create_spine(['index.html'])
+        log.debug('Rendering manifest...')
         with open('metadata.opf', 'wb') as opffile:
             opf.render(opffile)
 

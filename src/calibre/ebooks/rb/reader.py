@@ -84,9 +84,9 @@ class Reader(object):
 
             for size in chunck_sizes:
                 cm_chunck = self.stream.read(size)
-                output += zlib.decompress(cm_chunck).decode('cp1252' if self.encoding is None else self.encoding)
+                output += zlib.decompress(cm_chunck).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         else:
-            output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding)
+            output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
         with open(os.path.join(output_dir, toc_item.name), 'wb') as html:
             html.write(output.encode('utf-8'))
@@ -102,14 +102,17 @@ class Reader(object):
             img.write(data)
 
     def extract_content(self, output_dir):
+        self.log.debug('Extracting content from file...')
         html = []
         images = []
         
         for item in self.toc:
             if item.name.lower().endswith('html'):
+                self.log.debug('HTML item %s found...' % item.name)
                 html.append(item.name)
                 self.get_text(item, output_dir)
             if item.name.lower().endswith('png'):
+                self.log.debug('PNG item %s found...' % item.name)
                 images.append(item.name)
                 self.get_image(item, output_dir)
 

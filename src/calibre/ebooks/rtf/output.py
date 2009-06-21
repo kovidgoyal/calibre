@@ -16,7 +16,7 @@ class RTFOutput(OutputFormatPlugin):
     file_type = 'rtf'
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        rtfmlitzer = RTFMLizer(ignore_tables=opts.linearize_tables)
+        rtfmlitzer = RTFMLizer(log)
         content = rtfmlitzer.extract_content(oeb_book, opts)
 
         close = False

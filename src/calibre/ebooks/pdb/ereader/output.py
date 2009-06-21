@@ -8,7 +8,6 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ebooks.pdb.ereader.writer import Writer
-from calibre.ebooks.metadata import authors_to_string
 
 class EREADEROutput(OutputFormatPlugin):
 

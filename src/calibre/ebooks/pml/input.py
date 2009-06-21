@@ -4,7 +4,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import glob, os, shutil
+import glob
+import os
+import shutil
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
@@ -40,8 +42,9 @@ class PMLInput(InputFormatPlugin):
         if self.options.input_encoding:
             ienc = self.options.input_encoding
 
+        self.log.debug('Converting PML to HTML...')
         html = pml_to_html(pml_stream.read().decode(ienc)) 
-        html_stream.write('<html><head><title /></head><body>' + html.encode('utf-8') + '</body></html>')
+        html_stream.write('<html><head><title /></head><body>' + html.encode('utf-8', 'replace') + '</body></html>')
 
         if pclose:
             pml_stream.close()
@@ -51,9 +54,11 @@ class PMLInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.options = options
+        self.log = log
         pages, images = [], []
 
         if file_ext == 'pmlz':
+            log.debug('De-compressing content to temporary directory...')
             with TemporaryDirectory('_unpmlz') as tdir:
                 zf = ZipFile(stream)
                 zf.extractall(tdir)
@@ -64,6 +69,7 @@ class PMLInput(InputFormatPlugin):
                     html_path = os.path.join(os.getcwd(), html_name)
                     
                     pages.append(html_name)
+                    log.debug('Processing PML item %s...' % pml)
                     self.process_pml(pml, html_path)
                     
                 imgs = glob.glob(os.path.join(tdir, '*.png'))
@@ -90,12 +96,13 @@ class PMLInput(InputFormatPlugin):
             manifest_items.append((item, None))
         
         from calibre.ebooks.metadata.meta import get_metadata
+        log.debug('Reading metadata from input file...')
         mi = get_metadata(stream, 'pml')
         opf = OPFCreator(os.getcwd(), mi)
+        log.debug('Generating manifest...')
         opf.create_manifest(manifest_items)
         opf.create_spine(pages)
         with open('metadata.opf', 'wb') as opffile:
             opf.render(opffile)
         
         return os.path.join(os.getcwd(), 'metadata.opf')
-

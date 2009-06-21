@@ -79,11 +79,11 @@ TODO:
 '''
 class RTFMLizer(object):
 
-    def __init__(self, ignore_tables=False):
-        self.ignore_tables = ignore_tables
+    def __init__(self, log):
+        self.log = log
 
     def extract_content(self, oeb_book, opts):
-        oeb_book.logger.info('Converting XHTML to RTF markup...')
+        self.log.info('Converting XHTML to RTF markup...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.mlize_spine()
@@ -98,6 +98,7 @@ class RTFMLizer(object):
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
                 output += '{\\page } '
         for item in self.oeb_book.spine:
+            self.log.debug('Converting %s to RTF markup...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         output += self.footer()

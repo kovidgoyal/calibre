@@ -49,7 +49,7 @@ class Reader(FormatReader):
         if self.header_record.compression == 1:
             return self.section_data(number).decode('cp1252' if self.encoding is None else self.encoding)
         if self.header_record.compression == 2:
-            return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
+            return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         return ''
 
     def extract_content(self, output_dir):

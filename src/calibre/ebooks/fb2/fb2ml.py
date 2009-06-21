@@ -9,12 +9,10 @@ Transform OEB content into FB2 markup
 '''
 
 import os
-import re
 from base64 import b64encode
 
 from lxml import etree
 
-from calibre import entity_to_unicode
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_IMAGES
@@ -33,11 +31,11 @@ STYLES = [
 ]
 
 class FB2MLizer(object):
-    def __init__(self, ignore_tables=False):
-        self.ignore_tables = ignore_tables
+    def __init__(self, log):
+        self.log = log
         
     def extract_content(self, oeb_book, opts):
-        oeb_book.logger.info('Converting XHTML to FB2 markup...')
+        self.log.info('Converting XHTML to FB2 markup...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.fb2mlize_spine()
@@ -45,12 +43,14 @@ class FB2MLizer(object):
     def fb2mlize_spine(self):
         output = self.fb2_header()
         if 'titlepage' in self.oeb_book.guide:
+            self.log.debug('Generating cover page...')
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         for item in self.oeb_book.spine:
+            self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer)
         output += self.fb2_body_footer()

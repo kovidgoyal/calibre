@@ -10,8 +10,6 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from htmlentitydefs import codepoint2name
-
 from calibre.ebooks.pdb.ereader import image_name
 
 PML_HTML_RULES = [

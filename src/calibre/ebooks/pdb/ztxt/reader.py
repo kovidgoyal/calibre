@@ -65,7 +65,7 @@ class Reader(FormatReader):
     def decompress_text(self, number):
         if number == 1:
             self.uncompressor = zlib.decompressobj()
-        return self.uncompressor.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding)
+        return self.uncompressor.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
     def extract_content(self, output_dir):
         txt = ''
