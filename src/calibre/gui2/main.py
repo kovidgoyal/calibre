@@ -167,7 +167,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered()'),
-                self.show)
+                self.show_windows)
         self.connect(self.action_show_book_details,
                 SIGNAL('triggered(bool)'), self.show_book_info)
         self.connect(self.action_restart, SIGNAL('triggered()'),
@@ -517,16 +517,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def system_tray_icon_activated(self, r):
         if r == QSystemTrayIcon.Trigger:
             if self.isVisible():
-                for window in QApplication.topLevelWidgets():
-                    if isinstance(window, (MainWindow, QDialog)) and \
-                            window.isVisible():
-                        window.hide()
-                        setattr(window, '__systray_minimized', True)
+                self.hide_windows()
             else:
-                for window in QApplication.topLevelWidgets():
-                    if getattr(window, '__systray_minimized', False):
-                        window.show()
-                        setattr(window, '__systray_minimized', False)
+                self.show_windows()
+
+    def hide_windows(self):
+        for window in QApplication.topLevelWidgets():
+            if isinstance(window, (MainWindow, QDialog)) and \
+                    window.isVisible():
+                window.hide()
+                setattr(window, '__systray_minimized', True)
+
+    def show_windows(self):
+        for window in QApplication.topLevelWidgets():
+            if getattr(window, '__systray_minimized', False):
+                window.show()
+                setattr(window, '__systray_minimized', False)
 
     def test_server(self, *args):
         if self.content_server.exception is not None:
