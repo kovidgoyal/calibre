@@ -398,7 +398,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.card_a_view.connect_dirtied_signal(self.upload_booklists)
         self.card_b_view.connect_dirtied_signal(self.upload_booklists)
 
-        self.show_windows()
+        self.show()
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.stack.setCurrentIndex(0)
