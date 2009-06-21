@@ -48,7 +48,7 @@ XPNSMAP      = {'h'  : XHTML_NS, 'o1' : OPF1_NS,    'o2' : OPF2_NS,
                 'xsi': XSI_NS,   'dt' : DCTERMS_NS, 'ncx': NCX_NS,
                 'svg': SVG_NS,   'xl' : XLINK_NS,   're': RE_NS,
                 'mbp': MBP_NS }
-                
+
 OPF1_NSMAP   = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
 OPF2_NSMAP   = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                 'xsi': XSI_NS, 'calibre': CALIBRE_NS}
@@ -804,10 +804,11 @@ class Manifest(object):
                     try:
                         data = etree.fromstring(data)
                     except etree.XMLSyntaxError:
-                        self.oeb.logger.warn('Stripping comments from %s'%
+                        self.oeb.logger.warn('Stripping comments and meta tags from %s'%
                                 self.href)
                         data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
                                 data)
+                        data = re.sub(r'<meta\s+[^>]+?>', '', data)
                         data = etree.fromstring(data)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
@@ -1392,7 +1393,7 @@ class TOC(object):
         self.play_order = play_order
         self.author = author
         self.description = description
-        
+
     def add(self, title, href, klass=None, id=None, play_order=0, author=None, description=None):
         """Create and return a new sub-node of this node."""
         node = TOC(title, href, klass, id, play_order, author, description)
