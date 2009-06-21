@@ -55,7 +55,7 @@ class Writer(FormatWriter):
             out_stream.write(item)
 
     def _text(self, oeb_book):
-        pmlmlizer = PMLMLizer(ignore_tables=self.opts.linearize_tables)
+        pmlmlizer = PMLMLizer(self.log)
         pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 
         pml_pages = []
