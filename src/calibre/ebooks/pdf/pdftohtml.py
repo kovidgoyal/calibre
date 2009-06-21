@@ -14,7 +14,6 @@ from functools import partial
 from calibre.ebooks import ConversionError, DRMError
 from calibre import isosx, iswindows, islinux
 from calibre import CurrentDir
-from calibre.ptempfile import TemporaryDirectory
 
 PDFTOHTML = 'pdftohtml'
 popen = subprocess.Popen
@@ -26,10 +25,11 @@ if iswindows and hasattr(sys, 'frozen'):
 if islinux and getattr(sys, 'frozen_path', False):
     PDFTOHTML = os.path.join(getattr(sys, 'frozen_path'), 'pdftohtml')
 
-def pdftohtml(pdf_path):
+def pdftohtml(output_dir, pdf_path, no_images):
     '''
     Convert the pdf into html using the pdftohtml app.
-    @return: The HTML as a unicode string.
+    This will write the html as index.html into output_dir.
+    It will also wirte all extracted images to the output_dir
     '''
 
     if isinstance(pdf_path, unicode):
@@ -37,41 +37,41 @@ def pdftohtml(pdf_path):
     if not os.access(pdf_path, os.R_OK):
         raise ConversionError('Cannot read from ' + pdf_path)
 
-    with TemporaryDirectory('_pdftohtml') as tdir:
-        index = os.path.join(tdir, 'index.html')
+    with CurrentDir(output_dir):
+        index = os.path.join(os.getcwd(), 'index.html')
         # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
         pdf_path = os.path.abspath(pdf_path)
-        cmd = (PDFTOHTML, '-enc', 'UTF-8', '-noframes', '-p', '-nomerge', '-i', '-q', pdf_path, os.path.basename(index))
-        cwd = os.getcwd()
+        cmd = [PDFTOHTML, '-enc', 'UTF-8', '-noframes', '-p', '-nomerge', '-nodrm', '-q', pdf_path, os.path.basename(index)]
+        if no_images:
+            cmd.append('-i')
 
-        with CurrentDir(tdir):
+        try:
+            p = popen(cmd, stderr=subprocess.PIPE)
+        except OSError, err:
+            if err.errno == 2:
+                raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
+            else:
+                raise
+
+        while True:
             try:
-                p = popen(cmd, stderr=subprocess.PIPE)
-            except OSError, err:
-                if err.errno == 2:
-                    raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
+                ret = p.wait()
+                break
+            except OSError, e:
+                if e.errno == errno.EINTR:
+                    continue
                 else:
                     raise
 
-            while True:
-                try:
-                    ret = p.wait()
-                    break
-                except OSError, e:
-                    if e.errno == errno.EINTR:
-                        continue
-                    else:
-                        raise
+        if ret != 0:
+            err = p.stderr.read()
+            raise ConversionError(err)
+        if not os.path.exists(index) or os.stat(index).st_size < 100:
+            raise DRMError()
 
-            if ret != 0:
-                err = p.stderr.read()
-                raise ConversionError(err)
-            if not os.path.exists(index) or os.stat(index).st_size < 100:
-                raise DRMError()
-
-            with open(index, 'rb') as i:
-                raw = i.read()
-            if not '<br' in raw[:4000]:
-                raise ConversionError(os.path.basename(pdf_path) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'))
-
-            return '<!-- created by calibre\'s pdftohtml -->\n' + raw
+        with open(index, 'rb+wb') as i:
+            raw = i.read()
+            raw = '<!-- created by calibre\'s pdftohtml -->\n' + raw
+            i.seek(0)
+            i.truncate()
+            i.write(raw)

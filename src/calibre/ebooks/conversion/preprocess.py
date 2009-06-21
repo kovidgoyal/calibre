@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, functools
+import functools
+import re
 
 from calibre import entity_to_unicode
 
@@ -52,7 +52,12 @@ def line_length(raw, percent):
     for line in lines:
         if len(line) > 0:
             lengths.append(len(line))
+
+    if not lengths:
+        return 0
+
     total = sum(lengths)
+    print total
     avg = total / len(lengths)
     max_line = avg * 2
 
@@ -178,10 +183,13 @@ class HTMLPreProcessor(object):
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
-            line_length_rules = [
-                # Un wrap using punctuation
-                (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % line_length(html, .3), re.UNICODE), wrap_lines),
-            ]
+            length = line_length(html, .3)
+            line_length_rules = []
+            if length:
+                line_length_rules = [
+                    # Un wrap using punctuation
+                    (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % length, re.UNICODE), wrap_lines),
+                ]
 
             rules = self.PDFTOHTML + line_length_rules
         else:
