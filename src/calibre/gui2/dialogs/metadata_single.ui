@@ -325,6 +325,19 @@
                  <item row="8" column="1" colspan="2">
                   <widget class="QLineEdit" name="isbn"/>
                  </item>
+                 <item row="9" column="0">
+                  <widget class="QLabel" name="label_10">
+                   <property name="text">
+                    <string>Publishe&amp;d:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy">
+                    <cstring>pubdate</cstring>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="4" column="1">
                   <widget class="QComboBox" name="publisher">
                    <property name="editable">
@@ -345,6 +358,16 @@
                    </property>
                    <property name="maximum">
                     <double>9999.989999999999782</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1">
+                  <widget class="QDateEdit" name="pubdate">
+                   <property name="displayFormat">
+                    <string>MMM yyyy</string>
+                   </property>
+                   <property name="calendarPopup">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -632,6 +655,7 @@
   <tabstop>tag_editor_button</tabstop>
   <tabstop>remove_series_button</tabstop>
   <tabstop>isbn</tabstop>
+  <tabstop>pubdate</tabstop>
   <tabstop>comments</tabstop>
   <tabstop>fetch_metadata_button</tabstop>
   <tabstop>fetch_cover_button</tabstop>

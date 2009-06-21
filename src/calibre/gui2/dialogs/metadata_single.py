@@ -10,8 +10,9 @@ import os
 import re
 import time
 import traceback
+from datetime import datetime
 
-from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread
+from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompleter
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
@@ -234,6 +235,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover.setAcceptDrops(True)
         self._author_completer = AuthorCompleter(self.db)
         self.authors.setCompleter(self._author_completer)
+        self.pubdate.setMinimumDate(QDate(100,1,1))
         self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
@@ -279,6 +281,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         comments = self.db.comments(row)
         self.comments.setPlainText(comments if comments else '')
         cover = self.db.cover(row)
+        pubdate = db.pubdate(self.id, index_is_id=True)
+        self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
+            pubdate.day))
 
         exts = self.db.formats(row)
         if exts:
@@ -441,6 +446,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         if book.author_sort: self.author_sort.setText(book.author_sort)
                         if book.publisher: self.publisher.setEditText(book.publisher)
                         if book.isbn: self.isbn.setText(book.isbn)
+                        if book.pubdate:
+                            d = book.pubdate
+                            self.pubdate.setDate(QDate(d.year, d.month, d.day))
                         summ = book.comments
                         if summ:
                             prefix = qstring_to_unicode(self.comments.toPlainText())
@@ -485,6 +493,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()), notify=False)
         self.db.set_series_index(self.id, self.series_index.value(), notify=False)
         self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
+        d = self.pubdate.date()
+        self.db.set_pubdate(self.id, datetime(d.year(), d.month(), d.day()))
+
         if self.cover_changed:
             self.db.set_cover(self.id, pixmap_to_data(self.cover.pixmap()))
         QDialog.accept(self)
