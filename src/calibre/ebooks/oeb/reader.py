@@ -351,9 +351,27 @@ class OEBReader(object):
                 self.logger.warn('TOC reference %r not found' % href)
                 continue
             id = child.get('id')
-            klass = child.get('class')
+            klass = child.get('class', 'chapter')
+
             po = int(child.get('playOrder', self.oeb.toc.next_play_order()))
-            node = toc.add(title, href, id=id, klass=klass, play_order=po)
+
+            authorElement = xpath(child,
+                    'descendant::mbp:meta[@name = "author"]')
+            if authorElement :
+                author = authorElement[0].text
+            else :
+                author = None
+
+            descriptionElement = xpath(child,
+                    'descendant::mbp:meta[@name = "description"]')
+            if descriptionElement :
+                description = descriptionElement[0].text
+            else :
+                description = None
+
+            node = toc.add(title, href, id=id, klass=klass,
+                    play_order=po, description=description, author=author)
+
             self._toc_from_navpoint(item, node, child)
 
     def _toc_from_ncx(self, item):
