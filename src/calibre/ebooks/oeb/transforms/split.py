@@ -16,7 +16,7 @@ from lxml import etree
 from lxml.cssselect import CSSSelector
 
 from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
-        urldefrag, rewrite_links, urlunquote
+        urldefrag, rewrite_links, urlunquote, barename
 from calibre.ebooks.epub import rules
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -46,9 +46,10 @@ class Split(object):
         if self.page_breaks_xpath is not None:
             self.page_break_selectors = [(XPath(self.page_breaks_xpath), False)]
 
-    def __call__(self, oeb, context):
+    def __call__(self, oeb, opts):
         self.oeb = oeb
         self.log = oeb.log
+        self.opts = opts
         self.map = {}
         for item in list(self.oeb.manifest.items):
             if item.spine_position is not None and etree.iselement(item.data):
@@ -62,7 +63,7 @@ class Split(object):
             page_breaks, page_break_ids = self.find_page_breaks(item)
 
         splitter = FlowSplitter(item, page_breaks, page_break_ids,
-                self.max_flow_size, self.oeb)
+                self.max_flow_size, self.oeb, self.opts)
         if splitter.was_split:
             am = splitter.anchor_map
             self.map[item.href] = collections.defaultdict(
@@ -153,9 +154,11 @@ class Split(object):
 class FlowSplitter(object):
     'The actual splitting logic'
 
-    def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb):
+    def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb,
+            opts):
         self.item           = item
         self.oeb            = oeb
+        self.opts           = opts
         self.log            = oeb.log
         self.page_breaks    = page_breaks
         self.page_break_ids = page_break_ids
@@ -221,6 +224,34 @@ class FlowSplitter(object):
             return None
         return body[0]
 
+    def adjust_split_point(self, root, path):
+        '''
+        Move the split point up its ancestor chain if it has no textual content
+        before it. This handles the common case:
+        <div id="chapter1"><h2>Chapter 1</h2>...</div> with a page break on the
+        h2.
+        '''
+        sp = root.xpath(path)[0]
+        while True:
+            parent = sp.getparent()
+            if barename(parent.tag) in ('body', 'html'):
+                break
+            if parent.text and parent.text.strip():
+                break
+            if parent.index(sp) > 0:
+                break
+            sp = parent
+
+        npath = sp.getroottree().getpath(sp)
+
+        if self.opts.verbose > 3 and npath != path:
+            self.log.debug('\t\t\tMoved split point %s to %s'%(path, npath))
+
+
+        return npath
+
+
+
     def do_split(self, tree, split_point, before):
         '''
         Split ``tree`` into a *before* and *after* tree at ``split_point``,
@@ -236,8 +267,10 @@ class FlowSplitter(object):
         root         = tree.getroot()
         root2        = tree2.getroot()
         body, body2  = map(self.get_body, (root, root2))
+        path = self.adjust_split_point(root, path)
         split_point  = root.xpath(path)[0]
         split_point2 = root2.xpath(path)[0]
+
 
         def nix_element(elem, top=True):
             parent = elem.getparent()
@@ -254,9 +287,12 @@ class FlowSplitter(object):
             if elem is split_point:
                 hit_split_point = True
                 if before:
+                    x = elem.get('id', None)
                     nix_element(elem)
+
                 continue
             if hit_split_point:
+                x = elem.get('id', None)
                 nix_element(elem)
 
 
@@ -266,9 +302,11 @@ class FlowSplitter(object):
             if elem is split_point2:
                 hit_split_point = True
                 if not before:
+                    x = elem.get('id', None)
                     nix_element(elem, top=False)
                 continue
             if not hit_split_point:
+                x = elem.get('id', None)
                 nix_element(elem, top=False)
 
         return tree, tree2
