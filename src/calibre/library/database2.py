@@ -561,6 +561,35 @@ class LibraryDatabase2(LibraryDatabase):
         )
 
 
+    def upgrade_version_6(self):
+        'Show authors in order'
+        self.conn.executescript('''
+        BEGIN TRANSACTION;
+        DROP VIEW meta;
+        CREATE VIEW meta AS
+        SELECT id, title,
+               (SELECT sortconcat(bal.id, name) FROM books_authors_link AS bal JOIN authors ON(author = authors.id) WHERE book = books.id) authors,
+               (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+               (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+               timestamp,
+               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+               (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+               (SELECT text FROM comments WHERE book=books.id) comments,
+               (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+               series_index,
+               sort,
+               author_sort,
+               (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+               isbn,
+               path,
+               lccn,
+               pubdate,
+               flags
+        FROM books;
+        END TRANSACTION;
+        ''')
+
+
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
