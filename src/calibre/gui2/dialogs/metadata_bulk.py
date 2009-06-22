@@ -12,7 +12,7 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
-    
+
     def __init__(self, window, rows, db):
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
@@ -22,33 +22,33 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.write_series = False
         self.write_rating = False
         self.changed = False
-        QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)        
+        QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)
         QObject.connect(self.rating, SIGNAL('valueChanged(int)'), self.rating_changed)
-        
+
         all_series = self.db.all_series()
-        
+
         for i in all_series:
             id, name = i
             self.series.addItem(name)
-            
+
         for f in self.db.all_formats():
             self.remove_format.addItem(f)
-            
+
         self.remove_format.setCurrentIndex(-1)
-            
+
         self.series.lineEdit().setText('')
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.series_changed)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.series_changed)
         QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), self.tag_editor)
         self.exec_()
-    
+
     def tag_editor(self):
         d = TagEditor(self, self.db, None)
         d.exec_()
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
-        
+
     def sync(self):
         for id in self.ids:
             au = qstring_to_unicode(self.authors.text())
@@ -80,14 +80,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 self.db.set_tags(id, tags, append=True, notify=False)
             if self.write_series:
                 self.db.set_series(id, qstring_to_unicode(self.series.currentText()), notify=False)
-                
+
             if self.remove_format.currentIndex() > -1:
                 self.db.remove_format(id, unicode(self.remove_format.currentText()), index_is_id=True, notify=False)
-                
+
             self.changed = True
-    
+
     def series_changed(self):
         self.write_series = True
-        
+
     def rating_changed(self):
         self.write_rating = True
