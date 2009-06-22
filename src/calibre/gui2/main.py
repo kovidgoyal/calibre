@@ -167,7 +167,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered()'),
-                self.show)
+                self.show_windows)
         self.connect(self.action_show_book_details,
                 SIGNAL('triggered(bool)'), self.show_book_info)
         self.connect(self.action_restart, SIGNAL('triggered()'),
@@ -314,15 +314,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.action_convert,
                 SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
+
         pm = QMenu()
         ap = self.action_preferences
         pm.addAction(ap.icon(), ap.text())
+        pm.addAction(self.preferences_action)
         pm.addAction(_('Run welcome wizard'))
         self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
                 self.run_wizard)
-        self.connect(pm.actions()[0], SIGNAL('triggered(bool)'),
-                self.do_config)
-
         self.action_preferences.setMenu(pm)
         self.preferences_menu = pm
 
@@ -404,7 +403,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         self.show()
         if self.system_tray_icon.isVisible() and opts.start_in_tray:
-            self.hide()
+            self.hide_windows()
         self.stack.setCurrentIndex(0)
         try:
             db = LibraryDatabase2(self.library_path)
@@ -521,16 +520,22 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def system_tray_icon_activated(self, r):
         if r == QSystemTrayIcon.Trigger:
             if self.isVisible():
-                for window in QApplication.topLevelWidgets():
-                    if isinstance(window, (MainWindow, QDialog)) and \
-                            window.isVisible():
-                        window.hide()
-                        setattr(window, '__systray_minimized', True)
+                self.hide_windows()
             else:
-                for window in QApplication.topLevelWidgets():
-                    if getattr(window, '__systray_minimized', False):
-                        window.show()
-                        setattr(window, '__systray_minimized', False)
+                self.show_windows()
+
+    def hide_windows(self):
+        for window in QApplication.topLevelWidgets():
+            if isinstance(window, (MainWindow, QDialog)) and \
+                    window.isVisible():
+                window.hide()
+                setattr(window, '__systray_minimized', True)
+
+    def show_windows(self):
+        for window in QApplication.topLevelWidgets():
+            if getattr(window, '__systray_minimized', False):
+                window.show()
+                setattr(window, '__systray_minimized', False)
 
     def test_server(self, *args):
         if self.content_server.exception is not None:
@@ -641,7 +646,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     self.add_filesystem_book(path)
             self.setWindowState(self.windowState() & \
                     ~Qt.WindowMinimized|Qt.WindowActive)
-            self.show()
+            self.show_windows()
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
@@ -1658,7 +1663,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
-        self.hide()
+        self.hide_windows()
         self.cover_cache.terminate()
         self.emailer.stop()
         try:
@@ -1670,7 +1675,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             time.sleep(2)
         except KeyboardInterrupt:
             pass
-        self.hide()
+        self.hide_windows()
         return True
 
     def run_wizard(self, *args):
@@ -1694,7 +1699,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         'choose <b>Quit</b> in the context menu of the '
                         'system tray.')).exec_()
                 dynamic['systray_msg'] = True
-            self.hide()
+            self.hide_windows()
             e.ignore()
         else:
             if self.confirm_quit():
