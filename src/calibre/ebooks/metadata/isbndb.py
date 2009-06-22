@@ -49,7 +49,7 @@ class ISBNDBMetadata(MetaInformation):
     def __init__(self, book):
         MetaInformation.__init__(self, None, [])
 
-        self.isbn = book['isbn']
+        self.isbn = book.get('isbn13', book.get('isbn'))
         self.title = book.find('titlelong').string
         if not self.title:
             self.title = book.find('title').string
@@ -72,7 +72,6 @@ class ISBNDBMetadata(MetaInformation):
         summ = book.find('summary')
         if summ and hasattr(summ, 'string') and summ.string:
             self.comments = 'SUMMARY:\n'+summ.string
-
 
 
 def build_isbn(base_url, opts):

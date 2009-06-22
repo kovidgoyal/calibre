@@ -41,11 +41,14 @@ SVG_NS       = 'http://www.w3.org/2000/svg'
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 CALIBRE_NS   = 'http://calibre.kovidgoyal.net/2009/metadata'
 RE_NS        = 'http://exslt.org/regular-expressions'
+MBP_NS       = 'http://www.mobipocket.com'
 
 XPNSMAP      = {'h'  : XHTML_NS, 'o1' : OPF1_NS,    'o2' : OPF2_NS,
                 'd09': DC09_NS,  'd10': DC10_NS,    'd11': DC11_NS,
                 'xsi': XSI_NS,   'dt' : DCTERMS_NS, 'ncx': NCX_NS,
-                'svg': SVG_NS,   'xl' : XLINK_NS,   're': RE_NS}
+                'svg': SVG_NS,   'xl' : XLINK_NS,   're': RE_NS,
+                'mbp': MBP_NS }
+
 OPF1_NSMAP   = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
 OPF2_NSMAP   = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                 'xsi': XSI_NS, 'calibre': CALIBRE_NS}
@@ -785,10 +788,12 @@ class Manifest(object):
             data = first_pass(data)
             # Force into the XHTML namespace
             if barename(data.tag) != 'html':
-                data = first_pass('<html>'+data+'</html>')
-            if barename(data.tag) != 'html':
-                raise NotHTML(
-                    'File %r does not appear to be (X)HTML' % self.href)
+                self.log.warn('File %r does not appear to be (X)HTML'%self.href)
+                nroot = etree.fromstring('<html></html>')
+                for child in list(data):
+                    child.getparent.remove(child)
+                    nroot.append(child)
+                data = nroot
             elif not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
@@ -799,10 +804,11 @@ class Manifest(object):
                     try:
                         data = etree.fromstring(data)
                     except etree.XMLSyntaxError:
-                        self.oeb.logger.warn('Stripping comments from %s'%
+                        self.oeb.logger.warn('Stripping comments and meta tags from %s'%
                                 self.href)
                         data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
                                 data)
+                        data = re.sub(r'<meta\s+[^>]+?>', '', data)
                         data = etree.fromstring(data)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
@@ -1371,9 +1377,11 @@ class TOC(object):
     :attr:`href`: Book-internal URL referenced by this node.
     :attr:`klass`: Optional semantic class referenced by this node.
     :attr:`id`: Option unique identifier for this node.
+    :attr:`author`: Optional author attribution for periodicals <mbp:>
+    :attr:`description`: Optional description attribute for periodicals <mbp:>
     """
     def __init__(self, title=None, href=None, klass=None, id=None,
-            play_order=None):
+            play_order=None, author=None, description=None):
         self.title = title
         self.href = urlnormalize(href) if href else href
         self.klass = klass
@@ -1383,10 +1391,12 @@ class TOC(object):
         if play_order is None:
             play_order = self.next_play_order()
         self.play_order = play_order
+        self.author = author
+        self.description = description
 
-    def add(self, title, href, klass=None, id=None, play_order=0):
+    def add(self, title, href, klass=None, id=None, play_order=0, author=None, description=None):
         """Create and return a new sub-node of this node."""
-        node = TOC(title, href, klass, id, play_order)
+        node = TOC(title, href, klass, id, play_order, author, description)
         self.nodes.append(node)
         return node
 

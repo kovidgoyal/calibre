@@ -14,6 +14,7 @@ from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from calibre.gui2 import error_dialog, NONE, info_dialog
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.utils.config import prefs
+from calibre import strftime
 
 class Fetcher(QThread):
 
@@ -45,7 +46,7 @@ class Matches(QAbstractTableModel):
         return len(self.matches)
 
     def columnCount(self, *args):
-        return 5
+        return 6
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
@@ -57,6 +58,7 @@ class Matches(QAbstractTableModel):
             elif section == 2: text = _("Author Sort")
             elif section == 3: text = _("Publisher")
             elif section == 4: text = _("ISBN")
+            elif section == 5: text = _("Published")
 
             return QVariant(text)
         else:
@@ -80,6 +82,9 @@ class Matches(QAbstractTableModel):
                 res = book.publisher
             elif col == 4:
                 res = book.isbn
+            elif col == 5:
+                if hasattr(book.pubdate, 'timetuple'):
+                    res = strftime('%b %Y', book.pubdate.timetuple())
             if not res:
                 return NONE
             return QVariant(res)
@@ -126,7 +131,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             prefs['isbndb_com_key'] =  key
         else:
             key = None
-        title = author = publisher = isbn = None
+        title = author = publisher = isbn = pubdate = None
         if self.isbn:
             isbn = self.isbn
         if self.title:

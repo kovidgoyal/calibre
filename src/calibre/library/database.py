@@ -9,6 +9,7 @@ from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds.recipes import migrate_automatic_profile_to_automatic_recipe
+from calibre.ebooks.metadata import string_to_authors
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -97,7 +98,7 @@ class LibraryDatabase(object):
             obj = conn.execute('INSERT INTO books(title, timestamp, author_sort) VALUES (?,?,?)',
                                (book['title'], book['timestamp'], authors))
             id = obj.lastrowid
-            authors = authors.split('&')
+            authors = string_to_authors(authors)
             for a in authors:
                 author = conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
                 if author:
@@ -1103,7 +1104,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 item[col] = val
                 break
         if column == 'authors':
-            val = val.split('&,')
+            val = string_to_authors(val)
             self.set_authors(id, val)
         elif column == 'title':
             self.set_title(id, val)
@@ -1266,7 +1267,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 mi.authors = ['Unknown']
         authors = []
         for a in mi.authors:
-            authors += a.split('&')
+            authors += string_to_authors(a)
         self.set_authors(id, authors)
         if mi.author_sort:
             self.set_author_sort(id, mi.author_sort)

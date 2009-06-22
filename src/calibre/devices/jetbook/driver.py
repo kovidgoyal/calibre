@@ -9,6 +9,7 @@ from itertools import cycle
 
 from calibre.devices.usbms.driver import USBMS
 from calibre import sanitize_file_name as sanitize
+from calibre.ebooks.metadata import string_to_authors
 
 class JETBOOK(USBMS):
     name           = 'Ectaco JetBook Device Interface'
@@ -118,7 +119,7 @@ class JETBOOK(USBMS):
             match = cls.JETBOOK_FILE_NAME_PATTERN.match(fn)
             if match is not None:
                 mi.title = check_unicode(match.group('title'))
-                authors = match.group('authors').split('&')
+                authors = string_to_authors(match.group('authors'))
                 mi.authors = map(check_unicode, authors)
 
         return mi

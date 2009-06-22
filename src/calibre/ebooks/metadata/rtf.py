@@ -5,7 +5,7 @@ Edit metadata in RTF files.
 """
 import re, cStringIO, sys
 
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
@@ -76,10 +76,7 @@ def get_metadata(stream):
         category = category_match.group(1).strip()
     mi = MetaInformation(title, author)
     if author:
-        au = author.split(',')
-        mi.authors = []
-        for i in au:
-            mi.authors.extend(i.split('&'))
+        mi.authors = string_to_authors(author)
     mi.comments = comment
     mi.category = category
     return mi

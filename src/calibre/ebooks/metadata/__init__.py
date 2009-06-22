@@ -13,7 +13,9 @@ from urlparse import urlparse
 
 from calibre import relpath
 
+_author_pat = re.compile(',?\s+and\s+', re.IGNORECASE)
 def string_to_authors(raw):
+    raw = _author_pat.sub('&', raw)
     raw = raw.replace('&&', u'\uffff')
     authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
     return authors

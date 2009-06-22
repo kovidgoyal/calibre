@@ -4,7 +4,7 @@ __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 
 import sys, struct
 
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 MAGIC = '\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
@@ -41,12 +41,8 @@ def get_metadata(stream):
             if key.strip() == 'TITLE':
                 mi.title = value.strip()
             elif key.strip() == 'AUTHOR':
-                src = value.split('&')
-                authors = []
-                for au in src:
-                    authors += au.split(',')
-                mi.authors = authors
                 mi.author = value
+                mi.authors = string_to_authors(value)
     except Exception, err:
         msg = u'Couldn\'t read metadata from rb: %s with error %s'%(mi.title, unicode(err))
         print >>sys.stderr, msg.encode('utf8')

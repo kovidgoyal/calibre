@@ -9,7 +9,7 @@ from calibre.utils.config import prefs
 from calibre.ebooks.metadata.opf2 import OPF
 
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
@@ -132,10 +132,7 @@ def metadata_from_filename(name, pat=None):
             pass
         try:
             au = match.group('authors')
-            aus = au.split(',')
-            authors = []
-            for a in aus:
-                authors.extend(a.split('&'))
+            aus = string_to_authors(au)
             mi.authors = authors
         except IndexError:
             pass

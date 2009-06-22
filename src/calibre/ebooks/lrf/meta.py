@@ -19,7 +19,7 @@ import xml.dom.minidom as dom
 from functools import wraps
 
 from calibre.devices.prs500.prstypes import field
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte 
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes 
@@ -221,10 +221,7 @@ def get_metadata(stream):
     @param stream: A file like object or an instance of L{LRFMetaFile}
     """
     lrf = stream if isinstance(stream, LRFMetaFile) else LRFMetaFile(stream)
-    au = lrf.author.strip().split(',')
-    authors = []
-    for i in au:
-        authors.extend(i.split('&'))
+    authors = string_to_authors(lrf.author)
     mi = MetaInformation(lrf.title.strip(), authors)
     mi.author = lrf.author.strip()
     mi.comments = lrf.free_text.strip()
