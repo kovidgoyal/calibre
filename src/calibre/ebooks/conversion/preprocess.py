@@ -42,7 +42,9 @@ def line_length(raw, percent):
     '''
     raw is the raw text to find the line length to use for wrapping.
     percentage is a decimal number, 0 - 1 which is used to determine
-    how far in the list of line lengths to use.
+    how far in the list of line lengths to use. The list of line lengths is
+    ordered smallest to larged and does not include duplicates. 0.5 is the
+    median value.
     '''
     raw = raw.replace('&nbsp;', ' ')
     linere = re.compile('(?<=<br>).*?(?=<br>)', re.DOTALL)
