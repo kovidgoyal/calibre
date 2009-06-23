@@ -1,0 +1,75 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.nieuwsblad.be
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+class DeGentenaarOnline(BasicNewsRecipe):
+    title                 = 'De Gentenaar Online'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Belgium in Dutch'
+    publisher             = 'De Gentenaar'
+    category              = 'news, politics, Belgium'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    language              = _('Dutch')
+    lang                  = 'nl-BE'
+    direction             = 'ltr'
+
+    html2lrf_options = [
+                          '--comment'  , description
+                        , '--category' , category
+                        , '--publisher', publisher
+                        ]
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
+
+    keep_only_tags = [dict(name='span', attrs={'id':['lblArticleTitle','lblArticleIntroduction','lblArticleMainText']})]
+    remove_tags    = [dict(name=['embed','object'])]
+
+
+
+    feeds = [
+              (u'Snelnieuws' , u'http://feeds.nieuwsblad.be/nieuws/snelnieuws'     )
+             ,(u'Binnenland' , u'http://feeds.nieuwsblad.be/nieuws/binnenland'     )
+             ,(u'Buitenland' , u'http://feeds.nieuwsblad.be/nieuwsblad/buitenland' )
+             ,(u'Economie'   , u'http://feeds.nieuwsblad.be/economie/home'         )
+             ,(u'Economie'   , u'http://feeds.nieuwsblad.be/economie/home'         )
+             ,(u'Algemeen'   , u'http://feeds.nieuwsblad.be/life/algemeen'         )
+             ,(u'Film'       , u'http://feeds.nieuwsblad.be/life/film'             )
+             ,(u'Boek'       , u'http://feeds.nieuwsblad.be/life/boeken'           )
+             ,(u'Muziek'     , u'http://feeds.nieuwsblad.be/life/muziek'           )
+             ,(u'Podium'     , u'http://feeds.nieuwsblad.be/life/podium'           )
+             ,(u'TV & radio' , u'http://feeds.nieuwsblad.be/life/tv'               )
+            ]
+
+    def print_version(self, url):
+        return url.replace('/Detail.aspx?articleid','/PrintArticle.aspx?ArticleID')
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
+    def preprocess_html(self, soup):
+        del soup.body['onload']
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('span'):
+            item.name='div'
+            if item.has_key('id') and item['id'] == 'lblArticleTitle':
+               item.name='h3'
+
+        soup.html['lang']     = self.lang
+        soup.html['dir' ]     = self.direction
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        return soup
+

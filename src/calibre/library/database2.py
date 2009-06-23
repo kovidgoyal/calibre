@@ -224,6 +224,10 @@ class ResultCache(SearchQueryParser):
         id = row if row_is_id else self._map_filtered[row]
         self._data[id][col] = val
 
+    def get(self, row, col, row_is_id=False):
+        id = row if row_is_id else self._map_filtered[row]
+        return self._data[id][col]
+
     def index(self, id, cache=False):
         x = self._map if cache else self._map_filtered
         return x.index(id)
@@ -555,6 +559,35 @@ class LibraryDatabase2(LibraryDatabase):
         END TRANSACTION;
         '''
         )
+
+
+    def upgrade_version_6(self):
+        'Show authors in order'
+        self.conn.executescript('''
+        BEGIN TRANSACTION;
+        DROP VIEW meta;
+        CREATE VIEW meta AS
+        SELECT id, title,
+               (SELECT sortconcat(bal.id, name) FROM books_authors_link AS bal JOIN authors ON(author = authors.id) WHERE book = books.id) authors,
+               (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+               (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+               timestamp,
+               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+               (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+               (SELECT text FROM comments WHERE book=books.id) comments,
+               (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+               series_index,
+               sort,
+               author_sort,
+               (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+               isbn,
+               path,
+               lccn,
+               pubdate,
+               flags
+        FROM books;
+        END TRANSACTION;
+        ''')
 
 
 
@@ -1105,6 +1138,14 @@ class LibraryDatabase2(LibraryDatabase):
             if notify:
                 self.notify('metadata', [id])
 
+    def get_tags(self, id):
+        result = self.conn.get(
+        'SELECT name FROM tags WHERE id IN (SELECT tag FROM books_tags_link WHERE book=?)',
+        (id,), all=True)
+        if not result:
+            return set([])
+        return set([r[0] for r in result])
+
     def set_tags(self, id, tags, append=False, notify=True):
         '''
         @param tags: list of strings
@@ -1113,7 +1154,8 @@ class LibraryDatabase2(LibraryDatabase):
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
             self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
-        for tag in set(tags):
+        otags = self.get_tags(id)
+        for tag in (set(tags)-otags):
             tag = tag.strip()
             if not tag:
                 continue
@@ -1138,13 +1180,7 @@ class LibraryDatabase2(LibraryDatabase):
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
         self.conn.commit()
-        try:
-            otags = [t.strip() for t in self.data[self.data.row(id)][FIELD_MAP['tags']].split(',')]
-        except AttributeError:
-            otags = []
-        if not append:
-            otags = []
-        tags = ','.join(otags+tags)
+        tags = ','.join(self.get_tags(id))
         self.data.set(id, FIELD_MAP['tags'], tags, row_is_id=True)
         if notify:
             self.notify('metadata', [id])

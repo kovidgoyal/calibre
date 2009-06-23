@@ -20,6 +20,8 @@ class PDFInput(InputFormatPlugin):
     options = set([
         OptionRecommendation(name='no_images', recommended_value=False,
             help=_('Do not extract images from the document')),
+        OptionRecommendation(name='pdf_line_length', recommended_value=0.5,
+            help=_('Average line length for line breaking')),
     ])
 
     def convert(self, stream, options, file_ext, log,

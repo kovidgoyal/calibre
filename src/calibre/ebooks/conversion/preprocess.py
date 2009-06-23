@@ -160,9 +160,11 @@ class HTMLPreProcessor(object):
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
-    def __init__(self, input_plugin_preprocess, plugin_preprocess):
+    def __init__(self, input_plugin_preprocess, plugin_preprocess,
+            pdf_line_length):
         self.input_plugin_preprocess = input_plugin_preprocess
         self.plugin_preprocess = plugin_preprocess
+        self.pdf_line_length = pdf_line_length
 
     def is_baen(self, src):
         return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"',
@@ -183,7 +185,7 @@ class HTMLPreProcessor(object):
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
-            length = line_length(html, .5)
+            length = line_length(html, self.pdf_line_length)
             line_length_rules = []
             if length:
                 line_length_rules = [

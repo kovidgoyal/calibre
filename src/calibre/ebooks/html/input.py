@@ -261,6 +261,11 @@ class HTMLInput(InputFormatPlugin):
                 'nasty side effects in the rest of of the conversion pipeline.'
                 )
         ),
+
+        OptionRecommendation(name='pdf_line_length', recommended_value=0.5,
+            help=_('Average line length for line breaking if the HTML is from a '
+                'previous partial conversion of a PDF file.')),
+
     ])
 
     def convert(self, stream, opts, file_ext, log,

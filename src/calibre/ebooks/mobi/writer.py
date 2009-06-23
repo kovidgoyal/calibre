@@ -218,8 +218,8 @@ class Serializer(object):
 
     def serialize_body(self):
         buffer = self.buffer
-        self.anchor_offset = buffer.tell()
         buffer.write('<body>')
+        self.anchor_offset = buffer.tell()
         # CybookG3 'Start Reading' link
         if 'text' in self.oeb.guide:
             href = self.oeb.guide['text'].href

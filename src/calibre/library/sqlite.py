@@ -40,10 +40,10 @@ def convert_timestamp(val):
     if tz is not None:
         h, m = map(int, tz.split(':'))
         delta = timedelta(minutes=mult*(60*h + m))
-        tz = type('CustomTZ', (tzinfo,), {'utcoffset':lambda self, dt:delta, 
+        tz = type('CustomTZ', (tzinfo,), {'utcoffset':lambda self, dt:delta,
                                           'dst':lambda self,dt:timedelta(0)})()
 
-    val = datetime(year, month, day, hours, minutes, seconds, microseconds, 
+    val = datetime(year, month, day, hours, minutes, seconds, microseconds,
                    tzinfo=tz)
     if tz is not None:
         val = datetime(*(val.utctimetuple()[:6]))
@@ -61,11 +61,11 @@ class Concatenate(object):
     def __init__(self, sep=','):
         self.sep = sep
         self.ans = ''
-        
+
     def step(self, value):
         if value is not None:
             self.ans += value + self.sep
-    
+
     def finalize(self):
         if not self.ans:
             return None
@@ -73,8 +73,23 @@ class Concatenate(object):
             return self.ans[:-len(self.sep)]
         return self.ans
 
+class SortedConcatenate(object):
+    '''String concatenation aggregator for sqlite, sorted by supplied index'''
+    def __init__(self, sep=','):
+        self.sep = sep
+        self.ans = {}
+
+    def step(self, ndx, value):
+        if value is not None:
+            self.ans[ndx] = value
+
+    def finalize(self):
+        if len(self.ans) == 0:
+            return None
+        return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
+
 class Connection(sqlite.Connection):
-    
+
     def get(self, *args, **kw):
         ans = self.execute(*args)
         if not kw.get('all', True):
@@ -83,12 +98,12 @@ class Connection(sqlite.Connection):
                 ans = [None]
             return ans[0]
         return ans.fetchall()
- 
+
 
 class DBThread(Thread):
-    
+
     CLOSE = '-------close---------'
-    
+
     def __init__(self, path, row_factory):
         Thread.__init__(self)
         self.setDaemon(True)
@@ -98,14 +113,15 @@ class DBThread(Thread):
         self.requests = Queue(1)
         self.results  = Queue(1)
         self.conn = None
-        
+
     def connect(self):
-        self.conn = sqlite.connect(self.path, factory=Connection, 
+        self.conn = sqlite.connect(self.path, factory=Connection,
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
+        self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
         self.conn.create_function('title_sort', 1, title_sort)
-    
+
     def run(self):
         try:
             self.connect()
@@ -124,7 +140,7 @@ class DBThread(Thread):
             self.unhandled_error = (err, traceback.format_exc())
 
 class DatabaseException(Exception):
-    
+
     def __init__(self, err, tb):
         tb = '\n\t'.join(('\tRemote'+tb).splitlines())
         msg = unicode(err) +'\n' + tb
@@ -146,41 +162,41 @@ def proxy(fn):
                 raise DatabaseException(*res)
             return res
     return run
-            
+
 
 class ConnectionProxy(object):
-    
+
     def __init__(self, proxy):
         self.proxy = proxy
-    
+
     def close(self):
         if self.proxy.unhandled_error is None:
             self.proxy.requests.put((self.proxy.CLOSE, [], {}))
-    
+
     @proxy
     def get(self, query, all=True): pass
-    
-    @proxy        
+
+    @proxy
     def commit(self): pass
-    
+
     @proxy
     def execute(self): pass
-    
+
     @proxy
     def executemany(self): pass
-    
+
     @proxy
     def executescript(self): pass
-    
+
     @proxy
     def create_aggregate(self): pass
-    
+
     @proxy
     def create_function(self): pass
-    
+
     @proxy
     def cursor(self): pass
-    
+
 def connect(dbpath, row_factory=None):
     conn = ConnectionProxy(DBThread(dbpath, row_factory))
     conn.proxy.start()
