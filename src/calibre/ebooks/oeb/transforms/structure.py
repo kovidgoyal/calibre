@@ -36,8 +36,8 @@ class DetectStructure(object):
             if self.oeb.toc.count() < 1:
                 if not opts.no_chapters_in_toc and self.detected_chapters:
                     self.create_toc_from_chapters()
-                    if self.oeb.toc.count() < opts.toc_threshold:
-                        self.create_toc_from_links()
+                if self.oeb.toc.count() < opts.toc_threshold:
+                    self.create_toc_from_links()
             if self.oeb.toc.count() < 2 and orig_toc.count() > 2:
                 self.oeb.toc = orig_toc
             else:
