@@ -135,7 +135,7 @@ class EbookIterator(object):
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
 
-        if plumber.input_fmt.lower() == 'pdf':
+        if plumber.input_fmt.lower() in ('pdf', 'rb'):
             self.pathtoopf = create_oebbook(self.log, self.pathtoopf, plumber.opts,
                     plumber.input_plugin)
         if hasattr(self.pathtoopf, 'manifest'):
