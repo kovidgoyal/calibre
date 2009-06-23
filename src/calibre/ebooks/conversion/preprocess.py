@@ -183,12 +183,12 @@ class HTMLPreProcessor(object):
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
-            length = line_length(html, .3)
+            length = line_length(html, .5)
             line_length_rules = []
             if length:
                 line_length_rules = [
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
                 ]
 
             rules = self.PDFTOHTML + line_length_rules
