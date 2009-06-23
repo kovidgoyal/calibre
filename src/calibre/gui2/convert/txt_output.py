@@ -30,5 +30,5 @@ class PluginWidget(Widget, Ui_Form):
         self.opt_newline.setModel(self.newline_model)
 
         default_index = self.opt_newline.findText(default)
-        self.opt_newline.setCurrentIndex(default_index if default_index != -1 else 0)
-
+        system_index = self.opt_newline.findText('system')
+        self.opt_newline.setCurrentIndex(default_index if default_index != -1 else system_index if system_index != -1 else 0)

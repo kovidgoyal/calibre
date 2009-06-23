@@ -56,6 +56,7 @@ def line_length(raw, percent):
     if not lengths:
         return 0
 
+    lengths = list(set(lengths))
     total = sum(lengths)
     avg = total / len(lengths)
     max_line = avg * 2
@@ -189,7 +190,7 @@ class HTMLPreProcessor(object):
             if length:
                 line_length_rules = [
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z,;:-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?[\w\d])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
                 ]
 
             rules = self.PDFTOHTML + line_length_rules
