@@ -56,6 +56,7 @@ def line_length(raw, percent):
     if not lengths:
         return 0
 
+    lengths = list(set(lengths))
     total = sum(lengths)
     avg = total / len(lengths)
     max_line = avg * 2
