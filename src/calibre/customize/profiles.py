@@ -242,9 +242,9 @@ class KindleDXOutput(OutputProfile):
     description = _('This profile is intended for the Amazon Kindle DX.')
 
     # Screen size is a best guess
-    screen_size               = (824, 1200)
+    screen_size               = (744, 1022)
     dpi                       = 150.0
-    comic_screen_size         = (775, 1128)
+    comic_screen_size         = (744, 1022)
 
     @classmethod
     def tags_to_string(cls, tags):
