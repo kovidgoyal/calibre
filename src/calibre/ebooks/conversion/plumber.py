@@ -652,6 +652,7 @@ OptionRecommendation(name='list_recipes',
         line_height = self.opts.line_height
         if line_height < 1e-4:
             line_height = None
+
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
                 untable=self.output_plugin.file_type in ('mobi','lit'),
