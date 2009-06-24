@@ -103,6 +103,7 @@ class MobiMLizer(object):
                 self.oeb.manifest.remove(item)
 
     def mobimlize_spine(self):
+        'Iterate over the spine and convert it to MOBIML'
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.profile)
             body = item.data.find(XHTML('body'))
@@ -136,6 +137,7 @@ class MobiMLizer(object):
         return result
 
     def mobimlize_content(self, tag, text, bstate, istates):
+        'Convert text content'
         if text or tag != 'br':
             bstate.content = True
         istate = istates[-1]
