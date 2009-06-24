@@ -31,8 +31,9 @@ class PluginWidget(Widget, Ui_Form):
         self.paper_size_model = paper_size_model
         self.opt_paper_size.setModel(self.paper_size_model)
 
-        default_index = self.opt_paper_size.findText(default_paper_size)
-        self.opt_paper_size.setCurrentIndex(default_index if default_index != -1 else 0)
+        default_paper_size_index = self.opt_paper_size.findText(default_paper_size)
+        letter_index = self.opt_paper_size.findText('letter')
+        self.opt_paper_size.setCurrentIndex(default_paper_size_index if default_paper_size_index != -1 else letter_index if letter_index != -1 else 0)
 
         global orientation_model
         if orientation_model is None:
@@ -40,6 +41,7 @@ class PluginWidget(Widget, Ui_Form):
         self.orientation_model = orientation_model
         self.opt_orientation.setModel(self.orientation_model)
 
-        default_index = self.opt_orientation.findText(default_orientation)
-        self.opt_orientation.setCurrentIndex(default_index if default_index != -1 else 0)
+        default_orientation_index = self.opt_orientation.findText(default_orientation)
+        orientation_index = self.opt_orientation.findText('portrait')
+        self.opt_orientation.setCurrentIndex(default_orientation_index if default_orientation_index != -1 else orientation_index if orientation_index != -1 else 0)
 

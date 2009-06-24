@@ -21,7 +21,9 @@ class PDFInput(InputFormatPlugin):
         OptionRecommendation(name='no_images', recommended_value=False,
             help=_('Do not extract images from the document')),
         OptionRecommendation(name='pdf_line_length', recommended_value=0.5,
-            help=_('Average line length for line breaking')),
+            help=_('Scale used to determine the length at which a line should '
+            'be unwrapped. Valid values are a decimal between 0 and 1. The '
+            'default is 0.5, this is the median line length.')),
     ])
 
     def convert(self, stream, options, file_ext, log,
@@ -41,7 +43,7 @@ class PDFInput(InputFormatPlugin):
         images.remove('index.html')
         for i in images:
             # Remove the - from the file name because it causes problems.
-            # The referenec to the image with the - will be changed to not
+            # The reference to the image with the - will be changed to not
             # include it later in the conversion process.
             new_i = i.replace('-', '')
             os.rename(i, new_i)

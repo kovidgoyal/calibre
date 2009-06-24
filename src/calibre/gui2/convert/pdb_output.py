@@ -30,5 +30,6 @@ class PluginWidget(Widget, Ui_Form):
         self.opt_format.setModel(self.format_model)
 
         default_index = self.opt_format.findText(default)
-        self.opt_format.setCurrentIndex(default_index if default_index != -1 else 0)
+        format_index = self.opt_format.findText('doc')
+        self.opt_format.setCurrentIndex(default_index if default_index != -1 else format_index if format_index != -1 else 0)
 
