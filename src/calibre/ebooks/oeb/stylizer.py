@@ -157,6 +157,7 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
+        class_sel_pat = re.compile(r'\.[a-z]+', re.IGNORECASE)
         for _, _, cssdict, text, _ in rules:
             try:
                 selector = CSSSelector(text)
@@ -164,7 +165,17 @@ class Stylizer(object):
                     NameError, # thrown on OS X instead of SelectorSyntaxError
                     SelectorSyntaxError):
                 continue
-            for elem in selector(tree):
+            matches = selector(tree)
+            if not matches and class_sel_pat.match(text):
+                found = False
+                for x in tree.xpath('//*[@class]'):
+                    if x.get('class').lower() == text[1:].lower():
+                        matches.append(x)
+                        found = True
+                if found:
+                    self.logger.warn('Ignoring case mismatch for CSS selector: %s in %s'
+                        %(text, item.href))
+            for elem in matches:
                 self.style(elem)._update_cssdict(cssdict)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr()
