@@ -21,9 +21,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="finish_text">
      <property name="text">
-      <string>&lt;h2&gt;Congratulations!&lt;/h2&gt; You have succesfully setup calibre. Press the Finish button to apply your settings.</string>
+      <string>&lt;h2&gt;Congratulations!&lt;/h2&gt; You have successfully setup calibre. Press the %s button to apply your settings.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

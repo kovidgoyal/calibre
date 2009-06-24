@@ -318,8 +318,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         pm = QMenu()
         ap = self.action_preferences
         pm.addAction(ap.icon(), ap.text())
-        pm.addAction(self.preferences_action)
         pm.addAction(_('Run welcome wizard'))
+        self.connect(pm.actions()[0], SIGNAL('triggered(bool)'),
+                self.do_config)
         self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
                 self.run_wizard)
         self.action_preferences.setMenu(pm)
