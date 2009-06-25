@@ -318,8 +318,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         pm = QMenu()
         ap = self.action_preferences
         pm.addAction(ap.icon(), ap.text())
-        pm.addAction(self.preferences_action)
         pm.addAction(_('Run welcome wizard'))
+        self.connect(pm.actions()[0], SIGNAL('triggered(bool)'),
+                self.do_config)
         self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
                 self.run_wizard)
         self.action_preferences.setMenu(pm)
@@ -933,14 +934,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
                 details = '%s\n'%('\n'.join(details))
-                warning_dialog(_('Failed to download some metadata'),
+                warning_dialog(self, _('Failed to download some metadata'),
                     _('Failed to download metadata for the following:'),
-                    details, self).exec_()
+                    det_msg=details).exec_()
         else:
             err = _('Failed to download metadata:')
             error_dialog(self, _('Error'), err, det_msg=x.tb).exec_()
-
-
 
 
     def edit_metadata(self, checked, bulk=None):

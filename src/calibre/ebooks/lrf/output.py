@@ -58,8 +58,8 @@ class LRFOptions(object):
 
 
         for x in ('top', 'bottom', 'left', 'right'):
-            setattr(self, x+'_margin', (self.profile.dpi/72.) * getattr(opts,
-            'margin_'+x))
+            setattr(self, x+'_margin',
+                (self.profile.dpi/72.) * float(getattr(opts, 'margin_'+x)))
 
         for x in ('wordspace', 'header', 'header_format',
                 'minimum_indent', 'serif_family',

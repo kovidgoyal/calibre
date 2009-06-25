@@ -69,7 +69,7 @@ def pdftohtml(output_dir, pdf_path, no_images):
         if not os.path.exists(index) or os.stat(index).st_size < 100:
             raise DRMError()
 
-        with open(index, 'rb+wb') as i:
+        with open(index, 'r+b') as i:
             raw = i.read()
             raw = '<!-- created by calibre\'s pdftohtml -->\n' + raw
             i.seek(0)

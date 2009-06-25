@@ -352,6 +352,7 @@ def main():
                                        'BeautifulSoup', 'calibre.ebooks.lrf.fonts.prs500.*',
                                        'dateutil', 'email.iterators',
                                        'email.generator',
+                                       'calibre.ebooks.metadata.amazon',
                                        ],
                          'packages' : ['PIL', 'Authorization', 'lxml', 'dns'],
                          'excludes' : ['IPython'],

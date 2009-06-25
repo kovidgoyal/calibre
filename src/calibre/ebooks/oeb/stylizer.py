@@ -169,11 +169,11 @@ class Stylizer(object):
             if not matches and class_sel_pat.match(text):
                 found = False
                 for x in tree.xpath('//*[@class]'):
-                    if x.get('class').lower() == text[1:].lower():
+                    if text.lower().endswith('.'+x.get('class').lower()):
                         matches.append(x)
                         found = True
                 if found:
-                    self.logger.warn('Ignoring case mismatch for CSS selector: %s in %s'
+                    self.logger.warn('Ignoring case mismatches for CSS selector: %s in %s'
                         %(text, item.href))
             for elem in matches:
                 self.style(elem)._update_cssdict(cssdict)

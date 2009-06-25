@@ -12,7 +12,7 @@ from ctypes import Structure as _Structure, c_char_p, c_uint, c_void_p, POINTER,
 from tempfile import NamedTemporaryFile
 from StringIO import StringIO
 
-from calibre import iswindows, load_library, CurrentDir
+from calibre import iswindows, load_library, CurrentDir, prints
 from calibre.ptempfile import TemporaryDirectory
 
 _librar_name = 'libunrar'
@@ -173,7 +173,7 @@ def extract(path, dir):
     try:
         if open_archive_data.OpenResult != 0:
             raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
-        print 'Archive:', path
+        prints('Archive:', path)
         #print get_archive_info(open_archive_data.Flags)
         header_data = RARHeaderDataEx(CmtBuf=None)
         #_libunrar.RARSetCallback(arc_data, callback_func, mode)

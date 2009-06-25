@@ -6,7 +6,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys, os, uuid, copy, re
+import sys, os, uuid, copy, re, cStringIO
 from itertools import izip
 from urlparse import urldefrag, urlparse
 from urllib import unquote as urlunquote
@@ -22,7 +22,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
     PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
 from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, \
     ENTITY_RE, MS_COVER_TYPE, iterlinks
-from calibre.ebooks.oeb.base import namespace, barename, qname, XPath, xpath, \
+from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
                                     urlnormalize, BINARY_MIME, \
                                     OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
@@ -30,6 +30,7 @@ from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.metadata.epub import CoverRenderer
 from calibre.startup import get_lang
 from calibre.ptempfile import TemporaryDirectory
+from calibre.constants import __appname__, __version__
 
 __all__ = ['OEBReader']
 
@@ -123,53 +124,25 @@ class OEBReader(object):
         return opf
 
     def _metadata_from_opf(self, opf):
-        uid = opf.get('unique-identifier', None)
-        self.oeb.uid = None
-        metadata = self.oeb.metadata
-        for elem in xpath(opf, '/o2:package/o2:metadata//*'):
-            term = elem.tag
-            value = elem.text
-            attrib = dict(elem.attrib)
-            nsmap = elem.nsmap
-            if term == OPF('meta'):
-                term = qname(attrib.pop('name', None), nsmap)
-                value = attrib.pop('content', None)
-            if value:
-                value = COLLAPSE_RE.sub(' ', value.strip())
-            if term and (value or attrib):
-                metadata.add(term, value, attrib, nsmap=nsmap)
-        haveuuid = haveid = False
-        for ident in metadata.identifier:
-            if unicode(ident).startswith('urn:uuid:'):
-                haveuuid = True
-            if 'id' in ident.attrib:
-                haveid = True
-        if not (haveuuid and haveid):
-            bookid = "urn:uuid:%s" % str(uuid.uuid4())
-            metadata.add('identifier', bookid, id='calibre-uuid')
-        if uid is None:
-            self.logger.warn(u'Unique-identifier not specified')
-        for item in metadata.identifier:
-            if not item.id:
-                continue
-            if uid is None or item.id == uid:
-                self.oeb.uid = item
-                break
-        else:
-            self.logger.warn(u'Unique-identifier %r not found' % uid)
-            for ident in metadata.identifier:
-                if 'id' in ident.attrib:
-                    self.oeb.uid = metadata.identifier[0]
-                    break
-        if not metadata.language:
-            self.logger.warn(u'Language not specified')
-            metadata.add('language', get_lang())
-        if not metadata.creator:
-            self.logger.warn('Creator not specified')
-            metadata.add('creator', self.oeb.translate(__('Unknown')))
-        if not metadata.title:
-            self.logger.warn('Title not specified')
-            metadata.add('title', self.oeb.translate(__('Unknown')))
+        from calibre.ebooks.metadata.opf2 import OPF
+        from calibre.ebooks.metadata import MetaInformation
+        from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
+        stream = cStringIO.StringIO(etree.tostring(opf))
+        mi = MetaInformation(OPF(stream))
+        if not mi.title:
+            mi.title = self.oeb.translate(__('Unknown'))
+        if not mi.authors:
+            mi.authors = [self.oeb.translate(__('Unknown'))]
+        if not mi.book_producer:
+            mi.book_producer = '%(a)s (%(v)s) [http://%(a)s.kovidgoyal.net]'%\
+                dict(a=__appname__, v=__version__)
+        if not mi.language:
+            mi.language = get_lang()
+        meta_info_to_oeb_metadata(mi, self.oeb.metadata, self.logger)
+        bookid = "urn:uuid:%s" % str(uuid.uuid4()) if mi.application_id is None \
+                else mi.application_id
+        self.oeb.metadata.add('identifier', bookid, id='calibre-uuid')
+        self.oeb.uid = self.oeb.metadata.identifier[0]
 
     def _manifest_prune_invalid(self):
         '''
