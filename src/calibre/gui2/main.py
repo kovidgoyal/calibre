@@ -934,9 +934,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 details = ['%s: %s'%(title, reason) for title,
                         reason in x.failures.values()]
                 details = '%s\n'%('\n'.join(details))
-                warning_dialog(_('Failed to download some metadata'),
+                warning_dialog(self, _('Failed to download some metadata'),
                     _('Failed to download metadata for the following:'),
-                    details, self).exec_()
+                    det_msg=details).exec_()
         else:
             err = _('Failed to download metadata:')
             error_dialog(self, _('Error'), err, det_msg=x.tb).exec_()
