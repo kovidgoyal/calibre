@@ -942,8 +942,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             error_dialog(self, _('Error'), err, det_msg=x.tb).exec_()
 
 
-
-
     def edit_metadata(self, checked, bulk=None):
         '''
         Edit metadata of selected books in library.
