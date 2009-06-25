@@ -616,8 +616,7 @@ OptionRecommendation(name='list_recipes',
         self.opts.dest = self.opts.output_profile
 
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
-        MergeMetadata()(self.oeb, self.user_metadata,
-                self.opts.prefer_metadata_cover)
+        MergeMetadata()(self.oeb, self.user_metadata, self.opts)
         pr(0.2)
         self.flush()
 
