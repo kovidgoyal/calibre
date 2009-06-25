@@ -14,9 +14,9 @@ def get_metadata(stream, extract_cover=True):
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
 
-    mdata = ''
+    mdata = u''
     for x in range(0, 4):
-        line = stream.readline()
+        line = stream.readline().decode('utf-8')
         if line == '':
             break
         else:
