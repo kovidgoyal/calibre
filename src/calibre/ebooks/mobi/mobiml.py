@@ -49,6 +49,7 @@ class BlockState(object):
 
 class FormatState(object):
     def __init__(self):
+        self.rendered = False
         self.left = 0.
         self.halign = 'auto'
         self.indent = 0.
@@ -159,13 +160,15 @@ class MobiMLizer(object):
                 indent = 0
             elif indent != 0 and abs(indent) < self.profile.fbase:
                 indent = (indent / abs(indent)) * self.profile.fbase
-            if tag in NESTABLE_TAGS:
+            if tag in NESTABLE_TAGS and not istate.rendered:
                 para = wrapper = etree.SubElement(
                     parent, XHTML(tag), attrib=istate.attrib)
                 bstate.nested.append(para)
                 if tag == 'li' and len(istates) > 1:
                     istates[-2].list_num += 1
                     para.attrib['value'] = str(istates[-2].list_num)
+            elif tag in NESTABLE_TAGS and istate.rendered:
+                para = wrapper = bstate.nested[-1]
             elif left > 0 and indent >= 0:
                 para = wrapper = etree.SubElement(parent, XHTML('blockquote'))
                 para = wrapper
@@ -189,6 +192,7 @@ class MobiMLizer(object):
                     vspace -= 1
             if istate.halign != 'auto' and isinstance(istate.halign, (str, unicode)):
                 para.attrib['align'] = istate.halign
+        istate.rendered = True
         pstate = bstate.istate
         if tag in CONTENT_TAGS:
             bstate.inline = para
@@ -253,6 +257,7 @@ class MobiMLizer(object):
             return
         tag = barename(elem.tag)
         istate = copy.copy(istates[-1])
+        istate.rendered = False
         istate.list_num = 0
         istates.append(istate)
         left = 0
