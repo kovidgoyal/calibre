@@ -477,8 +477,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         else:
             self.status_bar.cover_flow_button.disable(pictureflowerror)
 
-
-        self.setMaximumHeight(max_available_height())
+        self._calculated_available_height = min(max_available_height()-15,
+                self.height())
+        self.resize(self.width(), self._calculated_available_height)
 
 
         if config['autolaunch_server']:
@@ -610,7 +611,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             else:
                 self.cover_flow.setVisible(False)
                 #self.status_bar.book_info.book_data.setMaximumHeight(1000)
-            self.setMaximumHeight(available_height())
+            self.resize(self.width(), self._calculated_available_height)
+            #self.setMaximumHeight(available_height())
 
     def toggle_tags_view(self, show):
         if show:

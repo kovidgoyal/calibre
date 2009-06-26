@@ -149,7 +149,7 @@ class DetectStructure(object):
                     #node.add(_('Top'), _href)
             if self.opts.level2_toc is not None:
                 added2 = {}
-                level2 = list(XPath(self.opts.level2_toc)(item.data))
+                level2 = list(XPath(self.opts.level2_toc)(document.data))
                 for elem in level2:
                     level1 = None
                     for item in document.data.iterdescendants():
@@ -162,7 +162,7 @@ class DetectStructure(object):
                                 added2[elem] = level1.add(text, _href,
                                     play_order=self.oeb.toc.next_play_order())
                 if self.opts.level3_toc is not None:
-                    level3 = list(XPath(self.opts.level3_toc)(item.data))
+                    level3 = list(XPath(self.opts.level3_toc)(document.data))
                     for elem in level3:
                         level2 = None
                         for item in document.data.iterdescendants():
