@@ -309,7 +309,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         m = bm[1].split('#')
         if len(m) > 1:
             spine_index, m = int(m[0]), m[1]
-            if self.current_index == spine_index:
+            if spine_index > -1 and self.current_index == spine_index:
                 self.view.goto_bookmark(m)
             else:
                 self.pending_bookmark = bm
