@@ -156,10 +156,11 @@ def rescale_image(data, maxsizeb, dimen=None):
 class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
-    def __init__(self, oeb, images):
+    def __init__(self, oeb, images, write_page_breaks_after_item=True):
         self.oeb = oeb
         self.images = images
         self.logger = oeb.logger
+        self.write_page_breaks_after_item = write_page_breaks_after_item
         self.id_offsets = {}
         self.href_offsets = defaultdict(list)
         self.breaks = []
@@ -239,7 +240,8 @@ class Serializer(object):
         self.id_offsets[item.href] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
-        buffer.write('<mbp:pagebreak/>')
+        if self.write_page_breaks_after_item:
+            buffer.write('<mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer
@@ -319,8 +321,9 @@ class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
     def __init__(self, opts, compression=PALMDOC, imagemax=None,
-            prefer_author_sort=False):
+            prefer_author_sort=False, write_page_breaks_after_item=True):
         self.opts = opts
+        self.write_page_breaks_after_item = write_page_breaks_after_item
         self._compression = compression or UNCOMPRESSED
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
@@ -583,7 +586,8 @@ class MobiWriter(object):
 
     def _generate_text(self):
         self._oeb.logger.info('Serializing markup content...')
-        serializer = Serializer(self._oeb, self._images)
+        serializer = Serializer(self._oeb, self._images,
+                write_page_breaks_after_item=self.write_page_breaks_after_item)
         breaks = serializer.breaks
         text = serializer.text
         self._id_offsets = serializer.id_offsets

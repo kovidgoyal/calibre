@@ -47,6 +47,7 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
+        from calibre.customize.ui import plugin_for_input_format
         imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
         tocadder = HTMLTOCAdder(title=opts.toc_title)
         tocadder(oeb, opts)
@@ -56,8 +57,11 @@ class MOBIOutput(OutputFormatPlugin):
         rasterizer(oeb, opts)
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
+        write_page_breaks_after_item = not input_plugin is plugin_for_input_format('cbz')
+        print 111111, write_page_breaks_after_item
         writer = MobiWriter(opts, imagemax=imagemax,
                 compression=UNCOMPRESSED if opts.dont_compress else PALMDOC,
-                            prefer_author_sort=opts.prefer_author_sort)
+                            prefer_author_sort=opts.prefer_author_sort,
+                            write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
 

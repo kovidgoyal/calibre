@@ -186,12 +186,12 @@ class PRS505(CLI, Device):
             info = metadata.next()
             path = location[0]
             blist = 2 if location[3] == 'cardb' else 1 if location[3] == 'carda' else 0
-            
-            if path.startswith(self._main_prefix):
+
+            if self._main_prefix and path.startswith(self._main_prefix):
                 name = path.replace(self._main_prefix, '')
-            elif path.startswith(self._card_a_prefix):
+            elif self._card_a_prefix and path.startswith(self._card_a_prefix):
                 name = path.replace(self._card_a_prefix, '')
-            elif path.startswith(self._card_b_prefix):
+            elif self._card_b_prefix and path.startswith(self._card_b_prefix):
                 name = path.replace(self._card_b_prefix, '')
 
             name = name.replace('\\', '/')
