@@ -308,6 +308,7 @@ class FlowSplitter(object):
             if not hit_split_point:
                 x = elem.get('id', None)
                 nix_element(elem, top=False)
+        body2.text = '\n'
 
         return tree, tree2
 
