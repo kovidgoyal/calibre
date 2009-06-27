@@ -43,8 +43,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>879</width>
-        <height>710</height>
+        <width>869</width>
+        <height>696</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -87,7 +87,7 @@
                   </widget>
                  </item>
                  <item row="0" column="1">
-                  <widget class="QLineEdit" name="title">
+                  <widget class="EnLineEdit" name="title">
                    <property name="toolTip">
                     <string>Change the title of this book</string>
                    </property>
@@ -142,7 +142,7 @@
                  <item row="2" column="1" colspan="2">
                   <layout class="QHBoxLayout" name="horizontalLayout">
                    <item>
-                    <widget class="QLineEdit" name="author_sort">
+                    <widget class="EnLineEdit" name="author_sort">
                      <property name="toolTip">
                       <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
                      </property>
@@ -225,7 +225,7 @@
                  <item row="5" column="1" colspan="2">
                   <layout class="QHBoxLayout" name="_2">
                    <item>
-                    <widget class="QLineEdit" name="tags">
+                    <widget class="EnLineEdit" name="tags">
                      <property name="toolTip">
                       <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
                      </property>
@@ -269,7 +269,7 @@
                     <number>5</number>
                    </property>
                    <item>
-                    <widget class="QComboBox" name="series">
+                    <widget class="EnComboBox" name="series">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -339,14 +339,14 @@
                   </widget>
                  </item>
                  <item row="4" column="1">
-                  <widget class="QComboBox" name="publisher">
+                  <widget class="EnComboBox" name="publisher">
                    <property name="editable">
                     <bool>true</bool>
                    </property>
                   </widget>
                  </item>
                  <item row="1" column="1">
-                  <widget class="QLineEdit" name="authors"/>
+                  <widget class="EnLineEdit" name="authors"/>
                  </item>
                  <item row="7" column="1">
                   <widget class="QDoubleSpinBox" name="series_index">
@@ -639,6 +639,16 @@
   <customwidget>
    <class>ImageView</class>
    <extends>QLabel</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>EnLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>EnComboBox</class>
+   <extends>QComboBox</extends>
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>

@@ -29,7 +29,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="opt_title"/>
+    <widget class="EnLineEdit" name="opt_title"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="author_label">
@@ -42,7 +42,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="opt_author"/>
+    <widget class="EnLineEdit" name="opt_author"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
@@ -155,6 +155,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EnLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../images.qrc"/>
  </resources>
