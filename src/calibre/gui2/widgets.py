@@ -10,7 +10,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QPixmap, QMovie, QPalette, QTimer, QDialog, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, \
                         QRegExp, QSettings, QSize, QModelIndex, \
-                        QAbstractButton, QPainter
+                        QAbstractButton, QPainter, QLineEdit, QComboBox
 
 from calibre.gui2 import human_readable, NONE, TableView, \
                          qstring_to_unicode, error_dialog
@@ -450,6 +450,48 @@ class BasicList(QListWidget):
         for i in range(self.count()):
             yield self.item(i)
 
+
+class LineEditECM(object):
+
+    '''
+    Extend the contenxt menu of a QLineEdit to include more actions.
+    '''
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        menu.addSeparator()
+        action_title_case = menu.addAction('Title Case')
+
+        self.connect(action_title_case, SIGNAL('triggered()'), self.title_case)
+
+        menu.exec_(event.globalPos())
+
+    def title_case(self):
+        self.setText(qstring_to_unicode(self.text()).title())
+
+
+class EnLineEdit(LineEditECM, QLineEdit):
+    
+    '''
+    Enhanced QLineEdit.
+    
+    Includes an extended content menu.
+    '''
+    
+    pass
+
+
+class EnComboBox(QComboBox):
+
+    '''
+    Enhanced QComboBox.
+
+    Includes an extended content menu.
+    '''
+
+    def __init__(self, *args):
+        QComboBox.__init__(self, *args)
+        self.setLineEdit(EnLineEdit(self))
 
 
 class PythonHighlighter(QSyntaxHighlighter):

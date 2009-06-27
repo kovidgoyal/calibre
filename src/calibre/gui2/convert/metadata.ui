@@ -20,36 +20,6 @@
       <string>Book Cover</string>
      </property>
      <layout class="QGridLayout" name="_2">
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="_3">
-        <item>
-         <widget class="ImageView" name="cover">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="../../../../../../calibre/gui2/images.qrc">:/images/book.svg</pixmap>
-          </property>
-          <property name="scaledContents">
-           <bool>true</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="opt_prefer_metadata_cover">
-        <property name="text">
-         <string>Use cover from &amp;source file</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <layout class="QVBoxLayout" name="_4">
         <property name="spacing">
@@ -92,12 +62,42 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../../../../../calibre/gui2/images.qrc">
+             <iconset resource="../images.qrc">
               <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
             </property>
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="opt_prefer_metadata_cover">
+        <property name="text">
+         <string>Use cover from &amp;source file</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="_3">
+        <item>
+         <widget class="ImageView" name="cover">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../images.qrc">:/images/book.svg</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -124,7 +124,7 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="title">
+        <widget class="EnLineEdit" name="title">
          <property name="toolTip">
           <string>Change the title of this book</string>
          </property>
@@ -144,7 +144,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="author">
+        <widget class="EnLineEdit" name="author">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>1</horstretch>
@@ -170,7 +170,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="author_sort">
+        <widget class="EnLineEdit" name="author_sort">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -196,7 +196,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="publisher">
+        <widget class="EnLineEdit" name="publisher">
          <property name="toolTip">
           <string>Change the publisher of this book</string>
          </property>
@@ -216,7 +216,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="tags">
+        <widget class="EnLineEdit" name="tags">
          <property name="toolTip">
           <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
          </property>
@@ -239,7 +239,7 @@
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QComboBox" name="series">
+        <widget class="EnComboBox" name="series">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>10</horstretch>
@@ -319,10 +319,21 @@
    <extends>QLabel</extends>
    <header>widgets.h</header>
   </customwidget>
+  <customwidget>
+   <class>EnLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>EnComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../../../calibre/gui2/images.qrc"/>
   <include location="../images.qrc"/>
+  <include location="../images.qrc"/>
+  <include location="../../../../../gui2/images.qrc"/>
  </resources>
  <connections/>
 </ui>
