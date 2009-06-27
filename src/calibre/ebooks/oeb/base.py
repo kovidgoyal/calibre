@@ -868,33 +868,18 @@ class Manifest(object):
         def _parse_txt(self, data):
             if '<html>' in data:
                 return self._parse_xhtml(data)
-            from xml.sax.saxutils import escape
-            self.oeb.log.debug('Converting', self.href, '...')
-            paras = []
-            lines = []
-            for l in data.splitlines():
-                if not l:
-                    if lines:
-                        paras.append('<p>'+'\n'.join(lines)+'</p>')
-                    lines = []
-                lines.append(escape(l))
 
-            if lines:
-                paras.append('<p>'+'\n'.join(lines)+'</p>')
+            self.oeb.log.debug('Converting', self.href, '...')
+
+            from calibre.ebooks.txt.processor import txt_to_markdown
+
             title = self.oeb.metadata.title
             if title:
                 title = unicode(title[0])
             else:
                 title = 'No title'
-            data = '''\
-            <html>
-                <head><title>%s</title></head>
-                <body>%s</body>
-            </html>
-            '''%(title, '\n'.join(paras))
-            data = self._parse_xhtml(data)
-            print etree.tostring(data)
-            return data
+
+            return self._parse_xhtml(txt_to_markdown(data, title))
 
 
         def _parse_css(self, data):
