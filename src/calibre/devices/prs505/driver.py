@@ -183,6 +183,9 @@ class PRS505(CLI, Device):
         return zip(paths, sizes, ctimes, cycle([on_card]))
 
     def add_books_to_metadata(self, locations, metadata, booklists):
+        if not locations or not metadata:
+            return
+        
         metadata = iter(metadata)
         for location in locations:
             info = metadata.next()
