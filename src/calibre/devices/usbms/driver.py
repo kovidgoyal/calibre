@@ -10,9 +10,9 @@ for a particular device.
 import os
 import fnmatch
 import shutil
-import re
 from itertools import cycle
 
+from calibre import sanitize_file_name as sanitize
 from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
@@ -116,11 +116,6 @@ class USBMS(CLI, Device):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
-    def _sanitize_path(self, path):
-        path = re.sub('[?<>:*|\^]+', '', path)
-        path = re.sub('[\.\s]+$', '', path)
-        return path
-
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
 
@@ -140,8 +135,8 @@ class USBMS(CLI, Device):
                     for tag in mdata['tags']:
                         if tag.startswith(_('News')):
                             newpath = os.path.join(newpath, 'news')
-                            newpath = os.path.join(newpath, mdata.get('title', ''))
-                            newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                            newpath = os.path.join(newpath, sanitize(mdata.get('title', '')))
+                            newpath = os.path.join(newpath, sanitize(mdata.get('timestamp', '')))
                             break
                         elif tag.startswith('/'):
                             newpath += tag
@@ -150,14 +145,13 @@ class USBMS(CLI, Device):
 
                 if newpath == path:
                     newpath = os.path.join(newpath,
-                        mdata.get('authors', _('Unknown')),
-                        mdata.get('title', _('Unknown')))
+                        sanitize(mdata.get('authors', _('Unknown'))),
+                        sanitize(mdata.get('title', _('Unknown'))))
 
-            newpath = self._sanitize_path(newpath)
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = self._sanitize_path(os.path.join(newpath, names.next()))
+            filepath = os.path.join(newpath, sanitize(names.next()))
             paths.append(filepath)
 
             if hasattr(infile, 'read'):

@@ -78,11 +78,10 @@ class JETBOOK(USBMS):
             if newpath == path:
                 newpath = os.path.join(newpath, author, title)
 
-            newpath = self._sanitize_path(newpath)
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = self._sanitize_path(os.path.join(newpath, fname))
+            filepath = os.path.join(newpath, fname)
             paths.append(filepath)
 
             if hasattr(infile, 'read'):

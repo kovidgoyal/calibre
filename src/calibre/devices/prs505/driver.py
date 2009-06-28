@@ -5,10 +5,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 Device driver for the SONY PRS-505
 '''
 import os
-import re
 import time
 from itertools import cycle
 
+from calibre import sanitize_file_name as sanitize
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.errors import DeviceError, FreeSpaceError
@@ -101,11 +101,6 @@ class PRS505(CLI, Device):
         self.report_progress(1.0, _('Getting list of books on device...'))
         return bl
 
-    def _sanitize_path(self, path):
-        path = re.sub('[?<>:*|\^]+', '', path)
-        path = re.sub('[\.\s]+$', '', path)
-        return path
-
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
         if on_card == 'carda' and not self._card_a_prefix:
@@ -157,8 +152,8 @@ class PRS505(CLI, Device):
                 for tag in mdata['tags']:
                     if tag.startswith(_('News')):
                         newpath = os.path.join(newpath, 'news')
-                        newpath = os.path.join(newpath, mdata.get('title', ''))
-                        newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                        newpath = os.path.join(newpath, sanitize(mdata.get('title', '')))
+                        newpath = os.path.join(newpath, sanitize(mdata.get('timestamp', '')))
                     elif tag.startswith('/'):
                         newpath = path
                         newpath += tag
@@ -166,14 +161,13 @@ class PRS505(CLI, Device):
                         break
 
             if newpath == path:
-                newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
-                newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
+                newpath = os.path.join(newpath, sanitize(mdata.get('authors', _('Unknown'))))
+                newpath = os.path.join(newpath, sanitize(mdata.get('title', _('Unknown'))))
 
-            newpath = self._sanitize_path(newpath)
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = self._sanitize_path(os.path.join(newpath, names.next()))
+            filepath = os.path.join(newpath, sanitize(names.next()))
             paths.append(filepath)
 
             self.put_file(infile, paths[-1], replace_file=True)
