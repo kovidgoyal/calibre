@@ -239,7 +239,18 @@ class BooksModel(QAbstractTableModel):
             self.endInsertRows()
             self.count_changed()
 
+    def clean_search_text(self, text):
+        tokens = text.split(' ')
+        for i, token in enumerate(tokens):
+            if token.strip().endswith(':') or token.strip() == '':
+                del tokens[i]
+        text = ' '.join(tokens)
+        if text.strip() == '':
+            text = None
+        return text
+
     def search(self, text, refinement, reset=True):
+        text = self.clean_search_text(text)
         self.db.search(text)
         self.last_search = text
         if reset:
@@ -851,9 +862,9 @@ class DeviceBooksModel(BooksModel):
                 flags |= Qt.ItemIsEditable
         return flags
 
-
     def search(self, text, refinement, reset=True):
-        if not text or not text.strip():
+        text = self.clean_search_text(text)
+        if not text:
             self.map = list(range(len(self.db)))
         else:
             matches = self.search_engine.parse(text)
