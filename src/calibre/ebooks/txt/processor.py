@@ -13,12 +13,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-def txt_to_markdown(txt):
+def txt_to_markdown(txt, title=''):
     md = markdown.Markdown(
         extensions=['footnotes', 'tables', 'toc'],
         safe_mode=False,)
-    html = '<html><head><title /></head><body>'+md.convert(txt)+'</body></html>'
-    
+    html = u'<html><head><title>%s</title></head><body>%s</body></html>' % (title,
+        md.convert(txt))
+
     return html
 
 def opf_writer(path, opf_name, manifest, spine, mi):

@@ -19,7 +19,7 @@ from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
-                                   info_dialog
+                                   question_dialog
 from calibre.ebooks.metadata import authors_to_string
 from calibre import sanitize_file_name, preferred_encoding
 from calibre.utils.filenames import ascii_filename
@@ -566,26 +566,27 @@ class DeviceGUI(object):
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
                 else:
-                    if specific_format in available_output_formats():
+                    if specific_format in list(set(fmts).intersection(set(available_output_formats()))):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = None
-            for fmt in fmts:
-                if fmt in list(set(fmts).intersection(set(available_output_formats()))):
-                    format = fmt
-                    break
+            format = specific_format if specific_format in list(set(fmts).intersection(set(available_output_formats()))) else None
+            if not format:
+                for fmt in fmts:
+                    if fmt in list(set(fmts).intersection(set(available_output_formats()))):
+                        format = fmt
+                        break
             if format is None:
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
                 autos = '\n'.join('%s'%i for i in autos)
-                info_dialog(self, _('No suitable formats'),
-                    _('Auto converting the following books before sending via '
-                        'email:'), det_msg=autos, show=True)
-                self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
+                if question_dialog(self, _('No suitable formats'),
+                    _('Auto convert the following books before sending via '
+                        'email?'), det_msg=autos):
+                    self.auto_convert_mail(to, fmts, delete_from_library, auto, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
@@ -680,10 +681,10 @@ class DeviceGUI(object):
                 if format is not None:
                     autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
                     autos = '\n'.join('%s'%i for i in autos)
-                    info_dialog(self, _('No suitable formats'),
-                        _('Auto converting the following books before uploading to '
-                            'the device:'), det_msg=autos, show=True)
-                    self.auto_convert_news(auto, format)
+                    if question_dialog(self, _('No suitable formats'),
+                        _('Auto convert the following books before uploading to '
+                            'the device?'), det_msg=autos):
+                        self.auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
@@ -776,26 +777,27 @@ class DeviceGUI(object):
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
                 else:
-                    if specific_format in available_output_formats():
+                    if specific_format in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = None
-            for fmt in self.device_manager.device_class.settings().format_map:
-                if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
-                    format = fmt
-                    break
-            if format is None:
+            format = specific_format if specific_format in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))) else None
+            if not format:
+                for fmt in self.device_manager.device_class.settings().format_map:
+                    if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                        format = fmt
+                        break
+            if not format:
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
                 autos = '\n'.join('%s'%i for i in autos)
-                info_dialog(self, _('No suitable formats'),
-                    _('Auto converting the following books before uploading to '
-                        'the device:'), det_msg=autos, show=True)
-                self.auto_convert(auto, on_card, format)
+                if question_dialog(self, _('No suitable formats'),
+                    _('Auto convert the following books before uploading to '
+                        'the device?'), det_msg=autos):
+                    self.auto_convert(auto, on_card, format)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)

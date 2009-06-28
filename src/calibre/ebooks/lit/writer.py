@@ -308,6 +308,31 @@ class LitWriter(object):
         else:
             self._logger.warn('No suitable cover image found.')
 
+        # Remove comments because they are not supported by LIT HTML
+        for item in oeb.spine:
+            for elem in item.data.getiterator():
+                if isinstance(elem, etree._Comment):
+                    tail = elem.tail
+                    parent = elem.getparent()
+                    index = parent.index(elem)
+                    text = u''
+                    if index == 0:
+                        if parent.text:
+                            text += parent.text
+                        if tail:
+                            text += tail
+                        parent.text = text
+                    else:
+                        prev = parent[index-1]
+                        text = u''
+                        if prev.tail:
+                            text += prev.tail
+                        if tail:
+                            text += tail
+                        prev.tail = text
+                    parent.remove(elem)
+
+
     def __call__(self, oeb, path):
         if hasattr(path, 'write'):
             return self._dump_stream(oeb, path)

@@ -18,7 +18,7 @@ class TOCWidget(Widget, Ui_Form):
     HELP  = _('Control the creation/conversion of the Table of Contents.')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'structure_detection',
+        Widget.__init__(self, parent, 'toc',
                 ['level1_toc', 'level2_toc', 'level3_toc',
                 'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
                 'use_auto_toc', 'toc_filter',

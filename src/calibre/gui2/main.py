@@ -1186,7 +1186,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         try:
             if job.failed:
                 return self.job_exception(job)
-            data = open(temp_files[0].name, 'rb')
+            data = open(temp_files[-1].name, 'rb')
             self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
             data.close()
             self.status_bar.showMessage(job.description + (' completed'), 2000)
@@ -1210,7 +1210,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if job.failed:
                 self.job_exception(job)
                 return
-            data = open(temp_files[0].name, 'rb')
+            data = open(temp_files[-1].name, 'rb')
             self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
             data.close()
             self.status_bar.showMessage(job.description + (' completed'), 2000)
@@ -1233,7 +1233,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         try:
             if job.failed:
                 return self.job_exception(job)
-            data = open(temp_files[0].name, 'rb')
+            data = open(temp_files[-1].name, 'rb')
             self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
             data.close()
             self.status_bar.showMessage(job.description + (' completed'), 2000)
