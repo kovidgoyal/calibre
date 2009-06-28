@@ -240,6 +240,8 @@ class BooksModel(QAbstractTableModel):
             self.count_changed()
 
     def clean_search_text(self, text):
+        if not text:
+            return text
         tokens = text.split(' ')
         for i, token in enumerate(tokens):
             if token.strip().endswith(':') or token.strip() == '':
