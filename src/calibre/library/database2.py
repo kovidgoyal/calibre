@@ -198,7 +198,7 @@ class ResultCache(SearchQueryParser):
                 query = query.decode('utf-8')
             if location in ('tag', 'author', 'format'):
                 location += 's'
-            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats')
+            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn')
             MAP = {}
             for x in all:
                 MAP[x] = FIELD_MAP[x]
