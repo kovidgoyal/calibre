@@ -54,7 +54,10 @@ class MetadataWidget(Widget, Ui_Form):
         if mi.series:
             self.series.setCurrentIndex(self.series.findText(mi.series))
         if mi.series_index is not None:
-            self.series_index.setValue(mi.series_index)
+            try:
+                self.series_index.setValue(mi.series_index)
+            except:
+                self.series_index.setValue(0)
 
         cover = self.db.cover(self.book_id, index_is_id=True)
         if cover:
