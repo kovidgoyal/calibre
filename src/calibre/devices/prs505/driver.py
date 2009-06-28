@@ -4,7 +4,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 '''
 Device driver for the SONY PRS-505
 '''
-import os, time
+import os
+import re
+import time
 from itertools import cycle
 
 from calibre.devices.usbms.cli import CLI
@@ -99,6 +101,11 @@ class PRS505(CLI, Device):
         self.report_progress(1.0, _('Getting list of books on device...'))
         return bl
 
+    def _sanitize_path(self, path):
+        path = re.sub('[?<>:*|\^]+', '', path)
+        path = re.sub('[\.\s]+$', '', path)
+        return path
+
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
         if on_card == 'carda' and not self._card_a_prefix:
@@ -162,10 +169,11 @@ class PRS505(CLI, Device):
                 newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
                 newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
 
+            newpath = self._sanitize_path(newpath)
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = os.path.join(newpath, names.next())
+            filepath = self._sanitize_path(os.path.join(newpath, names.next()))
             paths.append(filepath)
 
             self.put_file(infile, paths[-1], replace_file=True)

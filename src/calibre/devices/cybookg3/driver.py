@@ -68,10 +68,11 @@ class CYBOOKG3(USBMS):
                 newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
                 newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
 
+            newpath = self._sanitize_path(newpath)
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = os.path.join(newpath, names.next())
+            filepath = self._sanitize_path(os.path.join(newpath, names.next()))
             paths.append(filepath)
 
             if hasattr(infile, 'read'):

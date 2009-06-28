@@ -7,7 +7,10 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, fnmatch, shutil
+import os
+import fnmatch
+import shutil
+import re
 from itertools import cycle
 
 from calibre.ebooks.metadata import authors_to_string
@@ -113,6 +116,11 @@ class USBMS(CLI, Device):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
+    def _sanitize_path(self, path):
+        path = re.sub('[?<>:*|\^]+', '', path)
+        path = re.sub('[\.\s]+$', '', path)
+        return path
+
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
 
@@ -145,10 +153,11 @@ class USBMS(CLI, Device):
                         mdata.get('authors', _('Unknown')),
                         mdata.get('title', _('Unknown')))
 
+            newpath = self._sanitize_path(newpath)
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = os.path.join(newpath, names.next())
+            filepath = self._sanitize_path(os.path.join(newpath, names.next()))
             paths.append(filepath)
 
             if hasattr(infile, 'read'):
