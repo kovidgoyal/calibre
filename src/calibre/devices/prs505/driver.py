@@ -207,6 +207,10 @@ class PRS505(CLI, Device):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             if os.path.exists(path):
                 os.unlink(path)
+                try:
+                    os.removedirs(os.path.dirname(path))
+                except:
+                    pass
         self.report_progress(1.0, _('Removing books from device...'))
 
     @classmethod
