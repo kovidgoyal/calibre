@@ -36,7 +36,7 @@ def run_install_jammer(installer_name='<%AppName%>-<%Version%><%Ext%>', build_fo
     compression = 'zlib'
     if build_for_release:
         cmdline += ['--build-for-release']
-        compression = 'lzma (solid)'
+        #compression = 'lzma (solid)'
     cmdline += ['-DCompressionMethod', compression]
     cmdline += ['--build', mpi]
     #print 'Running installjammer with cmdline:'
