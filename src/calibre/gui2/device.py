@@ -566,17 +566,18 @@ class DeviceGUI(object):
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
                 else:
-                    if specific_format in available_output_formats():
+                    if specific_format in list(set(fmts).intersection(set(available_output_formats()))):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = None
-            for fmt in fmts:
-                if fmt in list(set(fmts).intersection(set(available_output_formats()))):
-                    format = fmt
-                    break
+            format = specific_format if specific_format in list(set(fmts).intersection(set(available_output_formats()))) else None
+            if not format:
+                for fmt in fmts:
+                    if fmt in list(set(fmts).intersection(set(available_output_formats()))):
+                        format = fmt
+                        break
             if format is None:
                 bad += auto
             else:
@@ -776,18 +777,19 @@ class DeviceGUI(object):
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
                 else:
-                    if specific_format in available_output_formats():
+                    if specific_format in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = None
-            for fmt in self.device_manager.device_class.settings().format_map:
-                if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
-                    format = fmt
-                    break
-            if format is None:
+            format = specific_format if specific_format in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))) else None
+            if not format:
+                for fmt in self.device_manager.device_class.settings().format_map:
+                    if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                        format = fmt
+                        break
+            if not format:
                 bad += auto
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
