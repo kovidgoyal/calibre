@@ -1048,6 +1048,8 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_isbn(id, mi.isbn, notify=False)
         if mi.series_index:
             self.set_series_index(id, mi.series_index, notify=False)
+        if mi.pubdate:
+            self.set_pubdate(id, mi.pubdate, notify=False)
         if getattr(mi, 'timestamp', None) is not None:
             self.set_timestamp(id, mi.timestamp, notify=False)
         self.set_path(id, True)
