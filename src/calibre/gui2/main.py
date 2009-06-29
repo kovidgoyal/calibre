@@ -234,6 +234,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.add_menu.addAction(_('Add books from directories, including '
             'sub directories (Multiple books per directory, assumes every '
             'ebook file is a different book)'))
+        self.add_menu.addAction(_('Add Empty book. (Book entry with no '
+            'formats)'))
         self.action_add.setMenu(self.add_menu)
         QObject.connect(self.action_add, SIGNAL("triggered(bool)"),
                 self.add_books)
@@ -243,6 +245,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.add_recursive_single)
         QObject.connect(self.add_menu.actions()[2], SIGNAL("triggered(bool)"),
                 self.add_recursive_multiple)
+        QObject.connect(self.add_menu.actions()[3], SIGNAL('triggered(bool)'),
+                self.add_empty)
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"),
                 self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"),
@@ -778,6 +782,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         recursively assuming multiple books per folder.
         '''
         self.add_recursive(False)
+
+    def add_empty(self, checked):
+        '''
+        Add an empty book item to the library. This does not import any formats
+        from a book file.
+        '''
+        from calibre.ebooks.metadata import MetaInformation
+        self.library_view.model().db.import_book(MetaInformation(None), [])
+        self.library_view.model().books_added(1)
 
     def files_dropped(self, paths):
         to_device = self.stack.currentIndex() != 0

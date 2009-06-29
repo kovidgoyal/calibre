@@ -52,6 +52,7 @@ class SearchQueryParser(object):
         'series',
         'comments',
         'format',
+        'isbn',
         'all',
                  ]
     

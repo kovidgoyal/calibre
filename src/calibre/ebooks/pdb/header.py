@@ -30,7 +30,7 @@ class PdbHeaderReader(object):
 
     def name(self):
         self.stream.seek(0)
-        return re.sub('[^-A-Za-z0-9]+', '', self.stream.read(32).replace('\x00', ''))
+        return re.sub('[^-A-Za-z0-9 ]+', '', self.stream.read(32).replace('\x00', ''))
 
     def full_section_info(self, number):
         if number not in range(0, self.num_sections):
@@ -66,7 +66,7 @@ class PdbHeaderBuilder(object):
 
     def __init__(self, identity, title):
         self.identity = identity.ljust(3, '\x00')[:8]
-        self.title = re.sub('[^-A-Za-z0-9]+', '_', title).ljust(32, '\x00')[:32].encode('ascii', 'replace')
+        self.title = '%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', title).ljust(31, '\x00')[:31].encode('ascii', 'replace')
 
     def build_header(self, section_lengths, out_stream):
         '''

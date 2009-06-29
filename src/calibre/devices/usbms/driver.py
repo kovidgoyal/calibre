@@ -7,9 +7,12 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, fnmatch, shutil
+import os
+import fnmatch
+import shutil
 from itertools import cycle
 
+from calibre import sanitize_file_name as sanitize
 from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
@@ -132,8 +135,8 @@ class USBMS(CLI, Device):
                     for tag in mdata['tags']:
                         if tag.startswith(_('News')):
                             newpath = os.path.join(newpath, 'news')
-                            newpath = os.path.join(newpath, mdata.get('title', ''))
-                            newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                            newpath = os.path.join(newpath, sanitize(mdata.get('title', '')))
+                            newpath = os.path.join(newpath, sanitize(mdata.get('timestamp', '')))
                             break
                         elif tag.startswith('/'):
                             newpath += tag
@@ -142,13 +145,13 @@ class USBMS(CLI, Device):
 
                 if newpath == path:
                     newpath = os.path.join(newpath,
-                        mdata.get('authors', _('Unknown')),
-                        mdata.get('title', _('Unknown')))
+                        sanitize(mdata.get('authors', _('Unknown'))),
+                        sanitize(mdata.get('title', _('Unknown'))))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = os.path.join(newpath, names.next())
+            filepath = os.path.join(newpath, sanitize(names.next()))
             paths.append(filepath)
 
             if hasattr(infile, 'read'):

@@ -4,9 +4,11 @@ __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 Device driver for Bookeen's Cybook Gen 3
 '''
 
-import os, shutil
+import os
+import shutil
 from itertools import cycle
 
+from calibre import sanitize_file_name as sanitize
 from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
@@ -57,21 +59,21 @@ class CYBOOKG3(USBMS):
                 for tag in mdata['tags']:
                     if tag.startswith(_('News')):
                         newpath = os.path.join(newpath, 'news')
-                        newpath = os.path.join(newpath, mdata.get('title', ''))
-                        newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                        newpath = os.path.join(newpath, sanitize(mdata.get('title', '')))
+                        newpath = os.path.join(newpath, sanitize(mdata.get('timestamp', '')))
                     elif tag.startswith('/'):
                         newpath += tag
                         newpath = os.path.normpath(newpath)
                         break
 
             if newpath == path:
-                newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
-                newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
+                newpath = os.path.join(newpath, sanitize(mdata.get('authors', _('Unknown'))))
+                newpath = os.path.join(newpath, sanitize(mdata.get('title', _('Unknown'))))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = os.path.join(newpath, names.next())
+            filepath = os.path.join(newpath, sanitize(names.next()))
             paths.append(filepath)
 
             if hasattr(infile, 'read'):

@@ -4,9 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 '''
 Device driver for the SONY PRS-505
 '''
-import os, time
+import os
+import time
 from itertools import cycle
 
+from calibre import sanitize_file_name as sanitize
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.errors import DeviceError, FreeSpaceError
@@ -150,8 +152,8 @@ class PRS505(CLI, Device):
                 for tag in mdata['tags']:
                     if tag.startswith(_('News')):
                         newpath = os.path.join(newpath, 'news')
-                        newpath = os.path.join(newpath, mdata.get('title', ''))
-                        newpath = os.path.join(newpath, mdata.get('timestamp', ''))
+                        newpath = os.path.join(newpath, sanitize(mdata.get('title', '')))
+                        newpath = os.path.join(newpath, sanitize(mdata.get('timestamp', '')))
                     elif tag.startswith('/'):
                         newpath = path
                         newpath += tag
@@ -159,13 +161,13 @@ class PRS505(CLI, Device):
                         break
 
             if newpath == path:
-                newpath = os.path.join(newpath, mdata.get('authors', _('Unknown')))
-                newpath = os.path.join(newpath, mdata.get('title', _('Unknown')))
+                newpath = os.path.join(newpath, sanitize(mdata.get('authors', _('Unknown'))))
+                newpath = os.path.join(newpath, sanitize(mdata.get('title', _('Unknown'))))
 
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
 
-            filepath = os.path.join(newpath, names.next())
+            filepath = os.path.join(newpath, sanitize(names.next()))
             paths.append(filepath)
 
             self.put_file(infile, paths[-1], replace_file=True)
@@ -181,6 +183,9 @@ class PRS505(CLI, Device):
         return zip(paths, sizes, ctimes, cycle([on_card]))
 
     def add_books_to_metadata(self, locations, metadata, booklists):
+        if not locations or not metadata:
+            return
+        
         metadata = iter(metadata)
         for location in locations:
             info = metadata.next()
