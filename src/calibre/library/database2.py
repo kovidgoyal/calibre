@@ -208,6 +208,9 @@ class ResultCache(SearchQueryParser):
             for item in self._data:
                 if item is None: continue
                 for loc in location:
+                    if (not item[loc] or item[loc] == [] or item[loc] == 0 or item[loc] == '') and query == 'none':
+                        matches.add(item[0])
+                        break
                     if item[loc] and query in item[loc].lower():
                         matches.add(item[0])
                         break
