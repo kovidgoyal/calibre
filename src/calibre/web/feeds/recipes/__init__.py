@@ -50,7 +50,7 @@ recipe_modules = ['recipe_' + r for r in (
            'marca', 'kellog_faculty', 'kellog_insight',
            'theeconomictimes_india', '7dias', 'buenosaireseconomico',
            'diagonales', 'miradasalsur', 'newsweek_argentina', 'veintitres',
-           'gva_be', 'hln', 'tijd', 'degentenaar',
+           'gva_be', 'hln', 'tijd', 'degentenaar', 'inquirer_net', 'uncrate',
           )]
 
 import re, imp, inspect, time, os
