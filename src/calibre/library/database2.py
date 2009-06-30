@@ -198,22 +198,31 @@ class ResultCache(SearchQueryParser):
                 query = query.decode('utf-8')
             if location in ('tag', 'author', 'format'):
                 location += 's'
-            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn')
+            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn', 'rating')
             MAP = {}
             for x in all:
                 MAP[x] = FIELD_MAP[x]
+            EXCLUDE_FIELDS = [MAP['rating']]
             location = [location] if location != 'all' else list(MAP.keys())
             for i, loc in enumerate(location):
                 location[i] = MAP[loc]
+            try:
+                rating_query = int(query) * 2
+            except:
+                rating_query = None
             for item in self._data:
                 if item is None: continue
                 for loc in location:
                     if (not item[loc] or item[loc] == [] or item[loc] == 0 or item[loc] == '') and query == 'none':
                         matches.add(item[0])
                         break
-                    if item[loc] and query in item[loc].lower():
+                    if rating_query and item[loc] and loc == MAP['rating'] and rating_query == int(item[loc]):
                         matches.add(item[0])
                         break
+                    if item[loc] and loc not in EXCLUDE_FIELDS and query in item[loc].lower():
+                        matches.add(item[0])
+                        break
+
         return matches
 
     def remove(self, id):
