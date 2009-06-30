@@ -129,6 +129,9 @@ class OEBReader(object):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         stream = cStringIO.StringIO(etree.tostring(opf))
         mi = MetaInformation(OPF(stream))
+        if not mi.language:
+            mi.language = get_lang()
+        self.oeb.metadata.add('language', mi.language)
         if not mi.title:
             mi.title = self.oeb.translate(__('Unknown'))
         if not mi.authors:
@@ -136,8 +139,6 @@ class OEBReader(object):
         if not mi.book_producer:
             mi.book_producer = '%(a)s (%(v)s) [http://%(a)s.kovidgoyal.net]'%\
                 dict(a=__appname__, v=__version__)
-        if not mi.language:
-            mi.language = get_lang()
         meta_info_to_oeb_metadata(mi, self.oeb.metadata, self.logger)
         bookid = "urn:uuid:%s" % str(uuid.uuid4()) if mi.application_id is None \
                 else mi.application_id
