@@ -42,7 +42,7 @@ class PDBOutput(OutputFormatPlugin):
         Writer = get_writer(opts.format)
 
         if Writer is None:
-            raise PDBError('No writer avaliable for format %s.' % format)
+            raise PDBError('No writer available for format %s.' % format)
 
         writer = Writer(opts, log)
 

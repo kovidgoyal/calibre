@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Select avaliable formats and their order for this device</string>
+      <string>Select available formats and their order for this device</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
       <item>
