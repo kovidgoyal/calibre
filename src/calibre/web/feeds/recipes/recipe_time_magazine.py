@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 '''
 time.com
 '''
@@ -11,17 +11,21 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Time(BasicNewsRecipe):
     title                 = u'Time'
-    __author__            = 'Kovid Goyal'
+    __author__            = 'Kovid Goyal and Sujata Raman'
     description           = 'Weekly magazine'
     encoding = 'utf-8'
     no_stylesheets        = True
     language = _('English')
-
+    extra_css      = '''.headline {font-size: large;}
+    .fact { padding-top: 10pt  }
+    h1 {font-family:Arial,Sans-serif}
+    .byline{font-family:Arial,Sans-serif; font-size:xx-small ;color:blue}
+    .timestamp{font-family:Arial,Sans-serif; font-size:x-small ;color:gray}'''
     remove_tags_before = dict(id="artHd")
     remove_tags_after = {'class':"ltCol"}
     remove_tags    = [
-            {'class':['articleTools', 'enlarge', 'search']},
-            {'id':['quigoArticle', 'contentTools', 'articleSideBar', 'header', 'navTop']},
+            {'class':['articleTools', 'enlarge', 'search','socialtools','blogtools','moretools','page','nextUp','next','subnav','RSS','line2','first','ybuzz','articlePagination','chiclets','imgcont','createListLink','rlinks','tabsWrap','pagination']},
+            {'id':['quigoArticle', 'contentTools', 'articleSideBar', 'header', 'navTop','articleTools','feedmodule','feedmodule3','promos','footer','linksFooter','timeArchive','belt','relatedStories','packages','Features']},
             {'target':'_blank'},
                       ]
     recursions = 1
