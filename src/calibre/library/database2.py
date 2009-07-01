@@ -213,10 +213,16 @@ class ResultCache(SearchQueryParser):
             for item in self._data:
                 if item is None: continue
                 for loc in location:
-                    if query == 'false' and (not item[loc] or item[loc].strip() == ''):
+                    if query == 'false' and not item[loc]:
+                        if isinstance(item[loc], basestring):
+                            if item[loc].strip() != '':
+                                continue
                         matches.add(item[0])
                         break
-                    if query == 'true' and (item[loc] and item[loc].strip() != ''):
+                    if query == 'true' and item[loc]:
+                        if isinstance(item[loc], basestring):
+                            if item[loc].strip() == '':
+                                continue
                         matches.add(item[0])
                         break
                     if rating_query and item[loc] and loc == MAP['rating'] and rating_query == int(item[loc]):
@@ -266,7 +272,7 @@ class ResultCache(SearchQueryParser):
             try:
                 self._data[id] = db.conn.get('SELECT * from meta WHERE id=?',
                         (id,))[0]
-                self._data[id].append(db.cover(id, index_is_id=True, as_path=True))
+                self._data[id].append(db.has_cover(id, index_is_id=True))
             except IndexError:
                 return None
         try:
@@ -281,7 +287,7 @@ class ResultCache(SearchQueryParser):
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
             self._data[id] = db.conn.get('SELECT * from meta WHERE id=?', (id,))[0]
-            self._data[id].append(db.cover(id, index_is_id=True, as_path=True))
+            self._data[id].append(db.has_cover(id, index_is_id=True))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -301,7 +307,7 @@ class ResultCache(SearchQueryParser):
             self._data[r[0]] = r
         for item in self._data:
             if item is not None:
-                item.append(db.cover(item[0], index_is_id=True, as_path=True))
+                item.append(db.has_cover(item[0], index_is_id=True))
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
