@@ -213,7 +213,10 @@ class ResultCache(SearchQueryParser):
             for item in self._data:
                 if item is None: continue
                 for loc in location:
-                    if (not item[loc] or item[loc] == [] or item[loc] == 0 or item[loc] == '') and query == 'none':
+                    if query == 'false' and (not item[loc] or item[loc].strip() == ''):
+                        matches.add(item[0])
+                        break
+                    if query == 'true' and (item[loc] and item[loc].strip() != ''):
                         matches.add(item[0])
                         break
                     if rating_query and item[loc] and loc == MAP['rating'] and rating_query == int(item[loc]):
