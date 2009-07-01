@@ -316,7 +316,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(cm.actions()[1],
                 SIGNAL('triggered(bool)'), partial(self.convert_ebook, bulk=True))
         QObject.connect(self.action_convert,
-                SIGNAL('triggered(bool)'), partial(self.convert_ebook, bulk=False))
+                SIGNAL('triggered(bool)'), partial(self.convert_ebook))
         self.convert_menu = cm
 
         pm = QMenu()
@@ -1162,7 +1162,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
-        if bulk or (not bulk and len(book_ids) > 1):
+        if bulk or (bulk is None and len(book_ids) > 1):
             jobs, changed, bad = convert_bulk_ebook(self,
                 self.library_view.model().db, book_ids, out_format=prefs['output_format'])
         else:
