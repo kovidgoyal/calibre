@@ -493,6 +493,8 @@ class EnComboBox(QComboBox):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
 
+    def text(self):
+        return qstring_to_unicode(self.currentText())
 
 class PythonHighlighter(QSyntaxHighlighter):
 

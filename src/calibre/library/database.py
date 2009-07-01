@@ -928,6 +928,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         except:
             pass
 
+    def author_id(self, index, index_is_id=False):
+        id  = index if index_is_id else self.id(index)
+        return self.conn.get('SELECT author from books_authors_link WHERE book=?', (id,), all=False)
+
     def isbn(self, idx, index_is_id=False):
         id = idx if index_is_id else self.id(idx)
         return self.conn.get('SELECT isbn FROM books WHERE id=?',(id,), all=False)
