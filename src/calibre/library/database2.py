@@ -51,7 +51,7 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5,
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
-             'lccn':16, 'pubdate':17, 'flags':18}
+             'lccn':16, 'pubdate':17, 'flags':18, 'cover':19}
 INDEX_MAP = dict(zip(FIELD_MAP.values(), FIELD_MAP.keys()))
 
 
@@ -198,11 +198,11 @@ class ResultCache(SearchQueryParser):
                 query = query.decode('utf-8')
             if location in ('tag', 'author', 'format'):
                 location += 's'
-            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn', 'rating')
+            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats', 'isbn', 'rating', 'cover')
             MAP = {}
             for x in all:
                 MAP[x] = FIELD_MAP[x]
-            EXCLUDE_FIELDS = [MAP['rating']]
+            EXCLUDE_FIELDS = [MAP['rating'], MAP['cover']]
             location = [location] if location != 'all' else list(MAP.keys())
             for i, loc in enumerate(location):
                 location[i] = MAP[loc]
@@ -254,15 +254,16 @@ class ResultCache(SearchQueryParser):
             pass
         return False
 
-    def refresh_ids(self, conn, ids):
+    def refresh_ids(self, db, ids):
         '''
         Refresh the data in the cache for books identified by ids.
         Returns a list of affected rows or None if the rows are filtered.
         '''
         for id in ids:
             try:
-                self._data[id] = conn.get('SELECT * from meta WHERE id=?',
+                self._data[id] = db.conn.get('SELECT * from meta WHERE id=?',
                         (id,))[0]
+                self._data[id].append(db.cover(id, index_is_id=True, as_path=True))
             except IndexError:
                 return None
         try:
@@ -271,12 +272,13 @@ class ResultCache(SearchQueryParser):
             pass
         return None
 
-    def books_added(self, ids, conn):
+    def books_added(self, ids, db):
         if not ids:
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
+            self._data[id] = db.conn.get('SELECT * from meta WHERE id=?', (id,))[0]
+            self._data[id].append(db.cover(id, index_is_id=True, as_path=True))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -294,6 +296,9 @@ class ResultCache(SearchQueryParser):
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
             self._data[r[0]] = r
+        for item in self._data:
+            if item is not None:
+                item.append(db.cover(item[0], index_is_id=True, as_path=True))
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
@@ -412,7 +417,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = self.data.sort
         self.index   = self.data.index
-        self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
+        self.refresh_ids = functools.partial(self.data.refresh_ids, self)
         self.row     = self.data.row
         self.has_id  = self.data.has_id
         self.count   = self.data.count
@@ -1024,7 +1029,7 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_rating(id, val, notify=False)
         elif column == 'tags':
             self.set_tags(id, val.split(','), append=False, notify=False)
-        self.data.refresh_ids(self.conn, [id])
+        self.data.refresh_ids(self, [id])
         self.set_path(id, True)
         self.notify('metadata', [id])
 
@@ -1203,7 +1208,7 @@ class LibraryDatabase2(LibraryDatabase):
             if id:
                 self.conn.execute('DELETE FROM books_tags_link WHERE tag=? AND book=?', (id, book_id))
         self.conn.commit()
-        self.data.refresh_ids(self.conn, [book_id])
+        self.data.refresh_ids(self, [book_id])
         if notify:
             self.notify('metadata', [id])
 
@@ -1308,7 +1313,7 @@ class LibraryDatabase2(LibraryDatabase):
         obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
                               (mi.title, mi.authors[0]))
         id = obj.lastrowid
-        self.data.books_added([id], self.conn)
+        self.data.books_added([id], self)
         self.set_path(id, index_is_id=True)
         self.conn.commit()
         self.set_metadata(id, mi)
@@ -1317,7 +1322,7 @@ class LibraryDatabase2(LibraryDatabase):
         if not hasattr(path, 'read'):
             stream.close()
         self.conn.commit()
-        self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
+        self.data.refresh_ids(self, [id]) # Needed to update format list and size
         return id
 
     def run_import_plugins(self, path_or_stream, format):
@@ -1345,7 +1350,7 @@ class LibraryDatabase2(LibraryDatabase):
         obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                             (title, series_index, aus))
         id = obj.lastrowid
-        self.data.books_added([id], self.conn)
+        self.data.books_added([id], self)
         self.set_path(id, True)
         self.conn.commit()
         self.set_metadata(id, mi)
@@ -1378,7 +1383,7 @@ class LibraryDatabase2(LibraryDatabase):
             obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                               (title, series_index, aus))
             id = obj.lastrowid
-            self.data.books_added([id], self.conn)
+            self.data.books_added([id], self)
             ids.append(id)
             self.set_path(id, True)
             self.conn.commit()
@@ -1389,7 +1394,7 @@ class LibraryDatabase2(LibraryDatabase):
             self.add_format(id, format, stream, index_is_id=True)
             stream.close()
         self.conn.commit()
-        self.data.refresh_ids(self.conn, ids) # Needed to update format list and size
+        self.data.refresh_ids(self, ids) # Needed to update format list and size
         if duplicates:
             paths    = list(duplicate[0] for duplicate in duplicates)
             formats  = list(duplicate[1] for duplicate in duplicates)
@@ -1411,7 +1416,7 @@ class LibraryDatabase2(LibraryDatabase):
         obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                           (title, series_index, aus))
         id = obj.lastrowid
-        self.data.books_added([id], self.conn)
+        self.data.books_added([id], self)
         self.set_path(id, True)
         self.set_metadata(id, mi)
         for path in formats:
@@ -1420,7 +1425,7 @@ class LibraryDatabase2(LibraryDatabase):
                 continue
             self.add_format_with_hooks(id, ext, path, index_is_id=True)
         self.conn.commit()
-        self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
+        self.data.refresh_ids(self, [id]) # Needed to update format list and size
         if notify:
             self.notify('add', [id])
 
