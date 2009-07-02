@@ -462,11 +462,11 @@ class LineEditECM(object):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
 
-        case_menu = QMenu('Change Case')
-        action_upper_case = case_menu.addAction('Upper Case')
-        action_lower_case = case_menu.addAction('Lower Case')
-        action_swap_case = case_menu.addAction('Swap Case')
-        action_title_case = case_menu.addAction('Title Case')
+        case_menu = QMenu(_('Change Case'))
+        action_upper_case = case_menu.addAction(_('Upper Case'))
+        action_lower_case = case_menu.addAction(_('Lower Case'))
+        action_swap_case = case_menu.addAction(_('Swap Case'))
+        action_title_case = case_menu.addAction(_('Title Case'))
 
         self.connect(action_upper_case, SIGNAL('triggered()'), self.upper_case)
         self.connect(action_lower_case, SIGNAL('triggered()'), self.lower_case)
