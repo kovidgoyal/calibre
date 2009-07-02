@@ -18,6 +18,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database2 import FIELD_MAP
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
+from calibre.gui2.widgets import EnLineEdit
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx
@@ -110,6 +111,11 @@ class PubDateDelegate(QStyledItemDelegate):
         qde.setCalendarPopup(True)
         return qde
 
+class TextDelegate(QStyledItemDelegate):
+
+    def createEditor(self, parent, option, index):
+        editor = EnLineEdit(parent)
+        return editor
 
 class BooksModel(QAbstractTableModel):
     headers = {
@@ -659,6 +665,8 @@ class BooksView(TableView):
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
+        for i in range(10):
+            self.setItemDelegateForColumn(i, TextDelegate(self))
         try:
             cm = self._model.column_map
             self.columns_sorted(cm.index('rating') if 'rating' in cm else -1,
@@ -768,7 +776,7 @@ class DeviceBooksView(BooksView):
         self.resize_on_select = False
         self.rating_delegate = None
         for i in range(10):
-            self.setItemDelegateForColumn(i, self.itemDelegate())
+            self.setItemDelegateForColumn(i, TextDelegate(self))
         self.setDragDropMode(self.NoDragDrop)
         self.setAcceptDrops(False)
 
