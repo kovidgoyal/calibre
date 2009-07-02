@@ -10,7 +10,8 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QPixmap, QMovie, QPalette, QTimer, QDialog, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, \
                         QRegExp, QSettings, QSize, QModelIndex, \
-                        QAbstractButton, QPainter, QLineEdit, QComboBox
+                        QAbstractButton, QPainter, QLineEdit, QComboBox, \
+                        QMenu
 
 from calibre.gui2 import human_readable, NONE, TableView, \
                          qstring_to_unicode, error_dialog
@@ -460,11 +461,29 @@ class LineEditECM(object):
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
-        action_title_case = menu.addAction('Title Case')
 
+        case_menu = QMenu('Change Case')
+        action_upper_case = case_menu.addAction('Upper Case')
+        action_lower_case = case_menu.addAction('Lower Case')
+        action_swap_case = case_menu.addAction('Swap Case')
+        action_title_case = case_menu.addAction('Title Case')
+
+        self.connect(action_upper_case, SIGNAL('triggered()'), self.upper_case)
+        self.connect(action_lower_case, SIGNAL('triggered()'), self.lower_case)
+        self.connect(action_swap_case, SIGNAL('triggered()'), self.swap_case)
         self.connect(action_title_case, SIGNAL('triggered()'), self.title_case)
 
+        menu.addMenu(case_menu)
         menu.exec_(event.globalPos())
+
+    def upper_case(self):
+        self.setText(qstring_to_unicode(self.text()).upper())
+
+    def lower_case(self):
+        self.setText(qstring_to_unicode(self.text()).lower())
+
+    def swap_case(self):
+        self.setText(qstring_to_unicode(self.text()).swapcase())
 
     def title_case(self):
         self.setText(qstring_to_unicode(self.text()).title())
