@@ -233,7 +233,7 @@ class KindleOutput(OutputProfile):
 
     @classmethod
     def tags_to_string(cls, tags):
-        return ', '.join(tags)
+        return 'ttt '.join(tags)+'ttt '
 
 class KindleDXOutput(OutputProfile):
 
@@ -248,7 +248,7 @@ class KindleDXOutput(OutputProfile):
 
     @classmethod
     def tags_to_string(cls, tags):
-        return ', '.join(tags)
+        return 'ttt '.join(tags)+'ttt '
 
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
