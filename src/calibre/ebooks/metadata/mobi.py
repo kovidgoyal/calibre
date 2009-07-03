@@ -11,11 +11,14 @@ __docformat__ = 'restructuredtext en'
 
 from struct import pack, unpack
 from cStringIO import StringIO
+from datetime import datetime
+
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
 
 class StreamSlicer(object):
+
     def __init__(self, stream, start=0, stop=None):
         self._stream = stream
         self.start = start
@@ -84,17 +87,22 @@ class MetadataUpdater(object):
         flags, = unpack('>I', record0[128:132])
         have_exth = self.have_exth = (flags & 0x40) != 0
         self.cover_record = self.thumbnail_record = None
+        self.timestamp = None
         if not have_exth:
             return
         exth_off = unpack('>I', record0[20:24])[0] + 16 + record0.start
         exth = self.exth = StreamSlicer(stream, exth_off, record0.stop)
         nitems, = unpack('>I', exth[8:12])
         pos = 12
+        # Store any EXTH fields not specifiable in GUI
         for i in xrange(nitems):
             id, size = unpack('>II', exth[pos:pos + 8])
             content = exth[pos + 8: pos + size]
             pos += size
-            if id == 201:
+
+            if id == 106:
+                self.timestamp = content
+            elif id == 201:
                 rindex, = self.cover_rindex, = unpack('>I', content)
                 self.cover_record = self.record(rindex + image_base)
             elif id == 202:
@@ -134,6 +142,16 @@ class MetadataUpdater(object):
         if mi.tags:
             subjects = '; '.join(mi.tags)
             recs.append((105, subjects.encode(self.codec, 'replace')))
+
+        if mi.pubdate:
+            recs.append((106, str(mi.pubdate).encode(self.codec, 'replace')))
+        elif mi.timestamp:
+            recs.append((106, str(mi.timestamp).encode(self.codec, 'replace')))
+        elif self.timestamp:
+            recs.append(106, self.timestamp)
+        else:
+            recs.append((106, str(datetime.now()).encode(self.codec, 'replace')))
+
         if self.cover_record is not None:
             recs.append((201, pack('>I', self.cover_rindex)))
             recs.append((203, pack('>I', 0)))
