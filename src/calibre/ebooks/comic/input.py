@@ -283,7 +283,7 @@ class ComicInput(InputFormatPlugin):
         OptionRecommendation(name='disable_trim', recommended_value=False,
             help=_('Disable trimming of comic pages. For some comics, '
                      'trimming might remove content as well as borders.')),
-        OptionRecommendation(name='landspace', recommended_value=False,
+        OptionRecommendation(name='landscape', recommended_value=False,
             help=_("Don't split landscape images into two portrait images")),
         OptionRecommendation(name='wide', recommended_value=False,
             help=_("Keep aspect ratio and scale image using screen height as "
