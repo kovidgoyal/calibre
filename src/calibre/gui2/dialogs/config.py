@@ -39,7 +39,7 @@ class ConfigTabs(QTabWidget):
         log = Log()
         log.outputs = []
 
-        self.plumber = Plumber('dummt.epub', 'dummy.epub', log)
+        self.plumber = Plumber('dummy.epub', 'dummy.epub', log, dummy=True)
 
         def widget_factory(cls):
             return cls(self, self.plumber.get_option_by_name,
