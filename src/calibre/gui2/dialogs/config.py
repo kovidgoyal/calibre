@@ -22,7 +22,8 @@ from calibre.library import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
                                  plugin_customization, add_plugin, \
-                                 remove_plugin, input_format_plugins, \
+                                 remove_plugin, all_input_formats, \
+                                 input_format_plugins, \
                                  output_format_plugins, available_output_formats
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -337,6 +338,18 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
 
+        input_map = config['input_format_order']
+        all_formats = set()
+        for fmt in all_input_formats():
+            all_formats.add(fmt.upper())
+        for format in input_map + list(all_formats.difference(input_map)):
+            item = QListWidgetItem(format, self.input_order)
+            item.setData(Qt.UserRole, QVariant(format))
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+
+        self.connect(self.input_up, SIGNAL('clicked()'), self.up_input)
+        self.connect(self.input_down, SIGNAL('clicked()'), self.down_input)
+
         dirs = config['frequently_used_directories']
         rn = config['use_roman_numerals_for_series_number']
         self.timeout.setValue(prefs['network_timeout'])
@@ -553,6 +566,17 @@ class ConfigDialog(QDialog, Ui_Dialog):
                          plugin.name + _(' cannot be removed. It is a '
                          'builtin plugin. Try disabling it instead.')).exec_()
 
+    def up_input(self):
+        idx = self.input_order.currentRow()
+        if idx > 0:
+            self.input_order.insertItem(idx-1, self.input_order.takeItem(idx))
+            self.input_order.setCurrentRow(idx-1)
+
+    def down_input(self):
+        idx = self.input_order.currentRow()
+        if idx < self.input_order.count()-1:
+            self.input_order.insertItem(idx+1, self.input_order.takeItem(idx))
+            self.input_order.setCurrentRow(idx+1)
 
     def up_column(self):
         idx = self.columns.currentRow()
@@ -656,6 +680,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
         path = qstring_to_unicode(self.location.text())
+        input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
+        config['input_format_order'] = input_cols
         cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
         if not cols:
             cols = ['title']
