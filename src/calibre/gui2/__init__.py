@@ -11,7 +11,6 @@ ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import islinux, iswindows
 from calibre.startup import get_lang
-from calibre.customize.ui import all_input_formats
 from calibre.utils.config import Config, ConfigProxy, dynamic
 import calibre.resources as resources
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -49,7 +48,8 @@ def _config():
               help=_('Defaults for conversion to LRF'))
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
-    c.add_opt('internally_viewed_formats', default=all_input_formats(),
+    c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
+        'MOBI', 'PRC', 'HTML', 'FB2', 'PDB', 'RB'],
               help=_('Formats that are viewed using the internal viewer'))
     c.add_opt('input_format_order', default=['EPUB', 'MOBI', 'PRC', 'LIT',
         'HTML', 'FB2', 'PDB', 'RB'],

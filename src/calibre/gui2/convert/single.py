@@ -10,7 +10,7 @@ import sys, cPickle
 
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
-from calibre.gui2 import ResizableDialog, NONE
+from calibre.gui2 import ResizableDialog, NONE, config
 from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics, \
         load_specifics
 from calibre.gui2.convert.single_ui import Ui_Dialog
@@ -20,11 +20,10 @@ from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 
-
-from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats, \
-                    INPUT_FORMAT_PREFERENCES, OUTPUT_FORMAT_PREFERENCES
+from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats
 from calibre.customize.ui import available_output_formats
 from calibre.customize.conversion import OptionRecommendation
+from calibre.utils.config import prefs
 from calibre.utils.logging import Log
 
 class NoSupportedInputFormats(Exception):
@@ -33,11 +32,11 @@ class NoSupportedInputFormats(Exception):
 def sort_formats_by_preference(formats, prefs):
     def fcmp(x, y):
         try:
-            x = prefs.index(x)
+            x = prefs.index(x.upper())
         except ValueError:
             x = sys.maxint
         try:
-            y = prefs.index(y)
+            y = prefs.index(y.upper())
         except ValueError:
             y = sys.maxint
         return cmp(x, y)
@@ -206,11 +205,11 @@ class Config(ResizableDialog, Ui_Dialog):
         preferred_input_format = preferred_input_format if \
             preferred_input_format in input_formats else \
             sort_formats_by_preference(input_formats,
-                    INPUT_FORMAT_PREFERENCES)[0]
+                    config['input_format_order'])[0]
         preferred_output_format = preferred_output_format if \
             preferred_output_format in output_formats else \
             sort_formats_by_preference(output_formats,
-                    OUTPUT_FORMAT_PREFERENCES)[0]
+                    prefs['output_format'])[0]
         self.input_formats.addItems(list(map(QString, [x.upper() for x in
             input_formats])))
         self.output_formats.addItems(list(map(QString, [x.upper() for x in

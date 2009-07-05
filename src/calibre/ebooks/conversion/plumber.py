@@ -20,10 +20,6 @@ def supported_input_formats():
         fmts.add(x)
     return fmts
 
-INPUT_FORMAT_PREFERENCES = ['cbr', 'cbz', 'cbc', 'lit', 'mobi', 'prc', 'azw', 'fb2', 'html',
-        'rtf', 'pdf', 'txt', 'pdb']
-OUTPUT_FORMAT_PREFERENCES = ['epub', 'mobi', 'lit', 'pdf', 'pdb', 'txt']
-
 class OptionValues(object):
     pass
 
