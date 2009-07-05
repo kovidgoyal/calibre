@@ -80,13 +80,6 @@ class Format(QListWidgetItem):
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
                                  text, parent, QListWidgetItem.UserType)
 
-class AuthorCompleter(QCompleter):
-
-    def __init__(self, db):
-        all_authors = db.all_authors()
-        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
-        QCompleter.__init__(self, [x[1] for x in all_authors])
-
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     COVER_FETCH_TIMEOUT = 240 # seconds
@@ -233,8 +226,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover_changed = False
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
-        self._author_completer = AuthorCompleter(self.db)
-        self.authors.setCompleter(self._author_completer)
         self.pubdate.setMinimumDate(QDate(100,1,1))
         self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
