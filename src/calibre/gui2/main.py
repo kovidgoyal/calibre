@@ -1377,7 +1377,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         _('%s has no available formats.')%(title,), show=True)
                     continue
 
-                print prefs['input_format_order']
                 for format in prefs['input_format_order']:
                     if format.lower() in formats:
                         self.view_format(row, format)
