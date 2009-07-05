@@ -15,6 +15,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
 
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.pyparsing import ParseException
 from calibre.library.database2 import FIELD_MAP
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
@@ -240,7 +241,11 @@ class BooksModel(QAbstractTableModel):
             self.count_changed()
 
     def search(self, text, refinement, reset=True):
-        self.db.search(text)
+        try:
+            self.db.search(text)
+        except ParseException:
+            self.emit(SIGNAL('parse_exception()'))
+            return
         self.last_search = text
         if reset:
             self.clear_caches()
@@ -856,7 +861,12 @@ class DeviceBooksModel(BooksModel):
         if not text or not text.strip():
             self.map = list(range(len(self.db)))
         else:
-            matches = self.search_engine.parse(text)
+            try:
+                matches = self.search_engine.parse(text)
+            except ParseException:
+                self.emit(SIGNAL('parse_exception()'))
+                return
+
             self.map = []
             for i in range(len(self.db)):
                 if i in matches:
