@@ -10,7 +10,7 @@ import sys, cPickle
 
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
-from calibre.gui2 import ResizableDialog, NONE, config
+from calibre.gui2 import ResizableDialog, NONE
 from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics, \
         load_specifics
 from calibre.gui2.convert.single_ui import Ui_Dialog
@@ -205,7 +205,7 @@ class Config(ResizableDialog, Ui_Dialog):
         preferred_input_format = preferred_input_format if \
             preferred_input_format in input_formats else \
             sort_formats_by_preference(input_formats,
-                    config['input_format_order'])[0]
+                    prefs['input_format_order'])[0]
         preferred_output_format = preferred_output_format if \
             preferred_output_format in output_formats else \
             sort_formats_by_preference(output_formats,

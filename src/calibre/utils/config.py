@@ -548,6 +548,8 @@ def _prefs():
               help=_('The language in which to display the user interface'))
     c.add_opt('output_format', default='EPUB',
               help=_('The default output format for ebook conversions.'))
+    c.add_opt('input_format_order', default=['EPUB', 'MOBI', 'PRC', 'LIT'],
+              help=_('Order list of formats to prefer for input.'))
     c.add_opt('read_file_metadata', default=True,
               help=_('Read metadata from files'))
     c.add_opt('worker_process_priority', default='normal',

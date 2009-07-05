@@ -338,7 +338,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
 
-        input_map = config['input_format_order']
+        input_map = prefs['input_format_order']
         all_formats = set()
         for fmt in all_input_formats():
             all_formats.add(fmt.upper())
@@ -681,7 +681,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         prefs['network_timeout'] = int(self.timeout.value())
         path = qstring_to_unicode(self.location.text())
         input_cols = [unicode(self.input_order.item(i).data(Qt.UserRole).toString()) for i in range(self.input_order.count())]
-        config['input_format_order'] = input_cols
+        prefs['input_format_order'] = input_cols
         cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
         if not cols:
             cols = ['title']
