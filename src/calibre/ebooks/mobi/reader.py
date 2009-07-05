@@ -345,10 +345,13 @@ class MobiReader(object):
             root.insert(0, head)
         head.text = '\n\t'
         link = head.makeelement('link', {'type':'text/css',
-            'href':'styles.css'})
+            'href':'styles.css', 'rel':'stylesheet'})
         head.insert(0, link)
         link.tail = '\n\t'
         title = head.xpath('descendant::title')
+        m = head.makeelement('meta', {'http-equiv':'Content-Type',
+            'content':'text/html; charset=utf-8'})
+        head.insert(0, m)
         if not title:
             title = head.makeelement('title', {})
             title.text = self.book_header.title
