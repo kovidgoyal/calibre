@@ -42,7 +42,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         self.exec_()
 
-
     def initialize_combos(self):
         self.initalize_authors()
         self.initialize_series()
