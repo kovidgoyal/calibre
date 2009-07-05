@@ -24,6 +24,10 @@ class MOBIOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('When present, use author sort field as author.')
         ),
+        OptionRecommendation(name='no_inline_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Don\'t add Table of Contents to end of book. Useful if '
+                'the book has its own table of contents.')),
         OptionRecommendation(name='toc_title', recommended_value=None,
             help=_('Title for any generated in-line table of contents.')
         ),
@@ -35,8 +39,6 @@ class MOBIOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Disable compression of the file contents.')
         ),
-
-
     ])
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
@@ -49,8 +51,9 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.customize.ui import plugin_for_input_format
         imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
-        tocadder = HTMLTOCAdder(title=opts.toc_title)
-        tocadder(oeb, opts)
+        if not opts.no_inline_toc:
+            tocadder = HTMLTOCAdder(title=opts.toc_title)
+            tocadder(oeb, opts)
         mangler = CaseMangler()
         mangler(oeb, opts)
         rasterizer = SVGRasterizer()
@@ -58,7 +61,6 @@ class MOBIOutput(OutputFormatPlugin):
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
         write_page_breaks_after_item = not input_plugin is plugin_for_input_format('cbz')
-        print 111111, write_page_breaks_after_item
         writer = MobiWriter(opts, imagemax=imagemax,
                 compression=UNCOMPRESSED if opts.dont_compress else PALMDOC,
                             prefer_author_sort=opts.prefer_author_sort,
