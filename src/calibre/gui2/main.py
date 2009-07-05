@@ -47,6 +47,7 @@ from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.customize.ui import available_input_formats
 
 ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
     os.path.expanduser('~/.calibre-gui.socket')
@@ -1349,51 +1350,48 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()
-        if self.current_view() is self.library_view:
-            if not rows or len(rows) == 0:
-                self._launch_viewer()
-                return
 
-            row = rows[0].row()
-            formats = self.library_view.model().db.formats(row).upper()
-            formats = formats.split(',')
-            title   = self.library_view.model().db.title(row)
-            id      = self.library_view.model().db.id(row)
-            format = None
-            if len(formats) == 1:
-                format = formats[0]
-            if 'LRF' in formats:
-                format = 'LRF'
-            if 'EPUB' in formats:
-                format = 'EPUB'
-            if 'MOBI' in formats:
-                format = 'MOBI'
-            if not formats:
-                d = error_dialog(self, _('Cannot view'),
-                        _('%s has no available formats.')%(title,))
-                d.exec_()
-                return
-            if format is None:
-                d = ChooseFormatDialog(self, _('Choose the format to view'),
-                        formats)
-                d.exec_()
-                if d.result() == QDialog.Accepted:
-                    format = d.format()
-                else:
+        if not rows or len(rows) == 0:
+            self._launch_viewer()
+            return
+
+        if len(rows) >= 3:
+            if not question_dialog(self, _('Multiple Books Selected'),
+                _('You are attempting to open %i books. Opening to many '
+                'books at once can be slow and have an negative effect on the '
+                'responsiveness of your computer. Once started the process '
+                'cannot be stopped until complete. Do you wish to continue?'
+                % len(rows))):
                     return
+        
+        if self.current_view() is self.library_view:
+            for row in rows:
+                row = row.row()
 
-            self.view_format(row, format)
+                formats = self.library_view.model().db.formats(row).lower()
+                formats = set(formats.split(',')).intersection(available_input_formats())
+                title   = self.library_view.model().db.title(row)
+
+                if not formats:
+                    error_dialog(self, _('Cannot view'),
+                        _('%s has no available formats.')%(title,), show=True)
+                    continue
+
+                print prefs['input_format_order']
+                for format in prefs['input_format_order']:
+                    if format.lower() in formats:
+                        self.view_format(row, format)
+                        break
         else:
             paths = self.current_view().model().paths(rows)
-            if paths:
+            for path in paths:
                 pt = PersistentTemporaryFile('_viewer_'+\
-                        os.path.splitext(paths[0])[1])
+                        os.path.splitext(path)[1])
                 self.persistent_files.append(pt)
                 pt.close()
                 self.device_manager.view_book(\
                         Dispatcher(self.book_downloaded_for_viewing),
-                                              paths[0], pt.name)
-
+                                              path, pt.name)
 
 
     ############################################################################
