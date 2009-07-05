@@ -180,7 +180,8 @@ def main():
     if not cols: # On windows terminal width is unknown
         cols = 80
 
-    parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat, rm\n\n"+
+    parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand "+
+            "is one of: info, books, df, ls, cp, mkdir, touch, cat, rm, eject\n\n"+
     "For help on a particular command: %prog command", version=__appname__+" version: " + __version__)
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.",
@@ -222,6 +223,8 @@ def main():
             for i in range(3):
                 print "%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),\
                                                                             str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%")
+        elif command == 'eject':
+            dev.eject()
         elif command == "books":
             print "Books in main memory:"
             for book in dev.books():

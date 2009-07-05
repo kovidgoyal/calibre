@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from datetime import datetime
 
 def meta_info_to_oeb_metadata(mi, m, log):
     if mi.title:
@@ -56,6 +57,15 @@ def meta_info_to_oeb_metadata(mi, m, log):
         m.clear('subject')
         for t in mi.tags:
             m.add('subject', t)
+    if mi.pubdate is not None:
+        m.clear('date')
+        m.add('date', mi.pubdate.isoformat())
+    if mi.timestamp is not None:
+        m.clear('timestamp')
+        m.add('timestamp', mi.timestamp.isoformat())
+    if not m.timestamp:
+        m.add('timestamp', datetime.utcnow().isoformat())
+
 
 
 class MergeMetadata(object):

@@ -455,7 +455,7 @@ class Metadata(object):
                          'description', 'format', 'identifier', 'language',
                          'publisher', 'relation', 'rights', 'source',
                          'subject', 'title', 'type'])
-    CALIBRE_TERMS = set(['series', 'series_index', 'rating'])
+    CALIBRE_TERMS = set(['series', 'series_index', 'rating', 'timestamp'])
     OPF_ATTRS     = {'role': OPF('role'), 'file-as': OPF('file-as'),
                      'scheme': OPF('scheme'), 'event': OPF('event'),
                      'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}
@@ -693,6 +693,7 @@ class Metadata(object):
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
         nsrmap = dict((value, key) for key, value in nsmap.items())
+        nsmap.pop('opf', '')
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
@@ -877,7 +878,7 @@ class Manifest(object):
             if title:
                 title = unicode(title[0])
             else:
-                title = 'No title'
+                title = _('Unknown')
 
             return self._parse_xhtml(txt_to_markdown(data, title))
 

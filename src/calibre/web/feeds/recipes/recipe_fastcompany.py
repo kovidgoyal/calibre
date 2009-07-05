@@ -1,0 +1,54 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.fastcompany.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+class FastCompany(BasicNewsRecipe):
+    title                  = 'Fast Company'
+    __author__             = 'Darko Miletic'
+    description            = 'Where ideas and people meet'
+    publisher              = 'fastcompany.com'
+    category               = 'news, technology, gadgets, games'
+    oldest_article         = 15
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = True
+    simultaneous_downloads = 1
+    encoding               = 'utf-8'
+    lang                   = 'en'
+    language               = _('English')
+
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        ]
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
+    remove_tags         = [dict(name=['embed','object']), dict(name='div',attrs={'class':'feedflare'})]
+
+    feeds          = [(u'All News', u'http://feeds.feedburner.com/fastcompany/headlines')]
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
+    def preprocess_html(self, soup):
+        soup.html['xml:lang'] = self.lang
+        soup.html['lang']     = self.lang
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        for item in soup.findAll('a'):
+            sp = item['href'].find('http://feedads.g.doubleclick.net/')
+            if sp != -1:
+               item.extract()
+        return self.adeify_images(soup)
+

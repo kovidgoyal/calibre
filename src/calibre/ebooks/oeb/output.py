@@ -28,9 +28,8 @@ class OEBOutput(OutputFormatPlugin):
                 href, root = results.pop(key, [None, None])
                 if root is not None:
                     raw = etree.tostring(root, pretty_print=True,
-                            encoding='utf-8')
+                            encoding='utf-8', xml_declaration=True)
                     with open(href, 'wb') as f:
-                        f.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
                         f.write(raw)
 
             for item in oeb_book.manifest:

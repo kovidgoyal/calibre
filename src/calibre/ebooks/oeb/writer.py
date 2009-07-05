@@ -35,7 +35,7 @@ class OEBWriter(object):
             help=_('OPF version to generate. Default is %default.'))
         oeb('adobe_page_map', ['--adobe-page-map'], default=False,
             help=_('Generate an Adobe "page-map" file if pagination '
-                   'information is avaliable.'))
+                   'information is available.'))
         return cfg
 
     @classmethod
