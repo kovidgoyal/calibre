@@ -45,16 +45,6 @@
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
-            <property name="buddy">
-             <cstring>authors</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="EnLineEdit" name="authors">
-            <property name="toolTip">
-             <string>Change the author(s) of this book. Multiple authors should be separated by an &amp;. If the author name contains an &amp;, use &amp;&amp; to represent it.</string>
-            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -64,9 +54,6 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy">
-             <cstring>authors</cstring>
             </property>
            </widget>
           </item>
@@ -117,16 +104,6 @@
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
-            <property name="buddy">
-             <cstring>publisher</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1" colspan="2">
-           <widget class="EnLineEdit" name="publisher">
-            <property name="toolTip">
-             <string>Change the publisher of this book</string>
-            </property>
            </widget>
           </item>
           <item row="5" column="0">
@@ -143,7 +120,7 @@
            </widget>
           </item>
           <item row="5" column="1">
-           <widget class="EnLineEdit" name="tags">
+           <widget class="TagsLineEdit" name="tags">
             <property name="toolTip">
              <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
             </property>
@@ -174,7 +151,7 @@
            </widget>
           </item>
           <item row="6" column="1" colspan="2">
-           <widget class="EnLineEdit" name="remove_tags">
+           <widget class="TagsLineEdit" name="remove_tags">
             <property name="toolTip">
              <string>Comma separated list of tags to remove from the books. </string>
             </property>
@@ -235,6 +212,20 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="EnComboBox" name="authors">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="EnComboBox" name="publisher">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -263,6 +254,11 @@
   <customwidget>
    <class>EnComboBox</class>
    <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TagsLineEdit</class>
+   <extends>QLineEdit</extends>
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>
