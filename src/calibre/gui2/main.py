@@ -1368,8 +1368,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             for row in rows:
                 row = row.row()
 
-                formats = self.library_view.model().db.formats(row).lower()
-                formats = set(formats.split(',')).intersection(available_input_formats())
+                formats = self.library_view.model().db.formats(row).upper()
+                formats = formats.split(',')
                 title   = self.library_view.model().db.title(row)
 
                 if not formats:
@@ -1377,10 +1377,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         _('%s has no available formats.')%(title,), show=True)
                     continue
 
+                in_prefs = False
                 for format in prefs['input_format_order']:
-                    if format.lower() in formats:
+                    if format in formats:
+                        in_prefs = True
                         self.view_format(row, format)
                         break
+                if not in_prefs:
+                    self.view_format(row, format[0])
         else:
             paths = self.current_view().model().paths(rows)
             for path in paths:
