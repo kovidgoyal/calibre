@@ -222,7 +222,7 @@
                  <item row="5" column="1" colspan="2">
                   <layout class="QHBoxLayout" name="_2">
                    <item>
-                    <widget class="EnLineEdit" name="tags">
+                    <widget class="TagsLineEdit" name="tags">
                      <property name="toolTip">
                       <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
                      </property>
@@ -650,6 +650,11 @@
   <customwidget>
    <class>EnComboBox</class>
    <extends>QComboBox</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TagsLineEdit</class>
+   <extends>QLineEdit</extends>
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>

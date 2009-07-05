@@ -19,7 +19,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database2 import FIELD_MAP
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
-from calibre.gui2.widgets import EnLineEdit
+from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx
@@ -118,50 +118,6 @@ class TextDelegate(QStyledItemDelegate):
         editor = EnLineEdit(parent)
         return editor
 
-class CompleterLineEdit(EnLineEdit):
-
-    def __init__(self, *args):
-        EnLineEdit.__init__(self, *args)
-
-        QObject.connect(self, SIGNAL('textChanged(QString)'), self.text_changed)
-
-    def text_changed(self, text):
-        all_text = qstring_to_unicode(text)
-        text = all_text[:self.cursorPosition()]
-        prefix = text.split(',')[-1].strip()
-
-        text_tags = []
-        for t in all_text.split(','):
-            t1 = qstring_to_unicode(t).strip()
-            if t1 != '':
-                text_tags.append(t)
-        text_tags = list(set(text_tags))
-
-        self.emit(SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'), text_tags, prefix)
-
-    def complete_text(self, text):
-        cursor_pos = self.cursorPosition()
-        before_text = qstring_to_unicode(self.text())[:cursor_pos]
-        after_text = qstring_to_unicode(self.text())[cursor_pos:]
-        prefix_len = len(before_text.split(',')[-1].strip())
-        self.setText('%s%s, %s' % (before_text[:cursor_pos - prefix_len], text, after_text))
-        self.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
-
-class TagsCompleter(QCompleter):
-
-    def __init__(self, parent, all_tags):
-        QCompleter.__init__(self, all_tags, parent)
-        self.all_tags = set(all_tags)
-
-    def update(self, text_tags, completion_prefix):
-        tags = list(self.all_tags.difference(text_tags))
-        model = QStringListModel(tags, self)
-        self.setModel(model)
-        
-        self.setCompletionPrefix(completion_prefix)
-        if completion_prefix.strip() != '':
-            self.complete()
-
 class TagsDelegate(QStyledItemDelegate):
 
     def __init__(self, parent):
@@ -172,18 +128,10 @@ class TagsDelegate(QStyledItemDelegate):
         self.db = db
 
     def createEditor(self, parent, option, index):
-        editor = CompleterLineEdit(parent)
         if self.db:
-            completer = TagsCompleter(editor, self.db.all_tags())
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-
-            QObject.connect(editor,
-                SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'),
-                completer.update)
-            QObject.connect(completer, SIGNAL('activated(QString)'),
-                editor.complete_text)
-
-            completer.setWidget(editor)
+            editor = TagsLineEdit(parent, self.db.all_tags())
+        else:
+            editor = EnLineEdit(parent)
         return editor
 
 class BooksModel(QAbstractTableModel):
