@@ -9,7 +9,8 @@ from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, \
-                        QPalette, QImage, QApplication, QMenu, QStyledItemDelegate
+                        QPalette, QImage, QApplication, QMenu, \
+                        QStyledItemDelegate, QCompleter, QStringListModel
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
@@ -117,6 +118,74 @@ class TextDelegate(QStyledItemDelegate):
         editor = EnLineEdit(parent)
         return editor
 
+class CompleterLineEdit(EnLineEdit):
+
+    def __init__(self, *args):
+        EnLineEdit.__init__(self, *args)
+
+        QObject.connect(self, SIGNAL('textChanged(QString)'), self.text_changed)
+
+    def text_changed(self, text):
+        all_text = qstring_to_unicode(text)
+        text = all_text[:self.cursorPosition()]
+        prefix = text.split(',')[-1].strip()
+
+        text_tags = []
+        for t in all_text.split(','):
+            t1 = qstring_to_unicode(t).strip()
+            if t1 != '':
+                text_tags.append(t)
+        text_tags = list(set(text_tags))
+
+        self.emit(SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'), text_tags, prefix)
+
+    def complete_text(self, text):
+        cursor_pos = self.cursorPosition()
+        before_text = qstring_to_unicode(self.text())[:cursor_pos]
+        after_text = qstring_to_unicode(self.text())[cursor_pos:]
+        prefix_len = len(before_text.split(',')[-1].strip())
+        self.setText('%s%s, %s' % (before_text[:cursor_pos - prefix_len], text, after_text))
+        self.setCursorPosition(cursor_pos - prefix_len + len(text) + 2)
+
+class TagsCompleter(QCompleter):
+
+    def __init__(self, parent, all_tags):
+        QCompleter.__init__(self, all_tags, parent)
+        self.all_tags = set(all_tags)
+
+    def update(self, text_tags, completion_prefix):
+        tags = list(self.all_tags.difference(text_tags))
+        model = QStringListModel(tags, self)
+        self.setModel(model)
+        
+        self.setCompletionPrefix(completion_prefix)
+        if completion_prefix.strip() != '':
+            self.complete()
+
+class TagsDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.db = None
+
+    def set_database(self, db):
+        self.db = db
+
+    def createEditor(self, parent, option, index):
+        editor = CompleterLineEdit(parent)
+        if self.db:
+            completer = TagsCompleter(editor, self.db.all_tags())
+            completer.setCaseSensitivity(Qt.CaseInsensitive)
+
+            QObject.connect(editor,
+                SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'),
+                completer.update)
+            QObject.connect(completer, SIGNAL('activated(QString)'),
+                editor.complete_text)
+
+            completer.setWidget(editor)
+        return editor
+
 class BooksModel(QAbstractTableModel):
     headers = {
                         'title'     : _("Title"),
@@ -165,8 +234,13 @@ class BooksModel(QAbstractTableModel):
                 pidx = self.column_map.index('pubdate')
             except ValueError:
                 pidx = -1
+            try:
+                taidx = self.column_map.index('tags')
+            except ValueError:
+                taidx = -1
 
-            self.emit(SIGNAL('columns_sorted(int,int,int)'), idx, tidx, pidx)
+            self.emit(SIGNAL('columns_sorted(int,int,int,int)'), idx, tidx, pidx,
+                taidx)
 
 
     def set_database(self, db):
@@ -660,6 +734,7 @@ class BooksView(TableView):
         self.rating_delegate = LibraryDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
+        self.tags_delegate = TagsDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -671,15 +746,16 @@ class BooksView(TableView):
             cm = self._model.column_map
             self.columns_sorted(cm.index('rating') if 'rating' in cm else -1,
                             cm.index('timestamp') if 'timestamp' in cm else -1,
-                            cm.index('pubdate') if 'pubdate' in cm else -1)
+                            cm.index('pubdate') if 'pubdate' in cm else -1,
+                            cm.index('tags') if 'tags' in cm else -1)
         except ValueError:
             pass
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        self.connect(self._model, SIGNAL('columns_sorted(int,int,int)'),
+        self.connect(self._model, SIGNAL('columns_sorted(int,int,int,int)'),
                 self.columns_sorted, Qt.QueuedConnection)
 
-    def columns_sorted(self, rating_col, timestamp_col, pubdate_col):
+    def columns_sorted(self, rating_col, timestamp_col, pubdate_col, tags_col):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
                     self.timestamp_delegate, self.pubdate_delegate):
@@ -690,6 +766,8 @@ class BooksView(TableView):
             self.setItemDelegateForColumn(timestamp_col, self.timestamp_delegate)
         if pubdate_col > -1:
             self.setItemDelegateForColumn(pubdate_col, self.pubdate_delegate)
+        if tags_col > -1:
+            self.setItemDelegateForColumn(tags_col, self.tags_delegate)
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, similar_menu=None):
@@ -752,6 +830,7 @@ class BooksView(TableView):
 
     def set_database(self, db):
         self._model.set_database(db)
+        self.tags_delegate.set_database(db)
 
     def close(self):
         self._model.close()
