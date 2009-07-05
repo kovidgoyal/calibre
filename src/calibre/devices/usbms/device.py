@@ -7,7 +7,7 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import os, subprocess, time, re, sys, glob
+import os, subprocess, time, re, sys, glob, shutil
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -548,13 +548,23 @@ class Device(DeviceConfig, DevicePlugin):
         drives = self.find_device_nodes()
         for drive in drives:
             if drive:
-                cmd = ['pumount']
+                cmd = ['pumount', '-l']
                 try:
                     p = subprocess.Popen(cmd + [drive])
                 except:
                     pass
                 while p.poll() is None:
                     time.sleep(0.1)
+            if p.returncode == 0:
+                for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
+                    x = getattr(self, x, None)
+                    if x is not None:
+                        if x.startswith('/media/') and os.path.exists(x):
+                            try:
+                                shutil.rmtree(x)
+                            except:
+                                pass
+
 
     def eject(self):
         if islinux:
