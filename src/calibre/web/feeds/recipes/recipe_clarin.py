@@ -7,8 +7,8 @@ clarin.com
 '''
 
 from calibre import strftime
-
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Clarin(BasicNewsRecipe):
     title                 = 'Clarin'
@@ -22,14 +22,19 @@ class Clarin(BasicNewsRecipe):
     no_stylesheets        = True
     cover_url             = strftime('http://www.clarin.com/diario/%Y/%m/%d/portada.jpg')
     remove_javascript     = True
-    
+    encoding              = 'cp1252'
+    language              = _('Spanish')
+    lang                  = 'es-AR'
+    direction             = 'ltr'
+    extra_css             = ' .Txt{ font-family: sans-serif } .Volan{ font-family: sans-serif; font-size: x-small} .Pie{ font-family: sans-serif; font-size: x-small} .Copete{font-family: sans-serif; font-size: large} .Hora{font-family: sans-serif; font-size: large} .Autor{font-family: sans-serif; font-size: small} '
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\npretty_print=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
 
     remove_tags = [
                      dict(name='a'   , attrs={'class':'Imp'   })
@@ -48,17 +53,20 @@ class Clarin(BasicNewsRecipe):
               ,(u'Deportes'      , u'http://www.clarin.com/diario/hoy/deportes.xml'     )
             ]
 
-    def get_article_url(self, article):
-        artl  = article.get('link',  None)
-        rest  = artl.partition('-0')[-1]
+    def print_version(self, url):
+        rest  = url.partition('-0')[-1]
         lmain = rest.partition('.')[0]
-        return 'http://www.servicios.clarin.com/notas/jsp/clarin/v9/notas/imprimir.jsp?pagid=' + lmain
+        lurl = u'http://www.servicios.clarin.com/notas/jsp/clarin/v9/notas/imprimir.jsp?pagid=' + lmain
+        return lurl
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
-        soup.head.insert(0,mtag)    
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
 
-    language = _('Spanish')
