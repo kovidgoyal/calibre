@@ -1831,7 +1831,7 @@ class MobiWriter(object):
         # Add the klass of this node
         ctoc_name_map['klass'] = node.klass
 
-        if node.klass == 'chapter' :
+        if node.klass == 'chapter':
             # Add title offset to name map
             ctoc_name_map['titleOffset'] = ctoc.tell()
             ctoc.write(decint(len(t), DECINT_FORWARD)+t)
@@ -1980,7 +1980,12 @@ class MobiWriter(object):
         elif self._periodicalCount and self._sectionCount == 1 :
             mobiType = 0x102
         elif self._periodicalCount and self._sectionCount > 1 :
-            mobiType = 0x103             # Could also be 0x101 - need cli switch
+            pt = None
+            if self._oeb.metadata.publication_type:
+                x = self._oeb.metadata.publication_type[0].split(':')
+                if len(x) > 1:
+                    pt = x[1]
+            mobiType = {'newspaper':0x101}.get(pt, 0x103)
         else :
             raise NotImplementedError('_generate_ctoc: Unrecognized document structured')
 
