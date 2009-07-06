@@ -1820,7 +1820,6 @@ class MobiWriter(object):
         # Process 'periodical', 'section' and 'article'
         if node.klass is None :
             return
-
         t = node.title if title is None else title
         t = self._clean_text_value(t)
         self._last_toc_entry = t
@@ -1982,7 +1981,7 @@ class MobiWriter(object):
         elif self._periodicalCount and self._sectionCount > 1 :
             pt = None
             if self._oeb.metadata.publication_type:
-                x = self._oeb.metadata.publication_type[0].split(':')
+                x = unicode(self._oeb.metadata.publication_type[0]).split(':')
                 if len(x) > 1:
                     pt = x[1]
             mobiType = {'newspaper':0x101}.get(pt, 0x103)

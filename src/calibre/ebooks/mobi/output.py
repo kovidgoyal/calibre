@@ -40,7 +40,7 @@ class MOBIOutput(OutputFormatPlugin):
 
     def check_for_periodical(self):
         if self.oeb.metadata.publication_type and \
-            self.oeb.metadata.publication_type[0].startswith('periodical:'):
+            unicode(self.oeb.metadata.publication_type[0]).startswith('periodical:'):
                 self.periodicalize_toc()
                 self.check_for_masthead()
                 self.opts.mobi_periodical = True
@@ -54,7 +54,7 @@ class MOBIOutput(OutputFormatPlugin):
                 found = True
                 break
         if not found:
-            self.oeb.debug('No masthead found, generating default one...')
+            self.oeb.log.debug('No masthead found, generating default one...')
             from calibre.resources import server_resources
             try:
                 from PIL import Image as PILImage
@@ -84,12 +84,16 @@ class MOBIOutput(OutputFormatPlugin):
                     sections[0].append(x)
             else:
                 sections = list(toc)
+                for x in sections:
+                    x.klass = 'section'
             for sec in sections:
                 articles[id(sec)] = []
                 for a in list(sec):
+                    a.klass = 'article'
                     articles[id(sec)].append(a)
                     sec.nodes.remove(a)
-            root = TOC(klass='periodical', title=self.oeb.metadata.title[0])
+            root = TOC(klass='periodical',
+                    title=unicode(self.oeb.metadata.title[0]))
             for s in sections:
                 if articles[id(s)]:
                     for a in articles[id(s)]:
