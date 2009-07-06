@@ -63,9 +63,14 @@ def meta_info_to_oeb_metadata(mi, m, log):
     if mi.timestamp is not None:
         m.clear('timestamp')
         m.add('timestamp', mi.timestamp.isoformat())
+    if mi.rights is not None:
+        m.clear('rights')
+        m.add('rights', mi.rights)
+    if mi.publication_type is not None:
+        m.clear('publication_type')
+        m.add('publication_type', mi.publication_type)
     if not m.timestamp:
         m.add('timestamp', datetime.utcnow().isoformat())
-
 
 
 class MergeMetadata(object):

@@ -7,6 +7,7 @@ import re
      xml:lang="en" 
      xmlns="http://www.daisy.org/z3986/2005/ncx/"
      xmlns:py="http://genshi.edgewall.org/"
+     xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata"
 >
     <head>
         <meta name="dtb:uid" content="${uid}"/>
@@ -23,6 +24,8 @@ import re
                 ${'%*s'%(4*level,'')}<text>${re.sub(r'\s+', ' ', np.text)}</text>
             ${'%*s'%(4*level,'')}</navLabel>
             ${'%*s'%(4*level,'')}<content src="${unicode(np.href)+(('#' + unicode(np.fragment)) if np.fragment else '')}" />
+            ${'%*s'%(4*level,'')}<calibre:meta py:if="np.author" name="author">${np.author}</calibre:meta>
+            ${'%*s'%(4*level,'')}<calibre:meta py:if="np.description" name="description">${np.description}</calibre:meta>
             <py:for each="np2 in np">${navpoint(np2, level+1)}</py:for>
         ${'%*s'%(4*level,'')}</navPoint>
     </py:def>

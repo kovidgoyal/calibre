@@ -13,6 +13,7 @@ from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML
 from calibre.ebooks import ConversionError
+
 def XPath(x):
     try:
         return etree.XPath(x, namespaces=XPNSMAP)

@@ -19,6 +19,7 @@
         <meta py:if="mi.series_index is not None" name="calibre:series_index" content="${mi.format_series_index()}"/>
         <meta py:if="mi.rating is not None" name="calibre:rating" content="${mi.rating}"/>
         <meta py:if="mi.timestamp is not None" name="calibre:timestamp" content="${mi.timestamp.isoformat()}"/>
+        <meta py:if="mi.publication_type is not None" name="calibre:publication_type" content="${mi.publication_type}" />
         <py:for each="tag in mi.tags">
         <dc:subject py:if="mi.tags is not None">${tag}</dc:subject>
         </py:for>

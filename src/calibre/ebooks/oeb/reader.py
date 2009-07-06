@@ -335,14 +335,14 @@ class OEBReader(object):
             po = int(child.get('playOrder', self.oeb.toc.next_play_order()))
 
             authorElement = xpath(child,
-                    'descendant::mbp:meta[@name = "author"]')
+                    'descendant::calibre:meta[@name = "author"]')
             if authorElement :
                 author = authorElement[0].text
             else :
                 author = None
 
             descriptionElement = xpath(child,
-                    'descendant::mbp:meta[@name = "description"]')
+                    'descendant::calibre:meta[@name = "description"]')
             if descriptionElement :
                 description = descriptionElement[0].text
             else :

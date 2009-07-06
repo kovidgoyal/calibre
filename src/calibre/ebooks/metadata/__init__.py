@@ -218,7 +218,7 @@ class MetaInformation(object):
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
                      'manifest', 'spine', 'toc', 'cover', 'language',
                      'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
-                     'pubdate'):
+                     'pubdate', 'rights', 'publication_type'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
 
@@ -243,7 +243,8 @@ class MetaInformation(object):
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher',
                   'series', 'series_index', 'rating', 'isbn', 'language',
                   'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
-                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate'
+                  'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate',
+                  'rights', 'publication_type',
                   ):
             setattr(self, x, getattr(mi, x, None))
 
@@ -262,7 +263,8 @@ class MetaInformation(object):
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc',
                      'cover', 'language', 'guide', 'book_producer',
-                     'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate'):
+                     'timestamp', 'lccn', 'lcc', 'ddc', 'pubdate', 'rights',
+                     'publication_type'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
@@ -332,6 +334,8 @@ class MetaInformation(object):
             fmt('Timestamp', self.timestamp.isoformat(' '))
         if self.pubdate is not None:
             fmt('Published', self.pubdate.isoformat(' '))
+        if self.rights is not None:
+            fmt('Rights', unicode(self.rights))
         if self.lccn:
             fmt('LCCN', unicode(self.lccn))
         if self.lcc:
@@ -362,6 +366,8 @@ class MetaInformation(object):
             ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
         if self.pubdate is not None:
             ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
+        if self.rights is not None:
+            ans += [(_('Rights'), unicode(self.rights.isoformat(' ')))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)

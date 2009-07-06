@@ -225,8 +225,6 @@ class EPUBOutput(OutputFormatPlugin):
             if 'titlepage' in self.oeb.guide.refs:
                 self.oeb.guide.refs['titlepage'].href = item.href
 
-
-
     def condense_ncx(self, ncx_path):
         if not self.opts.pretty_print:
             tree = etree.parse(ncx_path)
@@ -237,8 +235,6 @@ class EPUBOutput(OutputFormatPlugin):
                     tag.tail = tag.tail.strip()
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
             open(ncx_path, 'wb').write(compressed)
-
-
 
     def workaround_ade_quirks(self):
         '''
