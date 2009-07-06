@@ -1954,7 +1954,7 @@ class MobiWriter(object):
                 first = False
         else :
             self._oeb.logger.info('Generating flat CTOC ...')
-            for (i, child) in enumerate(toc.iter()):
+            for (i, child) in enumerate(toc.iterdescendants()):
                 # Only add chapters or articles at depth==1
                 # no class defaults to 'chapter'
                 if child.klass is None : child.klass = 'chapter'
