@@ -51,8 +51,10 @@ recipe_modules = ['recipe_' + r for r in (
            'theeconomictimes_india', '7dias', 'buenosaireseconomico',
            'diagonales', 'miradasalsur', 'newsweek_argentina', 'veintitres',
            'gva_be', 'hln', 'tijd', 'degentenaar', 'inquirer_net', 'uncrate',
-           'fastcompany', 'accountancyage',
+           'fastcompany', 'accountancyage', 'laprensa_hn', 'latribuna',
+           'eltiempo_hn',
           )]
+
 
 import re, imp, inspect, time, os
 from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe

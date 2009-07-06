@@ -1,0 +1,52 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.tiempo.hn
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+
+class ElTiempoHn(BasicNewsRecipe):
+    title                 = 'El Tiempo - Honduras'
+    __author__            = 'Darko Miletic'
+    description           = 'Noticias de Honduras y mundo'
+    publisher             = 'El Tiempo'
+    category              = 'news, politics, Honduras'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    no_stylesheets        = True
+    remove_javascript     = True
+    encoding              = 'utf-8'
+    language              = _('Spanish')
+    lang                  = 'es-HN'
+    direction             = 'ltr'
+    
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        , '--ignore-tables'
+                        ]
+    
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True\npretty_print=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} img {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em}"' 
+
+    remove_tags = [dict(name=['form','object','embed','base'])]
+
+    keep_only_tags = [dict(name='td' , attrs={'id':'mainbodycont'})]
+
+    feeds = [(u'Noticias', u'http://www.tiempo.hn/index.php?format=feed&type=rss')]
+
+    def preprocess_html(self, soup):
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
