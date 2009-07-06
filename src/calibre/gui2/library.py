@@ -10,7 +10,7 @@ from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, \
                         QPalette, QImage, QApplication, QMenu, \
-                        QStyledItemDelegate, QCompleter, QStringListModel
+                        QStyledItemDelegate, QCompleter
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
@@ -114,8 +114,26 @@ class PubDateDelegate(QStyledItemDelegate):
 
 class TextDelegate(QStyledItemDelegate):
 
+    def __init__(self, parent):
+        '''
+        Delegate for text data. If auto_complete_function needs to return a list
+        of text items to auto-complete with. The funciton is None no
+        auto-complete will be used.
+        '''
+        QStyledItemDelegate.__init__(self, parent)
+        self.auto_complete_function = None
+
+    def set_auto_complete_function(self, f):
+        self.auto_complete_function = f
+
     def createEditor(self, parent, option, index):
         editor = EnLineEdit(parent)
+        if self.auto_complete_function:
+            complete_items = [i[1] for i in self.auto_complete_function()]
+            completer = QCompleter(complete_items, self)
+            completer.setCaseSensitivity(Qt.CaseInsensitive)
+            completer.setCompletionMode(QCompleter.InlineCompletion)
+            editor.setCompleter(completer)
         return editor
 
 class TagsDelegate(QStyledItemDelegate):
@@ -170,26 +188,7 @@ class BooksModel(QAbstractTableModel):
         if cols != self.column_map:
             self.column_map = cols
             self.reset()
-            try:
-                idx = self.column_map.index('rating')
-            except ValueError:
-                idx = -1
-            try:
-                tidx = self.column_map.index('timestamp')
-            except ValueError:
-                tidx = -1
-            try:
-                pidx = self.column_map.index('pubdate')
-            except ValueError:
-                pidx = -1
-            try:
-                taidx = self.column_map.index('tags')
-            except ValueError:
-                taidx = -1
-
-            self.emit(SIGNAL('columns_sorted(int,int,int,int)'), idx, tidx, pidx,
-                taidx)
-
+            self.emit(SIGNAL('columns_sorted()'))
 
     def set_database(self, db):
         self.db = db
@@ -670,6 +669,9 @@ class BooksView(TableView):
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
         self.tags_delegate = TagsDelegate(self)
+        self.authors_delegate = TextDelegate(self)
+        self.series_delegate = TextDelegate(self)
+        self.publisher_delegate = TextDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -677,32 +679,34 @@ class BooksView(TableView):
         self.setSortingEnabled(True)
         for i in range(10):
             self.setItemDelegateForColumn(i, TextDelegate(self))
-        try:
-            cm = self._model.column_map
-            self.columns_sorted(cm.index('rating') if 'rating' in cm else -1,
-                            cm.index('timestamp') if 'timestamp' in cm else -1,
-                            cm.index('pubdate') if 'pubdate' in cm else -1,
-                            cm.index('tags') if 'tags' in cm else -1)
-        except ValueError:
-            pass
+        self.columns_sorted()
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        self.connect(self._model, SIGNAL('columns_sorted(int,int,int,int)'),
+        self.connect(self._model, SIGNAL('columns_sorted()'),
                 self.columns_sorted, Qt.QueuedConnection)
 
-    def columns_sorted(self, rating_col, timestamp_col, pubdate_col, tags_col):
+    def columns_sorted(self):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
                     self.timestamp_delegate, self.pubdate_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
-        if rating_col > -1:
-            self.setItemDelegateForColumn(rating_col, self.rating_delegate)
-        if timestamp_col > -1:
-            self.setItemDelegateForColumn(timestamp_col, self.timestamp_delegate)
-        if pubdate_col > -1:
-            self.setItemDelegateForColumn(pubdate_col, self.pubdate_delegate)
-        if tags_col > -1:
-            self.setItemDelegateForColumn(tags_col, self.tags_delegate)
+
+        cm = self._model.column_map
+
+        if 'rating' in cm:
+            self.setItemDelegateForColumn(cm.index('rating'), self.rating_delegate)
+        if 'timestamp' in cm:
+            self.setItemDelegateForColumn(cm.index('timestamp'), self.timestamp_delegate)
+        if 'pubdate' in cm:
+            self.setItemDelegateForColumn(cm.index('pubdate'), self.pubdate_delegate)
+        if 'tags' in cm:
+            self.setItemDelegateForColumn(cm.index('tags'), self.tags_delegate)
+        if 'authors' in cm:
+            self.setItemDelegateForColumn(cm.index('authors'), self.authors_delegate)
+        if 'publisher' in cm:
+            self.setItemDelegateForColumn(cm.index('publisher'), self.publisher_delegate)
+        if 'series' in cm:
+            self.setItemDelegateForColumn(cm.index('series'), self.series_delegate)
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, similar_menu=None):
@@ -766,6 +770,9 @@ class BooksView(TableView):
     def set_database(self, db):
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
+        self.authors_delegate.set_auto_complete_function(db.all_authors)
+        self.series_delegate.set_auto_complete_function(db.all_series)
+        self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 
     def close(self):
         self._model.close()
