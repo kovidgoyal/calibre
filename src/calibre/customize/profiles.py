@@ -250,6 +250,19 @@ class KindleDXOutput(OutputProfile):
     def tags_to_string(cls, tags):
         return 'ttt '.join(tags)+'ttt '
 
+class IlliadOutput(OutputProfile):
+
+    name        = 'Illiad'
+    short_name  = 'illiad'
+    description = _('This profile is intended for the Irex Illiad.')
+
+    screen_size               = (760, 925)
+    comic_screen_size         = (760, 925)
+    dpi                       = 160.0
+    fbase                     = 12
+    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+
+
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,

@@ -40,6 +40,7 @@ EXTH_CODES = {
     'description': 103,
     'identifier': 104,
     'subject': 105,
+    'pubdate': 106,
     'date': 106,
     'review': 107,
     'contributor': 108,
@@ -219,8 +220,9 @@ class Serializer(object):
 
     def serialize_body(self):
         buffer = self.buffer
-        buffer.write('<body>')
         self.anchor_offset = buffer.tell()
+        buffer.write('<body>')
+        self.anchor_offset_kindle = buffer.tell()
         # CybookG3 'Start Reading' link
         if 'text' in self.oeb.guide:
             href = self.oeb.guide['text'].href
@@ -328,12 +330,16 @@ class MobiWriter(object):
         self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
         self._prefer_author_sort = prefer_author_sort
         self._primary_index_record = None
-        self._hasValideNCXEntries = False
+        self._conforming_periodical_toc = False
+        self._indexable = False
         self._ctoc = ""
         self._HTMLRecords = []
         self._tbSequence = ""
+        self._MobiDoc = None
+        self._anchor_offset_kindle = 0
         self._initialIndexRecordFound = False
-
+        self._firstSectionConcluded = False
+        self._currentSectionIndex = 0
 
     @classmethod
     def generate(cls, opts):
@@ -368,19 +374,28 @@ class MobiWriter(object):
     def _generate_content(self):
         self._map_image_names()
         self._generate_text()
-        #if INDEXING and not self.opts.no_mobi_index:
-        if INDEXING and self._hasValidNCXEntries :
+
+        if INDEXING and self._indexable :
             try:
                 self._generate_index()
             except:
-                self._oeb.log.exception('Failed to generate index')
+                self.oeb.log.exception('Failed to generate index')
+
         self._generate_images()
 
     def _map_image_names(self):
         index = 1
         self._images = images = {}
+        mh_href = None
+
+        if 'masthead' in self._oeb.guide:
+            mh_href = self._oeb.guide['masthead'].href
+            images[mh_href] = 1
+            index += 1
+
         for item in self._oeb.manifest.values():
             if item.media_type in OEB_RASTER_IMAGES:
+                if item.href == mh_href: continue
                 images[item.href] = index
                 index += 1
 
@@ -414,10 +429,10 @@ class MobiWriter(object):
         text.seek(npos)
         return data, overlap
 
-    def _build_HTMLRecords_Data_List(self):
+    def _generate_flat_indexed_navpoints(self):
         # Assemble a HTMLRecordData instance for each HTML record
         # Return True if valid, False if invalid
-        self._oeb.logger.info('Indexing navPoints ...')
+        self._oeb.logger.info('Indexing flat navPoints ...')
 
         numberOfHTMLRecords = ( self._content_length // RECORD_SIZE ) + 1
 
@@ -436,18 +451,18 @@ class MobiWriter(object):
         length = 0
         entries = list(toc.iter())[1:]
 
-
         # Get offset, length per entry
-        for i, child in enumerate(entries):
-
-            '''
+        for (i, child) in enumerate(entries):
             if not child.title or not child.title.strip():
                 child.title = "(none)"
-            '''
+
+            if not child.title or not child.title.strip():
+                child.title = "(none)"
+
             h = child.href
             if h not in self._id_offsets:
-                self._oeb.log.warning('Could not find TOC entry:', child.title)
-                continue
+                self._oeb.log.warning('Could not find TOC entry "%s", aborting indexing ...'% child.title)
+                return False
             offset = self._id_offsets[h]
 
             length = None
@@ -463,13 +478,21 @@ class MobiWriter(object):
             if length is None:
                 length = self._content_length - offset
 
-            # Look a gap between nodes
-            if (i) :
+            if self.opts.verbose > 3 :
+                self._oeb.logger.info("child %03d: %s" % (i, child))
+                self._oeb.logger.info("    title: %s" % child.title)
+                self._oeb.logger.info("    depth: %d" % child.depth())
+                self._oeb.logger.info("   offset: 0x%06X \tlength: 0x%06X \tnext: 0x%06X" % (offset, length, offset + length))
+
+            # Look a gap between chapter nodes.  Don't evaluate periodical or section nodes
+            if (i and child.depth() == 1 and entries[i-1].depth() == 1) :
                 if offset != previousOffset + previousLength :
-                    self._oeb.log.warning("\tnodes %d and %d have a gap:" % (i-1, i))
-                    self._oeb.log.warning("\tnode %d offset: 0x%X \t node %d: offset: 0x%X length: 0x%X" % \
-                        (i, offset, i-1, previousOffset, previousLength) )
-                    self._oeb.log.warning('Failed to generate index')
+                    self._oeb.log.warning("*** TOC discontinuity ***")
+                    self._oeb.log.warning(" node %03d: '%s' offset: 0x%X length: 0x%X" % \
+                        (i-1, entries[i-1].title, previousOffset, previousLength) )
+                    self._oeb.log.warning(" node %03d: '%s' offset: 0x%X != 0x%06X" % \
+                        (i, child.title, offset, previousOffset + previousLength) )
+                    self._oeb.log.warning('_generate_flat_indexed_navpoints: Failed to generate index')
                     # Zero out self._HTMLRecords, return False
                     self._HTMLRecords = []
                     last_name = None
@@ -501,13 +524,178 @@ class MobiWriter(object):
                     self._HTMLRecords[interimSpanRecord].continuingNode = myIndex
                     self._HTMLRecords[interimSpanRecord].currentSectionNodeCount = 1
                     interimSpanRecord += 1
-                if self.opts.verbose > 3 :self._oeb.logger.info("\tnode %03d %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
+                if self.opts.verbose > 3 :self._oeb.logger.info(" node %03d: %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, child.title if child.title.strip() > "" else "(missing)", myStartingRecord, interimSpanRecord, offset, length) )
             else :
-                if self.opts.verbose > 3 : self._oeb.logger.info("\tnode %03d %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
+                if self.opts.verbose > 3 : self._oeb.logger.info(" node %03d: %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, child.title if child.title.strip() > "" else "(missing)", myStartingRecord, myStartingRecord, offset, length) )
 
-            ctoc_offset = self._ctoc_map[child]
+            last_name = "%04X" % myIndex
+            myIndex += 1
+
+        # Successfully parsed the entries
+        return True
+
+    def _generate_indexed_navpoints(self):
+        # Assemble a HTMLRecordData instance for each HTML record
+        # Return True if valid, False if invalid
+        self._oeb.logger.info('Indexing navPoints ...')
+
+        numberOfHTMLRecords = ( self._content_length // RECORD_SIZE ) + 1
+
+        # Create a list of HTMLRecordData class instances
+        x = numberOfHTMLRecords
+        while x:
+            self._HTMLRecords.append(HTMLRecordData())
+            x -= 1
+
+        toc = self._oeb.toc
+        myIndex = 0
+        myEndingRecord = 0
+        previousOffset = 0
+        previousLength = 0
+        offset = 0
+        length = 0
+        sectionChangesInRecordNumber = -1
+        sectionChangesInThisRecord = False
+        entries = list(toc.iter())[1:]
+
+        # Get offset, length per entry
+        for (firstSequentialNode, node) in enumerate(list(self._ctoc_map)) :
+            if node['klass'] != 'article' and node['klass'] != 'chapter' :
+                # Skip periodical and section entries
+                continue
+            else :
+                if self.opts.verbose > 3 :self._oeb.logger.info("\tFirst sequential node: %03d" % firstSequentialNode)
+                break
+
+        for i, child in enumerate(entries):
+            # Entries continues with a stream of section+articles, section+articles ...
+            h = child.href
+            if h not in self._id_offsets:
+                self._oeb.log.warning('Could not find TOC entry "%s", aborting indexing ...'% child.title)
+                return False
+            offset = self._id_offsets[h]
+
+            length = None
+
+            for sibling in entries[i+1:]:
+                h2 = sibling.href
+                if h2 in self._id_offsets:
+                    offset2 = self._id_offsets[h2]
+                    if offset2 > offset:
+                        length = offset2 - offset
+                        break
+
+            if length is None:
+                length = self._content_length - offset
+
+            if self.opts.verbose > 3 :
+                self._oeb.logger.info("child %03d: %s" % (i, child))
+                self._oeb.logger.info("    title: %s" % child.title)
+                self._oeb.logger.info("    depth: %d" % child.depth())
+                self._oeb.logger.info("   offset: 0x%06X \tlength: 0x%06X \tnext: 0x%06X" % (offset, length, offset + length))
+
+            # Look a gap between nodes, articles/chapters only, as
+            # periodical and section lengths cover spans of articles
+            if (i>firstSequentialNode) and self._ctoc_map[i-1]['klass'] != 'section':
+                if offset != previousOffset + previousLength :
+                    self._oeb.log.warning("*** TOC discontinuity: nodes are not sequential ***")
+                    self._oeb.log.warning(" node %03d: '%s' offset: 0x%X length: 0x%X" % \
+                        (i-1, entries[i-1].title, previousOffset, previousLength) )
+                    self._oeb.log.warning(" node %03d: '%s' offset: 0x%X != 0x%06X" % \
+                        (i, child.title, offset, previousOffset + previousLength) )
+                    self._oeb.log.warning("\tnode data %03d: %s" % (i-1, self._ctoc_map[i-1]) )
+                    self._oeb.log.warning("\tnode data %03d: %s" % (i, self._ctoc_map[i]) )
+                    self._oeb.log.warning('_generate_indexed_navpoints: Failed to generate index')
+                    # Zero out self._HTMLRecords, return False
+                    self._HTMLRecords = []
+                    last_name = None
+                    return False
+
+            previousOffset = offset
+            previousLength = length
+
+            # Calculate the HTML record for this entry
+            thisRecord = offset // RECORD_SIZE
+
+            # Store the current continuingNodeParent and openingNodeParent
+            if self._ctoc_map[i]['klass'] == 'article':
+                if thisRecord > 0 :
+                    if sectionChangesInThisRecord :
+                        self._HTMLRecords[thisRecord].continuingNodeParent = self._currentSectionIndex - 1
+                    else :
+                        self._HTMLRecords[thisRecord].continuingNodeParent = self._currentSectionIndex
+
+            # periodical header?
+            if self._ctoc_map[i]['klass'] == 'periodical' :
+                # INCREMENT currentSectionNode count
+                # Commented out because structured docs don't count section changes in nodeCount
+                # compensation at 948 for flat periodicals
+                # self._HTMLRecords[thisRecord].currentSectionNodeCount = 1
+                continue
+
+            # Is this node a new section?
+            if self._ctoc_map[i]['klass'] == 'section' :
+                # INCREMENT currentSectionNode count
+                # Commented out because structured docs don't count section changes in nodeCount
+                # self._HTMLRecords[thisRecord].currentSectionNodeCount += 1
+
+                # *** This should check currentSectionNumber, because content could start late
+                if thisRecord > 0:
+                    sectionChangesInThisRecord = True
+                    sectionChangesInRecordNumber = thisRecord
+                    self._currentSectionIndex += 1
+                    self._HTMLRecords[thisRecord].nextSectionNumber = self._currentSectionIndex
+                    # The following node opens the nextSection
+                    self._HTMLRecords[thisRecord].nextSectionOpeningNode = myIndex
+                    continue
+                else :
+                    continue
+
+            # If no one has taken the openingNode slot, it must be us
+            if self._HTMLRecords[thisRecord].openingNode == -1 :
+                self._HTMLRecords[thisRecord].openingNode = myIndex
+                self._HTMLRecords[thisRecord].openingNodeParent = self._currentSectionIndex
+
+            # Bump the nextSection node count while we're in the same record
+            if sectionChangesInRecordNumber == thisRecord :
+                if self._ctoc_map[i]['klass'] == 'article' :
+                    if self._HTMLRecords[thisRecord].nextSectionNodeCount == -1:
+                        self._HTMLRecords[thisRecord].nextSectionNodeCount = 1
+                    else:
+                        self._HTMLRecords[thisRecord].nextSectionNodeCount += 1
+                else :
+                        # Bump the currentSectionNodeCount one last time
+                        self._HTMLRecords[thisRecord].currentSectionNodeCount += 1
+
+            else :
+                # Reset the change record
+                sectionChangesInRecordNumber = -1
+                sectionChangesInThisRecord = False
+                if self._HTMLRecords[thisRecord].currentSectionNodeCount == -1:
+                    self._HTMLRecords[thisRecord].currentSectionNodeCount = 1
+                else:
+                    self._HTMLRecords[thisRecord].currentSectionNodeCount += 1
+
+            # Fill in the spanning records
+            myEndingRecord = (offset + length) // RECORD_SIZE
+            if myEndingRecord > thisRecord :
+                sectionChangesInThisRecord = False
+                interimSpanRecord = thisRecord + 1
+                while interimSpanRecord <= myEndingRecord :
+                    self._HTMLRecords[interimSpanRecord].continuingNode = myIndex
+
+                    self._HTMLRecords[interimSpanRecord].continuingNodeParent = self._currentSectionIndex
+                    self._HTMLRecords[interimSpanRecord].currentSectionNodeCount = 1
+                    interimSpanRecord += 1
+
+                if self.opts.verbose > 3 :self._oeb.logger.info("\tnode %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
+                    (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, interimSpanRecord, offset, length) )
+            else :
+                if self.opts.verbose > 3 : self._oeb.logger.info("\tnode %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
+                    (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, thisRecord, offset, length) )
+
             last_name = "%04X" % myIndex
             myIndex += 1
 
@@ -515,11 +703,9 @@ class MobiWriter(object):
         return True
 
 
-    def _build_TBS_Book(self, nrecords, lastrecord):
-        if self.opts.verbose > 3 and False :
-            self._oeb.logger.info("_build_TBS_Book: HTML record %d of %d" % (nrecords, lastrecord) )
-            self._HTMLRecords[nrecords].dumpData(nrecords,self._oeb)
-
+    def _generate_tbs_book(self, nrecords, lastrecord):
+        if self.opts.verbose > 3 :self._oeb.logger.info("Assembling TBS for Book: HTML record %03d of %03d" % \
+                                    (nrecords, lastrecord) )
         # Variables for trailing byte sequence
         tbsType = 0x00
         tbSequence = ""
@@ -578,10 +764,454 @@ class MobiWriter(object):
                 tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)
             tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
 
-        if self.opts.verbose > 3  and False:
-            self._oeb.logger.info("record %d: tbsType %d" % (nrecords, tbsType) )
+        self._tbSequence = tbSequence
+
+
+    def _generate_tbs_flat_periodical(self, nrecords, lastrecord):
+        # Flat periodicals <0x102> have a single section for all articles
+        # Structured periodicals <0x101 | 0x103> have one or more sections with articles
+        # The first section TBS sequence is different for Flat and Structured
+        # This function is called once per HTML record
+
+        # Variables for trailing byte sequence
+        tbsType = 0x00
+        tbSequence = ""
+
+        # Generate TBS for type 0x102 - mobi_feed - flat periodical
+        if self._initialIndexRecordFound == False :
+            # Is there any indexed content yet?
+            if self._HTMLRecords[nrecords].currentSectionNodeCount == -1 :
+                # No indexing data - write vwi length of 1 only
+                tbSequence = decint(len(tbSequence) + 1, DECINT_FORWARD)
+
+            else :
+                # First indexed record: Type 6 with nodeCount only
+                self._initialIndexRecordFound = True
+                tbsType = 6
+                tbSequence = decint(tbsType, DECINT_FORWARD)
+                tbSequence += decint(0x00, DECINT_FORWARD)
+                # nodeCount = 0xDF + 0xFF + n(0x3F) - need to add 2 because we didn't count them earlier
+                tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount + 2)
+                tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
+                if self.opts.verbose > 2 :
+                    self._oeb.logger.info("\nAssembling TBS for Flat Periodical: HTML record %03d of %03d, section %d" % \
+                        (nrecords, lastrecord, self._HTMLRecords[nrecords].continuingNodeParent ) )
+                    self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+
+        else :
+            # An HTML record with nextSectionNumber = -1 has no section change in this record
+            # Default for flat periodicals with only one section
+            if self.opts.verbose > 2 :
+                self._oeb.logger.info("\nAssembling TBS for Flat Periodical: HTML record %03d of %03d, section %d" % \
+                    (nrecords, lastrecord, self._HTMLRecords[nrecords].continuingNodeParent ) )
+                self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+
+            # First section has different Type values
+            # Determine tbsType for HTMLRecords > 0
+            if nrecords == lastrecord and self._HTMLRecords[nrecords].currentSectionNodeCount == 1 :
+                # Ending record with singleton node
+                tbsType = 6
+
+                # Assemble the Type 6 TBS
+                tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                tbSequence += chr(2)                                                    # arg2 = 0x02
+
+                # Assemble arg3 - (article index +1) << 4  +  flag: 1 = article spans this record
+                arg3 = self._HTMLRecords[nrecords].continuingNode
+                arg3 += 1
+                arg3 <<= 4
+                arg3 |= 0x0                                                             #flags = 0
+                tbSequence += decint(arg3, DECINT_FORWARD)                              # arg3
+
+
+                # tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
+                tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+            elif self._HTMLRecords[nrecords].continuingNode > 0 and self._HTMLRecords[nrecords].openingNode == -1 :
+                # This is a span-only record
+                tbsType = 6
+                # Zero out the nodeCount with a pre-formed vwi
+                self._HTMLRecords[nrecords].currentSectionNodeCount = 0x80
+
+                # Assemble the Type 6 TBS
+                tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                tbSequence += chr(2)                                                    # arg2 = 0x02
+                # Assemble arg3 - article index << 3  +  flag: 1 = article spans this record
+                arg3 = self._HTMLRecords[nrecords].continuingNode
+                # Add the index of the openingNodeParent to get the offset start
+                # We know that section 0 is at position 1, section 1 at index 2, etc.
+                arg3 += self._HTMLRecords[nrecords].continuingNodeParent + 1
+                arg3 <<= 4
+                arg3 |= 0x01
+                tbSequence += decint(arg3, DECINT_FORWARD)                              # arg3
+                tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
+                tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+            else :
+                tbsType = 7
+                # Assemble the Type 7 TBS
+                tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                tbSequence += chr(2)                                                    # arg2 = 0x02
+                tbSequence += decint(0x00, DECINT_FORWARD)                              # arg3 = 0x80
+                # Assemble arg4 - article index << 4  +  flag: 1 = article spans this record
+                arg4 = self._HTMLRecords[nrecords].continuingNode
+                # Add the index of the openingNodeParent to get the offset start
+                # We know that section 0 is at position 1, section 1 at index 2, etc.
+                arg4 += self._HTMLRecords[nrecords].continuingNodeParent + 1
+                arg4 <<= 4
+                arg4 |= 0x04                                                            # 4: multiple nodes
+                tbSequence += decint(arg4, DECINT_FORWARD)                              # arg4
+                tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
+                tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
 
         self._tbSequence = tbSequence
+
+    def _generate_tbs_structured_periodical(self, nrecords, lastrecord):
+        # Structured periodicals <0x101 | 0x103> have one or more sections for all articles
+        # The first section TBS sequences is different for Flat and Structured
+        # This function is called once per HTML record
+
+        # Variables for trailing byte sequence
+        tbsType = 0x00
+        tbSequence = ""
+
+
+        # Generate TBS for type 0x101/0x103 - structured periodical
+        if self._initialIndexRecordFound == False :
+            # Is there any indexed content yet?
+            if self._HTMLRecords[nrecords].currentSectionNodeCount == -1 :
+                # No indexing data - write vwi length of 1 only
+                tbSequence = decint(len(tbSequence) + 1, DECINT_FORWARD)
+
+            else :
+                self._initialIndexRecordFound = True
+
+                if self.opts.verbose > 2 :
+                    self._oeb.logger.info("\nAssembling TBS for Structured Periodical: HTML record %03d of %03d, section %d" % \
+                        (nrecords, lastrecord, self._HTMLRecords[nrecords].continuingNodeParent ) )
+                    self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+
+                # First record only
+                tbsType = 6
+                # Assemble the Type 6 TBS
+                tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                tbSequence += chr(2)                                                    # arg2 = 0x02
+                # Assemble arg3: (section jump + article index) << 4  +  flag: 1 = article spans this record
+                arg3 = self._sectionCount                      # Jump over the section group
+                arg3 += 0                                      # First article index = 0
+                arg3 <<= 4
+                arg3 |= 0x04
+                tbSequence += decint(arg3, DECINT_FORWARD)                              # arg3
+
+                # Structured periodicals don't count periodical, section in nodeCount
+                #tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount - 2)  # nodeCount
+                tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
+                tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+        else :
+            if self._firstSectionConcluded == False :
+                # Use type 6 & 7 until first section switch, then 2
+
+                if self._HTMLRecords[nrecords].nextSectionNumber == -1 :
+                    # An HTML record with nextSectionNumber = -1 has no section change in this record
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("\nAssembling TBS for Structured Periodical: HTML record %03d of %03d, section %d" % \
+                            (nrecords, lastrecord, self._HTMLRecords[nrecords].continuingNodeParent ) )
+                        self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+
+                    # First section has different Type values
+                    # Determine tbsType for HTMLRecords > 0
+                    if nrecords == lastrecord and self._HTMLRecords[nrecords].currentSectionNodeCount == 1 :
+                        # Ending record with singleton node
+                        tbsType = 6
+
+                        # Assemble the Type 6 TBS
+                        tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                        tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                        tbSequence += chr(2)                                                    # arg2 = 0x02
+                        # Assemble arg3: (section jump + article index) << 4  +  flag: 1 = article spans this record
+                        arg3 = self._sectionCount
+                        arg3 += self._HTMLRecords[nrecords].continuingNode
+                        arg3 <<= 4
+                        arg3 |= 0x04
+                        tbSequence += decint(arg3, DECINT_FORWARD)                              # arg3
+                        tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
+                        tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+                    elif self._HTMLRecords[nrecords].continuingNode > 0 and self._HTMLRecords[nrecords].openingNode == -1 :
+                        # This is a span-only record
+                        tbsType = 6
+                        # Zero out the nodeCount with a pre-formed vwi
+                        self._HTMLRecords[nrecords].currentSectionNodeCount = 0x80
+
+                        # Assemble the Type 6 TBS
+                        tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                        tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                        tbSequence += chr(2)                                                    # arg2 = 0x02
+                        # Assemble arg3: (section jump + article index) << 4  +  flag: 1 = article spans this record
+                        arg3 = self._sectionCount
+                        arg3 += self._HTMLRecords[nrecords].continuingNode
+                        arg3 <<= 4
+                        arg3 |= 0x01
+                        tbSequence += decint(arg3, DECINT_FORWARD)                              # arg3
+                        tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
+                        tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+                    else :
+                        tbsType = 7
+                        # Assemble the Type 7 TBS
+                        tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                        tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                        tbSequence += chr(2)                                                    # arg2 = 0x02
+                        tbSequence += decint(0x00, DECINT_FORWARD)                              # arg3 = 0x80
+                        # Assemble arg4: (section jump + article index) << 4  +  flag: 1 = article spans this record
+                        arg4 = self._sectionCount
+                        arg4 += self._HTMLRecords[nrecords].continuingNode
+                        arg4 <<= 4
+                        arg4 |= 0x04                                                            # 4: multiple nodes
+                        tbSequence += decint(arg4, DECINT_FORWARD)                              # arg4
+                        tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
+                        tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+
+                # Initial section switch from section 1
+                elif self._HTMLRecords[nrecords].nextSectionNumber > 0 :
+                    tbsType = 3
+
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("\nAssembling TBS for Structured Periodical: HTML record %03d of %03d, switching sections %d-%d" % \
+                        (nrecords, lastrecord, self._HTMLRecords[nrecords].continuingNodeParent, self._HTMLRecords[nrecords].nextSectionNumber) )
+                        self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+
+                    tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                    tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                    tbSequence += decint(0x00, DECINT_FORWARD)                              # arg2 = 0x80
+
+                    # Assemble arg3: Upper nybble: ending section index
+                    #                Lower nybble = flags for next section - 0 or 1
+                    arg3 = (self._HTMLRecords[nrecords].continuingNodeParent + 1) << 4
+                    arg3Flags = 0               # 0: has nodes?
+                    arg3 |= arg3Flags
+                    tbSequence += decint(arg3, DECINT_FORWARD)
+
+                    # Assemble arg4: Upper nybble: continuingNode << 4
+                    #                Lower nybble: flag: 0 = no starting nodes from previous section
+                    #                              flag: 4 = starting nodes from previous section
+
+                    sectionBase = self._HTMLRecords[nrecords].continuingNodeParent
+                    sectionDelta = self._sectionCount - sectionBase - 1
+                    articleOffset = self._HTMLRecords[nrecords].continuingNode + 1
+                    arg4 = (sectionDelta + articleOffset) << 4
+
+                    arg4Flags = 0
+                    if self._HTMLRecords[nrecords].currentSectionNodeCount > 1 :
+                        arg4Flags = 4
+                    else :
+                        arg4Flags = 0
+                    arg4 |= arg4Flags
+                    tbSequence += decint(arg4, DECINT_FORWARD)                              # arg4
+
+                    # Write optional 4a if previous section node count > 1
+                    if arg4Flags == 4 :                                                      # arg4a
+                        nodeCountValue = self._HTMLRecords[nrecords].currentSectionNodeCount
+                        nodeCountValue = 0x80 if nodeCountValue == 0 else nodeCountValue
+                        tbSequence += chr(nodeCountValue)
+
+                    # Write article2: not completely understood
+                    arg5 = sectionDelta + articleOffset
+                    if self._HTMLRecords[nrecords].currentSectionNodeCount < 2:
+                        arg5 -= 1
+                    arg5 <<= 4
+                    arg5Flags = 8
+                    arg5 |= arg5Flags
+                    tbSequence += decint(arg5, DECINT_FORWARD)                              # arg5
+
+                    # Write first article of new section
+                    #arg6 = self._sectionCount - 1                   # We're now into the following section
+                    #arg6 = self._HTMLRecords[nrecords].nextSectionNumber
+                    arg6 = sectionDelta + self._HTMLRecords[nrecords].nextSectionOpeningNode
+                    arg6 <<= 4
+                    if self._HTMLRecords[nrecords].nextSectionNodeCount > 1 :
+                        arg6Flags = 4
+                    else :
+                        arg6Flags = 0
+                    arg6 |= arg6Flags
+                    tbSequence += decint(arg6, DECINT_FORWARD)                              # arg5
+
+                    # Write optional 6a if previous section node count > 1
+                    if arg6Flags == 4 :                                                      # arg4a
+                        nodeCountValue = self._HTMLRecords[nrecords].nextSectionNodeCount
+                        nodeCountValue = 0x80 if nodeCountValue == 0 else nodeCountValue
+                        tbSequence += chr(nodeCountValue)
+
+                    tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+                    self._firstSectionConcluded = True
+            else :
+                # After first section switch, use types 2 and 3
+                if self._HTMLRecords[nrecords].nextSectionNumber == -1 :
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("\nAssembling TBS for Structured Periodical: HTML record %03d of %03d, section %d" % \
+                            (nrecords, lastrecord, self._HTMLRecords[nrecords].continuingNodeParent ) )
+                        self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+
+                    tbsType = 2
+                    tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                    tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                    arg2 = self._HTMLRecords[nrecords].continuingNodeParent + 1
+                    arg2 <<= 4
+                    # Add flag = 1 if there are multiple nodes in this record
+                    arg2Flags = 0
+                    if self._HTMLRecords[nrecords].currentSectionNodeCount > 0 :
+                        arg2Flags = 1
+                        arg2 |= arg2Flags
+                    tbSequence += decint(arg2, DECINT_FORWARD)
+
+                    if arg2Flags :
+                        # Add an extra vwi 0x00
+                        tbSequence += decint(0x00, DECINT_FORWARD)                          # arg2Flags = 0x80
+
+                    # arg3 - offset of continuingNode from sectionParent
+                    arg3 =  self._sectionCount - self._HTMLRecords[nrecords].continuingNodeParent        # Total guess
+                    arg3 += self._HTMLRecords[nrecords].continuingNode
+                    arg3 <<= 4
+                    arg3Flags = 1
+                    if self._HTMLRecords[nrecords].currentSectionNodeCount > 0 :
+                        arg3Flags = 4
+                    arg3 |= arg3Flags
+                    tbSequence += decint(arg3, DECINT_FORWARD)
+
+                    if arg3Flags == 4 :
+                        nodeCountValue = self._HTMLRecords[nrecords].currentSectionNodeCount
+                        nodeCountValue = 0x80 if nodeCountValue == 0 else nodeCountValue
+                        tbSequence += chr(nodeCountValue)
+                    else :
+                         tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+
+                    tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+                else :
+                    # Section switch when section > 1
+                    tbsType = 3
+
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("\nAssembling TBS for Structured Periodical: HTML record %03d of %03d, switching sections %d-%d" % \
+                        (nrecords, lastrecord, self._HTMLRecords[nrecords].continuingNodeParent, self._HTMLRecords[nrecords].nextSectionNumber) )
+                        self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
+
+                    tbSequence = decint(tbsType, DECINT_FORWARD)                            # Type
+                    tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                    tbSequence += decint(0x00, DECINT_FORWARD)                              # arg2 = 0x80
+
+                    # arg3: continuingNodeParent section
+                    #   Upper nybble: ending section index
+                    #   Lower nybble = flags for next section - 0 or 1
+                    arg3 = (self._HTMLRecords[nrecords].continuingNodeParent + 1) << 4
+                    arg3Flags = 0               # 0: has nodes?
+                    arg3 |= arg3Flags
+                    tbSequence += decint(arg3, DECINT_FORWARD)
+
+                    # Assemble arg4: Upper nybble: continuingNode << 4
+                    #                Lower nybble: flag: 0 = no starting nodes from previous section
+                    #                              flag: 4 = starting nodes from previous section
+                    sectionBase = self._HTMLRecords[nrecords].continuingNodeParent
+                    sectionDelta = self._sectionCount - sectionBase - 1
+                    articleOffset = self._HTMLRecords[nrecords].continuingNode + 1
+                    arg4 = (sectionDelta + articleOffset) << 4
+
+                    arg4Flags = 0
+                    if self._HTMLRecords[nrecords].currentSectionNodeCount > 1 :
+                        arg4Flags = 4
+                    else :
+                        arg4Flags = 0
+                    arg4 |= arg4Flags
+                    tbSequence += decint(arg4, DECINT_FORWARD)                              # arg4
+
+                    # Write optional 4a if previous section node count > 1
+                    if arg4Flags == 4 :                                                      # arg4a
+                        nodeCountValue = self._HTMLRecords[nrecords].currentSectionNodeCount
+                        nodeCountValue = 0x80 if nodeCountValue == 0 else nodeCountValue
+                        tbSequence += chr(nodeCountValue)
+
+                    # Write article2: not completely understood
+                    arg5 = sectionDelta + articleOffset
+                    if self._HTMLRecords[nrecords].currentSectionNodeCount < 2:
+                        arg5 -= 1
+                    arg5 <<= 4
+                    arg5Flags = 8
+                    arg5 |= arg5Flags
+                    tbSequence += decint(arg5, DECINT_FORWARD)                              # arg5
+
+                    # Write first article of new section
+                    arg6 = sectionDelta + self._HTMLRecords[nrecords].nextSectionOpeningNode
+                    arg6 <<= 4
+                    if self._HTMLRecords[nrecords].nextSectionNodeCount > 1 :
+                        arg6Flags = 4
+                    else :
+                        arg6Flags = 0
+                    arg6 |= arg6Flags
+                    tbSequence += decint(arg6, DECINT_FORWARD)                              # arg5
+
+                    # Write optional 6a if previous section node count > 1
+                    if arg6Flags == 4 :                                                      # arg4a
+                        nodeCountValue = self._HTMLRecords[nrecords].nextSectionNodeCount
+                        nodeCountValue = 0x80 if nodeCountValue == 0 else nodeCountValue
+                        tbSequence += chr(nodeCountValue)
+
+                    tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
+
+        self._tbSequence = tbSequence
+
+    def _evaluate_periodical_toc(self):
+        '''
+        Periodical:
+        <navMap>                            depth=4
+          <navPoint class="periodical">     depth=3     1
+            <navPoint class="section">      depth=2     1 or more
+              <navPoint class="article">    depth=1     multiple
+        Book:
+        <navMap>                            depth=2
+          <navPoint [class="chapter"|None]> depth=1     multiple
+        '''
+        toc = self._oeb.toc
+        nodes = list(toc.iter())[1:]
+        for (i, child) in enumerate(nodes) :
+            if self.opts.verbose > 3 :
+                self._oeb.logger.info("  <title>: %-25.25s \tklass=%-15.15s \tdepth:%d  playOrder=%03d" % \
+                    (child.title, child.klass, child.depth(), child.play_order) )
+
+            if child.klass == "periodical" and child.depth() != 3 :
+                    self._oeb.logger.info('<navPoint class="periodical"> found at depth %d, nonconforming TOC' % \
+                                            child.depth() )
+                    return False
+
+            if child.klass == "section" and child.depth() != 2 :
+                    self._oeb.logger.info('<navPoint class="section"> found at depth %d, nonconforming TOC' % \
+                                            child.depth() )
+                    return False
+
+            if child.klass == "article" and child.depth() != 1 :
+                    self._oeb.logger.info('<navPoint class="article"> found at depth %d, nonconforming TOC' % \
+                                            child.depth() )
+                    return False
+
+        # We also need to know that we have a pubdate or timestamp in the metadata, which the Kindle needs
+        if self._oeb.metadata['date'] == [] and self._oeb.metadata['timestamp'] == [] :
+            self._oeb.logger.info('metadata missing timestamp needed for periodical')
+            return False
+
+        # Periodicals also need a mastheadImage in the manifest
+        has_mastheadImage = 'masthead' in self._oeb.guide
+
+        if not has_mastheadImage :
+            self._oeb.logger.info('mastheadImage missing from manifest, aborting periodical indexing')
+            return False
+
+        self._oeb.logger.info('TOC structure and pubdate verified')
+        return True
 
 
     def _generate_text(self):
@@ -590,6 +1220,7 @@ class MobiWriter(object):
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         breaks = serializer.breaks
         text = serializer.text
+        self._anchor_offset_kindle = serializer.anchor_offset_kindle
         self._id_offsets = serializer.id_offsets
         self._content_length = len(text)
         self._text_length = len(text)
@@ -597,47 +1228,76 @@ class MobiWriter(object):
         buf = []
         nrecords = 0
         lastrecord = (self._content_length // RECORD_SIZE )
-
         offset = 0
 
         if self._compression != UNCOMPRESSED:
             self._oeb.logger.info('Compressing markup content...')
         data, overlap = self._read_text_record(text)
 
-        # We need entries[] before calling self._build_HTMLRecords_Data_List()
+        # Evaluate toc for conformance
+        if self.opts.mobi_periodical :
+            self._oeb.logger.info('--mobi-periodical specified, evaluating TOC for periodical conformance ...')
+            self._conforming_periodical_toc = self._evaluate_periodical_toc()
+
+        # This routine decides whether to build flat or structured based on self._conforming_periodical_toc
         self._ctoc = self._generate_ctoc()
 
         # Build the HTMLRecords list so we can assemble the trailing bytes sequences in the following while loop
         toc = self._oeb.toc
         entries = list(toc.iter())[1:]
+
         if len(entries) :
-            self._hasValidNCXEntries = self._build_HTMLRecords_Data_List()
+            self._indexable = self._generate_indexed_navpoints()
         else :
-            self._hasValidNCXEntries = False
+            self._oeb.logger.info('No entries found in TOC ...')
+            self._indexable = False
+
+        if not self._indexable :
+            self._oeb.logger.info('Writing unindexed mobi ...')
 
         while len(data) > 0:
             if self._compression == PALMDOC:
                 data = compress_doc(data)
             record = StringIO()
             record.write(data)
+
+            # Marshall's utf-8 break code.
             record.write(overlap)
             record.write(pack('>B', len(overlap)))
             nextra = 0
             pbreak = 0
             running = offset
 
+            while breaks and (breaks[0] - offset) < RECORD_SIZE:
+                # .pop returns item, removes it from list
+                pbreak = (breaks.pop(0) - running) >> 3
+                self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
+                encoded = decint(pbreak, DECINT_FORWARD)
+                record.write(encoded)
+                running += pbreak << 3
+                nextra += len(encoded)
+
+            lsize = 1
+            while True:
+                size = decint(nextra + lsize, DECINT_BACKWARD)
+                if len(size) == lsize:
+                    break
+                lsize += 1
+
+            record.write(size)
+
             # Write Trailing Byte Sequence
-            if INDEXING and self._hasValidNCXEntries:
+            if INDEXING and self._indexable:
                 # Dispatch to different TBS generators based upon publication type
-                booktype = 0x101 if self.opts.mobi_periodical else 0x002
+                booktype = self._MobiDoc.mobiType
                 if booktype == 0x002 :
-                    self._build_TBS_Book(nrecords, lastrecord)
-                #elif booktype == flatPeriodical :
-                #    tbSequence = self._build_TBS_FlatPeriodicalTBS()
-                #elif booktype == structuredPeriodical :
-                #    tbSequence = self._build_TBS_StructuredPeriodicalTBS()
+                    self._generate_tbs_book(nrecords, lastrecord)
+                elif booktype == 0x102 :
+                    self._generate_tbs_flat_periodical(nrecords, lastrecord)
+                elif booktype == 0x101 or booktype == 0x103 :
+                    self._generate_tbs_structured_periodical(nrecords, lastrecord)
                 else :
-                    raise NotImplementedError('Indexing for periodicals not implemented')
+                    raise NotImplementedError('Indexing for mobitype 0x%X not implemented' % booktype)
 
                 # Dump the current HTML Record Data / TBS
                 # GR diagnostics
@@ -650,27 +1310,6 @@ class MobiWriter(object):
 
                 # Write the sequence
                 record.write(self._tbSequence)
-
-            else :
-                # Marshall's original code
-                while breaks and (breaks[0] - offset) < RECORD_SIZE:
-                    # .pop returns item, removes it from list
-                    pbreak = (breaks.pop(0) - running) >> 3
-                    self._oeb.logger.info('pbreak = 0x%X' % pbreak )
-                    encoded = decint(pbreak, DECINT_FORWARD)
-                    record.write(encoded)
-                    running += pbreak << 3
-                    nextra += len(encoded)
-
-                lsize = 1
-                while True:
-                    size = decint(nextra + lsize, DECINT_BACKWARD)
-                    if len(size) == lsize:
-                        break
-                    lsize += 1
-
-                # Writing vwi length byte here
-                record.write(size)
 
             self._records.append(record.getvalue())
             buf.append(self._records[-1])
@@ -686,262 +1325,6 @@ class MobiWriter(object):
             nrecords += 1
         self._text_nrecords = nrecords
 
-    def _generate_indxt(self, ctoc):
-
-        if self.opts.mobi_periodical:
-            raise NotImplementedError('Indexing for periodicals not implemented')
-        toc = self._oeb.toc
-        indxt, indices, c = StringIO(), StringIO(), 0
-
-        indices.write('IDXT')
-        c = 0
-        last_name = None
-
-        def add_node(node, offset, length, count):
-            if self.opts.verbose > 2:
-                self._oeb.log.debug('Adding TOC node:', node.title, 'href:',
-                        node.href)
-
-            pos = 0xc0 + indxt.tell()
-            indices.write(pack('>H', pos))
-            name = "%04X"%count
-            indxt.write(chr(len(name)) + name)
-            indxt.write(INDXT['chapter'])
-            indxt.write(decint(offset, DECINT_FORWARD))
-            indxt.write(decint(length, DECINT_FORWARD))
-            indxt.write(decint(self._ctoc_map[node], DECINT_FORWARD))
-            indxt.write(decint(0, DECINT_FORWARD))
-
-
-        entries = list(toc.iter())[1:]
-        for i, child in enumerate(entries):
-            h = child.href
-            if h not in self._id_offsets:
-                self._oeb.log.warning('Could not find TOC entry:', child.title)
-                continue
-            offset = self._id_offsets[h]
-            length = None
-            for sibling in entries[i+1:]:
-                h2 = sibling.href
-                if h2 in self._id_offsets:
-                    offset2 = self._id_offsets[h2]
-                    if offset2 > offset:
-                        length = offset2 - offset
-                        break
-            if length is None:
-                length = self._content_length - offset
-
-            add_node(child, offset, length, c)
-            ctoc_offset = self._ctoc_map[child]
-            last_name = "%04X"%c
-            c += 1
-
-        return align_block(indxt.getvalue()), c, \
-            align_block(indices.getvalue()), last_name
-
-
-    def _generate_index(self):
-        self._oeb.log('Generating primary index...')
-        self._primary_index_record = None
-
-        indxt, indxt_count, indices, last_name = \
-                self._generate_indxt(self._ctoc)
-        if last_name is None:
-            self._oeb.log.warn('Input document has no TOC. No index generated.')
-            return
-
-        # GR: indx0 => INDX0[0]
-        #     indx1 => INDX1[0]
-        indx1 = StringIO()
-        indx1.write('INDX'+pack('>I', 0xc0)) # header length
-
-        # 0x8 - 0xb : Unknown
-        indx1.write('\0'*4)
-
-        # 0xc - 0xf : Header type
-        indx1.write(pack('>I', 1))
-
-        # 0x10 - 0x13 : Unknown
-        indx1.write('\0'*4)
-
-        # 0x14 - 0x17 : IDXT offset
-        # 0x18 - 0x1b : IDXT count
-        indx1.write(pack('>I', 0xc0+len(indxt)))
-        indx1.write(pack('>I', indxt_count))
-
-        # 0x1c - 0x23 : Unknown
-        indx1.write('\xff'*8)
-
-        # 0x24 - 0xbf
-        indx1.write('\0'*156)
-        indx1.write(indxt)
-        indx1.write(indices)
-        indx1 = indx1.getvalue()
-
-        idxt0 = chr(len(last_name)) + last_name + pack('>H', indxt_count + 1)
-        idxt0 = align_block(idxt0)
-        indx0 = StringIO()
-
-        tagx = TAGX['periodical' if self.opts.mobi_periodical else 'chapter']
-        tagx = align_block('TAGX' + pack('>I', 8 + len(tagx)) + tagx)
-        indx0_indices_pos = 0xc0 + len(tagx) + len(idxt0)
-        indx0_indices = align_block('IDXT' + pack('>H', 0xc0 + len(tagx)))
-        # Generate record header
-        header = StringIO()
-
-        header.write('INDX')
-        header.write(pack('>I', 0xc0)) # header length
-
-        # 0x08 - 0x0b : Unknown
-        header.write('\0'*4)
-
-        # 0x0c - 0x0f : Header type
-        header.write(pack('>I', 0))
-
-        # 0x10 - 0x13 : Generator ID
-        header.write(pack('>I', 6))
-
-        # 0x14 - 0x17 : IDXT offset
-        header.write(pack('>I', indx0_indices_pos))
-
-        # 0x18 - 0x1b : IDXT count
-        header.write(pack('>I', 1))
-
-        # 0x1c - 0x1f : Text encoding ?
-        # header.write(pack('>I', 650001))
-        # GR: This needs to be either 0xFDE9 or 0x4E4
-        header.write(pack('>I', 0xFDE9))
-
-        # 0x20 - 0x23 : Language code?
-        header.write(iana2mobi(str(self._oeb.metadata.language[0])))
-
-        # 0x24 - 0x27 : Number of TOC entries in INDX1
-        header.write(pack('>I', indxt_count + 1))
-
-        # 0x28 - 0x2b : ORDT Offset
-        header.write('\0'*4)
-
-        # 0x2c - 0x2f : LIGT offset
-        header.write('\0'*4)
-
-        # 0x30 - 0x33 : Number of LIGT entries
-        header.write('\0'*4)
-
-        # 0x34 - 0x37 : Unknown
-        header.write(pack('>I', 1))
-
-        # 0x38 - 0xb3 : Unknown (pad?)
-        header.write('\0'*124)
-
-        # 0xb4 - 0xb7 : TAGX offset
-        header.write(pack('>I', 0xc0))
-
-        # 0xb8 - 0xbf : Unknown
-        header.write('\0'*8)
-
-        header = header.getvalue()
-
-        indx0.write(header)
-        indx0.write(tagx)
-        indx0.write(idxt0)
-        indx0.write(indx0_indices)
-        indx0 = indx0.getvalue()
-
-        self._primary_index_record = len(self._records)
-        self._records.extend([indx0, indx1, self._ctoc])
-
-        # Turn this off for now
-        if False:
-            # Write secondary index records
-            tagx = TAGX['secondary_'+\
-                    ('periodical' if self.opts.mobi_periodical else 'book')]
-            tagx_len = 8 + len(tagx)
-
-            indx0 = StringIO()
-            indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)
-            indx0.write(pack('>I', 0x02))
-            indx0.write(pack('>I', 0xc0+tagx_len+4))
-            indx0.write(pack('>I', 1))
-            indx0.write(pack('>I', 65001))
-            indx0.write('\xff'*4)
-            indx0.write(pack('>I', 1))
-            indx0.write('\0'*4)
-            indx0.write('\0'*136)
-            indx0.write(pack('>I', 0xc0))
-            indx0.write('\0'*8)
-            indx0.write('TAGX'+pack('>I', tagx_len)+tagx)
-            if self.opts.mobi_periodical:
-                raise NotImplementedError
-            else:
-                indx0.write('\0'*3 + '\x01' + 'IDXT' + '\0\xd4\0\0')
-            indx1 = StringIO()
-            indx1.write('INDX' + pack('>I', 0xc0) + '\0'*4)
-            indx1.write(pack('>I', 1))
-            extra = 0xf0 if self.opts.mobi_periodical else 4
-            indx1.write('\0'*4 + pack('>I', 0xc0+extra))
-            num = 4 if self.opts.mobi_periodical else 1
-            indx1.write(pack('>I', num))
-            indx1.write('\xff'*8)
-            indx1.write('\0'*(0xc0-indx1.tell()))
-            if self.opts.mobi_periodical:
-                raise NotImplementedError
-            else:
-                indx1.write('\0\x01\x80\0')
-            indx1.write('IDXT')
-            if self.opts.mobi_periodical:
-                raise NotImplementedError
-            else:
-                indx1.write('\0\xc0\0\0')
-
-            indx0, indx1 = indx0.getvalue(), indx1.getvalue()
-            self._records.extend((indx0, indx1))
-            if self.opts.verbose > 3:
-                from tempfile import mkdtemp
-                import os
-                t = mkdtemp()
-                for i, n in enumerate(['sindx1', 'sindx0', 'ctoc', 'indx0', 'indx1']):
-                    open(os.path.join(t, n+'.bin'), 'wb').write(self._records[-(i+1)])
-                self._oeb.log.debug('Index records dumped to', t)
-
-
-
-
-    def _generate_ctoc(self):
-        if self.opts.mobi_periodical:
-            raise NotImplementedError('Indexing for periodicals not implemented')
-        self._oeb.logger.info('Generating CTOC ...')
-
-        toc = self._oeb.toc
-        self._ctoc_map = {}
-        self._ctoc_name_map = {}
-        self._last_toc_entry = None
-        ctoc = StringIO()
-
-        def add_node(node, cls, title=None):
-            t = node.title if title is None else title
-
-            if t and t.strip():
-                t = t.strip()
-                if not isinstance(t, unicode):
-                    t = t.decode('utf-8', 'replace')
-                t = t.encode('utf-8')
-                self._last_toc_entry = t
-                self._ctoc_map[node] = ctoc.tell()
-                self._ctoc_name_map[node] = t
-                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
-            else :
-                t = "(none)".encode('utf-8')
-                self._last_toc_entry = t
-                self._ctoc_map[node] = ctoc.tell()
-                self._ctoc_name_map[node] = t
-                ctoc.write(decint(len(t), DECINT_FORWARD)+t)
-
-        first = True
-        for child in toc.iter():
-            add_node(child, 'chapter')#, title='Title Page' if first else None)
-            first = False
-
-        return align_block(ctoc.getvalue())
 
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
@@ -981,7 +1364,7 @@ class MobiWriter(object):
         metadata = self._oeb.metadata
         exth = self._build_exth()
         last_content_record = len(self._records) - 1
-        if INDEXING:
+        if INDEXING and self._indexable:
             self._generate_end_records()
         record0 = StringIO()
         # The PalmDOC Header
@@ -1005,7 +1388,9 @@ class MobiWriter(object):
         # 0xC - 0xF   : Text encoding (65001 is utf-8)
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
-        btype = 0x101 if self.opts.mobi_periodical else 2
+
+        btype = self._MobiDoc.mobiType
+
         record0.write(pack('>IIIII',
             0xe8, btype, 65001, uid, 6))
 
@@ -1014,12 +1399,13 @@ class MobiWriter(object):
 
 
         # 0x20 - 0x23 : Secondary index record
-        # Turned off as it seems unnecessary
-        if True:
+        if btype < 0x100 :
             record0.write(pack('>I', 0xffffffff))
-        else:
+        elif btype > 0x100 and self._indexable :
             record0.write(pack('>I', 0xffffffff if self._primary_index_record is
                 None else self._primary_index_record+3))
+        else :
+            record0.write(pack('>I', 0xffffffff))
 
         # 0x24 - 0x3f : Unknown
         record0.write('\xff' * 28)
@@ -1113,12 +1499,12 @@ class MobiWriter(object):
         # 0xe0 - 0xe3 : Extra record data
         # The '5' is a bitmask of extra record data at the end:
         #   - 0x1: <extra multibyte bytes><size> (?)
-        #   - 0x2: <indexing description of this HTML record><size> GR
+        #   - 0x2: <TBS indexing description of this HTML record><size> GR
         #   - 0x4: <uncrossable breaks><size>
         # Of course, the formats aren't quite the same.
-        # GR: Use 2 for indexed files
-        if INDEXING :
-            record0.write(pack('>I', 2))
+        # GR: Use 7 for indexed files, 5 for unindexed
+        if INDEXING and self._indexable :
+            record0.write(pack('>I', 7))
         else:
             record0.write(pack('>I', 5))
 
@@ -1158,6 +1544,24 @@ class MobiWriter(object):
                 exth.write(pack('>II', code, len(data) + 8))
                 exth.write(data)
                 nrecs += 1
+            if term == 'rights' :
+                rights = unicode(oeb.metadata.rights[0])
+                exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
+                exth.write(rights)
+
+        # Add a publication date entry
+        if oeb.metadata['date'] != [] :
+            datestr = str(oeb.metadata['date'][0])
+        elif oeb.metadata['timestamp'] != [] :
+            datestr = str(oeb.metadata['timestamp'][0])
+
+        if datestr is not None:
+            exth.write(pack('>II',EXTH_CODES['pubdate'], len(datestr) + 8))
+            exth.write(datestr)
+            nrecs += 1
+        else:
+            raise NotImplementedError("missing date or timestamp needed for mobi_periodical")
+
         if oeb.metadata.cover:
             id = unicode(oeb.metadata.cover[0])
             item = oeb.manifest.ids[id]
@@ -1169,13 +1573,6 @@ class MobiWriter(object):
             index = self._add_thumbnail(item)
             if index is not None:
                 exth.write(pack('>III', 0xca, 0x0c, index - 1))
-                nrecs += 1
-
-        # Not sure what these are, but not needed for indexing
-        if False :
-            # Write unknown EXTH records as 0s
-            for code, size in [(204,4), (205,4), (206,4), (207,4), (300,40)]:
-                exth.write(pack('>II', code, 8+size)+'\0'*size)
                 nrecs += 1
 
         exth = exth.getvalue()
@@ -1216,8 +1613,829 @@ class MobiWriter(object):
         for record in self._records:
             self._write(record)
 
+    def _generate_index(self):
+        self._oeb.log('Generating primary index ...')
+        self._primary_index_record = None
+
+		# Build the NCXEntries and INDX
+        indxt, indxt_count, indices, last_name = \
+                self._generate_indxt(self._ctoc)
+
+        if last_name is None:
+            self._oeb.log.warn('Input document has no TOC. No index generated.')
+            return
+
+		# Assemble the INDX0[0] and INDX1[0] output streams
+        indx1 = StringIO()
+        indx1.write('INDX'+pack('>I', 0xc0)) # header length
+
+        # 0x8 - 0xb : Unknown
+        indx1.write('\0'*4)
+
+        # 0xc - 0xf : Header type
+        indx1.write(pack('>I', 1))
+
+        # 0x10 - 0x13 : Unknown
+        indx1.write('\0'*4)
+
+        # 0x14 - 0x17 : IDXT offset
+        # 0x18 - 0x1b : IDXT count
+        indx1.write(pack('>I', 0xc0+len(indxt)))
+        indx1.write(pack('>I', indxt_count + 1))
+
+        # 0x1c - 0x23 : Unknown
+        indx1.write('\xff'*8)
+
+        # 0x24 - 0xbf
+        indx1.write('\0'*156)
+        indx1.write(indxt)
+        indx1.write(indices)
+        indx1 = indx1.getvalue()
+
+        idxt0 = chr(len(last_name)) + last_name + pack('>H', indxt_count + 1)
+        idxt0 = align_block(idxt0)
+        indx0 = StringIO()
+
+        if self._MobiDoc.mobiType == 0x002 :
+            tagx = TAGX['chapter']
+        else :
+            tagx = TAGX['periodical']
+
+        tagx = align_block('TAGX' + pack('>I', 8 + len(tagx)) + tagx)
+        indx0_indices_pos = 0xc0 + len(tagx) + len(idxt0)
+        indx0_indices = align_block('IDXT' + pack('>H', 0xc0 + len(tagx)))
+        # Generate record header
+        header = StringIO()
+
+        header.write('INDX')
+        header.write(pack('>I', 0xc0)) # header length
+
+        # 0x08 - 0x0b : Unknown
+        header.write('\0'*4)
+
+        # 0x0c - 0x0f : Header type
+        header.write(pack('>I', 0))
+
+        # 0x10 - 0x13 : Generator ID
+        header.write(pack('>I', 6))
+
+        # 0x14 - 0x17 : IDXT offset
+        header.write(pack('>I', indx0_indices_pos))
+
+        # 0x18 - 0x1b : IDXT count
+        header.write(pack('>I', 1))
+
+        # 0x1c - 0x1f : Text encoding ?
+        # header.write(pack('>I', 650001))
+        # GR: This needs to be either 0xFDE9 or 0x4E4
+        header.write(pack('>I', 0xFDE9))
+
+        # 0x20 - 0x23 : Language code?
+        header.write(iana2mobi(str(self._oeb.metadata.language[0])))
+
+        # 0x24 - 0x27 : Number of TOC entries in INDX1
+        header.write(pack('>I', indxt_count + 1))
+
+        # 0x28 - 0x2b : ORDT Offset
+        header.write('\0'*4)
+
+        # 0x2c - 0x2f : LIGT offset
+        header.write('\0'*4)
+
+        # 0x30 - 0x33 : Number of LIGT entries
+        header.write('\0'*4)
+
+        # 0x34 - 0x37 : Unknown
+        header.write(pack('>I', 1))
+
+        # 0x38 - 0xb3 : Unknown (pad?)
+        header.write('\0'*124)
+
+        # 0xb4 - 0xb7 : TAGX offset
+        header.write(pack('>I', 0xc0))
+
+        # 0xb8 - 0xbf : Unknown
+        header.write('\0'*8)
+
+        header = header.getvalue()
+
+        indx0.write(header)
+        indx0.write(tagx)
+        indx0.write(idxt0)
+        indx0.write(indx0_indices)
+        indx0 = indx0.getvalue()
+
+        self._primary_index_record = len(self._records)
+        self._records.extend([indx0, indx1, self._ctoc])
+
+        # Indexing for author/description fields in summary section
+        # Test for indexed periodical - only one that needs secondary index
+        if self._MobiDoc.mobiType > 0x100 :
+            # Write secondary index records
+            #tagx = TAGX['secondary_'+\
+            #        ('periodical' if self.opts.mobi_periodical else 'book')]
+            tagx = TAGX['secondary_'+'periodical']
+            tagx_len = 8 + len(tagx)
+
+            # generate secondary INDX0
+            indx0 = StringIO()
+            indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)            # header + 8x00
+            indx0.write(pack('>I', 0x06))                          # generator ID
+            indx0.write(pack('>I', 0xe8))                          # IDXT offset
+            indx0.write(pack('>I', 1))                             # IDXT entries
+            indx0.write(pack('>I', 65001))                         # encoding
+            indx0.write('\xff'*4)                                  # language
+            indx0.write(pack('>I', 4))                             # IDXT Entries in INDX1
+            indx0.write('\0'*4)                                    # ORDT Offset
+            indx0.write('\0'*136)                                  # everything up to TAGX offset
+            indx0.write(pack('>I', 0xc0))                          # TAGX offset
+            indx0.write('\0'*8)                                    # unknowns
+            indx0.write('TAGX'+pack('>I', tagx_len)+tagx)          # TAGX
+            indx0.write('\x0D'+'mastheadImage' + '\x00\x04')       # mastheadImage
+            indx0.write('IDXT'+'\x00\xd8\x00\x00')                 # offset plus pad
+
+            # generate secondary INDX1
+            indx1 = StringIO()
+            indx1.write('INDX' + pack('>I', 0xc0) + '\0'*4)         # header + 4x00
+            indx1.write(pack('>I', 1))                              # blockType 1
+            indx1.write(pack('>I', 0x00))                           # unknown
+            indx1.write('\x00\x00\x00\xF0')                         # IDXT offset
+            indx1.write(pack('>I', 4))                              # num of IDXT entries
+            indx1.write('\xff'*8)                                   # encoding, language
+            indx1.write('\0'*(0xc0-indx1.tell()))                   # 00 to IDXT Entries @ 0xC0
+            indx1.write('\0\x01\x80')                               # 1 - null
+            indx1.write('\x06'+'author' + '\x02\x80\x80\xc7')           # author
+            indx1.write('\x0B'+'description' + '\x02\x80\x80\xc6')    # description
+            indx1.write('\x0D'+'mastheadImage' + '\x02\x85\x80\xc5')  # mastheadImage
+            indx1.write('IDXT'+'\x00\xc0\x00\xc3\x00\xce\x00\xde')      # IDXT header
+
+            # Write INDX0 and INDX1 to the stream
+            indx0, indx1 = indx0.getvalue(), indx1.getvalue()
+            self._records.extend((indx0, indx1))
+            if self.opts.verbose > 3:
+                from tempfile import mkdtemp
+                import os
+                t = mkdtemp()
+                for i, n in enumerate(['sindx1', 'sindx0', 'ctoc', 'indx0', 'indx1']):
+                    open(os.path.join(t, n+'.bin'), 'wb').write(self._records[-(i+1)])
+                self._oeb.log.debug('Index records dumped to', t)
+
+    def _clean_text_value(self, text):
+        if text and text.strip():
+            text = text.strip()
+            if not isinstance(text, unicode):
+                text = text.decode('utf-8', 'replace')
+            text = text.encode('utf-8')
+        else :
+            text = "(none)".encode('utf-8')
+        return text
+
+    def _add_flat_ctoc_node(self, node, ctoc, title=None):
+        # Process 'chapter' or 'article' nodes only, force either to 'chapter'
+        t = node.title if title is None else title
+        t = self._clean_text_value(t)
+        self._last_toc_entry = t
+
+        # Create an empty dictionary for this node
+        ctoc_name_map = {}
+
+        # article = chapter
+        if node.klass == 'article' :
+            ctoc_name_map['klass'] = 'chapter'
+        else :
+            ctoc_name_map['klass'] = node.klass
+
+        # Add title offset to name map
+        ctoc_name_map['titleOffset'] = ctoc.tell()
+        ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+        self._chapterCount += 1
+
+        # append this node's name_map to map
+        self._ctoc_map.append(ctoc_name_map)
+
+        return
+
+
+    def _add_structured_ctoc_node(self, node, ctoc, title=None):
+        # Process 'periodical', 'section' and 'article'
+        if node.klass is None :
+            return
+        t = node.title if title is None else title
+        t = self._clean_text_value(t)
+        self._last_toc_entry = t
+
+        # Create an empty dictionary for this node
+        ctoc_name_map = {}
+
+        # Add the klass of this node
+        ctoc_name_map['klass'] = node.klass
+
+        if node.klass == 'chapter':
+            # Add title offset to name map
+            ctoc_name_map['titleOffset'] = ctoc.tell()
+            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+            self._chapterCount += 1
+
+        elif node.klass == 'periodical' :
+            # Add title offset
+            ctoc_name_map['titleOffset'] = ctoc.tell()
+            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+
+            # Look for existing class entry 'periodical' in _ctoc_map
+            for entry in self._ctoc_map:
+                if entry['klass'] == 'periodical':
+                    # Use the pre-existing instance
+                    ctoc_name_map['classOffset'] = entry['classOffset']
+                    break
+                else :
+                    continue
+            else:
+                ctoc_name_map['classOffset'] = ctoc.tell()
+                ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+
+            self._periodicalCount += 1
+
+        elif node.klass == 'section' :
+            # Add title offset
+            ctoc_name_map['titleOffset'] = ctoc.tell()
+            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+
+            # Look for existing class entry 'section' in _ctoc_map
+            for entry in self._ctoc_map:
+                if entry['klass'] == 'section':
+                    # Use the pre-existing instance
+                    ctoc_name_map['classOffset'] = entry['classOffset']
+                    break
+                else :
+                    continue
+            else:
+                ctoc_name_map['classOffset'] = ctoc.tell()
+                ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+
+            self._sectionCount += 1
+
+        elif node.klass == 'article' :
+            # Add title offset/title
+            ctoc_name_map['titleOffset'] = ctoc.tell()
+            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+
+            # Look for existing class entry 'article' in _ctoc_map
+            for entry in self._ctoc_map:
+                if entry['klass'] == 'article':
+                    ctoc_name_map['classOffset'] = entry['classOffset']
+                    break
+                else :
+                    continue
+            else:
+                ctoc_name_map['classOffset'] = ctoc.tell()
+                ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+
+            # Add description offset/description
+            if node.description :
+                d = self._clean_text_value(node.description)
+                ctoc_name_map['descriptionOffset'] = ctoc.tell()
+                ctoc.write(decint(len(d), DECINT_FORWARD)+d)
+            else :
+                ctoc_name_map['descriptionOffset'] = None
+
+            # Add author offset/description
+            if node.author :
+                a = self._clean_text_value(node.author)
+                ctoc_name_map['authorOffset'] = ctoc.tell()
+                ctoc.write(decint(len(a), DECINT_FORWARD)+a)
+            else :
+                ctoc_name_map['authorOffset'] = None
+
+            self._articleCount += 1
+
+        else :
+            raise NotImplementedError( \
+            'writer._generate_ctoc.add_node: title: %s has unrecognized klass: %s, playOrder: %d' % \
+            (node.title, node.klass, node.play_order))
+
+        # append this node's name_map to map
+        self._ctoc_map.append(ctoc_name_map)
+
+    def _generate_ctoc(self):
+    	# Generate the compiled TOC strings
+    	# Each node has 1-4 CTOC entries:
+    	#	Periodical (0xDF)
+    	#		title, class
+    	#	Section (0xFF)
+    	#		title, class
+    	#	Article (0x3F)
+    	#		title, class, description, author
+    	#	Chapter (0x0F)
+    	#		title, class
+    	#   nb: Chapters don't actually have @class, so we synthesize it
+    	#   in reader._toc_from_navpoint
+
+        toc = self._oeb.toc
+        reduced_toc = []
+        self._ctoc_map = []				# per node dictionary of {class/title/desc/author} offsets
+        self._last_toc_entry = None
+        ctoc = StringIO()
+
+        # Track the individual node types
+        self._periodicalCount = 0
+        self._sectionCount = 0
+        self._articleCount = 0
+        self._chapterCount = 0
+
+        first = True
+
+        if self._conforming_periodical_toc :
+            self._oeb.logger.info('Generating structured CTOC ...')
+            for (child) in toc.iter():
+                if self.opts.verbose > 2 :
+                    self._oeb.logger.info("  %s" % child)
+                self._add_structured_ctoc_node(child, ctoc)
+                first = False
+        else :
+            self._oeb.logger.info('Generating flat CTOC ...')
+            for (i, child) in enumerate(toc.iter()):
+                # Only add chapters or articles at depth==1
+                # no class defaults to 'chapter'
+                if child.klass is None : child.klass = 'chapter'
+                if (child.klass == 'article' or child.klass == 'chapter') and child.depth() == 1 :
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("adding (klass:%s depth:%d) %s to flat ctoc" % \
+                                              (child.klass, child.depth(), child) )
+                    self._add_flat_ctoc_node(child, ctoc)
+                    reduced_toc.append(child)
+                    first = False
+                else :
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("skipping class: %s depth %d at position %d" % \
+                                              (child.klass, child.depth(),i))
+
+            # Update the TOC with our edited version
+            self._oeb.toc.nodes = reduced_toc
+
+        # Instantiate a MobiDocument(mobitype)
+        if (not self._periodicalCount and not self._sectionCount and not self._articleCount) or \
+            not self.opts.mobi_periodical :
+            mobiType = 0x002
+        elif self._periodicalCount and self._sectionCount == 1 :
+            mobiType = 0x102
+        elif self._periodicalCount and self._sectionCount > 1 :
+            pt = None
+            if self._oeb.metadata.publication_type:
+                x = unicode(self._oeb.metadata.publication_type[0]).split(':')
+                if len(x) > 1:
+                    pt = x[1]
+            mobiType = {'newspaper':0x101}.get(pt, 0x103)
+        else :
+            raise NotImplementedError('_generate_ctoc: Unrecognized document structured')
+
+        self._MobiDoc = MobiDocument(mobiType)
+
+        if self.opts.verbose > 2 :
+            structType = 'book'
+            if mobiType > 0x100 :
+                structType = 'flat periodical' if mobiType == 0x102 else 'structured periodical'
+            self._oeb.logger.info("Instantiating a %s MobiDocument of type 0x%X" % (structType, mobiType ) )
+            if mobiType > 0x100 :
+                self._oeb.logger.info("periodicalCount: %d  sectionCount: %d  articleCount: %d"% \
+                                    (self._periodicalCount, self._sectionCount, self._articleCount) )
+            else :
+                self._oeb.logger.info("chapterCount: %d" % self._chapterCount)
+
+        return align_block(ctoc.getvalue())
+
+    def _write_periodical_node(self, indxt, indices, index, offset, length, count, firstSection, lastSection) :
+        pos = 0xc0 + indxt.tell()
+        indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
+        name = "%04X"%count
+        indxt.write(chr(len(name)) + name)							# Write the name
+        indxt.write(INDXT['periodical'])						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(chr(1))                                         # subType 1
+        indxt.write(decint(offset, DECINT_FORWARD))					# offset
+        indxt.write(decint(length, DECINT_FORWARD))					# length
+        indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+
+        indxt.write(decint(0, DECINT_FORWARD))						# unknown byte
+
+        indxt.write(decint(self._ctoc_map[index]['classOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+        indxt.write(decint(firstSection, DECINT_FORWARD))           # first section in periodical
+        indxt.write(decint(lastSection, DECINT_FORWARD))            # first section in periodical
+
+        indxt.write(decint(0, DECINT_FORWARD))						# 0x80
+
+    def _write_section_node(self, indxt, indices, myCtocMapIndex, index, offset, length, count, firstArticle, lastArticle, parentIndex) :
+        pos = 0xc0 + indxt.tell()
+        indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
+        name = "%04X"%count
+        indxt.write(chr(len(name)) + name)							# Write the name
+        indxt.write(INDXT['section'])   						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(chr(0))                                         # subType 0
+        indxt.write(decint(offset, DECINT_FORWARD))					# offset
+        indxt.write(decint(length, DECINT_FORWARD))					# length
+        indxt.write(decint(self._ctoc_map[myCtocMapIndex]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+
+        indxt.write(decint(1, DECINT_FORWARD))						# unknown byte
+
+        indxt.write(decint(self._ctoc_map[myCtocMapIndex]['classOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+        indxt.write(decint(parentIndex, DECINT_FORWARD))			# index of periodicalParent
+        indxt.write(decint(firstArticle, DECINT_FORWARD))           # first section in periodical
+        indxt.write(decint(lastArticle, DECINT_FORWARD))            # first section in periodical
+
+    def _write_article_node(self, indxt, indices, index, offset, length, count, parentIndex) :
+        pos = 0xc0 + indxt.tell()
+        indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
+        name = "%04X"%count
+        indxt.write(chr(len(name)) + name)							# Write the name
+        indxt.write(INDXT['article'])   						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+
+        hasAuthor = True if self._ctoc_map[index]['authorOffset'] else False
+        hasDescription = True if self._ctoc_map[index]['descriptionOffset']  else False
+        initialOffset = offset
+
+        if hasAuthor :
+            if offset < 0x4000 :
+                # Set bit 17
+                offset += 0x00010000
+            else :
+                # Set bit 24
+                offset += 0x00800000
+
+        if hasDescription :
+            if initialOffset < 0x4000 :
+                # Set bit 16
+                offset += 0x00008000
+            else :
+                # Set bit 23
+                offset += 0x00400000
+
+        # If we didn't set any flags, write an extra zero in the stream
+        # Seems unnecessary, but matching Mobigen
+        if initialOffset == offset:
+            indxt.write(chr(0))
+
+        indxt.write(decint(offset, DECINT_FORWARD))					# offset
+
+        indxt.write(decint(length, DECINT_FORWARD))					# length
+        indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+
+        indxt.write(decint(2, DECINT_FORWARD))						# unknown byte
+
+        indxt.write(decint(self._ctoc_map[index]['classOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+        indxt.write(decint(parentIndex, DECINT_FORWARD))			# index of periodicalParent
+
+        # Optionally write the author and description fields
+        descriptionOffset = self._ctoc_map[index]['descriptionOffset']
+        if descriptionOffset :
+            indxt.write(decint(descriptionOffset, DECINT_FORWARD))
+
+        authorOffset = self._ctoc_map[index]['authorOffset']
+        if authorOffset :
+            indxt.write(decint(authorOffset, DECINT_FORWARD))
+
+    def _write_chapter_node(self, indxt, indices, index, offset, length, count):
+        # Writes an INDX1 NCXEntry of entryType 0x0F - chapter
+        if self.opts.verbose > 2:
+            # *** GR: Turn this off while I'm developing my code
+            #self._oeb.log.debug('Writing TOC node to IDXT:', node.title, 'href:', node.href)
+            pass
+
+        pos = 0xc0 + indxt.tell()
+        indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
+        name = "%04X"%count
+        indxt.write(chr(len(name)) + name)							# Write the name
+        indxt.write(INDXT['chapter'])								# entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(decint(offset, DECINT_FORWARD))					# offset
+        indxt.write(decint(length, DECINT_FORWARD))					# length
+        indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
+        indxt.write(decint(0, DECINT_FORWARD))						# unknown byte
+
+    def _compute_offset_length(self, i, node, entries) :
+        h = node.href
+        if h not in self._id_offsets:
+            self._oeb.log.warning('Could not find TOC entry:', node.title)
+            return -1, -1
+
+        offset = self._id_offsets[h]
+        length = None
+        # Calculate length based on next entry's offset
+        for sibling in entries[i+1:]:
+            h2 = sibling.href
+            if h2 in self._id_offsets:
+                offset2 = self._id_offsets[h2]
+                if offset2 > offset:
+                    length = offset2 - offset
+                    break
+        if length is None:
+            length = self._content_length - offset
+        return offset, length
+
+    def _establish_document_structure(self) :
+        documentType = None
+        try :
+            klass = self._ctoc_map[0]['klass']
+        except :
+            klass = None
+
+        if klass == 'chapter' or klass == None :
+            documentType = 'book'
+            if self.opts.verbose > 2 :
+                self._oeb.logger.info("Adding a MobiBook to self._MobiDoc")
+            self._MobiDoc.documentStructure = MobiBook()
+
+        elif klass == 'periodical' :
+            documentType = klass
+            if self.opts.verbose > 2 :
+                self._oeb.logger.info("Adding a MobiPeriodical to self._MobiDoc")
+            self._MobiDoc.documentStructure = MobiPeriodical(self._MobiDoc.getNextNode())
+            self._MobiDoc.documentStructure.startAddress = self._anchor_offset_kindle
+        else :
+            raise NotImplementedError('_establish_document_structure: unrecognized klass: %s' % klass)
+        return documentType
+
+    def _generate_section_indices(self, child, currentSection, myPeriodical, myDoc ) :
+        sectionTitles = list(child.iter())[1:]
+        sectionIndices = []
+        sectionParents = []
+        for (j, section) in enumerate(sectionTitles):
+            # iterate over just the sections
+
+            if section.klass == 'periodical' :
+                # Write our index to the list
+                sectionIndices.append(currentSection)
+
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info("Periodical: %15.15s \tkls:%s \tdpt:%d  ply:%03d" % \
+                        (section.title, section.klass, section.depth(), section.play_order) )
+
+            elif section.klass == 'section' :
+                # Add sections, save in list with original sequence number
+                myNewSection = myPeriodical.addSectionParent(myDoc, j)
+                sectionParents.append(myNewSection)
+
+                # Bump the section #
+                currentSection += 1
+                # Write our index to the list
+                sectionIndices.append(currentSection)
+
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info("   Section: %15.15s \tkls:%s \tdpt:%d  ply:%03d \tindex:%d" % \
+                        (section.title, section.klass, section.depth(), section.play_order,j) )
+
+            elif section.klass == 'article' :
+                # Write our index to the list
+                sectionIndices.append(currentSection)
+
+            else :
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info( " Unrecognized class %s in structured document" % section.klass)
+        return sectionIndices, sectionParents
+
+
+    def _generate_section_article_indices(self, i, section, entries, sectionIndices, sectionParents):
+                sectionArticles = list(section.iter())[1:]
+                # Iterate over the section's articles
+
+                for (j, article) in enumerate(sectionArticles):
+                    # Recompute offset and length for each article
+                    offset, length = self._compute_offset_length(i, article, entries)
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info( "article %02d: offset = 0x%06X length = 0x%06X" % (j, offset, length) )
+
+                    ctoc_map_index = i + j + 1
+
+                    #hasAuthor = self._ctoc_map[ctoc_map_index].get('authorOffset')
+                    #hasDescription = self._ctoc_map[ctoc_map_index].get('descriptionOffset')
+                    mySectionParent = sectionParents[sectionIndices[i-1]]
+                    myNewArticle = MobiArticle(mySectionParent, offset, length, ctoc_map_index )
+                    mySectionParent.addArticle( myNewArticle )
+
+
+    def _add_book_chapters(self, myDoc, indxt, indices):
+        chapterCount = myDoc.documentStructure.chapterCount()
+        if self.opts.verbose > 3 :
+            self._oeb.logger.info("Writing %d chapters for mobitype 0x%03X" % (chapterCount, myDoc.mobiType))
+
+        for (c, chapter) in enumerate(list(myDoc.documentStructure.chapters)) :
+            index = chapter.myCtocMapIndex
+            self._write_chapter_node(indxt, indices, index, chapter.startAddress, chapter.length, c)
+
+            last_name = "%04X"%c                                    # Returned when done
+        return last_name, c
+
+    def _add_periodical_flat_articles(self, myDoc, indxt, indices):
+        sectionParent = myDoc.documentStructure.sectionParents[0]
+        articleCount = len(sectionParent.articles)
+        if self.opts.verbose > 3 :
+            self._oeb.logger.info("Writing %d articles for mobitype 0x%03X" % (articleCount, myDoc.mobiType))
+
+        # Singleton periodical
+        index = 0
+        offset = myDoc.documentStructure.startAddress
+        length = myDoc.documentStructure.length
+        c = 0
+        firstSection = myDoc.documentStructure.firstSectionIndex
+        lastSection = myDoc.documentStructure.lastSectionIndex
+        self._write_periodical_node(indxt, indices, index, offset, length, c, firstSection, lastSection)
+
+        # Singleton section
+        index += 1
+        offset = sectionParent.startAddress
+        length = sectionParent.sectionLength
+        c += 1
+        firstArticle = sectionParent.firstArticleIndex
+        lastArticle = sectionParent.lastArticleIndex
+        parentIndex = sectionParent.parentIndex
+        self._write_section_node(indxt, indices, sectionParent.myCtocMapIndex, index, offset, length, c, firstArticle, lastArticle, parentIndex)
+
+        last_name = "%04X"%c
+
+        # articles
+        for (i, article) in enumerate(list(sectionParent.articles)) :
+            index = article.myCtocMapIndex
+            offset = article.startAddress
+            length = article.articleLength
+            c += 1
+            parentIndex = article.sectionParentIndex
+            self._write_article_node(indxt, indices, index, offset, length, c, parentIndex)
+
+        last_name = "%04X" % c
+        return last_name, c
+
+    def _add_periodical_structured_articles(self, myDoc, indxt, indices):
+        # Write NCXEntries for Structured Periodical
+        # <periodical>
+        #   <section>
+        #   <section> ...
+        #       <article>
+        #       <article> ...
+
+        if self.opts.verbose > 2 :
+            self._oeb.logger.info( "Writing NCXEntries for mobiType 0x%03X" % myDoc.mobiType)
+
+        sectionParent = myDoc.documentStructure.sectionParents[0]
+        articleCount = len(sectionParent.articles)
+
+        # Write opening periodical 0xDF entry
+        index = 0
+        offset = myDoc.documentStructure.startAddress
+        length = myDoc.documentStructure.length
+        c = 0
+        firstSection = myDoc.documentStructure.firstSectionIndex
+        lastSection = myDoc.documentStructure.lastSectionIndex
+        self._write_periodical_node(indxt, indices, index, offset, length, c, firstSection, lastSection)
+
+        # Write each section 0xFF entry
+        sectionCount = firstSection
+        while sectionCount <= lastSection :
+            # section
+            sectionParent = myDoc.documentStructure.sectionParents[sectionCount - 1]
+            articleCount = len(sectionParent.articles)
+            #index += 1
+            offset = sectionParent.startAddress
+            length = sectionParent.sectionLength
+            c += 1
+            firstArticle = sectionParent.firstArticleIndex
+            lastArticle = sectionParent.lastArticleIndex
+            parentIndex = sectionParent.parentIndex
+            self._write_section_node(indxt, indices, sectionParent.myCtocMapIndex, sectionCount, offset, length, c, firstArticle, lastArticle, parentIndex)
+            sectionCount += 1
+
+        # Write each article 0x3F entry
+        sectionCount = firstSection
+        while sectionCount <= lastSection :
+            # section
+            sectionParent = myDoc.documentStructure.sectionParents[sectionCount - 1]
+#                 articleCount = len(sectionParent.articles)
+#                 index += 1
+#                 offset = sectionParent.startAddress
+#                 length = sectionParent.sectionLength
+#                 c += 1
+#                 firstArticle = sectionParent.firstArticleIndex
+#                 lastArticle = sectionParent.lastArticleIndex
+#                 parentIndex = sectionParent.parentIndex
+#                 add_section_node(index, offset, length, c, firstArticle, lastArticle, parentIndex)
+
+            last_name = "%04X"%c
+
+            # articles
+            for (i, article) in enumerate(list(sectionParent.articles)) :
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info( "Adding section:article %d:%02d" % \
+                        (sectionParent.myIndex, i))
+                index = article.myCtocMapIndex
+                offset = article.startAddress
+                length = article.articleLength
+                c += 1
+                parentIndex = article.sectionParentIndex
+                self._write_article_node(indxt, indices, index, offset, length, c, parentIndex)
+
+                last_name = "%04X"%c
+
+            sectionCount += 1
+
+        return last_name, c
+
+    def _generate_indxt(self, ctoc):
+        # Assumption: child.depth() represents nestedness of the TOC.
+        # A flat document (book) has a depth of 2:
+        # <navMap>					child.depth() = 2
+        #	<navPoint>	Chapter		child.depth() = 1
+        #	<navPoint>	Chapter		etc
+        # -or-
+        # A structured document (periodical) has a depth of 4 (Mobigen-prepped)
+        # <navMap>					child.depth() = 4
+        #  <navPoint>	Periodical	child.depth() = 3
+        #   <navPoint>	Section	1	child.depth() = 2
+        #    <navPoint> Article		child.depth() = 1
+        #	 <navPoint> Article(s)	child.depth() = 1
+        #   <navpoint>	Section 2
+
+        documentType = "unknown"
+        sectionIndices = []
+        sectionParents = []
+        currentSection = 0      # Starting section number
+        toc = self._oeb.toc
+        indxt, indices, c = StringIO(), StringIO(), 0
+
+        indices.write('IDXT')
+        c = 0
+        last_name = None
+
+        # 'book', 'periodical' or None
+        documentType = self._establish_document_structure()
+        myDoc = self._MobiDoc
+
+        nodes = list(toc.iter())[0:1]
+        for (i, child) in enumerate(nodes) :
+
+            if documentType == "periodical" :
+                myPeriodical = myDoc.documentStructure
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info("\nDocument: %s \tkls:%s \tdpt:%d  ply:%03d" % \
+                        (child.title, child.klass, child.depth(), child.play_order) )
+                sectionIndices, sectionParents = \
+                    self._generate_section_indices(child, currentSection, myPeriodical, myDoc)
+
+            elif documentType == "book" :
+                myBook = myDoc.documentStructure
+
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info("\nBook: %-19.19s \tkls:%s \tdpt:%d  ply:%03d" % \
+                    (child.title, child.klass, child.depth(), child.play_order) )
+            else :
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info("unknown document type %12.12s \tdepth:%d" % (child.title, child.depth()) )
+
+		# Original code starts here
+		# test first node for depth/class
+        entries = list(toc.iter())[1:]
+        for (i, child) in enumerate(entries):
+            if not child.title or not child.title.strip():
+                continue
+
+            offset, length = self._compute_offset_length(i, child, entries)
+
+            if child.klass == 'chapter'  or  \
+                (not self.opts.mobi_periodical and child.klass == 'article') :
+                # create chapter object - confirm i + 0 is correct!!
+                myNewChapter = MobiChapter(myDoc.getNextNode(), offset, length, i)
+                myBook.addChapter(myNewChapter)
+
+                # Diagnostic
+                try :
+                    if self.opts.verbose > 3 :
+                        self._oeb.logger.info( "  Chapter: %-14.14s \tcls:%s \tdpt:%d  ply:%03d \toff:0x%X \t:len0x%X" % \
+                        (child.title, child.klass, child.depth(), child.play_order, offset, length) )
+                except :
+                    if self.opts.verbose > 3 :
+                        self._oeb.logger.info( "  Chapter: %-14.14s \tclass:%s \tdepth:%d  playOrder:%03d \toff:0x%X \t:len0x%X" % \
+                        ("(bad string)", child.klass, child.depth(), child.play_order, offset, length))
+
+            elif child.klass == 'section' and self.opts.mobi_periodical :
+                if self.opts.verbose > 3 :
+                    self._oeb.logger.info("\n  Section: %-15.15s \tkls:%s \tdpt:%d  ply:%03d" % \
+                        (child.title, child.klass, child.depth(), child.play_order))
+                self._generate_section_article_indices(i, child, entries, sectionIndices, sectionParents)
+
+        if self.opts.verbose > 3 :
+            self._oeb.logger.info("")
+
+        mobiType = myDoc.mobiType
+        if self.opts.verbose > 3 :
+            self._MobiDoc.dumpInfo()
+
+        if mobiType == 0x02 :
+            last_name, c = self._add_book_chapters(myDoc, indxt, indices)
+
+        elif mobiType == 0x102 and myDoc.documentStructure.sectionCount() == 1 :
+            last_name, c = self._add_periodical_flat_articles(myDoc, indxt, indices)
+
+        else :
+            last_name, c = self._add_periodical_structured_articles(myDoc, indxt, indices)
+
+        return align_block(indxt.getvalue()), c, align_block(indices.getvalue()), last_name
 
 class HTMLRecordData(object):
+    """ A data structure containing indexing/navigation data for an HTML record """
     def __init__(self):
         self._continuingNode = -1
         self._continuingNodeParent = -1
@@ -1286,4 +2504,345 @@ class HTMLRecordData(object):
         oeb.logger.info( "         nextSectionNumber: %03d" % self.nextSectionNumber )
         oeb.logger.info( "    nextSectionOpeningNode: %03d" % self.nextSectionOpeningNode )
         oeb.logger.info( "      nextSectionNodeCount: %03d" % self.nextSectionNodeCount )
+
+class MobiDocument(object):
+    """ Hierarchical description of a Mobi document """
+
+    # Counter to assign index values as new nodes are created
+    _nextNode = -1
+
+    def __init__(self, mobitype):
+        self._mobitype = mobitype
+        self._documentStructure = None              # Assigned in _generate_indxt
+
+    def getMobiType(self):
+        return self._mobitype
+    def setMobiType(self, value):
+        self._mobitype = value
+    mobiType = property(getMobiType, setMobiType, None, None)
+
+    def getDocumentStructure(self):
+        return self._documentStructure
+    def setDocumentStructure(self, value):
+        self._documentStructure = value
+    documentStructure = property(getDocumentStructure, setDocumentStructure, None, None)
+
+    def getNextNode(self):
+        self._nextNode += 1
+        return self._nextNode
+
+    def dumpInfo(self):
+        self._documentStructure.dumpInfo()
+
+class MobiBook(object):
+    """ A container for a flat chapter-to-chapter Mobi book """
+    def __init__(self):
+        self._chapters = []
+
+    def chapterCount(self):
+        return len(self._chapters)
+
+    def getChapters(self):
+        return self._chapters
+    def setChapters(self, value):
+        self._chapters = value
+    chapters = property(getChapters, setChapters, None, None)
+
+    def addChapter(self, value):
+        self._chapters.append(value)
+
+    def dumpInfo(self):
+        print "%20s:" % ("Book")
+        print "%20s: %d" % ("Number of chapters", len(self._chapters))
+        for (count, chapter) in enumerate(self._chapters):
+            print "%20s: %d"    % ("myCtocMapIndex",chapter.myCtocMapIndex)
+            print "%20s: %d"    % ("Chapter",count)
+            print "%20s: 0x%X"  % ("startAddress", chapter.startAddress)
+            print "%20s: 0x%X"  % ("length", chapter.length)
+            print
+
+class MobiChapter(object):
+    """ A container for Mobi chapters """
+    def __init__(self, myIndex, startAddress, length, ctoc_map_index):
+        self._myIndex = myIndex
+        self._startAddress = startAddress
+        self._length = length
+        self._myCtocMapIndex = ctoc_map_index
+
+    def getMyCtocMapIndex(self):
+        return self._myCtocMapIndex
+    def setMyCtocMapIndex(self, value):
+        self._myCtocMapIndex = value
+    myCtocMapIndex = property(getMyCtocMapIndex, setMyCtocMapIndex, None, None)
+
+    def getMyIndex(self):
+        return self._myIndex
+    myIndex = property(getMyIndex, None, None, None)
+
+    def getStartAddress(self):
+        return self._startAddress
+    def setStartAddress(self, value):
+        self._startAddress = value
+    startAddress = property(getStartAddress, setStartAddress, None, None)
+
+    def getLength(self):
+        return self._length
+    def setLength(self, value):
+        self._length = value
+    length = property(getLength, setLength, None, None)
+
+class MobiPeriodical(object):
+    """ A container for a structured periodical """
+    def __init__(self, myIndex):
+        self._myIndex = myIndex
+        self._sectionParents = []
+        self._startAddress = 0xFFFFFFFF
+        self._length = 0xFFFFFFFF
+        self._firstSectionIndex = 0xFFFFFFFF
+        self._lastSectionIndex = 0xFFFFFFFF
+        self._myCtocMapIndex = 0    # Always first entry
+
+    def getMyIndex(self):
+        return self._myIndex
+    def setMyIndex(self, value):
+        self._myIndex = value
+    myIndex = property(getMyIndex, setMyIndex, None, None)
+
+    def getSectionParents(self):
+        return self._sectionParents
+    def setSectionParents(self, value):
+        self._sectionParents = value
+    sectionParents = property(getSectionParents, setSectionParents, None, None)
+
+    def sectionCount(self):
+        return len(self._sectionParents)
+
+    def getStartAddress(self):
+        return self._startAddress
+    def setStartAddress(self, value):
+        self._startAddress = value
+    startAddress = property(getStartAddress, setStartAddress, None, None)
+
+    def getLength(self):
+        return self._length
+    def setLength(self, value):
+        self._length = value
+    length = property(getLength, setLength, None, None)
+
+    def getFirstSectionIndex(self):
+        return self._firstSectionIndex
+    def setFirstSectionIndex(self, value):
+        self._firstSectionIndex = value
+    firstSectionIndex = property(getFirstSectionIndex, setFirstSectionIndex, None, None)
+
+    def getLastSectionIndex(self):
+        return self._lastSectionIndex
+    def setLastSectionIndex(self, value):
+        self._lastSectionIndex = value
+    lastSectionIndex = property(getLastSectionIndex, setLastSectionIndex, None, None)
+
+    def getMyCtocMapIndex(self):
+        return self._myCtocMapIndex
+    def setMyCtocMapIndex(self, value):
+        self._myCtocMapIndex = value
+    myCtocMapIndex = property(getMyCtocMapIndex, setMyCtocMapIndex, None, None)
+
+    def addSectionParent(self, myIndex, ctoc_map_index):
+        # Create a new section parent
+        newSection = MobiSection(myIndex)
+        # Assign our index to the section
+        newSection.parentIndex = self._myIndex
+        # Assign section number
+        newSection.sectionIndex = len(self._sectionParents)
+        # Assign ctoc_map_index
+        newSection.myCtocMapIndex = ctoc_map_index
+        # Add it to the list
+        self._sectionParents.append(newSection)
+        return newSection
+
+    def dumpInfo(self):
+        print "%20s:" % ("Periodical")
+        print "%20s: 0x%X" % ("myIndex", self.myIndex)
+        print "%20s: 0x%X" % ("startAddress", self.startAddress)
+        print "%20s: 0x%X" % ("length", self.length)
+        print "%20s: 0x%X" % ("myCtocMapIndex", self.myCtocMapIndex)
+        print "%20s: 0x%X" % ("firstSectionIndex", self.firstSectionIndex)
+        print "%20s: 0x%X" % ("lastSectionIndex", self.lastSectionIndex)
+        print "%20s: %d" % ("Number of Sections", len(self._sectionParents))
+        for (count, section) in enumerate(self._sectionParents):
+            print "\t%20s: %d"    % ("Section",count)
+            print "\t%20s: 0x%X"  % ("startAddress", section.startAddress)
+            print "\t%20s: 0x%X"  % ("length", section.sectionLength)
+            print "\t%20s: 0x%X"  % ("parentIndex", section.parentIndex)
+            print "\t%20s: 0x%X"  % ("myIndex", section.myIndex)
+            print "\t%20s: 0x%X"  % ("firstArticleIndex", section.firstArticleIndex)
+            print "\t%20s: 0x%X"  % ("lastArticleIndex", section.lastArticleIndex)
+            print "\t%20s: 0x%X"  % ("articles", len(section.articles) )
+            print "\t%20s: 0x%X"  % ("myCtocMapIndex", section.myCtocMapIndex )
+            print
+            for (artCount, article) in enumerate(section.articles) :
+                print "\t\t%20s: %d"    % ("Article",artCount)
+                print "\t\t%20s: 0x%X"  % ("startAddress", article.startAddress)
+                print "\t\t%20s: 0x%X"  % ("length", article.articleLength)
+                print "\t\t%20s: 0x%X"  % ("sectionIndex", article.sectionParentIndex)
+                print "\t\t%20s: 0x%X"  % ("myIndex", article.myIndex)
+                print "\t\t%20s: 0x%X"  % ("myCtocMapIndex", article.myCtocMapIndex)
+                print
+
+class MobiSection(object):
+    """ A container for periodical sections """
+    def __init__(self, myMobiDoc):
+        self._myMobiDoc = myMobiDoc
+        self._myIndex = myMobiDoc.getNextNode()
+        self._parentIndex = 0xFFFFFFFF
+        self._firstArticleIndex = 0x00
+        self._lastArticleIndex = 0x00
+        self._startAddress = 0xFFFFFFFF
+        self._sectionLength = 0xFFFFFFFF
+        self._articles = []
+        self._myCtocMapIndex = -1
+
+    def getMyMobiDoc(self):
+        return self._myMobiDoc
+    def setMyMobiDoc(self, value):
+        self._myMobiDoc = value
+    myMobiDoc = property(getMyMobiDoc, setMyMobiDoc, None, None)
+
+    def getMyIndex(self):
+        return self._myIndex
+    def setMyIndex(self, value):
+        self._myIndex = value
+    myIndex = property(getMyIndex, setMyIndex, None, None)
+
+    def getParentIndex(self):
+        return self._parentIndex
+    def setParentIndex(self, value):
+        self._parentIndex = value
+    parenIndex = property(getParentIndex, setParentIndex, None, None)
+
+    def getFirstArticleIndex(self):
+        return self._firstArticleIndex
+    def setFirstArticleIndex(self, value):
+        self._firstArticleIndex = value
+    firstArticleIndex = property(getFirstArticleIndex, setFirstArticleIndex, None, None)
+
+    def getLastArticleIndex(self):
+        return self._lastArticleIndex
+    def setLastArticleIndex(self, value):
+        self._lastArticleIndex = value
+    lastArticleIndex = property(getLastArticleIndex, setLastArticleIndex, None, None)
+
+    def getStartAddress(self):
+        return self._startAddress
+    def setStartAddress(self, value):
+        self._startAddress = value
+    startAddress = property(getStartAddress, setStartAddress, None, None)
+
+    def getSectionLength(self):
+        return self._sectionLength
+    def setSectionLength(self, value):
+        self._sectionLength = value
+    sectionLength = property(getSectionLength, setSectionLength, None, None)
+
+    def getArticles(self):
+        return self._articles
+    def setArticles(self, value):
+        self._articles = value
+    articles = property(getArticles, setArticles, None, None)
+
+    def getMyCtocMapIndex(self):
+        return self._myCtocMapIndex
+    def setMyCtocMapIndex(self, value):
+        self._myCtocMapIndex = value
+    myCtocMapIndex = property(getMyCtocMapIndex, setMyCtocMapIndex, None, None)
+
+    def addArticle(self, article):
+        self._articles.append(article)
+
+        # Adjust the Periodical parameters
+        # If this is the first article of the first section, init the values
+        if self.myIndex == 1 and len(self.articles) == 1 :
+            self.myMobiDoc.documentStructure.firstSectionIndex = self.myIndex
+            self.myMobiDoc.documentStructure.lastSectionIndex = self.myIndex
+            self.myMobiDoc.documentStructure.length = article.articleLength + \
+                ( article.startAddress - self.myMobiDoc.documentStructure.startAddress)
+        else:
+            self.myMobiDoc.documentStructure.length += article.articleLength
+
+        # Always set the highest section index to myIndex
+        self.myMobiDoc.documentStructure.lastSectionIndex = self.myIndex
+
+        # Adjust the Section parameters
+        if len(self.articles) == 1 :
+            self.firstArticleIndex = article.myIndex
+
+            if len(self.myMobiDoc.documentStructure.sectionParents) == 1 :
+                self.startAddress = self.myMobiDoc.documentStructure.startAddress
+                self.sectionLength = article.articleLength + \
+                    ( article.startAddress - self.myMobiDoc.documentStructure.startAddress )
+
+            else :
+                self.startAddress = article.startAddress
+                self.sectionLength = article.articleLength
+
+            self.lastArticleIndex = article.myIndex
+        else :
+            self.lastArticleIndex = article.myIndex
+
+        # Adjust the Section length
+        if len(self.articles) > 1 :
+            self.sectionLength += article.articleLength
+
+class MobiArticle(object):
+    """ A container for periodical articles """
+    def __init__(self, sectionParent, startAddress, length, ctocMapIndex):
+        self._mySectionParent = sectionParent
+        self._myMobiDoc = sectionParent.myMobiDoc
+        self._myIndex = sectionParent.myMobiDoc.getNextNode()
+        self._myCtocMapIndex = ctocMapIndex
+        self._sectionParentIndex = sectionParent.myIndex
+        self._startAddress = startAddress
+        self._articleLength = length
+
+    def getMySectionParent(self):
+        return self._mySectionParent
+    def setMySectionParent(self, value):
+        self._mySectionParent = value
+    mySectionParent = property(getMySectionParent, setMySectionParent, None, None)
+
+    def getMyMobiDoc(self):
+        return self._myMobiDoc
+    def setMyMobiDoc(self, value):
+        self._myMobiDoc = value
+    myMobiDoc = property(getMyMobiDoc, setMyMobiDoc, None, None)
+
+    def getMyIndex(self):
+        return self._myIndex
+    def setMyIndex(self, value):
+        self._sectionIndex = value
+    myIndex = property(getMyIndex, setMyIndex, None, None)
+
+    def getSectionParentIndex(self):
+        return self._sectionParentIndex
+    def setSectionParentIndex(self, value):
+        self._sectionParentIndex = value
+    sectionParentIndex = property(getSectionParentIndex, setSectionParentIndex, None, None)
+
+    def getStartAddress(self):
+        return self._startAddress
+    def setStartAddress(self, value):
+        self._startAddress = value
+    startAddress = property(getStartAddress, setStartAddress, None, None)
+
+    def getArticleLength(self):
+        return self._articleLength
+    def setArticleLength(self, value):
+        self._articleLength = value
+    articleLength = property(getArticleLength, setArticleLength, None, None)
+
+    def getMyCtocMapIndex(self):
+        return self._myCtocMapIndex
+    def setMyCtocMapIndex(self, value):
+        self._myCtocMapIndex = value
+    myCtocMapIndex = property(getMyCtocMapIndex, setMyCtocMapIndex, None, None)
 

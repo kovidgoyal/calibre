@@ -47,7 +47,7 @@ XPNSMAP      = {'h'  : XHTML_NS, 'o1' : OPF1_NS,    'o2' : OPF2_NS,
                 'd09': DC09_NS,  'd10': DC10_NS,    'd11': DC11_NS,
                 'xsi': XSI_NS,   'dt' : DCTERMS_NS, 'ncx': NCX_NS,
                 'svg': SVG_NS,   'xl' : XLINK_NS,   're': RE_NS,
-                'mbp': MBP_NS }
+                'mbp': MBP_NS, 'calibre': CALIBRE_NS }
 
 OPF1_NSMAP   = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
 OPF2_NSMAP   = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
@@ -455,7 +455,8 @@ class Metadata(object):
                          'description', 'format', 'identifier', 'language',
                          'publisher', 'relation', 'rights', 'source',
                          'subject', 'title', 'type'])
-    CALIBRE_TERMS = set(['series', 'series_index', 'rating', 'timestamp'])
+    CALIBRE_TERMS = set(['series', 'series_index', 'rating', 'timestamp',
+                         'publication_type'])
     OPF_ATTRS     = {'role': OPF('role'), 'file-as': OPF('file-as'),
                      'scheme': OPF('scheme'), 'event': OPF('event'),
                      'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}

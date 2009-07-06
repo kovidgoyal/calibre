@@ -64,6 +64,10 @@ class BasicNewsRecipe(Recipe):
     #: Delay between consecutive downloads in seconds
     delay                  = 0
 
+    #: Publication type
+    #: Set to newspaper, magazine or blog
+    publication_type = 'unknown'
+
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
     #: Automatically reduced to 1 if :attr:`BasicNewsRecipe.delay` > 0
     simultaneous_downloads = 5
@@ -848,6 +852,7 @@ class BasicNewsRecipe(Recipe):
         mi = MetaInformation(self.title + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
+        mi.publication_type = 'periodical:'+self.publication_type
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
         opf = OPFCreator(dir, mi)
@@ -878,13 +883,16 @@ class BasicNewsRecipe(Recipe):
             for j, a in enumerate(f):
                 if getattr(a, 'downloaded', False):
                     adir = 'feed_%d/article_%d/'%(num, j)
+                    desc = a.text_summary
+                    if not desc:
+                        desc = None
                     entries.append('%sindex.html'%adir)
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
                         self.play_order_counter += 1
                         po = self.play_order_counter
                     parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
-                                    play_order=po)
+                                    play_order=po, description=desc)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
@@ -915,7 +923,11 @@ class BasicNewsRecipe(Recipe):
                 if po is None:
                     self.play_order_counter += 1
                     po = self.play_order_counter
-                feed_index(i, toc.add_item('feed_%d/index.html'%i, None, f.title, play_order=po))
+                desc = f.description
+                if not desc:
+                    desc = None
+                feed_index(i, toc.add_item('feed_%d/index.html'%i, None,
+                    f.title, play_order=po, description=desc))
         else:
             entries.append('feed_%d/index.html'%0)
             feed_index(0, toc)

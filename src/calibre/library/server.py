@@ -221,9 +221,20 @@ class LibraryServer(object):
 
     def get_format(self, id, format):
         format = format.upper()
-        fmt = self.db.format(id, format, index_is_id=True, as_file=True, mode='rb')
+        fmt = self.db.format(id, format, index_is_id=True, as_file=True,
+                mode='r+b')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
+        if format == 'EPUB':
+            from tempfile import TemporaryFile
+            from calibre.ebooks.metadata.meta import set_metadata
+            raw = fmt.read()
+            fmt = TemporaryFile()
+            fmt.write(raw)
+            fmt.seek(0)
+            set_metadata(fmt, self.db.get_metadata(id, index_is_id=True),
+                    'epub')
+            fmt.seek(0)
         mt = guess_type('dummy.'+format.lower())[0]
         if mt is None:
             mt = 'application/octet-stream'

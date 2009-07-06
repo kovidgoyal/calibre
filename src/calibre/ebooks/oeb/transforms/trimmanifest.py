@@ -64,8 +64,5 @@ class ManifestTrimmer(object):
             unchecked = new
         for item in oeb.manifest.values():
             if item not in used:
-                if getattr(self.opts, 'mobi_periodical', False) and \
-                        item.href == 'images/mastheadImage.gif':
-                    continue
                 oeb.logger.info('Trimming %r from manifest' % item.href)
                 oeb.manifest.remove(item)

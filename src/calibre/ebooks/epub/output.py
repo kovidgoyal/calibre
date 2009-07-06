@@ -17,6 +17,34 @@ from calibre.customize.conversion import OptionRecommendation
 
 from lxml import etree
 
+block_level_tags = (
+      'address',
+      'body',
+      'blockquote',
+      'center',
+      'dir',
+      'div',
+      'dl',
+      'fieldset',
+      'form',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'hr',
+      'isindex',
+      'menu',
+      'noframes',
+      'noscript',
+      'ol',
+      'p',
+      'pre',
+      'table',
+      'ul',
+      )
+
 
 class EPUBOutput(OutputFormatPlugin):
 
@@ -197,8 +225,6 @@ class EPUBOutput(OutputFormatPlugin):
             if 'titlepage' in self.oeb.guide.refs:
                 self.oeb.guide.refs['titlepage'].href = item.href
 
-
-
     def condense_ncx(self, ncx_path):
         if not self.opts.pretty_print:
             tree = etree.parse(ncx_path)
@@ -210,46 +236,46 @@ class EPUBOutput(OutputFormatPlugin):
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
             open(ncx_path, 'wb').write(compressed)
 
-
-
     def workaround_ade_quirks(self):
         '''
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
         '''
-        from calibre.ebooks.oeb.base import XPNSMAP, XHTML, OEB_STYLES
-        from lxml.etree import XPath as _XPath
-        from functools import partial
-        XPath = partial(_XPath, namespaces=XPNSMAP)
+        from calibre.ebooks.oeb.base import XPath, XHTML, OEB_STYLES, barename
 
         for x in self.oeb.spine:
             root = x.data
             body = XPath('//h:body')(root)
             if body:
                 body = body[0]
+
             # Replace <br> that are children of <body> as ADE doesn't handle them
             if hasattr(body, 'xpath'):
                 for br in XPath('./h:br')(body):
                     if br.getparent() is None:
                         continue
                     try:
-                        sibling = br.itersiblings().next()
+                        prior = br.itersiblings(preceding=True).next()
+                        priortag = barename(prior.tag)
+                        priortext = prior.tail
                     except:
-                        sibling = None
+                        priortag = 'body'
+                        priortext = body.text
+                    if priortext:
+                        priortext = priortext.strip()
                     br.tag = XHTML('p')
                     br.text = u'\u00a0'
-                    if (br.tail and br.tail.strip()) or sibling is None or \
-                    getattr(sibling, 'tag', '') != XHTML('br'):
-                        style = br.get('style', '').split(';')
-                        style = filter(None, map(lambda x: x.strip(), style))
-                        style.append('margin: 0pt; border:0pt; height:0pt')
-                        br.set('style', '; '.join(style))
+                    style = br.get('style', '').split(';')
+                    style = filter(None, map(lambda x: x.strip(), style))
+                    style.append('margin:0pt; border:0pt')
+                    # If the prior tag is a block (including a <br> we replaced)
+                    # then this <br> replacement should have a 1-line height.
+                    # Otherwise it should have no height.
+                    if not priortext and priortag in block_level_tags:
+                        style.append('height:1em')
                     else:
-                        sibling.getparent().remove(sibling)
-                        if sibling.tail:
-                            if not br.tail:
-                                br.tail = ''
-                            br.tail += sibling.tail
+                        style.append('height:0pt')
+                    br.set('style', '; '.join(style))
 
             for tag in XPath('//h:embed')(root):
                 tag.getparent().remove(tag)

@@ -192,6 +192,7 @@ class OEBReader(object):
                         if not scheme and href not in known:
                             new.add(href)
             unchecked.clear()
+            warned = set([])
             for href in new:
                 known.add(href)
                 is_invalid = False
@@ -202,9 +203,13 @@ class OEBReader(object):
                 if is_invalid:
                     continue
                 if not self.oeb.container.exists(href):
-                    self.logger.warn('Referenced file %r not found' % href)
+                    if href not in warned:
+                        self.logger.warn('Referenced file %r not found' % href)
+                        warned.add(href)
                     continue
-                self.logger.warn('Referenced file %r not in manifest' % href)
+                if href not in warned:
+                    self.logger.warn('Referenced file %r not in manifest' % href)
+                    warned.add(href)
                 id, _ = manifest.generate(id='added')
                 guessed = guess_type(href)[0]
                 media_type = guessed or BINARY_MIME
@@ -330,14 +335,14 @@ class OEBReader(object):
             po = int(child.get('playOrder', self.oeb.toc.next_play_order()))
 
             authorElement = xpath(child,
-                    'descendant::mbp:meta[@name = "author"]')
+                    'descendant::calibre:meta[@name = "author"]')
             if authorElement :
                 author = authorElement[0].text
             else :
                 author = None
 
             descriptionElement = xpath(child,
-                    'descendant::mbp:meta[@name = "description"]')
+                    'descendant::calibre:meta[@name = "description"]')
             if descriptionElement :
                 description = descriptionElement[0].text
             else :

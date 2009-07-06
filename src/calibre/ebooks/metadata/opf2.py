@@ -440,10 +440,12 @@ class OPF(object):
     language        = MetadataField('language')
     comments        = MetadataField('description')
     category        = MetadataField('category')
+    rights          = MetadataField('rights')
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
     pubdate         = MetadataField('date', formatter=parser.parse)
+    publication_type = MetadataField('publication_type', is_dc=False)
     timestamp       = MetadataField('timestamp', is_dc=False, formatter=parser.parse)
 
 
