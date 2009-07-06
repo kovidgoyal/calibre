@@ -256,8 +256,8 @@ class IlliadOutput(OutputProfile):
     short_name  = 'illiad'
     description = _('This profile is intended for the Irex Illiad.')
 
-    screen_size               = (744, 1022)
-    comic_screen_size         = (741, 1022)
+    screen_size               = (760, 925)
+    comic_screen_size         = (760, 925)
     dpi                       = 160.0
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
