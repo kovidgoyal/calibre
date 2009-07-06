@@ -386,8 +386,16 @@ class MobiWriter(object):
     def _map_image_names(self):
         index = 1
         self._images = images = {}
+        mh_href = None
+
+        if 'masthead' in self._oeb.guide:
+            mh_href = self._oeb.guide['masthead'].href
+            images[mh_href] = 1
+            index += 1
+
         for item in self._oeb.manifest.values():
             if item.media_type in OEB_RASTER_IMAGES:
+                if item.href == mh_href: continue
                 images[item.href] = index
                 index += 1
 
@@ -1195,6 +1203,13 @@ class MobiWriter(object):
             self._oeb.logger.info('metadata missing timestamp needed for periodical')
             return False
 
+        # Periodicals also need a mastheadImage in the manifest
+        has_mastheadImage = 'masthead' in self._oeb.guide
+
+        if not has_mastheadImage :
+            self._oeb.logger.info('mastheadImage missing from manifest, aborting periodical indexing')
+            return False
+
         self._oeb.logger.info('TOC structure and pubdate verified')
         return True
 
@@ -1724,26 +1739,26 @@ class MobiWriter(object):
 
             # generate secondary INDX0
             indx0 = StringIO()
-            indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)  		   # header + 8x00
-            indx0.write(pack('>I', 0x06))                		   # generator ID
-            indx0.write(pack('>I', 0xe8))     		                # IDXT offset
-            indx0.write(pack('>I', 1))                   		   # IDXT entries
-            indx0.write(pack('>I', 65001))               		   # encoding
-            indx0.write('\xff'*4)                        		   # language
-            indx0.write(pack('>I', 4))                   		   # IDXT Entries in INDX1
-            indx0.write('\0'*4)                          		   # ORDT Offset
-            indx0.write('\0'*136)                        		   # everything up to TAGX offset
-            indx0.write(pack('>I', 0xc0))                		   # TAGX offset
-            indx0.write('\0'*8)                          		   # unknowns
-            indx0.write('TAGX'+pack('>I', tagx_len)+tagx)		   # TAGX
-            indx0.write('\x0D'+'mastheadImage' + '\x00\x04')        # mastheadImage
-            indx0.write('IDXT'+'\x00\xd8\x00\x00')                          # offset plus pad
+            indx0.write('INDX'+pack('>I', 0xc0)+'\0'*8)            # header + 8x00
+            indx0.write(pack('>I', 0x06))                          # generator ID
+            indx0.write(pack('>I', 0xe8))                          # IDXT offset
+            indx0.write(pack('>I', 1))                             # IDXT entries
+            indx0.write(pack('>I', 65001))                         # encoding
+            indx0.write('\xff'*4)                                  # language
+            indx0.write(pack('>I', 4))                             # IDXT Entries in INDX1
+            indx0.write('\0'*4)                                    # ORDT Offset
+            indx0.write('\0'*136)                                  # everything up to TAGX offset
+            indx0.write(pack('>I', 0xc0))                          # TAGX offset
+            indx0.write('\0'*8)                                    # unknowns
+            indx0.write('TAGX'+pack('>I', tagx_len)+tagx)          # TAGX
+            indx0.write('\x0D'+'mastheadImage' + '\x00\x04')       # mastheadImage
+            indx0.write('IDXT'+'\x00\xd8\x00\x00')                 # offset plus pad
 
             # generate secondary INDX1
             indx1 = StringIO()
             indx1.write('INDX' + pack('>I', 0xc0) + '\0'*4)         # header + 4x00
             indx1.write(pack('>I', 1))                              # blockType 1
-            indx1.write(pack('>I', 0x00))                		    # unknown
+            indx1.write(pack('>I', 0x00))                           # unknown
             indx1.write('\x00\x00\x00\xF0')                         # IDXT offset
             indx1.write(pack('>I', 4))                              # num of IDXT entries
             indx1.write('\xff'*8)                                   # encoding, language
