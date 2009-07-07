@@ -48,11 +48,7 @@ class MOBIOutput(OutputFormatPlugin):
             self.opts.mobi_periodical = False
 
     def check_for_masthead(self):
-        found = False
-        for typ in self.oeb.guide:
-            if type == 'masthead':
-                found = True
-                break
+        found = 'masthead' in self.oeb.guide
         if not found:
             self.oeb.log.debug('No masthead found, generating default one...')
             from calibre.resources import server_resources
