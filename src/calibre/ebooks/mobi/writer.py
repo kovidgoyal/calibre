@@ -1953,6 +1953,8 @@ class MobiWriter(object):
                 first = False
         else :
             self._oeb.logger.info('Generating flat CTOC ...')
+            previousOffset = -1
+            currentOffset = 0
             for (i, child) in enumerate(toc.iter()):
                 # Only add chapters or articles at depth==1
                 # no class defaults to 'chapter'
@@ -1961,8 +1963,20 @@ class MobiWriter(object):
                     if self.opts.verbose > 2 :
                         self._oeb.logger.info("adding (klass:%s depth:%d) %s to flat ctoc" % \
                                               (child.klass, child.depth(), child) )
-                    self._add_flat_ctoc_node(child, ctoc)
-                    reduced_toc.append(child)
+
+                    # Test to see if this child's offset is the same as the previous child's
+                    # offset, skip it
+                    h = child.href
+                    currentOffset = self._id_offsets[h]
+                    # print "_generate_ctoc: child offset: 0x%X" % currentOffset
+
+                    if currentOffset != previousOffset :
+                        self._add_flat_ctoc_node(child, ctoc)
+                        reduced_toc.append(child)
+                        previousOffset = currentOffset
+                    else :
+                        self._oeb.logger.warn("ignoring redundant href: %s in '%s'" % (h, child.title))
+
                     first = False
                 else :
                     if self.opts.verbose > 2 :
