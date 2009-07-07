@@ -143,6 +143,9 @@ class OutputProfile(Plugin):
     # The image size for comics
     comic_screen_size = (584, 754)
 
+    # If True the MOBI renderer on the device supports MOBI indexing
+    supports_mobi_indexing = False
+
     @classmethod
     def tags_to_string(cls, tags):
         return ', '.join(tags)
@@ -230,6 +233,7 @@ class KindleOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    supports_mobi_indexing = True
 
     @classmethod
     def tags_to_string(cls, tags):
@@ -245,6 +249,7 @@ class KindleDXOutput(OutputProfile):
     screen_size               = (744, 1022)
     dpi                       = 150.0
     comic_screen_size         = (741, 1022)
+    supports_mobi_indexing = True
 
     @classmethod
     def tags_to_string(cls, tags):

@@ -550,6 +550,8 @@ OptionRecommendation(name='list_recipes',
                 break
 
         self.read_user_metadata()
+        self.opts.no_inline_navbars = self.opts.output_profile.supports_mobi_indexing \
+                and self.output_fmt == 'mobi'
 
     def flush(self):
         try:

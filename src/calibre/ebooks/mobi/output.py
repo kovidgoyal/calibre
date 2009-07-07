@@ -79,10 +79,11 @@ class MOBIOutput(OutputFormatPlugin):
             start_href = self.oeb.spine[0].href
             self.log('Converting TOC for MOBI periodical indexing...')
             articles = {}
-            if toc.depth < 3:
-                sections = [TOC(klass='section')]
+            if toc.depth() < 3:
+                sections = [TOC(klass='section', title=_('All articles'),
+                    href=start_href)]
                 for x in toc:
-                    sections[0].append(x)
+                    sections[0].nodes.append(x)
             else:
                 sections = list(toc)
                 for x in sections:
@@ -99,7 +100,7 @@ class MOBIOutput(OutputFormatPlugin):
                 if articles[id(s)]:
                     for a in articles[id(s)]:
                         s.nodes.append(a)
-            root.nodes.append(s)
+                    root.nodes.append(s)
 
             for x in list(toc.nodes):
                 toc.nodes.remove(x)

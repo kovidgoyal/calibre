@@ -469,6 +469,7 @@ class BasicNewsRecipe(Recipe):
         self.username = options.username
         self.password = options.password
         self.lrf = options.lrf
+        self.include_navbars = not options.no_inline_navbars
 
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
@@ -539,7 +540,7 @@ class BasicNewsRecipe(Recipe):
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
             body = soup.find('body')
-            if body is not None:
+            if body is not None and self.include_navbars:
                 templ = self.navbar.generate(False, f, a, feed_len,
                                              not self.has_single_feed,
                                              url, __appname__,
@@ -907,12 +908,13 @@ class BasicNewsRecipe(Recipe):
                         body = soup.find('body')
                         if body is not None:
                             prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
-                            templ = self.navbar.generate(True, num, j, len(f),
-                                             not self.has_single_feed,
-                                             a.orig_url, __appname__, prefix=prefix,
-                                             center=self.center_navbar)
-                            elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
-                            body.insert(len(body.contents), elem)
+                            if self.include_navbars:
+                                templ = self.navbar.generate(True, num, j, len(f),
+                                                not self.has_single_feed,
+                                                a.orig_url, __appname__, prefix=prefix,
+                                                center=self.center_navbar)
+                                elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                                body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
                                 fi.write(unicode(soup).encode('utf-8'))
 
@@ -923,7 +925,7 @@ class BasicNewsRecipe(Recipe):
                 if po is None:
                     self.play_order_counter += 1
                     po = self.play_order_counter
-                desc = f.description
+                desc = getattr(f, 'description', None)
                 if not desc:
                     desc = None
                 feed_index(i, toc.add_item('feed_%d/index.html'%i, None,

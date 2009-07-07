@@ -379,7 +379,7 @@ class MobiWriter(object):
             try:
                 self._generate_index()
             except:
-                self.oeb.log.exception('Failed to generate index')
+                self._oeb.log.exception('Failed to generate index')
 
         self._generate_images()
 
@@ -1178,40 +1178,32 @@ class MobiWriter(object):
         '''
         toc = self._oeb.toc
         nodes = list(toc.iter())[1:]
+        toc_conforms = True
         for (i, child) in enumerate(nodes) :
-            if self.opts.verbose > 3 :
-                self._oeb.logger.info("  <title>: %-25.25s \tklass=%-15.15s \tdepth:%d  playOrder=%03d" % \
-                    (child.title, child.klass, child.depth(), child.play_order) )
+            if child.klass == "periodical" and child.depth() != 3 or    \
+               child.klass == "section" and child.depth() != 2 or       \
+               child.klass == "article" and child.depth() != 1 :
 
-            if child.klass == "periodical" and child.depth() != 3 :
-                    self._oeb.logger.info('<navPoint class="periodical"> found at depth %d, nonconforming TOC' % \
-                                            child.depth() )
-                    return False
-
-            if child.klass == "section" and child.depth() != 2 :
-                    self._oeb.logger.info('<navPoint class="section"> found at depth %d, nonconforming TOC' % \
-                                            child.depth() )
-                    return False
-
-            if child.klass == "article" and child.depth() != 1 :
-                    self._oeb.logger.info('<navPoint class="article"> found at depth %d, nonconforming TOC' % \
-                                            child.depth() )
-                    return False
+                self._oeb.logger.warn('Nonconforming TOC entry: "%s" found at depth %d' % \
+                        (child.klass, child.depth()) )
+                self._oeb.logger.warn("  <title>: '%-25.25s...' \t\tklass=%-15.15s \tdepth:%d  \tplayOrder=%03d" % \
+                        (child.title, child.klass, child.depth(), child.play_order) )
+                toc_conforms = False
 
         # We also need to know that we have a pubdate or timestamp in the metadata, which the Kindle needs
         if self._oeb.metadata['date'] == [] and self._oeb.metadata['timestamp'] == [] :
-            self._oeb.logger.info('metadata missing timestamp needed for periodical')
-            return False
+            self._oeb.logger.info('metadata missing date/timestamp')
+            toc_conforms = False
 
         # Periodicals also need a mastheadImage in the manifest
         has_mastheadImage = 'masthead' in self._oeb.guide
 
         if not has_mastheadImage :
-            self._oeb.logger.info('mastheadImage missing from manifest, aborting periodical indexing')
-            return False
+            self._oeb.logger.info('mastheadImage missing from manifest')
+            toc_conforms = False
 
-        self._oeb.logger.info('TOC structure and pubdate verified')
-        return True
+        self._oeb.logger.info("%s" % "TOC structure conforms" if toc_conforms else "TOC structure non-conforming")
+        return toc_conforms
 
 
     def _generate_text(self):
@@ -1236,7 +1228,7 @@ class MobiWriter(object):
 
         # Evaluate toc for conformance
         if self.opts.mobi_periodical :
-            self._oeb.logger.info('--mobi-periodical specified, evaluating TOC for periodical conformance ...')
+            self._oeb.logger.info('MOBI periodical specified, evaluating TOC for periodical conformance ...')
             self._conforming_periodical_toc = self._evaluate_periodical_toc()
 
         # This routine decides whether to build flat or structured based on self._conforming_periodical_toc
@@ -1545,7 +1537,7 @@ class MobiWriter(object):
                 exth.write(data)
                 nrecs += 1
             if term == 'rights' :
-                rights = unicode(oeb.metadata.rights[0])
+                rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
                 exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
                 exth.write(rights)
 

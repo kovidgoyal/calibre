@@ -169,7 +169,8 @@ class Stylizer(object):
             if not matches and class_sel_pat.match(text):
                 found = False
                 for x in tree.xpath('//*[@class]'):
-                    if text.lower().endswith('.'+x.get('class').lower()):
+                    if text.lower().endswith('.'+x.get('class').lower()) and \
+                            text.lower() != text:
                         matches.append(x)
                         found = True
                 if found:
