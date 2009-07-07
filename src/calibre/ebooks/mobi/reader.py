@@ -301,7 +301,7 @@ class MobiReader(object):
         root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
-            self.log.warning('Malformed markup, parsing using BeatifulSoup')
+            self.log.warning('Malformed markup, parsing using BeautifulSoup')
             root = soupparser.fromstring(self.processed_html)
 
         if root.tag != 'html':
