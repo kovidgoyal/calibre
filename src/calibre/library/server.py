@@ -366,10 +366,9 @@ class LibraryServer(object):
     @expose
     def index(self, **kwargs):
         'The / URL'
-        stanza = cherrypy.request.headers.get('Stanza-Device-Name', 919)
-        if stanza == 919:
-            return self.static('index.html')
-        return self.stanza()
+        want_opds = cherrypy.request.headers.get('Stanza-Device-Name', 919) != \
+            919 or cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919
+        return self.stanza() if want_opds else self.static('index.html')
 
 
     @expose
