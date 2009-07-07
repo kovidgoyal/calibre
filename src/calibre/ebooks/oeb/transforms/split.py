@@ -16,7 +16,7 @@ from lxml import etree
 from lxml.cssselect import CSSSelector
 
 from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
-        urldefrag, rewrite_links, urlunquote, barename
+        urldefrag, rewrite_links, urlunquote, barename, XHTML
 from calibre.ebooks.epub import rules
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -216,7 +216,25 @@ class FlowSplitter(object):
                 self.trees.append(before)
                 tree = after
         self.trees.append(tree)
-        self.trees = [t for t in self.trees if not self.is_page_empty(t.getroot())]
+        trees, ids = [], set([])
+        for tree in self.trees:
+            root = tree.getroot()
+            if self.is_page_empty(root):
+                discarded_ids = root.xpath('//*[@id]')
+                for x in discarded_ids:
+                    x = x.get('id')
+                    if not x.startswith('calibre_'):
+                        ids.add(x)
+            else:
+                if ids:
+                    body = self.get_body(root)
+                    if body is not None:
+                        for x in ids:
+                            body.insert(0, body.makeelement(XHTML('div'),
+                                id=x, style='height:0pt'))
+                ids = set([])
+                trees.append(tree)
+        self.trees = trees
 
     def get_body(self, root):
         body = root.xpath('//h:body', namespaces=NAMESPACES)
