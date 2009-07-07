@@ -2050,7 +2050,7 @@ class MobiWriter(object):
         indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
         name = "%04X"%count
         indxt.write(chr(len(name)) + name)							# Write the name
-        indxt.write(INDXT['article'])   						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(INDXT['article'])                               # entryType [0x0F | 0xDF | 0xFF | 0x3F]
 
         hasAuthor = True if self._ctoc_map[index]['authorOffset'] else False
         hasDescription = True if self._ctoc_map[index]['descriptionOffset']  else False
