@@ -1917,18 +1917,18 @@ class MobiWriter(object):
         self._ctoc_map.append(ctoc_name_map)
 
     def _generate_ctoc(self):
-    	# Generate the compiled TOC strings
-    	# Each node has 1-4 CTOC entries:
-    	#	Periodical (0xDF)
-    	#		title, class
-    	#	Section (0xFF)
-    	#		title, class
-    	#	Article (0x3F)
-    	#		title, class, description, author
-    	#	Chapter (0x0F)
-    	#		title, class
-    	#   nb: Chapters don't actually have @class, so we synthesize it
-    	#   in reader._toc_from_navpoint
+        # Generate the compiled TOC strings
+        # Each node has 1-4 CTOC entries:
+        #	Periodical (0xDF)
+        #		title, class
+        #	Section (0xFF)
+        #		title, class
+        #	Article (0x3F)
+        #		title, class, description, author
+        #	Chapter (0x0F)
+        #		title, class
+        #   nb: Chapters don't actually have @class, so we synthesize it
+        #   in reader._toc_from_navpoint
 
         toc = self._oeb.toc
         reduced_toc = []
