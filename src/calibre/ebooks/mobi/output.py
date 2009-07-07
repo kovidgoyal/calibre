@@ -76,6 +76,7 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.base import TOC
         toc = self.oeb.toc
         if toc and toc[0].klass != 'periodical':
+            start_href = self.oeb.spine[0].href
             self.log('Converting TOC for MOBI periodical indexing...')
             articles = {}
             if toc.depth < 3:
@@ -92,7 +93,7 @@ class MOBIOutput(OutputFormatPlugin):
                     a.klass = 'article'
                     articles[id(sec)].append(a)
                     sec.nodes.remove(a)
-            root = TOC(klass='periodical',
+            root = TOC(klass='periodical', href=start_href,
                     title=unicode(self.oeb.metadata.title[0]))
             for s in sections:
                 if articles[id(s)]:
