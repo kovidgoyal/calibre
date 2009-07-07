@@ -631,6 +631,8 @@ class LibraryDatabase2(LibraryDatabase):
         author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
         title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
         name   = title + ' - ' + author
+        while name.endswith('.'):
+            name = name[:-1]
         return name
 
     def rmtree(self, path):
