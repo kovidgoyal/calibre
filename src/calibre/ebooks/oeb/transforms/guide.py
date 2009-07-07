@@ -34,7 +34,7 @@ class Clean(object):
 
         for x in list(self.oeb.guide):
             href = urldefrag(self.oeb.guide[x].href)[0]
-            if x.lower() not in ('cover', 'titlepage'):
+            if x.lower() not in ('cover', 'titlepage', 'masthead'):
                 self.oeb.guide.remove(x)
 
 
