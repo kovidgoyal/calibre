@@ -461,7 +461,7 @@ class MobiWriter(object):
 
             h = child.href
             if h not in self._id_offsets:
-                self._oeb.log.warning('Could not find TOC entry "%s", aborting indexing ...'% child.title)
+                self._oeb.log.warning('  Could not find TOC entry "%s", aborting indexing ...'% child.title)
                 return False
             offset = self._id_offsets[h]
 
@@ -573,7 +573,7 @@ class MobiWriter(object):
             # Entries continues with a stream of section+articles, section+articles ...
             h = child.href
             if h not in self._id_offsets:
-                self._oeb.log.warning('Could not find TOC entry "%s", aborting indexing ...'% child.title)
+                self._oeb.log.warning('  Could not find TOC entry "%s", aborting indexing ...'% child.title)
                 return False
             offset = self._id_offsets[h]
 
@@ -1184,10 +1184,11 @@ class MobiWriter(object):
                child.klass == "section" and child.depth() != 2 or       \
                child.klass == "article" and child.depth() != 1 :
 
-                self._oeb.logger.warn('Nonconforming TOC entry: "%s" found at depth %d' % \
+                self._oeb.logger.info('Nonconforming TOC entry: "%s" found at depth %d' % \
                         (child.klass, child.depth()) )
-                self._oeb.logger.warn("  <title>: '%-25.25s...' \t\tklass=%-15.15s \tdepth:%d  \tplayOrder=%03d" % \
+                self._oeb.logger.info("  <title>: '%-25.25s...' \t\tklass=%-15.15s \tdepth:%d  \tplayOrder=%03d" % \
                         (child.title, child.klass, child.depth(), child.play_order) )
+                self._oeb.logger.info("(Conforming: periodical at depth:3, section at depth:2, articles at depth:1)")
                 toc_conforms = False
 
         # We also need to know that we have a pubdate or timestamp in the metadata, which the Kindle needs
@@ -1195,14 +1196,11 @@ class MobiWriter(object):
             self._oeb.logger.info('metadata missing date/timestamp')
             toc_conforms = False
 
-        # Periodicals also need a mastheadImage in the manifest
-        has_mastheadImage = 'masthead' in self._oeb.guide
-
-        if not has_mastheadImage :
+        if not 'masthead' in self._oeb.guide :
             self._oeb.logger.info('mastheadImage missing from manifest')
             toc_conforms = False
 
-        self._oeb.logger.info("%s" % "TOC structure conforms" if toc_conforms else "TOC structure non-conforming")
+        self._oeb.logger.info("%s" % "  TOC structure conforms" if toc_conforms else "  TOC structure non-conforming")
         return toc_conforms
 
 
@@ -1223,12 +1221,12 @@ class MobiWriter(object):
         offset = 0
 
         if self._compression != UNCOMPRESSED:
-            self._oeb.logger.info('Compressing markup content...')
+            self._oeb.logger.info('  Compressing markup content...')
         data, overlap = self._read_text_record(text)
 
         # Evaluate toc for conformance
         if self.opts.mobi_periodical :
-            self._oeb.logger.info('MOBI periodical specified, evaluating TOC for periodical conformance ...')
+            self._oeb.logger.info('  evaluating TOC for periodical conformance ...')
             self._conforming_periodical_toc = self._evaluate_periodical_toc()
 
         # This routine decides whether to build flat or structured based on self._conforming_periodical_toc
@@ -1241,11 +1239,11 @@ class MobiWriter(object):
         if len(entries) :
             self._indexable = self._generate_indexed_navpoints()
         else :
-            self._oeb.logger.info('No entries found in TOC ...')
+            self._oeb.logger.info('  No entries found in TOC ...')
             self._indexable = False
 
         if not self._indexable :
-            self._oeb.logger.info('Writing unindexed mobi ...')
+            self._oeb.logger.info('  Writing unindexed mobi ...')
 
         while len(data) > 0:
             if self._compression == PALMDOC:
@@ -1263,7 +1261,8 @@ class MobiWriter(object):
             while breaks and (breaks[0] - offset) < RECORD_SIZE:
                 # .pop returns item, removes it from list
                 pbreak = (breaks.pop(0) - running) >> 3
-                self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
+                if self.opts.verbose > 2 :
+                    self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
                 encoded = decint(pbreak, DECINT_FORWARD)
                 record.write(encoded)
                 running += pbreak << 3
@@ -1376,7 +1375,7 @@ class MobiWriter(object):
         #   0x002   MOBI book (chapter - chapter navigation)
         #   0x101   News - Hierarchical navigation with sections and articles
         #   0x102   News feed - Flat navigation
-        #   0x103   News magazine - same as 1x101
+        #   0x103   News magazine - same as 0x101
         # 0xC - 0xF   : Text encoding (65001 is utf-8)
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
@@ -1606,7 +1605,7 @@ class MobiWriter(object):
             self._write(record)
 
     def _generate_index(self):
-        self._oeb.log('Generating primary index ...')
+        self._oeb.log('Generating INDX ...')
         self._primary_index_record = None
 
 		# Build the NCXEntries and INDX
@@ -1967,7 +1966,7 @@ class MobiWriter(object):
                         reduced_toc.append(child)
                         previousOffset = currentOffset
                     else :
-                        self._oeb.logger.warn("ignoring redundant href: %s in '%s'" % (h, child.title))
+                        self._oeb.logger.warn("  Ignoring redundant href: %s in '%s'" % (h, child.title))
 
                     first = False
                 else :
