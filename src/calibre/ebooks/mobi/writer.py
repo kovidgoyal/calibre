@@ -1184,11 +1184,10 @@ class MobiWriter(object):
                child.klass == "section" and child.depth() != 2 or       \
                child.klass == "article" and child.depth() != 1 :
 
-                self._oeb.logger.info('Nonconforming TOC entry: "%s" found at depth %d' % \
+                self._oeb.logger.warn('Nonconforming TOC entry: "%s" found at depth %d' % \
                         (child.klass, child.depth()) )
-                self._oeb.logger.info("  <title>: '%-25.25s...' \t\tklass=%-15.15s \tdepth:%d  \tplayOrder=%03d" % \
+                self._oeb.logger.warn("  <title>: '%-25.25s...' \t\tklass=%-15.15s \tdepth:%d  \tplayOrder=%03d" % \
                         (child.title, child.klass, child.depth(), child.play_order) )
-                self._oeb.logger.info("(Conforming: periodical at depth:3, section at depth:2, articles at depth:1)")
                 toc_conforms = False
 
         # We also need to know that we have a pubdate or timestamp in the metadata, which the Kindle needs
@@ -1226,7 +1225,7 @@ class MobiWriter(object):
 
         # Evaluate toc for conformance
         if self.opts.mobi_periodical :
-            self._oeb.logger.info('  evaluating TOC for periodical conformance ...')
+            self._oeb.logger.info('  MOBI periodical specified, evaluating TOC for periodical conformance ...')
             self._conforming_periodical_toc = self._evaluate_periodical_toc()
 
         # This routine decides whether to build flat or structured based on self._conforming_periodical_toc
