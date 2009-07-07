@@ -1708,7 +1708,7 @@ books_series_link      feeds
         formats = self.find_books_in_directory(dirpath, True)
         if not formats:
             return
-
+        formats = list(formats)
         mi = metadata_from_formats(formats)
         if mi.title is None:
             return
