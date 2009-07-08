@@ -19,7 +19,7 @@ class WallStreetJournal(BasicNewsRecipe):
         no_stylesheets = True
 
         extra_css      = '''h1{color:#093D72 ; font-size:large ; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; }
-                        h2{color:gray; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
+                        h2{color:#474537; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
                         .subhead{color:gray; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
                         .insettipUnit {color:#666666; font-family:Arial,Sans-serif;font-size:xx-small }
                         .targetCaption{ font-size:x-small; color:#333333; font-family:Arial,Helvetica,sans-serif}
@@ -34,7 +34,7 @@ class WallStreetJournal(BasicNewsRecipe):
         remove_tags_before = dict(name='h1')
         remove_tags = [
                        dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow"]),
-                       {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
+                       {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
                        dict(rel='shortcut icon'),
                       ]
         remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
@@ -54,7 +54,7 @@ class WallStreetJournal(BasicNewsRecipe):
             for tag in soup.findAll(name=['table', 'tr', 'td']):
                 tag.name = 'div'
 
-            for tag in soup.findAll('div', dict(id=["articleImage_1", "articleImage_2", "articleImage_3", "articleImage_4", "articleImage_5", "articleImage_6", "articleImage_7"])):
+            for tag in soup.findAll('div', dict(id=["articleThumbnail_1", "articleThumbnail_2", "articleThumbnail_3", "articleThumbnail_4", "articleThumbnail_5", "articleThumbnail_6", "articleThumbnail_7"])):
                 tag.extract()
 
             return soup

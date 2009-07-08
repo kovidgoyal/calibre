@@ -271,12 +271,15 @@ class BooksModel(QAbstractTableModel):
         try:
             self.db.search(text)
         except ParseException:
-            self.emit(SIGNAL('parse_exception()'))
+            self.emit(SIGNAL('searched(PyQt_PyObject)'), False)
             return
         self.last_search = text
         if reset:
             self.clear_caches()
             self.reset()
+        if self.last_search:
+            self.emit(SIGNAL('searched(PyQt_PyObject)'), True)
+
 
     def sort(self, col, order, reset=True):
         if not self.db:
@@ -785,13 +788,19 @@ class BooksView(TableView):
     def set_editable(self, editable):
         self._model.set_editable(editable)
 
-    def connect_to_search_box(self, sb):
+    def connect_to_search_box(self, sb, search_done):
         QObject.connect(sb, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
                         self._model.search)
+        self._search_done = search_done
+        self.connect(self._model, SIGNAL('searched(PyQt_PyObject)'),
+                self.search_done)
 
     def connect_to_book_display(self, bd):
         QObject.connect(self._model, SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
                         bd)
+
+    def search_done(self, ok):
+        self._search_done(self, ok)
 
 
 class DeviceBooksView(BooksView):
@@ -909,7 +918,7 @@ class DeviceBooksModel(BooksModel):
             try:
                 matches = self.search_engine.parse(text)
             except ParseException:
-                self.emit(SIGNAL('parse_exception()'))
+                self.emit(SIGNAL('searched(PyQt_PyObject)'), False)
                 return
 
             self.map = []
@@ -920,6 +929,9 @@ class DeviceBooksModel(BooksModel):
         if reset:
             self.reset()
         self.last_search = text
+        if self.last_search:
+            self.emit(SIGNAL('searched(PyQt_PyObject)'), True)
+
 
     def resort(self, reset):
         self.sort(self.sorted_on[0], self.sorted_on[1], reset=reset)
@@ -1114,11 +1126,15 @@ class SearchBox(QLineEdit):
         self.setText(self.help_text)
         self.home(False)
         self.initial_state = True
+        self.setStyleSheet("background-color: white")
 
     def clear(self):
         self.clear_to_help()
         self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), '', False)
 
+    def search_done(self, ok):
+        col = 'rgba(0,255,0,25%)' if ok else 'rgb(255,0,0,25%)'
+        self.setStyleSheet('background-color: '+col)
 
     def keyPressEvent(self, event):
         if self.initial_state:

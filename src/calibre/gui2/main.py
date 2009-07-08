@@ -396,13 +396,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         QObject.connect(self.library_view,
                 SIGNAL('files_dropped(PyQt_PyObject)'),
                         self.files_dropped, Qt.QueuedConnection)
-        for func, target in [
-                             ('connect_to_search_box', self.search),
+        for func, args in [
+                             ('connect_to_search_box', (self.search,
+                                 self.search_done)),
                              ('connect_to_book_display',
-                                 self.status_bar.book_info.show_data),
+                                 (self.status_bar.book_info.show_data,)),
                              ]:
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
-                getattr(view, func)(target)
+                getattr(view, func)(*args)
 
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
         self.card_a_view.connect_dirtied_signal(self.upload_booklists)
@@ -632,6 +633,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.match_all.setVisible(False)
             self.match_any.setVisible(False)
             self.popularity.setVisible(False)
+
+    def search_done(self, view, ok):
+        if view is self.current_view():
+            self.search.search_done(ok)
 
     def sync_cf_to_listview(self, index, *args):
         if not hasattr(index, 'row') and \
