@@ -806,6 +806,9 @@ class DeviceBooksView(BooksView):
         self.setDragDropMode(self.NoDragDrop)
         self.setAcceptDrops(False)
 
+    def set_database(self, db):
+        self._model.set_database(db)
+
     def resizeColumnsToContents(self):
         QTableView.resizeColumnsToContents(self)
         self.columns_resized = True
