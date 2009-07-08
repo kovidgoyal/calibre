@@ -24,16 +24,6 @@ class PDFInput(InputFormatPlugin):
             help=_('Scale used to determine the length at which a line should '
             'be unwrapped. Valid values are a decimal between 0 and 1. The '
             'default is 0.5, this is the median line length.')),
-        OptionRecommendation(name='remove_header', recommended_value=False,
-            help=_('Use a regular expression to try and remove the header.')),
-        OptionRecommendation(name='header_regex',
-            recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
-            help=_('The regular expression to use to remove the header.')),
-        OptionRecommendation(name='remove_footer', recommended_value=False,
-            help=_('Use a regular expression to try and remove the footer.')),
-        OptionRecommendation(name='footer_regex',
-            recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
-            help=_('The regular expression to use to remove the footer.')),
     ])
 
     def convert(self, stream, options, file_ext, log,

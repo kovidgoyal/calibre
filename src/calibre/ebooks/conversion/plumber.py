@@ -315,6 +315,31 @@ OptionRecommendation(name='preprocess_html',
             )
         ),
 
+OptionRecommendation(name='remove_header',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Use a regular expression to try and remove the header.'
+            )
+        ),
+
+OptionRecommendation(name='header_regex',
+        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
+        level=OptionRecommendation.LOW,
+        help=_('The regular expression to use to remove the header.'
+            )
+        ),
+
+OptionRecommendation(name='remove_footer',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Use a regular expression to try and remove the footer.'
+            )
+        ),
+        
+OptionRecommendation(name='footer_regex',
+        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
+        level=OptionRecommendation.LOW,
+        help=_('The regular expression to use to remove the footer.'
+            )
+        ),
 
 OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
