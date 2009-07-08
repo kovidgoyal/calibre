@@ -308,14 +308,25 @@ def walk(dir):
             yield os.path.join(record[0], f)
 
 def strftime(fmt, t=None):
-    ''' A version of strtime that returns unicode strings. '''
+    ''' A version of strtime that returns unicode strings and tries to handle dates
+    before 1900 '''
     if t is None:
         t = time.localtime()
+    early_year = t[0] < 1900
+    if early_year:
+        fmt = fmt.replace('%Y', '_early year hack##')
+        t = list(t)
+        orig_year = t[0]
+        t[0] = 1900
+    ans = None
     if iswindows:
         if isinstance(fmt, unicode):
             fmt = fmt.encode('mbcs')
-        return plugins['winutil'][0].strftime(fmt, t)
-    return time.strftime(fmt, t).decode(preferred_encoding, 'replace')
+        ans = plugins['winutil'][0].strftime(fmt, t)
+    ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
+    if early_year:
+        ans = ans.replace('_early year hack##', str(orig_year))
+    return ans
 
 def my_unichr(num):
     try:

@@ -657,6 +657,8 @@ class LibraryDatabase2(LibraryDatabase):
         author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
         title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
         name   = title + ' - ' + author
+        while name.endswith('.'):
+            name = name[:-1]
         return name
 
     def rmtree(self, path):
@@ -1074,6 +1076,8 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_isbn(id, mi.isbn, notify=False)
         if mi.series_index:
             self.set_series_index(id, mi.series_index, notify=False)
+        if mi.pubdate:
+            self.set_pubdate(id, mi.pubdate, notify=False)
         if getattr(mi, 'timestamp', None) is not None:
             self.set_timestamp(id, mi.timestamp, notify=False)
         self.set_path(id, True)
@@ -1734,7 +1738,7 @@ books_series_link      feeds
         formats = self.find_books_in_directory(dirpath, True)
         if not formats:
             return
-
+        formats = list(formats)
         mi = metadata_from_formats(formats)
         if mi.title is None:
             return

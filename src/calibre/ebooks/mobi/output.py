@@ -48,11 +48,7 @@ class MOBIOutput(OutputFormatPlugin):
             self.opts.mobi_periodical = False
 
     def check_for_masthead(self):
-        found = False
-        for typ in self.oeb.guide:
-            if type == 'masthead':
-                found = True
-                break
+        found = 'masthead' in self.oeb.guide
         if not found:
             self.oeb.log.debug('No masthead found, generating default one...')
             from calibre.resources import server_resources
@@ -76,12 +72,14 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.base import TOC
         toc = self.oeb.toc
         if toc and toc[0].klass != 'periodical':
+            start_href = self.oeb.spine[0].href
             self.log('Converting TOC for MOBI periodical indexing...')
             articles = {}
-            if toc.depth < 3:
-                sections = [TOC(klass='section')]
+            if toc.depth() < 3:
+                sections = [TOC(klass='section', title=_('All articles'),
+                    href=start_href)]
                 for x in toc:
-                    sections[0].append(x)
+                    sections[0].nodes.append(x)
             else:
                 sections = list(toc)
                 for x in sections:
@@ -92,13 +90,13 @@ class MOBIOutput(OutputFormatPlugin):
                     a.klass = 'article'
                     articles[id(sec)].append(a)
                     sec.nodes.remove(a)
-            root = TOC(klass='periodical',
+            root = TOC(klass='periodical', href=start_href,
                     title=unicode(self.oeb.metadata.title[0]))
             for s in sections:
                 if articles[id(s)]:
                     for a in articles[id(s)]:
                         s.nodes.append(a)
-            root.nodes.append(s)
+                    root.nodes.append(s)
 
             for x in list(toc.nodes):
                 toc.nodes.remove(x)

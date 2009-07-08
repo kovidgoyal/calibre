@@ -9,6 +9,8 @@ from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre import CurrentDir
+from calibre.customize.conversion import OptionRecommendation
+
 from urllib import unquote
 
 class OEBOutput(OutputFormatPlugin):
@@ -16,6 +18,9 @@ class OEBOutput(OutputFormatPlugin):
     name = 'OEB Output'
     author = 'Kovid Goyal'
     file_type = 'oeb'
+
+    recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
+
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         self.log, self.opts = log, opts

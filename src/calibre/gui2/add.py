@@ -107,8 +107,6 @@ class Adder(QObject):
             self.callback(self.paths, self.names, self.infos)
             self.callback_called = True
 
-
-
     def update(self):
         if not self.ids:
             self.timer.stop()

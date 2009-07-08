@@ -379,7 +379,7 @@ class MobiWriter(object):
             try:
                 self._generate_index()
             except:
-                self.oeb.log.exception('Failed to generate index')
+                self._oeb.log.exception('Failed to generate index')
 
         self._generate_images()
 
@@ -461,7 +461,7 @@ class MobiWriter(object):
 
             h = child.href
             if h not in self._id_offsets:
-                self._oeb.log.warning('Could not find TOC entry "%s", aborting indexing ...'% child.title)
+                self._oeb.log.warning('  Could not find TOC entry "%s", aborting indexing ...'% child.title)
                 return False
             offset = self._id_offsets[h]
 
@@ -573,7 +573,7 @@ class MobiWriter(object):
             # Entries continues with a stream of section+articles, section+articles ...
             h = child.href
             if h not in self._id_offsets:
-                self._oeb.log.warning('Could not find TOC entry "%s", aborting indexing ...'% child.title)
+                self._oeb.log.warning('  Could not find TOC entry "%s", aborting indexing ...'% child.title)
                 return False
             offset = self._id_offsets[h]
 
@@ -1178,40 +1178,29 @@ class MobiWriter(object):
         '''
         toc = self._oeb.toc
         nodes = list(toc.iter())[1:]
+        toc_conforms = True
         for (i, child) in enumerate(nodes) :
-            if self.opts.verbose > 3 :
-                self._oeb.logger.info("  <title>: %-25.25s \tklass=%-15.15s \tdepth:%d  playOrder=%03d" % \
-                    (child.title, child.klass, child.depth(), child.play_order) )
+            if child.klass == "periodical" and child.depth() != 3 or    \
+               child.klass == "section" and child.depth() != 2 or       \
+               child.klass == "article" and child.depth() != 1 :
 
-            if child.klass == "periodical" and child.depth() != 3 :
-                    self._oeb.logger.info('<navPoint class="periodical"> found at depth %d, nonconforming TOC' % \
-                                            child.depth() )
-                    return False
-
-            if child.klass == "section" and child.depth() != 2 :
-                    self._oeb.logger.info('<navPoint class="section"> found at depth %d, nonconforming TOC' % \
-                                            child.depth() )
-                    return False
-
-            if child.klass == "article" and child.depth() != 1 :
-                    self._oeb.logger.info('<navPoint class="article"> found at depth %d, nonconforming TOC' % \
-                                            child.depth() )
-                    return False
+                self._oeb.logger.warn('Nonconforming TOC entry: "%s" found at depth %d' % \
+                        (child.klass, child.depth()) )
+                self._oeb.logger.warn("  <title>: '%-25.25s...' \t\tklass=%-15.15s \tdepth:%d  \tplayOrder=%03d" % \
+                        (child.title, child.klass, child.depth(), child.play_order) )
+                toc_conforms = False
 
         # We also need to know that we have a pubdate or timestamp in the metadata, which the Kindle needs
         if self._oeb.metadata['date'] == [] and self._oeb.metadata['timestamp'] == [] :
-            self._oeb.logger.info('metadata missing timestamp needed for periodical')
-            return False
+            self._oeb.logger.info('metadata missing date/timestamp')
+            toc_conforms = False
 
-        # Periodicals also need a mastheadImage in the manifest
-        has_mastheadImage = 'masthead' in self._oeb.guide
+        if not 'masthead' in self._oeb.guide :
+            self._oeb.logger.info('mastheadImage missing from manifest')
+            toc_conforms = False
 
-        if not has_mastheadImage :
-            self._oeb.logger.info('mastheadImage missing from manifest, aborting periodical indexing')
-            return False
-
-        self._oeb.logger.info('TOC structure and pubdate verified')
-        return True
+        self._oeb.logger.info("%s" % "  TOC structure conforms" if toc_conforms else "  TOC structure non-conforming")
+        return toc_conforms
 
 
     def _generate_text(self):
@@ -1231,12 +1220,12 @@ class MobiWriter(object):
         offset = 0
 
         if self._compression != UNCOMPRESSED:
-            self._oeb.logger.info('Compressing markup content...')
+            self._oeb.logger.info('  Compressing markup content...')
         data, overlap = self._read_text_record(text)
 
         # Evaluate toc for conformance
         if self.opts.mobi_periodical :
-            self._oeb.logger.info('--mobi-periodical specified, evaluating TOC for periodical conformance ...')
+            self._oeb.logger.info('  MOBI periodical specified, evaluating TOC for periodical conformance ...')
             self._conforming_periodical_toc = self._evaluate_periodical_toc()
 
         # This routine decides whether to build flat or structured based on self._conforming_periodical_toc
@@ -1249,11 +1238,11 @@ class MobiWriter(object):
         if len(entries) :
             self._indexable = self._generate_indexed_navpoints()
         else :
-            self._oeb.logger.info('No entries found in TOC ...')
+            self._oeb.logger.info('  No entries found in TOC ...')
             self._indexable = False
 
         if not self._indexable :
-            self._oeb.logger.info('Writing unindexed mobi ...')
+            self._oeb.logger.info('  Writing unindexed mobi ...')
 
         while len(data) > 0:
             if self._compression == PALMDOC:
@@ -1271,7 +1260,8 @@ class MobiWriter(object):
             while breaks and (breaks[0] - offset) < RECORD_SIZE:
                 # .pop returns item, removes it from list
                 pbreak = (breaks.pop(0) - running) >> 3
-                self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
+                if self.opts.verbose > 2 :
+                    self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
                 encoded = decint(pbreak, DECINT_FORWARD)
                 record.write(encoded)
                 running += pbreak << 3
@@ -1384,7 +1374,7 @@ class MobiWriter(object):
         #   0x002   MOBI book (chapter - chapter navigation)
         #   0x101   News - Hierarchical navigation with sections and articles
         #   0x102   News feed - Flat navigation
-        #   0x103   News magazine - same as 1x101
+        #   0x103   News magazine - same as 0x101
         # 0xC - 0xF   : Text encoding (65001 is utf-8)
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
@@ -1545,7 +1535,7 @@ class MobiWriter(object):
                 exth.write(data)
                 nrecs += 1
             if term == 'rights' :
-                rights = unicode(oeb.metadata.rights[0])
+                rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
                 exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
                 exth.write(rights)
 
@@ -1614,7 +1604,7 @@ class MobiWriter(object):
             self._write(record)
 
     def _generate_index(self):
-        self._oeb.log('Generating primary index ...')
+        self._oeb.log('Generating INDX ...')
         self._primary_index_record = None
 
 		# Build the NCXEntries and INDX
@@ -1917,18 +1907,18 @@ class MobiWriter(object):
         self._ctoc_map.append(ctoc_name_map)
 
     def _generate_ctoc(self):
-    	# Generate the compiled TOC strings
-    	# Each node has 1-4 CTOC entries:
-    	#	Periodical (0xDF)
-    	#		title, class
-    	#	Section (0xFF)
-    	#		title, class
-    	#	Article (0x3F)
-    	#		title, class, description, author
-    	#	Chapter (0x0F)
-    	#		title, class
-    	#   nb: Chapters don't actually have @class, so we synthesize it
-    	#   in reader._toc_from_navpoint
+        # Generate the compiled TOC strings
+        # Each node has 1-4 CTOC entries:
+        #	Periodical (0xDF)
+        #		title, class
+        #	Section (0xFF)
+        #		title, class
+        #	Article (0x3F)
+        #		title, class, description, author
+        #	Chapter (0x0F)
+        #		title, class
+        #   nb: Chapters don't actually have @class, so we synthesize it
+        #   in reader._toc_from_navpoint
 
         toc = self._oeb.toc
         reduced_toc = []
@@ -1953,6 +1943,8 @@ class MobiWriter(object):
                 first = False
         else :
             self._oeb.logger.info('Generating flat CTOC ...')
+            previousOffset = -1
+            currentOffset = 0
             for (i, child) in enumerate(toc.iter()):
                 # Only add chapters or articles at depth==1
                 # no class defaults to 'chapter'
@@ -1961,8 +1953,20 @@ class MobiWriter(object):
                     if self.opts.verbose > 2 :
                         self._oeb.logger.info("adding (klass:%s depth:%d) %s to flat ctoc" % \
                                               (child.klass, child.depth(), child) )
-                    self._add_flat_ctoc_node(child, ctoc)
-                    reduced_toc.append(child)
+
+                    # Test to see if this child's offset is the same as the previous child's
+                    # offset, skip it
+                    h = child.href
+                    currentOffset = self._id_offsets[h]
+                    # print "_generate_ctoc: child offset: 0x%X" % currentOffset
+
+                    if currentOffset != previousOffset :
+                        self._add_flat_ctoc_node(child, ctoc)
+                        reduced_toc.append(child)
+                        previousOffset = currentOffset
+                    else :
+                        self._oeb.logger.warn("  Ignoring redundant href: %s in '%s'" % (h, child.title))
+
                     first = False
                 else :
                     if self.opts.verbose > 2 :
@@ -2027,7 +2031,7 @@ class MobiWriter(object):
         indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
         name = "%04X"%count
         indxt.write(chr(len(name)) + name)							# Write the name
-        indxt.write(INDXT['section'])   						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(INDXT['section'])                               # entryType [0x0F | 0xDF | 0xFF | 0x3F]
         indxt.write(chr(0))                                         # subType 0
         indxt.write(decint(offset, DECINT_FORWARD))					# offset
         indxt.write(decint(length, DECINT_FORWARD))					# length
@@ -2045,7 +2049,7 @@ class MobiWriter(object):
         indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
         name = "%04X"%count
         indxt.write(chr(len(name)) + name)							# Write the name
-        indxt.write(INDXT['article'])   						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(INDXT['article'])                               # entryType [0x0F | 0xDF | 0xFF | 0x3F]
 
         hasAuthor = True if self._ctoc_map[index]['authorOffset'] else False
         hasDescription = True if self._ctoc_map[index]['descriptionOffset']  else False

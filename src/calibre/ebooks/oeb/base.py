@@ -1468,7 +1468,9 @@ class TOC(object):
             node.to_opf1(tour)
         return tour
 
-    def to_ncx(self, parent):
+    def to_ncx(self, parent=None):
+        if parent is None:
+            parent = etree.Element(NCX('navMap'))
         for node in self.nodes:
             id = node.id or unicode(uuid.uuid4())
             attrib = {'id': id, 'playOrder': str(node.play_order)}

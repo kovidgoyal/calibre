@@ -53,6 +53,10 @@ class WallStreetJournal(BasicNewsRecipe):
         def postprocess_html(self, soup, first):
             for tag in soup.findAll(name=['table', 'tr', 'td']):
                 tag.name = 'div'
+
+            for tag in soup.findAll('div', dict(id=["articleImage_1", "articleImage_2", "articleImage_3", "articleImage_4", "articleImage_5", "articleImage_6", "articleImage_7"])):
+                tag.extract()
+
             return soup
 
         def get_article_url(self, article):
@@ -70,7 +74,7 @@ class WallStreetJournal(BasicNewsRecipe):
                 #('Most Emailed - Month', 'http://online.wsj.com/xml/rss/3_7254.xml'),
                 (' Most Viewed - Day', 'http://online.wsj.com/xml/rss/3_7198.xml'),
                 (' Most Viewed - Week', 'http://online.wsj.com/xml/rss/3_7251.xml'),
-                # ('Most Viewed - Month', 'http://online.wsj.com/xml/rss/3_7252.xml'),
+                #('Most Viewed - Month', 'http://online.wsj.com/xml/rss/3_7252.xml'),
                 ('Today\'s Newspaper -  Page One', 'http://online.wsj.com/xml/rss/3_7205.xml'),
                 ('Today\'s Newspaper - Marketplace', 'http://online.wsj.com/xml/rss/3_7206.xml'),
                 ('Today\'s Newspaper - Money & Investing', 'http://online.wsj.com/xml/rss/3_7207.xml'),

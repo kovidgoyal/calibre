@@ -80,6 +80,8 @@ class EPUBOutput(OutputFormatPlugin):
 
         ])
 
+    recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
+
 
     TITLEPAGE_COVER = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -134,6 +136,21 @@ class EPUBOutput(OutputFormatPlugin):
     </body>
 </html>
 '''
+    def workaround_webkit_quirks(self):
+        from calibre.ebooks.oeb.base import XPath
+        for x in self.oeb.spine:
+            root = x.data
+            body = XPath('//h:body')(root)
+            if body:
+                body = body[0]
+
+            if not hasattr(body, 'xpath'):
+                continue
+
+            for pre in XPath('//h:pre')(body):
+                if not pre.text and len(pre) == 0:
+                    pre.tag = 'div'
+
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
@@ -146,6 +163,7 @@ class EPUBOutput(OutputFormatPlugin):
 
 
         self.workaround_ade_quirks()
+        self.workaround_webkit_quirks()
 
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
         RescaleImages()(oeb, opts)

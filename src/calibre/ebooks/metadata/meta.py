@@ -31,7 +31,7 @@ def metadata_from_formats(formats):
     try:
         return _metadata_from_formats(formats)
     except:
-        mi = metadata_from_filename(formats[0])
+        mi = metadata_from_filename(list(formats)[0])
         if not mi.authors:
             mi.authors = [_('Unknown')]
 
@@ -127,13 +127,9 @@ def metadata_from_filename(name, pat=None):
         except IndexError:
             pass
         try:
-            mi.authors = [match.group('author')]
-        except IndexError:
-            pass
-        try:
             au = match.group('authors')
             aus = string_to_authors(au)
-            mi.authors = authors
+            mi.authors = aus
         except IndexError:
             pass
         try:

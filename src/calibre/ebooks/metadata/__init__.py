@@ -367,7 +367,7 @@ class MetaInformation(object):
         if self.pubdate is not None:
             ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
         if self.rights is not None:
-            ans += [(_('Rights'), unicode(self.rights.isoformat(' ')))]
+            ans += [(_('Rights'), unicode(self.rights))]
         for i, x in enumerate(ans):
             ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
         return u'<table>%s</table>'%u'\n'.join(ans)

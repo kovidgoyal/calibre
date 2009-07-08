@@ -301,7 +301,7 @@ class MobiReader(object):
         root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
-            self.log.warning('Malformed markup, parsing using BeatifulSoup')
+            self.log.warning('Malformed markup, parsing using BeautifulSoup')
             root = soupparser.fromstring(self.processed_html)
 
         if root.tag != 'html':
@@ -439,7 +439,12 @@ class MobiReader(object):
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
-        self.processed_html = re.sub('\x14|\x15', '', self.processed_html)
+        self.processed_html = re.sub('\x14|\x15|\x1c|\x1d', '', self.processed_html)
+
+    def ensure_unit(self, raw, unit='px'):
+        if re.search(r'\d+$', raw) is not None:
+            raw += unit
+        return raw
 
     def upshift_markup(self, root):
         self.log.debug('Converting style information to CSS...')
@@ -469,13 +474,13 @@ class MobiReader(object):
             if attrib.has_key('height'):
                 height = attrib.pop('height').strip()
                 if height:
-                    styles.append('margin-top: %s' % height)
+                    styles.append('margin-top: %s' % self.ensure_unit(height))
             if attrib.has_key('width'):
                 width = attrib.pop('width').strip()
                 if width:
-                    styles.append('text-indent: %s' % width)
+                    styles.append('text-indent: %s' % self.ensure_unit(width))
                     if width.startswith('-'):
-                        styles.append('margin-left: %s' % (width[1:]))
+                        styles.append('margin-left: %s' % self.ensure_unit(width[1:]))
             if attrib.has_key('align'):
                 align = attrib.pop('align').strip()
                 if align:
