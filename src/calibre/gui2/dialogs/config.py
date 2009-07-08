@@ -437,6 +437,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.password.setText(opts.password if opts.password else '')
         self.auto_launch.setChecked(config['autolaunch_server'])
         self.systray_icon.setChecked(config['systray_icon'])
+        self.search_as_you_type.setChecked(config['search_as_you_type'])
         self.sync_news.setChecked(config['upload_news_to_device'])
         self.delete_news.setChecked(config['delete_news_from_library_on_upload'])
         p = {'normal':0, 'high':1, 'low':2}[prefs['worker_process_priority']]
@@ -707,6 +708,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         sc.set('max_cover', mcs)
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
+        config['search_as_you_type'] = self.search_as_you_type.isChecked()
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:

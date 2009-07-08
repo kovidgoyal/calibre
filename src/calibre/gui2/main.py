@@ -148,6 +148,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.system_tray_icon.hide()
         else:
             self.system_tray_icon.show()
+        self.search.search_as_you_type(config['search_as_you_type'])
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
                 QIcon(':/images/page.svg'), _('&Restore'))
@@ -1422,6 +1423,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.content_server = d.server
         if d.result() == d.Accepted:
             self.tool_bar.setIconSize(config['toolbar_icon_size'])
+            self.search.search_as_you_type(config['search_as_you_type'])
             self.tool_bar.setToolButtonStyle(
                     Qt.ToolButtonTextUnderIcon if \
                             config['show_text_in_toolbar'] else \

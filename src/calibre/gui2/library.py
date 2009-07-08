@@ -1095,6 +1095,7 @@ class SearchBox(QLineEdit):
         QLineEdit.__init__(self, parent)
         self.help_text = help_text
         self.initial_state = True
+        self.as_you_type = True
         self.default_palette = QApplication.palette(self)
         self.gray = QPalette(self.default_palette)
         self.gray.setBrush(QPalette.Text, QBrush(QColor('gray')))
@@ -1123,6 +1124,9 @@ class SearchBox(QLineEdit):
         if self.initial_state:
             self.normalize_state()
             self.initial_state = False
+        if not self.as_you_type:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                self.do_search()
         QLineEdit.keyPressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -1132,17 +1136,21 @@ class SearchBox(QLineEdit):
         QLineEdit.mouseReleaseEvent(self, event)
 
     def text_edited_slot(self, text):
-        text = qstring_to_unicode(text) if isinstance(text, QString) else unicode(text)
-        self.prev_text = text
-        self.timer = self.startTimer(self.__class__.INTERVAL)
+        if self.as_you_type:
+            text = qstring_to_unicode(text) if isinstance(text, QString) else unicode(text)
+            self.prev_text = text
+            self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def timerEvent(self, event):
         self.killTimer(event.timerId())
         if event.timerId() == self.timer:
-            text = qstring_to_unicode(self.text())
-            refinement = text.startswith(self.prev_search) and ':' not in text
-            self.prev_search = text
-            self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
+            self.do_search()
+
+    def do_search(self):
+        text = qstring_to_unicode(self.text())
+        refinement = text.startswith(self.prev_search) and ':' not in text
+        self.prev_search = text
+        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
 
     def search_from_tokens(self, tokens, all):
         ans = u' '.join([u'%s:%s'%x for x in tokens])
@@ -1160,4 +1168,7 @@ class SearchBox(QLineEdit):
         self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
         self.end(False)
         self.initial_state = False
+
+    def search_as_you_type(self, enabled):
+        self.as_you_type = enabled
 

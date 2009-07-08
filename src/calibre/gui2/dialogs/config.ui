@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>557</height>
+    <height>583</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -427,6 +427,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="search_as_you_type">
+           <property name="text">
+            <string>Search as you type</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="sync_news">
            <property name="text">
             <string>Automatically send downloaded &amp;news to ebook reader</string>
@@ -591,15 +601,6 @@
           </layout>
          </item>
         </layout>
-        <zorder>roman_numerals</zorder>
-        <zorder>groupBox_2</zorder>
-        <zorder>systray_icon</zorder>
-        <zorder>sync_news</zorder>
-        <zorder>delete_news</zorder>
-        <zorder>separate_cover_flow</zorder>
-        <zorder>systray_notifications</zorder>
-        <zorder></zorder>
-        <zorder></zorder>
        </widget>
        <widget class="QWidget" name="page_6">
         <layout class="QGridLayout" name="gridLayout_6">
