@@ -884,6 +884,9 @@ class BasicNewsRecipe(Recipe):
             for j, a in enumerate(f):
                 if getattr(a, 'downloaded', False):
                     adir = 'feed_%d/article_%d/'%(num, j)
+                    auth = a.author
+                    if not auth:
+                        auth = None
                     desc = a.text_summary
                     if not desc:
                         desc = None
@@ -893,7 +896,7 @@ class BasicNewsRecipe(Recipe):
                         self.play_order_counter += 1
                         po = self.play_order_counter
                     parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
-                                    play_order=po, description=desc)
+                                    play_order=po, author=auth, description=desc)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
@@ -925,11 +928,15 @@ class BasicNewsRecipe(Recipe):
                 if po is None:
                     self.play_order_counter += 1
                     po = self.play_order_counter
+                auth = getattr(f, 'author', None)
+                if not auth:
+                    auth = None
                 desc = getattr(f, 'description', None)
                 if not desc:
                     desc = None
                 feed_index(i, toc.add_item('feed_%d/index.html'%i, None,
-                    f.title, play_order=po, description=desc))
+                    f.title, play_order=po, description=desc, author=auth))
+
         else:
             entries.append('feed_%d/index.html'%0)
             feed_index(0, toc)

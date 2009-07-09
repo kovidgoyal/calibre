@@ -16,7 +16,7 @@ class Article(object):
 
     time_offset = datetime.now() - datetime.utcnow()
 
-    def __init__(self, id, title, url, summary, published, content):
+    def __init__(self, id, title, url, author, summary, published, content):
         self.downloaded = False
         self.id = id
         self.title = title.strip() if title else title
@@ -26,6 +26,9 @@ class Article(object):
         except:
             pass
         self.url = url
+        self.author = author
+        if author and not isinstance(author, unicode):
+            author = author.decode('utf-8', 'replace')
         self.summary = summary
         if summary and not isinstance(summary, unicode):
             summary = summary.decode('utf-8', 'replace')
@@ -39,6 +42,7 @@ class Article(object):
                 traceback.print_exc()
                 summary = u''
         self.text_summary = summary
+        self.author = author
         self.content = content
         self.date = published
         self.utctime = datetime(*self.date[:6])
@@ -50,10 +54,11 @@ class Article(object):
 (u'''\
 Title       : %s
 URL         : %s
+Author      : %s
 Summary     : %s
 Date        : %s
 Has content : %s
-'''%(self.title, self.url, self.summary[:20]+'...', self.localtime.strftime('%a, %d %b, %Y %H:%M'),
+'''%(self.title, self.url, self.author, self.summary[:20]+'...', self.localtime.strftime('%a, %d %b, %Y %H:%M'),
      bool(self.content))).encode('utf-8')
 
     def __str__(self):
@@ -124,7 +129,8 @@ class Feed(object):
             link        = item.get('url', None)
             description = item.get('description', '')
             content     = item.get('content', '')
-            article = Article(id, title, link, description, published, content)
+            author      = item.get('author', '')
+            article = Article(id, title, link, author, description, published, content)
             delta = datetime.utcnow() - article.utctime
             if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
                 self.articles.append(article)
@@ -149,7 +155,9 @@ class Feed(object):
             self.logger.warning('Failed to get link for %s'%title)
             self.logger.debug(traceback.format_exc())
             link = None
+
         description = item.get('summary', None)
+        author = item.get('author', None)
 
         content = [i.value for i in item.get('content', []) if i.value]
         content = [i if isinstance(i, unicode) else i.decode('utf-8', 'replace')
@@ -159,7 +167,7 @@ class Feed(object):
             content = None
         if not link and not content:
             return
-        article = Article(id, title, link, description, published, content)
+        article = Article(id, title, link, author, description, published, content)
         delta = datetime.utcnow() - article.utctime
         if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
             self.articles.append(article)

@@ -16,7 +16,7 @@ class NYTimes(BasicNewsRecipe):
     __author__  = 'Kovid Goyal'
     language = _('English')
     description = 'Daily news from the New York Times (subscription version)'
-    timefmt = ' [%a, %d %b, %Y]'
+    timefmt = ''
     needs_subscription = True
     remove_tags_before = dict(id='article')
     remove_tags_after  = dict(id='article')
@@ -46,26 +46,47 @@ class NYTimes(BasicNewsRecipe):
         articles = {}
         key = None
         ans = []
+        allSectionKeywords = ['The Front Page', 'International','National','Obituaries','Editorials',
+                              'New York','Business Day','Sports','Dining','Arts','Home','Styles']
+        excludeSectionKeywords = ['Dining','Styles']
+
+
+        # Find each instance of class="section-headline", class="story", class="story headline"
         for div in soup.findAll(True,
             attrs={'class':['section-headline', 'story', 'story headline']}):
 
             if div['class'] == 'section-headline':
                 key = string.capwords(feed_title(div))
+                excluded = re.compile('|'.join(excludeSectionKeywords))
+                if excluded.search(key):
+                    self.log("Skipping section %s" % key)
+                    continue
+
                 articles[key] = []
                 ans.append(key)
 
-            elif div['class'] in ['story', 'story headline']:
+            elif div['class'] in ['story', 'story headline'] :
                 a = div.find('a', href=True)
                 if not a:
                     continue
                 url = re.sub(r'\?.*', '', a['href'])
                 url += '?pagewanted=all'
                 title = self.tag_to_string(a, use_alt=True).strip()
+
                 description = ''
                 pubdate = strftime('%a, %d %b')
                 summary = div.find(True, attrs={'class':'summary'})
                 if summary:
                     description = self.tag_to_string(summary, use_alt=False)
+
+                author = ''
+                authorAttribution = div.find(True, attrs={'class':'storyheadline-author'})
+                if authorAttribution:
+                    author = self.tag_to_string(authorAttribution, use_alt=False)
+                else:
+                    authorAttribution = div.find(True, attrs={'class':'byline'})
+                    if authorAttribution:
+                        author = self.tag_to_string(authorAttribution, use_alt=False)
 
                 feed = key if key is not None else 'Uncategorized'
                 if not articles.has_key(feed):
@@ -73,12 +94,13 @@ class NYTimes(BasicNewsRecipe):
                 if not 'podcasts' in url:
                     articles[feed].append(
                                   dict(title=title, url=url, date=pubdate,
-                                       description=description,
+                                       description=description, author=author,
                                        content=''))
         ans = self.sort_index_by(ans, {'The Front Page':-1,
                                        'Dining In, Dining Out':1,
                                        'Obituaries':2})
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+
         return ans
 
     def preprocess_html(self, soup):

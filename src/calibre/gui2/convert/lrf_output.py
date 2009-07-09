@@ -45,9 +45,11 @@ class PluginWidget(Widget, Ui_Form):
     def set_value_handler(self, g, val):
         if unicode(g.objectName()) in ('opt_serif_family',
                 'opt_sans_family', 'opt_mono_family'):
-            idx = g.findText(val, Qt.MatchFixedString)
+            idx = -1
+            if val:
+                idx = g.findText(val, Qt.MatchFixedString)
             if idx < 0:
                 idx = 0
-            g.setCurrentIndex(0)
+            g.setCurrentIndex(idx)
             return True
         return False

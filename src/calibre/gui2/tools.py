@@ -152,10 +152,20 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
 
 def fetch_scheduled_recipe(recipe, script):
     from calibre.gui2.dialogs.scheduler import config
+    from calibre.ebooks.conversion.config import load_defaults
     fmt = prefs['output_format'].lower()
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()
     recs = []
+    ps = load_defaults('page_setup')
+    if 'output_profile' in ps:
+        recs.append(('output_profile', ps['output_profile'],
+            OptionRecommendation.HIGH))
+    lf = load_defaults('look_and_feel')
+    if lf.get('base_font_size', 0.0) != 0.0:
+        recs.append(('base_font_size', ps['base_font_size'],
+            OptionRecommendation.HIGH))
+
     args = [script, pt.name, recs]
     if recipe.needs_subscription:
         x = config.get('recipe_account_info_%s'%recipe.id, False)
