@@ -48,7 +48,7 @@ class NYTimes(BasicNewsRecipe):
         ans = []
         allSectionKeywords = ['The Front Page', 'International','National','Obituaries','Editorials',
                               'New York','Business Day','Sports','Dining','Arts','Home','Styles']
-        excludeSectionKeywords = ['Sports','Dining','Styles']
+        excludeSectionKeywords = ['Dining','Styles']
 
 
         # Find each instance of class="section-headline", class="story", class="story headline"
