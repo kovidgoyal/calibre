@@ -9,7 +9,6 @@ import shutil
 from itertools import cycle
 
 from calibre import sanitize_file_name as sanitize
-from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
 
