@@ -860,6 +860,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+        if self._adder.critical:
+            det_msg = []
+            for name, log in self._adder.critical.items():
+                det_msg.append(name+'\n'+log)
+            error_dialog(self, _('Failed to read metadata'),
+                    _('Failed to read metadata from the following')+':',
+                    det_msg='\n\n'.join(det_msg), show=True)
 
         self._adder = None
 
