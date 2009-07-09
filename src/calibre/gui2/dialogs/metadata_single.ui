@@ -43,8 +43,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>869</width>
-        <height>696</height>
+        <width>879</width>
+        <height>710</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -120,6 +120,9 @@
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy">
+                    <cstring>authors</cstring>
                    </property>
                   </widget>
                  </item>
@@ -661,26 +664,28 @@
  <tabstops>
   <tabstop>title</tabstop>
   <tabstop>swap_button</tabstop>
+  <tabstop>authors</tabstop>
   <tabstop>author_sort</tabstop>
   <tabstop>auto_author_sort</tabstop>
   <tabstop>rating</tabstop>
   <tabstop>publisher</tabstop>
   <tabstop>tags</tabstop>
-  <tabstop>series</tabstop>
   <tabstop>tag_editor_button</tabstop>
+  <tabstop>series</tabstop>
   <tabstop>remove_series_button</tabstop>
+  <tabstop>series_index</tabstop>
   <tabstop>isbn</tabstop>
   <tabstop>pubdate</tabstop>
   <tabstop>comments</tabstop>
   <tabstop>fetch_metadata_button</tabstop>
-  <tabstop>fetch_cover_button</tabstop>
   <tabstop>formats</tabstop>
   <tabstop>add_format_button</tabstop>
-  <tabstop>remove_format_button</tabstop>
   <tabstop>button_set_cover</tabstop>
+  <tabstop>remove_format_button</tabstop>
   <tabstop>cover_path</tabstop>
   <tabstop>cover_button</tabstop>
   <tabstop>reset_cover</tabstop>
+  <tabstop>fetch_cover_button</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>

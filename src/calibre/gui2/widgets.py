@@ -490,13 +490,13 @@ class LineEditECM(object):
 
 
 class EnLineEdit(LineEditECM, QLineEdit):
-    
+
     '''
     Enhanced QLineEdit.
-    
+
     Includes an extended content menu.
     '''
-    
+
     pass
 
 
@@ -592,6 +592,13 @@ class EnComboBox(QComboBox):
 
     def text(self):
         return qstring_to_unicode(self.currentText())
+
+    def setText(self, text):
+        idx = self.findText(text, Qt.MatchFixedString)
+        if idx == -1:
+            self.insertItem(0, text)
+            idx = 0
+        self.setCurrentIndex(idx)
 
 class PythonHighlighter(QSyntaxHighlighter):
 
