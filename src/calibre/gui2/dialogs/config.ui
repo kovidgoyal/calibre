@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>557</height>
+    <height>583</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -233,6 +233,68 @@
           </layout>
          </item>
          <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Preferred &amp;input format order:</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QListWidget" name="input_order">
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_10">
+                <item>
+                 <widget class="QToolButton" name="input_up">
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../images.qrc">
+                    <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="input_down">
+                  <property name="text">
+                   <string>...</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../images.qrc">
+                    <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="dirs_box">
            <property name="title">
             <string>Frequently used directories</string>
@@ -361,6 +423,16 @@
           <widget class="QCheckBox" name="separate_cover_flow">
            <property name="text">
             <string>Show cover &amp;browser in a separate window (needs restart)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="search_as_you_type">
+           <property name="text">
+            <string>Search as you type</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -529,15 +601,6 @@
           </layout>
          </item>
         </layout>
-        <zorder>roman_numerals</zorder>
-        <zorder>groupBox_2</zorder>
-        <zorder>systray_icon</zorder>
-        <zorder>sync_news</zorder>
-        <zorder>delete_news</zorder>
-        <zorder>separate_cover_flow</zorder>
-        <zorder>systray_notifications</zorder>
-        <zorder></zorder>
-        <zorder></zorder>
        </widget>
        <widget class="QWidget" name="page_6">
         <layout class="QGridLayout" name="gridLayout_6">

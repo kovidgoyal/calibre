@@ -9,7 +9,8 @@ from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, \
-                        QPalette, QImage, QApplication, QMenu, QStyledItemDelegate
+                        QPalette, QImage, QApplication, QMenu, \
+                        QStyledItemDelegate, QCompleter
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
@@ -19,6 +20,7 @@ from calibre.utils.pyparsing import ParseException
 from calibre.library.database2 import FIELD_MAP
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
                          error_dialog
+from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.ebooks.metadata import string_to_authors, fmt_sidx
@@ -111,6 +113,45 @@ class PubDateDelegate(QStyledItemDelegate):
         qde.setCalendarPopup(True)
         return qde
 
+class TextDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent):
+        '''
+        Delegate for text data. If auto_complete_function needs to return a list
+        of text items to auto-complete with. The funciton is None no
+        auto-complete will be used.
+        '''
+        QStyledItemDelegate.__init__(self, parent)
+        self.auto_complete_function = None
+
+    def set_auto_complete_function(self, f):
+        self.auto_complete_function = f
+
+    def createEditor(self, parent, option, index):
+        editor = EnLineEdit(parent)
+        if self.auto_complete_function:
+            complete_items = [i[1] for i in self.auto_complete_function()]
+            completer = QCompleter(complete_items, self)
+            completer.setCaseSensitivity(Qt.CaseInsensitive)
+            completer.setCompletionMode(QCompleter.InlineCompletion)
+            editor.setCompleter(completer)
+        return editor
+
+class TagsDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.db = None
+
+    def set_database(self, db):
+        self.db = db
+
+    def createEditor(self, parent, option, index):
+        if self.db:
+            editor = TagsLineEdit(parent, self.db.all_tags())
+        else:
+            editor = EnLineEdit(parent)
+        return editor
 
 class BooksModel(QAbstractTableModel):
     headers = {
@@ -148,21 +189,7 @@ class BooksModel(QAbstractTableModel):
         if cols != self.column_map:
             self.column_map = cols
             self.reset()
-            try:
-                idx = self.column_map.index('rating')
-            except ValueError:
-                idx = -1
-            try:
-                tidx = self.column_map.index('timestamp')
-            except ValueError:
-                tidx = -1
-            try:
-                pidx = self.column_map.index('pubdate')
-            except ValueError:
-                pidx = -1
-
-            self.emit(SIGNAL('columns_sorted(int,int,int)'), idx, tidx, pidx)
-
+            self.emit(SIGNAL('columns_sorted()'))
 
     def set_database(self, db):
         self.db = db
@@ -649,34 +676,45 @@ class BooksView(TableView):
         self.rating_delegate = LibraryDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
+        self.tags_delegate = TagsDelegate(self)
+        self.authors_delegate = TextDelegate(self)
+        self.series_delegate = TextDelegate(self)
+        self.publisher_delegate = TextDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
-        try:
-            cm = self._model.column_map
-            self.columns_sorted(cm.index('rating') if 'rating' in cm else -1,
-                            cm.index('timestamp') if 'timestamp' in cm else -1,
-                            cm.index('pubdate') if 'pubdate' in cm else -1)
-        except ValueError:
-            pass
+        for i in range(10):
+            self.setItemDelegateForColumn(i, TextDelegate(self))
+        self.columns_sorted()
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        self.connect(self._model, SIGNAL('columns_sorted(int,int,int)'),
+        self.connect(self._model, SIGNAL('columns_sorted()'),
                 self.columns_sorted, Qt.QueuedConnection)
 
-    def columns_sorted(self, rating_col, timestamp_col, pubdate_col):
+    def columns_sorted(self):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
                     self.timestamp_delegate, self.pubdate_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
-        if rating_col > -1:
-            self.setItemDelegateForColumn(rating_col, self.rating_delegate)
-        if timestamp_col > -1:
-            self.setItemDelegateForColumn(timestamp_col, self.timestamp_delegate)
-        if pubdate_col > -1:
-            self.setItemDelegateForColumn(pubdate_col, self.pubdate_delegate)
+
+        cm = self._model.column_map
+
+        if 'rating' in cm:
+            self.setItemDelegateForColumn(cm.index('rating'), self.rating_delegate)
+        if 'timestamp' in cm:
+            self.setItemDelegateForColumn(cm.index('timestamp'), self.timestamp_delegate)
+        if 'pubdate' in cm:
+            self.setItemDelegateForColumn(cm.index('pubdate'), self.pubdate_delegate)
+        if 'tags' in cm:
+            self.setItemDelegateForColumn(cm.index('tags'), self.tags_delegate)
+        if 'authors' in cm:
+            self.setItemDelegateForColumn(cm.index('authors'), self.authors_delegate)
+        if 'publisher' in cm:
+            self.setItemDelegateForColumn(cm.index('publisher'), self.publisher_delegate)
+        if 'series' in cm:
+            self.setItemDelegateForColumn(cm.index('series'), self.series_delegate)
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
                          save, open_folder, book_details, similar_menu=None):
@@ -739,6 +777,10 @@ class BooksView(TableView):
 
     def set_database(self, db):
         self._model.set_database(db)
+        self.tags_delegate.set_database(db)
+        self.authors_delegate.set_auto_complete_function(db.all_authors)
+        self.series_delegate.set_auto_complete_function(db.all_series)
+        self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 
     def close(self):
         self._model.close()
@@ -769,9 +811,12 @@ class DeviceBooksView(BooksView):
         self.resize_on_select = False
         self.rating_delegate = None
         for i in range(10):
-            self.setItemDelegateForColumn(i, self.itemDelegate())
+            self.setItemDelegateForColumn(i, TextDelegate(self))
         self.setDragDropMode(self.NoDragDrop)
         self.setAcceptDrops(False)
+
+    def set_database(self, db):
+        self._model.set_database(db)
 
     def resizeColumnsToContents(self):
         QTableView.resizeColumnsToContents(self)
@@ -1062,6 +1107,7 @@ class SearchBox(QLineEdit):
         QLineEdit.__init__(self, parent)
         self.help_text = help_text
         self.initial_state = True
+        self.as_you_type = True
         self.default_palette = QApplication.palette(self)
         self.gray = QPalette(self.default_palette)
         self.gray.setBrush(QPalette.Text, QBrush(QColor('gray')))
@@ -1094,6 +1140,9 @@ class SearchBox(QLineEdit):
         if self.initial_state:
             self.normalize_state()
             self.initial_state = False
+        if not self.as_you_type:
+            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+                self.do_search()
         QLineEdit.keyPressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
@@ -1103,17 +1152,21 @@ class SearchBox(QLineEdit):
         QLineEdit.mouseReleaseEvent(self, event)
 
     def text_edited_slot(self, text):
-        text = qstring_to_unicode(text) if isinstance(text, QString) else unicode(text)
-        self.prev_text = text
-        self.timer = self.startTimer(self.__class__.INTERVAL)
+        if self.as_you_type:
+            text = qstring_to_unicode(text) if isinstance(text, QString) else unicode(text)
+            self.prev_text = text
+            self.timer = self.startTimer(self.__class__.INTERVAL)
 
     def timerEvent(self, event):
         self.killTimer(event.timerId())
         if event.timerId() == self.timer:
-            text = qstring_to_unicode(self.text())
-            refinement = text.startswith(self.prev_search) and ':' not in text
-            self.prev_search = text
-            self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
+            self.do_search()
+
+    def do_search(self):
+        text = qstring_to_unicode(self.text())
+        refinement = text.startswith(self.prev_search) and ':' not in text
+        self.prev_search = text
+        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
 
     def search_from_tokens(self, tokens, all):
         ans = u' '.join([u'%s:%s'%x for x in tokens])
@@ -1131,4 +1184,7 @@ class SearchBox(QLineEdit):
         self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
         self.end(False)
         self.initial_state = False
+
+    def search_as_you_type(self, enabled):
+        self.as_you_type = enabled
 

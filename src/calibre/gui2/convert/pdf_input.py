@@ -14,6 +14,6 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, 'pdf_input',
-            ['no_images', 'pdf_line_length'])
+            ['no_images', 'unwrap_factor'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)

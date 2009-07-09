@@ -147,6 +147,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.system_tray_icon.hide()
         else:
             self.system_tray_icon.show()
+        self.search.search_as_you_type(config['search_as_you_type'])
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
                 QIcon(':/images/page.svg'), _('&Restore'))
@@ -311,12 +312,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
         self.action_convert.setMenu(cm)
+        self._convert_single_hook = partial(self.convert_ebook, bulk=False)
         QObject.connect(cm.actions()[0],
-                SIGNAL('triggered(bool)'), self.convert_single)
+                SIGNAL('triggered(bool)'), self._convert_single_hook)
+        self._convert_bulk_hook = partial(self.convert_ebook, bulk=True)
         QObject.connect(cm.actions()[1],
-                SIGNAL('triggered(bool)'), self.convert_bulk)
+                SIGNAL('triggered(bool)'), self._convert_bulk_hook)
         QObject.connect(self.action_convert,
-                SIGNAL('triggered(bool)'), self.convert_single)
+                SIGNAL('triggered(bool)'), self.convert_ebook)
         self.convert_menu = cm
 
         pm = QMenu()
@@ -1161,32 +1164,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return None
         return [self.library_view.model().db.id(r) for r in rows]
 
-    def convert_bulk(self, checked):
+    def convert_ebook(self, checked, bulk=None):
         book_ids = self.get_books_for_conversion()
         if book_ids is None: return
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_bulk_ebook(self,
+        if bulk or (bulk is None and len(book_ids) > 1):
+            jobs, changed, bad = convert_bulk_ebook(self,
                 self.library_view.model().db, book_ids, out_format=prefs['output_format'])
-        for func, args, desc, fmt, id, temp_files in jobs:
-            if id not in bad:
-                job = self.job_manager.run_job(Dispatcher(self.book_converted),
-                                            func, args=args, description=desc)
-                self.conversion_jobs[job] = (temp_files, fmt, id)
-
-        if changed:
-            self.library_view.model().refresh_rows(rows)
-            current = self.library_view.currentIndex()
-            self.library_view.model().current_changed(current, previous)
-
-    def convert_single(self, checked):
-        book_ids = self.get_books_for_conversion()
-        if book_ids is None: return
-        previous = self.library_view.currentIndex()
-        rows = [x.row() for x in \
-                self.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_single_ebook(self,
+        else:
+            jobs, changed, bad = convert_single_ebook(self,
                 self.library_view.model().db, book_ids, out_format=prefs['output_format'])
         for func, args, desc, fmt, id, temp_files in jobs:
             if id not in bad:
@@ -1369,51 +1357,51 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()
-        if self.current_view() is self.library_view:
-            if not rows or len(rows) == 0:
-                self._launch_viewer()
-                return
 
-            row = rows[0].row()
-            formats = self.library_view.model().db.formats(row).upper()
-            formats = formats.split(',')
-            title   = self.library_view.model().db.title(row)
-            id      = self.library_view.model().db.id(row)
-            format = None
-            if len(formats) == 1:
-                format = formats[0]
-            if 'LRF' in formats:
-                format = 'LRF'
-            if 'EPUB' in formats:
-                format = 'EPUB'
-            if 'MOBI' in formats:
-                format = 'MOBI'
-            if not formats:
-                d = error_dialog(self, _('Cannot view'),
-                        _('%s has no available formats.')%(title,))
-                d.exec_()
-                return
-            if format is None:
-                d = ChooseFormatDialog(self, _('Choose the format to view'),
-                        formats)
-                d.exec_()
-                if d.result() == QDialog.Accepted:
-                    format = d.format()
-                else:
+        if not rows or len(rows) == 0:
+            self._launch_viewer()
+            return
+
+        if len(rows) >= 3:
+            if not question_dialog(self, _('Multiple Books Selected'),
+                _('You are attempting to open %d books. Opening too many '
+                'books at once can be slow and have a negative effect on the '
+                'responsiveness of your computer. Once started the process '
+                'cannot be stopped until complete. Do you wish to continue?'
+                % len(rows))):
                     return
 
-            self.view_format(row, format)
+        if self.current_view() is self.library_view:
+            for row in rows:
+                row = row.row()
+
+                formats = self.library_view.model().db.formats(row).upper()
+                formats = formats.split(',')
+                title   = self.library_view.model().db.title(row)
+
+                if not formats:
+                    error_dialog(self, _('Cannot view'),
+                        _('%s has no available formats.')%(title,), show=True)
+                    continue
+
+                in_prefs = False
+                for format in prefs['input_format_order']:
+                    if format in formats:
+                        in_prefs = True
+                        self.view_format(row, format)
+                        break
+                if not in_prefs:
+                    self.view_format(row, format[0])
         else:
             paths = self.current_view().model().paths(rows)
-            if paths:
+            for path in paths:
                 pt = PersistentTemporaryFile('_viewer_'+\
-                        os.path.splitext(paths[0])[1])
+                        os.path.splitext(path)[1])
                 self.persistent_files.append(pt)
                 pt.close()
                 self.device_manager.view_book(\
                         Dispatcher(self.book_downloaded_for_viewing),
-                                              paths[0], pt.name)
-
+                                              path, pt.name)
 
 
     ############################################################################
@@ -1441,6 +1429,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.content_server = d.server
         if d.result() == d.Accepted:
             self.tool_bar.setIconSize(config['toolbar_icon_size'])
+            self.search.search_as_you_type(config['search_as_you_type'])
             self.tool_bar.setToolButtonStyle(
                     Qt.ToolButtonTextUnderIcon if \
                             config['show_text_in_toolbar'] else \

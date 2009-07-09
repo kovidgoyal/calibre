@@ -13,7 +13,7 @@ import traceback
 from datetime import datetime
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate
-from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompleter
+from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, pixmap_to_data, choose_images, ResizableDialog
@@ -79,13 +79,6 @@ class Format(QListWidgetItem):
         text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
                                  text, parent, QListWidgetItem.UserType)
-
-class AuthorCompleter(QCompleter):
-
-    def __init__(self, db):
-        all_authors = db.all_authors()
-        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
-        QCompleter.__init__(self, [x[1] for x in all_authors])
 
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
@@ -233,8 +226,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover_changed = False
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
-        self._author_completer = AuthorCompleter(self.db)
-        self.authors.setCompleter(self._author_completer)
         self.pubdate.setMinimumDate(QDate(100,1,1))
         self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
@@ -265,16 +256,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if not isbn:
             isbn = ''
         self.isbn.setText(isbn)
-        au = self.db.authors(row)
-        if au:
-            au = [a.strip().replace('|', ',') for a in au.split(',')]
-            self.authors.setText(authors_to_string(au))
-        else:
-            self.authors.setText('')
         aus = self.db.author_sort(row)
         self.author_sort.setText(aus if aus else '')
         tags = self.db.tags(row)
-        self.tags.setText(tags if tags else '')
+        self.tags.setText(', '.join(tags.split(',')) if tags else '')
+        self.tags.update_tags_cache(self.db.all_tags())
         rating = self.db.rating(row)
         if rating > 0:
             self.rating.setValue(int(rating/2.))
@@ -295,7 +281,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 Format(self.formats, ext, size)
 
 
-        self.initialize_series_and_publisher()
+        self.initialize_combos()
 
         self.series_index.setValue(self.db.series_index(row))
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
@@ -331,6 +317,30 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def cover_dropped(self):
         self.cover_changed = True
 
+    def initialize_combos(self):
+        self.initalize_authors()
+        self.initialize_series()
+        self.initialize_publisher()
+
+        self.layout().activate()
+
+    def initalize_authors(self):
+        all_authors = self.db.all_authors()
+        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        author_id = self.db.author_id(self.row)
+        idx, c = None, 0
+        for i in all_authors:
+            id, name = i
+            if id == author_id:
+                idx = c
+            name = [name.strip().replace('|', ',') for n in name.split(',')]
+            self.authors.addItem(authors_to_string(name))
+            c += 1
+
+        self.authors.setEditText('')
+        if idx is not None:
+            self.authors.setCurrentIndex(idx)
+
     def initialize_series(self):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
         all_series = self.db.all_series()
@@ -349,8 +359,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.series.setCurrentIndex(idx)
             self.enable_series_index()
 
-    def initialize_series_and_publisher(self):
-        self.initialize_series()
+    def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         publisher_id = self.db.publisher_id(self.row)
@@ -366,15 +375,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if idx is not None:
             self.publisher.setCurrentIndex(idx)
 
-
-        self.layout().activate()
-
     def edit_tags(self):
         d = TagEditor(self, self.db, self.row)
         d.exec_()
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
+            self.tags.update_tags_cache(self.db.all_tags())
 
     def fetch_cover(self):
         isbn   = unicode(self.isbn.text()).strip()

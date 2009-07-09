@@ -110,6 +110,18 @@ class CybookG3Input(InputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
+class CybookOpusInput(InputProfile):
+
+    name        = 'Cybook Opus'
+    short_name  = 'cybook_opus'
+    description = _('This profile is intended for the Cybook Opus.')
+
+    # Screen size is a best guess
+    screen_size               = (600, 800)
+    dpi                       = 200
+    fbase                     = 16
+    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
 class KindleInput(InputProfile):
 
     name        = 'Kindle'
@@ -219,6 +231,18 @@ class CybookG3Output(OutputProfile):
     # Screen size is a best guess
     screen_size               = (600, 800)
     dpi                       = 168.451
+    fbase                     = 16
+    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
+class CybookOpusOutput(OutputProfile):
+
+    name        = 'Cybook Opus'
+    short_name  = 'cybook_opus'
+    description = _('This profile is intended for the Cybook Opus.')
+
+    # Screen size is a best guess
+    screen_size               = (600, 800)
+    dpi                       = 200
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 

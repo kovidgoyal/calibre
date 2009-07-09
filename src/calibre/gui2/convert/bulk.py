@@ -15,7 +15,8 @@ from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 from calibre.gui2.convert import GuiRecommendations
-from calibre.ebooks.conversion.plumber import Plumber, OUTPUT_FORMAT_PREFERENCES
+from calibre.ebooks.conversion.plumber import Plumber
+from calibre.utils.config import prefs
 from calibre.utils.logging import Log
 
 class BulkConfig(Config):
@@ -102,7 +103,7 @@ class BulkConfig(Config):
         preferred_output_format = preferred_output_format if \
             preferred_output_format and preferred_output_format \
             in output_formats else sort_formats_by_preference(output_formats,
-                    OUTPUT_FORMAT_PREFERENCES)[0]
+                    prefs['output_format'])[0]
         self.output_formats.addItems(list(map(QString, [x.upper() for x in
             output_formats])))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
@@ -116,5 +117,4 @@ class BulkConfig(Config):
             recs.update(x)
         self._recommendations = recs
         ResizableDialog.accept(self)
-
 

@@ -35,21 +35,17 @@ class MetadataWidget(Widget, Ui_Form):
         self.connect(self.cover_button, SIGNAL("clicked()"), self.select_cover)
 
     def initialize_metadata_options(self):
-        all_series = self.db.all_series()
-        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
-        for series in all_series:
-            self.series.addItem(series[1])
-        self.series.setCurrentIndex(-1)
+        self.initialize_combos()
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title)
         if mi.authors:
-            self.author.setText(authors_to_string(mi.authors))
-        else:
-            self.author.setText('')
-        self.publisher.setText(mi.publisher if mi.publisher else '')
+            self.author.setCurrentIndex(self.author.findText(authors_to_string(mi.authors)))
+        if mi.publisher:
+            self.publisher.setCurrentIndex(self.publisher.findText(mi.publisher))
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
+        self.tags.update_tags_cache(self.db.all_tags())
         self.comment.setText(mi.comments if mi.comments else '')
         if mi.series:
             self.series.setCurrentIndex(self.series.findText(mi.series))
@@ -65,6 +61,39 @@ class MetadataWidget(Widget, Ui_Form):
             pm.loadFromData(cover)
             if not pm.isNull():
                 self.cover.setPixmap(pm)
+
+    def initialize_combos(self):
+        self.initalize_authors()
+        self.initialize_series()
+        self.initialize_publisher()
+
+    def initalize_authors(self):
+        all_authors = self.db.all_authors()
+        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+
+        for i in all_authors:
+            id, name = i
+            name = authors_to_string([name.strip().replace('|', ',') for n in name.split(',')])
+            self.author.addItem(name)
+        self.author.setCurrentIndex(-1)
+
+    def initialize_series(self):
+        all_series = self.db.all_series()
+        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+
+        for i in all_series:
+            id, name = i
+            self.series.addItem(name)
+        self.series.setCurrentIndex(-1)
+
+    def initialize_publisher(self):
+        all_publishers = self.db.all_publishers()
+        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+
+        for i in all_publishers:
+            id, name = i
+            self.publisher.addItem(name)
+        self.publisher.setCurrentIndex(-1)
 
     def get_title_and_authors(self):
         title = unicode(self.title.text()).strip()

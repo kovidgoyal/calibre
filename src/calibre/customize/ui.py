@@ -276,6 +276,13 @@ def plugin_for_input_format(fmt):
         if fmt.lower() in plugin.file_types:
             return plugin
 
+def all_input_formats():
+    formats = set([])
+    for plugin in input_format_plugins():
+        for format in plugin.file_types:
+            formats.add(format)
+    return formats
+
 def available_input_formats():
     formats = set([])
     for plugin in input_format_plugins():

@@ -140,8 +140,6 @@ class HTMLPreProcessor(object):
                   (re.compile(u'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), lambda match: ' '),
                   # Connect paragraphs split by -
                   (re.compile(u'(?<=[^\s][-–])[\s]*(</p>)*[\s]*(<p>)*\s*(?=[^\s])'), lambda match: ''),
-                  # Remove - that splits words
-                  (re.compile(u'(?<=[^\s])[-–]+(?=[^\s])'), lambda match: ''),
                   # Add space before and after italics
                   (re.compile(u'(?<!“)<i>'), lambda match: ' <i>'),
                   (re.compile(r'</i>(?=\w)'), lambda match: '</i> '),
@@ -163,10 +161,10 @@ class HTMLPreProcessor(object):
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
     def __init__(self, input_plugin_preprocess, plugin_preprocess,
-            pdf_line_length):
+            extra_opts=None):
         self.input_plugin_preprocess = input_plugin_preprocess
         self.plugin_preprocess = plugin_preprocess
-        self.pdf_line_length = pdf_line_length
+        self.extra_opts = extra_opts
 
     def is_baen(self, src):
         return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"',
@@ -187,18 +185,30 @@ class HTMLPreProcessor(object):
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
-            length = line_length(html, self.pdf_line_length)
-            line_length_rules = []
-            if length:
-                line_length_rules = [
-                    # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
-                ]
+            end_rules = []
+            if getattr(self.extra_opts, 'unwrap_factor', None):
+                length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
+                if length:
+                    end_rules.append(
+                        # Un wrap using punctuation
+                        (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
+                    )
 
-            rules = self.PDFTOHTML + line_length_rules
+            rules = self.PDFTOHTML + end_rules
         else:
             rules = []
-        for rule in self.PREPROCESS + rules:
+
+        pre_rules = []
+        if getattr(self.extra_opts, 'remove_header', None):
+            pre_rules.append(
+                (re.compile(getattr(self.extra_opts, 'header_regex')), lambda match : '')
+            )
+        if getattr(self.extra_opts, 'remove_footer', None):
+            pre_rules.append(
+                (re.compile(getattr(self.extra_opts, 'footer_regex')), lambda match : '')
+            )
+
+        for rule in self.PREPROCESS + pre_rules + rules:
             html = rule[0].sub(rule[1], html)
 
         # Handle broken XHTML w/ SVG (ugh)

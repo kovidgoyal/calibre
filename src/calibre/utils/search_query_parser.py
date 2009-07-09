@@ -50,6 +50,8 @@ class SearchQueryParser(object):
         'author',
         'publisher',
         'series',
+        'rating',
+        'cover',
         'comments',
         'format',
         'isbn',

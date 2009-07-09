@@ -143,19 +143,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="EnLineEdit" name="author">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>1</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Change the author(s) of this book. Multiple authors should be separated by an &amp;. If the author name contains an &amp;, use &amp;&amp; to represent it.</string>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
@@ -195,13 +182,6 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="EnLineEdit" name="publisher">
-         <property name="toolTip">
-          <string>Change the publisher of this book</string>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
@@ -216,7 +196,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="EnLineEdit" name="tags">
+        <widget class="TagsLineEdit" name="tags">
          <property name="toolTip">
           <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
          </property>
@@ -276,6 +256,20 @@
          </property>
         </widget>
        </item>
+       <item row="3" column="1">
+        <widget class="EnComboBox" name="publisher">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="EnComboBox" name="author">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -329,11 +323,16 @@
    <extends>QComboBox</extends>
    <header>widgets.h</header>
   </customwidget>
+  <customwidget>
+   <class>TagsLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="../images.qrc"/>
   <include location="../images.qrc"/>
-  <include location="../../../../../gui2/images.qrc"/>
+  <include location="../images.qrc"/>
  </resources>
  <connections/>
 </ui>

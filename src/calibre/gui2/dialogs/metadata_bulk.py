@@ -9,7 +9,8 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2 import qstring_to_unicode
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string
+from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
+    authors_to_string
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
@@ -25,22 +26,54 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)
         QObject.connect(self.rating, SIGNAL('valueChanged(int)'), self.rating_changed)
 
-        all_series = self.db.all_series()
+        self.tags.update_tags_cache(self.db.all_tags())
+        self.remove_tags.update_tags_cache(self.db.all_tags())
 
-        for i in all_series:
-            id, name = i
-            self.series.addItem(name)
+        self.initialize_combos()
 
         for f in self.db.all_formats():
             self.remove_format.addItem(f)
 
         self.remove_format.setCurrentIndex(-1)
 
-        self.series.lineEdit().setText('')
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.series_changed)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.series_changed)
         QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), self.tag_editor)
+
         self.exec_()
+
+    def initialize_combos(self):
+        self.initalize_authors()
+        self.initialize_series()
+        self.initialize_publisher()
+
+    def initalize_authors(self):
+        all_authors = self.db.all_authors()
+        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+
+        for i in all_authors:
+            id, name = i
+            name = authors_to_string([name.strip().replace('|', ',') for n in name.split(',')])
+            self.authors.addItem(name)
+        self.authors.setEditText('')
+
+    def initialize_series(self):
+        all_series = self.db.all_series()
+        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+
+        for i in all_series:
+            id, name = i
+            self.series.addItem(name)
+        self.series.setEditText('')
+
+    def initialize_publisher(self):
+        all_publishers = self.db.all_publishers()
+        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+
+        for i in all_publishers:
+            id, name = i
+            self.publisher.addItem(name)
+        self.publisher.setEditText('')
 
     def tag_editor(self):
         d = TagEditor(self, self.db, None)
@@ -48,6 +81,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
+            self.tags.update_tags_cache(self.db.all_tags())
+            self.remove_tags.update_tags_cache(self.db.all_tags())
 
     def sync(self):
         for id in self.ids:

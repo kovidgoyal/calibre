@@ -20,7 +20,7 @@ class PDFInput(InputFormatPlugin):
     options = set([
         OptionRecommendation(name='no_images', recommended_value=False,
             help=_('Do not extract images from the document')),
-        OptionRecommendation(name='pdf_line_length', recommended_value=0.5,
+        OptionRecommendation(name='unwrap_factor', recommended_value=0.5,
             help=_('Scale used to determine the length at which a line should '
             'be unwrapped. Valid values are a decimal between 0 and 1. The '
             'default is 0.5, this is the median line length.')),
@@ -42,12 +42,7 @@ class PDFInput(InputFormatPlugin):
         images = os.listdir(os.getcwd())
         images.remove('index.html')
         for i in images:
-            # Remove the - from the file name because it causes problems.
-            # The reference to the image with the - will be changed to not
-            # include it later in the conversion process.
-            new_i = i.replace('-', '')
-            os.rename(i, new_i)
-            manifest.append((new_i, None))
+            manifest.append((i, None))
         log.debug('Generating manifest...')
         opf.create_manifest(manifest)
 

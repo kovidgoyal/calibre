@@ -7,7 +7,8 @@ import os, re, sys
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.customize.ui import input_profiles, output_profiles, \
-        plugin_for_input_format, plugin_for_output_format
+        plugin_for_input_format, plugin_for_output_format, \
+        available_input_formats, available_output_formats
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import extract, walk
@@ -18,10 +19,6 @@ def supported_input_formats():
     for x in ('zip', 'rar', 'oebzip'):
         fmts.add(x)
     return fmts
-
-INPUT_FORMAT_PREFERENCES = ['cbr', 'cbz', 'cbc', 'lit', 'mobi', 'prc', 'azw', 'fb2', 'html',
-        'rtf', 'pdf', 'txt', 'pdb']
-OUTPUT_FORMAT_PREFERENCES = ['epub', 'mobi', 'lit', 'pdf', 'pdb', 'txt']
 
 class OptionValues(object):
     pass
@@ -50,7 +47,7 @@ class Plumber(object):
         'tags', 'book_producer', 'language'
         ]
 
-    def __init__(self, input, output, log, report_progress=DummyReporter()):
+    def __init__(self, input, output, log, report_progress=DummyReporter(), dummy=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -318,6 +315,31 @@ OptionRecommendation(name='preprocess_html',
             )
         ),
 
+OptionRecommendation(name='remove_header',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Use a regular expression to try and remove the header.'
+            )
+        ),
+
+OptionRecommendation(name='header_regex',
+        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
+        level=OptionRecommendation.LOW,
+        help=_('The regular expression to use to remove the header.'
+            )
+        ),
+
+OptionRecommendation(name='remove_footer',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Use a regular expression to try and remove the footer.'
+            )
+        ),
+        
+OptionRecommendation(name='footer_regex',
+        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
+        level=OptionRecommendation.LOW,
+        help=_('The regular expression to use to remove the footer.'
+            )
+        ),
 
 OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
@@ -419,12 +441,28 @@ OptionRecommendation(name='list_recipes',
         self.input_fmt = input_fmt
         self.output_fmt = output_fmt
 
+
+        self.all_format_options = set()
+        self.input_options = set()
+        self.output_options = set()
         # Build set of all possible options. Two options are equal if their
         # names are the same.
-        self.input_options  = self.input_plugin.options.union(
-                                    self.input_plugin.common_options)
-        self.output_options = self.output_plugin.options.union(
+        if not dummy:
+            self.input_options  = self.input_plugin.options.union(
+                                        self.input_plugin.common_options)
+            self.output_options = self.output_plugin.options.union(
                                     self.output_plugin.common_options)
+        else:
+            for fmt in available_input_formats():
+                input_plugin = plugin_for_input_format(fmt)
+                if input_plugin:
+                    self.all_format_options = self.all_format_options.union(
+                        input_plugin.options.union(input_plugin.common_options))
+            for fmt in available_output_formats():
+                output_plugin = plugin_for_output_format(fmt)
+                if output_plugin:
+                    self.all_format_options = self.all_format_options.union(
+                        output_plugin.options.union(output_plugin.common_options))
 
         # Remove the options that have been disabled by recommendations from the
         # plugins.
@@ -469,7 +507,7 @@ OptionRecommendation(name='list_recipes',
 
     def get_option_by_name(self, name):
         for group in (self.input_options, self.pipeline_options,
-                      self.output_options):
+                      self.output_options, self.all_format_options):
             for rec in group:
                 if rec.option == name:
                     return rec
@@ -535,7 +573,7 @@ OptionRecommendation(name='list_recipes',
         '''
         self.opts = OptionValues()
         for group in (self.input_options, self.pipeline_options,
-                  self.output_options):
+                  self.output_options, self.all_format_options):
             for rec in group:
                 setattr(self.opts, rec.option.name, rec.recommended_value)
 
@@ -696,7 +734,7 @@ def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
     '''
     from calibre.ebooks.oeb.base import OEBBook
     html_preprocessor = HTMLPreProcessor(input_plugin.preprocess_html,
-            opts.preprocess_html, getattr(opts, 'pdf_line_length', 0.5))
+            opts.preprocess_html, opts)
     oeb = OEBBook(log, html_preprocessor,
             pretty_print=opts.pretty_print, input_encoding=encoding)
     if not populate:
