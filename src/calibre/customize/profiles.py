@@ -329,7 +329,7 @@ class IRexDigitalReader1000Output(OutputProfile):
     comic_screen_size         = (996, 1241)
     dpi                       = 160
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,
