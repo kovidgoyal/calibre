@@ -92,6 +92,12 @@ class CybookG3(Device):
     manufacturer = 'Booken'
     id = 'cybookg3'
 
+class CybookOpus(CybookG3):
+
+    name = 'Cybook Opus'
+    output_format = 'EPUB'
+    id = 'cybook_opus'
+
 class BeBook(Device):
 
     name = 'BeBook or BeBook Mini'

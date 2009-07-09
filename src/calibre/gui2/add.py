@@ -44,6 +44,7 @@ class Adder(QObject):
         self.pd = ProgressDialog(_('Adding...'), parent=parent)
         self.spare_server = spare_server
         self.db = db
+        self.critical = {}
         self.pd.setModal(True)
         self.pd.show()
         self._parent = parent
@@ -123,8 +124,12 @@ class Adder(QObject):
             return
         self.pd.value += 1
         formats = self.ids.pop(id)
-        mi = MetaInformation(OPF(opf))
         name = self.nmap.pop(id)
+        if opf.endswith('.error'):
+            mi = MetaInformation('', [_('Unknown')])
+            self.critical[name] = open(opf, 'rb').read().decode('utf-8', 'replace')
+        else:
+            mi = MetaInformation(OPF(opf))
         if not mi.title:
             mi.title = os.path.splitext(name)[0]
         mi.title = mi.title if isinstance(mi.title, unicode) else \

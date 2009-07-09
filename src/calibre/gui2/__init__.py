@@ -72,7 +72,7 @@ def _config():
     c.add_opt('asked_library_thing_password', default=False,
             help='Asked library thing password at least once.')
     c.add_opt('search_as_you_type', default=True,
-            help='Start searching as you type. If this is disabled then seaerch will '
+            help='Start searching as you type. If this is disabled then search will '
             'only take place when the Enter or Return key is pressed.')
     return ConfigProxy(c)
 

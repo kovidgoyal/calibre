@@ -313,12 +313,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
         self.action_convert.setMenu(cm)
+        self._convert_single_hook = partial(self.convert_ebook, bulk=False)
         QObject.connect(cm.actions()[0],
-                SIGNAL('triggered(bool)'), partial(self.convert_ebook, bulk=False))
+                SIGNAL('triggered(bool)'), self._convert_single_hook)
+        self._convert_bulk_hook = partial(self.convert_ebook, bulk=True)
         QObject.connect(cm.actions()[1],
-                SIGNAL('triggered(bool)'), partial(self.convert_ebook, bulk=True))
+                SIGNAL('triggered(bool)'), self._convert_bulk_hook)
         QObject.connect(self.action_convert,
-                SIGNAL('triggered(bool)'), partial(self.convert_ebook))
+                SIGNAL('triggered(bool)'), self.convert_ebook)
         self.convert_menu = cm
 
         pm = QMenu()
@@ -859,6 +861,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+        if self._adder.critical:
+            det_msg = []
+            for name, log in self._adder.critical.items():
+                det_msg.append(name+'\n'+log)
+            warning_dialog(self, _('Failed to read metadata'),
+                    _('Failed to read metadata from the following')+':',
+                    det_msg='\n\n'.join(det_msg), show=True)
 
         self._adder = None
 
@@ -1363,13 +1372,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         if len(rows) >= 3:
             if not question_dialog(self, _('Multiple Books Selected'),
-                _('You are attempting to open %i books. Opening to many '
-                'books at once can be slow and have an negative effect on the '
-                'responsiveness of your computer. Once started the process '
-                'cannot be stopped until complete. Do you wish to continue?'
-                % len(rows))):
+                _('You are attempting to open %d books. Opening too many '
+                'books at once can be slow and have a negative effect on the '
+                )% len(rows)):
                     return
-        
+
         if self.current_view() is self.library_view:
             for row in rows:
                 row = row.row()

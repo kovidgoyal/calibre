@@ -8,11 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from PyQt4.Qt import SIGNAL
-
 from calibre.gui2.convert.structure_detection_ui import Ui_Form
 from calibre.gui2.convert import Widget
-from calibre.gui2 import error_dialog, qstring_to_unicode
+from calibre.gui2 import error_dialog
 
 class StructureDetectionWidget(Widget, Ui_Form):
 
@@ -39,7 +37,7 @@ class StructureDetectionWidget(Widget, Ui_Form):
         for x in ('header_regex', 'footer_regex'):
             x = getattr(self, 'opt_'+x)
             try:
-                pat = qstring_to_unicode(x.text())
+                pat = unicode(x.text())
                 re.compile(pat)
             except Exception, err:
                 error_dialog(self, _('Invalid regular expression'),

@@ -13,7 +13,7 @@ import traceback
 from datetime import datetime
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate
-from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompleter
+from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, pixmap_to_data, choose_images, ResizableDialog
