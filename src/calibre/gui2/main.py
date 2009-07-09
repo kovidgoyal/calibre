@@ -864,7 +864,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             det_msg = []
             for name, log in self._adder.critical.items():
                 det_msg.append(name+'\n'+log)
-            error_dialog(self, _('Failed to read metadata'),
+            warning_dialog(self, _('Failed to read metadata'),
                     _('Failed to read metadata from the following')+':',
                     det_msg='\n\n'.join(det_msg), show=True)
 
@@ -1375,7 +1375,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 'books at once can be slow and have a negative effect on the '
                 'responsiveness of your computer. Once started the process '
                 'cannot be stopped until complete. Do you wish to continue?'
-                % len(rows))):
+                )% len(rows)):
                     return
 
         if self.current_view() is self.library_view:
