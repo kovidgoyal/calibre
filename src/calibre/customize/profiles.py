@@ -146,7 +146,7 @@ class IlliadInput(InputProfile):
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
-class IRexDigitalReader1000Input(InputProfile):
+class IRexDR1000Input(InputProfile):
 
     author      = 'John Schember'
     name        = 'IRex Digital Reader 1000'
@@ -161,7 +161,7 @@ class IRexDigitalReader1000Input(InputProfile):
 
 input_profiles = [InputProfile, SonyReaderInput, MSReaderInput,
         MobipocketInput, HanlinV3Input, CybookG3Input, CybookOpus, KindleInput,
-        IlliadInput, IRexDigitalReader1000Input]
+        IlliadInput, IRexDR1000Input]
 
 
 class OutputProfile(Plugin):
@@ -317,7 +317,7 @@ class IlliadOutput(OutputProfile):
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
-class IRexDigitalReader1000Output(OutputProfile):
+class IRexDR1000Output(OutputProfile):
 
     author      = 'John Schember'
     name        = 'IRex Digital Reader 1000'
@@ -334,4 +334,4 @@ class IRexDigitalReader1000Output(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
-        IRexDigitalReader1000Output]
+        IRexDR1000Output]
