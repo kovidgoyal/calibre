@@ -160,7 +160,7 @@ class IRexDR1000Input(InputProfile):
     fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
 input_profiles = [InputProfile, SonyReaderInput, MSReaderInput,
-        MobipocketInput, HanlinV3Input, CybookG3Input, CybookOpus, KindleInput,
+        MobipocketInput, HanlinV3Input, CybookG3Input, CybookOpusInput, KindleInput,
         IlliadInput, IRexDR1000Input]
 
 
@@ -332,6 +332,6 @@ class IRexDR1000Output(OutputProfile):
     fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
-        MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,
-        SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
+        MobipocketOutput, HanlinV3Output, CybookG3Output, CybookOpusOutput,
+        KindleOutput, SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output]
