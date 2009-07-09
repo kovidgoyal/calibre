@@ -9,13 +9,26 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Newsweek(BasicNewsRecipe):
 
     title          = 'Newsweek'
-    __author__     = 'Kovid Goyal'
+    __author__     = 'Kovid Goyal and Sujata Raman'
     description    = 'Weekly news and current affairs in the US'
     no_stylesheets = True
+
+    extra_css      = '''
+                        h1{color:#383733;font-family:Arial,Helvetica,sans-serif;font-size:large;}
+                        .deck{font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;color:#383733;font-size:small;}
+                        .articleInfo{color:#474537;font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
+                        .authorName{color:#B61900;font-family:Arial,Helvetica,sans-serif;font-size:medium;}
+                        .authorInfo{color:#0066CC;font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
+                        .articleUpdated{ font-size:xx-small; color:#73726C; font-family:Arial,Helvetica,sans-serif;}
+                        .issueDate{font-family :Arial,Helvetica,sans-serif;font-size:xx-small;font-style:italic;}
+                        .story{color:#333333; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;font-size:small;}
+                        .photoCredit{color:#999999;font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
+                        .photoCaption{color:#0A0A09;font-family:Arial,Helvetica,sans-serif;font-size:xx-small;font-weight:bold;}'''
+
     encoding       = 'utf-8'
     language = _('English')
     remove_tags = [
-            {'class':['navbar', 'ad', 'sponsorLinksArticle', 'mm-content',
+            {'class':['fwArticle noHr','fwArticle','subinfo','hdlBulletItem','head-content','navbar','link', 'ad', 'sponsorLinksArticle', 'mm-content',
                 'inline-social-links-wrapper', 'email-article',
                 'comments-and-social-links-wrapper', 'EmailArticleBlock']},
             {'id' : ['footer', 'ticker-data', 'topTenVertical',
@@ -24,8 +37,6 @@ class Newsweek(BasicNewsRecipe):
             {'class': re.compile('related-cloud')},
             ]
     keep_only_tags = [{'class':['article HorizontalHeader', 'articlecontent']}]
-
-
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
 
