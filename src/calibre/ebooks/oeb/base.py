@@ -790,7 +790,7 @@ class Manifest(object):
             data = first_pass(data)
             # Force into the XHTML namespace
             if barename(data.tag) != 'html':
-                self.log.warn('File %r does not appear to be (X)HTML'%self.href)
+                self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
                 nroot = etree.fromstring('<html></html>')
                 for child in list(data):
                     child.getparent.remove(child)
