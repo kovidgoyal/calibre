@@ -45,6 +45,9 @@
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
+            <property name="buddy">
+             <cstring>authors</cstring>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -54,6 +57,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>author_sort</cstring>
             </property>
            </widget>
           </item>
@@ -103,6 +109,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>publisher</cstring>
             </property>
            </widget>
           </item>
@@ -262,6 +271,19 @@
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>authors</tabstop>
+  <tabstop>auto_author_sort</tabstop>
+  <tabstop>author_sort</tabstop>
+  <tabstop>rating</tabstop>
+  <tabstop>publisher</tabstop>
+  <tabstop>tag_editor_button</tabstop>
+  <tabstop>tags</tabstop>
+  <tabstop>remove_tags</tabstop>
+  <tabstop>series</tabstop>
+  <tabstop>remove_format</tabstop>
+  <tabstop>button_box</tabstop>
+ </tabstops>
  <resources>
   <include location="../images.qrc"/>
  </resources>
