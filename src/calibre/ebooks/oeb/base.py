@@ -793,7 +793,7 @@ class Manifest(object):
                 self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
                 nroot = etree.fromstring('<html></html>')
                 for child in list(data):
-                    child.getparent.remove(child)
+                    child.getparent().remove(child)
                     nroot.append(child)
                 data = nroot
             elif not namespace(data.tag):
@@ -927,7 +927,8 @@ class Manifest(object):
                 if data is None:
                     if self._loader is None:
                         return None
-                    data = self._loader(self.href)
+                    data = self._loader(getattr(self, 'html_input_href',
+                        self.href))
                 if not isinstance(data, basestring):
                     pass # already parsed
                 elif self.media_type.lower() in OEB_DOCS:
