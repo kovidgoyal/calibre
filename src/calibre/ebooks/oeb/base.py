@@ -764,7 +764,14 @@ class Manifest(object):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = self.oeb.html_preprocessor(data)
-            orig_data = data
+
+            # Remove DOCTYPE declaration as it messes up parsing
+            # Inparticular it causes a tostring to insert xmlns
+            # declarations, which messes up the coesrcing logic
+            idx = data.find('<html')
+            if idx > -1:
+                data = data[idx:]
+
             # Try with more & more drastic measures to parse
             def first_pass(data):
                 try:
