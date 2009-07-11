@@ -282,8 +282,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
         self.initialize_combos()
-
-        self.series_index.setValue(self.db.series_index(row))
+        si = self.series_index(row)
+        if si is None:
+            si = 1.0
+        self.series_index.setValue(si)
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
 
