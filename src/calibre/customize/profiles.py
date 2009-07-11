@@ -112,6 +112,7 @@ class CybookG3Input(InputProfile):
 
 class CybookOpusInput(InputProfile):
 
+    author      = 'John Schember'
     name        = 'Cybook Opus'
     short_name  = 'cybook_opus'
     description = _('This profile is intended for the Cybook Opus.')
@@ -134,9 +135,33 @@ class KindleInput(InputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
+class IlliadInput(InputProfile):
+
+    name        = 'Illiad'
+    short_name  = 'illiad'
+    description = _('This profile is intended for the Irex Illiad.')
+
+    screen_size               = (760, 925)
+    dpi                       = 160.0
+    fbase                     = 12
+    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+
+class IRexDR1000Input(InputProfile):
+
+    author      = 'John Schember'
+    name        = 'IRex Digital Reader 1000'
+    short_name  = 'irexdr1000'
+    description = _('This profile is intended for the IRex Digital Reader 1000.')
+
+    # Screen size is a best guess
+    screen_size               = (1024, 1280)
+    dpi                       = 160
+    fbase                     = 16
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
 input_profiles = [InputProfile, SonyReaderInput, MSReaderInput,
-        MobipocketInput, HanlinV3Input, CybookG3Input, KindleInput]
+        MobipocketInput, HanlinV3Input, CybookG3Input, CybookOpusInput, KindleInput,
+        IlliadInput, IRexDR1000Input]
 
 
 class OutputProfile(Plugin):
@@ -236,6 +261,7 @@ class CybookG3Output(OutputProfile):
 
 class CybookOpusOutput(OutputProfile):
 
+    author      = 'John Schember'
     name        = 'Cybook Opus'
     short_name  = 'cybook_opus'
     description = _('This profile is intended for the Cybook Opus.')
@@ -291,8 +317,21 @@ class IlliadOutput(OutputProfile):
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
+class IRexDR1000Output(OutputProfile):
 
+    author      = 'John Schember'
+    name        = 'IRex Digital Reader 1000'
+    short_name  = 'irexdr1000'
+    description = _('This profile is intended for the IRex Digital Reader 1000.')
+
+    # Screen size is a best guess
+    screen_size               = (1024, 1280)
+    comic_screen_size         = (996, 1241)
+    dpi                       = 160
+    fbase                     = 16
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
-        MobipocketOutput, HanlinV3Output, CybookG3Output, KindleOutput,
-        SonyReaderLandscapeOutput, KindleDXOutput]
+        MobipocketOutput, HanlinV3Output, CybookG3Output, CybookOpusOutput,
+        KindleOutput, SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
+        IRexDR1000Output]
