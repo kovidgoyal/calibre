@@ -57,6 +57,7 @@ class RecipeInput(InputFormatPlugin):
 
         ro = recipe(opts, log, self.report_progress)
         ro.download()
+        self.recipe_object = ro
         for key, val in recipe.conversion_options.items():
             setattr(opts, key, val)
 
@@ -66,6 +67,6 @@ class RecipeInput(InputFormatPlugin):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
-
-
+    def postprocess_book(self, oeb, opts, log):
+        self.recipe_object.postprocess_book(oeb, opts, log)
 

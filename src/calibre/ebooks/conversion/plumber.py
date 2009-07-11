@@ -14,7 +14,6 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import extract, walk
 
 def supported_input_formats():
-    from calibre.customize.ui import available_input_formats
     fmts = available_input_formats()
     for x in ('zip', 'rar', 'oebzip'):
         fmts.add(x)
@@ -333,7 +332,7 @@ OptionRecommendation(name='remove_footer',
         help=_('Use a regular expression to try and remove the footer.'
             )
         ),
-        
+
 OptionRecommendation(name='footer_regex',
         recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
         level=OptionRecommendation.LOW,
@@ -643,6 +642,7 @@ OptionRecommendation(name='list_recipes',
         if not hasattr(self.oeb, 'manifest'):
             self.oeb = create_oebbook(self.log, self.oeb, self.opts,
                     self.input_plugin)
+        self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
         pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
         self.flush()
         pr(0., _('Running transforms on ebook...'))

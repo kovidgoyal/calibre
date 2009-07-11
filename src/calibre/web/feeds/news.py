@@ -451,6 +451,15 @@ class BasicNewsRecipe(Recipe):
         '''
         raise NotImplementedError
 
+    def postprocess_book(self, oeb, opts, log):
+        '''
+        Run any needed post processing on the parsed downloaded e-book.
+
+        :param oeb: An OEBBook object
+        :param opts: Conversion options
+        '''
+        pass
+
     def __init__(self, options, log, progress_reporter):
         '''
         Initialize the recipe.
@@ -959,13 +968,13 @@ class BasicNewsRecipe(Recipe):
         a = request.requestID[1]
 
         article = request.article
-        self.log.debug(_('\nDownloaded article %s from %s')%(article.title, article.url))
+        self.log.debug(_(u'\nDownloaded article %s from %s')%(article.title, article.url))
         article.orig_url = article.url
         article.url = 'article_%d/index.html'%a
         article.downloaded = True
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1
-        self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article downloaded: %s')%article.title)
+        self.report_progress(float(self.jobs_done)/len(self.jobs), _(u'Article downloaded: %s')%article.title)
         if result[2]:
             self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
 

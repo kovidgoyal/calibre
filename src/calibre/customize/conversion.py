@@ -228,6 +228,8 @@ class InputFormatPlugin(Plugin):
 
         return ret
 
+    def postprocess_book(self, oeb, opts, log):
+        pass
 
 class OutputFormatPlugin(Plugin):
     '''
