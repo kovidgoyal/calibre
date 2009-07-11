@@ -770,7 +770,18 @@ class Manifest(object):
             # declarations, which messes up the coesrcing logic
             idx = data.find('<html')
             if idx > -1:
+                pre = data[:idx]
                 data = data[idx:]
+                if '<!DOCTYPE' in pre:
+                    user_entities = {}
+                    for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
+                        val = match.group(2)
+                        if val.startswith('"') and val.endswith('"'):
+                            val = val[1:-1]
+                        user_entities[match.group(1)] = val
+                    if user_entities:
+                        pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                        data = pat.sub(lambda m:user_entities[m.group(1)], data)
 
             # Try with more & more drastic measures to parse
             def first_pass(data):
