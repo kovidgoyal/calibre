@@ -47,7 +47,6 @@ from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.customize.ui import available_input_formats
 
 ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
     os.path.expanduser('~/.calibre-gui.socket')
@@ -1374,6 +1373,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if not question_dialog(self, _('Multiple Books Selected'),
                 _('You are attempting to open %d books. Opening too many '
                 'books at once can be slow and have a negative effect on the '
+                'responsiveness of your computer. Once started the process '
+                'cannot be stopped until complete. Do you wish to continue?'
                 )% len(rows)):
                     return
 
