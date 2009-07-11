@@ -282,7 +282,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
 
         self.initialize_combos()
-        si = self.series_index(row)
+        si = self.db.series_index(row)
         if si is None:
             si = 1.0
         self.series_index.setValue(si)
@@ -307,6 +307,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def deduce_author_sort(self):
         au = unicode(self.authors.text())
+        au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
         self.author_sort.setText(authors_to_sort_string(authors))
 
