@@ -844,14 +844,15 @@ class OnDeviceSearch(SearchQueryParser):
     def get_matches(self, location, query):
         location = location.lower().strip()
         query = query.lower().strip()
-        if location not in ('title', 'authors', 'tags', 'all'):
+        if location not in ('title', 'author', 'tag', 'all', 'format'):
             return set([])
         matches = set([])
-        locations = ['title', 'authors', 'tags'] if location == 'all' else [location]
+        locations = ['title', 'author', 'tag', 'format'] if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),
-             'authors': lambda x: getattr(x, 'authors').lower(),
-             'tags':lambda x: ','.join(getattr(x, 'tags')).lower()
+             'author': lambda x: getattr(x, 'authors').lower(),
+             'tag':lambda x: ','.join(getattr(x, 'tags')).lower(),
+             'format':lambda x: os.path.splitext(x.path)[1].lower()
              }
         for i, v in enumerate(locations):
             locations[i] = q[v]
@@ -870,7 +871,7 @@ class DeviceBooksModel(BooksModel):
         self.db  = []
         self.map = []
         self.sorted_map = []
-        self.unknown = str(self.trUtf8('Unknown'))
+        self.unknown = _('Unknown')
         self.marked_for_deletion = {}
         self.search_engine = OnDeviceSearch(self)
         self.editable = True

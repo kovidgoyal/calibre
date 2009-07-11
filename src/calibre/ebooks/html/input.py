@@ -328,6 +328,7 @@ class HTMLInput(InputFormatPlugin):
 
 
         filelist = get_filelist(htmlpath, basedir, opts, log)
+        filelist = [f for f in filelist if not f.is_binary]
         htmlfile_map = {}
         for f in filelist:
             path = f.path
@@ -336,6 +337,7 @@ class HTMLInput(InputFormatPlugin):
             id, href = oeb.manifest.generate(id='html', href=bname)
             htmlfile_map[path] = href
             item = oeb.manifest.add(id, href, 'text/html')
+            item.html_input_href = bname
             oeb.spine.add(item, True)
 
         self.added_resources = {}
@@ -409,8 +411,9 @@ class HTMLInput(InputFormatPlugin):
         if not islinux:
             link = link.lower()
         if link not in self.added_resources:
+            bhref = os.path.basename(link)
             id, href = self.oeb.manifest.generate(id='added',
-                    href=os.path.basename(link))
+                    href=bhref)
             self.oeb.log.debug('Added', link)
             self.oeb.container = self.DirContainer(os.path.dirname(link),
                     self.oeb.log)
@@ -418,7 +421,9 @@ class HTMLInput(InputFormatPlugin):
             guessed = self.guess_type(href)[0]
             media_type = guessed or self.BINARY_MIME
 
-            self.oeb.manifest.add(id, href, media_type).data
+            item = self.oeb.manifest.add(id, href, media_type)
+            item.html_input_href = bhref
+            item.data
             self.added_resources[link] = href
 
         nlink = self.added_resources[link]
