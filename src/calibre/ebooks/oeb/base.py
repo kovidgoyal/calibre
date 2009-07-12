@@ -764,7 +764,25 @@ class Manifest(object):
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
             data = self.oeb.html_preprocessor(data)
-            orig_data = data
+
+            # Remove DOCTYPE declaration as it messes up parsing
+            # Inparticular it causes tostring to insert xmlns
+            # declarations, which messes up the coercing logic
+            idx = data.find('<html')
+            if idx > -1:
+                pre = data[:idx]
+                data = data[idx:]
+                if '<!DOCTYPE' in pre:
+                    user_entities = {}
+                    for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
+                        val = match.group(2)
+                        if val.startswith('"') and val.endswith('"'):
+                            val = val[1:-1]
+                        user_entities[match.group(1)] = val
+                    if user_entities:
+                        pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                        data = pat.sub(lambda m:user_entities[m.group(1)], data)
+
             # Try with more & more drastic measures to parse
             def first_pass(data):
                 try:

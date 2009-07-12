@@ -15,7 +15,7 @@ recipe_modules = ['recipe_' + r for r in (
            'demorgen_be', 'de_standaard', 'ap', 'barrons', 'chr_mon', 'cnn', 'faznet',
            'jpost', 'jutarnji', 'nasa', 'reuters', 'spiegelde', 'wash_post', 'zeitde',
            'blic', 'novosti', 'danas', 'vreme', 'times_online', 'the_scotsman',
-           'nytimes_sub', 'security_watch', 'cyberpresse', 'st_petersburg_times',
+           'nytimes_sub', 'nytimes', 'security_watch', 'cyberpresse', 'st_petersburg_times',
            'clarin', 'financial_times', 'heise', 'le_monde', 'harpers', 'science_aas',
            'science_news', 'the_nation', 'lrb', 'harpers_full', 'liberation',
            'linux_magazine', 'telegraph_uk', 'utne', 'sciencedaily', 'forbes',

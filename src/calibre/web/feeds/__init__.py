@@ -25,6 +25,8 @@ class Article(object):
                 entity_to_unicode, self.title)
         except:
             pass
+        if not isinstance(self.title, unicode):
+            self.title = self.title.decode('utf-8', 'replace')
         self.url = url
         self.author = author
         if author and not isinstance(author, unicode):

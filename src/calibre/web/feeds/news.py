@@ -980,7 +980,7 @@ class BasicNewsRecipe(Recipe):
 
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        self.log.error(_('Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
+        self.log.error(_(u'Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
         self.log.debug(traceback)
         self.log.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article download failed: %s')%request.article.title)
