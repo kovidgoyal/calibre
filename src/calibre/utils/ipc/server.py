@@ -10,13 +10,14 @@ import os, cPickle, time, tempfile
 from math import ceil
 from threading import Thread, RLock
 from Queue import Queue, Empty
-from multiprocessing.connection import Listener
+from multiprocessing.connection import Listener, arbitrary_address
 from collections import deque
 from binascii import hexlify
 
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre import detect_ncpus as cpu_count
+from calibre.constants import iswindows
 
 _counter = 0
 
@@ -91,7 +92,11 @@ class Server(Thread):
         self.pool_size = cpu_count() if pool_size is None else pool_size
         self.notify_on_job_done = notify_on_job_done
         self.auth_key = os.urandom(32)
-        self.listener = Listener(authkey=self.auth_key, backlog=4)
+        self.address = arbitrary_address('AF_PIPE' if iswindows else 'AF_UNIX')
+        if iswindows and self.address[1] == ':':
+            self.address = self.address[2:]
+        self.listener = Listener(address=self.address,
+                authkey=self.auth_key, backlog=4)
         self.add_jobs_queue, self.changed_jobs_queue = Queue(), Queue()
         self.kill_queue = Queue()
         self.waiting_jobs, self.processing_jobs = deque(), deque()
