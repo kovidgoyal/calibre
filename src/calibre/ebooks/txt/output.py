@@ -32,8 +32,12 @@ class TXTOutput(OutputFormatPlugin):
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        writer = TxtWriter(TxtNewlines(opts.newline).newline, log)
-        txt = writer.dump(oeb_book.spine)
+#        writer = TxtWriter(TxtNewlines(opts.newline).newline, log)
+#        txt = writer.dump(oeb_book.spine)
+
+        from calibre.ebooks.txt.txtml import TXTMLizer
+        writer = TXTMLizer(log)
+        txt = writer.extract_content(oeb_book, opts)
 
         close = False
         if not hasattr(output_path, 'write'):
