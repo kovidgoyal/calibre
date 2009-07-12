@@ -766,8 +766,8 @@ class Manifest(object):
             data = self.oeb.html_preprocessor(data)
 
             # Remove DOCTYPE declaration as it messes up parsing
-            # Inparticular it causes a tostring to insert xmlns
-            # declarations, which messes up the coesrcing logic
+            # Inparticular it causes tostring to insert xmlns
+            # declarations, which messes up the coercing logic
             idx = data.find('<html')
             if idx > -1:
                 pre = data[:idx]
