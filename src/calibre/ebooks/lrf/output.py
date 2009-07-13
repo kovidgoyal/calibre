@@ -22,9 +22,18 @@ class LRFOptions(object):
         m = oeb.metadata
         self.title = None
         self.author = self.publisher = _('Unknown')
+        self.title_sort = self.author_sort = ''
+        for x in m.creator:
+            if x.role == 'aut':
+                self.author = unicode(x)
+                fa = unicode(getattr(x, 'file_as', ''))
+                if fa:
+                    self.author_sort = fa
+        for x in m.title:
+            if unicode(x.file_as):
+                self.title_sort = unicode(x.file_as)
         self.freetext = f2s(m.description)
         self.category = f2s(m.tags)
-        self.title_sort = self.author_sort = ''
         self.cover = None
         self.use_metadata_cover = True
         self.output = output

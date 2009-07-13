@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 
 def meta_info_to_oeb_metadata(mi, m, log):
+    from calibre.ebooks.oeb.base import OPF
     if mi.title:
         m.clear('title')
         m.add('title', mi.title)
@@ -22,7 +23,7 @@ def meta_info_to_oeb_metadata(mi, m, log):
         for a in mi.authors:
             attrib = {'role':'aut'}
             if mi.author_sort:
-                attrib['file_as'] = mi.author_sort
+                attrib[OPF('file-as')] = mi.author_sort
             m.add('creator', a, attrib=attrib)
     if mi.book_producer:
         m.filter('contributor', lambda x : x.role.lower() == 'bkp')
