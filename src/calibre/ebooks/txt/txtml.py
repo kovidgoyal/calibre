@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into plain text
 '''
 
-import os
+import os, re
 
 from lxml import etree
 
@@ -32,6 +32,7 @@ BLOCK_STYLES = [
 ]
 
 class TXTMLizer(object):
+    
     def __init__(self, log):
         self.log = log
 
@@ -49,6 +50,7 @@ class TXTMLizer(object):
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
             output += self.dump_text(etree.fromstring(content), stylizer)
+        output = self.cleanup_text(output)
 
         return output
 
@@ -60,7 +62,42 @@ class TXTMLizer(object):
 
         return text
 
-    def dump_text(self, elem, stylizer):
+    def cleanup_text(self, text):
+        self.log.debug('\tClean up text...')
+        # Replace bad characters.
+        text = text.replace(u'\xc2', '')
+        text = text.replace(u'\xa0', ' ')
+
+        # Replace tabs, vertical tags and form feeds with single space.
+        text = text.replace('\t+', ' ')
+        text = text.replace('\v+', ' ')
+        text = text.replace('\f+', ' ')
+
+        # Single line paragraph.
+        text = re.sub('(?<=.)%s(?=.)' % os.linesep, ' ', text)
+
+        # Remove multiple spaces.
+        text = re.sub('[  ]+', ' ', text)
+
+        # Remove excessive newlines.
+        #text = re.sub('\n[ ]+\n', '\n\n', text)
+        #text = re.sub('\n{3,}', '\n\n', text)
+
+        # Replace spaces at the beginning and end of lines
+        text = re.sub('(?imu)^[ ]+', '', text)
+        text = re.sub('(?imu)[ ]+$', '', text)
+
+        return text
+
+    def dump_text(self, elem, stylizer, end=''):
+        '''
+        @elem: The element in the etree that we are working on.
+        @stylizer: The style information attached to the element.
+        @end: The last two characters of the text from the previous element.
+              This is used to determine if a blank line is needed when starting
+              a new block element.
+        '''
+
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return u''
@@ -78,16 +115,15 @@ class TXTMLizer(object):
         # Are we in a paragraph block?
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             in_block = True
-            #if not text.endswith(os.linesep) and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            #    print '"%s"' % text
-            #    text += os.linesep + os.linesep
+            if not end.endswith(os.linesep + os.linesep) and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+                text += os.linesep + os.linesep
 
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
             text += elem.text
 
         for item in elem:
-            text += self.dump_text(item, stylizer)
+            text += self.dump_text(item, stylizer, text[-2:])
 
         if in_block:
             text += os.linesep + os.linesep
