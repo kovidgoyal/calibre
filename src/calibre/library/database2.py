@@ -11,9 +11,15 @@ import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
 from itertools import repeat
 from datetime import datetime
 
-from PyQt4.QtCore import QCoreApplication, QThread, QReadWriteLock
-from PyQt4.QtGui import QApplication, QImage
-__app = None
+from PyQt4.QtCore import QThread, QReadWriteLock
+try:
+    from PIL import Image as PILImage
+    PILImage
+except ImportError:
+    import Image as PILImage
+
+
+from PyQt4.QtGui import QImage
 
 from calibre.ebooks.metadata import title_sort
 from calibre.library.database import LibraryDatabase
@@ -819,14 +825,11 @@ class LibraryDatabase2(LibraryDatabase):
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
-            if not QCoreApplication.instance():
-                global __app
-                __app = QApplication([])
-            p = QImage()
-            if callable(getattr(data, 'read', None)):
-                data = data.read()
-            p.loadFromData(data)
-            p.save(path)
+            f = data
+            if not callable(getattr(data, 'read', None)):
+                f = cStringIO.StringIO(data)
+            im = PILImage.open(f)
+            im.convert('RGB').save(path, 'JPEG')
 
     def all_formats(self):
         formats = self.conn.get('SELECT format from data')
@@ -1528,6 +1531,7 @@ class LibraryDatabase2(LibraryDatabase):
         return data
 
     def migrate_old(self, db, progress):
+        from PyQt4.QtCore import QCoreApplication
         header = _(u'<p>Migrating old database to ebook library in %s<br><center>')%self.library_path
         progress.setValue(0)
         progress.setLabelText(header)

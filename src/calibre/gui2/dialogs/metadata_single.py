@@ -16,7 +16,7 @@ from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread,
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
-                           choose_files, pixmap_to_data, choose_images, ResizableDialog
+                           choose_files, choose_images, ResizableDialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -512,7 +512,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.db.set_pubdate(self.id, datetime(d.year(), d.month(), d.day()))
 
         if self.cover_changed:
-            self.db.set_cover(self.id, pixmap_to_data(self.cover.pixmap()))
+            self.db.set_cover(self.id, self.cover.pixmap())
         QDialog.accept(self)
         if callable(self.accepted_callback):
             self.accepted_callback(self.id)
