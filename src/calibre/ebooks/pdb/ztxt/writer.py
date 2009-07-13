@@ -53,7 +53,7 @@ class Writer(FormatWriter):
         writer = TXTMLizer(log)
         txt = writer.extract_content(oeb_book, opts)
 
-        log.debug('\tReplacing newlines with selected type...')
+        self.log.debug('\tReplacing newlines with selected type...')
         txt = specified_newlines(TxtNewlines(opts.newline).newline, txt).encode(self.opts.output_encoding, 'replace')
 
         txt_length = len(txt)
