@@ -337,6 +337,10 @@ class DocumentView(QWebView):
         self.connect(self.document, SIGNAL('animated_scroll_done()'),
                 self.animated_scroll_done, Qt.QueuedConnection)
 
+    @property
+    def copy_action(self):
+        return self.document.action(QWebPage.Copy)
+
     def animated_scroll_done(self):
         if self.manager is not None:
             self.manager.scrolled(self.document.scroll_fraction)
