@@ -27,7 +27,7 @@ class Writer(FormatWriter):
     def write_content(self, oeb_book, out_stream, metadata=None):
         title = self.opts.title if self.opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
 
-        txt_records, txt_length = self._generate_text(oeb_book.spine)
+        txt_records, txt_length = self._generate_text(oeb_book)
         header_record = self._header_record(txt_length, len(txt_records))
 
         section_lengths = [len(header_record)]
@@ -44,8 +44,8 @@ class Writer(FormatWriter):
         for record in [header_record] + txt_records:
             out_stream.write(record)
 
-    def _generate_text(self, spine):
-        writer = TXTMLizer(log)
+    def _generate_text(self, oeb_book):
+        writer = TXTMLizer(self.log)
         txt = writer.extract_content(oeb_book, opts)
 
         self.log.debug('\tReplacing newlines with selected type...')
