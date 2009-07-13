@@ -9,7 +9,7 @@ from PyQt4.Qt import QMovie, QApplication, Qt, QIcon, QTimer, QWidget, SIGNAL, \
                      QDesktopServices, QDoubleSpinBox, QLabel, QTextBrowser, \
                      QPainter, QBrush, QColor, QStandardItemModel, QPalette, \
                      QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit, \
-                     QToolButton, QMenu, QInputDialog, QAction
+                     QToolButton, QMenu, QInputDialog, QAction, QKeySequence
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
@@ -284,6 +284,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar.widgetForAction(self.action_print).setPopupMode(QToolButton.MenuButtonPopup)
         self.connect(self.action_print, SIGNAL("triggered(bool)"), partial(self.print_book, preview=False))
         self.connect(self.print_menu.actions()[0], SIGNAL("triggered(bool)"), partial(self.print_book, preview=True))
+        self.set_max_width()
+        ca = self.view.copy_action
+        ca.setShortcut(QKeySequence.Copy)
+
+
+    def set_max_width(self):
+        from calibre.gui2.viewer.documentview import config
+        c = config().parse()
+        self.frame.setMaximumWidth(c.max_view_width)
 
     def print_book(self, preview):
         Printing(self.iterator.spine, preview)

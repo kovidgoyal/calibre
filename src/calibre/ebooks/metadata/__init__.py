@@ -317,7 +317,7 @@ class MetaInformation(object):
         if getattr(self, 'book_producer', False):
             fmt('Book Producer', self.book_producer)
         if self.category:
-            ans += u'Category : ' + unicode(self.category) + u'\n'
+            fmt('Category', self.category)
         if self.comments:
             fmt('Comments', self.comments)
         if self.isbn:

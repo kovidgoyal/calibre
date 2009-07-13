@@ -59,6 +59,8 @@ def config(defaults=None):
         help=_('Remember last used window size'))
     c.add_opt('user_css', default='',
               help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
+    c.add_opt('max_view_width', default=6000,
+            help=_('Maximum width of the viewer window, in pixels.'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -103,6 +105,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
+        self.max_view_width.setValue(opts.max_view_width)
 
 
     def accept(self, *args):
@@ -115,6 +118,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[self.standard_font.currentIndex()])
         c.set('user_css', unicode(self.css.toPlainText()))
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
+        c.set('max_view_width', int(self.max_view_width.value()))
         return QDialog.accept(self, *args)
 
 
@@ -333,6 +337,10 @@ class DocumentView(QWebView):
         self.connect(self.document, SIGNAL('animated_scroll_done()'),
                 self.animated_scroll_done, Qt.QueuedConnection)
 
+    @property
+    def copy_action(self):
+        return self.document.action(QWebPage.Copy)
+
     def animated_scroll_done(self):
         if self.manager is not None:
             self.manager.scrolled(self.document.scroll_fraction)
@@ -349,6 +357,8 @@ class DocumentView(QWebView):
 
     def config(self, parent=None):
         self.document.do_config(parent)
+        if self.manager is not None:
+            self.manager.set_max_width()
 
     def bookmark(self):
         return self.document.bookmark()

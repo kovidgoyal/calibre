@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO
+import re, sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO
 from urllib import unquote
 from urlparse import urlparse
 
@@ -435,7 +435,7 @@ class OPF(object):
     spine_path      = XPath('descendant::*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
     guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
 
-    title           = MetadataField('title')
+    title           = MetadataField('title', formatter=lambda x: re.sub(r'\s+', ' ', x))
     publisher       = MetadataField('publisher')
     language        = MetadataField('language')
     comments        = MetadataField('description')
