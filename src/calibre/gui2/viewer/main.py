@@ -284,6 +284,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar.widgetForAction(self.action_print).setPopupMode(QToolButton.MenuButtonPopup)
         self.connect(self.action_print, SIGNAL("triggered(bool)"), partial(self.print_book, preview=False))
         self.connect(self.print_menu.actions()[0], SIGNAL("triggered(bool)"), partial(self.print_book, preview=True))
+        self.set_max_width()
+
+
+    def set_max_width(self):
+        from calibre.gui2.viewer.documentview import config
+        c = config().parse()
+        self.frame.setMaximumWidth(c.max_view_width)
 
     def print_book(self, preview):
         Printing(self.iterator.spine, preview)

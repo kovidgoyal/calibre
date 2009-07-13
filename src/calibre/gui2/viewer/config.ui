@@ -144,10 +144,33 @@
           </item>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
          <widget class="QCheckBox" name="opt_remember_window_size">
           <property name="text">
            <string>Remember last used &amp;window size</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QSpinBox" name="max_view_width">
+          <property name="suffix">
+           <string> px</string>
+          </property>
+          <property name="minimum">
+           <number>100</number>
+          </property>
+          <property name="maximum">
+           <number>10000</number>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Maximum &amp;view width:</string>
+          </property>
+          <property name="buddy">
+           <cstring>max_view_width</cstring>
           </property>
          </widget>
         </item>
@@ -159,7 +182,7 @@
          <string>&amp;User stylesheet</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
+         <item row="1" column="0">
           <widget class="QPlainTextEdit" name="css"/>
          </item>
         </layout>
@@ -180,6 +203,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>serif_family</tabstop>
+  <tabstop>sans_family</tabstop>
+  <tabstop>mono_family</tabstop>
+  <tabstop>default_font_size</tabstop>
+  <tabstop>mono_font_size</tabstop>
+  <tabstop>standard_font</tabstop>
+  <tabstop>max_view_width</tabstop>
+  <tabstop>opt_remember_window_size</tabstop>
+  <tabstop>css</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources>
   <include location="../images.qrc"/>
  </resources>
