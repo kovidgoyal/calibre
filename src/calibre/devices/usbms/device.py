@@ -284,12 +284,24 @@ class Device(DeviceConfig, DevicePlugin):
                     names[loc] = match.group(1)
                     break
 
+        def check_line(line, pat):
+            if pat is None:
+                return False
+            if not line.strip().endswith('<class IOMedia>'):
+                return False
+            if isinstance(pat, basestring):
+                pat = [pat]
+            for x in pat:
+                if x in line:
+                    return True
+            return False
+
         for i, line in enumerate(lines):
-            if self.OSX_MAIN_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_MAIN_MEM in line:
+            if check_line(line, self.OSX_MAIN_MEM):
                 get_dev_node(lines[i+1:], 'main')
-            if self.OSX_CARD_A_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_CARD_A_MEM in line:
+            if check_line(line, self.OSX_CARD_A_MEM):
                 get_dev_node(lines[i+1:], 'carda')
-            if self.OSX_CARD_B_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_CARD_B_MEM in line:
+            if check_line(line, self.OSX_CARD_B_MEM):
                 get_dev_node(lines[i+1:], 'cardb')
             if len(names.keys()) == 3:
                 break

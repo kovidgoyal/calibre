@@ -14,21 +14,34 @@ class USAToday(BasicNewsRecipe):
     title = 'USA Today'
     timefmt  = ' [%d %b %Y]'
     max_articles_per_feed = 20
-    no_stylesheets = True
     language = _('English')
+    __author__ = _('Kovid Goyal and Sujata Raman')
+
+    no_stylesheets = True
     extra_css = '''
-    .inside-head { font: x-large bold } 
-    .inside-head2 { font: x-large bold }
-    .inside-head3 { font: x-large bold }
-    .byLine { font: large }
-    '''
+            .inside-head{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
+            .inside-head2{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
+            .inside-head3{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
+            h3{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
+            h4{font-family:Arial,Helvetica,sans-serif; font-size:x-small; font-weight:bold }
+            .side-by-side{font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
+            #byLineTag{font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
+            .inside-copy{font-family:Arial,Helvetica,sans-serif; font-size:x-small;text-align:left}
+            .caption{font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
+            '''
+    remove_tags = [
+                    dict(name='div', attrs={'class':'inside-copy'}),
+                    {'class':['tagListLabel','piped-taglist-string',]}
+                  ]
+
     html2lrf_options = ['--ignore-tables']
 
     preprocess_regexps = [
         (re.compile(r'<BODY.*?<!--Article Goes Here-->', re.IGNORECASE | re.DOTALL), lambda match : '<BODY>'),
         (re.compile(r'<!--Article End-->.*?</BODY>', re.IGNORECASE | re.DOTALL), lambda match : '</BODY>'),
         ]
-    
+
+
     feeds =  [
                 ('Top Headlines', 'http://rssfeeds.usatoday.com/usatoday-NewsTopStories'),
                 ('Sport Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomSports-TopStories'),
@@ -39,13 +52,13 @@ class USAToday(BasicNewsRecipe):
                 ('Weather Headlines', 'http://rssfeeds.usatoday.com/usatoday-WeatherTopStories'),
                 ('Most Popular', 'http://rssfeeds.usatoday.com/Usatoday-MostViewedArticles'),
                 ]
-    
-    ## Getting the print version 
-    
+
+    ## Getting the print version
+
     def print_version(self, url):
         return 'http://www.printthis.clickability.com/pt/printThis?clickMap=printThis&fb=Y&url=' + url
-    
+
     def postprocess_html(self, soup, first_fetch):
         for t in soup.findAll(['table', 'tr', 'td']):
             t.name = 'div'
-        return soup 
+        return soup

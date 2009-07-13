@@ -33,9 +33,9 @@ class PRS505(CLI, Device):
     WINDOWS_CARD_A_MEM = ['PRS-505/UC:MS', 'PRS-505/CE:MS']
     WINDOWS_CARD_B_MEM = ['PRS-505/UC:SD', 'PRS-505/CE:SD']
 
-    OSX_MAIN_MEM = 'Sony PRS-505/UC Media'
-    OSX_CARD_A_MEM = 'Sony PRS-505/UC:MS Media'
-    OSX_CARD_B_MEM = 'Sony PRS-505/UC:SD'
+    OSX_MAIN_MEM = ['Sony PRS-505/UC Media', 'Sony PRS-505/CE Media']
+    OSX_CARD_A_MEM = ['Sony PRS-505/UC:MS Media', 'Sony PRS-505/CE:MS Media']
+    OSX_CARD_B_MEM = ['Sony PRS-505/UC:SD', 'Sony PRS-505/CE:SD']
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
@@ -185,7 +185,7 @@ class PRS505(CLI, Device):
     def add_books_to_metadata(self, locations, metadata, booklists):
         if not locations or not metadata:
             return
-        
+
         metadata = iter(metadata)
         for location in locations:
             info = metadata.next()
