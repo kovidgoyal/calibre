@@ -10,7 +10,7 @@ import os, uuid
 
 from PyQt4.Qt import QPixmap, SIGNAL
 
-from calibre.gui2 import choose_images, error_dialog, pixmap_to_data
+from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
 from calibre.ebooks.metadata import authors_to_string, string_to_authors, \
         MetaInformation
@@ -39,8 +39,6 @@ class MetadataWidget(Widget, Ui_Form):
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title)
-#        if mi.authors:
-#            self.author.setCurrentIndex(self.author.findText(authors_to_string(mi.authors)))
         if mi.publisher:
             self.publisher.setCurrentIndex(self.publisher.findText(mi.publisher))
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
@@ -75,7 +73,7 @@ class MetadataWidget(Widget, Ui_Form):
             id, name = i
             name = authors_to_string([name.strip().replace('|', ',') for n in name.split(',')])
             self.author.addItem(name)
-            
+
         au = self.db.authors(self.book_id, True)
         if not au:
             au = _('Unknown')
@@ -187,7 +185,7 @@ class MetadataWidget(Widget, Ui_Form):
             opf.render(self.opf_file)
             self.opf_file.close()
             if self.cover_changed:
-                self.db.set_cover(self.book_id, pixmap_to_data(self.cover.pixmap()))
+                self.db.set_cover(self.book_id, self.cover.pixmap())
             cover = self.db.cover(self.book_id, index_is_id=True)
             if cover:
                 cf = PersistentTemporaryFile('.jpeg')

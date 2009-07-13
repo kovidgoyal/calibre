@@ -11,9 +11,15 @@ import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
 from itertools import repeat
 from datetime import datetime
 
-from PyQt4.QtCore import QCoreApplication, QThread, QReadWriteLock
-from PyQt4.QtGui import QApplication, QImage
-__app = None
+from PyQt4.QtCore import QThread, QReadWriteLock
+try:
+    from PIL import Image as PILImage
+    PILImage
+except ImportError:
+    import Image as PILImage
+
+
+from PyQt4.QtGui import QImage
 
 from calibre.ebooks.metadata import title_sort
 from calibre.library.database import LibraryDatabase
@@ -40,11 +46,15 @@ def delete_file(path):
     except:
         os.remove(path)
 
-def delete_tree(path):
-    try:
-        winshell.delete_file(path, silent=True, no_confirm=True)
-    except:
+def delete_tree(path, permanent=False):
+    if permanent:
         shutil.rmtree(path)
+    else:
+        try:
+            if not permanent:
+                winshell.delete_file(path, silent=True, no_confirm=True)
+        except:
+            shutil.rmtree(path)
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -661,9 +671,9 @@ class LibraryDatabase2(LibraryDatabase):
             name = name[:-1]
         return name
 
-    def rmtree(self, path):
+    def rmtree(self, path, permanent=False):
         if not self.normpath(self.library_path).startswith(self.normpath(path)):
-            delete_tree(path)
+            delete_tree(path, permanent=permanent)
 
     def normpath(self, path):
         path = os.path.abspath(os.path.realpath(path))
@@ -715,10 +725,10 @@ class LibraryDatabase2(LibraryDatabase):
         # Delete not needed directories
         if current_path and os.path.exists(spath):
             if self.normpath(spath) != self.normpath(tpath):
-                self.rmtree(spath)
+                self.rmtree(spath, permanent=True)
                 parent  = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
-                    self.rmtree(parent)
+                    self.rmtree(parent, permanent=True)
 
     def add_listener(self, listener):
         '''
@@ -815,14 +825,11 @@ class LibraryDatabase2(LibraryDatabase):
         if callable(getattr(data, 'save', None)):
             data.save(path)
         else:
-            if not QCoreApplication.instance():
-                global __app
-                __app = QApplication([])
-            p = QImage()
-            if callable(getattr(data, 'read', None)):
-                data = data.read()
-            p.loadFromData(data)
-            p.save(path)
+            f = data
+            if not callable(getattr(data, 'read', None)):
+                f = cStringIO.StringIO(data)
+            im = PILImage.open(f)
+            im.convert('RGB').save(path, 'JPEG')
 
     def all_formats(self):
         formats = self.conn.get('SELECT format from data')
@@ -1524,6 +1531,7 @@ class LibraryDatabase2(LibraryDatabase):
         return data
 
     def migrate_old(self, db, progress):
+        from PyQt4.QtCore import QCoreApplication
         header = _(u'<p>Migrating old database to ebook library in %s<br><center>')%self.library_path
         progress.setValue(0)
         progress.setLabelText(header)

@@ -8,7 +8,7 @@ from itertools import cycle
 
 from lxml import etree
 
-from calibre.customize.conversion import InputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 class EPUBInput(InputFormatPlugin):
 
@@ -16,6 +16,8 @@ class EPUBInput(InputFormatPlugin):
     author      = 'Kovid Goyal'
     description = 'Convert EPUB files (.epub) to HTML'
     file_types  = set(['epub'])
+
+    recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
 
     @classmethod
     def decrypt_font(cls, key, path):
