@@ -3,6 +3,7 @@
 '''
 Writer content to palmdoc pdb file.
 '''
+import os
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -46,10 +47,10 @@ class Writer(FormatWriter):
 
     def _generate_text(self, oeb_book):
         writer = TXTMLizer(self.log)
-        txt = writer.extract_content(oeb_book, opts)
+        txt = writer.extract_content(oeb_book, self.opts)
 
         self.log.debug('\tReplacing newlines with selected type...')
-        txt = specified_newlines(TxtNewlines(opts.newline).newline, txt).encode(self.opts.output_encoding, 'replace')
+        txt = specified_newlines(TxtNewlines('windows').newline, txt).encode(self.opts.output_encoding, 'replace')
 
         txt_length = len(txt)
 

@@ -37,7 +37,7 @@ class TXTMLizer(object):
         self.log = log
 
     def extract_content(self, oeb_book, opts):
-        self.log.info('Converting XHTML to PML markup...')
+        self.log.info('Converting XHTML to TXT...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.mlize_spine()
