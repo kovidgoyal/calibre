@@ -11,8 +11,9 @@ __docformat__ = 'restructuredtext en'
 import struct, zlib
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
-from calibre.ebooks.txt.writer import TxtWriter, TxtNewlines
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
+from calibre.ebooks.txt.txtml import TXTMLizer
+from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
 MAX_RECORD_SIZE = 8192
 
@@ -49,9 +50,12 @@ class Writer(FormatWriter):
             out_stream.write(record)
         
     def _generate_text(self, spine):
-        txt_writer = TxtWriter(TxtNewlines('system').newline, self.log)
-        txt = txt_writer.dump(spine).encode(self.opts.output_encoding, 'replace')
-        
+        writer = TXTMLizer(log)
+        txt = writer.extract_content(oeb_book, opts)
+
+        log.debug('\tReplacing newlines with selected type...')
+        txt = specified_newlines(TxtNewlines(opts.newline).newline, txt).encode(self.opts.output_encoding, 'replace')
+
         txt_length = len(txt)
         
         txt_records = []

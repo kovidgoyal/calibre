@@ -13,8 +13,8 @@ import struct
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
-from calibre.ebooks.txt.writer import TxtNewlines
-from calibre.ebooks.txt.writer import TxtWriter
+from calibre.ebooks.txt.txtml import TXTMLizer
+from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
 MAX_RECORD_SIZE = 4096
 
@@ -45,8 +45,11 @@ class Writer(FormatWriter):
             out_stream.write(record)
 
     def _generate_text(self, spine):
-        txt_writer = TxtWriter(TxtNewlines('system').newline, self.log)
-        txt = txt_writer.dump(spine).encode(self.opts.output_encoding, 'replace')
+        writer = TXTMLizer(log)
+        txt = writer.extract_content(oeb_book, opts)
+
+        log.debug('\tReplacing newlines with selected type...')
+        txt = specified_newlines(TxtNewlines(opts.newline).newline, txt).encode(self.opts.output_encoding, 'replace')
 
         txt_length = len(txt)
 
