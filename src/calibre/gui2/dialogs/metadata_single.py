@@ -330,19 +330,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def initalize_authors(self):
         all_authors = self.db.all_authors()
         all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
-        author_id = self.db.author_id(self.row)
-        idx, c = None, 0
         for i in all_authors:
             id, name = i
-            if id == author_id:
-                idx = c
             name = [name.strip().replace('|', ',') for n in name.split(',')]
             self.authors.addItem(authors_to_string(name))
-            c += 1
 
-        self.authors.setEditText('')
-        if idx is not None:
-            self.authors.setCurrentIndex(idx)
+        au = self.db.authors(self.row)
+        if not au:
+            au = _('Unknown')
+        au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
+        self.authors.setEditText(au)
 
     def initialize_series(self):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
