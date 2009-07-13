@@ -39,8 +39,8 @@ class MetadataWidget(Widget, Ui_Form):
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title)
-        if mi.authors:
-            self.author.setCurrentIndex(self.author.findText(authors_to_string(mi.authors)))
+#        if mi.authors:
+#            self.author.setCurrentIndex(self.author.findText(authors_to_string(mi.authors)))
         if mi.publisher:
             self.publisher.setCurrentIndex(self.publisher.findText(mi.publisher))
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
@@ -75,7 +75,12 @@ class MetadataWidget(Widget, Ui_Form):
             id, name = i
             name = authors_to_string([name.strip().replace('|', ',') for n in name.split(',')])
             self.author.addItem(name)
-        self.author.setCurrentIndex(-1)
+            
+        au = self.db.authors(self.book_id, True)
+        if not au:
+            au = _('Unknown')
+        au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
+        self.author.setEditText(au)
 
     def initialize_series(self):
         all_series = self.db.all_series()
