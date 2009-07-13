@@ -40,11 +40,15 @@ def delete_file(path):
     except:
         os.remove(path)
 
-def delete_tree(path):
-    try:
-        winshell.delete_file(path, silent=True, no_confirm=True)
-    except:
+def delete_tree(path, permanent=False):
+    if permanent:
         shutil.rmtree(path)
+    else:
+        try:
+            if not permanent:
+                winshell.delete_file(path, silent=True, no_confirm=True)
+        except:
+            shutil.rmtree(path)
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -661,9 +665,9 @@ class LibraryDatabase2(LibraryDatabase):
             name = name[:-1]
         return name
 
-    def rmtree(self, path):
+    def rmtree(self, path, permanent=False):
         if not self.normpath(self.library_path).startswith(self.normpath(path)):
-            delete_tree(path)
+            delete_tree(path, permanent=permanent)
 
     def normpath(self, path):
         path = os.path.abspath(os.path.realpath(path))
@@ -715,10 +719,10 @@ class LibraryDatabase2(LibraryDatabase):
         # Delete not needed directories
         if current_path and os.path.exists(spath):
             if self.normpath(spath) != self.normpath(tpath):
-                self.rmtree(spath)
+                self.rmtree(spath, permanent=True)
                 parent  = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
-                    self.rmtree(parent)
+                    self.rmtree(parent, permanent=True)
 
     def add_listener(self, listener):
         '''
