@@ -306,11 +306,11 @@ class Device(DeviceConfig, DevicePlugin):
                     break
 
         for i, line in enumerate(lines):
-            if self.check_ioreg_line(line, self.OSX_MAIN_MEM):
+            if 'main' not in names and self.check_ioreg_line(line, self.OSX_MAIN_MEM):
                 get_dev_node(lines[i+1:], 'main')
-            if self.check_ioreg_line(line, self.OSX_CARD_A_MEM):
+            if 'carda' not in names and self.check_ioreg_line(line, self.OSX_CARD_A_MEM):
                 get_dev_node(lines[i+1:], 'carda')
-            if self.check_ioreg_line(line, self.OSX_CARD_B_MEM):
+            if 'cardb' not in names and self.check_ioreg_line(line, self.OSX_CARD_B_MEM):
                 get_dev_node(lines[i+1:], 'cardb')
             if len(names.keys()) == 3:
                 break

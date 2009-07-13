@@ -32,9 +32,9 @@ class PRS505(CLI, Device):
     WINDOWS_CARD_A_MEM = re.compile(r'PRS-505/\S+:MS')
     WINDOWS_CARD_B_MEM = re.compile(r'PRS-505/\S+:SD')
 
-    OSX_MAIN_MEM   = re.compile(r'Sony PRS-505/\S+ Media')
-    OSX_CARD_A_MEM = re.compile(r'Sony PRS-505/\S+:MS Media')
-    OSX_CARD_B_MEM = re.compile(r'Sony PRS-505/\S+:SD')
+    OSX_MAIN_MEM   = re.compile(r'Sony PRS-505/[^:]+ Media')
+    OSX_CARD_A_MEM = re.compile(r'Sony PRS-505/[^:]+:MS Media')
+    OSX_CARD_B_MEM = re.compile(r'Sony PRS-505/[^:]+:SD Media')
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
