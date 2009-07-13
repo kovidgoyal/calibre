@@ -4,8 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 '''
 Device driver for the SONY PRS-505
 '''
-import os
-import time
+import os, re, time
 from itertools import cycle
 
 from calibre import sanitize_file_name as sanitize
@@ -30,12 +29,12 @@ class PRS505(CLI, Device):
 
     VENDOR_NAME        = 'SONY'
     WINDOWS_MAIN_MEM   = 'PRS-505'
-    WINDOWS_CARD_A_MEM = ['PRS-505/UC:MS', 'PRS-505/CE:MS']
-    WINDOWS_CARD_B_MEM = ['PRS-505/UC:SD', 'PRS-505/CE:SD']
+    WINDOWS_CARD_A_MEM = re.compile(r'PRS-505/\S+:MS')
+    WINDOWS_CARD_B_MEM = re.compile(r'PRS-505/\S+:SD')
 
-    OSX_MAIN_MEM = ['Sony PRS-505/UC Media', 'Sony PRS-505/CE Media']
-    OSX_CARD_A_MEM = ['Sony PRS-505/UC:MS Media', 'Sony PRS-505/CE:MS Media']
-    OSX_CARD_B_MEM = ['Sony PRS-505/UC:SD', 'Sony PRS-505/CE:SD']
+    OSX_MAIN_MEM   = re.compile(r'Sony PRS-505/\S+ Media')
+    OSX_CARD_A_MEM = re.compile(r'Sony PRS-505/\S+:MS Media')
+    OSX_CARD_B_MEM = re.compile(r'Sony PRS-505/\S+:SD')
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
@@ -78,6 +77,7 @@ class PRS505(CLI, Device):
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
         return (self.__class__.__name__, '', '', '')
+
 
     def books(self, oncard=None, end_session=True):
         if oncard == 'carda' and not self._card_a_prefix:

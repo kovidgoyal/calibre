@@ -31,6 +31,8 @@ class Device(DeviceConfig, DevicePlugin):
     WINDOWS_CARD_A_MEM = None
     WINDOWS_CARD_B_MEM = None
 
+    # The following are used by the check_ioreg_line method and can be either:
+    # None, a string, a list of strings or a compiled regular expression
     OSX_MAIN_MEM = None
     OSX_CARD_A_MEM = None
     OSX_CARD_B_MEM = None
@@ -185,6 +187,10 @@ class Device(DeviceConfig, DevicePlugin):
         if device_id is None or \
                 'VEN_' + str(self.VENDOR_NAME).upper() not in pnp_id:
             return False
+
+        if hasattr(device_id, 'search'):
+            return device_id.search(pnp_id) is not None
+
         if isinstance(device_id, basestring):
             device_id = [device_id]
 
@@ -269,6 +275,21 @@ class Device(DeviceConfig, DevicePlugin):
     def osx_sort_names(self, names):
         return names
 
+    def check_ioreg_line(self, line, pat):
+        if pat is None:
+            return False
+        if not line.strip().endswith('<class IOMedia>'):
+            return False
+        if hasattr(pat, 'search'):
+            return pat.search(line) is not None
+        if isinstance(pat, basestring):
+            pat = [pat]
+        for x in pat:
+            if x in line:
+                return True
+        return False
+
+
     def get_osx_mountpoints(self, raw=None):
         raw = self.run_ioreg(raw)
         lines = raw.splitlines()
@@ -284,24 +305,12 @@ class Device(DeviceConfig, DevicePlugin):
                     names[loc] = match.group(1)
                     break
 
-        def check_line(line, pat):
-            if pat is None:
-                return False
-            if not line.strip().endswith('<class IOMedia>'):
-                return False
-            if isinstance(pat, basestring):
-                pat = [pat]
-            for x in pat:
-                if x in line:
-                    return True
-            return False
-
         for i, line in enumerate(lines):
-            if check_line(line, self.OSX_MAIN_MEM):
+            if self.check_ioreg_line(line, self.OSX_MAIN_MEM):
                 get_dev_node(lines[i+1:], 'main')
-            if check_line(line, self.OSX_CARD_A_MEM):
+            if self.check_ioreg_line(line, self.OSX_CARD_A_MEM):
                 get_dev_node(lines[i+1:], 'carda')
-            if check_line(line, self.OSX_CARD_B_MEM):
+            if self.check_ioreg_line(line, self.OSX_CARD_B_MEM):
                 get_dev_node(lines[i+1:], 'cardb')
             if len(names.keys()) == 3:
                 break
