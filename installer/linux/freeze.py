@@ -35,7 +35,6 @@ def freeze():
                        '/usr/lib/libpodofo.so.0.6.99',
                        '/lib/libz.so.1',
                        '/lib/libbz2.so.1',
-                       '/lib/libbz2.so.1',
                        '/usr/lib/libpoppler.so.4',
                        '/usr/lib/libxml2.so.2',
                        '/usr/lib/libdbus-1.so.3',
