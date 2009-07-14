@@ -168,7 +168,7 @@ class resources(OptionlessCommand):
         sdir = os.path.join('src', 'calibre', 'library', 'static')
         resources, max = {}, 0
         for f in os.listdir(sdir):
-            resources[f] = open(os.path.join(sdir, f), 'rb').read()
+            resources[f] = self.get(os.path.join(sdir, f))
             mtime = os.stat(os.path.join(sdir, f)).st_mtime
             max = mtime if mtime > max else max
         return resources, max
@@ -178,8 +178,19 @@ class resources(OptionlessCommand):
         resources, max = {}, 0
         for f in os.listdir(sdir):
             if f.endswith('.py') and f != '__init__.py':
-                resources[f.replace('.py', '')] = open(os.path.join(sdir, f), 'rb').read()
+                resources[f.replace('.py', '')] = self.get(os.path.join(sdir, f))
                 mtime = os.stat(os.path.join(sdir, f)).st_mtime
+                max = mtime if mtime > max else max
+        return resources, max
+
+    def get_hyphenate(self):
+        sdir = os.path.join('src', 'calibre', 'gui2', 'viewer', 'hyphenate')
+        resources, max = {}, 0
+        for f in glob.glob(os.path.join(sdir, 'patterns', '*.js')) + \
+                [os.path.join(sdir, 'Hyphenator.js')]:
+                f = os.path.abspath(f)
+                resources[os.path.basename(f)] = self.get(f)
+                mtime = os.stat(f).st_mtime
                 max = mtime if mtime > max else max
         return resources, max
 
@@ -193,18 +204,30 @@ class resources(OptionlessCommand):
         RESOURCES.update(translations)
         static, smax = self.get_static_resources()
         recipes, rmax = self.get_recipes()
-        amax = max(rmax, smax)
+        hyphenate, hmax = self.get_hyphenate()
+        amax = max(rmax, smax, hmax)
         if newer([dest], RESOURCES.values()) or os.stat(dest).st_mtime < amax:
             print 'Compiling resources...'
             with open(dest, 'wb') as f:
                 for key in RESOURCES:
-                    data = open(RESOURCES[key], 'rb').read()
+                    data = self.get(RESOURCES[key])
                     f.write(key + ' = ' + repr(data)+'\n\n')
                 f.write('server_resources = %s\n\n'%repr(static))
                 f.write('recipes = %s\n\n'%repr(recipes))
+                f.write('hyphenate = %s\n\n'%repr(hyphenate))
                 f.write('build_time = "%s"\n\n'%time.strftime('%d %m %Y %H%M%S'))
         else:
             print 'Resources are up to date'
+
+    def get(self, path):
+        data = open(path, 'rb').read()
+        if path.endswith('.js') and not path.endswith('date.js'):
+            data = self.js_minify(data)
+        return data
+
+    def js_minify(self, data):
+        from jsmin import jsmin
+        return jsmin(data)
 
     @classmethod
     def clean(cls):
