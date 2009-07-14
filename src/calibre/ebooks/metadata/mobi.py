@@ -148,7 +148,7 @@ class MetadataUpdater(object):
         elif mi.timestamp:
             recs.append((106, str(mi.timestamp).encode(self.codec, 'replace')))
         elif self.timestamp:
-            recs.append(106, self.timestamp)
+            recs.append((106, self.timestamp))
         else:
             recs.append((106, str(datetime.now()).encode(self.codec, 'replace')))
 
