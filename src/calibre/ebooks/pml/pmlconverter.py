@@ -38,7 +38,7 @@ PML_HTML_RULES = [
     (re.compile(r'\\U(?P<num>\d+)'), lambda match: '%s' % unichr(int(match.group('num'), 16))),
     (re.compile(r'\\m="(?P<name>.+?)"'), lambda match: '<img src="images/%s" />' % image_name(match.group('name')).strip('\x00')),
     (re.compile(r'\\q="(?P<target>#.+?)"(?P<text>.+?)\\q', re.DOTALL), lambda match: '<a href="%s">%s</a>' % (match.group('target'), match.group('text'))),
-    (re.compile(r'\\Q="(?P<target>.+?)"'), lambda match: '<div id="%s"></div>' % match.group('target')),
+    (re.compile(r'\\Q="(?P<target>.+?)"'), lambda match: '<span id="%s"></span>' % match.group('target')),
     (re.compile(r'\\-'), lambda match: ''),
     (re.compile(r'\\Fn="(?P<target>.+?)"(?P<text>.+?)\\Fn'), lambda match: '<a href="#footnote-%s">%s</a>' % (match.group('target'), match.group('text'))),
     (re.compile(r'\\Sd="(?P<target>.+?)"(?P<text>.+?)\\Sd'), lambda match: '<a href="#sidebar-%s">%s</a>' % (match.group('target'), match.group('text'))),

@@ -8,7 +8,8 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.txt.writer import TxtWriter, TxtNewlines
+from calibre.ebooks.txt.txtml import TXTMLizer
+from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
 class TXTOutput(OutputFormatPlugin):
 
@@ -32,8 +33,11 @@ class TXTOutput(OutputFormatPlugin):
                  ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        writer = TxtWriter(TxtNewlines(opts.newline).newline, log)
-        txt = writer.dump(oeb_book.spine)
+        writer = TXTMLizer(log)
+        txt = writer.extract_content(oeb_book, opts)
+        
+        log.debug('\tReplacing newlines with selected type...')
+        txt = specified_newlines(TxtNewlines(opts.newline).newline, txt)
 
         close = False
         if not hasattr(output_path, 'write'):

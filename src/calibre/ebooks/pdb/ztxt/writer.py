@@ -11,8 +11,9 @@ __docformat__ = 'restructuredtext en'
 import struct, zlib
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
-from calibre.ebooks.txt.writer import TxtWriter, TxtNewlines
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
+from calibre.ebooks.txt.txtml import TXTMLizer
+from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
 MAX_RECORD_SIZE = 8192
 
@@ -25,7 +26,7 @@ class Writer(FormatWriter):
     def write_content(self, oeb_book, out_stream, metadata=None):
         title = self.opts.title if self.opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
 
-        txt_records, txt_length = self._generate_text(oeb_book.spine)
+        txt_records, txt_length = self._generate_text(oeb_book)
         
         crc32 = 0
         section_lengths = []
@@ -33,7 +34,7 @@ class Writer(FormatWriter):
         self.log.info('Compressing data...')
         for i in range(0, len(txt_records)):
             self.log.debug('\tCompressing record %i' % i)
-            txt_records[i] = compressor.compress(txt_records[i].encode('cp1252', 'replace'))
+            txt_records[i] = compressor.compress(txt_records[i])
             txt_records[i] = txt_records[i] + compressor.flush(zlib.Z_FULL_FLUSH)
             section_lengths.append(len(txt_records[i]))
             crc32 = zlib.crc32(txt_records[i], crc32) & 0xffffffff
@@ -48,10 +49,13 @@ class Writer(FormatWriter):
         for record in [header_record]+txt_records:
             out_stream.write(record)
         
-    def _generate_text(self, spine):
-        txt_writer = TxtWriter(TxtNewlines('system').newline, self.log)
-        txt = txt_writer.dump(spine).encode(self.opts.output_encoding, 'replace')
-        
+    def _generate_text(self, oeb_book):
+        writer = TXTMLizer(self.log)
+        txt = writer.extract_content(oeb_book, self.opts)
+
+        self.log.debug('\tReplacing newlines with selected type...')
+        txt = specified_newlines(TxtNewlines('windows').newline, txt).encode(self.opts.output_encoding, 'replace')
+
         txt_length = len(txt)
         
         txt_records = []

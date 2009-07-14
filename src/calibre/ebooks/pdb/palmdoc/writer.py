@@ -3,6 +3,7 @@
 '''
 Writer content to palmdoc pdb file.
 '''
+import os
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -13,8 +14,8 @@ import struct
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
-from calibre.ebooks.txt.writer import TxtNewlines
-from calibre.ebooks.txt.writer import TxtWriter
+from calibre.ebooks.txt.txtml import TXTMLizer
+from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
 MAX_RECORD_SIZE = 4096
 
@@ -27,7 +28,7 @@ class Writer(FormatWriter):
     def write_content(self, oeb_book, out_stream, metadata=None):
         title = self.opts.title if self.opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
 
-        txt_records, txt_length = self._generate_text(oeb_book.spine)
+        txt_records, txt_length = self._generate_text(oeb_book)
         header_record = self._header_record(txt_length, len(txt_records))
 
         section_lengths = [len(header_record)]
@@ -44,9 +45,12 @@ class Writer(FormatWriter):
         for record in [header_record] + txt_records:
             out_stream.write(record)
 
-    def _generate_text(self, spine):
-        txt_writer = TxtWriter(TxtNewlines('system').newline, self.log)
-        txt = txt_writer.dump(spine).encode(self.opts.output_encoding, 'replace')
+    def _generate_text(self, oeb_book):
+        writer = TXTMLizer(self.log)
+        txt = writer.extract_content(oeb_book, self.opts)
+
+        self.log.debug('\tReplacing newlines with selected type...')
+        txt = specified_newlines(TxtNewlines('windows').newline, txt).encode(self.opts.output_encoding, 'replace')
 
         txt_length = len(txt)
 
