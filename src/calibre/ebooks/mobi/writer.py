@@ -1963,6 +1963,11 @@ class MobiWriter(object):
                         self._oeb.logger.warn('  Ignoring TOC entry with no href:',
                                 child.title)
                         continue
+                    if h not in self._id_offsets:
+                        self._oeb.logger.warn('  Ignoring missing TOC entry:',
+                                child)
+                        continue
+
                     currentOffset = self._id_offsets[h]
                     # print "_generate_ctoc: child offset: 0x%X" % currentOffset
 

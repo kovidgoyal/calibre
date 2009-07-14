@@ -41,9 +41,12 @@ class SpineItem(unicode):
 
     def __new__(cls, *args):
         args = list(args)
-        args[0] = args[0].partition('#')[0]
-        obj = super(SpineItem, cls).__new__(cls, *args)
         path = args[0]
+        ppath = path.partition('#')[0]
+        if not os.path.exists(path) and os.path.exists(ppath):
+            path = ppath
+        args[0] = path
+        obj = super(SpineItem, cls).__new__(cls, *args)
         raw = open(path, 'rb').read()
         raw, obj.encoding = xml_to_unicode(raw)
         obj.character_count = character_count(raw)
