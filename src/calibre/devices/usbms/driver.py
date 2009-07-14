@@ -10,10 +10,8 @@ for a particular device.
 import os
 import fnmatch
 import shutil
-from math import ceil
 from itertools import cycle
 
-from calibre import sanitize_file_name as sanitize
 from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
@@ -34,7 +32,6 @@ class USBMS(CLI, Device):
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD_A = ''
     EBOOK_DIR_CARD_B = ''
-    SUPPORTS_SUB_DIRS = False
     CAN_SET_METADATA = False
 
     def reset(self, key='-1', log_packets=False, report_progress=None):
@@ -148,65 +145,6 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Transferring books to device...'))
 
         return zip(paths, cycle([on_card]))
-
-    def create_upload_path(self, path, mdata, fname):
-        resizable = []
-        newpath = path
-        if self.SUPPORTS_SUB_DIRS:
-
-            if 'tags' in mdata.keys():
-                for tag in mdata['tags']:
-                    if tag.startswith(_('News')):
-                        newpath = os.path.join(newpath, 'news')
-                        c = sanitize(mdata.get('title', ''))
-                        if c:
-                            newpath = os.path.join(newpath, c)
-                            resizable.append(c)
-                        c = sanitize(mdata.get('timestamp', ''))
-                        if c:
-                            newpath = os.path.join(newpath, c)
-                            resizable.append(c)
-                        break
-                    elif tag.startswith('/'):
-                        for c in tag.split('/'):
-                            c = sanitize(c)
-                            if not c: continue
-                            newpath = os.path.join(newpath, c)
-                            resizable.append(c)
-                        break
-
-            if newpath == path:
-                c = sanitize(mdata.get('authors', _('Unknown')))
-                if c:
-                    newpath = os.path.join(newpath, c)
-                    resizable.append(c)
-                c = sanitize(mdata.get('title', _('Unknown')))
-                if c:
-                    newpath = os.path.join(newpath, c)
-                    resizable.append(c)
-
-        newpath = os.path.abspath(newpath)
-        fname = sanitize(fname)
-        resizable.append(fname)
-        filepath = os.path.join(newpath, fname)
-
-        if len(filepath) > 250:
-            extra = len(filepath) - 250
-            delta = int(ceil(extra/float(len(resizable))))
-            for x in resizable:
-                if delta > len(x):
-                    r = ''
-                else:
-                    r = x[:-delta]
-                filepath = filepath.replace(os.sep+x+os.sep, os.sep+r+os.sep)
-            filepath = filepath.replace(os.sep+os.sep, os.sep)
-            newpath = os.path.dirname(filepath)
-
-
-        if not os.path.exists(newpath):
-            os.makedirs(newpath)
-
-        return filepath
 
 
     def add_books_to_metadata(self, locations, metadata, booklists):

@@ -9,11 +9,13 @@ device. This class handles device detection.
 
 import os, subprocess, time, re, sys, glob, shutil
 from itertools import repeat
+from math import ceil
 
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
+from calibre import sanitize_file_name as sanitize
 
 class Device(DeviceConfig, DevicePlugin):
     '''
@@ -40,6 +42,8 @@ class Device(DeviceConfig, DevicePlugin):
     MAIN_MEMORY_VOLUME_LABEL  = ''
     STORAGE_CARD_VOLUME_LABEL = ''
     STORAGE_CARD2_VOLUME_LABEL = None
+
+    SUPPORTS_SUB_DIRS = False
 
     FDI_TEMPLATE = \
 '''
@@ -604,4 +608,73 @@ class Device(DeviceConfig, DevicePlugin):
             except:
                 pass
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+
+    def create_upload_path(self, path, mdata, fname):
+        resizable = []
+        newpath = path
+        if self.SUPPORTS_SUB_DIRS:
+
+            if 'tags' in mdata.keys():
+                for tag in mdata['tags']:
+                    if tag.startswith(_('News')):
+                        newpath = os.path.join(newpath, 'news')
+                        c = sanitize(mdata.get('title', ''))
+                        if c:
+                            newpath = os.path.join(newpath, c)
+                            resizable.append(c)
+                        c = sanitize(mdata.get('timestamp', ''))
+                        if c:
+                            newpath = os.path.join(newpath, c)
+                            resizable.append(c)
+                        break
+                    elif tag.startswith('/'):
+                        for c in tag.split('/'):
+                            c = sanitize(c)
+                            if not c: continue
+                            newpath = os.path.join(newpath, c)
+                            resizable.append(c)
+                        break
+
+            if newpath == path:
+                c = sanitize(mdata.get('authors', _('Unknown')))
+                if c:
+                    newpath = os.path.join(newpath, c)
+                    resizable.append(c)
+                c = sanitize(mdata.get('title', _('Unknown')))
+                if c:
+                    newpath = os.path.join(newpath, c)
+                    resizable.append(c)
+
+        newpath = os.path.abspath(newpath)
+        fname = sanitize(fname)
+        resizable.append(fname)
+
+        filepath = os.path.join(newpath, fname)
+
+        if len(filepath) > 245:
+            extra = len(filepath) - 245
+            delta = int(ceil(extra/float(len(resizable))))
+            for x in resizable:
+                if delta > len(x):
+                    r = x[0] if x is resizable[-1] else ''
+                else:
+                    if x is resizable[-1]:
+                        b, e = os.path.splitext(x)
+                        r = b[:-delta]+e
+                        if r.startswith('.'): r = x[0]+r
+                    else:
+                        r = x[:-delta]
+                if x is resizable[-1]:
+                    filepath = filepath.replace(os.sep+x, os.sep+r)
+                else:
+                    filepath = filepath.replace(os.sep+x+os.sep, os.sep+r+os.sep)
+            filepath = filepath.replace(os.sep+os.sep, os.sep)
+            newpath = os.path.dirname(filepath)
+
+
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
+        return filepath
+
 
