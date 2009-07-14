@@ -47,7 +47,7 @@ recipe_modules = ['recipe_' + r for r in (
            'climate_progress', 'carta', 'slashdot', 'publico',
            'the_budget_fashionista', 'elperiodico_catalan',
            'elperiodico_spanish', 'expansion_spanish', 'lavanguardia',
-           'marca', 'kellog_faculty', 'kellog_insight',
+           'marca', 'kellog_faculty', 'kellog_insight', 'noaa',
            'theeconomictimes_india', '7dias', 'buenosaireseconomico',
            'diagonales', 'miradasalsur', 'newsweek_argentina', 'veintitres',
            'gva_be', 'hln', 'tijd', 'degentenaar', 'inquirer_net', 'uncrate',
