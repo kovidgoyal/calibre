@@ -7,23 +7,27 @@ nytimes.com
 '''
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class NYTimes(BasicNewsRecipe):
 
-    title       = 'NYTimes Top Stories'
-    __author__  = 'Greg Riker'
+    title       = 'New York Times Top Stories'
+    __author__  = 'GRiker'
     language = _('English')
     description = 'Top Stories from the New York Times'
     #max_articles_per_feed = 3
     timefmt = ''
-    needs_subscription = False
-    remove_tags_before = dict(id='article')
-    remove_tags_after  = dict(id='article')
-    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink', 'clearfix']}),
-                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']),
-                   dict(name=['script', 'noscript', 'style'])]
-    encoding = 'cp1252'
+    needs_subscription = True
+    remove_tags_after  = dict(attrs={'id':['comments']})
+    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink',
+                               'clearfix', 'nextArticleLink clearfix','inlineSearchControl',
+                               'columnGroup','entry-meta','entry-response module','jumpLink','nav',
+                               'columnGroup advertisementColumnGroup']}),
+                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive',
+                            'side_search', 'blog_sidebar', 'side_tool', 'side_index', 'login',
+                            'blog-header','searchForm','NYTLogo','insideNYTimes']),
+                   dict(name=['script', 'noscript', 'style','hr'])]
+    encoding = None
     no_stylesheets = True
     #extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
     extra_css = '.headline  {text-align:left;}\n\
@@ -33,6 +37,16 @@ class NYTimes(BasicNewsRecipe):
 
 
     flatPeriodical = True
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.nytimes.com/auth/login')
+            br.select_form(name='login')
+            br['USERID']   = self.username
+            br['PASSWORD'] = self.password
+            br.submit()
+        return br
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.nytimes.com/pages/todaysheadlines/')
@@ -50,18 +64,21 @@ class NYTimes(BasicNewsRecipe):
         else :
             key = None
 
-        sections = { 'topstories'   :   'Top Stories',
-                     'world'        :   'World',
-                     'us'           :   'U.S.',
-                     'politics'     :   'Politics',
-                     'business'     :   'Business',
-                     'technology'   :   'Technology',
-                     'sports'       :   'Sports',
-                     'arts'         :   'Arts',
-                     'newyorkregion':   'New York/Region',
-                     'travel'       :   'Travel',
-                     'editorials'   :   'Editorials',
-                     'oped'         :   'Op-Ed'
+        sections = {
+                     'arts'             :   'Arts',
+                     'business'         :   'Business',
+                     'editorials'       :   'Editorials',
+                     'magazine'         :   'Magazine',
+                     'mediaadvertising' :   'Media & Advertising',
+                     'newyorkregion'    :   'New York/Region',
+                     'oped'             :   'Op-Ed',
+                     'politics'         :   'Politics',
+                     'sports'           :   'Sports',
+                     'technology'       :   'Technology',
+                     'topstories'       :   'Top Stories',
+                     'travel'           :   'Travel',
+                     'us'               :   'U.S.',
+                     'world'            :   'World'
                    }
 
         #excludeSectionKeywords = ['World','U.S.', 'Politics','Business','Technology','Sports','Arts','New York','Travel', 'Editorials', 'Op-Ed']
@@ -130,6 +147,11 @@ class NYTimes(BasicNewsRecipe):
                         if 'start(name=' in i :
                             section = i[i.find('=')+1:-2]
                             if self.verbose > 2 : self.log( "sectionTitle: %s" % sections[section])
+
+                        if not sections.has_key(section) :
+                            self.log( "Unrecognized section id: %s, skipping" % section )
+                            skipThisSection = True
+                            break
 
                         # Check for excluded section
                         if len(excludeSectionKeywords):
@@ -202,26 +224,65 @@ class NYTimes(BasicNewsRecipe):
 
         return ans
 
+    def preprocess_html(self, soup):
+        refresh = soup.find('meta', {'http-equiv':'refresh'})
+        if refresh is None:
+            return soup
+        content = refresh.get('content').partition('=')[2]
+        raw = self.browser.open('http://www.nytimes.com'+content).read()
+        return BeautifulSoup(raw.decode('cp1252', 'replace'))
+
     def postprocess_html(self,soup, True):
         if self.verbose > 2 : self.log(" ********** recipe.postprocess_html ********** ")
+        # Change class="kicker" to <h3>
+        kicker = soup.find(True, {'class':'kicker'})
+        if kicker is not None :
+            print "changing kicker to <h3>"
+            print kicker
+            h3Tag = Tag(soup, "h3")
+            h3Tag.insert(0, kicker.contents[0])
+            kicker.replaceWith(h3Tag)
 
         # Change captions to italic -1
         for caption in soup.findAll(True, {'class':'caption'}) :
-            emTag = Tag(soup, "em")
-            #emTag['class'] = "caption"
-            #emTag['font-size-adjust'] = "-1"
-            emTag.insert(0, caption.contents[0])
-            hrTag = Tag(soup, 'hr')
-            emTag.insert(1, hrTag)
-            caption.replaceWith(emTag)
-
+            if caption is not None:
+                emTag = Tag(soup, "em")
+                #emTag['class'] = "caption"
+                #emTag['font-size-adjust'] = "-1"
+                emTag.insert(0, caption.contents[0])
+                hrTag = Tag(soup, 'hr')
+                emTag.insert(1, hrTag)
+                caption.replaceWith(emTag)
 
         # Change <nyt_headline> to <h2>
-        headline = soup.div.div.div.div.div.h1.nyt_headline
-        tag = Tag(soup, "h2")
-        tag['class'] = "headline"
-        tag.insert(0, headline.contents[0])
-        soup.h1.replaceWith(tag)
+        headline = soup.find("nyt_headline")
+        if headline is not None :
+            tag = Tag(soup, "h2")
+            tag['class'] = "headline"
+            tag.insert(0, headline.contents[0])
+            soup.h1.replaceWith(tag)
+
+        # Change <h1> to <h3> - used in editorial blogs
+        masthead = soup.find("h1")
+        if masthead is not None :
+            # Nuke the href
+            if masthead.a is not None :
+                del(masthead.a['href'])
+            tag = Tag(soup, "h3")
+            tag.insert(0, masthead.contents[0])
+            soup.h1.replaceWith(tag)
+        '''
+        # Change subheads to <h3>
+        for subhead in soup.findAll(True, {'class':'bold'}) :
+            h3Tag = Tag(soup, "h3")
+            h3Tag.insert(0, subhead.contents[0])
+            subhead.replaceWith(h3Tag)
+        '''
+        # Change <span class="bold"> to <b>
+        for subhead in soup.findAll(True, {'class':'bold'}) :
+            bTag = Tag(soup, "b")
+            bTag.insert(0, subhead.contents[0])
+            subhead.replaceWith(bTag)
 
         return soup
 
