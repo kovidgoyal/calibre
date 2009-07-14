@@ -19,14 +19,14 @@ class Article(object):
     def __init__(self, id, title, url, author, summary, published, content):
         self.downloaded = False
         self.id = id
-        self.title = title.strip() if title else title
+        self._title = title.strip() if title else title
         try:
-            self.title = re.sub(r'&(\S+);',
-                entity_to_unicode, self.title)
+            self._title = re.sub(r'&(\S+);',
+                entity_to_unicode, self._title)
         except:
             pass
-        if not isinstance(self.title, unicode):
-            self.title = self.title.decode('utf-8', 'replace')
+        if not isinstance(self._title, unicode):
+            self._title = self._title.decode('utf-8', 'replace')
         self.url = url
         self.author = author
         if author and not isinstance(author, unicode):
@@ -49,6 +49,17 @@ class Article(object):
         self.date = published
         self.utctime = datetime(*self.date[:6])
         self.localtime = self.utctime + self.time_offset
+
+    @dynamic_property
+    def title(self):
+        def fget(self):
+            t = self._title
+            if not isinstance(t, unicode) and hasattr(t, 'decode'):
+                t = t.decode('utf-8', 'replace')
+            return t
+        def fset(self, val):
+            self._title = val
+        return property(fget=fget, fset=fset)
 
 
     def __repr__(self):

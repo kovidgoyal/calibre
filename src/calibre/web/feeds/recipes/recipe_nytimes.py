@@ -6,6 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 nytimes.com
 '''
 import re
+from calibre import entity_to_unicode
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
@@ -19,15 +20,16 @@ class NYTimes(BasicNewsRecipe):
     timefmt = ''
     needs_subscription = True
     remove_tags_after  = dict(attrs={'id':['comments']})
-    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink',
+    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink', 
                                'clearfix', 'nextArticleLink clearfix','inlineSearchControl',
                                'columnGroup','entry-meta','entry-response module','jumpLink','nav',
-                               'columnGroup advertisementColumnGroup']}),
-                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive',
+                               'columnGroup advertisementColumnGroup', 'kicker entry-category']}),
+                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 
                             'side_search', 'blog_sidebar', 'side_tool', 'side_index', 'login',
-                            'blog-header','searchForm','NYTLogo','insideNYTimes']),
+                            'blog-header','searchForm','NYTLogo','insideNYTimes','adxToolSponsor',
+                            'adxLeaderboard']),
                    dict(name=['script', 'noscript', 'style','hr'])]
-    encoding = None
+    encoding = 'cp1252'
     no_stylesheets = True
     #extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
     extra_css = '.headline  {text-align:left;}\n\
@@ -37,6 +39,8 @@ class NYTimes(BasicNewsRecipe):
 
 
     flatPeriodical = True
+    feed = None
+    ans = []
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -48,31 +52,76 @@ class NYTimes(BasicNewsRecipe):
             br.submit()
         return br
 
+    def index_to_soup(self, url_or_raw, raw=False):
+        '''
+        Convenience method that takes an URL to the index page and returns
+        a `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        of it.
+        
+        This is an OVERRIDE of the method provided in news.py to solve an encoding problem
+        with NYTimes index pages which seem to be encoded in a wonderful blend
+
+        `url_or_raw`: Either a URL or the downloaded index page as a string
+        '''
+        def get_the_soup(docEncoding, url_or_raw, raw=False) :
+            if re.match(r'\w+://', url_or_raw):
+                f = self.browser.open(url_or_raw)
+                _raw = f.read()
+                f.close()
+                if not _raw:
+                    raise RuntimeError('Could not fetch index from %s'%url_or_raw)
+            else:
+                _raw = url_or_raw
+            if raw:
+                return _raw
+                
+            if not isinstance(_raw, unicode) and self.encoding:
+                _raw = _raw.decode(docEncoding, 'replace')
+            massage = list(BeautifulSoup.MARKUP_MASSAGE)
+            massage.append((re.compile(r'&(\S+?);'), lambda match: entity_to_unicode(match, encoding=self.encoding)))
+            return BeautifulSoup(_raw, markupMassage=massage)
+        
+        # Entry point
+        soup = get_the_soup( self.encoding, url_or_raw )
+        contentType = soup.find(True,attrs={'http-equiv':'Content-Type'})
+        docEncoding =  str(contentType)[str(contentType).find('charset=') + len('charset='):str(contentType).rfind('"')]
+        if docEncoding == '' :
+            docEncoding = self.encoding
+
+        if self.verbose :
+            self.log( "  document encoding: '%s'" % docEncoding)
+        if docEncoding != self.encoding :
+            soup = get_the_soup(docEncoding, url_or_raw)         
+
+        return soup
+
     def parse_index(self):
-        soup = self.index_to_soup('http://www.nytimes.com/pages/todaysheadlines/')
-
-        def feed_title(div):
-            return ''.join(div.findAll(text=True, recursive=False)).strip()
-
         articles = {}
 
-        ans = []
         if self.flatPeriodical :
-            feed = key = 'All Top Stories'
+            self.feed = key = 'All Top Stories'
             articles[key] = []
-            ans.append(key)
+            self.ans.append(key)
         else :
             key = None
+
+        '''
+        def feed_title(div):
+            return ''.join(div.findAll(text=True, recursive=False)).strip()
+        '''
+        
 
         sections = {
                      'arts'             :   'Arts',
                      'business'         :   'Business',
                      'editorials'       :   'Editorials',
+                     'health'           :   'Health',
                      'magazine'         :   'Magazine',
                      'mediaadvertising' :   'Media & Advertising',
                      'newyorkregion'    :   'New York/Region',
                      'oped'             :   'Op-Ed',
                      'politics'         :   'Politics',
+                     'science'          :   'Science',
                      'sports'           :   'Sports',
                      'technology'       :   'Technology',
                      'topstories'       :   'Top Stories',
@@ -81,8 +130,18 @@ class NYTimes(BasicNewsRecipe):
                      'world'            :   'World'
                    }
 
-        #excludeSectionKeywords = ['World','U.S.', 'Politics','Business','Technology','Sports','Arts','New York','Travel', 'Editorials', 'Op-Ed']
-        excludeSectionKeywords = []
+        '''
+        excludeSectionKeywords = ['Arts','Business','Editorials','Health','Magazine','Media',
+                                   'New York','Op-Ed','Politics','Science','Sports','Technology',
+                                   'Top Stories','Travel','U.S.','World']
+        '''                                   
+        excludeSectionKeywords = ['Arts','Business','Editorials','Health','Magazine','Media',
+                                   'New York','Politics','Science','Sports','Technology',
+                                   'Top Stories','Travel','U.S.','World']
+        
+        #excludeSectionKeywords = []
+        
+        soup = self.index_to_soup('http://www.nytimes.com/pages/todaysheadlines/')
 
         # Fetch the outer table
         table = soup.find('table')
@@ -164,7 +223,7 @@ class NYTimes(BasicNewsRecipe):
 
                         if not self.flatPeriodical :
                             articles[key] = []
-                            ans.append(key)
+                            self.ans.append(key)
 
                 # Get the bylines and descriptions
                 if not skipThisSection :
@@ -192,7 +251,7 @@ class NYTimes(BasicNewsRecipe):
                         title = self.tag_to_string(a, use_alt=True)
                         if self.flatPeriodical :
                             # prepend the section name
-                            title = sections[section] + " : " + title
+                            title = sections[section] + " &middot; " + title
                         if not isinstance(title, unicode):
                             title = title.decode('utf-8', 'replace')
                         description = descriptions[i]
@@ -201,28 +260,43 @@ class NYTimes(BasicNewsRecipe):
                         else :
                             author = None
 
-
                         if self.verbose > 2 : self.log( "      title: %s" % title)
                         if self.verbose > 2 : self.log( "        url: %s" % url)
                         if self.verbose > 2 : self.log( "     author: %s" % author)
                         if self.verbose > 2 : self.log( "description: %s" % description)
 
                         if not self.flatPeriodical :
-                            feed = key
+                            self.feed = key
 
-                        if not articles.has_key(feed):
-                            if self.verbose > 2 : self.log( "adding %s to articles[]" % feed)
-                            articles[feed] = []
-                        if self.verbose > 2 : self.log( "     adding: %s to articles[%s]\n" % (title, feed))
-                        articles[feed].append(
+                        # Check for duplicates
+                        duplicateFound = False
+                        if self.flatPeriodical and len(articles[self.feed]) > 1:
+                            #print articles[self.feed]
+                            for article in articles[self.feed] :
+                                #print "comparing %s\n %s\n" % (url, article['url'])
+                                if url == article['url'] :
+                                    duplicateFound = True
+                                    break
+                            #print
+                            
+                            if duplicateFound:        
+                                # Continue fetching, don't add this article
+                                print "  skipping duplicate %s" % article['url']
+                                continue        
+
+                        if not articles.has_key(self.feed):
+                            if self.verbose > 2 : self.log( "adding %s to articles[]" % self.feed)
+                            articles[self.feed] = []
+                        if self.verbose > 2 : self.log( "     adding: %s to articles[%s]\n" % (title, self.feed))
+                        articles[self.feed].append(
                             dict(title=title, url=url, date=pubdate,
                                  description=description, author=author, content=''))
 
-        ans = self.sort_index_by(ans, {'Top Stories':-1})
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        self.ans = self.sort_index_by(self.ans, {'Top Stories':-1})
+        self.ans = [(key, articles[key]) for key in self.ans if articles.has_key(key)]
         #sys.exit(1)
 
-        return ans
+        return self.ans
 
     def preprocess_html(self, soup):
         refresh = soup.find('meta', {'http-equiv':'refresh'})
@@ -286,17 +360,3 @@ class NYTimes(BasicNewsRecipe):
 
         return soup
 
-    def postprocess_book(self, oeb, opts, log) :
-        log( " ********** recipe.postprocess_book ********** ")
-        log( list(oeb.toc) )
-        log( "oeb: %s" % oeb.toc)
-        log( "opts: %s" % opts.verbose)
-        for sections in oeb.toc :
-            log( "section:")
-            for articleTOC in sections:
-                log( "      title: %s" % articleTOC.title)
-                log( "     author: %s" % articleTOC.author)
-                log( "description: %s" % articleTOC.description)
-                log( "       href: %s" % articleTOC.href)
-                log( "    content: %s" % oeb.manifest.hrefs[articleTOC.href])
-        return
