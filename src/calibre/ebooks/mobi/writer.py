@@ -1957,6 +1957,17 @@ class MobiWriter(object):
                     # Test to see if this child's offset is the same as the previous child's
                     # offset, skip it
                     h = child.href
+                    first = False
+
+                    if h is None:
+                        self._oeb.logger.warn('  Ignoring TOC entry with no href:',
+                                child.title)
+                        continue
+                    if h not in self._id_offsets:
+                        self._oeb.logger.warn('  Ignoring missing TOC entry:',
+                                child)
+                        continue
+
                     currentOffset = self._id_offsets[h]
                     # print "_generate_ctoc: child offset: 0x%X" % currentOffset
 
@@ -1967,7 +1978,6 @@ class MobiWriter(object):
                     else :
                         self._oeb.logger.warn("  Ignoring redundant href: %s in '%s'" % (h, child.title))
 
-                    first = False
                 else :
                     if self.opts.verbose > 2 :
                         self._oeb.logger.info("skipping class: %s depth %d at position %d" % \
