@@ -19,7 +19,7 @@ class elektrolese(BasicNewsRecipe):
     oldest_article = 14
     max_articles_per_feed = 50
     no_stylesheets = True
-    #html2epub_options = 'linearize_tables = True\nbase_font_size2=14'
+    conversion_options = {'linearize_tables':True}
     encoding = 'utf-8'
 
 
@@ -27,9 +27,12 @@ class elektrolese(BasicNewsRecipe):
     filter_regexps = [r'ad\.doubleclick\.net']
 
     remove_tags = [dict(name='div', attrs={'class':'bannerSuperBanner'}),
-                   dict(id='comments')]
+                   dict(id='comments'),
+                   dict(id='Navbar1')]
 
 
 
     feeds =  [ (u'electrolese', u'http://elektrolese.blogspot.com/feeds/posts/default?alt=rss') ]
+
+
 
