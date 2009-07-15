@@ -24,7 +24,7 @@ class ANDROID(USBMS):
             ]
     PRODUCT_ID  = [0x0c02]
     BCD         = [0x100]
-    EBOOK_DIR_MAIN = 'wordplayer/calibre'
+    EBOOK_DIR_MAIN = 'wordplayer/calibretransfer'
 
     VENDOR_NAME      = 'HTC'
     WINDOWS_MAIN_MEM = 'ANDROID_PHONE'

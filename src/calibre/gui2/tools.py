@@ -163,7 +163,7 @@ def fetch_scheduled_recipe(recipe, script):
             OptionRecommendation.HIGH))
     lf = load_defaults('look_and_feel')
     if lf.get('base_font_size', 0.0) != 0.0:
-        recs.append(('base_font_size', ps['base_font_size'],
+        recs.append(('base_font_size', lf['base_font_size'],
             OptionRecommendation.HIGH))
 
     args = [script, pt.name, recs]
