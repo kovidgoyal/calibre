@@ -728,7 +728,8 @@ class DeviceGUI(object):
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
         if do_auto_convert:
-            ids = list(set(ids).difference(_auto_ids))
+            ok_ids = list(set(ids).difference(_auto_ids))
+            ids = [i for i in ids if i in ok_ids]
         else:
             _auto_ids = []
 
