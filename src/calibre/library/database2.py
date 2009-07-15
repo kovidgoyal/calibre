@@ -1374,7 +1374,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.set_path(id, True)
         self.conn.commit()
         self.set_metadata(id, mi)
-        if cover:
+        if cover is not None:
             self.set_cover(id, cover)
         return id
 
