@@ -144,7 +144,7 @@
           </item>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
          <widget class="QCheckBox" name="opt_remember_window_size">
           <property name="text">
            <string>Remember last used &amp;window size</string>
@@ -174,9 +174,33 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="0" colspan="2">
+         <widget class="QCheckBox" name="hyphenate">
+          <property name="text">
+           <string>H&amp;yphenate (break line in the middle of large words)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QComboBox" name="hyphenate_default_lang">
+          <property name="toolTip">
+           <string>The default language to use for hyphenation rules. If the book does not specify a language, this will be used.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Default &amp;language for hyphenation:</string>
+          </property>
+          <property name="buddy">
+           <cstring>hyphenate_default_lang</cstring>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QGroupBox" name="groupBox_2">
         <property name="title">
          <string>&amp;User stylesheet</string>
@@ -226,8 +250,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>252</x>
+     <y>569</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -242,12 +266,28 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>320</x>
+     <y>569</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hyphenate</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>hyphenate_default_lang</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>349</x>
+     <y>312</y>
     </hint>
    </hints>
   </connection>

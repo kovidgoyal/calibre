@@ -186,12 +186,17 @@ class resources(OptionlessCommand):
     def get_hyphenate(self):
         sdir = os.path.join('src', 'calibre', 'gui2', 'viewer', 'hyphenate')
         resources, max = {}, 0
+        languages = set([])
         for f in glob.glob(os.path.join(sdir, 'patterns', '*.js')) + \
                 [os.path.join(sdir, 'Hyphenator.js')]:
                 f = os.path.abspath(f)
-                resources[os.path.basename(f)] = self.get(f)
+                b = os.path.basename(f)
+                resources[b] = self.get(f)
+                if b != 'Hyphenator.js':
+                    languages.add(b.split('.')[0])
                 mtime = os.stat(f).st_mtime
                 max = mtime if mtime > max else max
+        resources['languages'] = ','.join(languages)
         return resources, max
 
     def run(self):
@@ -205,7 +210,7 @@ class resources(OptionlessCommand):
         static, smax = self.get_static_resources()
         recipes, rmax = self.get_recipes()
         hyphenate, hmax = self.get_hyphenate()
-        amax = max(rmax, smax, hmax)
+        amax = max(rmax, smax, hmax, os.stat(__file__).st_mtime)
         if newer([dest], RESOURCES.values()) or os.stat(dest).st_mtime < amax:
             print 'Compiling resources...'
             with open(dest, 'wb') as f:
