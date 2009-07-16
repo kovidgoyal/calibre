@@ -60,6 +60,7 @@ class FormatState(object):
         self.bold = False
         self.preserve = False
         self.family = 'serif'
+        self.bgcolor = 'transparent'
         self.href = None
         self.list_num = 0
         self.attrib = {}
@@ -71,7 +72,8 @@ class FormatState(object):
                and self.href == other.href \
                and self.valign == other.valign \
                and self.preserve == other.preserve \
-               and self.family == other.family
+               and self.family == other.family \
+               and self.bgcolor == other.bgcolor
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -232,6 +234,9 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, XHTML('i'))
             if istate.bold:
                 inline = etree.SubElement(inline, XHTML('b'))
+            if istate.bgcolor is not None and istate.bgcolor != 'transparent' :
+                inline = etree.SubElement(inline, XHTML('span'),
+                        bgcolor=istate.bgcolor)
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
@@ -308,6 +313,7 @@ class MobiMLizer(object):
         weight = style['font-weight']
         istate.bold = weight in ('bold', 'bolder') or asfloat(weight) > 400
         istate.preserve = (style['white-space'] in ('pre', 'pre-wrap'))
+        istate.bgcolor  = style['background-color']
         if 'monospace' in style['font-family']:
             istate.family = 'monospace'
         elif 'sans-serif' in style['font-family']:

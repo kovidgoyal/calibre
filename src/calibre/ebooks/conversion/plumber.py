@@ -465,6 +465,12 @@ OptionRecommendation(name='list_recipes',
 
         # Remove the options that have been disabled by recommendations from the
         # plugins.
+        for w in ('input_options', 'output_options',
+                'all_format_options'):
+            temp = set([])
+            for x in getattr(self, w):
+                temp.add(x.clone())
+            setattr(self, w, temp)
         self.merge_plugin_recommendations()
 
     @classmethod
