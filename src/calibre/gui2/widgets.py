@@ -141,6 +141,7 @@ class ImageView(QLabel):
             if not pmap.isNull():
                 self.setPixmap(pmap)
                 event.accept()
+                self.cover_data = open(path, 'rb').read()
                 self.emit(SIGNAL('cover_changed()'), paths, Qt.QueuedConnection)
                 break
 
