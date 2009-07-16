@@ -30,6 +30,7 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.compression.palmdoc import compress_doc
 
 INDEXING = True
+FCIS_FLIS = True
 
 # TODO:
 # - Optionally rasterize tables
@@ -188,16 +189,25 @@ class Serializer(object):
             path = urldefrag(ref.href)[0]
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
-            buffer.write('<reference type="')
-            self.serialize_text(ref.type, quot=True)
-            buffer.write('" ')
-            if ref.title is not None:
-                buffer.write('title="')
-                self.serialize_text(ref.title, quot=True)
+                
+            if ref.type == 'other.start' :
+                # Kindle-specific 'Start Reading' directive
+                buffer.write('<reference title="Startup Page" ')
+                buffer.write('type="start" ')
+                self.serialize_href(ref.href)
+                # Space required or won't work, I kid you not
+                buffer.write(' />')                
+            else:    
+                buffer.write('<reference type="')
+                self.serialize_text(ref.type, quot=True)
                 buffer.write('" ')
-            self.serialize_href(ref.href)
-            # Space required or won't work, I kid you not
-            buffer.write(' />')
+                if ref.title is not None:
+                    buffer.write('title="')
+                    self.serialize_text(ref.title, quot=True)
+                    buffer.write('" ')
+                self.serialize_href(ref.href)
+                # Space required or won't work, I kid you not
+                buffer.write(' />')
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
@@ -556,7 +566,7 @@ class MobiWriter(object):
         previousLength = 0
         offset = 0
         length = 0
-        sectionChangesInRecordNumber = -1
+        sectionChangedInRecordNumber = -1
         sectionChangesInThisRecord = False
         entries = list(toc.iter())[1:]
 
@@ -622,7 +632,7 @@ class MobiWriter(object):
             # Store the current continuingNodeParent and openingNodeParent
             if self._ctoc_map[i]['klass'] == 'article':
                 if thisRecord > 0 :
-                    if sectionChangesInThisRecord :
+                    if sectionChangesInThisRecord :         # <<<
                         self._HTMLRecords[thisRecord].continuingNodeParent = self._currentSectionIndex - 1
                     else :
                         self._HTMLRecords[thisRecord].continuingNodeParent = self._currentSectionIndex
@@ -643,23 +653,29 @@ class MobiWriter(object):
 
                 # *** This should check currentSectionNumber, because content could start late
                 if thisRecord > 0:
+                    # If next article falls into a later record, bump thisRecord
+                    thisRecordPrime = thisRecord
+                    if (offset + length) // RECORD_SIZE > thisRecord :
+                        thisRecordPrime = (offset + length) // RECORD_SIZE
+                
                     sectionChangesInThisRecord = True
-                    sectionChangesInRecordNumber = thisRecord
-                    self._currentSectionIndex += 1
-                    self._HTMLRecords[thisRecord].nextSectionNumber = self._currentSectionIndex
-                    # The following node opens the nextSection
-                    self._HTMLRecords[thisRecord].nextSectionOpeningNode = myIndex
+                    sectionChangedInRecordNumber = thisRecordPrime
+                    self._currentSectionIndex += 1      # <<<
+                    self._HTMLRecords[thisRecordPrime].nextSectionNumber = self._currentSectionIndex
+                    # The following article node opens the nextSection
+                    self._HTMLRecords[thisRecordPrime].nextSectionOpeningNode = myIndex
                     continue
                 else :
                     continue
 
             # If no one has taken the openingNode slot, it must be us
+            # This could happen before detecting a section change            
             if self._HTMLRecords[thisRecord].openingNode == -1 :
                 self._HTMLRecords[thisRecord].openingNode = myIndex
                 self._HTMLRecords[thisRecord].openingNodeParent = self._currentSectionIndex
 
             # Bump the nextSection node count while we're in the same record
-            if sectionChangesInRecordNumber == thisRecord :
+            if sectionChangedInRecordNumber == thisRecord :
                 if self._ctoc_map[i]['klass'] == 'article' :
                     if self._HTMLRecords[thisRecord].nextSectionNodeCount == -1:
                         self._HTMLRecords[thisRecord].nextSectionNodeCount = 1
@@ -671,7 +687,7 @@ class MobiWriter(object):
 
             else :
                 # Reset the change record
-                sectionChangesInRecordNumber = -1
+                # sectionChangedInRecordNumber = -1
                 sectionChangesInThisRecord = False
                 if self._HTMLRecords[thisRecord].currentSectionNodeCount == -1:
                     self._HTMLRecords[thisRecord].currentSectionNodeCount = 1
@@ -690,10 +706,10 @@ class MobiWriter(object):
                     self._HTMLRecords[interimSpanRecord].currentSectionNodeCount = 1
                     interimSpanRecord += 1
 
-                if self.opts.verbose > 3 :self._oeb.logger.info("\tnode %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
+                if self.opts.verbose > 3 :self._oeb.logger.info("     node: %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, interimSpanRecord, offset, length) )
             else :
-                if self.opts.verbose > 3 : self._oeb.logger.info("\tnode %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
+                if self.opts.verbose > 3 : self._oeb.logger.info("     node: %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, thisRecord, offset, length) )
 
             last_name = "%04X" % myIndex
@@ -1333,11 +1349,7 @@ class MobiWriter(object):
                 self._first_image_record = len(self._records)-1
 
     def _generate_end_records(self):
-        if True:
-            self._flis_number = len(self._records)
-            self._records.append('\xE9\x8E\x0D\x0A')
-
-        else:
+        if FCIS_FLIS :
             # This adds the binary blobs of FLIS and FCIS, which don't seem to be necessary
             self._flis_number = len(self._records)
             self._records.append(
@@ -1348,6 +1360,10 @@ class MobiWriter(object):
             fcis += '\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
             self._fcis_number = len(self._records)
             self._records.append(fcis)
+            self._records.append('\xE9\x8E\x0D\x0A')
+
+        else :
+            self._flis_number = len(self._records)
             self._records.append('\xE9\x8E\x0D\x0A')
 
     def _generate_record0(self):
@@ -1452,21 +1468,7 @@ class MobiWriter(object):
         record0.write('\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        # Turned off, these are optional and not understood yet
-        if True:
-            # 0xb8 - 0xbb : FCIS record number
-            record0.write(pack('>I', 0xffffffff))
-
-            # 0xbc - 0xbf : Unknown (FCIS record count?)
-            record0.write(pack('>I', 0xffffffff))
-
-            # 0xc0 - 0xc3 : FLIS record number
-            record0.write(pack('>I', 0xffffffff))
-
-            # 0xc4 - 0xc7 : Unknown (FLIS record count?)
-            record0.write(pack('>I', 1))
-
-        else:
+        if FCIS_FLIS :
             # Write these if FCIS/FLIS turned on
             # 0xb8 - 0xbb : FCIS record number
             record0.write(pack('>I', self._fcis_number))
@@ -1476,6 +1478,18 @@ class MobiWriter(object):
 
             # 0xc0 - 0xc3 : FLIS record number
             record0.write(pack('>I', self._flis_number))
+
+            # 0xc4 - 0xc7 : Unknown (FLIS record count?)
+            record0.write(pack('>I', 1))
+        else :
+            # 0xb8 - 0xbb : FCIS record number
+            record0.write(pack('>I', 0xffffffff))
+
+            # 0xbc - 0xbf : Unknown (FCIS record count?)
+            record0.write(pack('>I', 0xffffffff))
+
+            # 0xc0 - 0xc3 : FLIS record number
+            record0.write(pack('>I', 0xffffffff))
 
             # 0xc4 - 0xc7 : Unknown (FLIS record count?)
             record0.write(pack('>I', 1))
@@ -1771,7 +1785,7 @@ class MobiWriter(object):
                 self._oeb.log.debug('Index records dumped to', t)
 
     def _clean_text_value(self, text):
-        if text and text.strip():
+        if text is not None and text.strip() :
             text = text.strip()
             if not isinstance(text, unicode):
                 text = text.decode('utf-8', 'replace')
