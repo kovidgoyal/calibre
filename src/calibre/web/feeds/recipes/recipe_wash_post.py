@@ -6,16 +6,21 @@ class WashingtonPost(BasicNewsRecipe):
 
     title = 'Washington Post'
     description = 'US political news'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal and Sujata Raman'
     use_embedded_content   = False
     max_articles_per_feed = 20
     language = _('English')
 
-
     remove_javascript = True
+    no_stylesheets = True
 
+    extra_css       = '''
+                        #articleCopyright { font-family:Arial,helvetica,sans-serif ; font-weight:bold ; font-size:x-small ;}
+                        p { font-family:"Times New Roman",times,serif ; font-weight:normal ; font-size:small ;}
+                        body{font-family:arial,helvetica,sans-serif}
+                            '''
 
-    feeds = [ ('Today\'s Highlights', 'http://www.washingtonpost.com/wp-dyn/rss/linkset/2005/03/24/LI2005032400102.xml'),
+    feeds = [    ('Today\'s Highlights', 'http://www.washingtonpost.com/wp-dyn/rss/linkset/2005/03/24/LI2005032400102.xml'),
      	         ('Politics', 'http://www.washingtonpost.com/wp-dyn/rss/politics/index.xml'),
      	         ('Nation', 'http://www.washingtonpost.com/wp-dyn/rss/nation/index.xml'),
      	         ('World', 'http://www.washingtonpost.com/wp-dyn/rss/world/index.xml'),
@@ -30,7 +35,7 @@ class WashingtonPost(BasicNewsRecipe):
 
 
     def get_article_url(self, article):
-        return article.get('pheedo_origlink', article.get('link', None))
+        return article.get('guid', article.get('link', None))
 
     def print_version(self, url):
         return url.rpartition('.')[0] + '_pf.html'
