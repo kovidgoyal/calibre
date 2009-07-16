@@ -29,6 +29,7 @@ class MetadataWidget(Widget, Ui_Form):
         Widget.__init__(self, parent, 'metadata', ['prefer_metadata_cover'])
         self.db, self.book_id = db, book_id
         self.cover_changed = False
+        self.cover_data = None
         if self.db is not None:
             self.initialize_metadata_options()
         self.initialize_options(get_option, get_help, db, book_id)
@@ -59,6 +60,7 @@ class MetadataWidget(Widget, Ui_Form):
             pm.loadFromData(cover)
             if not pm.isNull():
                 self.cover.setPixmap(pm)
+                self.cover_data = cover
 
     def initialize_combos(self):
         self.initalize_authors()
@@ -160,6 +162,7 @@ class MetadataWidget(Widget, Ui_Form):
                     self.cover.setPixmap(pix)
                     self.cover_changed = True
                     self.cpixmap = pix
+                    self.cover_data = cover
 
     def get_recommendations(self):
         return {
@@ -184,8 +187,8 @@ class MetadataWidget(Widget, Ui_Form):
             self.opf_file = PersistentTemporaryFile('.opf')
             opf.render(self.opf_file)
             self.opf_file.close()
-            if self.cover_changed:
-                self.db.set_cover(self.book_id, self.cover.pixmap())
+            if self.cover_changed and self.cover_data is not None:
+                self.db.set_cover(self.book_id, self.cover_data)
             cover = self.db.cover(self.book_id, index_is_id=True)
             if cover:
                 cf = PersistentTemporaryFile('.jpeg')
