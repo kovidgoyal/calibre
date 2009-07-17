@@ -169,12 +169,12 @@ if __name__ == '__main__':
   http://%s.kovidgoyal.net
 
   For source code access:
-  bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s
+  bzr branch %s
 
   To update your copy of the source code:
   bzr merge
 
-          '''%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
+          '''%(APPNAME, APPNAME, APPNAME, APPNAME),
           license = 'GPL',
           classifiers    = [
             'Development Status :: 4 - Beta',

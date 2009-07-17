@@ -783,7 +783,7 @@
               <number>1025</number>
              </property>
              <property name="maximum">
-              <number>16000</number>
+              <number>65535</number>
              </property>
              <property name="value">
               <number>8080</number>
