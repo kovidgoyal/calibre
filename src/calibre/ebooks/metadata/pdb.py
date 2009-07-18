@@ -51,5 +51,5 @@ def set_metadata(stream, mi):
         MetadataWriter(stream, mi)
 
     stream.seek(0)
-    stream.write(re.sub('[^-A-Za-z0-9]+', '_', mi.title).ljust(32, '\x00')[:32])
+    stream.write('%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', mi.title).ljust(31, '\x00')[:31].encode('ascii', 'replace'))
 
