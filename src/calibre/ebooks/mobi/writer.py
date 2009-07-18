@@ -189,15 +189,15 @@ class Serializer(object):
             path = urldefrag(ref.href)[0]
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
-                
+
             if ref.type == 'other.start' :
                 # Kindle-specific 'Start Reading' directive
                 buffer.write('<reference title="Startup Page" ')
                 buffer.write('type="start" ')
                 self.serialize_href(ref.href)
                 # Space required or won't work, I kid you not
-                buffer.write(' />')                
-            else:    
+                buffer.write(' />')
+            else:
                 buffer.write('<reference type="')
                 self.serialize_text(ref.type, quot=True)
                 buffer.write('" ')
@@ -657,7 +657,7 @@ class MobiWriter(object):
                     thisRecordPrime = thisRecord
                     if (offset + length) // RECORD_SIZE > thisRecord :
                         thisRecordPrime = (offset + length) // RECORD_SIZE
-                
+
                     sectionChangesInThisRecord = True
                     sectionChangedInRecordNumber = thisRecordPrime
                     self._currentSectionIndex += 1      # <<<
@@ -669,7 +669,7 @@ class MobiWriter(object):
                     continue
 
             # If no one has taken the openingNode slot, it must be us
-            # This could happen before detecting a section change            
+            # This could happen before detecting a section change
             if self._HTMLRecords[thisRecord].openingNode == -1 :
                 self._HTMLRecords[thisRecord].openingNode = myIndex
                 self._HTMLRecords[thisRecord].openingNodeParent = self._currentSectionIndex
@@ -1468,7 +1468,7 @@ class MobiWriter(object):
         record0.write('\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        if FCIS_FLIS :
+        if FCIS_FLIS and self._indexable:
             # Write these if FCIS/FLIS turned on
             # 0xb8 - 0xbb : FCIS record number
             record0.write(pack('>I', self._fcis_number))
