@@ -31,6 +31,7 @@ from calibre.ebooks.compression.palmdoc import compress_doc
 
 INDEXING = True
 FCIS_FLIS = True
+WRITE_PBREAKS = True
 
 # TODO:
 # - Optionally rasterize tables
@@ -190,24 +191,20 @@ class Serializer(object):
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
 
-            if ref.type == 'other.start' :
-                # Kindle-specific 'Start Reading' directive
-                buffer.write('<reference title="Startup Page" ')
-                buffer.write('type="start" ')
-                self.serialize_href(ref.href)
-                # Space required or won't work, I kid you not
-                buffer.write(' />')
-            else:
-                buffer.write('<reference type="')
+            buffer.write('<reference type="')
+            if ref.type.startswith('other.') :
+                self.serialize_text(ref.type.replace('other.',''), quot=True)
+            else :
                 self.serialize_text(ref.type, quot=True)
+            buffer.write('" ')
+            if ref.title is not None:
+                buffer.write('title="')
+                self.serialize_text(ref.title, quot=True)
                 buffer.write('" ')
-                if ref.title is not None:
-                    buffer.write('title="')
-                    self.serialize_text(ref.title, quot=True)
-                    buffer.write('" ')
-                self.serialize_href(ref.href)
-                # Space required or won't work, I kid you not
-                buffer.write(' />')
+            self.serialize_href(ref.href)
+            # Space required or won't work, I kid you not
+            buffer.write(' />')
+
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
@@ -651,7 +648,9 @@ class MobiWriter(object):
                 # Commented out because structured docs don't count section changes in nodeCount
                 # self._HTMLRecords[thisRecord].currentSectionNodeCount += 1
 
+                '''
                 # *** This should check currentSectionNumber, because content could start late
+                GR's tweaked code for b14
                 if thisRecord > 0:
                     # If next article falls into a later record, bump thisRecord
                     thisRecordPrime = thisRecord
@@ -667,6 +666,19 @@ class MobiWriter(object):
                     continue
                 else :
                     continue
+                '''
+                # *** This should check currentSectionNumber, because content could start late
+                if thisRecord > 0:
+                    sectionChangesInThisRecord = True
+                    sectionChangesInRecordNumber = thisRecord
+                    self._currentSectionIndex += 1
+                    self._HTMLRecords[thisRecord].nextSectionNumber = self._currentSectionIndex
+                    # The following node opens the nextSection
+                    self._HTMLRecords[thisRecord].nextSectionOpeningNode = myIndex
+                    continue
+                else :
+                    continue
+
 
             # If no one has taken the openingNode slot, it must be us
             # This could happen before detecting a section change
@@ -1267,30 +1279,28 @@ class MobiWriter(object):
             record.write(data)
 
             # Marshall's utf-8 break code.
-            record.write(overlap)
-            record.write(pack('>B', len(overlap)))
-            nextra = 0
-            pbreak = 0
-            running = offset
-
-            while breaks and (breaks[0] - offset) < RECORD_SIZE:
-                # .pop returns item, removes it from list
-                pbreak = (breaks.pop(0) - running) >> 3
-                if self.opts.verbose > 2 :
-                    self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
-                encoded = decint(pbreak, DECINT_FORWARD)
-                record.write(encoded)
-                running += pbreak << 3
-                nextra += len(encoded)
-
-            lsize = 1
-            while True:
-                size = decint(nextra + lsize, DECINT_BACKWARD)
-                if len(size) == lsize:
-                    break
-                lsize += 1
-
-            record.write(size)
+            if WRITE_PBREAKS :
+                record.write(overlap)
+                record.write(pack('>B', len(overlap)))
+                nextra = 0
+                pbreak = 0
+                running = offset
+                while breaks and (breaks[0] - offset) < RECORD_SIZE:
+                    # .pop returns item, removes it from list
+                    pbreak = (breaks.pop(0) - running) >> 3
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
+                    encoded = decint(pbreak, DECINT_FORWARD)
+                    record.write(encoded)
+                    running += pbreak << 3
+                    nextra += len(encoded)
+                lsize = 1
+                while True:
+                    size = decint(nextra + lsize, DECINT_BACKWARD)
+                    if len(size) == lsize:
+                        break
+                    lsize += 1
+                record.write(size)
 
             # Write Trailing Byte Sequence
             if INDEXING and self._indexable:
@@ -1370,8 +1380,13 @@ class MobiWriter(object):
         metadata = self._oeb.metadata
         exth = self._build_exth()
         last_content_record = len(self._records) - 1
+
+        '''
         if INDEXING and self._indexable:
             self._generate_end_records()
+        '''
+        self._generate_end_records()
+
         record0 = StringIO()
         # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
@@ -1468,7 +1483,7 @@ class MobiWriter(object):
         record0.write('\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        if FCIS_FLIS and self._indexable:
+        if FCIS_FLIS :
             # Write these if FCIS/FLIS turned on
             # 0xb8 - 0xbb : FCIS record number
             record0.write(pack('>I', self._fcis_number))
@@ -1501,16 +1516,25 @@ class MobiWriter(object):
         record0.write(pack('>IIII', 0xffffffff, 0, 0xffffffff, 0xffffffff))
 
         # 0xe0 - 0xe3 : Extra record data
-        # The '5' is a bitmask of extra record data at the end:
+        # Extra record data flags:
         #   - 0x1: <extra multibyte bytes><size> (?)
         #   - 0x2: <TBS indexing description of this HTML record><size> GR
         #   - 0x4: <uncrossable breaks><size>
-        # Of course, the formats aren't quite the same.
         # GR: Use 7 for indexed files, 5 for unindexed
+        # Setting bit 2 (0x4) disables <guide><reference type="start"> functionality
+        '''
         if INDEXING and self._indexable :
             record0.write(pack('>I', 7))
         else:
             record0.write(pack('>I', 5))
+        '''
+
+        trailingDataFlags = 1
+        if self._indexable :
+            trailingDataFlags |= 2
+        if WRITE_PBREAKS :
+            trailingDataFlags |= 4
+        record0.write(pack('>I', trailingDataFlags))
 
         # 0xe4 - 0xe7 : Primary index record
         record0.write(pack('>I', 0xffffffff if self._primary_index_record is

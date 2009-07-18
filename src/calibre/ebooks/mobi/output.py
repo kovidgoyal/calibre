@@ -67,31 +67,62 @@ class MOBIOutput(OutputFormatPlugin):
             self.oeb.manifest.add(id, href, 'image/gif', data=raw)
             self.oeb.guide.add('masthead', 'Masthead Image', href)
 
+    def dump_toc(self, toc) :
+        self.log( "\n         >>> TOC contents <<<")
+        self.log( "     toc.title: %s" % toc.title)
+        self.log( "      toc.href: %s" % toc.href)
+        for periodical in toc.nodes :
+            self.log( "\tperiodical title: %s" % periodical.title)
+            self.log( "\t            href: %s" % periodical.href)
+            for section in periodical :
+                self.log( "\t\tsection title: %s" % section.title)
+                self.log( "\t\tfirst article: %s" % section.href)
+                for article in section :
+                    self.log( "\t\t\tarticle title: %s" % repr(article.title))
+                    self.log( "\t\t\t         href: %s" % article.href)
+
+    def dump_manifest(self) :
+        self.log( "\n         >>> Manifest entries <<<")
+        for href in self.oeb.manifest.hrefs :
+            self.log ("\t%s" % href)
 
     def periodicalize_toc(self):
         from calibre.ebooks.oeb.base import TOC
         toc = self.oeb.toc
         if toc and toc[0].klass != 'periodical':
-            start_href = self.oeb.spine[0].href
+            one, two = self.oeb.spine[0], self.oeb.spine[1]
             self.log('Converting TOC for MOBI periodical indexing...')
+
             articles = {}
             if toc.depth() < 3:
+                # single section periodical
+                self.oeb.manifest.remove(one)
+                self.oeb.manifest.remove(two)
                 sections = [TOC(klass='section', title=_('All articles'),
-                    href=start_href)]
+                    href=self.oeb.spine[0].href)]
                 for x in toc:
                     sections[0].nodes.append(x)
             else:
+                # multi-section periodical
                 sections = list(toc)
-                for x in sections:
+                for i,x in enumerate(sections):
                     x.klass = 'section'
+                    articles = list(x)
+                    if articles:
+                        self.oeb.manifest.remove(self.oeb.manifest.hrefs[x.href])
+                        x.href = articles[0].href
+
+
             for sec in sections:
                 articles[id(sec)] = []
                 for a in list(sec):
                     a.klass = 'article'
                     articles[id(sec)].append(a)
                     sec.nodes.remove(a)
-            root = TOC(klass='periodical', href=start_href,
+
+            root = TOC(klass='periodical', href=self.oeb.spine[0].href,
                     title=unicode(self.oeb.metadata.title[0]))
+
             for s in sections:
                 if articles[id(s)]:
                     for a in articles[id(s)]:
@@ -102,6 +133,13 @@ class MOBIOutput(OutputFormatPlugin):
                 toc.nodes.remove(x)
 
             toc.nodes.append(root)
+
+            # Fix up the periodical href to point to first section href
+            toc.nodes[0].href = toc.nodes[0].nodes[0].href
+
+            # GR diagnostics
+            #self.dump_toc(toc)
+            #self.dump_manifest()
 
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
