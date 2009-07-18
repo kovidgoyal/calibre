@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Freeze app into executable using py2exe.
 '''
-QT_DIR           = 'C:\\Qt\\4.5.1'
+QT_DIR           = 'C:\\Qt\\4.5.2'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 PDFTOHTML        = 'C:\\cygwin\\home\\kovid\\poppler-0.10.6\\rel\\pdftohtml.exe'
