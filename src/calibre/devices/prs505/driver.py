@@ -7,7 +7,6 @@ Device driver for the SONY PRS-505
 import os, re, time
 from itertools import cycle
 
-from calibre import sanitize_file_name as sanitize
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.errors import DeviceError, FreeSpaceError
@@ -43,6 +42,8 @@ class PRS505(CLI, Device):
     CACHE_XML    = 'Sony Reader/database/cache.xml'
 
     CARD_PATH_PREFIX          = __appname__
+
+    SUPPORTS_SUB_DIRS = True
 
     def open(self):
         Device.open(self)
@@ -145,29 +146,9 @@ class PRS505(CLI, Device):
                 infile, close = open(infile, 'rb'), True
             infile.seek(0)
 
-            newpath = path
-            mdata = metadata.next()
+            mdata, fname = metadata.next(), names.next()
+            filepath = self.create_upload_path(path, mdata, fname)
 
-            if 'tags' in mdata.keys():
-                for tag in mdata['tags']:
-                    if tag.startswith(_('News')):
-                        newpath = os.path.join(newpath, 'news')
-                        newpath = os.path.join(newpath, sanitize(mdata.get('title', '')))
-                        newpath = os.path.join(newpath, sanitize(mdata.get('timestamp', '')))
-                    elif tag.startswith('/'):
-                        newpath = path
-                        newpath += tag
-                        newpath = os.path.normpath(newpath)
-                        break
-
-            if newpath == path:
-                newpath = os.path.join(newpath, sanitize(mdata.get('authors', _('Unknown'))))
-                newpath = os.path.join(newpath, sanitize(mdata.get('title', _('Unknown'))))
-
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-
-            filepath = os.path.join(newpath, sanitize(names.next()))
             paths.append(filepath)
 
             self.put_file(infile, paths[-1], replace_file=True)

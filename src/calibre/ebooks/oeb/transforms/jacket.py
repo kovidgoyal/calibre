@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
+from xml.sax.saxutils import escape
 
 from lxml import etree
 
@@ -82,8 +83,9 @@ class Jacket(object):
         except:
             title = _('Unknown')
         html = self.JACKET_TEMPLATE%dict(xmlns=XPNSMAP['h'],
-                title=title, comments=comments,
-                jacket=_('Book Jacket'), series=series, tags=tags)
+                title=escape(title), comments=escape(comments),
+                jacket=escape(_('Book Jacket')), series=escape(series),
+                tags=escape(tags))
         id, href = self.oeb.manifest.generate('jacket', 'jacket.xhtml')
         root = etree.fromstring(html)
         item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)

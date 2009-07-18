@@ -113,7 +113,7 @@ p, li { white-space: pre-wrap; }
         <item row="1" column="1" colspan="2" >
          <widget class="QLineEdit" name="authors" >
           <property name="toolTip" >
-           <string>Regular expression (?P&lt;authors>)</string>
+           <string>Regular expression (?P&lt;author>)</string>
           </property>
           <property name="text" >
            <string>No match</string>

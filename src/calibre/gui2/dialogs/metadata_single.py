@@ -88,6 +88,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         pix = QPixmap(':/images/book.svg')
         self.cover.setPixmap(pix)
         self.cover_changed = True
+        self.cover_data = None
 
     def select_cover(self, checked):
         files = choose_images(self, 'change cover dialog',
@@ -121,6 +122,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     self.cover.setPixmap(pix)
                     self.cover_changed = True
                     self.cpixmap = pix
+                    self.cover_data = cover
 
 
     def add_format(self, x):
@@ -191,6 +193,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cover.setPixmap(pix)
         self.cover_changed = True
         self.cpixmap = pix
+        self.cover_data = cdata
 
     def sync_formats(self):
         old_extensions, new_extensions, paths = set(), set(), {}
@@ -300,6 +303,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             pm.loadFromData(cover)
             if not pm.isNull():
                 self.cover.setPixmap(pm)
+            self.cover_data = cover
 
     def show_format(self, item, *args):
         fmt = item.ext
@@ -319,6 +323,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def cover_dropped(self):
         self.cover_changed = True
+        self.cover_data = self.cover.cover_data
 
     def initialize_combos(self):
         self.initalize_authors()
@@ -430,6 +435,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.cover.setPixmap(pix)
                 self.cover_changed = True
                 self.cpixmap = pix
+                self.cover_data = self.cover_fetcher.cover_data
         finally:
             self.fetch_cover_button.setEnabled(True)
             self.unsetCursor()
@@ -511,8 +517,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         d = self.pubdate.date()
         self.db.set_pubdate(self.id, datetime(d.year(), d.month(), d.day()))
 
-        if self.cover_changed:
-            self.db.set_cover(self.id, self.cover.pixmap())
+        if self.cover_changed and self.cover_data is not None:
+            self.db.set_cover(self.id, self.cover_data)
         QDialog.accept(self)
         if callable(self.accepted_callback):
             self.accepted_callback(self.id)

@@ -1015,7 +1015,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     def books_in_series_of(self, index, index_is_id=False):
         '''
-        Return an ordered list of all books in the series that the book indetified by index belongs to.
+        Return an ordered list of all books in the series that the book identified by index belongs to.
         If the book does not belong to a series return an empty list. The list contains book ids.
         '''
         series_id = self.series_id(index, index_is_id=index_is_id)

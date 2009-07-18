@@ -12,7 +12,7 @@ import mechanize, string
 from urllib2 import quote
 
 class Economist(BasicNewsRecipe):
-    
+
     title = 'The Economist'
     language = _('English')
     __author__ = "Kovid Goyal"
@@ -22,7 +22,7 @@ class Economist(BasicNewsRecipe):
     INDEX = 'http://www.economist.com/printedition'
     remove_tags = [dict(name=['script', 'noscript', 'title'])]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
-    
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
@@ -32,7 +32,7 @@ class Economist(BasicNewsRecipe):
             req.add_data(data)
             br.open(req).read()
         return br
-    
+
     def parse_index(self):
         soup = BeautifulSoup(self.browser.open(self.INDEX).read(),
                              convertEntities=BeautifulSoup.HTML_ENTITIES)
@@ -60,13 +60,18 @@ class Economist(BasicNewsRecipe):
                 continue
             a = tag.find('a', href=True)
             if a is not None:
-                url=a['href'].replace('displaystory', 'PrinterFriendly') 
+                url=a['href'].replace('displaystory', 'PrinterFriendly')
                 if url.startswith('/'):
                     url = 'http://www.economist.com' + url
-                article = dict(title=text, 
+                try:
+                   subtitle = tag.previousSibling.contents[0].contents[0]
+                   text = subtitle + ': ' + text
+                except:
+                   pass
+                article = dict(title=text,
                     url = url,
                     description='', content='', date='')
                 feeds[key].append(article)
-                
+
         ans = [(key, feeds[key]) for key in ans if feeds.has_key(key)]
         return ans

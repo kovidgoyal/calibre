@@ -14,7 +14,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
-from calibre.gui2.viewer.js import bookmarks, referencing
+from calibre.gui2.viewer.js import bookmarks, referencing, hyphenation
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import iswindows
 from calibre import prints
@@ -61,6 +61,9 @@ def config(defaults=None):
               help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
     c.add_opt('max_view_width', default=6000,
             help=_('Maximum width of the viewer window, in pixels.'))
+    c.add_opt('hyphenate', default=False, help=_('Hyphenate text'))
+    c.add_opt('hyphenate_default_lang', default='en',
+            help=_('Default language for hyphenation rules'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -106,6 +109,15 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         self.max_view_width.setValue(opts.max_view_width)
+        from calibre.resources import hyphenate
+        for x in sorted(hyphenate['languages'].split(',')):
+            self.hyphenate_default_lang.addItem(x)
+        idx = self.hyphenate_default_lang.findText(opts.hyphenate_default_lang)
+        if idx == -1:
+            idx = self.hyphenate_default_lang.findText('en')
+        self.hyphenate_default_lang.setCurrentIndex(idx)
+        self.hyphenate.setChecked(opts.hyphenate)
+        self.hyphenate_default_lang.setEnabled(opts.hyphenate)
 
 
     def accept(self, *args):
@@ -119,6 +131,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('user_css', unicode(self.css.toPlainText()))
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         c.set('max_view_width', int(self.max_view_width.value()))
+        c.set('hyphenate', self.hyphenate.isChecked())
+        c.set('hyphenate_default_lang',
+                self.hyphenate_default_lang.currentText())
         return QDialog.accept(self, *args)
 
 
@@ -141,12 +156,14 @@ class Document(QWebPage):
         if d.exec_() == QDialog.Accepted:
             self.set_font_settings()
             self.set_user_stylesheet()
+            self.misc_config()
             self.triggerAction(QWebPage.Reload)
 
     def __init__(self, *args):
         QWebPage.__init__(self, *args)
         self.setObjectName("py_bridge")
         self.debug_javascript = False
+        self.current_language = None
         #self.js_bridge = PythonJS(self.js_callback)
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
@@ -170,6 +187,7 @@ class Document(QWebPage):
         # Miscellaneous
         settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
         self.set_user_stylesheet()
+        self.misc_config()
 
         # Load jQuery
         self.connect(self.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'),
@@ -182,17 +200,38 @@ class Document(QWebPage):
         pt.close()
         self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile(pt.name))
 
+    def misc_config(self):
+        opts = config().parse()
+        self.hyphenate = opts.hyphenate
+        self.hyphenate_default_lang = opts.hyphenate_default_lang
+
     def load_javascript_libraries(self):
         self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
-        from calibre.resources import jquery, jquery_scrollTo
+        from calibre.resources import jquery, jquery_scrollTo, hyphenate
         self.javascript(jquery)
         self.javascript(jquery_scrollTo)
         self.javascript(bookmarks)
         self.javascript(referencing)
+        self.javascript(hyphenation)
+        default_lang = self.hyphenate_default_lang
+        lang = self.current_language
+        if not lang:
+            lang = default_lang
+        lang = lang.lower()[:2]
+        if lang not in hyphenate['languages']:
+            lang = default_lang
+        self.loaded_lang = lang
+        self.javascript(hyphenate['Hyphenator.js'].decode('utf-8'))
+        self.javascript(hyphenate[lang+'.js'].decode('utf-8'))
 
     @pyqtSignature("")
     def animated_scroll_done(self):
         self.emit(SIGNAL('animated_scroll_done()'))
+
+    @pyqtSignature("")
+    def init_hyphenate(self):
+        if self.hyphenate:
+            self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
     @pyqtSignature("QString")
     def debug(self, msg):
@@ -400,6 +439,12 @@ class DocumentView(QWebView):
     @property
     def content_size(self):
         return self.document.width, self.document.height
+
+    @dynamic_property
+    def current_language(self):
+        def fget(self): return self.document.current_language
+        def fset(self, val): self.document.current_language = val
+        return property(fget=fget, fset=fset)
 
     def search(self, text):
         return self.findText(text)

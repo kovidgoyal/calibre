@@ -58,7 +58,7 @@ class MOBIOutput(OutputFormatPlugin):
             except ImportError:
                 import Image as PILImage
 
-            raw = StringIO(server_resources['calibre.png'])
+            raw = StringIO(server_resources['calibre_banner.png'])
             im = PILImage.open(raw)
             of = StringIO()
             im.save(of, 'GIF')

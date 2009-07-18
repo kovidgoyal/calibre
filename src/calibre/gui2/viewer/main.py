@@ -563,6 +563,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf, os.path.splitext(pathtoebook)[1][1:])
+            self.view.current_language = self.iterator.language
             title = self.iterator.opf.title
             if not title:
                 title = os.path.splitext(os.path.basename(pathtoebook))[0]

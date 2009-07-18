@@ -146,6 +146,9 @@ class EbookIterator(object):
 
 
         self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
+        self.language = self.opf.language
+        if self.language:
+            self.language = self.language.lower()
         self.spine = [SpineItem(i.path) for i in self.opf.spine]
 
         cover = self.opf.cover

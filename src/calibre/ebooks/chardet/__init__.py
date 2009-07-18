@@ -3,12 +3,12 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
@@ -30,9 +30,9 @@ def detect(aBuf):
 
 # Added by Kovid
 ENCODING_PATS = [
-                 re.compile(r'<\?[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', 
+                 re.compile(r'<\?[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>',
                             re.IGNORECASE),
-                 re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>', 
+                 re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>',
                             re.IGNORECASE)
                  ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
@@ -51,7 +51,7 @@ def substitute_entites(raw):
 
 _CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }
-    
+
 
 def force_encoding(raw, verbose):
     from calibre.constants import preferred_encoding
@@ -70,19 +70,19 @@ def force_encoding(raw, verbose):
     if encoding == 'ascii':
         encoding = 'utf-8'
     return encoding
-        
 
-def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False, 
+
+def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
                    resolve_entities=False):
     '''
-    Force conversion of byte string to unicode. Tries to look for XML/HTML 
+    Force conversion of byte string to unicode. Tries to look for XML/HTML
     encoding declaration first, if not found uses the chardet library and
     prints a warning if detection confidence is < 100%
-    @return: (unicode, encoding used) 
+    @return: (unicode, encoding used)
     '''
     encoding = None
     if not raw:
-        return u'', encoding    
+        return u'', encoding
     if not isinstance(raw, unicode):
         if raw.startswith('\xff\xfe'):
             raw, encoding = raw.decode('utf-16-le')[1:], 'utf-16-le'
@@ -103,10 +103,10 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         except LookupError:
             encoding = 'utf-8'
             raw = raw.decode(encoding, 'replace')
-    
+
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)
     if resolve_entities:
         raw = substitute_entites(raw)
-        
-    return raw, encoding 
+
+    return raw, encoding
