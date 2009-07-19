@@ -615,7 +615,10 @@ OptionRecommendation(name='list_recipes',
             from calibre.web.feeds.recipes import titles
             self.log('Available recipes:')
             for title in sorted(titles):
-                self.log('\t'+title)
+                try:
+                    self.log('\t'+title)
+                except:
+                    self.log('\t'+repr(title))
             self.log('%d recipes available'%len(titles))
             raise SystemExit(0)
         self.flush()
