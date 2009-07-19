@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.0b14\n"
-"POT-Creation-Date: 2009-07-17 13:17+MDT\n"
-"PO-Revision-Date: 2009-07-17 13:17+MDT\n"
+"POT-Creation-Date: 2009-07-19 12:31+MDT\n"
+"PO-Revision-Date: 2009-07-19 12:31+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -59,8 +59,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:78
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:117
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:150
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:548
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:732
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:552
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:857
@@ -665,7 +665,11 @@ msgstr ""
 msgid "Options to help with debugging the conversion"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:229
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:179
+msgid "List builtin recipes"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:245
 msgid "Output saved to"
 msgstr ""
 
@@ -880,23 +884,19 @@ msgstr ""
 msgid "Set the language."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:410
-msgid "List available recipes."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:501
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:498
 msgid "Could not find an ebook inside the archive"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:639
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:629
 msgid "Converting input to HTML..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:654
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:644
 msgid "Running transforms on ebook..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:729
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:719
 msgid "Creating"
 msgstr ""
 
@@ -1405,7 +1405,7 @@ msgstr ""
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:79
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:101
 msgid "All articles"
 msgstr ""
 
@@ -6086,13 +6086,12 @@ msgstr ""
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:582
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:588
-msgid " from "
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:586
 msgid "Failed to download parts of the following articles:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:588
+msgid " from "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:590
@@ -6135,26 +6134,15 @@ msgstr ""
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:971
-msgid ""
-"\n"
-"Downloaded article %s from %s"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:977
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:978
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:983
-msgid ""
-"Failed to download article: %s from %s\n"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:986
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:989
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1001
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1004
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:78
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:76
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_instapaper.py:56
