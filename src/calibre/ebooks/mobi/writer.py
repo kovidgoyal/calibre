@@ -648,25 +648,6 @@ class MobiWriter(object):
                 # Commented out because structured docs don't count section changes in nodeCount
                 # self._HTMLRecords[thisRecord].currentSectionNodeCount += 1
 
-                '''
-                # *** This should check currentSectionNumber, because content could start late
-                GR's tweaked code for b14
-                if thisRecord > 0:
-                    # If next article falls into a later record, bump thisRecord
-                    thisRecordPrime = thisRecord
-                    if (offset + length) // RECORD_SIZE > thisRecord :
-                        thisRecordPrime = (offset + length) // RECORD_SIZE
-                
-                    sectionChangesInThisRecord = True
-                    sectionChangedInRecordNumber = thisRecordPrime
-                    self._currentSectionIndex += 1      # <<<
-                    self._HTMLRecords[thisRecordPrime].nextSectionNumber = self._currentSectionIndex
-                    # The following article node opens the nextSection
-                    self._HTMLRecords[thisRecordPrime].nextSectionOpeningNode = myIndex
-                    continue
-                else :
-                    continue
-                '''
                 # *** This should check currentSectionNumber, because content could start late
                 if thisRecord > 0:
                     sectionChangesInThisRecord = True
@@ -2084,6 +2065,7 @@ class MobiWriter(object):
         indxt.write(chr(len(name)) + name)							# Write the name
         indxt.write(INDXT['article'])                               # entryType [0x0F | 0xDF | 0xFF | 0x3F]
 
+        # This test may be false if author was post-fixed?
         hasAuthor = True if self._ctoc_map[index]['authorOffset'] else False
         hasDescription = True if self._ctoc_map[index]['descriptionOffset']  else False
         initialOffset = offset
