@@ -27,7 +27,7 @@ from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
-from calibre.ebooks.mobi.langcodes import main_language, sub_language
+from calibre.ebooks.mobi.langcodes import main_language, sub_language, mobi2iana
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
@@ -163,7 +163,11 @@ class BookHeader(object):
             if self.exth_flag & 0x40:
                 self.exth = EXTHHeader(raw[16 + self.length:], self.codec, self.title)
                 self.exth.mi.uid = self.unique_id
-                self.exth.mi.language = self.language
+                try:
+                    self.exth.mi.language = mobi2iana(langid, sublangid)
+                except:
+                    import traceback
+                    traceback.print_exc()
 
 
 class MetadataHeader(BookHeader):
