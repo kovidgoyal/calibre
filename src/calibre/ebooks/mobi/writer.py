@@ -190,7 +190,7 @@ class Serializer(object):
             path = urldefrag(ref.href)[0]
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
-
+                
             buffer.write('<reference type="')
             if ref.type.startswith('other.') :
                 self.serialize_text(ref.type.replace('other.',''), quot=True)
@@ -204,7 +204,7 @@ class Serializer(object):
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
             buffer.write(' />')
-
+            
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
@@ -656,7 +656,7 @@ class MobiWriter(object):
                     thisRecordPrime = thisRecord
                     if (offset + length) // RECORD_SIZE > thisRecord :
                         thisRecordPrime = (offset + length) // RECORD_SIZE
-
+                
                     sectionChangesInThisRecord = True
                     sectionChangedInRecordNumber = thisRecordPrime
                     self._currentSectionIndex += 1      # <<<
@@ -678,10 +678,10 @@ class MobiWriter(object):
                     continue
                 else :
                     continue
-
+                
 
             # If no one has taken the openingNode slot, it must be us
-            # This could happen before detecting a section change
+            # This could happen before detecting a section change            
             if self._HTMLRecords[thisRecord].openingNode == -1 :
                 self._HTMLRecords[thisRecord].openingNode = myIndex
                 self._HTMLRecords[thisRecord].openingNodeParent = self._currentSectionIndex
@@ -1315,15 +1315,6 @@ class MobiWriter(object):
                 else :
                     raise NotImplementedError('Indexing for mobitype 0x%X not implemented' % booktype)
 
-                # Dump the current HTML Record Data / TBS
-                # GR diagnostics
-                if False :
-                    self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
-                    outstr = ''
-                    for eachbyte in self._tbSequence:
-                        outstr += '0x%02X ' % ord(eachbyte)
-                    self._oeb.logger.info('    Trailing Byte Sequence: %s\n' % outstr)
-
                 # Write the sequence
                 record.write(self._tbSequence)
 
@@ -1386,7 +1377,7 @@ class MobiWriter(object):
             self._generate_end_records()
         '''
         self._generate_end_records()
-
+            
         record0 = StringIO()
         # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
@@ -1522,19 +1513,13 @@ class MobiWriter(object):
         #   - 0x4: <uncrossable breaks><size>
         # GR: Use 7 for indexed files, 5 for unindexed
         # Setting bit 2 (0x4) disables <guide><reference type="start"> functionality
-        '''
-        if INDEXING and self._indexable :
-            record0.write(pack('>I', 7))
-        else:
-            record0.write(pack('>I', 5))
-        '''
 
         trailingDataFlags = 1
         if self._indexable :
             trailingDataFlags |= 2
         if WRITE_PBREAKS :
             trailingDataFlags |= 4
-        record0.write(pack('>I', trailingDataFlags))
+        record0.write(pack('>I', trailingDataFlags))    
 
         # 0xe4 - 0xe7 : Primary index record
         record0.write(pack('>I', 0xffffffff if self._primary_index_record is

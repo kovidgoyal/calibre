@@ -107,10 +107,10 @@ class MOBIOutput(OutputFormatPlugin):
                 sections = list(toc)
                 for i,x in enumerate(sections):
                     x.klass = 'section'
-                    articles = list(x)
-                    if articles:
+                    articles_ = list(x)
+                    if articles_:
                         self.oeb.manifest.remove(self.oeb.manifest.hrefs[x.href])
-                        x.href = articles[0].href
+                        x.href = articles_[0].href
 
 
             for sec in sections:

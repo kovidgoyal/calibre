@@ -175,8 +175,8 @@ def add_pipeline_options(parser, plumber):
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
 
-    option_recommendation_to_cli_option(parser.add_option,
-            plumber.get_option_by_name('list_recipes'))
+    parser.add_option('--list-recipes', default=False, action='store_true',
+            help=_('List builtin recipes'))
 
 def option_parser():
     return OptionParser(usage=USAGE)
