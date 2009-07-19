@@ -57,18 +57,18 @@ class FB2MLizer(object):
         output += self.fb2mlize_images()
         output += self.fb2_footer()
         output = self.clean_text(output)
-        return etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
+        return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
         return u'<FictionBook xmlns:xlink="http://www.w3.org/1999/xlink" ' \
-        'xmlns="http://www.gribuser.ru/xml/fictionbook/2.0"> ' \
-        '<description><title-info><book-title>%s</book-title> ' \
+        'xmlns="http://www.gribuser.ru/xml/fictionbook/2.0">\n' \
+        '<description>\n<title-info><book-title>%s</book-title> ' \
         '</title-info><document-info> ' \
-        '<program-used>%s - %s</program-used></document-info> ' \
-        '</description><body><section>' % (self.oeb_book.metadata.title[0].value, __appname__, __version__)
+        '<program-used>%s - %s</program-used></document-info>\n' \
+        '</description>\n<body>\n<section>' % (self.oeb_book.metadata.title[0].value, __appname__, __version__)
         
     def fb2_body_footer(self):
-        return u'</section></body>'
+        return u'\n</section>\n</body>'
         
     def fb2_footer(self):
         return u'</FictionBook>'
@@ -77,8 +77,17 @@ class FB2MLizer(object):
         images = u''
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_IMAGES:
-                data = b64encode(item.data)
-                images += '<binary id="%s" content-type="%s">%s</binary>' % (os.path.basename(item.href),  item.media_type, data)
+                raw_data = b64encode(item.data)
+                # Don't put the encoded image on a single line.
+                data = ''
+                col = 1
+                for char in raw_data:
+                    if col == 72:
+                        data += '\n'
+                        col = 1
+                    col += 1
+                    data += char
+                images += '<binary id="%s" content-type="%s">%s\n</binary>' % (os.path.basename(item.href),  item.media_type, data)
         return images
 
     def clean_text(self, text):
@@ -102,7 +111,7 @@ class FB2MLizer(object):
         tag_count = 0
 
         if tag == 'img':
-            fb2_text += '<image xlink:herf="#%s" />' % os.path.basename(elem.attrib['src'])
+            fb2_text += '<image xlink:href="#%s" />' % os.path.basename(elem.attrib['src'])
         
 
         fb2_tag = TAG_MAP.get(tag, None)

@@ -142,7 +142,7 @@ class ImageView(QLabel):
                 self.setPixmap(pmap)
                 event.accept()
                 self.cover_data = open(path, 'rb').read()
-                self.emit(SIGNAL('cover_changed()'), paths, Qt.QueuedConnection)
+                self.emit(SIGNAL('cover_changed(PyQt_PyObject)'), paths)
                 break
 
     def dragMoveEvent(self, event):
