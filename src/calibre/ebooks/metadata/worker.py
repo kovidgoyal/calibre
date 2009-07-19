@@ -116,7 +116,10 @@ class ReadMetadata(Thread):
             if job.failed:
                 prints(job.details)
             if os.path.exists(job.log_path):
-                os.remove(job.log_path)
+                try:
+                    os.remove(job.log_path)
+                except:
+                    pass
 
 
 def read_metadata(paths, result_queue, chunk=50, spare_server=None):
@@ -191,7 +194,10 @@ class SaveWorker(Thread):
                 prints(job.details)
                 self.error = job.details
             if os.path.exists(job.log_path):
-                os.remove(job.log_path)
+                try:
+                    os.remove(job.log_path)
+                except:
+                    pass
 
 
 def save_book(task, library_path, path, single_dir, single_format,
