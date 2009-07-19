@@ -193,6 +193,22 @@ class ProgressBar(object):
             self.log('%d%% %s'%(percent, msg))
 
 def create_option_parser(args, log):
+    if '--version' in args:
+        from calibre.constants import __appname__, __version__, __author__
+        log(os.path.basename(args[0]), '('+__appname__, __version__+')')
+        log('Created by:', __author__)
+        raise SystemExit(0)
+    if '--list-recipes' in args:
+        from calibre.web.feeds.recipes import titles
+        log('Available recipes:')
+        for title in sorted(titles):
+            try:
+                log('\t'+title)
+            except:
+                log('\t'+repr(title))
+        log('%d recipes available'%len(titles))
+        raise SystemExit(0)
+
     parser = option_parser()
     if len(args) < 3:
         print_help(parser, log)
