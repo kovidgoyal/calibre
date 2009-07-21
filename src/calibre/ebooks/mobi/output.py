@@ -104,6 +104,7 @@ class MOBIOutput(OutputFormatPlugin):
                     sections[0].nodes.append(x)
             else:
                 # multi-section periodical
+                self.oeb.manifest.remove(one)
                 sections = list(toc)
                 for i,x in enumerate(sections):
                     x.klass = 'section'
