@@ -180,9 +180,9 @@ def main(args=sys.argv):
     if opts.to_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPFCreator
         opf = OPFCreator(os.getcwdu(), mi)
-        with open(opts.opf, 'wb') as f:
+        with open(opts.to_opf, 'wb') as f:
             opf.render(f)
-        prints(_('OPF created in'), opts.opf)
+        prints(_('OPF created in'), opts.to_opf)
 
     if opts.get_cover is not None:
         if mi.cover_data and mi.cover_data[1]:
