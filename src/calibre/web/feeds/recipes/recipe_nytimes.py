@@ -42,11 +42,12 @@ class NYTimes(BasicNewsRecipe):
     # By default, no sections are skipped.  
     excludeSectionKeywords = []
 
-    # Add section keywords from the right column above to skip that section
-    # For example, to skip sections containing the word 'Sports' or 'Dining', use:
+    # To skip sections containing the word 'Sports' or 'Dining', use:
     # excludeSectionKeywords = ['Sports', 'Dining']
+
     # Fetch only Business and Technology
     #excludeSectionKeywords = ['Arts','Dining','Editorials','Health','Magazine','Media','Region','Op-Ed','Politics','Science','Sports','Top Stories','Travel','U.S.','World']
+
     # Fetch only Top Stories
     #excludeSectionKeywords = ['Arts','Business','Dining','Editorials','Health','Magazine','Media','Region','Op-Ed','Politics','Science','Sports','Technology','Travel','U.S.','World']
     
@@ -56,11 +57,11 @@ class NYTimes(BasicNewsRecipe):
     timefmt = ''
     needs_subscription = True
     remove_tags_after  = dict(attrs={'id':['comments']})
-    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink',
+    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink', 
                                'clearfix', 'nextArticleLink clearfix','inlineSearchControl',
                                'columnGroup','entry-meta','entry-response module','jumpLink','nav',
                                'columnGroup advertisementColumnGroup', 'kicker entry-category']}),
-                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive',
+                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 
                             'side_search', 'blog_sidebar', 'side_tool', 'side_index', 'login',
                             'blog-header','searchForm','NYTLogo','insideNYTimes','adxToolSponsor',
                             'adxLeaderboard']),
@@ -70,7 +71,7 @@ class NYTimes(BasicNewsRecipe):
     extra_css = '.headline  {text-align:left;}\n\
                  .byline    {font:monospace; margin-bottom:0px;}\n\
                  .source    {align:left;}\n\
-                 .credit    {align:right;}\n'
+                 .credit    {text-align:right;font-size:smaller;}\n'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -113,7 +114,7 @@ class NYTimes(BasicNewsRecipe):
             docEncoding = self.encoding
 
         if docEncoding != self.encoding :
-            soup = get_the_soup(docEncoding, url_or_raw)
+            soup = get_the_soup(docEncoding, url_or_raw)         
 
         return soup
 
@@ -268,7 +269,7 @@ class NYTimes(BasicNewsRecipe):
         kicker = soup.find(True, {'class':'kicker'})
         if kicker is not None :
             h3Tag = Tag(soup, "h3")
-            h3Tag.insert(0, kicker.contents[0])
+            h3Tag.insert(0, self.tag_to_string(kicker))
             kicker.replaceWith(h3Tag)
 
         # Change captions to italic -1
@@ -277,7 +278,7 @@ class NYTimes(BasicNewsRecipe):
                 emTag = Tag(soup, "em")
                 #emTag['class'] = "caption"
                 #emTag['font-size-adjust'] = "-1"
-                emTag.insert(0, caption.contents[0])
+                emTag.insert(0, self.tag_to_string(caption))
                 hrTag = Tag(soup, 'hr')
                 emTag.insert(1, hrTag)
                 caption.replaceWith(emTag)
@@ -285,10 +286,10 @@ class NYTimes(BasicNewsRecipe):
         # Change <nyt_headline> to <h2>
         headline = soup.find("nyt_headline")
         if headline is not None :
-            tag = Tag(soup, "h2")
-            tag['class'] = "headline"
-            tag.insert(0, headline.contents[0])
-            soup.h1.replaceWith(tag)
+            h2tag = Tag(soup, "h2")
+            h2tag['class'] = "headline"
+            h2tag.insert(0, self.tag_to_string(headline))
+            headline.replaceWith(h2tag)
 
         # Change <h1> to <h3> - used in editorial blogs
         masthead = soup.find("h1")
@@ -296,14 +297,14 @@ class NYTimes(BasicNewsRecipe):
             # Nuke the href
             if masthead.a is not None :
                 del(masthead.a['href'])
-            tag = Tag(soup, "h3")
-            tag.insert(0, masthead.contents[0])
-            soup.h1.replaceWith(tag)
+            h3tag = Tag(soup, "h3")
+            h3tag.insert(0, self.tag_to_string(masthead))
+            masthead.replaceWith(h3tag)
 
         # Change <span class="bold"> to <b>
         for subhead in soup.findAll(True, {'class':'bold'}) :
             bTag = Tag(soup, "b")
-            bTag.insert(0, subhead.contents[0])
+            bTag.insert(0, self.tag_to_string(subhead))
             subhead.replaceWith(bTag)
 
         return soup
