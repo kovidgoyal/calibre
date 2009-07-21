@@ -29,7 +29,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
                                     MetaInformation, authors_to_sort_string
 from calibre.ebooks.metadata.meta import get_metadata, set_metadata, \
     metadata_from_formats
-from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
@@ -1611,13 +1611,12 @@ books_series_link      feeds
                 id = idx if index_is_id else self.id(idx)
                 id = str(id)
                 if not single_dir and not os.path.exists(tpath):
-                    os.mkdir(tpath)
+                    os.makedirs(tpath)
 
                 name = au + ' - ' + title if byauthor else title + ' - ' + au
                 name += '_'+id
                 base  = dir if single_dir else tpath
                 mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
-                f = open(os.path.join(base, sanitize_file_name(name)+'.opf'), 'wb')
                 if not mi.authors:
                     mi.authors = [_('Unknown')]
                 cdata = self.cover(int(id), index_is_id=True)
@@ -1625,9 +1624,9 @@ books_series_link      feeds
                     cname = sanitize_file_name(name)+'.jpg'
                     open(os.path.join(base, cname), 'wb').write(cdata)
                     mi.cover = cname
-                opf = OPFCreator(base, mi)
-                opf.render(f)
-                f.close()
+                with open(os.path.join(base, sanitize_file_name(name)+'.opf'),
+                        'wb') as f:
+                    f.write(metadata_to_opf(mi))
 
                 fmts = self.formats(idx, index_is_id=index_is_id)
                 if not fmts:

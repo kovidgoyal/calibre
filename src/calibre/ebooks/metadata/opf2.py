@@ -439,7 +439,7 @@ class OPF(object):
     publisher       = MetadataField('publisher')
     language        = MetadataField('language')
     comments        = MetadataField('description')
-    category        = MetadataField('category')
+    category        = MetadataField('type')
     rights          = MetadataField('rights')
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
@@ -965,6 +965,130 @@ class OPFCreator(MetaInformation):
         if toc is not None and ncx_stream is not None:
             toc.render(ncx_stream, self.application_id)
             ncx_stream.flush()
+
+
+def metadata_to_opf(mi, as_string=True):
+    from lxml import etree
+    import textwrap
+    from calibre.ebooks.oeb.base import OPF, DC
+
+    if not mi.application_id:
+        mi.application_id = str(uuid.uuid4())
+
+    if not mi.book_producer:
+        mi.book_producer = __appname__ + ' (%s) '%__version__ + \
+            '[http://calibre-ebook.com]'
+
+    if not mi.language:
+        mi.language = 'UND'
+
+    root = etree.fromstring(textwrap.dedent(
+    '''
+    <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="%(a)s_id">
+        <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+            <dc:identifier opf:scheme="%(a)s" id="%(a)s_id">%(id)s</dc:identifier>
+        </metadata>
+        <guide/>
+    </package>
+    '''%dict(a=__appname__, id=mi.application_id)))
+    metadata = root[0]
+    guide = root[1]
+    metadata[0].tail = '\n'+(' '*8)
+    def factory(tag, text=None, sort=None, role=None, scheme=None, name=None,
+            content=None):
+        attrib = {}
+        if sort:
+            attrib[OPF('file-as')] = sort
+        if role:
+            attrib[OPF('role')] = role
+        if scheme:
+            attrib[OPF('scheme')] = scheme
+        if name:
+            attrib['name'] = name
+        if content:
+            attrib['content'] = content
+        elem = metadata.makeelement(tag, attrib=attrib)
+        elem.tail = '\n'+(' '*8)
+        if text:
+            elem.text = text.strip()
+        metadata.append(elem)
+
+    factory(DC('title'), mi.title, mi.title_sort)
+    for au in mi.authors:
+        factory(DC('creator'), au, mi.author_sort, 'aut')
+    factory(DC('contributor'), mi.book_producer, __appname__, 'bkp')
+    if hasattr(mi.pubdate, 'isoformat'):
+        factory(DC('date'), mi.pubdate.isoformat())
+    factory(DC('language'), mi.language)
+    if mi.category:
+        factory(DC('type'), mi.category)
+    if mi.comments:
+        factory(DC('description'), mi.comments)
+    if mi.publisher:
+        factory(DC('publisher'), mi.publisher)
+    if mi.isbn:
+        factory(DC('identifier'), mi.isbn, scheme='ISBN')
+    if mi.rights:
+        factory(DC('rights'), mi.rights)
+    if mi.tags:
+        for tag in mi.tags:
+            factory(DC('subject'), tag)
+    meta = lambda n, c: factory('meta', name='calibre:'+n, content=c)
+    if mi.series:
+        meta('series', mi.series)
+    if mi.series_index is not None:
+        meta('series_index', mi.format_series_index())
+    if mi.rating is not None:
+        meta('rating', str(mi.rating))
+    if hasattr(mi.timestamp, 'isoformat'):
+        meta('timestamp', mi.timestamp.isoformat())
+    if mi.publication_type:
+        meta('publication_type', mi.publication_type)
+
+    metadata[-1].tail = '\n' +(' '*4)
+
+    if mi.cover:
+        guide.text = '\n'+(' '*8)
+        r = guide.makeelement(OPF('reference'),
+                attrib={'type':'cover', 'title':_('Cover'), 'href':mi.cover})
+        r.tail = '\n' +(' '*4)
+        guide.append(r)
+    return etree.tostring(root, pretty_print=True, encoding='utf-8',
+            xml_declaration=True) if as_string else root
+
+
+def test_m2o():
+    from datetime import datetime
+    from cStringIO import StringIO
+    mi = MetaInformation('test & title', ['a"1', "a'2"])
+    mi.title_sort = 'a\'"b'
+    mi.author_sort = 'author sort'
+    mi.pubdate = datetime.now()
+    mi.language = 'en'
+    mi.category = 'test'
+    mi.comments = 'what a fun book\n\n'
+    mi.publisher = 'publisher'
+    mi.isbn = 'boooo'
+    mi.tags = ['a', 'b']
+    mi.series = 's"c\'l&<>'
+    mi.series_index = 3.34
+    mi.rating = 3
+    mi.timestamp = datetime.now()
+    mi.publication_type = 'ooooo'
+    mi.rights = 'yes'
+    mi.cover = 'asd.jpg'
+    opf = metadata_to_opf(mi)
+    print opf
+    newmi = MetaInformation(OPF(StringIO(opf)))
+    for attr in ('author_sort', 'title_sort', 'comments', 'category',
+                    'publisher', 'series', 'series_index', 'rating',
+                    'isbn', 'tags', 'cover_data', 'application_id',
+                    'language', 'cover',
+                    'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
+                    'pubdate', 'rights', 'publication_type'):
+        o, n = getattr(mi, attr), getattr(newmi, attr)
+        if o != n and o.strip() != n.strip():
+            print 'FAILED:', attr, getattr(mi, attr), '!=', getattr(newmi, attr)
 
 
 class OPFTest(unittest.TestCase):
