@@ -38,4 +38,3 @@ class Clean(object):
                     'title-page', 'copyright-page', 'start'):
                 self.oeb.guide.remove(x)
 
-

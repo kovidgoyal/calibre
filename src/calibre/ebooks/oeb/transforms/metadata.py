@@ -94,12 +94,17 @@ class MergeMetadata(object):
             cdata = open(mi.cover, 'rb').read()
         elif mi.cover_data and mi.cover_data[-1]:
             cdata = mi.cover_data[1]
-        id = None
-        old_cover = self.oeb.guide.remove('cover')
-        self.oeb.guide.remove('titlepage')
+        id = old_cover = None
+        if 'cover' in self.oeb.guide:
+            old_cover = self.oeb.guide['cover']
+        if cdata:
+            self.oeb.guide.remove('cover')
+            self.oeb.guide.remove('titlepage')
         if old_cover is not None:
             if old_cover.href in self.oeb.manifest.hrefs:
                 item = self.oeb.manifest.hrefs[old_cover.href]
+                if not cdata:
+                    return item.id
                 self.oeb.manifest.remove(item)
         if cdata:
             id, href = self.oeb.manifest.generate('cover', 'cover.jpg')
