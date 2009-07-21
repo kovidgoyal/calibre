@@ -294,7 +294,7 @@ class MobiReader(object):
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
         e2u = functools.partial(entity_to_unicode,
-            exceptions=['lt', 'gt', 'amp', 'apos', 'quot'])
+            exceptions=['lt', 'gt', 'amp', 'apos', 'quot', '#60', '#62'])
         self.processed_html = re.sub(r'&(\S+?);', e2u,
             self.processed_html)
         self.extract_images(processed_records, output_dir)
