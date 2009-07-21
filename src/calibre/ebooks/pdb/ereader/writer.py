@@ -46,13 +46,17 @@ class Writer(FormatWriter):
 
         sections = hr+text+images+metadata+['MeTaInFo\x00']
 
-        lengths = [len(i) for i in sections]
+        lengths = [len(i) if i not in images else len(i[0]) + len(i[1]) for i in sections]
 
         pdbHeaderBuilder = PdbHeaderBuilder(IDENTITY, metadata[0].partition('\x00')[0])
         pdbHeaderBuilder.build_header(lengths, out_stream)
 
         for item in sections:
-            out_stream.write(item)
+            if item in images:
+                out_stream.write(item[0])
+                out_stream.write(item[1])
+            else:
+                out_stream.write(item)
 
     def _text(self, oeb_book):
         pmlmlizer = PMLMLizer(self.log)
@@ -69,10 +73,10 @@ class Writer(FormatWriter):
 
         for item in manifest:
             if item.media_type in OEB_IMAGES:
-                image = 'PNG '
+                header = 'PNG '
 
-                image += image_name(item.href)
-                image = image.ljust(62, '\x00')
+                header += image_name(item.href)
+                header = header.ljust(62, '\x00')
 
                 im = Image.open(cStringIO.StringIO(item.data)).convert('P')
                 im.thumbnail((300,300), Image.ANTIALIAS)
@@ -81,10 +85,8 @@ class Writer(FormatWriter):
                 im.save(data, 'PNG')
                 data = data.getvalue()
 
-                image += data
-
-                if len(image) < 65505:
-                    images.append(image)
+                if len(data) + len(header) < 65505:
+                    images.append((header, data))
 
         return images
 
