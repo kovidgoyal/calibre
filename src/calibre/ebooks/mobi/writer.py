@@ -2028,7 +2028,7 @@ class MobiWriter(object):
         indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
         name = "%04X"%count
         indxt.write(chr(len(name)) + name)							# Write the name
-        indxt.write(INDXT['periodical'])						    # entryType [0x0F | 0xDF | 0xFF | 0x3F]
+        indxt.write(INDXT['periodical'])                            # entryType [0x0F | 0xDF | 0xFF | 0x3F]
         indxt.write(chr(1))                                         # subType 1
         indxt.write(decint(offset, DECINT_FORWARD))					# offset
         indxt.write(decint(length, DECINT_FORWARD))					# length
