@@ -406,9 +406,6 @@ OptionRecommendation(name='language',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the language.')),
 
-OptionRecommendation(name='list_recipes',
-    recommended_value=False, help=_('List available recipes.')),
-
 ]
 
         input_fmt = os.path.splitext(self.input)[1]
@@ -611,13 +608,6 @@ OptionRecommendation(name='list_recipes',
         self.setup_options()
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
-        if self.opts.list_recipes:
-            from calibre.web.feeds.recipes import titles
-            self.log('Available recipes:')
-            for title in sorted(titles):
-                self.log('\t'+title)
-            self.log('%d recipes available'%len(titles))
-            raise SystemExit(0)
         self.flush()
 
         # Run any preprocess plugins

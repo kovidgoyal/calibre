@@ -22,7 +22,7 @@ def debug(*args):
 
 def read_metadata_(task, tdir, notification=lambda x,y:x):
     from calibre.ebooks.metadata.meta import metadata_from_formats
-    from calibre.ebooks.metadata.opf2 import OPFCreator
+    from calibre.ebooks.metadata.opf2 import metadata_to_opf
     for x in task:
         try:
             id, formats = x
@@ -33,9 +33,8 @@ def read_metadata_(task, tdir, notification=lambda x,y:x):
             if mi.cover_data:
                 cdata = mi.cover_data[-1]
             mi.cover_data = None
-            opf = OPFCreator(tdir, mi)
             with open(os.path.join(tdir, '%s.opf'%id), 'wb') as f:
-                opf.render(f)
+                f.write(metadata_to_opf(mi))
             if cdata:
                 with open(os.path.join(tdir, str(id)), 'wb') as f:
                     f.write(cdata)
@@ -116,7 +115,10 @@ class ReadMetadata(Thread):
             if job.failed:
                 prints(job.details)
             if os.path.exists(job.log_path):
-                os.remove(job.log_path)
+                try:
+                    os.remove(job.log_path)
+                except:
+                    pass
 
 
 def read_metadata(paths, result_queue, chunk=50, spare_server=None):
@@ -191,7 +193,10 @@ class SaveWorker(Thread):
                 prints(job.details)
                 self.error = job.details
             if os.path.exists(job.log_path):
-                os.remove(job.log_path)
+                try:
+                    os.remove(job.log_path)
+                except:
+                    pass
 
 
 def save_book(task, library_path, path, single_dir, single_format,

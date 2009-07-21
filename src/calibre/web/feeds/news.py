@@ -579,7 +579,7 @@ class BasicNewsRecipe(Recipe):
             if self.failed_downloads:
                 self.log.warning(_('Failed to download the following articles:'))
                 for feed, article, debug in self.failed_downloads:
-                    self.log.warning(article.title+_(' from ')+feed.title)
+                    self.log.warning(article.title, 'from', feed.title)
                     self.log.debug(article.url)
                     self.log.debug(debug)
             if self.partial_failures:
@@ -968,22 +968,25 @@ class BasicNewsRecipe(Recipe):
         a = request.requestID[1]
 
         article = request.article
-        self.log.debug(_(u'\nDownloaded article %s from %s')%(article.title, article.url))
+        self.log.debug('Downloaded article:', article.title, 'from', article.url)
         article.orig_url = article.url
         article.url = 'article_%d/index.html'%a
         article.downloaded = True
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1
-        self.report_progress(float(self.jobs_done)/len(self.jobs), _(u'Article downloaded: %s')%article.title)
+        self.report_progress(float(self.jobs_done)/len(self.jobs),
+            _(u'Article downloaded: %s')%repr(article.title))
         if result[2]:
             self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
 
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        self.log.error(_(u'Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
+        self.log.error('Failed to download article:', request.article.title,
+        'from', request.article.url)
         self.log.debug(traceback)
         self.log.debug('\n')
-        self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article download failed: %s')%request.article.title)
+        self.report_progress(float(self.jobs_done)/len(self.jobs),
+                _('Article download failed: %s')%repr(request.article.title))
         self.failed_downloads.append((request.feed, request.article, traceback))
 
     def parse_feeds(self):

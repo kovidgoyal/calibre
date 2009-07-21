@@ -199,19 +199,21 @@ class CSSFlattener(object):
         if node.tag == XHTML('font'):
             node.tag = XHTML('span')
             if 'size' in node.attrib:
+                def force_int(raw):
+                    return int(re.search(r'([0-9+-]+)', raw).group(1))
                 size = node.attrib['size'].strip()
                 if size:
                     fnums = self.context.source.fnums
                     if size[0] in ('+', '-'):
                         # Oh, the warcrimes
-                        esize = 3 + int(size)
+                        esize = 3 + force_int(size)
                         if esize < 1:
                             esize = 1
                         if esize > 7:
                             esize = 7
                         cssdict['font-size'] = fnums[esize]
                     else:
-                        cssdict['font-size'] = fnums[int(size)]
+                        cssdict['font-size'] = fnums[force_int(size)]
                 del node.attrib['size']
         if 'color' in node.attrib:
             cssdict['color'] = node.attrib['color']

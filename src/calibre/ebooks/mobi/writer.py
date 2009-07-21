@@ -31,6 +31,7 @@ from calibre.ebooks.compression.palmdoc import compress_doc
 
 INDEXING = True
 FCIS_FLIS = True
+WRITE_PBREAKS = True
 
 # TODO:
 # - Optionally rasterize tables
@@ -189,25 +190,21 @@ class Serializer(object):
             path = urldefrag(ref.href)[0]
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
-                
-            if ref.type == 'other.start' :
-                # Kindle-specific 'Start Reading' directive
-                buffer.write('<reference title="Startup Page" ')
-                buffer.write('type="start" ')
-                self.serialize_href(ref.href)
-                # Space required or won't work, I kid you not
-                buffer.write(' />')                
-            else:    
-                buffer.write('<reference type="')
+
+            buffer.write('<reference type="')
+            if ref.type.startswith('other.') :
+                self.serialize_text(ref.type.replace('other.',''), quot=True)
+            else :
                 self.serialize_text(ref.type, quot=True)
+            buffer.write('" ')
+            if ref.title is not None:
+                buffer.write('title="')
+                self.serialize_text(ref.title, quot=True)
                 buffer.write('" ')
-                if ref.title is not None:
-                    buffer.write('title="')
-                    self.serialize_text(ref.title, quot=True)
-                    buffer.write('" ')
-                self.serialize_href(ref.href)
-                # Space required or won't work, I kid you not
-                buffer.write(' />')
+            self.serialize_href(ref.href)
+            # Space required or won't work, I kid you not
+            buffer.write(' />')
+
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
@@ -653,23 +650,19 @@ class MobiWriter(object):
 
                 # *** This should check currentSectionNumber, because content could start late
                 if thisRecord > 0:
-                    # If next article falls into a later record, bump thisRecord
-                    thisRecordPrime = thisRecord
-                    if (offset + length) // RECORD_SIZE > thisRecord :
-                        thisRecordPrime = (offset + length) // RECORD_SIZE
-                
                     sectionChangesInThisRecord = True
-                    sectionChangedInRecordNumber = thisRecordPrime
-                    self._currentSectionIndex += 1      # <<<
-                    self._HTMLRecords[thisRecordPrime].nextSectionNumber = self._currentSectionIndex
-                    # The following article node opens the nextSection
-                    self._HTMLRecords[thisRecordPrime].nextSectionOpeningNode = myIndex
+                    sectionChangesInRecordNumber = thisRecord
+                    self._currentSectionIndex += 1
+                    self._HTMLRecords[thisRecord].nextSectionNumber = self._currentSectionIndex
+                    # The following node opens the nextSection
+                    self._HTMLRecords[thisRecord].nextSectionOpeningNode = myIndex
                     continue
                 else :
                     continue
 
+
             # If no one has taken the openingNode slot, it must be us
-            # This could happen before detecting a section change            
+            # This could happen before detecting a section change
             if self._HTMLRecords[thisRecord].openingNode == -1 :
                 self._HTMLRecords[thisRecord].openingNode = myIndex
                 self._HTMLRecords[thisRecord].openingNodeParent = self._currentSectionIndex
@@ -1267,30 +1260,28 @@ class MobiWriter(object):
             record.write(data)
 
             # Marshall's utf-8 break code.
-            record.write(overlap)
-            record.write(pack('>B', len(overlap)))
-            nextra = 0
-            pbreak = 0
-            running = offset
-
-            while breaks and (breaks[0] - offset) < RECORD_SIZE:
-                # .pop returns item, removes it from list
-                pbreak = (breaks.pop(0) - running) >> 3
-                if self.opts.verbose > 2 :
-                    self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
-                encoded = decint(pbreak, DECINT_FORWARD)
-                record.write(encoded)
-                running += pbreak << 3
-                nextra += len(encoded)
-
-            lsize = 1
-            while True:
-                size = decint(nextra + lsize, DECINT_BACKWARD)
-                if len(size) == lsize:
-                    break
-                lsize += 1
-
-            record.write(size)
+            if WRITE_PBREAKS :
+                record.write(overlap)
+                record.write(pack('>B', len(overlap)))
+                nextra = 0
+                pbreak = 0
+                running = offset
+                while breaks and (breaks[0] - offset) < RECORD_SIZE:
+                    # .pop returns item, removes it from list
+                    pbreak = (breaks.pop(0) - running) >> 3
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info('pbreak = 0x%X at 0x%X' % (pbreak, record.tell()) )
+                    encoded = decint(pbreak, DECINT_FORWARD)
+                    record.write(encoded)
+                    running += pbreak << 3
+                    nextra += len(encoded)
+                lsize = 1
+                while True:
+                    size = decint(nextra + lsize, DECINT_BACKWARD)
+                    if len(size) == lsize:
+                        break
+                    lsize += 1
+                record.write(size)
 
             # Write Trailing Byte Sequence
             if INDEXING and self._indexable:
@@ -1304,15 +1295,6 @@ class MobiWriter(object):
                     self._generate_tbs_structured_periodical(nrecords, lastrecord)
                 else :
                     raise NotImplementedError('Indexing for mobitype 0x%X not implemented' % booktype)
-
-                # Dump the current HTML Record Data / TBS
-                # GR diagnostics
-                if False :
-                    self._HTMLRecords[nrecords].dumpData(nrecords, self._oeb)
-                    outstr = ''
-                    for eachbyte in self._tbSequence:
-                        outstr += '0x%02X ' % ord(eachbyte)
-                    self._oeb.logger.info('    Trailing Byte Sequence: %s\n' % outstr)
 
                 # Write the sequence
                 record.write(self._tbSequence)
@@ -1370,8 +1352,13 @@ class MobiWriter(object):
         metadata = self._oeb.metadata
         exth = self._build_exth()
         last_content_record = len(self._records) - 1
+
+        '''
         if INDEXING and self._indexable:
             self._generate_end_records()
+        '''
+        self._generate_end_records()
+
         record0 = StringIO()
         # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
@@ -1501,16 +1488,19 @@ class MobiWriter(object):
         record0.write(pack('>IIII', 0xffffffff, 0, 0xffffffff, 0xffffffff))
 
         # 0xe0 - 0xe3 : Extra record data
-        # The '5' is a bitmask of extra record data at the end:
+        # Extra record data flags:
         #   - 0x1: <extra multibyte bytes><size> (?)
         #   - 0x2: <TBS indexing description of this HTML record><size> GR
         #   - 0x4: <uncrossable breaks><size>
-        # Of course, the formats aren't quite the same.
         # GR: Use 7 for indexed files, 5 for unindexed
-        if INDEXING and self._indexable :
-            record0.write(pack('>I', 7))
-        else:
-            record0.write(pack('>I', 5))
+        # Setting bit 2 (0x4) disables <guide><reference type="start"> functionality
+
+        trailingDataFlags = 1
+        if self._indexable :
+            trailingDataFlags |= 2
+        if WRITE_PBREAKS :
+            trailingDataFlags |= 4
+        record0.write(pack('>I', trailingDataFlags))
 
         # 0xe4 - 0xe7 : Primary index record
         record0.write(pack('>I', 0xffffffff if self._primary_index_record is
@@ -1681,6 +1671,8 @@ class MobiWriter(object):
         header.write(pack('>I', 0))
 
         # 0x10 - 0x13 : Generator ID
+        # This value may impact the position of flagBits written in
+        # write_article_node().  Change with caution.
         header.write(pack('>I', 6))
 
         # 0x14 - 0x17 : IDXT offset
@@ -1959,7 +1951,7 @@ class MobiWriter(object):
             self._oeb.logger.info('Generating flat CTOC ...')
             previousOffset = -1
             currentOffset = 0
-            for (i, child) in enumerate(toc.iter()):
+            for (i, child) in enumerate(toc.iterdescendants()):
                 # Only add chapters or articles at depth==1
                 # no class defaults to 'chapter'
                 if child.klass is None : child.klass = 'chapter'
@@ -2077,30 +2069,16 @@ class MobiWriter(object):
 
         hasAuthor = True if self._ctoc_map[index]['authorOffset'] else False
         hasDescription = True if self._ctoc_map[index]['descriptionOffset']  else False
-        initialOffset = offset
 
-        if hasAuthor :
-            if offset < 0x4000 :
-                # Set bit 17
-                offset += 0x00010000
-            else :
-                # Set bit 24
-                offset += 0x00800000
-
-        if hasDescription :
-            if initialOffset < 0x4000 :
-                # Set bit 16
-                offset += 0x00008000
-            else :
-                # Set bit 23
-                offset += 0x00400000
-
-        # If we didn't set any flags, write an extra zero in the stream
-        # Seems unnecessary, but matching Mobigen
-        if initialOffset == offset:
-            indxt.write(chr(0))
-
+        # flagBits may be dependent upon the generatorID written at 0x10 in generate_index().
+        # in INDX0.  Mobigen uses a generatorID of 2 and writes these bits at positions 1 & 2;
+        # calibre uses a generatorID of 6 and writes the bits at positions 2 & 3.
+        flagBits = 0
+        if hasAuthor : flagBits |= 0x4
+        if hasDescription : flagBits |= 0x2
+        indxt.write(pack('>B',flagBits))                            # Author/description flags
         indxt.write(decint(offset, DECINT_FORWARD))					# offset
+
 
         indxt.write(decint(length, DECINT_FORWARD))					# length
         indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX

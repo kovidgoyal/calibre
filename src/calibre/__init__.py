@@ -93,21 +93,36 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
 def prints(*args, **kwargs):
     '''
     Print unicode arguments safely by encoding them to preferred_encoding
-    Has the same signature as the print function from Python 3.
+    Has the same signature as the print function from Python 3, except for the
+    additional keyword argument safe_encode, which if set to True will cause the
+    function to use repr when encoding fails.
     '''
     file = kwargs.get('file', sys.stdout)
     sep  = kwargs.get('sep', ' ')
     end  = kwargs.get('end', '\n')
     enc = preferred_encoding
+    safe_encode = kwargs.get('safe_encode', False)
     if 'CALIBRE_WORKER' in os.environ:
         enc = 'utf-8'
     for i, arg in enumerate(args):
         if isinstance(arg, unicode):
-            arg = arg.encode(enc)
+            try:
+                arg = arg.encode(enc)
+            except UnicodeEncodeError:
+                if not safe_encode:
+                    raise
+                arg = repr(arg)
         if not isinstance(arg, str):
             arg = str(arg)
             if not isinstance(arg, unicode):
-                arg = arg.decode(preferred_encoding, 'replace').encode(enc)
+                arg = arg.decode(preferred_encoding, 'replace')
+                try:
+                    arg = arg.encode(enc)
+                except UnicodeEncodeError:
+                    if not safe_encode:
+                        raise
+                    arg = repr(arg)
+
         file.write(arg)
         if i != len(args)-1:
             file.write(sep)

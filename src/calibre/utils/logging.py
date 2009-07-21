@@ -20,7 +20,7 @@ class Stream(object):
 
     def __init__(self, stream):
         from calibre import prints
-        self._prints = prints
+        self._prints = partial(prints, safe_encode=True)
         self.stream = stream
 
     def flush(self):

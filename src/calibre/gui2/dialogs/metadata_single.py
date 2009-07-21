@@ -230,7 +230,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
         self.pubdate.setMinimumDate(QDate(100,1,1))
-        self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
+        self.connect(self.cover, SIGNAL('cover_changed(PyQt_PyObject)'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
         QObject.connect(self.add_format_button, SIGNAL("clicked(bool)"), \
@@ -288,7 +288,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         si = self.db.series_index(row)
         if si is None:
             si = 1.0
-        self.series_index.setValue(si)
+        try:
+            self.series_index.setValue(float(si))
+        except:
+            self.series_index.setValue(1.0)
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
 
@@ -321,7 +324,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.authors.setText(title)
         self.author_sort.setText('')
 
-    def cover_dropped(self):
+    def cover_dropped(self, paths):
         self.cover_changed = True
         self.cover_data = self.cover.cover_data
 

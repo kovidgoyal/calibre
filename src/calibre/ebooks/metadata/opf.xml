@@ -15,6 +15,7 @@
         <dc:description py:if="mi.comments">${mi.comments}</dc:description>
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
         <dc:identifier opf:scheme="ISBN" py:if="mi.isbn">${mi.isbn}</dc:identifier>
+        <dc:rights py:if="mi.rights">${mi.rights}</dc:rights>
         <meta py:if="mi.series is not None" name="calibre:series" content="${mi.series}"/>
         <meta py:if="mi.series_index is not None" name="calibre:series_index" content="${mi.format_series_index()}"/>
         <meta py:if="mi.rating is not None" name="calibre:rating" content="${mi.rating}"/>

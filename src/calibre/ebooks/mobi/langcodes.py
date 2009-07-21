@@ -5,6 +5,9 @@ __docformat__ = 'restructuredtext en'
 
 from struct import pack
 
+lang_codes = {
+        }
+
 main_language = {
          0 : "NEUTRAL",
          54 : "AFRIKAANS",
@@ -314,7 +317,7 @@ def iana2mobi(icode):
             if lang in IANA_MOBI:
                 langdict = IANA_MOBI[lang]
                 break
-            
+
     mcode = langdict[None]
     while len(subtags) > 0:
         subtag = subtags.pop(0)
@@ -326,3 +329,21 @@ def iana2mobi(icode):
             mcode = langdict[subtag]
             break
     return pack('>HBB', 0, mcode[1], mcode[0])
+
+def mobi2iana(langcode, sublangcode):
+    prefix = suffix = None
+    for code, d in IANA_MOBI.items():
+        for subcode, t in d.items():
+            cc, cl = t
+            if cc == langcode:
+                prefix = code
+            if cl == sublangcode:
+                suffix = subcode.lower() if subcode else None
+                break
+        if prefix is not None:
+            break
+    if prefix is None:
+        return 'und'
+    if suffix is None:
+        return prefix
+    return prefix + '-' + suffix
