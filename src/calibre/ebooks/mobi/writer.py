@@ -1671,6 +1671,8 @@ class MobiWriter(object):
         header.write(pack('>I', 0))
 
         # 0x10 - 0x13 : Generator ID
+        # This value may impact the position of flagBits written in
+        # write_article_node().  Change with caution.
         header.write(pack('>I', 6))
 
         # 0x14 - 0x17 : IDXT offset
@@ -2065,34 +2067,19 @@ class MobiWriter(object):
         indxt.write(chr(len(name)) + name)							# Write the name
         indxt.write(INDXT['article'])                               # entryType [0x0F | 0xDF | 0xFF | 0x3F]
 
-        # This test may be false if author was post-fixed?
         hasAuthor = True if self._ctoc_map[index]['authorOffset'] else False
         hasDescription = True if self._ctoc_map[index]['descriptionOffset']  else False
-        initialOffset = offset
 
-        if hasAuthor :
-            if offset < 0x4000 :
-                # Set bit 17
-                offset += 0x00010000
-            else :
-                # Set bit 24
-                offset += 0x00800000
-
-        if hasDescription :
-            if initialOffset < 0x4000 :
-                # Set bit 16
-                offset += 0x00008000
-            else :
-                # Set bit 23
-                offset += 0x00400000
-
-        # If we didn't set any flags, write an extra zero in the stream
-        # Seems unnecessary, but matching Mobigen
-        if initialOffset == offset:
-            indxt.write(chr(0))
-
+        # flagBits may be dependent upon the generatorID written at 0x10 in generate_index().
+        # in INDX0.  Mobigen uses a generatorID of 2 and writes these bits at positions 1 & 2;
+        # calibre uses a generatorID of 6 and writes the bits at positions 2 & 3.
+        flagBits = 0
+        if hasAuthor : flagBits |= 0x4
+        if hasDescription : flagBits |= 0x2
+        indxt.write(pack('>B',flagBits))                            # Author/description flags
         indxt.write(decint(offset, DECINT_FORWARD))					# offset
 
+        
         indxt.write(decint(length, DECINT_FORWARD))					# length
         indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
 
