@@ -190,7 +190,7 @@ class Serializer(object):
             path = urldefrag(ref.href)[0]
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
-                
+
             buffer.write('<reference type="')
             if ref.type.startswith('other.') :
                 self.serialize_text(ref.type.replace('other.',''), quot=True)
@@ -204,7 +204,7 @@ class Serializer(object):
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
             buffer.write(' />')
-            
+
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
@@ -659,10 +659,10 @@ class MobiWriter(object):
                     continue
                 else :
                     continue
-                
+
 
             # If no one has taken the openingNode slot, it must be us
-            # This could happen before detecting a section change            
+            # This could happen before detecting a section change
             if self._HTMLRecords[thisRecord].openingNode == -1 :
                 self._HTMLRecords[thisRecord].openingNode = myIndex
                 self._HTMLRecords[thisRecord].openingNodeParent = self._currentSectionIndex
@@ -1358,7 +1358,7 @@ class MobiWriter(object):
             self._generate_end_records()
         '''
         self._generate_end_records()
-            
+
         record0 = StringIO()
         # The PalmDOC Header
         record0.write(pack('>HHIHHHH', self._compression, 0,
@@ -1500,7 +1500,7 @@ class MobiWriter(object):
             trailingDataFlags |= 2
         if WRITE_PBREAKS :
             trailingDataFlags |= 4
-        record0.write(pack('>I', trailingDataFlags))    
+        record0.write(pack('>I', trailingDataFlags))
 
         # 0xe4 - 0xe7 : Primary index record
         record0.write(pack('>I', 0xffffffff if self._primary_index_record is
@@ -1951,7 +1951,7 @@ class MobiWriter(object):
             self._oeb.logger.info('Generating flat CTOC ...')
             previousOffset = -1
             currentOffset = 0
-            for (i, child) in enumerate(toc.iter()):
+            for (i, child) in enumerate(toc.iterdescendants()):
                 # Only add chapters or articles at depth==1
                 # no class defaults to 'chapter'
                 if child.klass is None : child.klass = 'chapter'
@@ -2079,7 +2079,7 @@ class MobiWriter(object):
         indxt.write(pack('>B',flagBits))                            # Author/description flags
         indxt.write(decint(offset, DECINT_FORWARD))					# offset
 
-        
+
         indxt.write(decint(length, DECINT_FORWARD))					# length
         indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
 
