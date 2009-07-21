@@ -89,6 +89,8 @@ class MOBIOutput(OutputFormatPlugin):
     def periodicalize_toc(self):
         from calibre.ebooks.oeb.base import TOC
         toc = self.oeb.toc
+        if not toc or len(self.oeb.spine) < 3:
+            return
         if toc and toc[0].klass != 'periodical':
             one, two = self.oeb.spine[0], self.oeb.spine[1]
             self.log('Converting TOC for MOBI periodical indexing...')
