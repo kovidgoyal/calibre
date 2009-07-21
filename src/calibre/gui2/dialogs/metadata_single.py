@@ -392,7 +392,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.tags.update_tags_cache(self.db.all_tags())
 
     def fetch_cover(self):
-        isbn   = unicode(self.isbn.text()).strip()
+        isbn   = re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())).strip()
         self.fetch_cover_button.setEnabled(False)
         self.setCursor(Qt.WaitCursor)
         title, author = map(unicode, (self.title.text(), self.authors.text()))
@@ -510,7 +510,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         aus = qstring_to_unicode(self.author_sort.text())
         if aus:
             self.db.set_author_sort(self.id, aus, notify=False)
-        self.db.set_isbn(self.id, qstring_to_unicode(self.isbn.text()), notify=False)
+        self.db.set_isbn(self.id,
+                 re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())), notify=False)
         self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
         self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','), notify=False)
