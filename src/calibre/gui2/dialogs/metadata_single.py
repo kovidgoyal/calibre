@@ -288,7 +288,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         si = self.db.series_index(row)
         if si is None:
             si = 1.0
-        self.series_index.setValue(si)
+        try:
+            self.series_index.setValue(float(si))
+        except:
+            self.series_index.setValue(1.0)
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
 
