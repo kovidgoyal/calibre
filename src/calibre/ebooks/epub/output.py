@@ -12,7 +12,7 @@ from urllib import unquote
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
-from calibre import strftime, guess_type
+from calibre import strftime, guess_type, prepare_string_for_xml
 from calibre.customize.conversion import OptionRecommendation
 
 from lxml import etree
@@ -210,6 +210,7 @@ class EPUBOutput(OutputFormatPlugin):
         id, href = self.oeb.manifest.generate('calibre-logo',
                 'calibre-logo.png')
         self.oeb.manifest.add(id, href, 'image/png', data=img_data)
+        title, author = map(prepare_string_for_xml, (title, author))
         html = self.TITLEPAGE%dict(title=title, author=author,
                 date=strftime('%d %b, %Y'),
                 app=__appname__ +' '+__version__,
