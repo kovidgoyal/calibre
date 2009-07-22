@@ -343,8 +343,9 @@ class OEBReader(object):
 
             descriptionElement = xpath(child,
                     'descendant::calibre:meta[@name = "description"]')
-            if descriptionElement :
-                description = descriptionElement[0].text
+            if descriptionElement:
+                description = etree.tostring(descriptionElement[0],
+                method='text', encoding=unicode).strip()
             else :
                 description = None
 
