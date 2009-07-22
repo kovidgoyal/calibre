@@ -759,6 +759,15 @@ class Manifest(object):
             return u'Item(id=%r, href=%r, media_type=%r)' \
                 % (self.id, self.href, self.media_type)
 
+        def _parse_xml(self, data):
+            try:
+                return etree.fromstring(data)
+            except etree.XMLSyntaxError, err:
+                if getattr(err, 'code', 0) == 26 or str(err).startswith('Entity'):
+                    data = xml_to_unicode(data, strip_encoding_pats=True,
+                            resolve_entities=True)[0]
+                    return etree.fromstring(data)
+
         def _parse_xhtml(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')
             # Convert to Unicode and normalize line endings
@@ -952,7 +961,7 @@ class Manifest(object):
                 elif self.media_type.lower() in OEB_DOCS:
                     data = self._parse_xhtml(data)
                 elif self.media_type.lower()[-4:] in ('+xml', '/xml'):
-                    data = etree.fromstring(data)
+                    data = self._parse_xml(data)
                 elif self.media_type.lower() in OEB_STYLES:
                     data = self._parse_css(data)
                 elif 'text' in self.media_type.lower():
