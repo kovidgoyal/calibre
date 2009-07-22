@@ -97,6 +97,8 @@ class MergeMetadata(object):
         id = old_cover = None
         if 'cover' in self.oeb.guide:
             old_cover = self.oeb.guide['cover']
+        if prefer_metadata_cover and old_cover is not None:
+            cdata = ''
         if cdata:
             self.oeb.guide.remove('cover')
             self.oeb.guide.remove('titlepage')
@@ -106,6 +108,10 @@ class MergeMetadata(object):
                 if not cdata:
                     return item.id
                 self.oeb.manifest.remove(item)
+            elif not cdata:
+                id = self.oeb.manifest.generate(id='cover')
+                self.oeb.manifest.add(id, old_cover.href, 'image/jpeg')
+                return id
         if cdata:
             id, href = self.oeb.manifest.generate('cover', 'cover.jpg')
             self.oeb.manifest.add(id, href, 'image/jpeg', data=cdata)
