@@ -12,26 +12,27 @@ class AlJazeera(BasicNewsRecipe):
     title                  = 'Al Jazeera in English'
     __author__             = 'Darko Miletic'
     description            = 'News from Middle East'
+    language               = _('English')
     publisher              = 'Al Jazeera'
     category               = 'news, politics, middle east'
     simultaneous_downloads = 1
-    delay                  = 4    
+    delay                  = 4
     oldest_article         = 1
     max_articles_per_feed  = 100
     no_stylesheets         = True
     encoding               = 'iso-8859-1'
     remove_javascript      = True
     use_embedded_content   = False
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_table=True' 
-     
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_table=True'
+
     keep_only_tags = [dict(name='div', attrs={'id':'ctl00_divContent'})]
 
     remove_tags = [

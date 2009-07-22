@@ -12,9 +12,10 @@ class Azstarnet(BasicNewsRecipe):
     title                 = 'Arizona  Daily Star'
     __author__            = 'Darko Miletic'
     description           = 'news from Arizona'
+    language              = _('English')
     publisher             = 'azstarnet.com'
     category              = 'news, politics, Arizona, USA'
-    delay                 = 1    
+    delay                 = 1
     oldest_article        = 1
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -28,8 +29,8 @@ class Azstarnet(BasicNewsRecipe):
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -40,8 +41,8 @@ class Azstarnet(BasicNewsRecipe):
             br['pass' ] = self.password
             br.submit()
         return br
-    
-    
+
+
     keep_only_tags = [dict(name='div', attrs={'id':'storycontent'})]
 
     remove_tags = [
@@ -49,15 +50,15 @@ class Azstarnet(BasicNewsRecipe):
                     ,dict(name='div',attrs={'class':'bannerinstory'})
                   ]
 
-    
+
     feeds = [(u'Tucson Region', u'http://rss.azstarnet.com/index.php?site=metro')]
 
     def preprocess_html(self, soup):
         soup.html['dir' ] = 'ltr'
         soup.html['lang'] = 'en-US'
         mtag = '\n<meta http-equiv="Content-Language" content="en-US"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
-            del item['style']    
+            del item['style']
         return soup
-    
+

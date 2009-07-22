@@ -14,6 +14,7 @@ class CodingHorror(BasicNewsRecipe):
     description           = 'programming and human factors - Jeff Atwood'
     category              = 'blog, programming'
     publisher             = 'Jeff Atwood'
+    language = _('English')
     author                = 'Jeff Atwood'
     oldest_article        = 30
     max_articles_per_feed = 100

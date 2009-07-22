@@ -15,6 +15,7 @@ class Slate(BasicNewsRecipe):
     title                   = 'Slate'
     description             = 'A daily magazine on the Web, offering analysis and commentary about politics, news and culture.'
     __author__              = 'GRiker@hotmail.com'
+    language                = _('English')
     max_articles_per_feed   = 40
     oldest_article          = 7.0
     recursions              = 0
