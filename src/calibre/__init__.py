@@ -361,6 +361,8 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
         return '&'+ent+';'
     if ent == 'apos':
         return "'"
+    if ent == 'hellips':
+        ent = 'hellip'
     if ent.startswith(u'#x'):
         num = int(ent[2:], 16)
         if encoding is None or num > 255:

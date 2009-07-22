@@ -5,13 +5,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
 
-import os, time
+import os
 from cStringIO import StringIO
 from contextlib import closing
-
-from PyQt4.Qt import QUrl, QEventLoop, QSize, QByteArray, QBuffer, \
-                     SIGNAL, QPainter, QImage, QObject, QApplication, Qt, QPalette
-from PyQt4.QtWebKit import QWebPage
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
@@ -102,64 +98,9 @@ class OCFDirReader(OCFReader):
     def open(self, path, *args, **kwargs):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
-class CoverRenderer(QObject):
-    WIDTH  = 600
-    HEIGHT = 800
-
-    def __init__(self, path):
-        if QApplication.instance() is None:
-            QApplication([])
-        QObject.__init__(self)
-        self.loop = QEventLoop()
-        self.page = QWebPage()
-        pal = self.page.palette()
-        pal.setBrush(QPalette.Background, Qt.white)
-        self.page.setPalette(pal)
-        self.page.setViewportSize(QSize(self.WIDTH, self.HEIGHT))
-        self.page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        self.page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
-        QObject.connect(self.page, SIGNAL('loadFinished(bool)'), self.render_html)
-        self._image_data = None
-        self.rendered = False
-        url = QUrl.fromLocalFile(os.path.normpath(path))
-        self.page.mainFrame().load(url)
-
-    def render_html(self, ok):
-        try:
-            if not ok:
-                self.rendered = True
-                return
-            image = QImage(self.page.viewportSize(), QImage.Format_ARGB32)
-            image.setDotsPerMeterX(96*(100/2.54))
-            image.setDotsPerMeterY(96*(100/2.54))
-            painter = QPainter(image)
-            self.page.mainFrame().render(painter)
-            painter.end()
-            ba = QByteArray()
-            buf = QBuffer(ba)
-            buf.open(QBuffer.WriteOnly)
-            image.save(buf, 'JPEG')
-            self._image_data = str(ba.data())
-        finally:
-            self.loop.exit(0)
-        self.rendered = True
-
-    def image_data():
-        def fget(self):
-            if not self.rendered:
-                self.loop.exec_()
-                count = 0
-                while count < 50 and not self.rendered:
-                    time.sleep(0.1)
-                    count += 1
-            return self._image_data
-        return property(fget=fget)
-    image_data = image_data()
-
-
 def get_cover(opf, opf_path, stream):
-    from calibre.gui2 import is_ok_to_use_qt
-    if not is_ok_to_use_qt(): return None
+    from calibre.ebooks import render_html_svg_workaround
+    from calibre.utils.logging import default_log
     spine = list(opf.spine_items())
     if not spine:
         return
@@ -172,8 +113,7 @@ def get_cover(opf, opf_path, stream):
             cpage = os.path.join(tdir, os.path.dirname(opf_path), cpage)
             if not os.path.exists(cpage):
                 return
-            cr = CoverRenderer(cpage)
-            return cr.image_data
+            return render_html_svg_workaround(cpage, default_log)
 
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a :class:`MetaInformation` object """

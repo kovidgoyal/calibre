@@ -27,7 +27,6 @@ from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
                                     OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
-from calibre.ebooks.metadata.epub import CoverRenderer
 from calibre.startup import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
@@ -346,6 +345,8 @@ class OEBReader(object):
             if descriptionElement:
                 description = etree.tostring(descriptionElement[0],
                 method='text', encoding=unicode).strip()
+                if not description:
+                    description = None
             else :
                 description = None
 
@@ -525,12 +526,14 @@ class OEBReader(object):
         return
 
     def _cover_from_html(self, hcover):
+        from calibre.ebooks import render_html_svg_workaround
         with TemporaryDirectory('_html_cover') as tdir:
             writer = OEBWriter()
             writer(self.oeb, tdir)
             path = os.path.join(tdir, urlunquote(hcover.href))
-            renderer = CoverRenderer(path)
-            data = renderer.image_data
+            data = render_html_svg_workaround(path, self.logger)
+            if not data:
+                data = ''
         id, href = self.oeb.manifest.generate('cover', 'cover.jpeg')
         item = self.oeb.manifest.add(id, href, JPEG_MIME, data=data)
         return item

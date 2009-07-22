@@ -1556,7 +1556,8 @@ class MobiWriter(object):
         else:
             raise NotImplementedError("missing date or timestamp needed for mobi_periodical")
 
-        if oeb.metadata.cover:
+        if oeb.metadata.cover and \
+                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids:
             id = unicode(oeb.metadata.cover[0])
             item = oeb.manifest.ids[id]
             href = item.href
