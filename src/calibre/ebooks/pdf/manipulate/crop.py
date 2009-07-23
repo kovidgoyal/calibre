@@ -23,7 +23,7 @@ from calibre.ebooks.pdf.verify import is_valid_pdf, is_encrypted
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
-DEFAULT_CROP = '10'
+DEFAULT_CROP = 10
 
 USAGE = '\n%prog %%name ' + _('''\
 [options] file.pdf
