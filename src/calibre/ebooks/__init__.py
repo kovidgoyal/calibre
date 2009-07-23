@@ -57,6 +57,35 @@ class HTMLRenderer(object):
             self.loop.exit(0)
 
 
+def extract_cover_from_embedded_svg(html, base, log):
+    from lxml import etree
+    from calibre.ebooks.oeb.base import XPath, SVG, XLINK
+    root = etree.fromstring(html)
+
+    svg = XPath('//svg:svg')(root)
+    if len(svg) == 1 and len(svg[0]) == 1 and svg[0][0].tag == SVG('image'):
+        image = svg[0][0]
+        href = image.get(XLINK('href'), None)
+        path = os.path.join(base, *href.split('/'))
+        if href and os.access(path, os.R_OK):
+            return open(path, 'rb').read()
+
+def render_html_svg_workaround(path_to_html, log, width=590, height=750):
+    from calibre.ebooks.oeb.base import SVG_NS
+    raw = open(path_to_html, 'rb').read()
+    data = None
+    if SVG_NS in raw:
+        try:
+            data = extract_cover_from_embedded_svg(raw,
+                   os.path.dirname(path_to_html), log)
+        except:
+            pass
+    if data is None:
+        renderer = render_html(path_to_html, width, height)
+        data = getattr(renderer, 'data', None)
+    return data
+
+
 def render_html(path_to_html, width=590, height=750):
     from PyQt4.QtWebKit import QWebPage
     from PyQt4.Qt import QEventLoop, QPalette, Qt, SIGNAL, QUrl, QSize

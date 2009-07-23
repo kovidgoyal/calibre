@@ -301,30 +301,26 @@ class FlowSplitter(object):
 
         # Tree 1
         hit_split_point = False
-        for elem in list(body.iterdescendants(etree.Element)):
+        for elem in list(body.iterdescendants()):
             if elem is split_point:
                 hit_split_point = True
                 if before:
-                    x = elem.get('id', None)
                     nix_element(elem)
 
                 continue
             if hit_split_point:
-                x = elem.get('id', None)
                 nix_element(elem)
 
 
         # Tree 2
         hit_split_point = False
-        for elem in list(body2.iterdescendants(etree.Element)):
+        for elem in list(body2.iterdescendants()):
             if elem is split_point2:
                 hit_split_point = True
                 if not before:
-                    x = elem.get('id', None)
                     nix_element(elem, top=False)
                 continue
             if not hit_split_point:
-                x = elem.get('id', None)
                 nix_element(elem, top=False)
         body2.text = '\n'
 

@@ -15,6 +15,7 @@ class ScottHanselman(BasicNewsRecipe):
     category              = "Scott, Computer, Zen, .NET, C#, Hanselman, Scott, Weblog, Diabetes, Portland, Zimbabwe, ComputerZen.com - Scott Hanselman's Musings"
     publisher             = 'Scott Hanselman'
     author                = 'Scott Hanselman'
+    language              = _('English')
     oldest_article        = 30
     max_articles_per_feed = 100
     no_stylesheets        = True

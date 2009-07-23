@@ -54,7 +54,7 @@ class EPUBInput(InputFormatPlugin):
         return False
 
     @classmethod
-    def rationalize_cover(self, opf):
+    def rationalize_cover(self, opf, log):
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
             if guide_elem.get('type', '').lower() == 'cover':
@@ -65,28 +65,37 @@ class EPUBInput(InputFormatPlugin):
         spine = list(opf.iterspine())
         if not spine:
             return
+        # Check if the cover specified in the guide is also
+        # the first element in spine
         idref = spine[0].get('idref', '')
         manifest = list(opf.itermanifest())
         if not manifest:
             return
-        if manifest[0].get('id', False) != idref:
+        elem = [x for x in manifest if x.get('id', '') == idref]
+        if not elem or elem[0].get('href', None) != guide_cover:
             return
+        log('Found HTML cover', guide_cover)
+
+        # Remove from spine as covers must be treated
+        # specially
         spine[0].getparent().remove(spine[0])
         guide_elem.set('href', 'calibre_raster_cover.jpg')
+        from calibre.ebooks.oeb.base import OPF
+        t = etree.SubElement(elem[0].getparent(), OPF('item'),
+        href=guide_elem.get('href'), id='calibre_raster_cover')
+        t.set('media-type', 'image/jpeg')
         for elem in list(opf.iterguide()):
             if elem.get('type', '').lower() == 'titlepage':
                 elem.getparent().remove(elem)
-        from calibre.ebooks.oeb.base import OPF
         t = etree.SubElement(guide_elem.getparent(), OPF('reference'))
         t.set('type', 'titlepage')
         t.set('href', guide_cover)
         t.set('title', 'Title Page')
-        from calibre.ebooks import render_html
-        renderer = render_html(guide_cover)
+        from calibre.ebooks import render_html_svg_workaround
+        renderer = render_html_svg_workaround(guide_cover, log)
         if renderer is not None:
             open('calibre_raster_cover.jpg', 'wb').write(
-                renderer.data)
-
+                renderer)
 
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.utils.zipfile import ZipFile
@@ -121,7 +130,7 @@ class EPUBInput(InputFormatPlugin):
             for elem in opf.iterguide():
                 elem.set('href', delta+elem.get('href'))
 
-        self.rationalize_cover(opf)
+        self.rationalize_cover(opf, log)
 
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())

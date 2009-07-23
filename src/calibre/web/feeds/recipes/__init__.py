@@ -52,7 +52,7 @@ recipe_modules = ['recipe_' + r for r in (
            'diagonales', 'miradasalsur', 'newsweek_argentina', 'veintitres',
            'gva_be', 'hln', 'tijd', 'degentenaar', 'inquirer_net', 'uncrate',
            'fastcompany', 'accountancyage', 'laprensa_hn', 'latribuna',
-           'eltiempo_hn',
+           'eltiempo_hn', 'slate',
           )]
 
 

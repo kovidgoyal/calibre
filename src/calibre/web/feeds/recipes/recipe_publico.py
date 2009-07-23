@@ -17,7 +17,7 @@ class Publico(BasicNewsRecipe):
     max_articles_per_feed = 30
     encoding='utf-8'
     no_stylesheets = True
-    language = _('Portuguese')
+    language = _('Portugese')
     preprocess_regexps = [(re.compile(u"\uFFFD", re.DOTALL|re.IGNORECASE),  lambda match: ''),]
 
     feeds          = [

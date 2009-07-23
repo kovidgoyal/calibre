@@ -53,7 +53,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
-             <string>Author S&amp;ort: </string>
+             <string>Author s&amp;ort: </string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -118,7 +118,7 @@
           <item row="5" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Add Ta&amp;gs: </string>
+             <string>Add ta&amp;gs: </string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

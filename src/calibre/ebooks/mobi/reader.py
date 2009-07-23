@@ -443,7 +443,7 @@ class MobiReader(object):
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
-        self.processed_html = re.sub('\x14|\x15|\x1c|\x1d', '', self.processed_html)
+        self.processed_html = re.sub('\x14|\x15|\x1c|\x1d|\xef|\x12|\x13|\xec', '', self.processed_html)
 
     def ensure_unit(self, raw, unit='px'):
         if re.search(r'\d+$', raw) is not None:

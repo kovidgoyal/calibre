@@ -1873,12 +1873,18 @@ def main(args=sys.argv):
                 return run_gui(opts, args, actions, listener, app)
         else:
             return run_gui(opts, args, actions, listener, app)
+    otherinstance = False
     try:
         listener = Listener(address=ADDRESS)
-    except socket.error: # Good si is correct
-        communicate(args)
+    except socket.error: # Good si is correct (on UNIX)
+        otherinstance = True
     else:
+        # On windows only singleinstance can be trusted
+        otherinstance = True if iswindows else False
+    if not otherinstance:
         return run_gui(opts, args, actions, listener, app)
+
+    communicate(args)
 
     return 0
 

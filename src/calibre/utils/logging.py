@@ -102,3 +102,5 @@ class Log(object):
 
     def __call__(self, *args, **kwargs):
         self.prints(INFO, *args, **kwargs)
+
+default_log = Log()

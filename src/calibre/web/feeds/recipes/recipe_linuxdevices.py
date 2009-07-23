@@ -16,6 +16,7 @@ class Sueddeutsche(BasicNewsRecipe):
     use_embedded_content   = False
     timefmt = ' [%a %d %b %Y]'
     max_articles_per_feed = 50
+    language = _('English')
     no_stylesheets = True
     html2epub_options = 'linearize_tables = True\nbase_font_size2=14'
     html2lrf_options = ['--ignore-tables']
