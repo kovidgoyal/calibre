@@ -38,6 +38,8 @@ class Reader202(FormatReader):
         self.log = log
         self.encoding = encoding
 
+        self.log.debug('202 byte header version found.')
+
         self.sections = []
         for i in range(header.num_sections):
             self.sections.append(header.section_data(i))

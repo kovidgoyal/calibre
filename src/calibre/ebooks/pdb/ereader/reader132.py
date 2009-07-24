@@ -52,6 +52,8 @@ class Reader132(FormatReader):
     def __init__(self, header, stream, log, encoding=None):
         self.log = log
         self.encoding = encoding
+        
+        self.log.debug('132 byte header version found.')
 
         self.sections = []
         for i in range(header.num_sections):
