@@ -15,7 +15,7 @@ from lxml import etree
 from dateutil import parser
 
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.constants import __appname__, __version__
+from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
@@ -1048,6 +1048,8 @@ def metadata_to_opf(mi, as_string=True):
     metadata[-1].tail = '\n' +(' '*4)
 
     if mi.cover:
+        if not isinstance(mi.cover, unicode):
+            mi.cover = mi.cover.decode(filesystem_encoding)
         guide.text = '\n'+(' '*8)
         r = guide.makeelement(OPF('reference'),
                 attrib={'type':'cover', 'title':_('Cover'), 'href':mi.cover})

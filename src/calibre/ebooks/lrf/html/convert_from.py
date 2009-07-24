@@ -1891,6 +1891,12 @@ def process_file(path, options, logger):
     if options.header:
         header = Paragraph()
         fheader = options.headerformat
+        if not options.title:
+            options.title = _('Unknown')
+        if not options.author:
+            options.author = _('Unknown')
+        if not fheader:
+            fheader = "%t by %a"
         fheader = re.sub(r'(?<!%)%t', options.title, fheader)
         fheader = re.sub(r'(?<!%)%a', options.author, fheader)
         fheader = re.sub(r'%%a','%a',fheader)
