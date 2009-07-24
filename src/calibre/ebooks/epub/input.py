@@ -53,7 +53,6 @@ class EPUBInput(InputFormatPlugin):
             traceback.print_exc()
         return False
 
-    @classmethod
     def rationalize_cover(self, opf, log):
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
@@ -78,7 +77,8 @@ class EPUBInput(InputFormatPlugin):
 
         # Remove from spine as covers must be treated
         # specially
-        spine[0].getparent().remove(spine[0])
+        if not self.for_viewer:
+            spine[0].getparent().remove(spine[0])
         guide_elem.set('href', 'calibre_raster_cover.jpg')
         from calibre.ebooks.oeb.base import OPF
         t = etree.SubElement(elem[0].getparent(), OPF('item'),
