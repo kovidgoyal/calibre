@@ -125,6 +125,7 @@ def add_pipeline_options(parser, plumber):
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'dont_justify',
                       'insert_blank_line', 'remove_paragraph_spacing',
+                      'asciiize',
                   ]
                   ),
 

@@ -1,4 +1,4 @@
-from __future__ import with_statement
+# -*- coding: utf-8 -*-
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -348,6 +348,20 @@ OptionRecommendation(name='read_metadata_from_opf',
                    'file.')
         ),
 
+OptionRecommendation(name='asciiize',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=(_('Transliterate unicode characters to an ASCII '
+            'representation. Use with care because this will remove replace '
+            'unicode characters with ASCII. For instance it will replace "%s" '
+            'with "Mikhail Gorbachiov". Also, note that in '
+            'cases where there are multiple representations of a character '
+            '(characters shared by Chinese and Japanese for instance) the '
+            'representation used by the largest number of people will be '
+            'used (Chinese in the previous example).')%\
+            u'\u041c\u0438\u0445\u0430\u0438\u043b '
+            u'\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
+)
+        ),
 
 OptionRecommendation(name='title',
     recommended_value=None, level=OptionRecommendation.LOW,
