@@ -169,7 +169,7 @@ if __name__ == '__main__':
   http://%s.kovidgoyal.net
 
   For source code access:
-  bzr branch %s
+  bzr branch lp:%s
 
   To update your copy of the source code:
   bzr merge

@@ -48,7 +48,7 @@ class ChangelogFormatter(blog.LogFormatter):
         txt = ['= Changelog =\n[[PageOutline]]']
         for entry in self.entries:
             txt.append(u'----\n== Version '+entry[0]+' ==')
-            if entry[0] == '0.6.0':
+            if entry[0].strip().startswith('0.6.0'):
                 txt.append(u'For a list of new features in 0.6.0 see http://calibre.kovidgoyal.net/new_in_6')
             else:
                 for msg in entry[1]:
