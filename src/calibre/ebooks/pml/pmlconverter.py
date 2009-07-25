@@ -36,7 +36,7 @@ PML_HTML_RULES = [
     (re.compile(r'\\Sb(?P<text>.+?)\\Sb', re.DOTALL), lambda match: '<sub>%s</sub>' % match.group('text')),
     (re.compile(r'\\k(?P<text>.+?)\\k', re.DOTALL), lambda match: '<small>%s</small>' % match.group('text')),
     (re.compile(r'\\a(?P<num>\d\d\d)'), lambda match: '&#%s;' % match.group('num')),
-    (re.compile(r'\\U(?P<num>\d+)'), lambda match: '%s' % my_unichr(int(match.group('num'), 16))),
+    (re.compile(r'\\U(?P<num>\d\d\d\d)'), lambda match: '%s' % my_unichr(int(match.group('num'), 16))),
     (re.compile(r'\\m="(?P<name>.+?)"'), lambda match: '<img src="images/%s" />' % image_name(match.group('name')).strip('\x00')),
     (re.compile(r'\\q="(?P<target>#.+?)"(?P<text>.+?)\\q', re.DOTALL), lambda match: '<a href="%s">%s</a>' % (match.group('target'), match.group('text'))),
     (re.compile(r'\\Q="(?P<target>.+?)"'), lambda match: '<span id="%s"></span>' % match.group('target')),
