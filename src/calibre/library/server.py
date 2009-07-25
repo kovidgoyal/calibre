@@ -8,6 +8,7 @@ HTTP server for remote access to the calibre database.
 '''
 
 import sys, textwrap, operator, os, re, logging, cStringIO
+import __builtin__
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -352,7 +353,7 @@ class LibraryServer(object):
 
         book, books = MarkupTemplate(self.BOOK), []
         for record in items[start:start+num]:
-            aus = record[2] if record[2] else __builtins__._('Unknown')
+            aus = record[2] if record[2] else __builtin__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
             record[10] = fmt_sidx(float(record[10]))
             books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
