@@ -28,16 +28,16 @@ class JETBOOK(USBMS):
 
     VENDOR_NAME      = 'LINUX'
     WINDOWS_MAIN_MEM = 'EBOOK'
-    WINDOWS_CARD_MEM = 'EBOOK'
+    WINDOWS_CARD_A_MEM = 'EBOOK'
 
     OSX_MAIN_MEM = None
-    OSX_CARD_MEM = None
+    OSX_CARD_A_MEM = None
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Jetbook Storage Card'
 
     EBOOK_DIR_MAIN = "Books"
-    EBOOK_DIR_CARD = "Books"
+    EBOOK_DIR_CARD_A = "Books"
     SUPPORTS_SUB_DIRS = True
 
     JETBOOK_FILE_NAME_PATTERN = re.compile(
