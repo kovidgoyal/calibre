@@ -101,7 +101,7 @@ class RBWriter(object):
         out_stream.write(struct.pack('<I', total_size))
 
     def _text(self, oeb_book):
-        rbmlizer = RBMLizer(log, name_map=self.name_map)
+        rbmlizer = RBMLizer(self.log, name_map=self.name_map)
         text = rbmlizer.extract_content(oeb_book, self.opts).encode('cp1252', 'xmlcharrefreplace')
         size = len(text)
 
