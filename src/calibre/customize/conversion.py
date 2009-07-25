@@ -109,6 +109,10 @@ class InputFormatPlugin(Plugin):
     #: convenience method, :method:`get_image_collection`.
     is_image_collection = False
 
+    #: If set to True, the input plugin will perform special processing
+    #: to make its output suitable for viewing
+    for_viewer = False
+
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :member:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.

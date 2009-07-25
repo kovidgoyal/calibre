@@ -511,7 +511,7 @@ class Wizard(QWizard):
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
         self.finish_page = FinishPage()
-        bt = unicode(self.buttonText(self.FinishButton))
+        bt = unicode(self.buttonText(self.FinishButton)).replace('&', '')
         t = unicode(self.finish_page.finish_text.text())
         self.finish_page.finish_text.setText(t%bt)
         self.kindle_page = KindlePage()
