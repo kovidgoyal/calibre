@@ -44,7 +44,7 @@ except:
 
 def newer(targets, sources):
     '''
-    Return True is sources is newer that targets or if targets
+    Return True if sources is newer that targets or if targets
     does not exist.
     '''
     for f in targets:
@@ -786,7 +786,10 @@ try:
                         mkup = '<div><ul>%s</ul></div>'
                         self.current_entry.description = mkup%(''.join(
                                     self.current_entry.description))
-
+                        if match.group(1) == '0.6.0':
+                            self.current_entry.description = \
+                            '''<div>See <a href="http://calibre.kovidgoyal.net/new_in_6">New in
+                            6</a></div>'''
                         self.rss.items.append(self.current_entry)
                     timestamp = r.rev.timezone + r.rev.timestamp
                     self.current_entry = RSSItem(

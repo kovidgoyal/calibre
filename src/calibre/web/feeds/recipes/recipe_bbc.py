@@ -10,16 +10,20 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class BBC(BasicNewsRecipe):
     title          = u'The BBC'
-    __author__     = 'Kovid Goyal'
+    __author__     = 'Kovid Goyal and Sujata Raman'
     description    = 'Global news and current affairs from the British Broadcasting Corporation'
-    no_stylesheets = True
     language = _('English')
 
-    remove_tags    = [dict(name='div', attrs={'class':'footer'})]
-    extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }' 
+    remove_tags    = [dict(name='div', attrs={'class':'footer'}),]
+
+
+    extra_css      = '''
+                        body{font-family:Arial,Helvetica,sans-serif; font-size:small;}
+                        h1{font-size:large;}
+                     '''
 
     feeds          = [
-                      ('News Front Page', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml'), 
+                      ('News Front Page', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml'),
                       ('Science/Nature', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml'),
                       ('Technology', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/technology/rss.xml'),
                       ('Enterntainment', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/entertainment/rss.xml'),
@@ -34,5 +38,8 @@ class BBC(BasicNewsRecipe):
                       ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
                     ]
 
+
     def print_version(self, url):
         return url.replace('http://', 'http://newsvote.bbc.co.uk/mpapps/pagetools/print/')
+
+
