@@ -459,7 +459,7 @@ class upload_demo(OptionlessCommand):
     def run(self):
         check_call(
            '''ebook-convert %s/demo.html /tmp/html2lrf.lrf '''
-           '''--title='Demonstration of html2lrf' --author='Kovid Goyal' '''
+           '''--title='Demonstration of html2lrf' --authors='Kovid Goyal' '''
            '''--header '''
            '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
            '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
@@ -470,15 +470,6 @@ class upload_demo(OptionlessCommand):
             'zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf', shell=True)
 
         check_call('scp /tmp/html-demo.zip divok:%s/'%(DOWNLOADS,), shell=True)
-
-        check_call(
-           ("ebook-convert %s/demo.txt /tmp/txt2lrf.lrf -t 'Demonstration of txt2lrf'"
-           "-a 'Kovid Goyal' --header ")%(TXT2LRF,), shell=True)
-
-        check_call('cd src/calibre/ebooks/lrf/txt/demo/ && '
-                   'zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf', shell=True)
-
-        check_call('''scp /tmp/txt-demo.zip divok:%s/'''%(DOWNLOADS,), shell=True)
 
 
 def installer_name(ext):
@@ -762,6 +753,7 @@ try:
         class ChangelogFormatter(blog.LogFormatter):
             supports_tags = True
             supports_merge_revisions = False
+            _show_advice = False
 
             def __init__(self, num_of_versions=20):
                 from calibre.utils.rss_gen import RSS2
@@ -786,7 +778,7 @@ try:
                         mkup = '<div><ul>%s</ul></div>'
                         self.current_entry.description = mkup%(''.join(
                                     self.current_entry.description))
-                        if match.group(1) == '0.6.0':
+                        if match.group(1) == '0.5.14':
                             self.current_entry.description = \
                             '''<div>See <a href="http://calibre.kovidgoyal.net/new_in_6">New in
                             6</a></div>'''

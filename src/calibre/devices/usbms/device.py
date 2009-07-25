@@ -571,6 +571,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     def eject_linux(self):
         drives = self.find_device_nodes()
+        success = False
         for drive in drives:
             if drive:
                 cmd = ['pumount', '-l']
@@ -580,15 +581,20 @@ class Device(DeviceConfig, DevicePlugin):
                     pass
                 while p.poll() is None:
                     time.sleep(0.1)
-            if p.returncode == 0:
-                for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
-                    x = getattr(self, x, None)
-                    if x is not None:
-                        if x.startswith('/media/') and os.path.exists(x):
-                            try:
-                                shutil.rmtree(x)
-                            except:
-                                pass
+                success = success or p.returncode == 0
+                try:
+                    subprocess.Popen(['sudo', 'eject', drive])
+                except:
+                    pass
+        for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
+            x = getattr(self, x, None)
+            if x is not None:
+                if x.startswith('/media/') and os.path.exists(x) \
+                        and not os.listdir(x):
+                    try:
+                        shutil.rmtree(x)
+                    except:
+                        pass
 
 
     def eject(self):
