@@ -221,6 +221,11 @@ class HTMLPreProcessor(object):
 
         html = XMLDECL_RE.sub('', html)
 
+        if getattr(self.extra_opts, 'asciiize', False):
+            from calibre.ebooks.unidecode.unidecoder import Unidecoder
+            unidecoder = Unidecoder()
+            html = unidecoder.decode(html)
+
         if self.plugin_preprocess:
             html = self.input_plugin_preprocess(html)
 
