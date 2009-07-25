@@ -89,7 +89,7 @@ class CybookG3(Device):
     name = 'Cybook Gen 3'
     output_format = 'MOBI'
     output_profile = 'cybookg3'
-    manufacturer = 'Booken'
+    manufacturer = 'Bookeen'
     id = 'cybookg3'
 
 class CybookOpus(CybookG3):
