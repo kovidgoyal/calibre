@@ -167,7 +167,8 @@ class LrsParser(object):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid', 'objlabel'])
                 for a in ('pagestyle', 'blockstyle', 'textstyle'):
                     label = tag.get(a, False)
-                    if label and label in self._style_labels:
+                    if label and \
+                        (label in self._style_labels or label in self.parsed_objects):
                         _obj = self.parsed_objects[label] if \
                             self.parsed_objects.has_key(label) else \
                             self._style_labels[label]
