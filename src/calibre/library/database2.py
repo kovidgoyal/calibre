@@ -34,7 +34,7 @@ from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_e
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 
-from calibre import sanitize_file_name
+from calibre.utils.filenames import ascii_filename
 from calibre.ebooks import BOOK_EXTENSIONS
 
 if iswindows:
@@ -652,8 +652,8 @@ class LibraryDatabase2(LibraryDatabase):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'ignore')
-        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'ignore')
+        author = ascii_filename(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'ignore')
+        title  = ascii_filename(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'ignore')
         path   = author + '/' + title + ' (%d)'%id
         return path
 
@@ -664,8 +664,8 @@ class LibraryDatabase2(LibraryDatabase):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
-        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
+        author = ascii_filename(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
+        title  = ascii_filename(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
@@ -1520,12 +1520,12 @@ class LibraryDatabase2(LibraryDatabase):
             x['cover'] = os.path.join(path, 'cover.jpg')
             if not self.has_cover(x['id'], index_is_id=True):
                 x['cover'] = None
-            path += os.sep +  self.construct_file_name(record[FIELD_MAP['id']]) + '.%s'
             formats = self.formats(record[FIELD_MAP['id']], index_is_id=True)
             if formats:
                 for fmt in formats.split(','):
-                    x['formats'].append(path%fmt.lower())
-                    x['fmt_'+fmt.lower()] = path%fmt.lower()
+                    path = self.format_abspath(x['id'], fmt, index_is_id=True)
+                    x['formats'].append(path)
+                    x['fmt_'+fmt.lower()] = path
                 x['available_formats'] = [i.upper() for i in formats.split(',')]
 
         return data
@@ -1602,12 +1602,12 @@ books_series_link      feeds
                 by_author[au] = []
             by_author[au].append(index)
         for au in by_author.keys():
-            apath = os.path.join(dir, sanitize_file_name(au))
+            apath = os.path.join(dir, ascii_filename(au))
             if not single_dir and not os.path.exists(apath):
                 os.mkdir(apath)
             for idx in by_author[au]:
                 title = re.sub(r'\s', ' ', self.title(idx, index_is_id=index_is_id))
-                tpath = os.path.join(apath, sanitize_file_name(title))
+                tpath = os.path.join(apath, ascii_filename(title))
                 id = idx if index_is_id else self.id(idx)
                 id = str(id)
                 if not single_dir and not os.path.exists(tpath):
@@ -1621,10 +1621,10 @@ books_series_link      feeds
                     mi.authors = [_('Unknown')]
                 cdata = self.cover(int(id), index_is_id=True)
                 if cdata is not None:
-                    cname = sanitize_file_name(name)+'.jpg'
+                    cname = ascii_filename(name)+'.jpg'
                     open(os.path.join(base, cname), 'wb').write(cdata)
                     mi.cover = cname
-                with open(os.path.join(base, sanitize_file_name(name)+'.opf'),
+                with open(os.path.join(base, ascii_filename(name)+'.opf'),
                         'wb') as f:
                     f.write(metadata_to_opf(mi))
 
@@ -1636,7 +1636,7 @@ books_series_link      feeds
                     if not data:
                         continue
                     fname = name +'.'+fmt.lower()
-                    fname = sanitize_file_name(fname)
+                    fname = ascii_filename(fname)
                     f = open(os.path.join(base, fname), 'w+b')
                     f.write(data)
                     f.flush()
@@ -1671,7 +1671,7 @@ books_series_link      feeds
             if not au:
                 au = _('Unknown')
             fname = '%s - %s.%s'%(title, au, format.lower())
-            fname = sanitize_file_name(fname)
+            fname = ascii_filename(fname)
             if not os.path.exists(dir):
                 os.makedirs(dir)
             f = open(os.path.join(dir, fname), 'w+b')

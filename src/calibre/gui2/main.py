@@ -14,8 +14,9 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import __version__, __appname__, sanitize_file_name, \
+from calibre import __version__, __appname__, \
                     iswindows, isosx, prints, patheq
+from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
@@ -852,7 +853,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def _files_added(self, paths=[], names=[], infos=[], on_card=None):
         if paths:
             self.upload_books(paths,
-                                list(map(sanitize_file_name, names)),
+                                list(map(ascii_filename, names)),
                                 infos, on_card=on_card)
             self.status_bar.showMessage(
                     _('Uploading books to device.'), 2000)

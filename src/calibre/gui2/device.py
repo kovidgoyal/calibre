@@ -21,7 +21,7 @@ from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
                                    pixmap_to_data, warning_dialog, \
                                    question_dialog
 from calibre.ebooks.metadata import authors_to_string
-from calibre import sanitize_file_name, preferred_encoding
+from calibre import preferred_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
@@ -542,7 +542,7 @@ class DeviceGUI(object):
                         '\n\n' + t + '\n\t' + _('by') + ' ' + a + '\n\n' + \
                         _('in the %s format.') %
                         os.path.splitext(f)[1][1:].upper())
-                prefix = sanitize_file_name(t+' - '+a)
+                prefix = ascii_filename(t+' - '+a)
                 if not isinstance(prefix, unicode):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 attachment_names.append(prefix + os.path.splitext(f)[1])
@@ -693,7 +693,7 @@ class DeviceGUI(object):
                     rows_are_ids=True)
             names = []
             for mi in metadata:
-                prefix = sanitize_file_name(mi['title'])
+                prefix = ascii_filename(mi['title'])
                 if not isinstance(prefix, unicode):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
@@ -758,7 +758,7 @@ class DeviceGUI(object):
                 a = mi['authors']
                 if not a:
                     a = _('Unknown')
-                prefix = sanitize_file_name(t+' - '+a)
+                prefix = ascii_filename(t+' - '+a)
                 if not isinstance(prefix, unicode):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)

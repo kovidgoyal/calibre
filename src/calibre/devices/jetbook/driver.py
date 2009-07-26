@@ -8,7 +8,7 @@ import os, re, sys, shutil
 from itertools import cycle
 
 from calibre.devices.usbms.driver import USBMS
-from calibre import sanitize_file_name as sanitize
+from calibre.utils.filenames import ascii_filename as sanitize
 from calibre.ebooks.metadata import string_to_authors
 
 class JETBOOK(USBMS):

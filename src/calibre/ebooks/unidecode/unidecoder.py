@@ -57,6 +57,7 @@ it under the same terms as Perl itself.
 import re
 
 from calibre.ebooks.unidecode.unicodepoints import CODEPOINTS
+from calibre.constants import preferred_encoding
 
 class Unidecoder(object):
 
@@ -70,7 +71,10 @@ class Unidecoder(object):
             try:
                 text = unicode(text)
             except:
-                text = text.decode('utf-8', 'ignore')
+                try:
+                    text = text.decode(preferred_encoding)
+                except:
+                    text = text.decode('utf-8', 'replace')
         # Replace characters larger than 127 with their ASCII equivelent.
         return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),
             text)
@@ -80,7 +84,7 @@ class Unidecoder(object):
         Returns the replacement character or ? if none can be found.
         '''
         try:
-            # Splite the unicode character xABCD into parts 0xAB and 0xCD.
+            # Split the unicode character xABCD into parts 0xAB and 0xCD.
             # 0xAB represents the group within CODEPOINTS to query and 0xCD
             # represents the position in the list of characters for the group.
             return CODEPOINTS[self.code_group(codepoint)][self.grouped_point(
