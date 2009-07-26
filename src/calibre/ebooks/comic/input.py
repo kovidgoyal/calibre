@@ -253,7 +253,6 @@ def process_pages(pages, opts, update, tdir):
 
     for job in jobs:
         if job.failed:
-            raw_input()
             raise Exception(_('Failed to process comic: \n\n%s')%
                     job.log_file.read())
         pages, failures_ = job.result
