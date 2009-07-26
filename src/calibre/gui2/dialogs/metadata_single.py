@@ -526,3 +526,11 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         QDialog.accept(self)
         if callable(self.accepted_callback):
             self.accepted_callback(self.id)
+
+    def reject(self, *args):
+        cf = getattr(self, 'cover_fetcher', None)
+        if cf is not None and hasattr(cf, 'terminate'):
+            cf.terminate()
+            cf.wait()
+
+        QDialog.reject(self, *args)
