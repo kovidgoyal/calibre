@@ -34,7 +34,8 @@ from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_e
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 
-from calibre.utils.filenames import ascii_filename
+from calibre.utils.filenames import ascii_filename, shorten_components_to, \
+                                    supports_long_names
 from calibre.ebooks import BOOK_EXTENSIONS
 
 if iswindows:
@@ -1589,6 +1590,7 @@ books_series_link      feeds
             raise IOError('Target directory does not exist: '+dir)
         by_author = {}
         count = 0
+        path_len, au_len = (1000, 500) if supports_long_names(dir) else (240, 50)
         for index in indices:
             id = index if index_is_id else self.id(index)
             au = self.conn.get('SELECT author_sort FROM books WHERE id=?',
@@ -1602,29 +1604,35 @@ books_series_link      feeds
                 by_author[au] = []
             by_author[au].append(index)
         for au in by_author.keys():
-            apath = os.path.join(dir, ascii_filename(au))
+            aname = ascii_filename(au)[:au_len]
+            apath = os.path.abspath(os.path.join(dir, aname))
             if not single_dir and not os.path.exists(apath):
                 os.mkdir(apath)
             for idx in by_author[au]:
                 title = re.sub(r'\s', ' ', self.title(idx, index_is_id=index_is_id))
-                tpath = os.path.join(apath, ascii_filename(title))
+                name = au + ' - ' + title if byauthor else title + ' - ' + au
+                name = ascii_filename(name)
+                tname = ascii_filename(title)
+                tname, name = shorten_components_to(path_len-len(apath), (tname,
+                    name))
+                name += '_'+str(id)
+
+                tpath = os.path.join(apath, tname)
                 id = idx if index_is_id else self.id(idx)
                 id = str(id)
                 if not single_dir and not os.path.exists(tpath):
                     os.makedirs(tpath)
 
-                name = au + ' - ' + title if byauthor else title + ' - ' + au
-                name += '_'+id
                 base  = dir if single_dir else tpath
                 mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
                 if not mi.authors:
                     mi.authors = [_('Unknown')]
                 cdata = self.cover(int(id), index_is_id=True)
                 if cdata is not None:
-                    cname = ascii_filename(name)+'.jpg'
+                    cname = name+'.jpg'
                     open(os.path.join(base, cname), 'wb').write(cdata)
                     mi.cover = cname
-                with open(os.path.join(base, ascii_filename(name)+'.opf'),
+                with open(os.path.join(base, name+'.opf'),
                         'wb') as f:
                     f.write(metadata_to_opf(mi))
 
@@ -1636,7 +1644,6 @@ books_series_link      feeds
                     if not data:
                         continue
                     fname = name +'.'+fmt.lower()
-                    fname = ascii_filename(fname)
                     f = open(os.path.join(base, fname), 'w+b')
                     f.write(data)
                     f.flush()
@@ -1657,6 +1664,7 @@ books_series_link      feeds
         if not index_is_id:
             indices = map(self.id, indices)
         failures = []
+        plen = 1000 if supports_long_names(dir) else 245
         for count, id in enumerate(indices):
             try:
                 data = self.format(id, format, index_is_id=True)
@@ -1672,10 +1680,13 @@ books_series_link      feeds
                 au = _('Unknown')
             fname = '%s - %s.%s'%(title, au, format.lower())
             fname = ascii_filename(fname)
+            dir = os.path.abspath(dir)
+            fname = shorten_components_to(plen - len(dir), (fname,))[0]
             if not os.path.exists(dir):
                 os.makedirs(dir)
             f = open(os.path.join(dir, fname), 'w+b')
             f.write(data)
+            f.flush()
             f.seek(0)
             try:
                 set_metadata(f, self.get_metadata(id, index_is_id=True, get_cover=True),
