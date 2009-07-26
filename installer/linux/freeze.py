@@ -49,6 +49,7 @@ def freeze():
                        '/usr/lib/libMagickCore.so',
                        '/usr/lib/libgcrypt.so.11',
                        '/usr/lib/libgpg-error.so.0',
+                       '/usr/lib/libphonon.so.4',
                        ]
 
     binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]

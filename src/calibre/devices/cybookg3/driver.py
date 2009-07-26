@@ -8,7 +8,7 @@ import os
 import shutil
 from itertools import cycle
 
-from calibre import sanitize_file_name as sanitize
+from calibre.utils.filenames import ascii_filename as sanitize
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
 
@@ -98,7 +98,7 @@ class CYBOOKG3(USBMS):
             self.report_progress(i / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
-        
+
         return zip(paths, cycle([on_card]))
 
     def delete_books(self, paths, end_session=True):

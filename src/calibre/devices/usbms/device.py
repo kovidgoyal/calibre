@@ -15,7 +15,7 @@ from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
-from calibre import sanitize_file_name as sanitize
+from calibre.utils.filenames import ascii_filename as sanitize
 
 class Device(DeviceConfig, DevicePlugin):
     '''

@@ -342,6 +342,8 @@ class FileDialog(QObject):
                 ftext += '%s (%s);;'%(text, ' '.join(extensions))
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'
+        if ftext.endswith(';;'):
+            ftext = ftext[:-2]
 
         self.dialog_name = name if name else 'dialog_' + title
         self.selected_files = None
