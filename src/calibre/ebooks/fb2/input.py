@@ -4,7 +4,7 @@ __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
 Convert .fb2 files to .lrf
 """
-import os
+import os, re
 from base64 import b64decode
 from lxml import etree
 
@@ -26,6 +26,16 @@ class FB2Input(InputFormatPlugin):
         ('level3_toc', '//h:h3', OptionRecommendation.MED),
         ])
 
+    options = set([
+    OptionRecommendation(name='no_inline_fb2_toc',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Do not insert a Table of Contents at the beginning of the book.'
+                )
+        ),
+    ])
+
+
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from calibre.resources import fb2_xsl
@@ -39,7 +49,13 @@ class FB2Input(InputFormatPlugin):
         doc = etree.parse(stream, parser)
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
-        styledoc = etree.fromstring(fb2_xsl)
+        ss = fb2_xsl
+        if options.no_inline_fb2_toc:
+            log('Disabling generation of inline FB2 TOC')
+            ss = re.compile(r'<!-- BUILD TOC -->.*<!-- END BUILD TOC -->',
+                    re.DOTALL).sub('', ss)
+
+        styledoc = etree.fromstring(ss)
 
         transform = etree.XSLT(styledoc)
         result = transform(doc)
