@@ -65,9 +65,9 @@ class Jacket(object):
         if not comments.strip():
             comments = ''
         comments = comments.replace('\r\n', '\n').replace('\n\n', '<br/><br/>')
-        series = '<b>Series: </b>' + mi.series if mi.series else ''
+        series = '<b>Series: </b>' + escape(mi.series if mi.series else '')
         if series and mi.series_index is not None:
-            series += ' [%s]'%mi.format_series_index()
+            series += escape(' [%s]'%mi.format_series_index())
         tags = mi.tags
         if not tags:
             try:
@@ -75,7 +75,7 @@ class Jacket(object):
             except:
                 tags = []
         if tags:
-            tags = '<b>Tags: </b>' + self.opts.dest.tags_to_string(tags)
+            tags = '<b>Tags: </b>' + escape(self.opts.dest.tags_to_string(tags))
         else:
             tags = ''
         try:
@@ -84,8 +84,8 @@ class Jacket(object):
             title = _('Unknown')
         html = self.JACKET_TEMPLATE%dict(xmlns=XPNSMAP['h'],
                 title=escape(title), comments=escape(comments),
-                jacket=escape(_('Book Jacket')), series=escape(series),
-                tags=escape(tags))
+                jacket=escape(_('Book Jacket')), series=series,
+                tags=tags)
         id, href = self.oeb.manifest.generate('jacket', 'jacket.xhtml')
         root = etree.fromstring(html)
         item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
