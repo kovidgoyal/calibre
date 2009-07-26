@@ -889,7 +889,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                    'removed from your computer. Are you sure?')
                                 +'</p>', 'library_delete_books', self):
                 return
+            ci = view.currentIndex()
+            row = None
+            if ci.isValid():
+                row = ci.row()
             view.model().delete_books(rows)
+            if row is not None:
+                ci = view.model().index(row, 0)
+                if ci.isValid():
+                    view.setCurrentIndex(ci)
+                    sm = view.selectionModel()
+                    sm.select(ci, sm.Select)
         else:
             if self.stack.currentIndex() == 1:
                 view = self.memory_view
