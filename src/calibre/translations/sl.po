@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.17\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-19 18:45+0000\n"
+"POT-Creation-Date: 2009-07-25 02:01+0000\n"
 "PO-Revision-Date: 2009-05-16 09:32+0000\n"
 "Last-Translator: Ketrin <i_ketrin@mail.ru>\n"
 "Language-Team: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-07-21 16:48+0000\n"
+"X-Launchpad-Export-Date: 2009-07-26 20:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -92,6 +92,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:52
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:317
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1895
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
@@ -122,14 +124,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:857
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:862
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:900
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:136
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:866
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:871
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:909
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:84
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:101
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:104
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
@@ -166,7 +168,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
@@ -185,10 +187,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1514
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1599
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1673
-#: /home/kovid/work/calibre/src/calibre/library/server.py:294
-#: /home/kovid/work/calibre/src/calibre/library/server.py:355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1621
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1672
+#: /home/kovid/work/calibre/src/calibre/library/server.py:295
+#: /home/kovid/work/calibre/src/calibre/library/server.py:356
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -227,14 +229,14 @@ msgstr ""
 msgid "Conversion Input"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:122
 msgid ""
 "Save the output from the input plugin to the specified directory. Useful if "
 "you are unsure at which stage of the conversion process a bug is occurring. "
 "WARNING: This completely deletes the contents of the specified directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:127
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:131
 msgid ""
 "Specify the character encoding of the input document. If set this option "
 "will override any encoding declared by the document itself. Particularly "
@@ -242,11 +244,11 @@ msgid ""
 "encoding declarations."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:243
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:247
 msgid "Conversion Output"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:257
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:261
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
@@ -1179,7 +1181,7 @@ msgstr "Branje slike naslovne strani ni mogoče: %s"
 msgid "Cannot read from: %s"
 msgstr "Ne morem brati iz: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1990
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1996
 msgid "Failed to process opf file"
 msgstr "Napaka pri obdelavi opf datoteke"
 
@@ -1606,6 +1608,11 @@ msgstr ""
 "\n"
 "Pridobi naslovnico za knjigo, identificirano po ISBN iz LibraryThing.com\n"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+msgid "Cover"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
@@ -1629,78 +1636,74 @@ msgstr ""
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:103
 msgid "All articles"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
-msgid "Cover"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1261
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
 msgid "Title Page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1262
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1263
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
 msgid "Index"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1264
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
 msgid "Glossary"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1265
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
 msgid "Acknowledgements"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1266
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
 msgid "Bibliography"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1267
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
 msgid "Colophon"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1268
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1277
 msgid "Copyright"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1278
 msgid "Dedication"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 msgid "Epigraph"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1280
 msgid "Foreword"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1281
 msgid "List of Illustrations"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1282
 msgid "List of Tables"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1283
 msgid "Notes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
 msgid "Preface"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1285
 msgid "Main Text"
 msgstr ""
 
@@ -1762,11 +1765,11 @@ msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:112
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:114
 msgid "Footnotes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:123
 msgid "Sidebar"
 msgstr ""
 
@@ -3882,9 +3885,8 @@ msgid "Meta information"
 msgstr "Meta podatki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
-msgid "Author S&ort: "
-msgstr "&Razvrščanje Avtorjev: "
+msgid "Author s&ort: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:342
@@ -3913,8 +3915,8 @@ msgid " stars"
 msgstr " zvezdic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:148
-msgid "Add Ta&gs: "
-msgstr "Dodaj &Značke: "
+msgid "Add ta&gs: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:151
@@ -3965,50 +3967,50 @@ msgstr ""
 msgid "The cover in the %s format is invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
 msgid "Downloading cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:414
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:428
 msgid "Cannot fetch cover"
 msgstr "Prenos naslovnice ni možen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:429
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>Prenos naslovnice ni uspel.</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
 msgid "The download timed out."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:435
 msgid "Bad cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:436
 msgid "The cover is not a valid picture"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:475
 msgid "Cannot fetch metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:476
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
 msgid "Permission denied"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 
@@ -4019,6 +4021,10 @@ msgstr "Uredi Meta Podatke"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Swap the author and title"
 msgstr "Zamenjaj avtorja in naslov"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
+msgid "Author S&ort: "
+msgstr "&Razvrščanje Avtorjev: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:343
 msgid ""
@@ -6507,11 +6513,11 @@ msgstr "Kopiram <b>%s</b>"
 msgid "Compacting database"
 msgstr "Krčim bazo"
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:146
+#: /home/kovid/work/calibre/src/calibre/library/server.py:147
 msgid "Password to access your calibre library. Username is "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:429
+#: /home/kovid/work/calibre/src/calibre/library/server.py:430
 msgid ""
 "[options]\n"
 "\n"
@@ -6781,12 +6787,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_accountancyage.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_al_jazeera.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_azstarnet.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
@@ -6794,6 +6802,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_coding_horror.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_craigslist.py:15
@@ -6831,8 +6840,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linuxdevices.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moneynews.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
@@ -6858,14 +6869,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scott_hanselman.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slate.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_stackoverflow.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
@@ -6891,7 +6905,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
@@ -6949,6 +6963,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
 msgid "Portugese"
 msgstr ""
 
@@ -6966,10 +6981,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
-msgid "Portuguese"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
@@ -7336,20 +7347,29 @@ msgstr ""
 msgid "subscribers"
 msgstr ""
 
-#~ msgid "Set the title. Default: filename."
-#~ msgstr "Nastavi naslov. Privzeto: filename."
+#~ msgid "You must specify an input HTML file"
+#~ msgstr "Izbrati morate vhodno HTML datoteko"
 
-#~ msgid ""
-#~ "Set the author(s). Multiple authors should be set as a comma separated list. "
-#~ "Default: %default"
-#~ msgstr ""
-#~ "Nastavi avtorja(je). Več avtorjev se loči z vejicami. Privzeto: %default"
+#~ msgid "Options to control the conversion to EPUB"
+#~ msgstr "Možnosti za nadzor konverzije v EPUB"
 
-#~ msgid "Set the comment."
-#~ msgstr "Nastavi opombe."
+#~ msgid "Options to control the traversal of HTML"
+#~ msgstr "Možnosti za nadzor sprehajanja po HTML"
 
-#~ msgid "Set the category"
-#~ msgstr "Nastavi kategorijo"
+#~ msgid "The output directory. Default is the current directory."
+#~ msgstr "Izhodni direktorij. Privzeti je trenutni direktorij."
+
+#~ msgid "Set metadata of the generated ebook"
+#~ msgstr "Nastavi meta podatke od generirane eknjige"
+
+#~ msgid "Set the title. Default is to autodetect."
+#~ msgstr "Nastavi naslov. Privzeto je samodejno zaznavanje."
+
+#~ msgid "Options useful for debugging"
+#~ msgstr "Možnosti koristne za razhroščevanje"
+
+#~ msgid "OEB ebook created in"
+#~ msgstr "OEB eknjiga ustvarjena v"
 
 #~ msgid "Sort key for the title"
 #~ msgstr "Sortirni ključ za kazalo"
@@ -7367,53 +7387,158 @@ msgstr ""
 #~ "Če je v vhodni zbirki zaznana naslovna stran, jo uporabi namesto izbrane "
 #~ "naslovne strani."
 
+#~ msgid "Set the title. Default: filename."
+#~ msgstr "Nastavi naslov. Privzeto: filename."
+
+#~ msgid ""
+#~ "<p>Books with the same title as the following already exist in the database. "
+#~ "Add them anyway?<ul>"
+#~ msgstr ""
+#~ "<p>Knjige z istim naslovom že obstajajo v bazi. Jih vseeno dodam?<ul>"
+
+#~ msgid "Convert to LRS"
+#~ msgstr "Pretvori v LRS"
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.mobi|prc\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.mobi to mybook.lrf"
+#~ msgstr ""
+#~ "Uporaba: %prog [options] mojaknjiga.mobi|prc\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog pretvori mojaknjiga.mobi v mojaknjiga.lrf"
+
+#~ msgid ""
+#~ "%prog [options] mybook.txt\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.txt to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] mojaknjiga.txt\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog pretvori mojaknjiga.txt v mojaknjiga.lrf"
+
+#~ msgid "Convert %s to LRF"
+#~ msgstr "Pretvori %s v LRF"
+
+#~ msgid "Cannot convert %s as this book has no supported formats"
+#~ msgstr "Ne morem pretvoriti %s ker ta knjiga ni na voljo v podprtem formatu"
+
+#~ msgid "Choose the format to convert into LRF"
+#~ msgstr "Izberite format, ki ga želite pretvoriti v LRF"
+
+#~ msgid ""
+#~ "%prog [options] mybook.pdf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.pdf to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] mojaknjiga.pdf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog pretvori mojaknjiga.pdf v mojaknjiga.lrf"
+
+#~ msgid ""
+#~ "%prog [options] mybook.rtf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.rtf to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] mojaknjiga.rtf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog pretvori mojaknjiga.rtf v mojaknjiga.lrf"
+
+#~ msgid "Bulk convert ebooks to LRF"
+#~ msgstr "Paketna pretvorba eknjig v LRF"
+
+#~ msgid "Convert comic: "
+#~ msgstr "Pretvori strip: "
+
+#~ msgid "Convert book: "
+#~ msgstr "Pretvori knjigo: "
+
+#~ msgid "No available formats"
+#~ msgstr "Ni razpoložljivih formatov"
+
+#~ msgid "The reader has no storage card connected."
+#~ msgstr "Reader nima vstavljene spominske kartice."
+
+#~ msgid ""
+#~ "The output EPUB file. If not specified, it is derived from the input file "
+#~ "name."
+#~ msgstr ""
+#~ "Izhodna datoteka EPUB. Če ni določena, se izpelje iz imena vhodne datoteke."
+
+#~ msgid "Written processed HTML to "
+#~ msgstr "Obdelane HTML datoteke so zapisane v "
+
+#~ msgid "Character encoding for HTML files. Default is to auto detect."
+#~ msgstr ""
+#~ "Kodna tabela znakov za HTML datoteke. Privzeto je samodejno zaznavanje."
+
+#~ msgid ""
+#~ "Create the output in a zip file. If this option is specified, the --output "
+#~ "should be the name of a file not a directory."
+#~ msgstr ""
+#~ "Ustvari izhodne podatke v zip datoteki. Če je izbrana ta možnost mora biti --"
+#~ "output ime datoteke, ne direktorija."
+
+#~ msgid "Control the following of links in HTML files."
+#~ msgstr "Nadzira sledeče povezave v HTML datotekah."
+
+#~ msgid ""
+#~ "Traverse links in HTML files breadth first. Normally, they are traversed "
+#~ "depth first"
+#~ msgstr ""
+#~ "Po povezavah v HTML datoteki se sprehodi najprej po širini. Običajno se "
+#~ "najprej sprehodi po globini"
+
+#~ msgid ""
+#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
+#~ "negative. 0 implies that no links in the root HTML file are followed."
+#~ msgstr ""
+#~ "Maksimalna stopnja rekurzije pri sledenju povezav v HTML datotekah. Mora "
+#~ "biti pozitivna vrednost. 0 pomeni da se ne sledi nobeni povezavi v osnovni "
+#~ "HTML datoteki."
+
+#~ msgid "%prog [options] LITFILE"
+#~ msgstr "%prog [options] LITFILE"
+
+#~ msgid "Output directory. Defaults to current directory."
+#~ msgstr "Izhodni direktorij. Privzet je trenutni direktorij."
+
+#~ msgid ""
+#~ "Set the author(s). Multiple authors should be set as a comma separated list. "
+#~ "Default: %default"
+#~ msgstr ""
+#~ "Nastavi avtorja(je). Več avtorjev se loči z vejicami. Privzeto: %default"
+
+#~ msgid "Set the comment."
+#~ msgstr "Nastavi opombe."
+
+#~ msgid "Set the category"
+#~ msgstr "Nastavi kategorijo"
+
 #~ msgid "Output file name. Default is derived from input filename"
 #~ msgstr ""
 #~ "Ime izhodne datoteke. Privzeta vrednost se izpelje iz vhodne datoteke"
 
 #~ msgid ""
-#~ "Render HTML tables as blocks of text instead of actual tables. This is "
-#~ "neccessary if the HTML contains very large or complex tables."
+#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
+#~ "option obsoletes the --font-delta option and takes precedence over it. To "
+#~ "use --font-delta, set this to 0. Default: %defaultpt"
 #~ msgstr ""
-#~ "Upodobi HTML tabele kot tekst. To je potrebno če HTML datoteka vsebuje zelo "
-#~ "velike ali kompleksne tabele."
+#~ "Specificiraj osnovno velikost pisave v pts. Vse pisave so ustrezno "
+#~ "skalirane. Ta možnost zastari --font-delta možnost in ima prednost pred njo. "
+#~ "Če želite uporabiti --font-delta, nastavite to vrednost na 0. Privzeto: "
+#~ "%defaultpt"
 
 #~ msgid "Separate paragraphs by blank lines."
 #~ msgstr "Loči odstavke s praznimi vrsticami."
-
-#~ msgid ""
-#~ "Use the <spine> element from the OPF file to determine the order in which "
-#~ "the HTML files are appended to the LRF. The .opf file must be in the same "
-#~ "directory as the base HTML file."
-#~ msgstr ""
-#~ "Uporabi <spine> element iz OPF datoteke za določanje vrstnega reda v katerem "
-#~ "so HTML datoteke pripete k LRF. Datoteka .opf mora biti v istem direktoriju "
-#~ "kot osnovna HTML datoteka."
-
-#~ msgid ""
-#~ "Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
-#~ "FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
-#~ "font size is decreased."
-#~ msgstr ""
-#~ "Povečaj velikost pisave za 2 * FONT_DELTA pts in razmak med vrsticami za "
-#~ "FONT_DELTA pts. FONT_DELTA je lahko decimalno število. Če je FONT_DELTA "
-#~ "negativno število se velikost pisave zmanjša."
-
-#~ msgid ""
-#~ "Render all content as black on white instead of the colors specified by the "
-#~ "HTML or CSS."
-#~ msgstr ""
-#~ "Upodobi vso vsebino kot črno na belem namesto z barvami, ki jih določa HTML "
-#~ "ali CSS."
-
-#~ msgid ""
-#~ "Profile of the target device for which this LRF is being generated. The "
-#~ "profile determines things like the resolution and screen size of the target "
-#~ "device. Default: %s Supported profiles: "
-#~ msgstr ""
-#~ "Profil ciljne naprave za katero se ustvarja ta LRF. Profil določa stvari, "
-#~ "kot so resolucija in velikost zaslona ciljne naprave. Privzeto: %s Podprti "
-#~ "profili: "
 
 #~ msgid "Left margin of page. Default is %default px."
 #~ msgstr "Leva meja strani. Privzeto je %default px."
@@ -7435,40 +7560,14 @@ msgstr ""
 #~ "Maksimalna globina v katero se obdelujejo povezave. Vrednost 0 pomeni da se "
 #~ "povezavam ne sledi. Negativna vrednost pomeni da se <a> značke ne upoštevajo."
 
-#~ msgid ""
-#~ "The regular expression used to detect chapter titles. It is searched for in "
-#~ "heading tags (h1-h6). Defaults to %default"
-#~ msgstr ""
-#~ "Regularni izraz uporabljen za zaznavanje naslovov poglavij. Išče se v "
-#~ "oznakah glave (h1-h6). Privzeto je %default"
+#~ msgid "Don't add links to the table of contents."
+#~ msgstr "Ne dodaj povezav v kazalo."
 
-#~ msgid ""
-#~ "If html2lrf does not find any page breaks in the html file and cannot detect "
-#~ "chapter headings, it will automatically insert page-breaks before the tags "
-#~ "whose names match this regular expression. Defaults to %default. You can "
-#~ "disable it by setting the regexp to \"$\". The purpose of this option is to "
-#~ "try to ensure that there are no really long pages as this degrades the page "
-#~ "turn performance of the LRF. Thus this option is ignored if the current page "
-#~ "has only a few elements."
-#~ msgstr ""
-#~ "Če html2lrf ne najde prelomov strani v html datoteki in ne more zaznati "
-#~ "glave poglavja bo samodejno vstavil prelom strani pred značko, katere ime se "
-#~ "ujema s tem regularnim izrazom. Privzeto je %default. To možnost lahko "
-#~ "onemogočite tako da nastavite regularni izraz na \"$\". Namen te možnosti je "
-#~ "preprečevanje zelo dolgih strani v dokumentu saj to degradira možnost "
-#~ "obračanja strani v LRF. Ta možnost se zato ne upošteva, če ima trenutna "
-#~ "stran samo nekaj elementov."
+#~ msgid "Prevent the automatic detection chapters."
+#~ msgstr "Onemogoči samodejno zaznavanje poglavij."
 
-#~ msgid ""
-#~ "Force a page break before an element having the specified attribute. The "
-#~ "format for this option is tagname regexp,attribute name,attribute value "
-#~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
-#~ msgstr ""
-#~ "Vsili prelom strani pred element, ki ima specificiran atribut. Format za to "
-#~ "možnost je tagname regexp,attribute name,attribute value regexp. Naprimer, "
-#~ "za ujemanje vseh značk glav, ki imajo atribut class=\"chapter\" bi uporabili "
-#~ "\"h\\d,class,chapter\". Privzeto je %default"
+#~ msgid "Add detected chapters to the table of contents."
+#~ msgstr "Dodaj zaznana poglavja v kazalo."
 
 #~ msgid "Preprocess Baen HTML files to improve generated LRF."
 #~ msgstr "Predobdelaj Baen HTML datoteke za izboljšavo ustvarjenih LRF."
@@ -7482,9 +7581,6 @@ msgstr ""
 
 #~ msgid "Use this option on html0 files from Book Designer."
 #~ msgstr "Uporabite to možnost za html0 datoteke iz Book Designer-ja."
-
-#~ msgid "Convert to LRS"
-#~ msgstr "Pretvori v LRS"
 
 #~ msgid ""
 #~ "Minimize memory usage at the cost of longer processing times. Use this "
@@ -7504,59 +7600,32 @@ msgstr ""
 #~ "računalnikov z MS Windows operacijskim sistemom je cp-1252. Druga pogosta "
 #~ "kodna tabela je utf-8. Privzeto je ugibanje tipa kodne tabele."
 
-#~ msgid ""
-#~ "any2lrf [options] myfile\n"
-#~ "\n"
-#~ "Convert any ebook format into LRF. Supported formats are:\n"
-#~ "LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a "
-#~ "RAR or\n"
-#~ "ZIP archive, looking for an ebook inside the archive.\n"
-#~ "    "
-#~ msgstr ""
-#~ "any2lrf [options] mojaDatoteka\n"
-#~ "\n"
-#~ "Pretvori knjigo iz poljubnega formata v LRF. Podprti formati so:\n"
-#~ "LIT, RTF, TXT, HTML, EPUB, MOBI, PRC in PDF. any2lrf bo obdelal tudi RAR "
-#~ "ali\n"
-#~ "ZIP arhive in poiskal eknjige znotraj njih.\n"
-#~ "    "
-
 #~ msgid "No file to convert specified."
 #~ msgstr "Nobena datoteka ni določena za pretvorbo."
 
 #~ msgid ""
-#~ "Usage: %prog [options] mybook.epub\n"
-#~ "        \n"
-#~ "        \n"
-#~ "%prog converts mybook.epub to mybook.lrf"
-#~ msgstr ""
-#~ "Uporaba: %prog [options] mojaKnjiga.epub\n"
-#~ "        \n"
-#~ "        \n"
-#~ "%prog pretvori mojaKnjiga.epub v mojaKnjiga.lrf"
+#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
+#~ msgstr "Možnosti za nadzor pretvorbe stripov (CBR, CBZ) v eknjige."
+
+#~ msgid "Title for generated ebook. Default is to use the filename."
+#~ msgstr "Naslov ustvarjene eknjige. Privzeta je uporaba imena datoteke."
 
 #~ msgid ""
-#~ "%prog [options] mybook.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.fb2 to mybook.lrf"
+#~ "Set the author in the metadata of the generated ebook. Default is %default"
 #~ msgstr ""
-#~ "%prog [options] mojaKnjiga.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog pretvori mojaKnjiga.fb2 v mojaKnjiga.lrf"
+#~ "Nastavi avtorja v meta podatkih ustvarjene eknjige. Privzeto je %default"
 
-#~ msgid "Print generated HTML to stdout and quit."
-#~ msgstr "Izpiši generiran HTML na stdout in se ugasni."
+#~ msgid "Don't show progress bar."
+#~ msgstr "Ne pokaži indikatorja napredka."
+
+#~ msgid "Output written to"
+#~ msgstr "Izhod se zapiše v"
 
 #~ msgid "Options to control the behavior of feeds2disk"
 #~ msgstr "Možnosti za nadzor obnašanja feeds2disk"
 
 #~ msgid "Options to control the behavior of html2lrf"
 #~ msgstr "Možnosti za nadzor obnašanja html2lrf"
-
-#~ msgid "Fetching of recipe failed: "
-#~ msgstr "Prenos recepta ni uspel: "
 
 #~ msgid ""
 #~ "You have to save the website %s as an html file first and then run html2lrf "
@@ -7566,54 +7635,10 @@ msgstr ""
 #~ "uporabite html2lrf."
 
 #~ msgid ""
-#~ "Usage: %prog [options] mybook.html\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.html to mybook.lrf. \n"
-#~ "%prog follows all links in mybook.html that point \n"
-#~ "to local files recursively. Thus, you can use it to \n"
-#~ "convert a whole tree of HTML files."
+#~ " is an image based PDF. Only conversion of text based PDFs is supported."
 #~ msgstr ""
-#~ "Uporaba: %prog [možnosti] mojaKnjiga.html\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog pretvori mojaKnjiga.html v mojaKnjiga.lrf. \n"
-#~ "%prog sledi vsem povezavam v mojaKnjiga.html, ki kažejo \n"
-#~ "na lokalne datoteke, rekurzivno. Zato ga lahko uporabite za \n"
-#~ "pretvorbo celotnega drevesa HTML datotek."
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.lit\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.lit to mybook.lrf"
-#~ msgstr ""
-#~ "Uporaba: %prog [možnosti] mojaKnjiga.lit\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog pretvori mojaKnjgia.lit v mojaKnjiga.lrf"
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.mobi|prc\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.mobi to mybook.lrf"
-#~ msgstr ""
-#~ "Uporaba: %prog [options] mojaknjiga.mobi|prc\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog pretvori mojaknjiga.mobi v mojaknjiga.lrf"
-
-#~ msgid ""
-#~ "%prog [options] mybook.pdf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.pdf to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mojaknjiga.pdf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog pretvori mojaknjiga.pdf v mojaknjiga.lrf"
+#~ " je slikovni PDF dokument. Podprta je samo pretvorba tekstovnih PDF "
+#~ "dokumentov."
 
 #~ msgid ""
 #~ "Path to output directory in which to create the HTML file. Defaults to "
@@ -7625,33 +7650,14 @@ msgstr ""
 #~ msgid "You must specify a single PDF file."
 #~ msgstr "Izbrati morate samo eno PDF datoteko."
 
-#~ msgid ""
-#~ "%prog [options] mybook.rtf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.rtf to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mojaknjiga.rtf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog pretvori mojaknjiga.rtf v mojaknjiga.lrf"
-
-#~ msgid ""
-#~ "%prog [options] mybook.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.txt to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mojaknjiga.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog pretvori mojaknjiga.txt v mojaknjiga.lrf"
-
 #~ msgid "Set the authors"
 #~ msgstr "Nastavi avtorje"
 
 #~ msgid "Set the comment"
 #~ msgstr "Nastavi opombe"
+
+#~ msgid "A comma separated list of tags to set"
+#~ msgstr "Z vejico ločen seznam značk, ki se nastavi"
 
 #~ msgid "Usage:"
 #~ msgstr "Uporaba:"
@@ -7662,45 +7668,23 @@ msgstr ""
 #~ msgid "Usage: pdf-meta file.pdf"
 #~ msgstr "Uporaba: pdf-meta datoteka.pdf"
 
-#~ msgid "No filename specified."
-#~ msgstr "Ni izbrane datoteke."
-
 #~ msgid "%prog [options] myebook.mobi"
 #~ msgstr "%prog [options] mojaeknjiga.mobi"
-
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "Izhodni direktorij. Privzet je trenutni direktorij."
 
 #~ msgid "Raw MOBI HTML saved in"
 #~ msgstr "Neobdelan MOBI HTML shranjen v"
 
-#~ msgid "OEB ebook created in"
-#~ msgstr "OEB eknjiga ustvarjena v"
+#~ msgid "The format to use when saving single files to disk"
+#~ msgstr "Format, ki se uporablja pri shranjevanju posameznih datotek na disk"
 
 #~ msgid "Configuration"
 #~ msgstr "Konfiguracija"
 
-#~ msgid "No available formats"
-#~ msgstr "Ni razpoložljivih formatov"
-
-#~ msgid "Cannot convert %s as this book has no supported formats"
-#~ msgstr "Ne morem pretvoriti %s ker ta knjiga ni na voljo v podprtem formatu"
-
-#~ msgid "Choose the format to convert into LRF"
-#~ msgstr "Izberite format, ki ga želite pretvoriti v LRF"
-
-#~ msgid "Convert %s to LRF"
-#~ msgstr "Pretvori %s v LRF"
+#~ msgid "Chapter Detection"
+#~ msgstr "Detekcija Poglavij"
 
 #~ msgid "Set conversion defaults"
 #~ msgstr "Nastavi privzete možnosti za pretvorbo"
-
-#~ msgid ""
-#~ "Preprocess the file before converting to LRF. This is useful if you know "
-#~ "that the file is from a specific source. Known sources:"
-#~ msgstr ""
-#~ "Predobdelaj datoteko pred pretvorbo v LRF. To je uporabno če je datoteka iz "
-#~ "specifičnega vira. Znani viri:"
 
 #~ msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
 #~ msgstr "<ol><li><b>baen</b> - Knjige od založnika BAEN Publishers</li>"
@@ -7737,14 +7721,11 @@ msgstr ""
 #~ msgid "Fine tune the detection of chapter and section headings."
 #~ msgstr "Fino nastavi zaznavanje poglavij in začetkov sekcij."
 
-#~ msgid "Chapter Detection"
-#~ msgstr "Detekcija Poglavij"
-
 #~ msgid "<font color=\"gray\">No help available</font>"
 #~ msgstr "<font color=\"gray\">Pomoč ni na voljo</font>"
 
-#~ msgid "Bulk convert ebooks to LRF"
-#~ msgstr "Paketna pretvorba eknjig v LRF"
+#~ msgid "Add Ta&gs: "
+#~ msgstr "Dodaj &Značke: "
 
 #~ msgid "Waiting"
 #~ msgstr "Čakam"
@@ -7755,11 +7736,240 @@ msgstr ""
 #~ msgid "Send to storage card"
 #~ msgstr "Pošlji v spominsko kartico"
 
-#~ msgid ""
-#~ "<p>Books with the same title as the following already exist in the database. "
-#~ "Add them anyway?<ul>"
+#~ msgid "Set defaults for conversion of comics"
+#~ msgstr "Nastavi privzete možnosti za pretvorbo stripov"
+
+#~ msgid "Could not save some ebooks"
+#~ msgstr "Nekaterih knjig ni bilo mogoče shraniti"
+
+#~ msgid "Copying library to "
+#~ msgstr "Kopiram knjižnico v "
+
+#~ msgid "Could not move database"
+#~ msgstr "Premik podatkovne baze ni bil mogoč"
+
+#~ msgid "Click to see the list of books available on your computer"
+#~ msgstr "Kliknite za seznam knjig, ki so na voljo na vašem računalniku"
+
+#~ msgid "Click to see the list of books in the main memory of your reader"
 #~ msgstr ""
-#~ "<p>Knjige z istim naslovom že obstajajo v bazi. Jih vseeno dodam?<ul>"
+#~ "Kliknite za seznam knjig, ki so na voljo v glavnem pomnilniku vašega reader-"
+#~ "ja"
+
+#~ msgid "Click to see the list of books on the storage card in your reader"
+#~ msgstr ""
+#~ "Kliknite za seznam knjig, ki so na voljo v spominski kartici v vašem reader-"
+#~ "ju"
+
+#~ msgid "Could not launch worker process."
+#~ msgstr "Zagon delovnega procesa ni uspel."
+
+#~ msgid "Job stopped by user"
+#~ msgstr "Posel ustavljen s strani uporabnika"
+
+#~ msgid "Dont show the progress bar"
+#~ msgstr "Ne prikaži indikatorja napredka"
+
+#~ msgid ""
+#~ "Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
+#~ "FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
+#~ "font size is decreased."
+#~ msgstr ""
+#~ "Povečaj velikost pisave za 2 * FONT_DELTA pts in razmak med vrsticami za "
+#~ "FONT_DELTA pts. FONT_DELTA je lahko decimalno število. Če je FONT_DELTA "
+#~ "negativno število se velikost pisave zmanjša."
+
+#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
+#~ msgstr "Izhodni HTML je \"lepo oblikovan\" za lažje analiziranje"
+
+#~ msgid ""
+#~ "Render HTML tables as blocks of text instead of actual tables. This is "
+#~ "neccessary if the HTML contains very large or complex tables."
+#~ msgstr ""
+#~ "Upodobi HTML tabele kot tekst. To je potrebno če HTML datoteka vsebuje zelo "
+#~ "velike ali kompleksne tabele."
+
+#~ msgid ""
+#~ "Use the <spine> element from the OPF file to determine the order in which "
+#~ "the HTML files are appended to the LRF. The .opf file must be in the same "
+#~ "directory as the base HTML file."
+#~ msgstr ""
+#~ "Uporabi <spine> element iz OPF datoteke za določanje vrstnega reda v katerem "
+#~ "so HTML datoteke pripete k LRF. Datoteka .opf mora biti v istem direktoriju "
+#~ "kot osnovna HTML datoteka."
+
+#~ msgid ""
+#~ "Render all content as black on white instead of the colors specified by the "
+#~ "HTML or CSS."
+#~ msgstr ""
+#~ "Upodobi vso vsebino kot črno na belem namesto z barvami, ki jih določa HTML "
+#~ "ali CSS."
+
+#~ msgid ""
+#~ "Profile of the target device for which this LRF is being generated. The "
+#~ "profile determines things like the resolution and screen size of the target "
+#~ "device. Default: %s Supported profiles: "
+#~ msgstr ""
+#~ "Profil ciljne naprave za katero se ustvarja ta LRF. Profil določa stvari, "
+#~ "kot so resolucija in velikost zaslona ciljne naprave. Privzeto: %s Podprti "
+#~ "profili: "
+
+#~ msgid ""
+#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
+#~ "to %default"
+#~ msgstr ""
+#~ "Regularni izraz. <a> značke katerih href se ujema se ne bodo upoštevale. "
+#~ "Privzeto na %default"
+
+#~ msgid ""
+#~ "The regular expression used to detect chapter titles. It is searched for in "
+#~ "heading tags (h1-h6). Defaults to %default"
+#~ msgstr ""
+#~ "Regularni izraz uporabljen za zaznavanje naslovov poglavij. Išče se v "
+#~ "oznakah glave (h1-h6). Privzeto je %default"
+
+#~ msgid ""
+#~ "If html2lrf does not find any page breaks in the html file and cannot detect "
+#~ "chapter headings, it will automatically insert page-breaks before the tags "
+#~ "whose names match this regular expression. Defaults to %default. You can "
+#~ "disable it by setting the regexp to \"$\". The purpose of this option is to "
+#~ "try to ensure that there are no really long pages as this degrades the page "
+#~ "turn performance of the LRF. Thus this option is ignored if the current page "
+#~ "has only a few elements."
+#~ msgstr ""
+#~ "Če html2lrf ne najde prelomov strani v html datoteki in ne more zaznati "
+#~ "glave poglavja bo samodejno vstavil prelom strani pred značko, katere ime se "
+#~ "ujema s tem regularnim izrazom. Privzeto je %default. To možnost lahko "
+#~ "onemogočite tako da nastavite regularni izraz na \"$\". Namen te možnosti je "
+#~ "preprečevanje zelo dolgih strani v dokumentu saj to degradira možnost "
+#~ "obračanja strani v LRF. Ta možnost se zato ne upošteva, če ima trenutna "
+#~ "stran samo nekaj elementov."
+
+#~ msgid ""
+#~ "Force a page break before tags whose names match this regular expression."
+#~ msgstr ""
+#~ "Vsili prelom strani pred značkami katerih imena se ujemajo s tem regularnim "
+#~ "izrazom."
+
+#~ msgid ""
+#~ "Force a page break before an element having the specified attribute. The "
+#~ "format for this option is tagname regexp,attribute name,attribute value "
+#~ "regexp. For example to match all heading tags that have the attribute "
+#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+#~ msgstr ""
+#~ "Vsili prelom strani pred element, ki ima specificiran atribut. Format za to "
+#~ "možnost je tagname regexp,attribute name,attribute value regexp. Naprimer, "
+#~ "za ujemanje vseh značk glav, ki imajo atribut class=\"chapter\" bi uporabili "
+#~ "\"h\\d,class,chapter\". Privzeto je %default"
+
+#~ msgid ""
+#~ "any2lrf [options] myfile\n"
+#~ "\n"
+#~ "Convert any ebook format into LRF. Supported formats are:\n"
+#~ "LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a "
+#~ "RAR or\n"
+#~ "ZIP archive, looking for an ebook inside the archive.\n"
+#~ "    "
+#~ msgstr ""
+#~ "any2lrf [options] mojaDatoteka\n"
+#~ "\n"
+#~ "Pretvori knjigo iz poljubnega formata v LRF. Podprti formati so:\n"
+#~ "LIT, RTF, TXT, HTML, EPUB, MOBI, PRC in PDF. any2lrf bo obdelal tudi RAR "
+#~ "ali\n"
+#~ "ZIP arhive in poiskal eknjige znotraj njih.\n"
+#~ "    "
+
+#~ msgid "Rendering comic pages..."
+#~ msgstr "Upodabljam strani stripa ..."
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.epub\n"
+#~ "        \n"
+#~ "        \n"
+#~ "%prog converts mybook.epub to mybook.lrf"
+#~ msgstr ""
+#~ "Uporaba: %prog [options] mojaKnjiga.epub\n"
+#~ "        \n"
+#~ "        \n"
+#~ "%prog pretvori mojaKnjiga.epub v mojaKnjiga.lrf"
+
+#~ msgid ""
+#~ "%prog [options] mybook.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.fb2 to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] mojaKnjiga.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog pretvori mojaKnjiga.fb2 v mojaKnjiga.lrf"
+
+#~ msgid "Print generated HTML to stdout and quit."
+#~ msgstr "Izpiši generiran HTML na stdout in se ugasni."
+
+#~ msgid "Keep generated HTML files after completing conversion to LRF."
+#~ msgstr "Obdrži ustvarjene HTML datoteke po uspešni pretvorbi v LRF."
+
+#~ msgid "Fetching of recipe failed: "
+#~ msgstr "Prenos recepta ni uspel: "
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.html\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.html to mybook.lrf. \n"
+#~ "%prog follows all links in mybook.html that point \n"
+#~ "to local files recursively. Thus, you can use it to \n"
+#~ "convert a whole tree of HTML files."
+#~ msgstr ""
+#~ "Uporaba: %prog [možnosti] mojaKnjiga.html\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog pretvori mojaKnjiga.html v mojaKnjiga.lrf. \n"
+#~ "%prog sledi vsem povezavam v mojaKnjiga.html, ki kažejo \n"
+#~ "na lokalne datoteke, rekurzivno. Zato ga lahko uporabite za \n"
+#~ "pretvorbo celotnega drevesa HTML datotek."
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.lit\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.lit to mybook.lrf"
+#~ msgstr ""
+#~ "Uporaba: %prog [možnosti] mojaKnjiga.lit\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog pretvori mojaKnjgia.lit v mojaKnjiga.lrf"
+
+#~ msgid "No filename specified."
+#~ msgstr "Ni izbrane datoteke."
+
+#~ msgid "Format for &single file save:"
+#~ msgstr "Format za &shranjevanje enojne datoteke:"
+
+#~ msgid ""
+#~ "Preprocess the file before converting to LRF. This is useful if you know "
+#~ "that the file is from a specific source. Known sources:"
+#~ msgstr ""
+#~ "Predobdelaj datoteko pred pretvorbo v LRF. To je uporabno če je datoteka iz "
+#~ "specifičnega vira. Znani viri:"
+
+#~ msgid ""
+#~ "<p>Could not save the following books to disk, because the %s format is not "
+#~ "available for them:<ul>"
+#~ msgstr ""
+#~ "<p>Prenos sledečih knjig na disk ni uspek, ker %s format ni na voljo "
+#~ "zanje:<ul>"
+
+#~ msgid "Starting Bulk conversion of %d books"
+#~ msgstr "Začenjam Paketno pretvarjanje %d knjig"
+
+#~ msgid ""
+#~ "<p>Could not convert %d of %d books, because no suitable source format was "
+#~ "found.<ul>%s</ul>"
+#~ msgstr ""
+#~ "<p>Pretvorba %d od %d ni uspela, ker zanje ni bil najden potreben izvorni "
+#~ "format.<ul>%s</ul>"
 
 #~ msgid ""
 #~ "<p>An invalid database already exists at %s, delete it before trying to move "
@@ -7768,8 +7978,8 @@ msgstr ""
 #~ "<p>Neveljavna podatkovna baza že obstaja v %s, izbrišite jo preden poskusite "
 #~ "premakniti obstoječo podatkovno bazo.<br>Napaka: %s"
 
-#~ msgid "Could not move database"
-#~ msgstr "Premik podatkovne baze ni bil mogoč"
+#~ msgid "Could not initialize the fontconfig library"
+#~ msgstr "Inicializacija fontconfig knjižnice ni uspela."
 
 #~ msgid ""
 #~ "Options to control web2disk (used to fetch websites linked from feeds)"
@@ -7798,9 +8008,6 @@ msgstr ""
 #~ "Direktorij v katerega se shranijo prenešeni feed-i. Privzet je trenutni "
 #~ "direktorij."
 
-#~ msgid "Dont show the progress bar"
-#~ msgstr "Ne prikaži indikatorja napredka"
-
 #~ msgid ""
 #~ "\n"
 #~ "Downloaded article %s from %s\n"
@@ -7813,201 +8020,8 @@ msgstr ""
 #~ msgid "Failed to download article: %s from %s\n"
 #~ msgstr "Neuspešen prenos članka: %s iz %s\n"
 
-#~ msgid "Click to see the list of books available on your computer"
-#~ msgstr "Kliknite za seznam knjig, ki so na voljo na vašem računalniku"
-
-#~ msgid "Click to see the list of books in the main memory of your reader"
-#~ msgstr ""
-#~ "Kliknite za seznam knjig, ki so na voljo v glavnem pomnilniku vašega reader-"
-#~ "ja"
-
-#~ msgid "Click to see the list of books on the storage card in your reader"
-#~ msgstr ""
-#~ "Kliknite za seznam knjig, ki so na voljo v spominski kartici v vašem reader-"
-#~ "ju"
-
-#~ msgid "Starting Bulk conversion of %d books"
-#~ msgstr "Začenjam Paketno pretvarjanje %d knjig"
-
-#~ msgid ""
-#~ " is an image based PDF. Only conversion of text based PDFs is supported."
-#~ msgstr ""
-#~ " je slikovni PDF dokument. Podprta je samo pretvorba tekstovnih PDF "
-#~ "dokumentov."
-
-#~ msgid "Don't add links to the table of contents."
-#~ msgstr "Ne dodaj povezav v kazalo."
-
-#~ msgid "Add detected chapters to the table of contents."
-#~ msgstr "Dodaj zaznana poglavja v kazalo."
-
-#~ msgid ""
-#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
-#~ "to %default"
-#~ msgstr ""
-#~ "Regularni izraz. <a> značke katerih href se ujema se ne bodo upoštevale. "
-#~ "Privzeto na %default"
-
-#~ msgid ""
-#~ "Force a page break before tags whose names match this regular expression."
-#~ msgstr ""
-#~ "Vsili prelom strani pred značkami katerih imena se ujemajo s tem regularnim "
-#~ "izrazom."
-
-#~ msgid ""
-#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
-#~ "option obsoletes the --font-delta option and takes precedence over it. To "
-#~ "use --font-delta, set this to 0. Default: %defaultpt"
-#~ msgstr ""
-#~ "Specificiraj osnovno velikost pisave v pts. Vse pisave so ustrezno "
-#~ "skalirane. Ta možnost zastari --font-delta možnost in ima prednost pred njo. "
-#~ "Če želite uporabiti --font-delta, nastavite to vrednost na 0. Privzeto: "
-#~ "%defaultpt"
-
-#~ msgid "Could not initialize the fontconfig library"
-#~ msgstr "Inicializacija fontconfig knjižnice ni uspela."
-
-#~ msgid "Prevent the automatic detection chapters."
-#~ msgstr "Onemogoči samodejno zaznavanje poglavij."
-
-#~ msgid "Could not launch worker process."
-#~ msgstr "Zagon delovnega procesa ni uspel."
-
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "Reader nima vstavljene spominske kartice."
-
-#~ msgid "Format for &single file save:"
-#~ msgstr "Format za &shranjevanje enojne datoteke:"
-
-#~ msgid ""
-#~ "<p>Could not save the following books to disk, because the %s format is not "
-#~ "available for them:<ul>"
-#~ msgstr ""
-#~ "<p>Prenos sledečih knjig na disk ni uspek, ker %s format ni na voljo "
-#~ "zanje:<ul>"
-
-#~ msgid "Could not save some ebooks"
-#~ msgstr "Nekaterih knjig ni bilo mogoče shraniti"
-
-#~ msgid "Keep generated HTML files after completing conversion to LRF."
-#~ msgstr "Obdrži ustvarjene HTML datoteke po uspešni pretvorbi v LRF."
-
-#~ msgid "%prog [options] LITFILE"
-#~ msgstr "%prog [options] LITFILE"
-
-#~ msgid "Title for generated ebook. Default is to use the filename."
-#~ msgstr "Naslov ustvarjene eknjige. Privzeta je uporaba imena datoteke."
-
-#~ msgid ""
-#~ "Set the author in the metadata of the generated ebook. Default is %default"
-#~ msgstr ""
-#~ "Nastavi avtorja v meta podatkih ustvarjene eknjige. Privzeto je %default"
-
-#~ msgid "Don't show progress bar."
-#~ msgstr "Ne pokaži indikatorja napredka."
-
-#~ msgid "Rendering comic pages..."
-#~ msgstr "Upodabljam strani stripa ..."
-
-#~ msgid "A comma separated list of tags to set"
-#~ msgstr "Z vejico ločen seznam značk, ki se nastavi"
-
-#~ msgid ""
-#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
-#~ msgstr "Možnosti za nadzor pretvorbe stripov (CBR, CBZ) v eknjige."
-
-#~ msgid "Output written to"
-#~ msgstr "Izhod se zapiše v"
-
-#~ msgid "Set defaults for conversion of comics"
-#~ msgstr "Nastavi privzete možnosti za pretvorbo stripov"
-
-#~ msgid ""
-#~ "<p>Could not convert %d of %d books, because no suitable source format was "
-#~ "found.<ul>%s</ul>"
-#~ msgstr ""
-#~ "<p>Pretvorba %d od %d ni uspela, ker zanje ni bil najden potreben izvorni "
-#~ "format.<ul>%s</ul>"
-
-#~ msgid "Convert book: "
-#~ msgstr "Pretvori knjigo: "
-
-#~ msgid "Convert comic: "
-#~ msgstr "Pretvori strip: "
-
-#~ msgid "The format to use when saving single files to disk"
-#~ msgstr "Format, ki se uporablja pri shranjevanju posameznih datotek na disk"
-
-#~ msgid "Copying library to "
-#~ msgstr "Kopiram knjižnico v "
-
-#~ msgid "Job stopped by user"
-#~ msgstr "Posel ustavljen s strani uporabnika"
-
-#~ msgid "Options to control the conversion to EPUB"
-#~ msgstr "Možnosti za nadzor konverzije v EPUB"
-
-#~ msgid ""
-#~ "The output EPUB file. If not specified, it is derived from the input file "
-#~ "name."
-#~ msgstr ""
-#~ "Izhodna datoteka EPUB. Če ni določena, se izpelje iz imena vhodne datoteke."
-
-#~ msgid "You must specify an input HTML file"
-#~ msgstr "Izbrati morate vhodno HTML datoteko"
-
-#~ msgid "Written processed HTML to "
-#~ msgstr "Obdelane HTML datoteke so zapisane v "
-
-#~ msgid "Options to control the traversal of HTML"
-#~ msgstr "Možnosti za nadzor sprehajanja po HTML"
-
-#~ msgid "The output directory. Default is the current directory."
-#~ msgstr "Izhodni direktorij. Privzeti je trenutni direktorij."
-
-#~ msgid "Character encoding for HTML files. Default is to auto detect."
-#~ msgstr ""
-#~ "Kodna tabela znakov za HTML datoteke. Privzeto je samodejno zaznavanje."
-
-#~ msgid ""
-#~ "Create the output in a zip file. If this option is specified, the --output "
-#~ "should be the name of a file not a directory."
-#~ msgstr ""
-#~ "Ustvari izhodne podatke v zip datoteki. Če je izbrana ta možnost mora biti --"
-#~ "output ime datoteke, ne direktorija."
-
-#~ msgid "Control the following of links in HTML files."
-#~ msgstr "Nadzira sledeče povezave v HTML datotekah."
-
-#~ msgid ""
-#~ "Traverse links in HTML files breadth first. Normally, they are traversed "
-#~ "depth first"
-#~ msgstr ""
-#~ "Po povezavah v HTML datoteki se sprehodi najprej po širini. Običajno se "
-#~ "najprej sprehodi po globini"
-
-#~ msgid ""
-#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
-#~ "negative. 0 implies that no links in the root HTML file are followed."
-#~ msgstr ""
-#~ "Maksimalna stopnja rekurzije pri sledenju povezav v HTML datotekah. Mora "
-#~ "biti pozitivna vrednost. 0 pomeni da se ne sledi nobeni povezavi v osnovni "
-#~ "HTML datoteki."
-
-#~ msgid "Set metadata of the generated ebook"
-#~ msgstr "Nastavi meta podatke od generirane eknjige"
-
-#~ msgid "Set the title. Default is to autodetect."
-#~ msgstr "Nastavi naslov. Privzeto je samodejno zaznavanje."
-
-#~ msgid "Options useful for debugging"
-#~ msgstr "Možnosti koristne za razhroščevanje"
-
-#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-#~ msgstr "Izhodni HTML je \"lepo oblikovan\" za lažje analiziranje"
+#~ msgid "Usage: rb-meta file.rb"
+#~ msgstr "Uporaba: rb-meta datoteka.rb"
 
 #~ msgid "Usage: imp-meta file.imp"
 #~ msgstr "Uporaba: imp-meta datoteka.imp"
-
-#~ msgid "Usage: rb-meta file.rb"
-#~ msgstr "Uporaba: rb-meta datoteka.rb"

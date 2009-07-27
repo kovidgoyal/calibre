@@ -60,6 +60,7 @@
 					<xsl:apply-templates select="fb:body" mode="toc"/>
 				</ul>
 				<hr/>
+                <!-- END BUILD TOC -->
 				<!-- BUILD BOOK -->
 				<xsl:for-each select="fb:body">
 					<xsl:if test="position()!=1">
