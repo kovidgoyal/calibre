@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-07-19 18:45+0000\n"
+"POT-Creation-Date: 2009-07-25 02:01+0000\n"
 "PO-Revision-Date: 2009-07-08 22:59+0000\n"
 "Last-Translator: Clement Østergaard <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-07-21 16:49+0000\n"
+"X-Launchpad-Export-Date: 2009-07-26 20:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -35,6 +35,8 @@ msgstr "Gør absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:52
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:317
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1895
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
@@ -65,14 +67,14 @@ msgstr "Gør absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:857
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:862
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:900
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:136
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:866
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:871
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:909
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:84
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:101
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:104
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
@@ -109,7 +111,7 @@ msgstr "Gør absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
@@ -128,10 +130,10 @@ msgstr "Gør absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1514
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1599
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1673
-#: /home/kovid/work/calibre/src/calibre/library/server.py:294
-#: /home/kovid/work/calibre/src/calibre/library/server.py:355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1621
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1672
+#: /home/kovid/work/calibre/src/calibre/library/server.py:295
+#: /home/kovid/work/calibre/src/calibre/library/server.py:356
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -211,7 +213,7 @@ msgstr ""
 msgid "Conversion Input"
 msgstr "Konverterings input"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:122
 msgid ""
 "Save the output from the input plugin to the specified directory. Useful if "
 "you are unsure at which stage of the conversion process a bug is occurring. "
@@ -221,7 +223,7 @@ msgstr ""
 "ikke er sikker på i hvilket trin af konverteringsprocessen, en fejl finder "
 "sted. ADVARSEL: Dette sletter indholdet af den angivne mappe fuldstændigt."
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:127
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:131
 msgid ""
 "Specify the character encoding of the input document. If set this option "
 "will override any encoding declared by the document itself. Particularly "
@@ -232,11 +234,11 @@ msgstr ""
 "vil den overskrive tegnsæt angivet af dokumentet. Især nyttig til dokumenter "
 "der ikke oplyser et tegnsæt eller har fejlagtige oplysninger om tegnsættet."
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:243
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:247
 msgid "Conversion Output"
 msgstr "Konverterings output"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:257
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:261
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
@@ -1223,7 +1225,7 @@ msgstr ""
 msgid "Cannot read from: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1990
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1996
 msgid "Failed to process opf file"
 msgstr ""
 
@@ -1632,6 +1634,11 @@ msgid ""
 "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+msgid "Cover"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
@@ -1656,78 +1663,74 @@ msgstr ""
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:103
 msgid "All articles"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
-msgid "Cover"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1261
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
 msgid "Title Page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1262
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1263
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
 msgid "Index"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1264
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
 msgid "Glossary"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1265
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
 msgid "Acknowledgements"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1266
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
 msgid "Bibliography"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1267
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
 msgid "Colophon"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1268
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1277
 msgid "Copyright"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1278
 msgid "Dedication"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 msgid "Epigraph"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1280
 msgid "Foreword"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1281
 msgid "List of Illustrations"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1282
 msgid "List of Tables"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1283
 msgid "Notes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
 msgid "Preface"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1285
 msgid "Main Text"
 msgstr ""
 
@@ -1790,11 +1793,11 @@ msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:112
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:114
 msgid "Footnotes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:123
 msgid "Sidebar"
 msgstr ""
 
@@ -3931,9 +3934,8 @@ msgid "Meta information"
 msgstr "Metaoplysninger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
-msgid "Author S&ort: "
-msgstr "Forfatters&ortering "
+msgid "Author s&ort: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:342
@@ -3962,8 +3964,8 @@ msgid " stars"
 msgstr " stjerner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:148
-msgid "Add Ta&gs: "
-msgstr "&Tilføj mærkater: "
+msgid "Add ta&gs: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:151
@@ -4014,50 +4016,50 @@ msgstr "Kunne ikke læse omslaget fra %s-formatet"
 msgid "The cover in the %s format is invalid"
 msgstr "Omslaget i %s-formatet er ugyldigt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
 msgid "Downloading cover..."
 msgstr "Henter omslag..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:414
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:428
 msgid "Cannot fetch cover"
 msgstr "Kan ikke hente omslag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:429
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>Kunne ikke hente omslag</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
 msgid "The download timed out."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr "Kunne ikke finde et omslag til denne bog. Prøv at angive ISBN først."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:435
 msgid "Bad cover"
 msgstr "Dårligt omslag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:436
 msgid "The cover is not a valid picture"
 msgstr "Omslaget er ikke et gyldigt billede"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:475
 msgid "Cannot fetch metadata"
 msgstr "Kan ikke hente metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:476
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr "Du skal mindst angive ISBN, Titel, Forfatter eller Forlag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
 msgid "Permission denied"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 
@@ -4068,6 +4070,10 @@ msgstr "Rediger Metadata"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Swap the author and title"
 msgstr "Ombyt forfatter og titel"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
+msgid "Author S&ort: "
+msgstr "Forfatters&ortering "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:343
 msgid ""
@@ -6468,11 +6474,11 @@ msgstr "Kopierer <b>%s</b>"
 msgid "Compacting database"
 msgstr "Komprimerer database"
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:146
+#: /home/kovid/work/calibre/src/calibre/library/server.py:147
 msgid "Password to access your calibre library. Username is "
 msgstr "Adgangskode til dit calibre bibliotek. Brugernavnet er "
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:429
+#: /home/kovid/work/calibre/src/calibre/library/server.py:430
 msgid ""
 "[options]\n"
 "\n"
@@ -6748,12 +6754,14 @@ msgstr "Spansk"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_accountancyage.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_al_jazeera.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_azstarnet.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
@@ -6761,6 +6769,7 @@ msgstr "Spansk"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_coding_horror.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_craigslist.py:15
@@ -6798,8 +6807,10 @@ msgstr "Spansk"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linuxdevices.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moneynews.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
@@ -6825,14 +6836,17 @@ msgstr "Spansk"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scott_hanselman.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slate.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_stackoverflow.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
@@ -6858,7 +6872,7 @@ msgstr "Spansk"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
@@ -6916,6 +6930,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
 msgid "Portugese"
 msgstr "Portugisisk"
 
@@ -6934,10 +6949,6 @@ msgstr "Springer over duplikeret artikel: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
 msgstr "Springer over filtreret artikel: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
-msgid "Portuguese"
-msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
 msgid "Kovid Goyal and Sujata Raman"
@@ -7306,8 +7317,245 @@ msgstr "abonnement"
 msgid "subscribers"
 msgstr "abonnementer"
 
-#~ msgid "Set the title. Default: filename."
-#~ msgstr "Sæt titlen. Standardværdi: filnavnet."
+#~ msgid "Options to control the conversion to EPUB"
+#~ msgstr "Indstillinger for konvertering til EPUB"
+
+#~ msgid "The reader has no storage card connected."
+#~ msgstr "Læseren har ikke et hukommelseskort tilsluttet"
+
+#~ msgid "Path to the cover to be used for this book"
+#~ msgstr "Sti til omslaget der skal bruges til denne bog"
+
+#~ msgid ""
+#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
+#~ "existing CSS declarations in the source files."
+#~ msgstr ""
+#~ "Enten stien til et CSS stilark eller rå CSS. Dette CSS vil tilsidesætte "
+#~ "enhver eksisterende CSS i kildefilerne"
+
+#~ msgid ""
+#~ "An XPath expression to detect chapter titles. The default is to consider "
+#~ "<h1> or\n"
+#~ "<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
+#~ "\"part\" as chapter titles as \n"
+#~ "well as any tags that have class=\"chapter\". \n"
+#~ "The expression used must evaluate to a list of elements. To disable chapter "
+#~ "detection,\n"
+#~ "use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
+#~ "for further\n"
+#~ "help on using this feature.\n"
+#~ msgstr ""
+#~ "Et XPath udtryk til genkending af kapiteloverskrifter. Den forvalgte "
+#~ "indstilling betragter <h1> eller\n"
+#~ "<h2> tags som indeholder ordene \"chapter\", \"book\", \"section\" eller "
+#~ "\"part\" som kapiteloverskrifter, såvel \n"
+#~ "som ethvert tag der har class=\"chapter\". \n"
+#~ "Det benyttede udtryk skal evaluere til en liste med elementer. For at "
+#~ "deaktivere kapitelbestemmelse,\n"
+#~ "brug udtrykket \"/\". Se XPath gennemgangen i calibres brugermanual for "
+#~ "yderligere\n"
+#~ "hjælp om denne facilitet.\n"
+
+#~ msgid ""
+#~ "Control the automatic generation of a Table of Contents. If an OPF file is "
+#~ "detected\n"
+#~ "and it specifies a Table of Contents, then that will be used rather than "
+#~ "trying\n"
+#~ "to auto-generate a Table of Contents.\n"
+#~ msgstr ""
+#~ "Kontrollerer den automatiske generering af indholdsfortegnelser. Hvis en OPF-"
+#~ "fil er opdaget\n"
+#~ "og den angiver en indholdsfortegnelse, vil den blive brugt i stedet for der "
+#~ "bliver forsøgt\n"
+#~ "at lave én automatisk.\n"
+
+#~ msgid ""
+#~ "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
+#~ "is: %default. Links are only added to the TOC if less than the --toc-"
+#~ "threshold number of chapters were detected."
+#~ msgstr ""
+#~ "Maksimalt antal links at indsætte i indholdsfortegnelsen. Sæt til 0 for at "
+#~ "deaktivere. Standardværdien er: %default. Links tilføjes kun til "
+#~ "indholdsfortegnelsen hvis mindre der er opdaget færre kapitler end --toc-"
+#~ "threshold."
+
+#~ msgid "Control page layout"
+#~ msgstr "Kontrollerer sidelayoutet"
+
+#~ msgid "Set the top margin in pts. Default is %default"
+#~ msgstr "Sæt topmargen i punkter. Standardværdien er %default"
+
+#~ msgid "Set the bottom margin in pts. Default is %default"
+#~ msgstr "Sæt bundmargen i punkter. Standardværdien er %default"
+
+#~ msgid "Set the left margin in pts. Default is %default"
+#~ msgstr "Sæt venstremargen i punkter. Standardværdien er %default"
+
+#~ msgid "Set the right margin in pts. Default is %default"
+#~ msgstr "Sæt højremargen i punkter. Standardværdien er %default"
+
+#~ msgid ""
+#~ "Path to a .ncx file that contains the table of contents to use for this "
+#~ "ebook. The NCX file should contain links relative to the directory it is "
+#~ "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
+#~ "an overview of the NCX format."
+#~ msgstr ""
+#~ "Sti til en .ncx-fil, der indeholder indholdsfortegnelsen for denne e-bog. "
+#~ "NCX-filen bør indeholde links relativt til mappen den er placeret i. Se "
+#~ "http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for en oversigt "
+#~ "over NCX-formatet."
+
+#~ msgid ""
+#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
+#~ "rescaling of fonts."
+#~ msgstr ""
+#~ "Den grundlæggende skriftstørrelse i punkter. Standard er %defaultpt. Sæt til "
+#~ "0 for at slå ændring af skriftstørrelse fra."
+
+#~ msgid "Do not force text to be justified in output."
+#~ msgstr "Gennemtving ikke lige margener i outputtet"
+
+#~ msgid ""
+#~ "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
+#~ "1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
+#~ "css. Spacing removal will not work if the source file forces inter-paragraph "
+#~ "spacing."
+#~ msgstr ""
+#~ "Fjerner afstanden mellem afsnit. Sætter også indrykningen på afsnit til "
+#~ "1,5em. Du kan ændre dette ved at tilføje p {text-indent: 0cm}  til --"
+#~ "override-css. Fjernelse af afstanden vil ikke virke, hvis kildefilen "
+#~ "gennemtvinger afstand mellem afsnit."
+
+#~ msgid ""
+#~ "Remove table markup, converting it into paragraphs. This is useful if your "
+#~ "source file uses a table to manage layout."
+#~ msgstr ""
+#~ "Fjern tabel opmærkning og konverter det til afsnit. Dette er brugbart, hvis "
+#~ "kilefilerne bruger an tabel til styring af layout."
+
+#~ msgid "Output written to "
+#~ msgstr "Output skrevet til "
+
+#~ msgid ""
+#~ "%%prog [options] filename\n"
+#~ "\n"
+#~ "Convert any of a large number of ebook formats to a %s file. Supported "
+#~ "formats are: %s\n"
+#~ msgstr ""
+#~ "%%prog [indstillinger] filnavn\n"
+#~ "\n"
+#~ "Konverter fra et stort antal forskellige e-bogsformater til en %s-fil. "
+#~ "Understøttede formater er: %s\n"
+
+#~ msgid "You must specify an input HTML file"
+#~ msgstr "Du skal angive en HTML-kildefil"
+
+#~ msgid "Print generated OPF file to stdout"
+#~ msgstr "Skriv den genererede OPF-fil til stdout"
+
+#~ msgid "Print generated NCX file to stdout"
+#~ msgstr "Skriv den genererede NCX-fil til stdout"
+
+#~ msgid "Keep intermediate files during processing by html2epub"
+#~ msgstr "Bevar mellemliggende filer under kørsel af html2epub"
+
+#~ msgid ""
+#~ "Preserve the HTML tag structure while splitting large HTML files. This is "
+#~ "only neccessary if the HTML files contain CSS that uses sibling selectors. "
+#~ "Enabling this greatly slows down processing of large HTML files."
+#~ msgstr ""
+#~ "Bevar strukturen af HTML tags når store HTML-filer deles. Dette er kun "
+#~ "nødvendigt, hvis HTML-filerne indeholder CSS, der bruger søskende-selektorer."
+
+#~ msgid ""
+#~ "Extract the contents of the produced EPUB file to the specified directory."
+#~ msgstr "Udpak indholdet af den genererede EPUB-fil til den angivne mappe"
+
+#~ msgid "Written processed HTML to "
+#~ msgstr "Skriv behandlet HTML til "
+
+#~ msgid "The output directory. Default is the current directory."
+#~ msgstr "Output-mappen. Standard er den nuværende mappe."
+
+#~ msgid "Character encoding for HTML files. Default is to auto detect."
+#~ msgstr "Tegnsæt for HTML-filer. Standardværdien er at finde det automatisk."
+
+#~ msgid ""
+#~ "Create the output in a zip file. If this option is specified, the --output "
+#~ "should be the name of a file not a directory."
+#~ msgstr ""
+#~ "Skab outputtet i en ZIP-fil. Hvis denne indstilling er valgt, skal --output "
+#~ "være navnet på en fil, ikke en mappe."
+
+#~ msgid "Control the following of links in HTML files."
+#~ msgstr "Kontroller de følgende links i HTML-filer."
+
+#~ msgid "Options to control the traversal of HTML"
+#~ msgstr "Indstillinger til styring af HTML gennemgangen"
+
+#~ msgid ""
+#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
+#~ "cause incorrect rendering."
+#~ msgstr ""
+#~ "\t\tFor meget opmærkning. Deler igen uden at bevare strukturen. Dette kan "
+#~ "forårsage ukorrekt visning."
+
+#~ msgid ""
+#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
+#~ "negative. 0 implies that no links in the root HTML file are followed."
+#~ msgstr ""
+#~ "Maksimal rekursiv dybde, når links i HTML-filer følges. Må ikke være "
+#~ "negativt. 0 indebærer at ingen links i HTML-filen bliver fulgt."
+
+#~ msgid "Set metadata of the generated ebook"
+#~ msgstr "Angiv metadataene for den genererede e-bog"
+
+#~ msgid "Load metadata from the specified OPF file"
+#~ msgstr "Indlæs metadata fra den angivne OPF-fil"
+
+#~ msgid ""
+#~ "Be more verbose while processing. Can be specified multiple times to "
+#~ "increase verbosity."
+#~ msgstr ""
+#~ "Vær mere uddybende under behandlingen. Kan blive angivet flere gange for at "
+#~ "øge uddybningen."
+
+#~ msgid "Options useful for debugging"
+#~ msgstr "Brugbare indstillinger for fejlsøgning"
+
+#~ msgid "Set the title. Default is to autodetect."
+#~ msgstr "Sæt titlen. Standardværdien er at finde det automatisk."
+
+#~ msgid "The subject(s) of this book, as a comma separated list."
+#~ msgstr "Bogens emne(r) som en kommasepareret liste."
+
+#~ msgid "A summary of this book."
+#~ msgstr "Et resume af bogen"
+
+#~ msgid "The author(s) of the ebook, as a & separated list."
+#~ msgstr "Forfatterne som en &-separeret liste"
+
+#~ msgid "%prog [options] LITFILE"
+#~ msgstr "%prog [indstillinger] LITFIL"
+
+#~ msgid "%prog [options] OPFFILE"
+#~ msgstr "%prog [options] OPFFIL"
+
+#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
+#~ msgstr ""
+#~ "Formater det udpakkede opmærkning for lettere læsning. Vil muligvis ændre "
+#~ "betydningsfulde blanktegn."
+
+#~ msgid "OEB ebook created in"
+#~ msgstr "OEB-e-bog oprettet i"
+
+#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
+#~ msgstr ""
+#~ "Outpu HTML bliver skrevet \"pænt\" for lettere at kunne fortolkes af "
+#~ "mennesker."
+
+#~ msgid "Output directory. Defaults to current directory."
+#~ msgstr "Output-mappe. Standardværdien er den nuværende mappe."
 
 #~ msgid ""
 #~ "Set the author(s). Multiple authors should be set as a comma separated list. "
@@ -7328,9 +7576,6 @@ msgstr "abonnementer"
 #~ msgid "Sort key for the author"
 #~ msgstr "Sorteringsnøglen for forfatteren"
 
-#~ msgid "Path to file containing image to be used as cover"
-#~ msgstr "Sti til fil med billedet, der skal bruges som omslag"
-
 #~ msgid ""
 #~ "If there is a cover graphic detected in the source file, use that instead of "
 #~ "the specified cover."
@@ -7341,12 +7586,28 @@ msgstr "abonnementer"
 #~ msgid "Output file name. Default is derived from input filename"
 #~ msgstr "Output-filnavnet. Standardværdien er udled fra navnet på kildefilen"
 
+#~ msgid "Path to file containing image to be used as cover"
+#~ msgstr "Sti til fil med billedet, der skal bruges som omslag"
+
+#~ msgid "Set the title. Default: filename."
+#~ msgstr "Sæt titlen. Standardværdi: filnavnet."
+
+#~ msgid "Set the publisher of this book."
+#~ msgstr "Sæt bogens forlag"
+
 #~ msgid ""
-#~ "Render HTML tables as blocks of text instead of actual tables. This is "
-#~ "neccessary if the HTML contains very large or complex tables."
+#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
+#~ "option obsoletes the --font-delta option and takes precedence over it. To "
+#~ "use --font-delta, set this to 0. Default: %defaultpt"
 #~ msgstr ""
-#~ "Vis HTML-tabeller som tekstblokke i stedet for rigtige tabeller. Dette er "
-#~ "nødvendigt, hvis HTMLet indeholder meget store eller komplekse tabeller."
+#~ "Angiv den grundlæggende skriftstørrelse i punkter. Alle skriftstørrelser "
+#~ "skaleres i forhold til den. Denne indstilling gør --font-delta indstillingen "
+#~ "forældet og bruges i stedet. For at bruge --font-delta, set denne til 0. "
+#~ "Standardværdi: %defaultpt"
+
+#~ msgid "Add extra spacing below the header. Default is %default px."
+#~ msgstr ""
+#~ "Tilføj ekstra afstand under sidehovedet. Standardværdien er %default px."
 
 #~ msgid "Separate paragraphs by blank lines."
 #~ msgstr "Adskil afsnit med tomme linier"
@@ -7359,13 +7620,20 @@ msgstr "abonnementer"
 #~ "tekststreng. Hvis det er en tekststreng, fortolkes det som CSS."
 
 #~ msgid ""
-#~ "Use the <spine> element from the OPF file to determine the order in which "
-#~ "the HTML files are appended to the LRF. The .opf file must be in the same "
-#~ "directory as the base HTML file."
+#~ "Render HTML tables as blocks of text instead of actual tables. This is "
+#~ "neccessary if the HTML contains very large or complex tables."
 #~ msgstr ""
-#~ "Brug OPF-filens <spine>-element til at bestemme rækkefølgen HTML-filerne "
-#~ "skal tilføjes til LRF-filen. OPT-filen skal være i samme mappe som basis "
-#~ "HTML-filen."
+#~ "Vis HTML-tabeller som tekstblokke i stedet for rigtige tabeller. Dette er "
+#~ "nødvendigt, hvis HTMLet indeholder meget store eller komplekse tabeller."
+
+#~ msgid ""
+#~ "Profile of the target device for which this LRF is being generated. The "
+#~ "profile determines things like the resolution and screen size of the target "
+#~ "device. Default: %s Supported profiles: "
+#~ msgstr ""
+#~ "Profil for enheden som denne LRF genereres for. Profilen bestemmer ting så "
+#~ "som opløsning og skærmstørrelse for enheden. Standardværdi: %s Understøttede "
+#~ "profiler: "
 
 #~ msgid ""
 #~ "Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
@@ -7384,16 +7652,16 @@ msgstr "abonnementer"
 #~ "eller CSS."
 
 #~ msgid ""
-#~ "Profile of the target device for which this LRF is being generated. The "
-#~ "profile determines things like the resolution and screen size of the target "
-#~ "device. Default: %s Supported profiles: "
+#~ "Use the <spine> element from the OPF file to determine the order in which "
+#~ "the HTML files are appended to the LRF. The .opf file must be in the same "
+#~ "directory as the base HTML file."
 #~ msgstr ""
-#~ "Profil for enheden som denne LRF genereres for. Profilen bestemmer ting så "
-#~ "som opløsning og skærmstørrelse for enheden. Standardværdi: %s Understøttede "
-#~ "profiler: "
+#~ "Brug OPF-filens <spine>-element til at bestemme rækkefølgen HTML-filerne "
+#~ "skal tilføjes til LRF-filen. OPT-filen skal være i samme mappe som basis "
+#~ "HTML-filen."
 
-#~ msgid "Left margin of page. Default is %default px."
-#~ msgstr "Venstre sidemargen. Standardværdi er %default px."
+#~ msgid "Bottom margin of page. Default is %default px."
+#~ msgstr "Bundmargen. Standardværdi er %default px."
 
 #~ msgid "Right margin of page. Default is %default px."
 #~ msgstr "Højre sidemargen. Standardværdi er %default px."
@@ -7401,8 +7669,23 @@ msgstr "abonnementer"
 #~ msgid "Top margin of page. Default is %default px."
 #~ msgstr "Topmargen. Standardværdi er %default px."
 
-#~ msgid "Bottom margin of page. Default is %default px."
-#~ msgstr "Bundmargen. Standardværdi er %default px."
+#~ msgid "Left margin of page. Default is %default px."
+#~ msgstr "Venstre sidemargen. Standardværdi er %default px."
+
+#~ msgid "Don't add links to the table of contents."
+#~ msgstr "Føj ikke links til indholdsfortegnelsen."
+
+#~ msgid ""
+#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
+#~ "to %default"
+#~ msgstr ""
+#~ "Et regulært udtryk. <a>-tags, hvis href matcher vil blive ignoreret. "
+#~ "Standardværdi %default"
+
+#~ msgid ""
+#~ "Force a page break before tags whose names match this regular expression."
+#~ msgstr ""
+#~ "Gennemtving sideskift før tags, hvis navne passer på dette regulære udtryk."
 
 #~ msgid ""
 #~ "The maximum number of levels to recursively process links. A value of 0 "
@@ -7413,28 +7696,22 @@ msgstr "abonnementer"
 #~ "ikke følges. En negativ værdi betyder at <a>-tags ignoreres."
 
 #~ msgid ""
-#~ "The regular expression used to detect chapter titles. It is searched for in "
-#~ "heading tags (h1-h6). Defaults to %default"
+#~ "Detect a chapter beginning at an element having the specified attribute. The "
+#~ "format for this option is tagname regexp,attribute name,attribute value "
+#~ "regexp. For example to match all heading tags that have the attribute "
+#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". You can set the "
+#~ "attribute to \"none\" to match only on tag names. So for example, to match "
+#~ "all h2 tags, you would use \"h2,none,\". Default is %default"
 #~ msgstr ""
-#~ "Det regulære udtryk, der skal bruges til at bestemme kapitler. Der bliver "
-#~ "søgt for det i overskriftstags(h1-h6). Standardværdi %default"
+#~ "Find et kapitel begyndende med et element med den angivne attribut. Formatet "
+#~ "for denne indstilling er tagnavnsudtryk,attributnavn,værdiudtryk. Fx. for at "
+#~ "finde alle overskrifter, der har attributten class=\"chapter\" brug \"h\\"
+#~ "d,class,chapter\". Du kan sætte attributten til \"none\" for kun at søge på "
+#~ "tagnavne. For fx. at finde alle h2 tags, brug \"h2,none,\". Standardværdien "
+#~ "er %default"
 
-#~ msgid ""
-#~ "If html2lrf does not find any page breaks in the html file and cannot detect "
-#~ "chapter headings, it will automatically insert page-breaks before the tags "
-#~ "whose names match this regular expression. Defaults to %default. You can "
-#~ "disable it by setting the regexp to \"$\". The purpose of this option is to "
-#~ "try to ensure that there are no really long pages as this degrades the page "
-#~ "turn performance of the LRF. Thus this option is ignored if the current page "
-#~ "has only a few elements."
-#~ msgstr ""
-#~ "Hvis html2lrf ikke finder nogle sideskift i html-filen, og ikke kan finde "
-#~ "nogle kapiteloverskrifter, vil det automatisk indsætte sideskift før tags, "
-#~ "hvis navne passer på dette regulære udtryk. Standardværdien er %default. Du "
-#~ "kan deaktivere det ved at sætte udtrykket til \"$\". Formålet med denne "
-#~ "indstilling er at sikre, at der ikke er nogle rigtig lange sider, da det går "
-#~ "ud over ydelsen når siderne skal vendes. Derfor bliver denne indstilling "
-#~ "ignoreret, hvis den aktuelle side har få elementer."
+#~ msgid "Prevent the automatic detection chapters."
+#~ msgstr "Forhinder automatisk opdagelse af kapitler."
 
 #~ msgid ""
 #~ "Force a page break before an element having the specified attribute. The "
@@ -7447,18 +7724,15 @@ msgstr "abonnementer"
 #~ "passe på alle overskriftstags med attributten class=\"chapter\", brug \"h\\"
 #~ "d,class,chapter\". Standardværdien er %default"
 
-#~ msgid "Preprocess Baen HTML files to improve generated LRF."
-#~ msgstr "Forbehandl Baen HTML-filer for at forbedre det genererede LRF."
-
 #~ msgid ""
-#~ "You must add this option if processing files generated by pdftohtml, "
-#~ "otherwise conversion will fail."
+#~ "The regular expression used to detect chapter titles. It is searched for in "
+#~ "heading tags (h1-h6). Defaults to %default"
 #~ msgstr ""
-#~ "Du skal tilføje denne valgmulighed hvis filerne er genereret af pdftohtml, "
-#~ "da konverteringen ellers vil slå fejl."
+#~ "Det regulære udtryk, der skal bruges til at bestemme kapitler. Der bliver "
+#~ "søgt for det i overskriftstags(h1-h6). Standardværdi %default"
 
-#~ msgid "Use this option on html0 files from Book Designer."
-#~ msgstr "Brug denne valgmulighed for html0-filer fra Book Designer."
+#~ msgid "Add detected chapters to the table of contents."
+#~ msgstr "Føj opdagede kapitler til indholdsfortegnelsen."
 
 #~ msgid "Be verbose while processing"
 #~ msgstr "Vær udførlig under behandlingen"
@@ -7467,11 +7741,29 @@ msgstr "abonnementer"
 #~ msgstr "Konverter til LRS"
 
 #~ msgid ""
-#~ "Minimize memory usage at the cost of longer processing times. Use this "
-#~ "option if you are on a memory constrained machine."
+#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
+#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
+#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
+#~ "    "
 #~ msgstr ""
-#~ "Minimer hukommelsesforbruget på bekostning af længere kørselstid. Brug denne "
-#~ "valgmulighed, hvis du er på en maskine med begrænset hukommelse."
+#~ "Angiv truetype font-familier for serif, sans-serif og monospace skrifttyper. "
+#~ "Disse skrifttyper vil blive indfældet i LRF-filen. Bemærk at "
+#~ "brugerdefinerede fonte fører til langsommere sideskift. Som eksempel: --"
+#~ "serif-family=\"Times New Roman\"\n"
+#~ "    "
+
+#~ msgid "Use this option on html0 files from Book Designer."
+#~ msgstr "Brug denne valgmulighed for html0-filer fra Book Designer."
+
+#~ msgid ""
+#~ "You must add this option if processing files generated by pdftohtml, "
+#~ "otherwise conversion will fail."
+#~ msgstr ""
+#~ "Du skal tilføje denne valgmulighed hvis filerne er genereret af pdftohtml, "
+#~ "da konverteringen ellers vil slå fejl."
+
+#~ msgid "Preprocess Baen HTML files to improve generated LRF."
+#~ msgstr "Forbehandl Baen HTML-filer for at forbedre det genererede LRF."
 
 #~ msgid ""
 #~ "Specify the character encoding of the source file. If the output LRF file "
@@ -7501,71 +7793,75 @@ msgstr "abonnementer"
 #~ "og ZIP-arkiver og finde e-bøger indeni.\n"
 #~ "    "
 
+#~ msgid ""
+#~ "Minimize memory usage at the cost of longer processing times. Use this "
+#~ "option if you are on a memory constrained machine."
+#~ msgstr ""
+#~ "Minimer hukommelsesforbruget på bekostning af længere kørselstid. Brug denne "
+#~ "valgmulighed, hvis du er på en maskine med begrænset hukommelse."
+
 #~ msgid "No file to convert specified."
 #~ msgstr "Ingen fil angivet til konvertering."
 
-#~ msgid "Be more verbose."
-#~ msgstr "Vær mere uddybende."
+#~ msgid "Title for generated ebook. Default is to use the filename."
+#~ msgstr "Titel på genereret e-bog. Standardværdien er filnavnet."
 
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "Output-mappe. Standardværdien er den nuværende mappe."
-
-#~ msgid "OEB ebook created in"
-#~ msgstr "OEB-e-bog oprettet i"
-
-#~ msgid "Choose the format to convert into LRF"
-#~ msgstr "Vælg formatet der skal konverteres til LRF"
-
-#~ msgid "Convert %s to LRF"
-#~ msgstr "Konverter %s til LRF"
-
-#~ msgid "Set conversion defaults"
-#~ msgstr "Sæt standarder for konvertering"
+#~ msgid "Converting from %s to LRF is not supported."
+#~ msgstr "Konvertering fra %s til LRF er ikke understøttet."
 
 #~ msgid ""
-#~ "Preprocess the file before converting to LRF. This is useful if you know "
-#~ "that the file is from a specific source. Known sources:"
+#~ "Failed to process comic: %s\n"
+#~ "\n"
+#~ "%s"
 #~ msgstr ""
-#~ "Behandl filen ingen den konverteres til LRF. Dette er brugbart, hvis du ved "
-#~ "at filen stammer fra en bestemt kilde. Kendte kilder:"
-
-#~ msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
-#~ msgstr "<ol><li><b>baen</b> - Bøger fra BAEN Forlag</li>"
+#~ "Kunne ikke behandle tegneserien: %s\n"
+#~ "\n"
+#~ "%s"
 
 #~ msgid ""
-#~ "<li><b>pdftohtml</b> - HTML files that are the output of the program "
-#~ "pdftohtml</li>"
-#~ msgstr ""
-#~ "<li><b>pdftohtml</b> - HTML-filer der stammer fra programmet pdftohtml</li>"
-
-#~ msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
-#~ msgstr "<li><b>book-designer</b> - HTML0-filer fra Book Designer</li>"
+#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
+#~ msgstr "Indstillinger for konvertering af tegneserier(CBR, CBZ) til e-bøger"
 
 #~ msgid ""
-#~ "Specify metadata such as title and author for the book.<p>Metadata will be "
-#~ "updated in the database as well as the generated LRF file."
+#~ "Set the author in the metadata of the generated ebook. Default is %default"
 #~ msgstr ""
-#~ "Angiv metadata såsom bogens titel og forfatter.<p>Metadataene vil blive "
-#~ "opdateret både i databasen og i den genererede LRF-fil."
+#~ "Sætter forfatteren i den genererede e-bogs metadata. Standardværdien er "
+#~ "%default"
 
 #~ msgid ""
-#~ "Adjust the look of the generated LRF file by specifying things like font "
-#~ "sizes and the spacing between words."
+#~ "\n"
+#~ "Downloaded article %s from %s\n"
+#~ "%s"
 #~ msgstr ""
-#~ "Tilpas udseendet af den genererede LRF-fil ved at angive ting såsom "
-#~ "skriftstørrelse og afstanden mellem ord."
+#~ "\n"
+#~ "Artikel %s hentet fra %s\n"
+#~ "%s"
+
+#~ msgid "Failed to download article: %s from %s\n"
+#~ msgstr "Kunne ikke hente artikel: %s fra %s\n"
+
+#~ msgid "Dont show the progress bar"
+#~ msgstr "Vis ikke statuslinjen"
 
 #~ msgid ""
-#~ "Specify the page settings like margins and the screen size of the target "
-#~ "device."
+#~ "The directory in which to store the downloaded feeds. Defaults to the "
+#~ "current directory."
 #~ msgstr ""
-#~ "Angiv sideopsætning såsom margener og skærmstørrelsen for målenheden."
+#~ "Mappen de hentede feeds skal gemmes i. Standardværdien er den nuværende "
+#~ "mappe."
 
-#~ msgid "<font color=\"gray\">No help available</font>"
-#~ msgstr "<font color=\"gray\">Ingen hjælp tilgængelig</font>"
+#~ msgid ""
+#~ "The title for this recipe. Used as the title for any ebooks created from the "
+#~ "downloaded feeds."
+#~ msgstr ""
+#~ "Opskriftens titel. Bruges som titel for alle e-bøger skabt ud fra de hentede "
+#~ "feeds."
 
-#~ msgid "Bulk convert ebooks to LRF"
-#~ msgstr "Konverter e-bøger til LRF i massevis"
+#~ msgid ""
+#~ "Options to control web2disk (used to fetch websites linked from feeds)"
+#~ msgstr ""
+#~ "Indstillinger til styring af web2disk (bruges til at hente hjemmesider er "
+#~ "linkes til fra feeds)"
 
 #~ msgid ""
 #~ "%%prog [options] ARG\n"
@@ -7605,11 +7901,8 @@ msgstr "abonnementer"
 #~ "Tilgængelige indbyggede opskrifter er:\n"
 #~ "%s\n"
 
-#~ msgid ""
-#~ "Options to control web2disk (used to fetch websites linked from feeds)"
-#~ msgstr ""
-#~ "Indstillinger til styring af web2disk (bruges til at hente hjemmesider er "
-#~ "linkes til fra feeds)"
+#~ msgid "Don't show the progress bar"
+#~ msgstr "Vis ikke statuslinjen"
 
 #~ msgid ""
 #~ "Specify a list of feeds to download. For example: \n"
@@ -7627,108 +7920,11 @@ msgstr "abonnementer"
 #~ msgid "Be more verbose while processing."
 #~ msgstr "Vær mere uddybende under behandlingen"
 
-#~ msgid ""
-#~ "The title for this recipe. Used as the title for any ebooks created from the "
-#~ "downloaded feeds."
-#~ msgstr ""
-#~ "Opskriftens titel. Bruges som titel for alle e-bøger skabt ud fra de hentede "
-#~ "feeds."
-
-#~ msgid ""
-#~ "The directory in which to store the downloaded feeds. Defaults to the "
-#~ "current directory."
-#~ msgstr ""
-#~ "Mappen de hentede feeds skal gemmes i. Standardværdien er den nuværende "
-#~ "mappe."
-
-#~ msgid "Dont show the progress bar"
-#~ msgstr "Vis ikke statuslinjen"
-
 #~ msgid "Very verbose output, useful for debugging."
 #~ msgstr "Meget uddybende output, nyttig til fejlsøgning."
 
-#~ msgid ""
-#~ "\n"
-#~ "Downloaded article %s from %s\n"
-#~ "%s"
-#~ msgstr ""
-#~ "\n"
-#~ "Artikel %s hentet fra %s\n"
-#~ "%s"
-
-#~ msgid "Failed to download article: %s from %s\n"
-#~ msgstr "Kunne ikke hente artikel: %s fra %s\n"
-
-#~ msgid "Don't add links to the table of contents."
-#~ msgstr "Føj ikke links til indholdsfortegnelsen."
-
-#~ msgid "Add detected chapters to the table of contents."
-#~ msgstr "Føj opdagede kapitler til indholdsfortegnelsen."
-
-#~ msgid ""
-#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
-#~ "to %default"
-#~ msgstr ""
-#~ "Et regulært udtryk. <a>-tags, hvis href matcher vil blive ignoreret. "
-#~ "Standardværdi %default"
-
-#~ msgid ""
-#~ "Force a page break before tags whose names match this regular expression."
-#~ msgstr ""
-#~ "Gennemtving sideskift før tags, hvis navne passer på dette regulære udtryk."
-
-#~ msgid ""
-#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
-#~ "option obsoletes the --font-delta option and takes precedence over it. To "
-#~ "use --font-delta, set this to 0. Default: %defaultpt"
-#~ msgstr ""
-#~ "Angiv den grundlæggende skriftstørrelse i punkter. Alle skriftstørrelser "
-#~ "skaleres i forhold til den. Denne indstilling gør --font-delta indstillingen "
-#~ "forældet og bruges i stedet. For at bruge --font-delta, set denne til 0. "
-#~ "Standardværdi: %defaultpt"
-
-#~ msgid ""
-#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
-#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
-#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
-#~ "    "
-#~ msgstr ""
-#~ "Angiv truetype font-familier for serif, sans-serif og monospace skrifttyper. "
-#~ "Disse skrifttyper vil blive indfældet i LRF-filen. Bemærk at "
-#~ "brugerdefinerede fonte fører til langsommere sideskift. Som eksempel: --"
-#~ "serif-family=\"Times New Roman\"\n"
-#~ "    "
-
-#~ msgid "Could not initialize the fontconfig library"
-#~ msgstr "Kunne ikke initialisere fontconfig biblioteket"
-
-#~ msgid "Prevent the automatic detection chapters."
-#~ msgstr "Forhinder automatisk opdagelse af kapitler."
-
-#~ msgid "Could not launch worker process."
-#~ msgstr "Kunne ikke starte arbejdsprocess."
-
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "Læseren har ikke et hukommelseskort tilsluttet"
-
-#~ msgid "Format for &single file save:"
-#~ msgstr "Format for &gemning af enkelte filer:"
-
-#~ msgid "%prog [options] LITFILE"
-#~ msgstr "%prog [indstillinger] LITFIL"
-
-#~ msgid "Title for generated ebook. Default is to use the filename."
-#~ msgstr "Titel på genereret e-bog. Standardværdien er filnavnet."
-
-#~ msgid ""
-#~ "Set the author in the metadata of the generated ebook. Default is %default"
-#~ msgstr ""
-#~ "Sætter forfatteren i den genererede e-bogs metadata. Standardværdien er "
-#~ "%default"
-
-#~ msgid ""
-#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
-#~ msgstr "Indstillinger for konvertering af tegneserier(CBR, CBZ) til e-bøger"
+#~ msgid "Be more verbose."
+#~ msgstr "Vær mere uddybende."
 
 #~ msgid ""
 #~ "Be verbose, useful for debugging. Can be specified multiple times for "
@@ -7737,169 +7933,121 @@ msgstr "abonnementer"
 #~ "Vær uddybende, nyttig til fejlsøgning. Kan angives flere gange for mere "
 #~ "uddybning."
 
-#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
-#~ msgstr ""
-#~ "Formater det udpakkede opmærkning for lettere læsning. Vil muligvis ændre "
-#~ "betydningsfulde blanktegn."
+#~ msgid "Could not initialize the fontconfig library"
+#~ msgstr "Kunne ikke initialisere fontconfig biblioteket"
 
 #~ msgid "Job stopped by user"
 #~ msgstr "Opgave stoppet af bruger"
 
-#~ msgid "Options to control the conversion to EPUB"
-#~ msgstr "Indstillinger for konvertering til EPUB"
+#~ msgid "Could not launch worker process."
+#~ msgstr "Kunne ikke starte arbejdsprocess."
 
-#~ msgid "You must specify an input HTML file"
-#~ msgstr "Du skal angive en HTML-kildefil"
-
-#~ msgid "Written processed HTML to "
-#~ msgstr "Skriv behandlet HTML til "
-
-#~ msgid "Options to control the traversal of HTML"
-#~ msgstr "Indstillinger til styring af HTML gennemgangen"
-
-#~ msgid "The output directory. Default is the current directory."
-#~ msgstr "Output-mappen. Standard er den nuværende mappe."
-
-#~ msgid "Character encoding for HTML files. Default is to auto detect."
-#~ msgstr "Tegnsæt for HTML-filer. Standardværdien er at finde det automatisk."
+#~ msgid "<p>Copying books to %s<br><center>"
+#~ msgstr "<p>Kopierer bøger til %s<br><center>"
 
 #~ msgid ""
-#~ "Create the output in a zip file. If this option is specified, the --output "
-#~ "should be the name of a file not a directory."
+#~ "If html2lrf does not find any page breaks in the html file and cannot detect "
+#~ "chapter headings, it will automatically insert page-breaks before the tags "
+#~ "whose names match this regular expression. Defaults to %default. You can "
+#~ "disable it by setting the regexp to \"$\". The purpose of this option is to "
+#~ "try to ensure that there are no really long pages as this degrades the page "
+#~ "turn performance of the LRF. Thus this option is ignored if the current page "
+#~ "has only a few elements."
 #~ msgstr ""
-#~ "Skab outputtet i en ZIP-fil. Hvis denne indstilling er valgt, skal --output "
-#~ "være navnet på en fil, ikke en mappe."
-
-#~ msgid "Control the following of links in HTML files."
-#~ msgstr "Kontroller de følgende links i HTML-filer."
+#~ "Hvis html2lrf ikke finder nogle sideskift i html-filen, og ikke kan finde "
+#~ "nogle kapiteloverskrifter, vil det automatisk indsætte sideskift før tags, "
+#~ "hvis navne passer på dette regulære udtryk. Standardværdien er %default. Du "
+#~ "kan deaktivere det ved at sætte udtrykket til \"$\". Formålet med denne "
+#~ "indstilling er at sikre, at der ikke er nogle rigtig lange sider, da det går "
+#~ "ud over ydelsen når siderne skal vendes. Derfor bliver denne indstilling "
+#~ "ignoreret, hvis den aktuelle side har få elementer."
 
 #~ msgid ""
-#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
-#~ "negative. 0 implies that no links in the root HTML file are followed."
+#~ "Specify the page settings like margins and the screen size of the target "
+#~ "device."
 #~ msgstr ""
-#~ "Maksimal rekursiv dybde, når links i HTML-filer følges. Må ikke være "
-#~ "negativt. 0 indebærer at ingen links i HTML-filen bliver fulgt."
-
-#~ msgid "Set metadata of the generated ebook"
-#~ msgstr "Angiv metadataene for den genererede e-bog"
-
-#~ msgid "Set the title. Default is to autodetect."
-#~ msgstr "Sæt titlen. Standardværdien er at finde det automatisk."
-
-#~ msgid "Options useful for debugging"
-#~ msgstr "Brugbare indstillinger for fejlsøgning"
+#~ "Angiv sideopsætning såsom margener og skærmstørrelsen for målenheden."
 
 #~ msgid ""
-#~ "Be more verbose while processing. Can be specified multiple times to "
-#~ "increase verbosity."
+#~ "Adjust the look of the generated LRF file by specifying things like font "
+#~ "sizes and the spacing between words."
 #~ msgstr ""
-#~ "Vær mere uddybende under behandlingen. Kan blive angivet flere gange for at "
-#~ "øge uddybningen."
-
-#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-#~ msgstr ""
-#~ "Outpu HTML bliver skrevet \"pænt\" for lettere at kunne fortolkes af "
-#~ "mennesker."
+#~ "Tilpas udseendet af den genererede LRF-fil ved at angive ting såsom "
+#~ "skriftstørrelse og afstanden mellem ord."
 
 #~ msgid ""
-#~ "Control the automatic generation of a Table of Contents. If an OPF file is "
-#~ "detected\n"
-#~ "and it specifies a Table of Contents, then that will be used rather than "
-#~ "trying\n"
-#~ "to auto-generate a Table of Contents.\n"
+#~ "Specify metadata such as title and author for the book.<p>Metadata will be "
+#~ "updated in the database as well as the generated LRF file."
 #~ msgstr ""
-#~ "Kontrollerer den automatiske generering af indholdsfortegnelser. Hvis en OPF-"
-#~ "fil er opdaget\n"
-#~ "og den angiver en indholdsfortegnelse, vil den blive brugt i stedet for der "
-#~ "bliver forsøgt\n"
-#~ "at lave én automatisk.\n"
+#~ "Angiv metadata såsom bogens titel og forfatter.<p>Metadataene vil blive "
+#~ "opdateret både i databasen og i den genererede LRF-fil."
+
+#~ msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
+#~ msgstr "<li><b>book-designer</b> - HTML0-filer fra Book Designer</li>"
+
+#~ msgid "Bulk convert ebooks to LRF"
+#~ msgstr "Konverter e-bøger til LRF i massevis"
+
+#~ msgid "<font color=\"gray\">No help available</font>"
+#~ msgstr "<font color=\"gray\">Ingen hjælp tilgængelig</font>"
+
+#~ msgid "Add Ta&gs: "
+#~ msgstr "&Tilføj mærkater: "
+
+#~ msgid "No preprocessing"
+#~ msgstr "Ingen forbehandling"
 
 #~ msgid ""
-#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
-#~ "existing CSS declarations in the source files."
+#~ "<li><b>pdftohtml</b> - HTML files that are the output of the program "
+#~ "pdftohtml</li>"
 #~ msgstr ""
-#~ "Enten stien til et CSS stilark eller rå CSS. Dette CSS vil tilsidesætte "
-#~ "enhver eksisterende CSS i kildefilerne"
+#~ "<li><b>pdftohtml</b> - HTML-filer der stammer fra programmet pdftohtml</li>"
+
+#~ msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
+#~ msgstr "<ol><li><b>baen</b> - Bøger fra BAEN Forlag</li>"
 
 #~ msgid ""
-#~ "An XPath expression to detect chapter titles. The default is to consider "
-#~ "<h1> or\n"
-#~ "<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
-#~ "\"part\" as chapter titles as \n"
-#~ "well as any tags that have class=\"chapter\". \n"
-#~ "The expression used must evaluate to a list of elements. To disable chapter "
-#~ "detection,\n"
-#~ "use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
-#~ "for further\n"
-#~ "help on using this feature.\n"
+#~ "Preprocess the file before converting to LRF. This is useful if you know "
+#~ "that the file is from a specific source. Known sources:"
 #~ msgstr ""
-#~ "Et XPath udtryk til genkending af kapiteloverskrifter. Den forvalgte "
-#~ "indstilling betragter <h1> eller\n"
-#~ "<h2> tags som indeholder ordene \"chapter\", \"book\", \"section\" eller "
-#~ "\"part\" som kapiteloverskrifter, såvel \n"
-#~ "som ethvert tag der har class=\"chapter\". \n"
-#~ "Det benyttede udtryk skal evaluere til en liste med elementer. For at "
-#~ "deaktivere kapitelbestemmelse,\n"
-#~ "brug udtrykket \"/\". Se XPath gennemgangen i calibres brugermanual for "
-#~ "yderligere\n"
-#~ "hjælp om denne facilitet.\n"
+#~ "Behandl filen ingen den konverteres til LRF. Dette er brugbart, hvis du ved "
+#~ "at filen stammer fra en bestemt kilde. Kendte kilder:"
 
-#~ msgid "Path to the cover to be used for this book"
-#~ msgstr "Sti til omslaget der skal bruges til denne bog"
+#~ msgid "Choose the format to convert into LRF"
+#~ msgstr "Vælg formatet der skal konverteres til LRF"
 
-#~ msgid ""
-#~ "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
-#~ "is: %default. Links are only added to the TOC if less than the --toc-"
-#~ "threshold number of chapters were detected."
-#~ msgstr ""
-#~ "Maksimalt antal links at indsætte i indholdsfortegnelsen. Sæt til 0 for at "
-#~ "deaktivere. Standardværdien er: %default. Links tilføjes kun til "
-#~ "indholdsfortegnelsen hvis mindre der er opdaget færre kapitler end --toc-"
-#~ "threshold."
+#~ msgid "Convert %s to LRF"
+#~ msgstr "Konverter %s til LRF"
 
-#~ msgid "Control page layout"
-#~ msgstr "Kontrollerer sidelayoutet"
-
-#~ msgid "Set the top margin in pts. Default is %default"
-#~ msgstr "Sæt topmargen i punkter. Standardværdien er %default"
-
-#~ msgid "Set the bottom margin in pts. Default is %default"
-#~ msgstr "Sæt bundmargen i punkter. Standardværdien er %default"
-
-#~ msgid "Set the left margin in pts. Default is %default"
-#~ msgstr "Sæt venstremargen i punkter. Standardværdien er %default"
-
-#~ msgid "Set the right margin in pts. Default is %default"
-#~ msgstr "Sæt højremargen i punkter. Standardværdien er %default"
-
-#~ msgid "Print generated OPF file to stdout"
-#~ msgstr "Skriv den genererede OPF-fil til stdout"
-
-#~ msgid "Print generated NCX file to stdout"
-#~ msgstr "Skriv den genererede NCX-fil til stdout"
-
-#~ msgid "Keep intermediate files during processing by html2epub"
-#~ msgstr "Bevar mellemliggende filer under kørsel af html2epub"
-
-#~ msgid ""
-#~ "Extract the contents of the produced EPUB file to the specified directory."
-#~ msgstr "Udpak indholdet af den genererede EPUB-fil til den angivne mappe"
-
-#~ msgid ""
-#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
-#~ "cause incorrect rendering."
-#~ msgstr ""
-#~ "\t\tFor meget opmærkning. Deler igen uden at bevare strukturen. Dette kan "
-#~ "forårsage ukorrekt visning."
-
-#~ msgid "Load metadata from the specified OPF file"
-#~ msgstr "Indlæs metadata fra den angivne OPF-fil"
+#~ msgid "Set conversion defaults"
+#~ msgstr "Sæt standarder for konvertering"
 
 #~ msgid "Convert to EPUB"
 #~ msgstr "Konverter til EPUB"
 
+#~ msgid "&Rescale images"
+#~ msgstr "&Omskaler billeder"
+
+#~ msgid "&Use author sort to set author field in output"
+#~ msgstr "&Brug forfattersortering til at sætte outputtets forfatterfelt"
+
+#~ msgid "Preserve &tag structure when splitting"
+#~ msgstr "Bevar tag-struktur ved deling"
+
+#~ msgid "&Ignore tables"
+#~ msgstr "&Ignorer tabeller"
+
 #~ msgid "Override &CSS"
 #~ msgstr "Tilsidesæt &CSS"
+
+#~ msgid "&Destination profile:"
+#~ msgstr "&Destinationsprofil"
+
+#~ msgid "&Source profile:"
+#~ msgstr "&Kildeprofil"
+
+#~ msgid "Remove &first image from source file"
+#~ msgstr "Fjern &første billede fra kildefil"
 
 #~ msgid "Automatic &chapter detection"
 #~ msgstr "Automatisk &kapitelbestemmelse"
@@ -7909,146 +8057,6 @@ msgstr "abonnementer"
 
 #~ msgid "Automatic &Table of Contents"
 #~ msgstr "Automatisk Indholdsfortegnelse"
-
-#~ msgid "<p>Copying books to %s<br><center>"
-#~ msgstr "<p>Kopierer bøger til %s<br><center>"
-
-#~ msgid "Don't show the progress bar"
-#~ msgstr "Vis ikke statuslinjen"
-
-#~ msgid ""
-#~ "Path to a .ncx file that contains the table of contents to use for this "
-#~ "ebook. The NCX file should contain links relative to the directory it is "
-#~ "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
-#~ "an overview of the NCX format."
-#~ msgstr ""
-#~ "Sti til en .ncx-fil, der indeholder indholdsfortegnelsen for denne e-bog. "
-#~ "NCX-filen bør indeholde links relativt til mappen den er placeret i. Se "
-#~ "http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for en oversigt "
-#~ "over NCX-formatet."
-
-#~ msgid ""
-#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-#~ "rescaling of fonts."
-#~ msgstr ""
-#~ "Den grundlæggende skriftstørrelse i punkter. Standard er %defaultpt. Sæt til "
-#~ "0 for at slå ændring af skriftstørrelse fra."
-
-#~ msgid "The subject(s) of this book, as a comma separated list."
-#~ msgstr "Bogens emne(r) som en kommasepareret liste."
-
-#~ msgid "Set the publisher of this book."
-#~ msgstr "Sæt bogens forlag"
-
-#~ msgid "A summary of this book."
-#~ msgstr "Et resume af bogen"
-
-#~ msgid ""
-#~ "Failed to process comic: %s\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Kunne ikke behandle tegneserien: %s\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid "Level &1 TOC"
-#~ msgstr "Niveau &1 indholdsfortegnelse"
-
-#~ msgid "Level &2 TOC"
-#~ msgstr "Niveau &2 indholdsfortegnelse"
-
-#~ msgid "Converting from %s to LRF is not supported."
-#~ msgstr "Konvertering fra %s til LRF er ikke understøttet."
-
-#~ msgid ""
-#~ "Preserve the HTML tag structure while splitting large HTML files. This is "
-#~ "only neccessary if the HTML files contain CSS that uses sibling selectors. "
-#~ "Enabling this greatly slows down processing of large HTML files."
-#~ msgstr ""
-#~ "Bevar strukturen af HTML tags når store HTML-filer deles. Dette er kun "
-#~ "nødvendigt, hvis HTML-filerne indeholder CSS, der bruger søskende-selektorer."
-
-#~ msgid "Preserve &tag structure when splitting"
-#~ msgstr "Bevar tag-struktur ved deling"
-
-#~ msgid ""
-#~ "Detect a chapter beginning at an element having the specified attribute. The "
-#~ "format for this option is tagname regexp,attribute name,attribute value "
-#~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". You can set the "
-#~ "attribute to \"none\" to match only on tag names. So for example, to match "
-#~ "all h2 tags, you would use \"h2,none,\". Default is %default"
-#~ msgstr ""
-#~ "Find et kapitel begyndende med et element med den angivne attribut. Formatet "
-#~ "for denne indstilling er tagnavnsudtryk,attributnavn,værdiudtryk. Fx. for at "
-#~ "finde alle overskrifter, der har attributten class=\"chapter\" brug \"h\\"
-#~ "d,class,chapter\". Du kan sætte attributten til \"none\" for kun at søge på "
-#~ "tagnavne. For fx. at finde alle h2 tags, brug \"h2,none,\". Standardværdien "
-#~ "er %default"
-
-#~ msgid ""
-#~ "%%prog [options] filename\n"
-#~ "\n"
-#~ "Convert any of a large number of ebook formats to a %s file. Supported "
-#~ "formats are: %s\n"
-#~ msgstr ""
-#~ "%%prog [indstillinger] filnavn\n"
-#~ "\n"
-#~ "Konverter fra et stort antal forskellige e-bogsformater til en %s-fil. "
-#~ "Understøttede formater er: %s\n"
-
-#~ msgid "Output written to "
-#~ msgstr "Output skrevet til "
-
-#~ msgid "%prog [options] OPFFILE"
-#~ msgstr "%prog [options] OPFFIL"
-
-#~ msgid "Add extra spacing below the header. Default is %default px."
-#~ msgstr ""
-#~ "Tilføj ekstra afstand under sidehovedet. Standardværdien er %default px."
-
-#~ msgid "&Rescale images"
-#~ msgstr "&Omskaler billeder"
-
-#~ msgid "&Source profile:"
-#~ msgstr "&Kildeprofil"
-
-#~ msgid "&Destination profile:"
-#~ msgstr "&Destinationsprofil"
-
-#~ msgid "&Title for generated TOC"
-#~ msgstr "&Overskrift for genereret indholdsfortegnelse"
-
-#~ msgid ""
-#~ "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
-#~ "1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
-#~ "css. Spacing removal will not work if the source file forces inter-paragraph "
-#~ "spacing."
-#~ msgstr ""
-#~ "Fjerner afstanden mellem afsnit. Sætter også indrykningen på afsnit til "
-#~ "1,5em. Du kan ændre dette ved at tilføje p {text-indent: 0cm}  til --"
-#~ "override-css. Fjernelse af afstanden vil ikke virke, hvis kildefilen "
-#~ "gennemtvinger afstand mellem afsnit."
-
-#~ msgid "Do not force text to be justified in output."
-#~ msgstr "Gennemtving ikke lige margener i outputtet"
-
-#~ msgid ""
-#~ "Remove table markup, converting it into paragraphs. This is useful if your "
-#~ "source file uses a table to manage layout."
-#~ msgstr ""
-#~ "Fjern tabel opmærkning og konverter det til afsnit. Dette er brugbart, hvis "
-#~ "kilefilerne bruger an tabel til styring af layout."
-
-#~ msgid "The author(s) of the ebook, as a & separated list."
-#~ msgstr "Forfatterne som en &-separeret liste"
-
-#~ msgid "&Ignore tables"
-#~ msgstr "&Ignorer tabeller"
-
-#~ msgid "&Use author sort to set author field in output"
-#~ msgstr "&Brug forfattersortering til at sætte outputtets forfatterfelt"
 
 #~ msgid ""
 #~ "<p>You can control how calibre detects chapters using a XPath expression. To "
@@ -8061,11 +8069,17 @@ msgstr "abonnementer"
 #~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
 #~ "vejledningen</a></p>"
 
+#~ msgid "&Title for generated TOC"
+#~ msgstr "&Overskrift for genereret indholdsfortegnelse"
+
+#~ msgid "Level &1 TOC"
+#~ msgstr "Niveau &1 indholdsfortegnelse"
+
+#~ msgid "Level &2 TOC"
+#~ msgstr "Niveau &2 indholdsfortegnelse"
+
 #~ msgid "Level &3 TOC"
 #~ msgstr "Niveau &3 indholdsfortegnelse"
 
-#~ msgid "Remove &first image from source file"
-#~ msgstr "Fjern &første billede fra kildefil"
-
-#~ msgid "No preprocessing"
-#~ msgstr "Ingen forbehandling"
+#~ msgid "Format for &single file save:"
+#~ msgstr "Format for &gemning af enkelte filer:"

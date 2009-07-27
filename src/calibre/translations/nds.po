@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-19 18:45+0000\n"
-"PO-Revision-Date: 2009-07-20 17:54+0000\n"
+"POT-Creation-Date: 2009-07-25 02:01+0000\n"
+"PO-Revision-Date: 2009-07-26 14:39+0000\n"
 "Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-07-21 16:49+0000\n"
+"X-Launchpad-Export-Date: 2009-07-26 20:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -236,25 +236,25 @@ msgstr ""
 "müssen Sie einen <a href=\"http://www.isbndb.com\">kostenfreien Account</a> "
 "anlegen und den Zugangsschlüssel unten angeben."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
 msgid "Downloading cover..."
 msgstr "Lade Umschlagbild..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
 msgid "The download timed out."
 msgstr "Der Download timed out."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 "Konnte kein Umschlagbild für dieses Buch finden. Geben Sie zuerst die ISBN "
 "an."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:475
 msgid "Cannot fetch metadata"
 msgstr "Konnte Metadaten nicht abrufen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:476
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr "Sie müssen wenigstens ISBN, Titel, Autor oder Herausgeber angeben"
 
@@ -757,6 +757,8 @@ msgstr "Macht gar nix"
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:52
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:317
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1895
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
@@ -787,14 +789,14 @@ msgstr "Macht gar nix"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:857
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:862
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:900
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:136
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:866
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:871
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:909
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:84
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:101
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:104
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
@@ -831,7 +833,7 @@ msgstr "Macht gar nix"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
@@ -850,10 +852,10 @@ msgstr "Macht gar nix"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1514
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1599
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1673
-#: /home/kovid/work/calibre/src/calibre/library/server.py:294
-#: /home/kovid/work/calibre/src/calibre/library/server.py:355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1621
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1672
+#: /home/kovid/work/calibre/src/calibre/library/server.py:295
+#: /home/kovid/work/calibre/src/calibre/library/server.py:356
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -934,7 +936,7 @@ msgstr "Geben Sie die Metadaten von %s Dateien an"
 msgid "Conversion Input"
 msgstr "Eingabe der Konvertierung"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:122
 msgid ""
 "Save the output from the input plugin to the specified directory. Useful if "
 "you are unsure at which stage of the conversion process a bug is occurring. "
@@ -945,7 +947,7 @@ msgstr ""
 "Konvertierungsprozesses ein Bug auftritt. ACHTUNG: Dies löscht vollständig "
 "den Inhalt des angegebenen Verzeichnisses."
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:127
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:131
 msgid ""
 "Specify the character encoding of the input document. If set this option "
 "will override any encoding declared by the document itself. Particularly "
@@ -957,11 +959,11 @@ msgstr ""
 "hilfreich bei Dokumenten, die keine oder eine fehlerhafte Encodierung "
 "angegeben haben."
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:243
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:247
 msgid "Conversion Output"
 msgstr "Ausgabe der Konvertierung"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:257
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:261
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
@@ -2075,7 +2077,7 @@ msgstr "Konnte Umschlagbild nicht lesen: %s"
 msgid "Cannot read from: %s"
 msgstr "Lesen nicht möglich von: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1990
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1996
 msgid "Failed to process opf file"
 msgstr "Verarbeitung der OPF Datei schlug fehl"
 
@@ -2524,6 +2526,11 @@ msgstr ""
 "Umschlagbild des Buches mit der angegebenen ISBN von LibraryThing.com "
 "abrufen\n"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+msgid "Cover"
+msgstr "Umschlagbild"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr "Bilder auf die Größenlimitation von Palm Geräten einstellen."
@@ -2549,78 +2556,74 @@ msgstr "Titel für alle in den Büchern erstellten Inhaltsverzeichnisse"
 msgid "Disable compression of the file contents."
 msgstr "Komprimierung der Datei Inhalte ausschalten."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:103
 msgid "All articles"
 msgstr "Alle Artikel"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
-msgid "Cover"
-msgstr "Umschlagbild"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1261
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
 msgid "Title Page"
 msgstr "Titelseite"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1262
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr "Inhaltsverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1263
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
 msgid "Index"
 msgstr "Index"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1264
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
 msgid "Glossary"
 msgstr "Glossar"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1265
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
 msgid "Acknowledgements"
 msgstr "Danksagung"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1266
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
 msgid "Bibliography"
 msgstr "Literaturverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1267
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
 msgid "Colophon"
 msgstr "Schlussschrift"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1268
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1277
 msgid "Copyright"
 msgstr "Copyright"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1278
 msgid "Dedication"
 msgstr "Widmung"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 msgid "Epigraph"
 msgstr "Epigraph"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1280
 msgid "Foreword"
 msgstr "Vorwort"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1281
 msgid "List of Illustrations"
 msgstr "Abbildungsverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1282
 msgid "List of Tables"
 msgstr "Tabellenverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1283
 msgid "Notes"
 msgstr "Anmerkungen"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
 msgid "Preface"
 msgstr "Vorwort"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1285
 msgid "Main Text"
 msgstr "Haupttext"
 
@@ -2687,11 +2690,11 @@ msgstr ""
 "Eine Adobe \"Page-Map\" Datei erstellen, wenn Seiteninformationen verfügbar "
 "sind."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:112
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:114
 msgid "Footnotes"
 msgstr "Fußnoten"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:123
 msgid "Sidebar"
 msgstr "Seitenleiste"
 
@@ -4801,8 +4804,7 @@ msgid "Meta information"
 msgstr "Meta-Informationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
-msgid "Author S&ort: "
+msgid "Author s&ort: "
 msgstr "S&ortierung nach Autor: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:142
@@ -4832,8 +4834,8 @@ msgid " stars"
 msgstr " Sterne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:148
-msgid "Add Ta&gs: "
-msgstr "&Etiketten hinzufügen: "
+msgid "Add ta&gs: "
+msgstr "Etiketten hinzufü&gen: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:151
@@ -4886,30 +4888,30 @@ msgstr "Konnte Umschlagbild des Formats %s nicht lesen"
 msgid "The cover in the %s format is invalid"
 msgstr "Das Umschlagbild im Format %s ist ungültig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:414
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:428
 msgid "Cannot fetch cover"
 msgstr "Kann kein Umschlagbild abrufen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:429
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>Konnte kein Umschlagbild abrufen.</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:435
 msgid "Bad cover"
 msgstr "Falsches Umschlagbild"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:436
 msgid "The cover is not a valid picture"
 msgstr "Das Umschlagbild ist kein gültiges Bild"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
 msgid "Permission denied"
-msgstr ""
+msgstr "Zugriff verweigert"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 "Konnte %s nicht öffnen. Wird es von einem anderen Programm verwendet?"
@@ -4921,6 +4923,10 @@ msgstr "Meta-Informationen bearbeiten"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Swap the author and title"
 msgstr "Tausche Autor und Titel"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
+msgid "Author S&ort: "
+msgstr "S&ortierung nach Autor: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:343
 msgid ""
@@ -7435,12 +7441,12 @@ msgstr "Kopiere <b>%s</b>"
 msgid "Compacting database"
 msgstr "Komprimiere Datenbank"
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:146
+#: /home/kovid/work/calibre/src/calibre/library/server.py:147
 msgid "Password to access your calibre library. Username is "
 msgstr ""
 "Kennwort für den Zugriff auf die calibre Bibliothek. Benutzername ist "
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:429
+#: /home/kovid/work/calibre/src/calibre/library/server.py:430
 msgid ""
 "[options]\n"
 "\n"
@@ -7714,12 +7720,14 @@ msgstr "Spanisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_accountancyage.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_al_jazeera.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_azstarnet.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
@@ -7727,6 +7735,7 @@ msgstr "Spanisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_coding_horror.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_craigslist.py:15
@@ -7764,8 +7773,10 @@ msgstr "Spanisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linuxdevices.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moneynews.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
@@ -7791,14 +7802,17 @@ msgstr "Spanisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scott_hanselman.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slate.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_stackoverflow.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
@@ -7824,7 +7838,7 @@ msgstr "Spanisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
@@ -7878,6 +7892,7 @@ msgstr "Katalanisch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
 msgid "Portugese"
 msgstr "Portugisisch"
 
@@ -7896,10 +7911,6 @@ msgstr "Überspringe doppelten Artikel: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
 msgstr "Überspringe gefilterten Artikel: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
-msgid "Portuguese"
-msgstr "Portugiesisch"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
 msgid "Kovid Goyal and Sujata Raman"
@@ -8119,14 +8130,6 @@ msgstr "Autor"
 #~ "<a> Elemente ignoriert werden."
 
 #~ msgid ""
-#~ "The regular expression used to detect chapter titles. It is searched for in "
-#~ "heading tags (h1-h6). Defaults to %default"
-#~ msgstr ""
-#~ "Der reguläre Ausdruck zur Ermittlung von Kapitelüberschriften. Es wird nach "
-#~ "mit (h1) - (h6) angegebenen Überschriften gesucht. Voreinstellung ist "
-#~ "%default"
-
-#~ msgid ""
 #~ "If html2lrf does not find any page breaks in the html file and cannot detect "
 #~ "chapter headings, it will automatically insert page-breaks before the tags "
 #~ "whose names match this regular expression. Defaults to %default. You can "
@@ -8155,22 +8158,6 @@ msgstr "Autor"
 #~ "regexp. Um zum Beispiel alle \"heading\" Elemente, die das Attribut "
 #~ "class=\"chapter\" anzupassen, verwenden Sie \"h\\d,class,chapter\". "
 #~ "Voreinstellung ist %default"
-
-#~ msgid "Preprocess Baen HTML files to improve generated LRF."
-#~ msgstr "Baen HTML Dateien vorverarbeiten, um erstelltes LRF zu verbessern."
-
-#~ msgid ""
-#~ "You must add this option if processing files generated by pdftohtml, "
-#~ "otherwise conversion will fail."
-#~ msgstr ""
-#~ "Sie müssen diese Einstellung für die Verarbeitung von durch pdfthtml "
-#~ "erstellten Dateien hinzufügen, sonst schlägt die Konvertierung fehl."
-
-#~ msgid "Use this option on html0 files from Book Designer."
-#~ msgstr "Benutzen Sie diese Einstellung für html0 Dateien von Book Designer."
-
-#~ msgid "Be verbose while processing"
-#~ msgstr "Bei der weiteren Verarbeitung ausführlicher vorgehen"
 
 #~ msgid "Convert to LRS"
 #~ msgstr "Zu LRS konvertieren"
@@ -8227,17 +8214,6 @@ msgstr "Autor"
 #~ "        \n"
 #~ "%prog konvertiert dateiname.epub in dateiname.lrf"
 
-#~ msgid ""
-#~ "%prog [options] mybook.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.fb2 to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] dateiname.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog konvertiert dateiname.fb2 in dateiname.lrf"
-
 #~ msgid "Print generated HTML to stdout and quit."
 #~ msgstr "Gebe erstellte HTML auf stdout aus und beende das Programm."
 
@@ -8246,9 +8222,6 @@ msgstr "Autor"
 
 #~ msgid "Options to control the behavior of html2lrf"
 #~ msgstr "Einstellungen für html2lrf"
-
-#~ msgid "Fetching of recipe failed: "
-#~ msgstr "Abruf des Schemas misslungen: "
 
 #~ msgid ""
 #~ "You have to save the website %s as an html file first and then run html2lrf "
@@ -8314,9 +8287,6 @@ msgstr "Autor"
 #~ "Pfad zum Ausgabeverzeichnis, in dem die HTML Datei erstellt werden soll. "
 #~ "Voreinstellung auf aktuelles Verzeichnis."
 
-#~ msgid "Be more verbose."
-#~ msgstr "Noch ausführlicher!"
-
 #~ msgid "You must specify a single PDF file."
 #~ msgstr "Es muss eine einzelne PDF Datei angegeben werden."
 
@@ -8363,9 +8333,6 @@ msgstr "Autor"
 #~ msgid "%prog [options] myebook.mobi"
 #~ msgstr "%prog [options] dateiname.mobi"
 
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "Ausgabeverzeichnis. Voreinstellung ist aktuelles Verzeichnis."
-
 #~ msgid "Raw MOBI HTML saved in"
 #~ msgstr "Original MOBI HTML gespeichert in"
 
@@ -8392,13 +8359,6 @@ msgstr "Autor"
 #~ msgid "Set conversion defaults"
 #~ msgstr "Voreinstellungen zur Konvertierung wählen"
 
-#~ msgid ""
-#~ "Preprocess the file before converting to LRF. This is useful if you know "
-#~ "that the file is from a specific source. Known sources:"
-#~ msgstr ""
-#~ "Datei vorverarbeiten bevor sie zu LRF konvertiert wird. Das ist hilfreich, "
-#~ "wenn Sie wissen, dass die Datei von einer der folgenden Bezugsquellen stammt:"
-
 #~ msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
 #~ msgstr "<ol><li><b>baen</b> - Bücher von BAEN Publishers</li>"
 
@@ -8411,14 +8371,6 @@ msgstr "Autor"
 
 #~ msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
 #~ msgstr "<li><b>book-designer</b> - HTML Dateien von Book Designer</li>"
-
-#~ msgid ""
-#~ "Specify metadata such as title and author for the book.<p>Metadata will be "
-#~ "updated in the database as well as the generated LRF file."
-#~ msgstr ""
-#~ "Geben Sie Metadaten wie den Titel und den Autor des Buches an. <p>Metadaten "
-#~ "werden sowohl in der Datenbank als auch in der erstellten LRF Datei "
-#~ "aktualisiert."
 
 #~ msgid ""
 #~ "Adjust the look of the generated LRF file by specifying things like font "
@@ -8445,6 +8397,9 @@ msgstr "Autor"
 
 #~ msgid "Bulk convert ebooks to LRF"
 #~ msgstr "eBooks auf einmal zu LRF konvertieren"
+
+#~ msgid "Add Ta&gs: "
+#~ msgstr "&Etiketten hinzufügen: "
 
 #~ msgid "Waiting"
 #~ msgstr "Abwarten und Tee trinken..."
@@ -8473,71 +8428,9 @@ msgstr "Autor"
 #~ msgstr "Konnte Datenbank nicht verschieben"
 
 #~ msgid ""
-#~ "%%prog [options] ARG\n"
-#~ "\n"
-#~ "%%prog parses an online source of articles, like an RSS or ATOM feed and \n"
-#~ "fetches the article contents organized in a nice hierarchy.\n"
-#~ "\n"
-#~ "ARG can be one of:\n"
-#~ "\n"
-#~ "file name            - %%prog will try to load a recipe from the file\n"
-#~ "\n"
-#~ "builtin recipe title - %%prog will load the builtin recipe and use it to "
-#~ "fetch the feed. For e.g. Newsweek or \"The BBC\" or \"The New York Times\"\n"
-#~ "\n"
-#~ "recipe as a string   - %%prog will load the recipe directly from the string "
-#~ "arg.\n"
-#~ "\n"
-#~ "Available builtin recipes are:\n"
-#~ "%s\n"
-#~ msgstr ""
-#~ "%%prog [options] ARG\n"
-#~ "\n"
-#~ "%%prog analysiert eine Online-Quelle von Artikeln, z.B. einen RSS oder ATOM "
-#~ "Feed und \n"
-#~ "ruft die Artikelinhalte hierarchisch organisiert ab.\n"
-#~ "\n"
-#~ "ARG kann eines der folgenden sein:\n"
-#~ "\n"
-#~ "dateiname            - %%prog versucht ein Schema aus der Datei zu laden\n"
-#~ "\n"
-#~ "installiertes Schema - %%prog lädt ein installiertes Schema und benutzt es, "
-#~ "um den Feed abzurufen. Z.B. für Newsweek or \"The BBC\" or \"The New York "
-#~ "Times\"\n"
-#~ "\n"
-#~ "Schema als eine Reihung  - %%prog lädt das Schema direkt nach der "
-#~ "angegebenen Reihung.\n"
-#~ "\n"
-#~ "Verfügbare installierte Schemata:\n"
-#~ "%s\n"
-
-#~ msgid ""
 #~ "Options to control web2disk (used to fetch websites linked from feeds)"
 #~ msgstr ""
 #~ "Einstellungen für web2disk (um von Feeds verlinkte Webseiten abzurufen)"
-
-#~ msgid ""
-#~ "Specify a list of feeds to download. For example: \n"
-#~ "\"['http://feeds.newsweek.com/newsweek/TopNews', "
-#~ "'http://feeds.newsweek.com/headlines/politics']\"\n"
-#~ "If you specify this option, any argument to %prog is ignored and a default "
-#~ "recipe is used to download the feeds."
-#~ msgstr ""
-#~ "Geben Sie eine Liste von Feeds zum Download an. Zum Beispiel: \n"
-#~ "\"['http://feeds.newsweek.com/newsweek/TopNews', "
-#~ "'http://feeds.newsweek.com/headlines/politics']\"\n"
-#~ "Wenn Sie diese Option wählen, wird jedes Argument %prog ignoriert und ein "
-#~ "voreingestelltes Schema zum Download der Feeds verwendet."
-
-#~ msgid "Be more verbose while processing."
-#~ msgstr "Noch ausführlicher bei der weiteren Verarbeitung vorgehen."
-
-#~ msgid ""
-#~ "The title for this recipe. Used as the title for any ebooks created from the "
-#~ "downloaded feeds."
-#~ msgstr ""
-#~ "Der Titel für dieses Schema. Wird als Titel für alle eBooks benutzt, die aus "
-#~ "den geladenen Feeds erstellt wurden."
 
 #~ msgid ""
 #~ "Number of levels of links to follow on webpages that are linked to from "
@@ -8556,9 +8449,6 @@ msgstr "Autor"
 #~ msgid "Dont show the progress bar"
 #~ msgstr "Fortschrittsbalken nicht anzeigen"
 
-#~ msgid "Very verbose output, useful for debugging."
-#~ msgstr "Sehr ausführliche Ausgabe, hilfreich bei der Fehlersuche."
-
 #~ msgid ""
 #~ "\n"
 #~ "Downloaded article %s from %s\n"
@@ -8571,15 +8461,6 @@ msgstr "Autor"
 #~ msgid "Failed to download article: %s from %s\n"
 #~ msgstr "Laden der Artikel fehlgeschlagen: %s von %s\n"
 
-#~ msgid "Click to see the list of books available on your computer"
-#~ msgstr "Liste der auf dem Computer vorhandenen Bücher anzeigen"
-
-#~ msgid "Click to see the list of books in the main memory of your reader"
-#~ msgstr "Liste der im Hauptspeicher des Geräts vorhandenen Bücher"
-
-#~ msgid "Click to see the list of books on the storage card in your reader"
-#~ msgstr "Liste der auf der Speicherkarte des Geräts vorhandenen Bücher"
-
 #~ msgid "Starting Bulk conversion of %d books"
 #~ msgstr "Starte Massenkonvertierung von %d Büchern"
 
@@ -8591,16 +8472,6 @@ msgstr "Autor"
 
 #~ msgid "Don't add links to the table of contents."
 #~ msgstr "Keine Links zum Inhaltsverzeichnis hinzufügen."
-
-#~ msgid "Add detected chapters to the table of contents."
-#~ msgstr "Die ermittelten Kapitel zum Inhaltsverzeichnis hinzufügen."
-
-#~ msgid ""
-#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
-#~ "to %default"
-#~ msgstr ""
-#~ "Ein regulärer Ausdruck. <a> Elemente, deren Verknüpfungen ignoriert werden. "
-#~ "Voreinstellung ist %default"
 
 #~ msgid ""
 #~ "Force a page break before tags whose names match this regular expression."
@@ -8618,32 +8489,31 @@ msgstr "Autor"
 #~ "Option außer Gebrauch und wird bevorzugt behandelt. Um --font-delta zu "
 #~ "benutzen, geben Sie 0 an. Voreinstellung: %defaultpt"
 
-#~ msgid ""
-#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
-#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
-#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
-#~ "    "
-#~ msgstr ""
-#~ "Geben Sie Truetype Schriftarten für serife, serifenlose und "
-#~ "nichtproportionale Schriften an. Diese Schriften werden in die LRF Datei "
-#~ "eingebettet. Bitte beachten Sie, dass individuell eingebettete Schriften das "
-#~ "Umblättern verlangsamen. Zum Beispiel: --serif-family \"Times New Roman\"\n"
-#~ "    "
-
 #~ msgid "Could not initialize the fontconfig library"
 #~ msgstr "Konnte die fontconfig library nicht initialisieren"
+
+#~ msgid ""
+#~ "%prog [options] mybook.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.fb2 to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] dateiname.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog konvertiert dateiname.fb2 in dateiname.lrf"
 
 #~ msgid "Prevent the automatic detection chapters."
 #~ msgstr "Automatische Erkennung von Kapiteln verhindern."
 
+#~ msgid "Add detected chapters to the table of contents."
+#~ msgstr "Die ermittelten Kapitel zum Inhaltsverzeichnis hinzufügen."
+
 #~ msgid "Could not launch worker process."
 #~ msgstr "Konnte Arbeitsprozess nicht starten."
 
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "Im Reader ist keine Speicherkarte eingesteckt."
-
-#~ msgid "Format for &single file save:"
-#~ msgstr "Format zur &Speicherung einer Datei:"
+#~ msgid "Could not save some ebooks"
+#~ msgstr "Konnte einige eBooks nicht speichern"
 
 #~ msgid ""
 #~ "<p>Could not save the following books to disk, because the %s format is not "
@@ -8652,8 +8522,11 @@ msgstr "Autor"
 #~ "<p>Die folgenden Bücher konnten nicht auf die Festplatte gespeichert werden, "
 #~ "da das %s Format für sie nicht verfügbar ist:<ul>"
 
-#~ msgid "Could not save some ebooks"
-#~ msgstr "Konnte einige eBooks nicht speichern"
+#~ msgid "Format for &single file save:"
+#~ msgstr "Format zur &Speicherung einer Datei:"
+
+#~ msgid "The reader has no storage card connected."
+#~ msgstr "Im Reader ist keine Speicherkarte eingesteckt."
 
 #~ msgid "Keep generated HTML files after completing conversion to LRF."
 #~ msgstr "Erstellte HTML Dateien nach vollzogener LRF Konvertierung behalten."
@@ -8661,26 +8534,24 @@ msgstr "Autor"
 #~ msgid "%prog [options] LITFILE"
 #~ msgstr "%prog [options] LITFILE"
 
-#~ msgid "Title for generated ebook. Default is to use the filename."
-#~ msgstr ""
-#~ "Titel für erstelltes eBook. In der Voreinstellung wird der Dateiname benutzt."
-
 #~ msgid ""
 #~ "Set the author in the metadata of the generated ebook. Default is %default"
 #~ msgstr ""
 #~ "Gibt den Autor in den Metadaten des erstellen eBooks an. Voreinstellung ist "
 #~ "%default."
 
-#~ msgid "Don't show progress bar."
-#~ msgstr "Fortschrittsbalken nicht anzeigen."
+#~ msgid "Title for generated ebook. Default is to use the filename."
+#~ msgstr ""
+#~ "Titel für erstelltes eBook. In der Voreinstellung wird der Dateiname benutzt."
 
 #~ msgid "Rendering comic pages..."
 #~ msgstr "Rendere Seiten des Comics..."
 
-#~ msgid "A comma separated list of tags to set"
-#~ msgstr ""
-#~ "Eine durch Kommata getrennte Liste von Etiketten, die angewendet werden "
-#~ "sollen"
+#~ msgid "Don't show progress bar."
+#~ msgstr "Fortschrittsbalken nicht anzeigen."
+
+#~ msgid "Be verbose while processing"
+#~ msgstr "Bei der weiteren Verarbeitung ausführlicher vorgehen"
 
 #~ msgid ""
 #~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
@@ -8698,8 +8569,13 @@ msgstr "Autor"
 #~ msgid "Output written to"
 #~ msgstr "Ausgabe gespeichert unter"
 
-#~ msgid "Set defaults for conversion of comics"
-#~ msgstr "Voreinstellungen für die Konvertierung von Comics eingeben"
+#~ msgid "Be more verbose."
+#~ msgstr "Noch ausführlicher!"
+
+#~ msgid "A comma separated list of tags to set"
+#~ msgstr ""
+#~ "Eine durch Kommata getrennte Liste von Etiketten, die angewendet werden "
+#~ "sollen"
 
 #~ msgid ""
 #~ "<p>Could not convert %d of %d books, because no suitable source format was "
@@ -8714,10 +8590,11 @@ msgstr "Autor"
 #~ msgid "Convert comic: "
 #~ msgstr "Comic konvertieren: "
 
-#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
-#~ msgstr ""
-#~ "Lesbares Format der extrahierten Textauszeichnung. Könnte sinnvolle "
-#~ "Freiräume abändern."
+#~ msgid "Be more verbose while processing."
+#~ msgstr "Noch ausführlicher bei der weiteren Verarbeitung vorgehen."
+
+#~ msgid "Very verbose output, useful for debugging."
+#~ msgstr "Sehr ausführliche Ausgabe, hilfreich bei der Fehlersuche."
 
 #~ msgid "The format to use when saving single files to disk"
 #~ msgstr ""
@@ -8729,6 +8606,11 @@ msgstr "Autor"
 
 #~ msgid "Job stopped by user"
 #~ msgstr "Auftrag durch Benutzer unterbrochen"
+
+#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
+#~ msgstr ""
+#~ "Lesbares Format der extrahierten Textauszeichnung. Könnte sinnvolle "
+#~ "Freiräume abändern."
 
 #~ msgid "Options to control the conversion to EPUB"
 #~ msgstr "Einstellungen zur Kontrolle der Konvertierung zu EPUB Dateien"
@@ -8774,14 +8656,6 @@ msgstr "Autor"
 #~ "Durchforstet Verknüpfungen in HTML Dateien zuerst in die Breite. "
 #~ "Normalerweise werden sie zuerst in die Tiefe durchforstet"
 
-#~ msgid ""
-#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
-#~ "negative. 0 implies that no links in the root HTML file are followed."
-#~ msgstr ""
-#~ "Maximale Höhe der Rekursion bei der Verfolgung von Verknüpfungen in HTML "
-#~ "Dateien. Darf nicht negativ sein. 0 gibt an, dass keine Verknüpfungen in der "
-#~ "ursprünglichen HTML Datei verfolgt werden."
-
 #~ msgid "Set metadata of the generated ebook"
 #~ msgstr "Geben Sie die Metadaten des erstellten eBooks an"
 
@@ -8815,6 +8689,14 @@ msgstr "Autor"
 #~ "wird und sie ein Inhaltsverzeichnis angibt, wird dieses verwendet anstatt zu "
 #~ "versuchen\n"
 #~ "ein Inhaltsverzeichnis automatisch zu erstellen.\n"
+
+#~ msgid ""
+#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
+#~ "negative. 0 implies that no links in the root HTML file are followed."
+#~ msgstr ""
+#~ "Maximale Höhe der Rekursion bei der Verfolgung von Verknüpfungen in HTML "
+#~ "Dateien. Darf nicht negativ sein. 0 gibt an, dass keine Verknüpfungen in der "
+#~ "ursprünglichen HTML Datei verfolgt werden."
 
 #~ msgid "Usage: imp-meta file.imp"
 #~ msgstr "Benutzung: imp-meta file.imp"
@@ -9042,15 +8924,18 @@ msgstr "Autor"
 #~ msgid "Level &2 TOC"
 #~ msgstr "Ebene &2 Inhaltsverzeichnis"
 
-#~ msgid "Converting from %s to LRF is not supported."
-#~ msgstr "Konvertierung von %s nach LRF wird nicht unterstützt."
-
-#~ msgid "The book language"
-#~ msgstr "Sprache des Buches"
+#~ msgid "Set defaults for conversion of comics"
+#~ msgstr "Voreinstellungen für die Konvertierung von Comics eingeben"
 
 #~ msgid "The output directory. Defaults to the current directory."
 #~ msgstr ""
 #~ "Das Ausgabeverzeichnis. Laut Voreinstellung das aktuelle Verzeichnis."
+
+#~ msgid "The book language"
+#~ msgstr "Sprache des Buches"
+
+#~ msgid "Converting from %s to LRF is not supported."
+#~ msgstr "Konvertierung von %s nach LRF wird nicht unterstützt."
 
 #~ msgid ""
 #~ "Preserve the HTML tag structure while splitting large HTML files. This is "
@@ -9064,6 +8949,27 @@ msgstr "Autor"
 
 #~ msgid "Preserve &tag structure when splitting"
 #~ msgstr "HTML &Tag Struktur beim Aufteilen beibehalten"
+
+#~ msgid "Extract the cover"
+#~ msgstr "Umschlagbild extrahieren"
+
+#~ msgid ""
+#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
+#~ "to %default"
+#~ msgstr ""
+#~ "Ein regulärer Ausdruck. <a> Elemente, deren Verknüpfungen ignoriert werden. "
+#~ "Voreinstellung ist %default"
+
+#~ msgid ""
+#~ "The regular expression used to detect chapter titles. It is searched for in "
+#~ "heading tags (h1-h6). Defaults to %default"
+#~ msgstr ""
+#~ "Der reguläre Ausdruck zur Ermittlung von Kapitelüberschriften. Es wird nach "
+#~ "mit (h1) - (h6) angegebenen Überschriften gesucht. Voreinstellung ist "
+#~ "%default"
+
+#~ msgid "Output directory. Defaults to current directory."
+#~ msgstr "Ausgabeverzeichnis. Voreinstellung ist aktuelles Verzeichnis."
 
 #~ msgid ""
 #~ "Detect a chapter beginning at an element having the specified attribute. The "
@@ -9081,30 +8987,46 @@ msgstr "Autor"
 #~ "names zu treffen. Wenn Sie zum Beispiel alle h2 tags treffen wollen, "
 #~ "benutzen Sie \"h2,none,\". Voreinstellung ist %default"
 
-#~ msgid "Extract the cover"
-#~ msgstr "Umschlagbild extrahieren"
+#~ msgid "Preprocess Baen HTML files to improve generated LRF."
+#~ msgstr "Baen HTML Dateien vorverarbeiten, um erstelltes LRF zu verbessern."
 
-#~ msgid "<b>%s</b><br/><p>%s</p>"
-#~ msgstr "<b>%s</b><br/><p>%s</p>"
+#~ msgid ""
+#~ "You must add this option if processing files generated by pdftohtml, "
+#~ "otherwise conversion will fail."
+#~ msgstr ""
+#~ "Sie müssen diese Einstellung für die Verarbeitung von durch pdfthtml "
+#~ "erstellten Dateien hinzufügen, sonst schlägt die Konvertierung fehl."
+
+#~ msgid "Use this option on html0 files from Book Designer."
+#~ msgstr "Benutzen Sie diese Einstellung für html0 Dateien von Book Designer."
+
+#~ msgid ""
+#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
+#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
+#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
+#~ "    "
+#~ msgstr ""
+#~ "Geben Sie Truetype Schriftarten für serife, serifenlose und "
+#~ "nichtproportionale Schriften an. Diese Schriften werden in die LRF Datei "
+#~ "eingebettet. Bitte beachten Sie, dass individuell eingebettete Schriften das "
+#~ "Umblättern verlangsamen. Zum Beispiel: --serif-family \"Times New Roman\"\n"
+#~ "    "
+
+#~ msgid ""
+#~ "Preprocess the file before converting to LRF. This is useful if you know "
+#~ "that the file is from a specific source. Known sources:"
+#~ msgstr ""
+#~ "Datei vorverarbeiten bevor sie zu LRF konvertiert wird. Das ist hilfreich, "
+#~ "wenn Sie wissen, dass die Datei von einer der folgenden Bezugsquellen stammt:"
 
 #~ msgid "Regular expression (?P<authors>)"
 #~ msgstr "Regulärer Ausdruck (?P<authors>)"
 
+#~ msgid "<b>%s</b><br/><p>%s</p>"
+#~ msgstr "<b>%s</b><br/><p>%s</p>"
+
 #~ msgid "Set the dc:language field"
 #~ msgstr "Geben Sie das Feld dc:language an"
-
-#~ msgid ""
-#~ "If you want to use the content server to access your ebook collection on "
-#~ "your iphone with Stanza, you will need to add the URL "
-#~ "http://myhostname:8080/stanza as a new catalog in the stanza reader on your "
-#~ "iphone. Here myhostname should be the fully qualified hostname or the IP "
-#~ "address of this computer."
-#~ msgstr ""
-#~ "Wenn Sie den Content Server verwenden, um auf dem iPhone mit Stanza auf Ihre "
-#~ "eBook Sammlung zuzugreifen, müssen Sie die URL "
-#~ "http://meinservername:8080/stanza als einen neuen Katalog im Stanza Reader "
-#~ "auf Ihrem iPhone hinzufügen. In diesem Fall sollte meinservername der volle "
-#~ "Servername oder die IP Adresse dieses Rechners sein."
 
 #~ msgid ""
 #~ "Card\n"
@@ -9172,6 +9094,14 @@ msgstr "Autor"
 #~ "Anzahl der Punkte zum Beschneiden von rechts y (voreingestellt ist %d)"
 
 #~ msgid ""
+#~ "Specify metadata such as title and author for the book.<p>Metadata will be "
+#~ "updated in the database as well as the generated LRF file."
+#~ msgstr ""
+#~ "Geben Sie Metadaten wie den Titel und den Autor des Buches an. <p>Metadaten "
+#~ "werden sowohl in der Datenbank als auch in der erstellten LRF Datei "
+#~ "aktualisiert."
+
+#~ msgid ""
 #~ " is communicating with the device!<br>\n"
 #~ "                      'Quitting may cause corruption on the device.<br>\n"
 #~ "                      'Are you sure you want to quit?"
@@ -9179,13 +9109,6 @@ msgstr "Autor"
 #~ " kommuniziert mit dem Gerät!<br>\n"
 #~ "                      'Das Beenden könnte das Gerät beschädigen.<br>\n"
 #~ "                      'Wirklich beenden?"
-
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
-#~ msgstr ""
-#~ "Eine von Ghostcript erstellte Datei, die es erlaubt, jede Seite individuell "
-#~ "zu beschneiden [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
 
 #~ msgid ""
 #~ "\t%prog [options] file.pdf\n"
@@ -9198,11 +9121,12 @@ msgstr "Autor"
 #~ "\tBeschneidet ein pdf. \n"
 #~ "\t"
 
-#~ msgid "Creating Mobipocket file from EPUB..."
-#~ msgstr "Erstelle Mobipocket Datei aus EPUB..."
-
-#~ msgid "Mobipocket-specific options."
-#~ msgstr "Einstellungen speziell für Mobipocket."
+#~ msgid ""
+#~ "A file generated by ghostscript which allows each page to be individually "
+#~ "cropped [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
+#~ msgstr ""
+#~ "Eine von Ghostcript erstellte Datei, die es erlaubt, jede Seite individuell "
+#~ "zu beschneiden [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
 
 #~ msgid ""
 #~ "Compress file text using PalmDOC compression. Results in smaller files, but "
@@ -9210,6 +9134,12 @@ msgstr "Autor"
 #~ msgstr ""
 #~ "Textdatei mit PalmDOC compression komprimieren. Ergibt kleinere Dateien, "
 #~ "dauert aber länger beim Start."
+
+#~ msgid "Creating Mobipocket file from EPUB..."
+#~ msgstr "Erstelle Mobipocket Datei aus EPUB..."
+
+#~ msgid "Mobipocket-specific options."
+#~ msgstr "Einstellungen speziell für Mobipocket."
 
 #~ msgid "Unknown source profile %r"
 #~ msgstr "Unbekanntes Profil der Quelle %r"
@@ -9282,14 +9212,31 @@ msgstr "Autor"
 #~ "Geben Sie das Ausgabeformat an, das zur Konvertierung von eBooks und "
 #~ "geladener Nachrichten verwendet wird"
 
+#~ msgid "Set the ISBN"
+#~ msgstr "Geben Sie sie ISBN an"
+
 #~ msgid "Set the subject tags"
 #~ msgstr "Geben Sie die Themen-Tags an"
 
 #~ msgid "Set the language"
 #~ msgstr "Geben Sie die Sprache an"
 
-#~ msgid "Set the ISBN"
-#~ msgstr "Geben Sie sie ISBN an"
+#~ msgid ""
+#~ "XPath expression to detect page boundaries for building a custom pagination "
+#~ "map, as used by AdobeDE. Default is not to build an explicit pagination map."
+#~ msgstr ""
+#~ "XPath Ausdruck zum Erkennen von Seitenbegrenzungen, damit ein eigenes "
+#~ "Seitenlayout erstellt werden kann, so wie es AdobeDE verwendet. In der "
+#~ "Voreinstellung wird kein spezielles Seitenlayout erstellt."
+
+#~ msgid ""
+#~ "XPath expression to find the name of each page in the pagination map "
+#~ "relative to its boundary element. Default is to number all pages staring "
+#~ "with 1."
+#~ msgstr ""
+#~ "XPath Ausdruck zur Namensfindung jeder Seite im Seitenlayout relativ zum "
+#~ "begrenzenden Element. In der Voreinstellung werden alle Seiten aufsteigend "
+#~ "von 1 numeriert."
 
 #~ msgid ""
 #~ "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
@@ -9323,11 +9270,29 @@ msgstr "Autor"
 #~ "Wenn vorhanden die Informationen zur Autorsortierung für die Erstellung der "
 #~ "Mobipocket Autor Metadaten verwenden."
 
+#~ msgid "Added %s to library"
+#~ msgstr "%s zur Bibliothek hinzugefügt"
+
+#~ msgid "Searching for books in all sub-directories..."
+#~ msgstr "Suche nach Büchern in allen Unterverzeichnissen..."
+
 #~ msgid "&Ignore tables"
 #~ msgstr "&Ignoriere Tabellen"
 
 #~ msgid "&Use author sort to set author field in output"
 #~ msgstr "Ben&utze Autor Sortierung für das Autor Feld in der Ausgabe"
+
+#~ msgid "Remove &first image from source file"
+#~ msgstr "Erstes Bild der Ausgabedatei ent&fernen"
+
+#~ msgid "&Page map"
+#~ msgstr "Seiten&abbildung"
+
+#~ msgid "&Boundary XPath:"
+#~ msgstr "&Begrenzungs-XPath:"
+
+#~ msgid "&Name XPath:"
+#~ msgstr "&Namens-XPath:"
 
 #~ msgid ""
 #~ "<p>You can control how calibre detects chapters using a XPath expression. To "
@@ -9343,25 +9308,8 @@ msgstr "Autor"
 #~ msgid "Level &3 TOC"
 #~ msgstr "Ebene &3 Inhaltsverzeichnis"
 
-#~ msgid ""
-#~ "XPath expression to detect page boundaries for building a custom pagination "
-#~ "map, as used by AdobeDE. Default is not to build an explicit pagination map."
-#~ msgstr ""
-#~ "XPath Ausdruck zum Erkennen von Seitenbegrenzungen, damit ein eigenes "
-#~ "Seitenlayout erstellt werden kann, so wie es AdobeDE verwendet. In der "
-#~ "Voreinstellung wird kein spezielles Seitenlayout erstellt."
-
-#~ msgid ""
-#~ "XPath expression to find the name of each page in the pagination map "
-#~ "relative to its boundary element. Default is to number all pages staring "
-#~ "with 1."
-#~ msgstr ""
-#~ "XPath Ausdruck zur Namensfindung jeder Seite im Seitenlayout relativ zum "
-#~ "begrenzenden Element. In der Voreinstellung werden alle Seiten aufsteigend "
-#~ "von 1 numeriert."
-
-#~ msgid "&Page map"
-#~ msgstr "Seiten&abbildung"
+#~ msgid "No preprocessing"
+#~ msgstr "Keine Vorverarbeitung"
 
 #~ msgid ""
 #~ "<p>You can control how calibre detects page boundaries using a XPath "
@@ -9379,23 +9327,89 @@ msgstr "Autor"
 #~ "Dies stellt ein, wo Adobe Digital Editions die Seitenzahlen am rechten Rand "
 #~ "darstellt.</p>"
 
-#~ msgid "&Boundary XPath:"
-#~ msgstr "&Begrenzungs-XPath:"
+#~ msgid "Fetching of recipe failed: "
+#~ msgstr "Abruf des Schemas misslungen: "
 
-#~ msgid "&Name XPath:"
-#~ msgstr "&Namens-XPath:"
+#~ msgid "Click to see the list of books available on your computer"
+#~ msgstr "Liste der auf dem Computer vorhandenen Bücher anzeigen"
 
-#~ msgid "Remove &first image from source file"
-#~ msgstr "Erstes Bild der Ausgabedatei ent&fernen"
+#~ msgid "Click to see the list of books in the main memory of your reader"
+#~ msgstr "Liste der im Hauptspeicher des Geräts vorhandenen Bücher"
 
-#~ msgid "Added %s to library"
-#~ msgstr "%s zur Bibliothek hinzugefügt"
+#~ msgid "Click to see the list of books on the storage card in your reader"
+#~ msgstr "Liste der auf der Speicherkarte des Geräts vorhandenen Bücher"
 
-#~ msgid "Searching for books in all sub-directories..."
-#~ msgstr "Suche nach Büchern in allen Unterverzeichnissen..."
+#~ msgid ""
+#~ "Specify a list of feeds to download. For example: \n"
+#~ "\"['http://feeds.newsweek.com/newsweek/TopNews', "
+#~ "'http://feeds.newsweek.com/headlines/politics']\"\n"
+#~ "If you specify this option, any argument to %prog is ignored and a default "
+#~ "recipe is used to download the feeds."
+#~ msgstr ""
+#~ "Geben Sie eine Liste von Feeds zum Download an. Zum Beispiel: \n"
+#~ "\"['http://feeds.newsweek.com/newsweek/TopNews', "
+#~ "'http://feeds.newsweek.com/headlines/politics']\"\n"
+#~ "Wenn Sie diese Option wählen, wird jedes Argument %prog ignoriert und ein "
+#~ "voreingestelltes Schema zum Download der Feeds verwendet."
 
-#~ msgid "No preprocessing"
-#~ msgstr "Keine Vorverarbeitung"
+#~ msgid ""
+#~ "The title for this recipe. Used as the title for any ebooks created from the "
+#~ "downloaded feeds."
+#~ msgstr ""
+#~ "Der Titel für dieses Schema. Wird als Titel für alle eBooks benutzt, die aus "
+#~ "den geladenen Feeds erstellt wurden."
+
+#~ msgid ""
+#~ "%%prog [options] ARG\n"
+#~ "\n"
+#~ "%%prog parses an online source of articles, like an RSS or ATOM feed and \n"
+#~ "fetches the article contents organized in a nice hierarchy.\n"
+#~ "\n"
+#~ "ARG can be one of:\n"
+#~ "\n"
+#~ "file name            - %%prog will try to load a recipe from the file\n"
+#~ "\n"
+#~ "builtin recipe title - %%prog will load the builtin recipe and use it to "
+#~ "fetch the feed. For e.g. Newsweek or \"The BBC\" or \"The New York Times\"\n"
+#~ "\n"
+#~ "recipe as a string   - %%prog will load the recipe directly from the string "
+#~ "arg.\n"
+#~ "\n"
+#~ "Available builtin recipes are:\n"
+#~ "%s\n"
+#~ msgstr ""
+#~ "%%prog [options] ARG\n"
+#~ "\n"
+#~ "%%prog analysiert eine Online-Quelle von Artikeln, z.B. einen RSS oder ATOM "
+#~ "Feed und \n"
+#~ "ruft die Artikelinhalte hierarchisch organisiert ab.\n"
+#~ "\n"
+#~ "ARG kann eines der folgenden sein:\n"
+#~ "\n"
+#~ "dateiname            - %%prog versucht ein Schema aus der Datei zu laden\n"
+#~ "\n"
+#~ "installiertes Schema - %%prog lädt ein installiertes Schema und benutzt es, "
+#~ "um den Feed abzurufen. Z.B. für Newsweek or \"The BBC\" or \"The New York "
+#~ "Times\"\n"
+#~ "\n"
+#~ "Schema als eine Reihung  - %%prog lädt das Schema direkt nach der "
+#~ "angegebenen Reihung.\n"
+#~ "\n"
+#~ "Verfügbare installierte Schemata:\n"
+#~ "%s\n"
+
+#~ msgid ""
+#~ "If you want to use the content server to access your ebook collection on "
+#~ "your iphone with Stanza, you will need to add the URL "
+#~ "http://myhostname:8080/stanza as a new catalog in the stanza reader on your "
+#~ "iphone. Here myhostname should be the fully qualified hostname or the IP "
+#~ "address of this computer."
+#~ msgstr ""
+#~ "Wenn Sie den Content Server verwenden, um auf dem iPhone mit Stanza auf Ihre "
+#~ "eBook Sammlung zuzugreifen, müssen Sie die URL "
+#~ "http://meinservername:8080/stanza als einen neuen Katalog im Stanza Reader "
+#~ "auf Ihrem iPhone hinzufügen. In diesem Fall sollte meinservername der volle "
+#~ "Servername oder die IP Adresse dieses Rechners sein."
 
 #~ msgid ""
 #~ "%prog [options] comic.cb[z|r]\n"

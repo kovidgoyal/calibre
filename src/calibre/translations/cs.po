@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-07-19 18:45+0000\n"
+"POT-Creation-Date: 2009-07-25 02:01+0000\n"
 "PO-Revision-Date: 2009-06-16 13:48+0000\n"
 "Last-Translator: Plazec <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-07-21 16:48+0000\n"
+"X-Launchpad-Export-Date: 2009-07-26 20:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -35,6 +35,8 @@ msgstr "Nedělá vůbec nic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:52
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:317
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1895
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
@@ -65,14 +67,14 @@ msgstr "Nedělá vůbec nic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:857
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:862
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:900
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:136
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:866
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:871
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:909
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:84
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:101
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:104
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
@@ -109,7 +111,7 @@ msgstr "Nedělá vůbec nic"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
@@ -128,10 +130,10 @@ msgstr "Nedělá vůbec nic"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1514
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1599
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1673
-#: /home/kovid/work/calibre/src/calibre/library/server.py:294
-#: /home/kovid/work/calibre/src/calibre/library/server.py:355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1621
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1672
+#: /home/kovid/work/calibre/src/calibre/library/server.py:295
+#: /home/kovid/work/calibre/src/calibre/library/server.py:356
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -212,7 +214,7 @@ msgstr "Nastavuje metadata ze souborů %s"
 msgid "Conversion Input"
 msgstr "Vstup Převodu"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:122
 msgid ""
 "Save the output from the input plugin to the specified directory. Useful if "
 "you are unsure at which stage of the conversion process a bug is occurring. "
@@ -222,7 +224,7 @@ msgstr ""
 "nejste jisti při které části převodního procesu nastává chyba. VAROVÁNÍ: "
 "Toto kompletě smaže obsah určeného adresáře."
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:127
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:131
 msgid ""
 "Specify the character encoding of the input document. If set this option "
 "will override any encoding declared by the document itself. Particularly "
@@ -233,11 +235,11 @@ msgstr ""
 "potlačí jakékoliv kódování deklarované samotným dokumentem. Zvláště užitečné "
 "fro dokumenty které nedeklarují kódování nebo které"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:243
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:247
 msgid "Conversion Output"
 msgstr "Výstup Převodu"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:257
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:261
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
@@ -1219,7 +1221,7 @@ msgstr "Nepodařilo se načíst obrázek obálky: %s"
 msgid "Cannot read from: %s"
 msgstr "Nedaří se číst z: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1990
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1996
 msgid "Failed to process opf file"
 msgstr "Selhalo zpracování OPF souboru"
 
@@ -1646,6 +1648,11 @@ msgstr ""
 "\n"
 "Stáhnout obálku knihy identifikované uvedeným kódém ISBN z LibraryThing.com\n"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+msgid "Cover"
+msgstr "Obálka"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr "Upravit obrázky aby vyhovovali velikostním omezení Palm zařízení."
@@ -1669,78 +1676,74 @@ msgstr "Název pro vygenerovaný obsah."
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:103
 msgid "All articles"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
-msgid "Cover"
-msgstr "Obálka"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1261
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
 msgid "Title Page"
 msgstr "Titulní stránka"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1262
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr "Obsah"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1263
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
 msgid "Index"
 msgstr "Rejstřík"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1264
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
 msgid "Glossary"
 msgstr "Slovník pojmů"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1265
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
 msgid "Acknowledgements"
 msgstr "Pděkování"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1266
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
 msgid "Bibliography"
 msgstr "Bibliografie"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1267
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
 msgid "Colophon"
 msgstr "Tiráž"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1268
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1277
 msgid "Copyright"
 msgstr "Autorská práva"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1278
 msgid "Dedication"
 msgstr "Věnování"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 msgid "Epigraph"
 msgstr "Doslov"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1280
 msgid "Foreword"
 msgstr "Předmluva"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1281
 msgid "List of Illustrations"
 msgstr "Seznam Ilustrací"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1282
 msgid "List of Tables"
 msgstr "Seznam tabulek"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1283
 msgid "Notes"
 msgstr "Poznámky"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
 msgid "Preface"
 msgstr "Úvod"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1285
 msgid "Main Text"
 msgstr "Hlavní text"
 
@@ -1803,11 +1806,11 @@ msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:112
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:114
 msgid "Footnotes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:123
 msgid "Sidebar"
 msgstr "Postraní panel"
 
@@ -3942,8 +3945,7 @@ msgid "Meta information"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
-msgid "Author S&ort: "
+msgid "Author s&ort: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:142
@@ -3971,7 +3973,7 @@ msgid " stars"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:148
-msgid "Add Ta&gs: "
+msgid "Add ta&gs: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:150
@@ -4023,50 +4025,50 @@ msgstr ""
 msgid "The cover in the %s format is invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
 msgid "Downloading cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:414
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:428
 msgid "Cannot fetch cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:429
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
 msgid "The download timed out."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:435
 msgid "Bad cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:436
 msgid "The cover is not a valid picture"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:475
 msgid "Cannot fetch metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:476
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
 msgid "Permission denied"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 
@@ -4076,6 +4078,10 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Swap the author and title"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
+msgid "Author S&ort: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:343
@@ -6511,11 +6517,11 @@ msgstr ""
 msgid "Compacting database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:146
+#: /home/kovid/work/calibre/src/calibre/library/server.py:147
 msgid "Password to access your calibre library. Username is "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:429
+#: /home/kovid/work/calibre/src/calibre/library/server.py:430
 msgid ""
 "[options]\n"
 "\n"
@@ -6783,12 +6789,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_accountancyage.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_al_jazeera.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_azstarnet.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
@@ -6796,6 +6804,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_coding_horror.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_craigslist.py:15
@@ -6833,8 +6842,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linuxdevices.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moneynews.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
@@ -6860,14 +6871,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scott_hanselman.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slate.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_stackoverflow.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
@@ -6893,7 +6907,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
@@ -6951,6 +6965,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
 msgid "Portugese"
 msgstr ""
 
@@ -6968,10 +6983,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
-msgid "Portuguese"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
@@ -7320,6 +7331,205 @@ msgstr ""
 msgid "subscribers"
 msgstr ""
 
+#~ msgid "The reader has no storage card connected."
+#~ msgstr "Do čtecího zařízení není vložena žádná paměťová karta."
+
+#~ msgid ""
+#~ "The output EPUB file. If not specified, it is derived from the input file "
+#~ "name."
+#~ msgstr ""
+#~ "Název výsledného EPUB souboru. Není-li zadán, bude odvozen z názvu vstupního "
+#~ "souboru."
+
+#~ msgid "Options to control the conversion to EPUB"
+#~ msgstr "Nastavení pro převod do formátu EPUB"
+
+#~ msgid ""
+#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
+#~ "existing CSS declarations in the source files."
+#~ msgstr ""
+#~ "Cesta k souboru s CSS nebo přímo CSS kód. Tyto CSS nahradí jakkékoliv "
+#~ "existující CSS příkazy ve zdrojových souborech."
+
+#~ msgid ""
+#~ "Profile of the target device this EPUB is meant for. Set to None to create a "
+#~ "device independent EPUB. The profile is used for device specific "
+#~ "restrictions on the EPUB. Choices are: "
+#~ msgstr ""
+#~ "Profil cílového zařízení, pro který je EPUB určen. Pro vytvoření souboru "
+#~ "EPUB nezávislého na na zařízení zadejte Žádný. Profiul je určen pro omezení "
+#~ "specifická pro dané zařízení. Možnosti jsou: "
+
+#~ msgid ""
+#~ "An XPath expression to detect chapter titles. The default is to consider "
+#~ "<h1> or\n"
+#~ "<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
+#~ "\"part\" as chapter titles as \n"
+#~ "well as any tags that have class=\"chapter\". \n"
+#~ "The expression used must evaluate to a list of elements. To disable chapter "
+#~ "detection,\n"
+#~ "use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
+#~ "for further\n"
+#~ "help on using this feature.\n"
+#~ msgstr ""
+#~ "XPath výraz pro detekci názvů kapitol. Standardně jsou za kapitoly "
+#~ "považovány tagy <h1> \n"
+#~ "nebo <h2>,  jenž obsahují slova \"chapter\", \"book\", \"section\" nebo "
+#~ "\"part\", stejně \n"
+#~ "jako všechny tagy, které obsahují class=\"chapter\". \n"
+#~ "Výraz musí být vyhodnocen na seznam elementů. Pro vypnutí detekce kapitol "
+#~ "zadejte \n"
+#~ "výraz \"/\". Pro další možnosti použití této vlastnosti viz. také XPath "
+#~ "Tutorial \n"
+#~ "v uživatelské příručce calibre.\n"
+
+#~ msgid ""
+#~ "Control the automatic generation of a Table of Contents. If an OPF file is "
+#~ "detected\n"
+#~ "and it specifies a Table of Contents, then that will be used rather than "
+#~ "trying\n"
+#~ "to auto-generate a Table of Contents.\n"
+#~ msgstr ""
+#~ "Nastavuje automatickou tvorbu obsahu. Pokud je detekován OPF soubor s "
+#~ "obsahem, \n"
+#~ "bude tento obsah použit místo pokusu o automatické vygenerování obsahu.\n"
+
+#~ msgid ""
+#~ "Path to a .ncx file that contains the table of contents to use for this "
+#~ "ebook. The NCX file should contain links relative to the directory it is "
+#~ "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
+#~ "an overview of the NCX format."
+#~ msgstr ""
+#~ "Cesta k .ncx souboru, který obsahuje obsah jenž má být použit pro tuto "
+#~ "knihu. Odkazy obsažené v NCX souboru by měly být relativní k adresáři, ve "
+#~ "kterém je soubor umístěn. Pro popis formátu NCX viz. "
+#~ "http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX"
+
+#~ msgid ""
+#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
+#~ "rescaling of fonts."
+#~ msgstr ""
+#~ "Velikost základního fontu v bodech. Standardní je %defaultpt. Je-li zadáno "
+#~ "0, bude vypnuto škálování fontů."
+
+#~ msgid "Print generated OPF file to stdout"
+#~ msgstr "Vytiskne generovaný OPF soubor na standardní výstup."
+
+#~ msgid "Print generated NCX file to stdout"
+#~ msgstr "Vytiskne generovaný NCX soubor na standardní výstup."
+
+#~ msgid "Set the left margin in pts. Default is %default"
+#~ msgstr "Nastaví levý okraj v bodech. Standardně je %default"
+
+#~ msgid "Set the right margin in pts. Default is %default"
+#~ msgstr "Nastaví pravý okraj v bodech. Standardně je %default"
+
+#~ msgid "Set the top margin in pts. Default is %default"
+#~ msgstr "Nastaví horní okraj v bodech. Standardně je %default"
+
+#~ msgid "Set the bottom margin in pts. Default is %default"
+#~ msgstr "Nastaví dolní okraj v bodech. Standardně je %default"
+
+#~ msgid ""
+#~ "Preserve the HTML tag structure while splitting large HTML files. This is "
+#~ "only neccessary if the HTML files contain CSS that uses sibling selectors. "
+#~ "Enabling this greatly slows down processing of large HTML files."
+#~ msgstr ""
+#~ "Zachovat strukturz HTML tagů při rozdělovaní velkých HTML souborů. Toto je "
+#~ "potřeba pouze v případě, kdy HTML soubor obsahuje CSS, které používá "
+#~ "vybíraní sourozenců. Zvolení této funkce výrazně zpomalí zpracování velkých "
+#~ "HTML souborů."
+
+#~ msgid "Keep intermediate files during processing by html2epub"
+#~ msgstr "Zachovat mezisoubory při zpracovávání nástrojem html2epub"
+
+#~ msgid "You must specify an input HTML file"
+#~ msgstr "Musíte specifikovat vstupní HTML soubor."
+
+#~ msgid "Written processed HTML to "
+#~ msgstr "Zpracované HTML bylo zapsano do "
+
+#~ msgid ""
+#~ "Extract the contents of the produced EPUB file to the specified directory."
+#~ msgstr "Extrahovat obsah vytvořeného EPUB souboru do určeného adresáře."
+
+#~ msgid ""
+#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
+#~ "cause incorrect rendering."
+#~ msgstr ""
+#~ "\t\tPříliš mnoho tagů. Přerozděleno bez zachování struktury. To může "
+#~ "způsobit nesprávné zobrazení."
+
+#~ msgid ""
+#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
+#~ "negative. 0 implies that no links in the root HTML file are followed."
+#~ msgstr ""
+#~ "Maximální úroveň rekurze při následování odkazů v HTML souborech. Musí být "
+#~ "nezáporné číslo. 0 znamená, že nejsou následovány žádné odkazy obsažené v "
+#~ "HTML souboru."
+
+#~ msgid "Options to control the traversal of HTML"
+#~ msgstr "Volby pro nastavení průchodu HTML souborem."
+
+#~ msgid "The output directory. Default is the current directory."
+#~ msgstr "Výstupní adresář. Standardně je aktuální adresář."
+
+#~ msgid "Character encoding for HTML files. Default is to auto detect."
+#~ msgstr "Kódování znakové sady HTML souborů. Standardně je autodetekována."
+
+#~ msgid "Control the following of links in HTML files."
+#~ msgstr "Nastavuje následovaní odkazů v HTML souborech."
+
+#~ msgid ""
+#~ "Traverse links in HTML files breadth first. Normally, they are traversed "
+#~ "depth first"
+#~ msgstr ""
+#~ "Nastavuje procházení HTML souborů do šířky. Normálně je nastaveno procházení "
+#~ "do hloubky."
+
+#~ msgid "Set metadata of the generated ebook"
+#~ msgstr "Nastavit metadata pro generovanou knihu."
+
+#~ msgid "Set the title. Default is to autodetect."
+#~ msgstr "Zadat název. Standardně je autodetekován."
+
+#~ msgid "%prog [options] LITFILE"
+#~ msgstr "%prog [options] LIT_soubor"
+
+#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
+#~ msgstr "Výstupní HTML je zobrazeno v podobě lépe čitelné pro člověka."
+
+#~ msgid ""
+#~ "Be more verbose while processing. Can be specified multiple times to "
+#~ "increase verbosity."
+#~ msgstr ""
+#~ "Zobrazovat více informací při zpracování. Může být zadáno několikrát pro "
+#~ "zvětšení množství informací."
+
+#~ msgid "Options useful for debugging"
+#~ msgstr "Nastavení užitečná pro odlaďování."
+
+#~ msgid "Output directory. Defaults to current directory."
+#~ msgstr "Výstupní adresář. Standardně je použit aktuální adresář."
+
+#~ msgid "The subject(s) of this book, as a comma separated list."
+#~ msgstr "Téma(ta) knihy jako seznam oddělený čárkami."
+
+#~ msgid "Set the publisher of this book."
+#~ msgstr "Zadat vydavatele této knihy."
+
+#~ msgid "A summary of this book."
+#~ msgstr "Shrnutí této knihy."
+
+#~ msgid "Load metadata from the specified OPF file"
+#~ msgstr "Nahrát metadata ze zadaného OPF souboru."
+
+#~ msgid "OEB ebook created in"
+#~ msgstr "OEB kniha vytvořena v"
+
+#~ msgid "Control page layout"
+#~ msgstr "Rozvržení ovládací stránky."
+
 #~ msgid "Set the title. Default: filename."
 #~ msgstr "Nastavení názvu. Standardně: název souboru"
 
@@ -7357,6 +7567,16 @@ msgstr ""
 #~ "Název výstupního souboru. Standardně je odvozeno z názvu vstupního souboru."
 
 #~ msgid ""
+#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
+#~ "option obsoletes the --font-delta option and takes precedence over it. To "
+#~ "use --font-delta, set this to 0. Default: %defaultpt"
+#~ msgstr ""
+#~ "Zadání základní velikosti fontu v bodech. Všechny fonty jsou náležitým "
+#~ "způsobem upraveny. Tato volba činí volbu --font-delta zastaralou, a je jí "
+#~ "před ní dána přednost. Pro použití --font-delta nastavte tuto hodnotu na 0. "
+#~ "Standardně: %defaultpt"
+
+#~ msgid ""
 #~ "Render HTML tables as blocks of text instead of actual tables. This is "
 #~ "neccessary if the HTML contains very large or complex tables."
 #~ msgstr ""
@@ -7366,21 +7586,62 @@ msgstr ""
 #~ msgid "Separate paragraphs by blank lines."
 #~ msgstr "Oddělit odstavce černými čárami."
 
-#~ msgid ""
-#~ "Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
-#~ "it is a string it is interpreted as CSS."
-#~ msgstr ""
-#~ "Nahrazení CSS. Může být buď cesta k souboru nebo řetězec. Řetězec bude "
-#~ "interpretovaný jako CSS."
+#~ msgid "Path to the cover to be used for this book"
+#~ msgstr "Cesta k obálce, která se má použít u této knihy"
 
 #~ msgid ""
-#~ "Use the <spine> element from the OPF file to determine the order in which "
-#~ "the HTML files are appended to the LRF. The .opf file must be in the same "
-#~ "directory as the base HTML file."
+#~ "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
+#~ "is: %default. Links are only added to the TOC if less than the --toc-"
+#~ "threshold number of chapters were detected."
 #~ msgstr ""
-#~ "Na určení pořadí, ve kterém budou k LRF souboru připojené HTML soubory, bude "
-#~ "použitý atribut <spine> OPF souboru. Soubor .opf musí být ve stejném "
-#~ "adresáři jako základní HTML soubor."
+#~ "Maximální počet odkazů, které budou vloženy do obsahu. Pro vypnutí zadejte "
+#~ "0. Standardně nastaveno: %default. Odkazy jsou přidány do obsahu pouze v tom "
+#~ "případě, kdy je detekováno méně kapitol než je zadáno v --toc-treshold."
+
+#~ msgid "Output written to "
+#~ msgstr "Výstup zapsán do "
+
+#~ msgid "%prog [options] OPFFILE"
+#~ msgstr "%prog [možnosti] OPFsoubor"
+
+#~ msgid ""
+#~ "%%prog [options] filename\n"
+#~ "\n"
+#~ "Convert any of a large number of ebook formats to a %s file. Supported "
+#~ "formats are: %s\n"
+#~ msgstr ""
+#~ "%%prog [možnosti] soubor\n"
+#~ "\n"
+#~ "Převést jakýkoliv z velkeho množství fromátů elektronických knih na formát "
+#~ "%s. Podporované formáty jsou: %s\n"
+
+#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
+#~ msgstr "Čitelně formátovat extrahované HTML. Může ovlyvnit mezery v textu."
+
+#~ msgid "Add extra spacing below the header. Default is %default px."
+#~ msgstr ""
+#~ "Přidat dodatečné odsazení pod hlavičku. Standard je %default obrazových bodů."
+
+#~ msgid "Bottom margin of page. Default is %default px."
+#~ msgstr "Dolní okraj strany. Standardní okraj je %default obrazových bodů"
+
+#~ msgid "Right margin of page. Default is %default px."
+#~ msgstr "Pravý okraj strany. Standardní okraj je %default obrazových bodů"
+
+#~ msgid "Top margin of page. Default is %default px."
+#~ msgstr "Horní okraj strany. Standardní okraj je %default obrazových bodů"
+
+#~ msgid ""
+#~ "Profile of the target device for which this LRF is being generated. The "
+#~ "profile determines things like the resolution and screen size of the target "
+#~ "device. Default: %s Supported profiles: "
+#~ msgstr ""
+#~ "Profil cílováho zařízení, pro které je tento LRF soubor určený. PRofil "
+#~ "určuje charakteristiky zařízení, jako například rozlišení nebo evlikost "
+#~ "obrazovky. Standardní profil: %s Podporované profily: "
+
+#~ msgid "Left margin of page. Default is %default px."
+#~ msgstr "Levý okraj strany. Standardní okraj je %default obrazových bodů"
 
 #~ msgid ""
 #~ "Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
@@ -7399,25 +7660,30 @@ msgstr ""
 #~ "uvedených v HTML nebo CSS."
 
 #~ msgid ""
-#~ "Profile of the target device for which this LRF is being generated. The "
-#~ "profile determines things like the resolution and screen size of the target "
-#~ "device. Default: %s Supported profiles: "
+#~ "Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
+#~ "it is a string it is interpreted as CSS."
 #~ msgstr ""
-#~ "Profil cílováho zařízení, pro které je tento LRF soubor určený. PRofil "
-#~ "určuje charakteristiky zařízení, jako například rozlišení nebo evlikost "
-#~ "obrazovky. Standardní profil: %s Podporované profily: "
+#~ "Nahrazení CSS. Může být buď cesta k souboru nebo řetězec. Řetězec bude "
+#~ "interpretovaný jako CSS."
 
-#~ msgid "Left margin of page. Default is %default px."
-#~ msgstr "Levý okraj strany. Standardní okraj je %default obrazových bodů"
+#~ msgid ""
+#~ "Use the <spine> element from the OPF file to determine the order in which "
+#~ "the HTML files are appended to the LRF. The .opf file must be in the same "
+#~ "directory as the base HTML file."
+#~ msgstr ""
+#~ "Na určení pořadí, ve kterém budou k LRF souboru připojené HTML soubory, bude "
+#~ "použitý atribut <spine> OPF souboru. Soubor .opf musí být ve stejném "
+#~ "adresáři jako základní HTML soubor."
 
-#~ msgid "Right margin of page. Default is %default px."
-#~ msgstr "Pravý okraj strany. Standardní okraj je %default obrazových bodů"
+#~ msgid "Don't add links to the table of contents."
+#~ msgstr "Nepřidávat odkazy do obsahu."
 
-#~ msgid "Top margin of page. Default is %default px."
-#~ msgstr "Horní okraj strany. Standardní okraj je %default obrazových bodů"
-
-#~ msgid "Bottom margin of page. Default is %default px."
-#~ msgstr "Dolní okraj strany. Standardní okraj je %default obrazových bodů"
+#~ msgid ""
+#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
+#~ "to %default"
+#~ msgstr ""
+#~ "Regularní výraz. Tagy <a> jejichž href se shoduje s tímto výrazem budou "
+#~ "ignorovány. Standardně %default"
 
 #~ msgid ""
 #~ "The maximum number of levels to recursively process links. A value of 0 "
@@ -7428,6 +7694,9 @@ msgstr ""
 #~ "odkazy nebudou následované. Záporná hodnota způsobí že tagy <a> budou "
 #~ "ignorovány."
 
+#~ msgid "Prevent the automatic detection chapters."
+#~ msgstr "Předejít automatickému rozpoznáváni kapitol."
+
 #~ msgid ""
 #~ "The regular expression used to detect chapter titles. It is searched for in "
 #~ "heading tags (h1-h6). Defaults to %default"
@@ -7435,51 +7704,24 @@ msgstr ""
 #~ "Regulární výraz použitý na automatické rozeznávání nazvů kapitol. Bude "
 #~ "hledaný v nadpisových tazích (h1 - h6) Standardně %default"
 
-#~ msgid ""
-#~ "If html2lrf does not find any page breaks in the html file and cannot detect "
-#~ "chapter headings, it will automatically insert page-breaks before the tags "
-#~ "whose names match this regular expression. Defaults to %default. You can "
-#~ "disable it by setting the regexp to \"$\". The purpose of this option is to "
-#~ "try to ensure that there are no really long pages as this degrades the page "
-#~ "turn performance of the LRF. Thus this option is ignored if the current page "
-#~ "has only a few elements."
-#~ msgstr ""
-#~ "Pokud html2lrf nenajde v souboru žádné zalomení stránek a nerozezná ani "
-#~ "žádné nadpisy kapitol, automaticky vloží zalomení stran před tagy, jejichž "
-#~ "názvy se shodují s tímto regulárním výrazem. Standardně je %default. Toto "
-#~ "nastavení můžete vypnout zadáním výrazu \"$\". Jeho smyslem je zabránit "
-#~ "vzniku velmi dlouhých úseků bez zalomení stránky. které snižují rychlost "
-#~ "listování v LRF souboru. Tato možnost je tedy ignorována pokud má aktuální "
-#~ "stránka jen několik elementů."
+#~ msgid "Set the authors"
+#~ msgstr "Zadejte autory"
 
 #~ msgid ""
-#~ "Force a page break before an element having the specified attribute. The "
+#~ "Detect a chapter beginning at an element having the specified attribute. The "
 #~ "format for this option is tagname regexp,attribute name,attribute value "
 #~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". You can set the "
+#~ "attribute to \"none\" to match only on tag names. So for example, to match "
+#~ "all h2 tags, you would use \"h2,none,\". Default is %default"
 #~ msgstr ""
-#~ "Vložit zalomení stánky před elementy obsahující uvedený atribut. Formát "
-#~ "tohoto parametru je \"reg. výraz tagu,název atributu,reg. výraz hodnoty "
-#~ "atributu\". Například, pro nalezení všech nadpisových tagů s atributem "
-#~ "class=\"chapter\" zadejte \"h\\d,class,chapter\". Standardní hodnota je "
+#~ "Automaticky rozeznat element s uvedeným atributem jako začátek kapitoly. "
+#~ "Formát tohoto parametru je \"reg. výraz tagu, název atributu, reg. výraz "
+#~ "hodnoty atributu\". Například, pro nalezení všech nadpisových tagů s "
+#~ "atributem class=\"chapter\" zadejte \"h\\d,class,chapter\". Uveden9m "
+#~ "atributu \"none\" můžete omezit porovnávání jen na názvy tagů. Například, "
+#~ "pokud chcete nalézt všechny h2 tagy, zadejte \"h2,none,\". Standardně je "
 #~ "%default"
-
-#~ msgid "Preprocess Baen HTML files to improve generated LRF."
-#~ msgstr ""
-#~ "Předpřipravit HTML soubory z vydavatelství BAEN pro zlepšení kvality "
-#~ "výstupního LRF souboru."
-
-#~ msgid ""
-#~ "You must add this option if processing files generated by pdftohtml, "
-#~ "otherwise conversion will fail."
-#~ msgstr ""
-#~ "Tato možnost musí být aktivovaná při zpracování souborů vytvořených "
-#~ "programem pdftohtml, jinak převod selže."
-
-#~ msgid "Use this option on html0 files from Book Designer."
-#~ msgstr ""
-#~ "Tato možnost by měla být použita při zpracování html0 souborů z programu "
-#~ "Book Designer."
 
 #~ msgid "Be verbose while processing"
 #~ msgstr "Zvýšit možství údajů vypisovaných během zpracování"
@@ -7493,6 +7735,97 @@ msgstr ""
 #~ msgstr ""
 #~ "Snížit požafavky na velikost paměti, výměnou za pomalejší zpracování. Tato "
 #~ "možnost je určená pro počítače s omezenou kapacitou paměti."
+
+#~ msgid "Converting from %s to LRF is not supported."
+#~ msgstr "Převod z %s do LRF není podporovaný"
+
+#~ msgid ""
+#~ "Set the author in the metadata of the generated ebook. Default is %default"
+#~ msgstr ""
+#~ "Autor, který bude uvedený v metadatech vytvořené elektronické knihy. "
+#~ "Standardní hodnota je %default"
+
+#~ msgid "Title for generated ebook. Default is to use the filename."
+#~ msgstr ""
+#~ "Název vytvořené elektronické knihy. Standardně se použije název souboru."
+
+#~ msgid ""
+#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
+#~ msgstr "Možnosti převodu komiksů (CBR, CBZ) do elektronických knih"
+
+#~ msgid "Keep generated HTML files after completing conversion to LRF."
+#~ msgstr "Zachovat vygenerované HTML soubory po dokončení převodu do LRF."
+
+#~ msgid "Rendering comic pages..."
+#~ msgstr "Zpracovávám stránky komiksu..."
+
+#~ msgid ""
+#~ "%prog [options] mybook.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.fb2 to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [možnosti] kniha.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog převede kniha.fb2 do kniha.lrf"
+
+#~ msgid "Print generated HTML to stdout and quit."
+#~ msgstr "Vypsat vytvořené HTML do stdout a skončit."
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.epub\n"
+#~ "        \n"
+#~ "        \n"
+#~ "%prog converts mybook.epub to mybook.lrf"
+#~ msgstr ""
+#~ "Použití: %prog [možnosti] kniha.epub\n"
+#~ "        \n"
+#~ "        \n"
+#~ "%prog převede kniha.epub do kniha.lrf"
+
+#~ msgid "Fetching of recipe failed: "
+#~ msgstr "Stažení receptu selhalo: "
+
+#~ msgid "Options to control the behavior of feeds2disk"
+#~ msgstr "Možnosti ovládající chování programu feeds2disk"
+
+#~ msgid "Options to control the behavior of html2lrf"
+#~ msgstr "Možnosti ovládající chování programu html2lrf"
+
+#~ msgid ""
+#~ "%prog [options] comic.cb[z|r]\n"
+#~ "\n"
+#~ "Convert a comic in a CBZ or CBR file to an ebook. \n"
+#~ msgstr ""
+#~ "%prog [možnosti] komiks.cb[z|r]\n"
+#~ "\n"
+#~ "Převést komiks ve formátu CBZ nebo CBR do elektronické knihy. \n"
+
+#~ msgid "Output written to"
+#~ msgstr "Výstup zapsán do"
+
+#~ msgid "Add detected chapters to the table of contents."
+#~ msgstr "Přidat rozpoznané kapitoly do obsahu."
+
+#~ msgid ""
+#~ "Force a page break before tags whose names match this regular expression."
+#~ msgstr ""
+#~ "Vložit zalomení stránky před tagy, jejichž názvy se shodují s tímto "
+#~ "regulárním výrazem."
+
+#~ msgid "The series to which this book belongs"
+#~ msgstr "Série ke které kniha patří"
+
+#~ msgid ""
+#~ "Choose a profile for the device you are generating this file for. The "
+#~ "default is the SONY PRS-500 with a screen size of 584x754 pixels. This is "
+#~ "suitable for any reader with the same screen size. Choices are %s"
+#~ msgstr ""
+#~ "Vyberte profil zařízení, pro které je tento soubor určený. Standardní profil "
+#~ "je SONY PRS-500 s rozlišením obrazovky 584x754 obrazových bodů. Tento profil "
+#~ "je vhodný pro jakékoliv čtecí zařízení se stejným rozlišením obrazovky. "
+#~ "Možnosti jsou %s"
 
 #~ msgid ""
 #~ "Specify the character encoding of the source file. If the output LRF file "
@@ -7526,45 +7859,53 @@ msgstr ""
 #~ msgstr "Nebyl specifikován žádný vstupní soubor pro převod."
 
 #~ msgid ""
-#~ "Usage: %prog [options] mybook.epub\n"
-#~ "        \n"
-#~ "        \n"
-#~ "%prog converts mybook.epub to mybook.lrf"
+#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
+#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
+#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
+#~ "    "
 #~ msgstr ""
-#~ "Použití: %prog [možnosti] kniha.epub\n"
-#~ "        \n"
-#~ "        \n"
-#~ "%prog převede kniha.epub do kniha.lrf"
+#~ "Specifikuj TrueType fonty pro patkové, beypatkové a neproporcionální písmo. "
+#~ "Tyto fonty budou zahrnuté do LRF souboru. Mějte na paměti, že nestandardní "
+#~ "fonty více zpomalí listování knihou. Příklad: --serif-family \"Times New "
+#~ "Roman\"\n"
+#~ "    "
 
 #~ msgid ""
-#~ "%prog [options] mybook.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.fb2 to mybook.lrf"
+#~ "If html2lrf does not find any page breaks in the html file and cannot detect "
+#~ "chapter headings, it will automatically insert page-breaks before the tags "
+#~ "whose names match this regular expression. Defaults to %default. You can "
+#~ "disable it by setting the regexp to \"$\". The purpose of this option is to "
+#~ "try to ensure that there are no really long pages as this degrades the page "
+#~ "turn performance of the LRF. Thus this option is ignored if the current page "
+#~ "has only a few elements."
 #~ msgstr ""
-#~ "%prog [možnosti] kniha.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog převede kniha.fb2 do kniha.lrf"
+#~ "Pokud html2lrf nenajde v souboru žádné zalomení stránek a nerozezná ani "
+#~ "žádné nadpisy kapitol, automaticky vloží zalomení stran před tagy, jejichž "
+#~ "názvy se shodují s tímto regulárním výrazem. Standardně je %default. Toto "
+#~ "nastavení můžete vypnout zadáním výrazu \"$\". Jeho smyslem je zabránit "
+#~ "vzniku velmi dlouhých úseků bez zalomení stránky. které snižují rychlost "
+#~ "listování v LRF souboru. Tato možnost je tedy ignorována pokud má aktuální "
+#~ "stránka jen několik elementů."
 
-#~ msgid "Print generated HTML to stdout and quit."
-#~ msgstr "Vypsat vytvořené HTML do stdout a skončit."
-
-#~ msgid "Options to control the behavior of feeds2disk"
-#~ msgstr "Možnosti ovládající chování programu feeds2disk"
-
-#~ msgid "Options to control the behavior of html2lrf"
-#~ msgstr "Možnosti ovládající chování programu html2lrf"
-
-#~ msgid "Fetching of recipe failed: "
-#~ msgstr "Stažení receptu selhalo: "
+#~ msgid "Use this option on html0 files from Book Designer."
+#~ msgstr ""
+#~ "Tato možnost by měla být použita při zpracování html0 souborů z programu "
+#~ "Book Designer."
 
 #~ msgid ""
-#~ "You have to save the website %s as an html file first and then run html2lrf "
-#~ "on it."
+#~ "You must add this option if processing files generated by pdftohtml, "
+#~ "otherwise conversion will fail."
 #~ msgstr ""
-#~ "Webovou stránku %s je potřeba nejdříve uložit jako HTML soubor a poté "
-#~ "převést programem html2lrf."
+#~ "Tato možnost musí být aktivovaná při zpracování souborů vytvořených "
+#~ "programem pdftohtml, jinak převod selže."
+
+#~ msgid "Preprocess Baen HTML files to improve generated LRF."
+#~ msgstr ""
+#~ "Předpřipravit HTML soubory z vydavatelství BAEN pro zlepšení kvality "
+#~ "výstupního LRF souboru."
+
+#~ msgid "Don't show progress bar."
+#~ msgstr "Nezobrazovat indikátor postupu zpracování."
 
 #~ msgid ""
 #~ "Usage: %prog [options] mybook.html\n"
@@ -7596,6 +7937,13 @@ msgstr ""
 #~ "%prog převede kniha.lit do kniha.lrf"
 
 #~ msgid ""
+#~ "Be verbose, useful for debugging. Can be specified multiple times for "
+#~ "greater verbosity."
+#~ msgstr ""
+#~ "Zvýšit množství zobrazovaných údajů, užitečné pro hledání chyb v programu. "
+#~ "Při vícenásobném použití se množství zobrazovaných údajů zvyšuje."
+
+#~ msgid ""
 #~ "Usage: %prog [options] mybook.mobi|prc\n"
 #~ "\n"
 #~ "\n"
@@ -7605,6 +7953,33 @@ msgstr ""
 #~ "\n"
 #~ "\n"
 #~ "%prog převede kniha.mobi do kniha.lrf"
+
+#~ msgid ""
+#~ "%prog [options] mybook.txt\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.txt to mybook.lrf"
+#~ msgstr ""
+#~ "Použití: %prog [možnosti] kniha.txt\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog převede kniha.txt do kniha.lrf"
+
+#~ msgid ""
+#~ " is an image based PDF. Only conversion of text based PDFs is supported."
+#~ msgstr ""
+#~ " je PDF se stránkami ve formátě obrázků. Je možný pouze převod textových PDF "
+#~ "souborů."
+
+#~ msgid ""
+#~ "Path to output directory in which to create the HTML file. Defaults to "
+#~ "current directory."
+#~ msgstr ""
+#~ "Cesta k výstupnímu adresáři, ve kterém se ma vytvořit HTML soubor. "
+#~ "Standardně je to aktuální pracovní adresář."
+
+#~ msgid "Be more verbose."
+#~ msgstr "Vypisovat více informací."
 
 #~ msgid ""
 #~ "%prog [options] mybook.pdf\n"
@@ -7618,14 +7993,11 @@ msgstr ""
 #~ "%prog převede kniha.pdf do kniha.lrf"
 
 #~ msgid ""
-#~ "Path to output directory in which to create the HTML file. Defaults to "
-#~ "current directory."
+#~ "This RTF file has a feature calibre does not support. Convert it to HTML and "
+#~ "then convert it."
 #~ msgstr ""
-#~ "Cesta k výstupnímu adresáři, ve kterém se ma vytvořit HTML soubor. "
-#~ "Standardně je to aktuální pracovní adresář."
-
-#~ msgid "Be more verbose."
-#~ msgstr "Vypisovat více informací."
+#~ "Tento RTF soubor obsahuje prvky, které calibre nepodporuje. Převeďte ho "
+#~ "nejdříve na HTML."
 
 #~ msgid "You must specify a single PDF file."
 #~ msgstr "Uveďte jen jeden PDF soubor."
@@ -7641,25 +8013,38 @@ msgstr ""
 #~ "\n"
 #~ "%prog převede kniha.rtf do kniha.lrf"
 
-#~ msgid ""
-#~ "%prog [options] mybook.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.txt to mybook.lrf"
-#~ msgstr ""
-#~ "Použití: %prog [možnosti] kniha.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog převede kniha.txt do kniha.lrf"
-
-#~ msgid "Set the authors"
-#~ msgstr "Zadejte autory"
+#~ msgid "A comma separated list of tags to set"
+#~ msgstr "Čárkami odděleny seznam tagů"
 
 #~ msgid "Set the comment"
 #~ msgstr "Poznámka"
 
+#~ msgid "The series index"
+#~ msgstr "Pořadí knihy v sérii"
+
+#~ msgid "Extract the cover"
+#~ msgstr "Extrahovat obálku"
+
+#~ msgid "The book language"
+#~ msgstr "Jazyk knihy"
+
 #~ msgid "Usage:"
 #~ msgstr "Použití:"
+
+#~ msgid "Usage: imp-meta file.imp"
+#~ msgstr "Použití: imp-meta súbor.imp"
+
+#~ msgid "No filename specified."
+#~ msgstr "Nebyl uveden žádný nazev souboru."
+
+#~ msgid "Raw MOBI HTML saved in"
+#~ msgstr "Nezpracované MOBI HTML uložené do"
+
+#~ msgid "Usage: rb-meta file.rb"
+#~ msgstr "Použití: rb-meta soubor.rb"
+
+#~ msgid "Set the dc:language field"
+#~ msgstr "Hodnota položky dc:language"
 
 #~ msgid "Usage: %s file.lit"
 #~ msgstr "Použití: %s soubor.lit"
@@ -7667,489 +8052,70 @@ msgstr ""
 #~ msgid "Usage: pdf-meta file.pdf"
 #~ msgstr "Použití: pdf-meta soubor.pdf"
 
-#~ msgid "No filename specified."
-#~ msgstr "Nebyl uveden žádný nazev souboru."
-
 #~ msgid "%prog [options] myebook.mobi"
 #~ msgstr "%prog  [možnosti]  kniha.mobi"
 
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "Výstupní adresář. Standardně je použit aktuální adresář."
+#~ msgid "Source renderer profile. Default is %default."
+#~ msgstr "Vstupní zobrazovací profil. Standardně je to %default."
 
-#~ msgid "Raw MOBI HTML saved in"
-#~ msgstr "Nezpracované MOBI HTML uložené do"
+#~ msgid "Destination renderer profile. Default is %default."
+#~ msgstr "Cílový výstupni zobrazovací profil. Standardně je to %default."
 
-#~ msgid "OEB ebook created in"
-#~ msgstr "OEB kniha vytvořena v"
-
-#~ msgid "Configuration"
-#~ msgstr "Nastavení"
-
-#~ msgid "No available formats"
-#~ msgstr "Žadný formát není k dispozici"
-
-#~ msgid "Fine tune the detection of chapter and section headings."
-#~ msgstr "Rozšířené nastavení automatického rozpoznávání kapitol a sekcí"
-
-#~ msgid "Chapter Detection"
-#~ msgstr "Automatické rozpoznávání kapitol"
+#~ msgid "[options]"
+#~ msgstr "[možnosti]"
 
 #~ msgid ""
-#~ " is an image based PDF. Only conversion of text based PDFs is supported."
+#~ "Compress file text using PalmDOC compression. Results in smaller files, but "
+#~ "takes a long time to run."
 #~ msgstr ""
-#~ " je PDF se stránkami ve formátě obrázků. Je možný pouze převod textových PDF "
-#~ "souborů."
+#~ "Komprimovat soubor algoritmem PalmDOC. Výsledkem je menší soubor ale "
+#~ "vyžaduje více času pro spuštění."
 
-#~ msgid "Don't add links to the table of contents."
-#~ msgstr "Nepřidávat odkazy do obsahu."
+#~ msgid "Mobipocket-specific options."
+#~ msgstr "Možnosti specifické pro formát Mobipocket"
 
-#~ msgid "Add detected chapters to the table of contents."
-#~ msgstr "Přidat rozpoznané kapitoly do obsahu."
+#~ msgid "Unknown source profile %r"
+#~ msgstr "Neznámý vstupní profil %r"
+
+#~ msgid "Options to control the conversion to MOBI"
+#~ msgstr "Mořnosti převodu do formátu MOBI"
 
 #~ msgid ""
-#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
-#~ "to %default"
+#~ "Device renderer profiles. Affects conversion of font sizes, image rescaling "
+#~ "and rasterization of tables. Valid profiles are: %s."
 #~ msgstr ""
-#~ "Regularní výraz. Tagy <a> jejichž href se shoduje s tímto výrazem budou "
-#~ "ignorovány. Standardně %default"
-
-#~ msgid ""
-#~ "Force a page break before tags whose names match this regular expression."
-#~ msgstr ""
-#~ "Vložit zalomení stránky před tagy, jejichž názvy se shodují s tímto "
-#~ "regulárním výrazem."
-
-#~ msgid ""
-#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
-#~ "option obsoletes the --font-delta option and takes precedence over it. To "
-#~ "use --font-delta, set this to 0. Default: %defaultpt"
-#~ msgstr ""
-#~ "Zadání základní velikosti fontu v bodech. Všechny fonty jsou náležitým "
-#~ "způsobem upraveny. Tato volba činí volbu --font-delta zastaralou, a je jí "
-#~ "před ní dána přednost. Pro použití --font-delta nastavte tuto hodnotu na 0. "
-#~ "Standardně: %defaultpt"
-
-#~ msgid ""
-#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
-#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
-#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
-#~ "    "
-#~ msgstr ""
-#~ "Specifikuj TrueType fonty pro patkové, beypatkové a neproporcionální písmo. "
-#~ "Tyto fonty budou zahrnuté do LRF souboru. Mějte na paměti, že nestandardní "
-#~ "fonty více zpomalí listování knihou. Příklad: --serif-family \"Times New "
-#~ "Roman\"\n"
-#~ "    "
-
-#~ msgid "Prevent the automatic detection chapters."
-#~ msgstr "Předejít automatickému rozpoznáváni kapitol."
-
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "Do čtecího zařízení není vložena žádná paměťová karta."
-
-#~ msgid "Format for &single file save:"
-#~ msgstr "Formát pro uložení do jediného &souboru:"
-
-#~ msgid "Keep generated HTML files after completing conversion to LRF."
-#~ msgstr "Zachovat vygenerované HTML soubory po dokončení převodu do LRF."
-
-#~ msgid "%prog [options] LITFILE"
-#~ msgstr "%prog [options] LIT_soubor"
-
-#~ msgid "Title for generated ebook. Default is to use the filename."
-#~ msgstr ""
-#~ "Název vytvořené elektronické knihy. Standardně se použije název souboru."
-
-#~ msgid ""
-#~ "Set the author in the metadata of the generated ebook. Default is %default"
-#~ msgstr ""
-#~ "Autor, který bude uvedený v metadatech vytvořené elektronické knihy. "
-#~ "Standardní hodnota je %default"
-
-#~ msgid "Don't show progress bar."
-#~ msgstr "Nezobrazovat indikátor postupu zpracování."
-
-#~ msgid "Rendering comic pages..."
-#~ msgstr "Zpracovávám stránky komiksu..."
-
-#~ msgid "A comma separated list of tags to set"
-#~ msgstr "Čárkami odděleny seznam tagů"
-
-#~ msgid ""
-#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
-#~ msgstr "Možnosti převodu komiksů (CBR, CBZ) do elektronických knih"
-
-#~ msgid ""
-#~ "Be verbose, useful for debugging. Can be specified multiple times for "
-#~ "greater verbosity."
-#~ msgstr ""
-#~ "Zvýšit množství zobrazovaných údajů, užitečné pro hledání chyb v programu. "
-#~ "Při vícenásobném použití se množství zobrazovaných údajů zvyšuje."
-
-#~ msgid "Output written to"
-#~ msgstr "Výstup zapsán do"
-
-#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
-#~ msgstr "Čitelně formátovat extrahované HTML. Může ovlyvnit mezery v textu."
-
-#~ msgid "The format to use when saving single files to disk"
-#~ msgstr ""
-#~ "Formát, který má byt použit při ukládání jednotlivých souborů na disk"
-
-#~ msgid "Options to control the conversion to EPUB"
-#~ msgstr "Nastavení pro převod do formátu EPUB"
-
-#~ msgid ""
-#~ "The output EPUB file. If not specified, it is derived from the input file "
-#~ "name."
-#~ msgstr ""
-#~ "Název výsledného EPUB souboru. Není-li zadán, bude odvozen z názvu vstupního "
-#~ "souboru."
-
-#~ msgid "You must specify an input HTML file"
-#~ msgstr "Musíte specifikovat vstupní HTML soubor."
-
-#~ msgid "Written processed HTML to "
-#~ msgstr "Zpracované HTML bylo zapsano do "
-
-#~ msgid "Options to control the traversal of HTML"
-#~ msgstr "Volby pro nastavení průchodu HTML souborem."
-
-#~ msgid "The output directory. Default is the current directory."
-#~ msgstr "Výstupní adresář. Standardně je aktuální adresář."
-
-#~ msgid "Character encoding for HTML files. Default is to auto detect."
-#~ msgstr "Kódování znakové sady HTML souborů. Standardně je autodetekována."
-
-#~ msgid ""
-#~ "Create the output in a zip file. If this option is specified, the --output "
-#~ "should be the name of a file not a directory."
-#~ msgstr ""
-#~ "Výstup je uložen do ZIP souboru. Pokud je zvolena tato volba, položka --"
-#~ "output by měla obsahovat název souboru, nikoliv adresáře."
-
-#~ msgid "Control the following of links in HTML files."
-#~ msgstr "Nastavuje následovaní odkazů v HTML souborech."
-
-#~ msgid ""
-#~ "Traverse links in HTML files breadth first. Normally, they are traversed "
-#~ "depth first"
-#~ msgstr ""
-#~ "Nastavuje procházení HTML souborů do šířky. Normálně je nastaveno procházení "
-#~ "do hloubky."
-
-#~ msgid ""
-#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
-#~ "negative. 0 implies that no links in the root HTML file are followed."
-#~ msgstr ""
-#~ "Maximální úroveň rekurze při následování odkazů v HTML souborech. Musí být "
-#~ "nezáporné číslo. 0 znamená, že nejsou následovány žádné odkazy obsažené v "
-#~ "HTML souboru."
-
-#~ msgid "Set metadata of the generated ebook"
-#~ msgstr "Nastavit metadata pro generovanou knihu."
-
-#~ msgid "Set the title. Default is to autodetect."
-#~ msgstr "Zadat název. Standardně je autodetekován."
-
-#~ msgid "Options useful for debugging"
-#~ msgstr "Nastavení užitečná pro odlaďování."
-
-#~ msgid ""
-#~ "Be more verbose while processing. Can be specified multiple times to "
-#~ "increase verbosity."
-#~ msgstr ""
-#~ "Zobrazovat více informací při zpracování. Může být zadáno několikrát pro "
-#~ "zvětšení množství informací."
-
-#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-#~ msgstr "Výstupní HTML je zobrazeno v podobě lépe čitelné pro člověka."
-
-#~ msgid ""
-#~ "Control the automatic generation of a Table of Contents. If an OPF file is "
-#~ "detected\n"
-#~ "and it specifies a Table of Contents, then that will be used rather than "
-#~ "trying\n"
-#~ "to auto-generate a Table of Contents.\n"
-#~ msgstr ""
-#~ "Nastavuje automatickou tvorbu obsahu. Pokud je detekován OPF soubor s "
-#~ "obsahem, \n"
-#~ "bude tento obsah použit místo pokusu o automatické vygenerování obsahu.\n"
-
-#~ msgid "Usage: imp-meta file.imp"
-#~ msgstr "Použití: imp-meta súbor.imp"
-
-#~ msgid "Usage: rb-meta file.rb"
-#~ msgstr "Použití: rb-meta soubor.rb"
-
-#~ msgid ""
-#~ "Profile of the target device this EPUB is meant for. Set to None to create a "
-#~ "device independent EPUB. The profile is used for device specific "
-#~ "restrictions on the EPUB. Choices are: "
-#~ msgstr ""
-#~ "Profil cílového zařízení, pro který je EPUB určen. Pro vytvoření souboru "
-#~ "EPUB nezávislého na na zařízení zadejte Žádný. Profiul je určen pro omezení "
-#~ "specifická pro dané zařízení. Možnosti jsou: "
-
-#~ msgid ""
-#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
-#~ "existing CSS declarations in the source files."
-#~ msgstr ""
-#~ "Cesta k souboru s CSS nebo přímo CSS kód. Tyto CSS nahradí jakkékoliv "
-#~ "existující CSS příkazy ve zdrojových souborech."
-
-#~ msgid ""
-#~ "An XPath expression to detect chapter titles. The default is to consider "
-#~ "<h1> or\n"
-#~ "<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
-#~ "\"part\" as chapter titles as \n"
-#~ "well as any tags that have class=\"chapter\". \n"
-#~ "The expression used must evaluate to a list of elements. To disable chapter "
-#~ "detection,\n"
-#~ "use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
-#~ "for further\n"
-#~ "help on using this feature.\n"
-#~ msgstr ""
-#~ "XPath výraz pro detekci názvů kapitol. Standardně jsou za kapitoly "
-#~ "považovány tagy <h1> \n"
-#~ "nebo <h2>,  jenž obsahují slova \"chapter\", \"book\", \"section\" nebo "
-#~ "\"part\", stejně \n"
-#~ "jako všechny tagy, které obsahují class=\"chapter\". \n"
-#~ "Výraz musí být vyhodnocen na seznam elementů. Pro vypnutí detekce kapitol "
-#~ "zadejte \n"
-#~ "výraz \"/\". Pro další možnosti použití této vlastnosti viz. také XPath "
-#~ "Tutorial \n"
-#~ "v uživatelské příručce calibre.\n"
-
-#~ msgid "Path to the cover to be used for this book"
-#~ msgstr "Cesta k obálce, která se má použít u této knihy"
-
-#~ msgid ""
-#~ "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
-#~ "is: %default. Links are only added to the TOC if less than the --toc-"
-#~ "threshold number of chapters were detected."
-#~ msgstr ""
-#~ "Maximální počet odkazů, které budou vloženy do obsahu. Pro vypnutí zadejte "
-#~ "0. Standardně nastaveno: %default. Odkazy jsou přidány do obsahu pouze v tom "
-#~ "případě, kdy je detekováno méně kapitol než je zadáno v --toc-treshold."
-
-#~ msgid "Control page layout"
-#~ msgstr "Rozvržení ovládací stránky."
-
-#~ msgid "Set the top margin in pts. Default is %default"
-#~ msgstr "Nastaví horní okraj v bodech. Standardně je %default"
-
-#~ msgid "Set the bottom margin in pts. Default is %default"
-#~ msgstr "Nastaví dolní okraj v bodech. Standardně je %default"
-
-#~ msgid "Set the left margin in pts. Default is %default"
-#~ msgstr "Nastaví levý okraj v bodech. Standardně je %default"
-
-#~ msgid "Set the right margin in pts. Default is %default"
-#~ msgstr "Nastaví pravý okraj v bodech. Standardně je %default"
-
-#~ msgid "Print generated OPF file to stdout"
-#~ msgstr "Vytiskne generovaný OPF soubor na standardní výstup."
-
-#~ msgid "Print generated NCX file to stdout"
-#~ msgstr "Vytiskne generovaný NCX soubor na standardní výstup."
-
-#~ msgid "Keep intermediate files during processing by html2epub"
-#~ msgstr "Zachovat mezisoubory při zpracovávání nástrojem html2epub"
-
-#~ msgid ""
-#~ "Extract the contents of the produced EPUB file to the specified directory."
-#~ msgstr "Extrahovat obsah vytvořeného EPUB souboru do určeného adresáře."
-
-#~ msgid ""
-#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
-#~ "cause incorrect rendering."
-#~ msgstr ""
-#~ "\t\tPříliš mnoho tagů. Přerozděleno bez zachování struktury. To může "
-#~ "způsobit nesprávné zobrazení."
-
-#~ msgid "Load metadata from the specified OPF file"
-#~ msgstr "Nahrát metadata ze zadaného OPF souboru."
-
-#~ msgid ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "Convert a comic in a CBZ or CBR file to an ebook. \n"
-#~ msgstr ""
-#~ "%prog [možnosti] komiks.cb[z|r]\n"
-#~ "\n"
-#~ "Převést komiks ve formátu CBZ nebo CBR do elektronické knihy. \n"
-
-#~ msgid ""
-#~ "This RTF file has a feature calibre does not support. Convert it to HTML and "
-#~ "then convert it."
-#~ msgstr ""
-#~ "Tento RTF soubor obsahuje prvky, které calibre nepodporuje. Převeďte ho "
-#~ "nejdříve na HTML."
-
-#~ msgid "Specify the page layout settings like margins."
-#~ msgstr "Paramety rozložení stránky, jako například okraje."
-
-#~ msgid "This book has no available formats"
-#~ msgstr "Tato kniha není k dispozici v žádném formátu"
-
-#~ msgid "Convert to EPUB"
-#~ msgstr "Převod do EPUB"
-
-#~ msgid "Override &CSS"
-#~ msgstr "Nahradit &CSS"
-
-#~ msgid "Automatic &chapter detection"
-#~ msgstr "Automatické rozpoznávání &kapitol"
-
-#~ msgid "&XPath:"
-#~ msgstr "Výraz &XPath:"
-
-#~ msgid "Automatic &Table of Contents"
-#~ msgstr "Automatický &Obsah"
-
-#~ msgid ""
-#~ "Path to a .ncx file that contains the table of contents to use for this "
-#~ "ebook. The NCX file should contain links relative to the directory it is "
-#~ "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
-#~ "an overview of the NCX format."
-#~ msgstr ""
-#~ "Cesta k .ncx souboru, který obsahuje obsah jenž má být použit pro tuto "
-#~ "knihu. Odkazy obsažené v NCX souboru by měly být relativní k adresáři, ve "
-#~ "kterém je soubor umístěn. Pro popis formátu NCX viz. "
-#~ "http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX"
-
-#~ msgid ""
-#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-#~ "rescaling of fonts."
-#~ msgstr ""
-#~ "Velikost základního fontu v bodech. Standardní je %defaultpt. Je-li zadáno "
-#~ "0, bude vypnuto škálování fontů."
-
-#~ msgid "The subject(s) of this book, as a comma separated list."
-#~ msgstr "Téma(ta) knihy jako seznam oddělený čárkami."
-
-#~ msgid "Set the publisher of this book."
-#~ msgstr "Zadat vydavatele této knihy."
-
-#~ msgid "A summary of this book."
-#~ msgstr "Shrnutí této knihy."
-
-#~ msgid ""
-#~ "Failed to process comic: %s\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Nepodařilo se převést komiks: %s\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Choose a profile for the device you are generating this file for. The "
-#~ "default is the SONY PRS-500 with a screen size of 584x754 pixels. This is "
-#~ "suitable for any reader with the same screen size. Choices are %s"
-#~ msgstr ""
-#~ "Vyberte profil zařízení, pro které je tento soubor určený. Standardní profil "
-#~ "je SONY PRS-500 s rozlišením obrazovky 584x754 obrazových bodů. Tento profil "
-#~ "je vhodný pro jakékoliv čtecí zařízení se stejným rozlišením obrazovky. "
-#~ "Možnosti jsou %s"
-
-#~ msgid "The series to which this book belongs"
-#~ msgstr "Série ke které kniha patří"
-
-#~ msgid "The series index"
-#~ msgstr "Pořadí knihy v sérii"
-
-#~ msgid "Invalid XPath expression"
-#~ msgstr "Neplatný výraz XPath"
-
-#~ msgid "The expression %s is invalid. Error: %s"
-#~ msgstr "Výraz %s je neplatný. Chyba: %s"
-
-#~ msgid "Level &1 TOC"
-#~ msgstr "Obsah úrovně &1"
-
-#~ msgid "Level &2 TOC"
-#~ msgstr "Obsah úrovně &2"
-
-#~ msgid "Converting from %s to LRF is not supported."
-#~ msgstr "Převod z %s do LRF není podporovaný"
-
-#~ msgid "The book language"
-#~ msgstr "Jazyk knihy"
+#~ "Zobrazovací profily zařízení. Ovlivňují převod velikosti písma, zmenšování "
+#~ "obrázků a rasterizaci tabulek. Platné profily jsou: %s."
 
 #~ msgid "The output directory. Defaults to the current directory."
 #~ msgstr "Výstupní adresář. Standardně aktuální pracovní adresář."
 
-#~ msgid ""
-#~ "Preserve the HTML tag structure while splitting large HTML files. This is "
-#~ "only neccessary if the HTML files contain CSS that uses sibling selectors. "
-#~ "Enabling this greatly slows down processing of large HTML files."
-#~ msgstr ""
-#~ "Zachovat strukturz HTML tagů při rozdělovaní velkých HTML souborů. Toto je "
-#~ "potřeba pouze v případě, kdy HTML soubor obsahuje CSS, které používá "
-#~ "vybíraní sourozenců. Zvolení této funkce výrazně zpomalí zpracování velkých "
-#~ "HTML souborů."
-
-#~ msgid "Preserve &tag structure when splitting"
-#~ msgstr "Při rozdělování zachovat strukturu tagů"
-
-#~ msgid ""
-#~ "Detect a chapter beginning at an element having the specified attribute. The "
-#~ "format for this option is tagname regexp,attribute name,attribute value "
-#~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". You can set the "
-#~ "attribute to \"none\" to match only on tag names. So for example, to match "
-#~ "all h2 tags, you would use \"h2,none,\". Default is %default"
-#~ msgstr ""
-#~ "Automaticky rozeznat element s uvedeným atributem jako začátek kapitoly. "
-#~ "Formát tohoto parametru je \"reg. výraz tagu, název atributu, reg. výraz "
-#~ "hodnoty atributu\". Například, pro nalezení všech nadpisových tagů s "
-#~ "atributem class=\"chapter\" zadejte \"h\\d,class,chapter\". Uveden9m "
-#~ "atributu \"none\" můžete omezit porovnávání jen na názvy tagů. Například, "
-#~ "pokud chcete nalézt všechny h2 tagy, zadejte \"h2,none,\". Standardně je "
-#~ "%default"
-
-#~ msgid "Extract the cover"
-#~ msgstr "Extrahovat obálku"
-
-#~ msgid "Set the dc:language field"
-#~ msgstr "Hodnota položky dc:language"
-
-#~ msgid ""
-#~ "%%prog [options] filename\n"
-#~ "\n"
-#~ "Convert any of a large number of ebook formats to a %s file. Supported "
-#~ "formats are: %s\n"
-#~ msgstr ""
-#~ "%%prog [možnosti] soubor\n"
-#~ "\n"
-#~ "Převést jakýkoliv z velkeho množství fromátů elektronických knih na formát "
-#~ "%s. Podporované formáty jsou: %s\n"
-
-#~ msgid "Output written to "
-#~ msgstr "Výstup zapsán do "
-
-#~ msgid "%prog [options] OPFFILE"
-#~ msgstr "%prog [možnosti] OPFsoubor"
-
-#~ msgid "Reading metadata..."
-#~ msgstr "Načítám metadata..."
-
-#~ msgid "Read metadata from "
-#~ msgstr "Číst metadata z "
-
-#~ msgid "Adding books to database..."
-#~ msgstr "Přidávám knihy do databáze..."
-
-#~ msgid "Add extra spacing below the header. Default is %default px."
-#~ msgstr ""
-#~ "Přidat dodatečné odsazení pod hlavičku. Standard je %default obrazových bodů."
+#~ msgid "Unknown destination profile %r"
+#~ msgstr "Neznámý cílový výstupní profil %r"
 
 #~ msgid "Number of pixels to crop from the left most x (default is %d) "
 #~ msgstr ""
 #~ "Počet obrazových bodů, které se mají ořezat z levého okraje (standardně je "
 #~ "to %d) "
+
+#~ msgid ""
+#~ "\t%prog [options] file.pdf\n"
+#~ "\n"
+#~ "\tCrops a pdf. \n"
+#~ "\t"
+#~ msgstr ""
+#~ "\t%prog [možnosti] soubor.pdf\n"
+#~ "\n"
+#~ "\tOřeže PDF. \n"
+#~ "\t"
+
+#~ msgid ""
+#~ "A file generated by ghostscript which allows each page to be individually "
+#~ "cropped [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
+#~ msgstr ""
+#~ "Soubor vytvořený ghostscriptem, který umožňuje aby každá stránka byla "
+#~ "ořezaná individuálně. [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > "
+#~ "bounding] "
 
 #~ msgid "Number of pixels to crop from the left most y (default is %d) "
 #~ msgstr ""
@@ -8166,68 +8132,43 @@ msgstr ""
 #~ "Počet obrazových bodů, které se mají ořezat z dolního okraje (standardně je "
 #~ "to %d)"
 
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
+#~ msgid "The format to use when saving single files to disk"
 #~ msgstr ""
-#~ "Soubor vytvořený ghostscriptem, který umožňuje aby každá stránka byla "
-#~ "ořezaná individuálně. [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > "
-#~ "bounding] "
+#~ "Formát, který má byt použit při ukládání jednotlivých souborů na disk"
+
+#~ msgid "Configuration"
+#~ msgstr "Nastavení"
+
+#~ msgid "Format for &single file save:"
+#~ msgstr "Formát pro uložení do jediného &souboru:"
 
 #~ msgid ""
-#~ "\t%prog [options] file.pdf\n"
+#~ "Force a page break before an element having the specified attribute. The "
+#~ "format for this option is tagname regexp,attribute name,attribute value "
+#~ "regexp. For example to match all heading tags that have the attribute "
+#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+#~ msgstr ""
+#~ "Vložit zalomení stánky před elementy obsahující uvedený atribut. Formát "
+#~ "tohoto parametru je \"reg. výraz tagu,název atributu,reg. výraz hodnoty "
+#~ "atributu\". Například, pro nalezení všech nadpisových tagů s atributem "
+#~ "class=\"chapter\" zadejte \"h\\d,class,chapter\". Standardní hodnota je "
+#~ "%default"
+
+#~ msgid ""
+#~ "Failed to process comic: %s\n"
 #~ "\n"
-#~ "\tCrops a pdf. \n"
-#~ "\t"
+#~ "%s"
 #~ msgstr ""
-#~ "\t%prog [možnosti] soubor.pdf\n"
+#~ "Nepodařilo se převést komiks: %s\n"
 #~ "\n"
-#~ "\tOřeže PDF. \n"
-#~ "\t"
-
-#~ msgid "Creating Mobipocket file from EPUB..."
-#~ msgstr "Vytvářím Mobipocket soubor z EPUB..."
-
-#~ msgid "Mobipocket-specific options."
-#~ msgstr "Možnosti specifické pro formát Mobipocket"
+#~ "%s"
 
 #~ msgid ""
-#~ "Compress file text using PalmDOC compression. Results in smaller files, but "
-#~ "takes a long time to run."
+#~ "You have to save the website %s as an html file first and then run html2lrf "
+#~ "on it."
 #~ msgstr ""
-#~ "Komprimovat soubor algoritmem PalmDOC. Výsledkem je menší soubor ale "
-#~ "vyžaduje více času pro spuštění."
-
-#~ msgid "Unknown source profile %r"
-#~ msgstr "Neznámý vstupní profil %r"
-
-#~ msgid "Unknown destination profile %r"
-#~ msgstr "Neznámý cílový výstupní profil %r"
-
-#~ msgid "Options to control the conversion to MOBI"
-#~ msgstr "Mořnosti převodu do formátu MOBI"
-
-#~ msgid ""
-#~ "Device renderer profiles. Affects conversion of font sizes, image rescaling "
-#~ "and rasterization of tables. Valid profiles are: %s."
-#~ msgstr ""
-#~ "Zobrazovací profily zařízení. Ovlivňují převod velikosti písma, zmenšování "
-#~ "obrázků a rasterizaci tabulek. Platné profily jsou: %s."
-
-#~ msgid "Source renderer profile. Default is %default."
-#~ msgstr "Vstupní zobrazovací profil. Standardně je to %default."
-
-#~ msgid "Destination renderer profile. Default is %default."
-#~ msgstr "Cílový výstupni zobrazovací profil. Standardně je to %default."
-
-#~ msgid "[options]"
-#~ msgstr "[možnosti]"
-
-#~ msgid "Bulk convert to "
-#~ msgstr "Dávkový převod do formátu "
-
-#~ msgid "Convert %s to "
-#~ msgstr "Převést %s do formátu "
+#~ "Webovou stránku %s je potřeba nejdříve uložit jako HTML soubor a poté "
+#~ "převést programem html2lrf."
 
 #~ msgid ""
 #~ "Specify metadata such as title and author for the book.\n"
@@ -8238,35 +8179,26 @@ msgstr ""
 #~ "\n"
 #~ "Metadata budou uložené do databáze i do vytvořeného %s souboru."
 
-#~ msgid ""
-#~ "Adjust the look of the generated ebook by specifying things like font sizes."
-#~ msgstr ""
-#~ "Upraví vzhled vytvořené elektronické knihy, například určením velikosti "
-#~ "písma."
+#~ msgid "Convert %s to "
+#~ msgstr "Převést %s do formátu "
 
-#~ msgid "Choose the format to convert to "
-#~ msgstr "Vyberte formát pro převod "
+#~ msgid "Bulk convert to "
+#~ msgstr "Dávkový převod do formátu "
 
-#~ msgid "&Rescale images"
-#~ msgstr "&Zmenšit obrázky"
+#~ msgid "Chapter Detection"
+#~ msgstr "Automatické rozpoznávání kapitol"
 
-#~ msgid "&Source profile:"
-#~ msgstr "V&stupní profil:"
+#~ msgid "Fine tune the detection of chapter and section headings."
+#~ msgstr "Rozšířené nastavení automatického rozpoznávání kapitol a sekcí"
 
-#~ msgid "&Destination profile:"
-#~ msgstr "&Výstupní profil:"
-
-#~ msgid "&Title for generated TOC"
-#~ msgstr "Název vygenerovaného &Obsahu"
-
-#~ msgid "Set the subject tags"
-#~ msgstr "Tagy přiřazené knize."
+#~ msgid "Set the ISBN"
+#~ msgstr "Zadat ISBN"
 
 #~ msgid "Set the language"
 #~ msgstr "Nastavit jazyk"
 
-#~ msgid "Set the ISBN"
-#~ msgstr "Zadat ISBN"
+#~ msgid "Do not force text to be justified in output."
+#~ msgstr "Nevynucovat zarovnání pravého okraje výstupního textu."
 
 #~ msgid ""
 #~ "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
@@ -8279,8 +8211,8 @@ msgstr ""
 #~ "0cm} do --override-css. Odstranění mezer nebude fungovat pokud jsou ve "
 #~ "zdrojovém souboru mezery explicitně určené."
 
-#~ msgid "Do not force text to be justified in output."
-#~ msgstr "Nevynucovat zarovnání pravého okraje výstupního textu."
+#~ msgid "The author(s) of the ebook, as a & separated list."
+#~ msgstr "Autor(ři) knihy, oddělení ampersandy (&)."
 
 #~ msgid ""
 #~ "Remove table markup, converting it into paragraphs. This is useful if your "
@@ -8289,26 +8221,105 @@ msgstr ""
 #~ "Odstranit strukturu tagů tabulky a převést ji na odstavce. Tato funkce je "
 #~ "užitečná pokud je zdrojový soubour formátovaný pomocí tabulky."
 
-#~ msgid "The author(s) of the ebook, as a & separated list."
-#~ msgstr "Autor(ři) knihy, oddělení ampersandy (&)."
-
-#~ msgid "&Ignore tables"
-#~ msgstr "&Ignorovat tabulky"
-
-#~ msgid "&Use author sort to set author field in output"
-#~ msgstr "Použít pole řazení autorů k nastavení pole autor ve výstupu"
-
-#~ msgid "Level &3 TOC"
-#~ msgstr "Obsah úrovně &3"
-
-#~ msgid "&Page map"
-#~ msgstr "&Mapa Stránkování"
-
-#~ msgid "Remove &first image from source file"
-#~ msgstr "Odstranit první obrázek ze vstupního souboru"
+#~ msgid "Searching for books in all sub-directories..."
+#~ msgstr "Hledám knihy ve všech podadresářích..."
 
 #~ msgid "Added %s to library"
 #~ msgstr "Kniha %s byla přidána do knihovny"
 
-#~ msgid "Searching for books in all sub-directories..."
-#~ msgstr "Hledám knihy ve všech podadresářích..."
+#~ msgid "Read metadata from "
+#~ msgstr "Číst metadata z "
+
+#~ msgid "Adding books to database..."
+#~ msgstr "Přidávám knihy do databáze..."
+
+#~ msgid "Set the subject tags"
+#~ msgstr "Tagy přiřazené knize."
+
+#~ msgid "Reading metadata..."
+#~ msgstr "Načítám metadata..."
+
+#~ msgid "This book has no available formats"
+#~ msgstr "Tato kniha není k dispozici v žádném formátu"
+
+#~ msgid "Invalid XPath expression"
+#~ msgstr "Neplatný výraz XPath"
+
+#~ msgid "No available formats"
+#~ msgstr "Žadný formát není k dispozici"
+
+#~ msgid "Override &CSS"
+#~ msgstr "Nahradit &CSS"
+
+#~ msgid "&Rescale images"
+#~ msgstr "&Zmenšit obrázky"
+
+#~ msgid "Preserve &tag structure when splitting"
+#~ msgstr "Při rozdělování zachovat strukturu tagů"
+
+#~ msgid "Remove &first image from source file"
+#~ msgstr "Odstranit první obrázek ze vstupního souboru"
+
+#~ msgid "&Source profile:"
+#~ msgstr "V&stupní profil:"
+
+#~ msgid "&Ignore tables"
+#~ msgstr "&Ignorovat tabulky"
+
+#~ msgid "Choose the format to convert to "
+#~ msgstr "Vyberte formát pro převod "
+
+#~ msgid "The expression %s is invalid. Error: %s"
+#~ msgstr "Výraz %s je neplatný. Chyba: %s"
+
+#~ msgid "Convert to EPUB"
+#~ msgstr "Převod do EPUB"
+
+#~ msgid "Specify the page layout settings like margins."
+#~ msgstr "Paramety rozložení stránky, jako například okraje."
+
+#~ msgid "Creating Mobipocket file from EPUB..."
+#~ msgstr "Vytvářím Mobipocket soubor z EPUB..."
+
+#~ msgid "&Destination profile:"
+#~ msgstr "&Výstupní profil:"
+
+#~ msgid "&Page map"
+#~ msgstr "&Mapa Stránkování"
+
+#~ msgid "&Use author sort to set author field in output"
+#~ msgstr "Použít pole řazení autorů k nastavení pole autor ve výstupu"
+
+#~ msgid "Automatic &chapter detection"
+#~ msgstr "Automatické rozpoznávání &kapitol"
+
+#~ msgid "&XPath:"
+#~ msgstr "Výraz &XPath:"
+
+#~ msgid "Automatic &Table of Contents"
+#~ msgstr "Automatický &Obsah"
+
+#~ msgid ""
+#~ "Adjust the look of the generated ebook by specifying things like font sizes."
+#~ msgstr ""
+#~ "Upraví vzhled vytvořené elektronické knihy, například určením velikosti "
+#~ "písma."
+
+#~ msgid "&Title for generated TOC"
+#~ msgstr "Název vygenerovaného &Obsahu"
+
+#~ msgid "Level &1 TOC"
+#~ msgstr "Obsah úrovně &1"
+
+#~ msgid "Level &2 TOC"
+#~ msgstr "Obsah úrovně &2"
+
+#~ msgid "Level &3 TOC"
+#~ msgstr "Obsah úrovně &3"
+
+#~ msgid ""
+#~ "Create the output in a zip file. If this option is specified, the --output "
+#~ "should be the name of a file not a directory."
+#~ msgstr ""
+#~ "Výstup je uložen do ZIP souboru. Pokud je zvolena tato volba, položka --"
+#~ "output by měla obsahovat název souboru, nikoliv adresáře."

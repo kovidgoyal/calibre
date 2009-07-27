@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-19 18:45+0000\n"
+"POT-Creation-Date: 2009-07-25 02:01+0000\n"
 "PO-Revision-Date: 2009-06-05 17:36+0000\n"
 "Last-Translator: Egor Bushmelyov <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-07-21 16:48+0000\n"
+"X-Launchpad-Export-Date: 2009-07-26 20:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -39,6 +39,8 @@ msgstr "Абсолютно ничего не делать"
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:52
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:317
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1895
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
@@ -69,14 +71,14 @@ msgstr "Абсолютно ничего не делать"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:857
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:862
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:900
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:136
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:866
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:871
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:909
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:84
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:101
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:104
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
@@ -113,7 +115,7 @@ msgstr "Абсолютно ничего не делать"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
@@ -132,10 +134,10 @@ msgstr "Абсолютно ничего не делать"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1514
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1599
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1673
-#: /home/kovid/work/calibre/src/calibre/library/server.py:294
-#: /home/kovid/work/calibre/src/calibre/library/server.py:355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1621
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1672
+#: /home/kovid/work/calibre/src/calibre/library/server.py:295
+#: /home/kovid/work/calibre/src/calibre/library/server.py:356
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -216,14 +218,14 @@ msgstr ""
 msgid "Conversion Input"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:122
 msgid ""
 "Save the output from the input plugin to the specified directory. Useful if "
 "you are unsure at which stage of the conversion process a bug is occurring. "
 "WARNING: This completely deletes the contents of the specified directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:127
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:131
 msgid ""
 "Specify the character encoding of the input document. If set this option "
 "will override any encoding declared by the document itself. Particularly "
@@ -231,11 +233,11 @@ msgid ""
 "encoding declarations."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:243
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:247
 msgid "Conversion Output"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:257
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:261
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
@@ -1206,7 +1208,7 @@ msgstr "Не могу прочитать файл обложки: %s"
 msgid "Cannot read from: %s"
 msgstr "Не могу прочитать из: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1990
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1996
 msgid "Failed to process opf file"
 msgstr "Ошибка процесса файла opf"
 
@@ -1636,6 +1638,11 @@ msgstr ""
 "Загрузка изображения обложки для книги распознается через ISBN на сайте "
 "LibraryThing.com\n"
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+msgid "Cover"
+msgstr "Обложка"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr "Модифицировать картинки согласно ограничениям Palm."
@@ -1659,78 +1666,74 @@ msgstr "Заголовок для любых сгенерированных in-l
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:103
 msgid "All articles"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
-msgid "Cover"
-msgstr "Обложка"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1261
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
 msgid "Title Page"
 msgstr "Титульная страница"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1262
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr "Содержание"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1263
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
 msgid "Index"
 msgstr "Индекс"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1264
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
 msgid "Glossary"
 msgstr "Глоссарий"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1265
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
 msgid "Acknowledgements"
 msgstr "Подтверждения"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1266
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
 msgid "Bibliography"
 msgstr "Библиография"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1267
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
 msgid "Colophon"
 msgstr "Колофон"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1268
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1277
 msgid "Copyright"
 msgstr "Копирайт"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1278
 msgid "Dedication"
 msgstr "Посвящение"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 msgid "Epigraph"
 msgstr "Эпиграф"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1280
 msgid "Foreword"
 msgstr "Предисловие"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1281
 msgid "List of Illustrations"
 msgstr "Список иллюстраций"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1282
 msgid "List of Tables"
 msgstr "Оглавление"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1283
 msgid "Notes"
 msgstr "Заметки"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
 msgid "Preface"
 msgstr "Введение"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1285
 msgid "Main Text"
 msgstr "Основной текст"
 
@@ -1793,11 +1796,11 @@ msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:112
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:114
 msgid "Footnotes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:123
 msgid "Sidebar"
 msgstr ""
 
@@ -3952,9 +3955,8 @@ msgid "Meta information"
 msgstr "Мета информация"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
-msgid "Author S&ort: "
-msgstr "Сортировка по автору: "
+msgid "Author s&ort: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:342
@@ -3983,8 +3985,8 @@ msgid " stars"
 msgstr " звезды"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:148
-msgid "Add Ta&gs: "
-msgstr "Добавить описание: "
+msgid "Add ta&gs: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:151
@@ -4035,50 +4037,50 @@ msgstr "Не могу прочитать обложку из %s"
 msgid "The cover in the %s format is invalid"
 msgstr "Обложка в формате %s неправильная"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
 msgid "Downloading cover..."
 msgstr "Загрузка обложки..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:414
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:428
 msgid "Cannot fetch cover"
 msgstr "Не могу получить обложку"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:429
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>Не могу получить обложку.</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
 msgid "The download timed out."
 msgstr "Таймаут загрузки"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:435
 msgid "Bad cover"
 msgstr "Плохая обложка"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:436
 msgid "The cover is not a valid picture"
 msgstr "Обложка с неправильной картинкой"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:475
 msgid "Cannot fetch metadata"
 msgstr "Не могу доставить метаданные"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:476
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr "Нужно указаить ISBN, название, автора или издателя"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
 msgid "Permission denied"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 
@@ -4089,6 +4091,10 @@ msgstr "Редактирование мета информации"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Swap the author and title"
 msgstr "Заменить Автора и Заглавие"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
+msgid "Author S&ort: "
+msgstr "Сортировка по автору: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:343
 msgid ""
@@ -6658,11 +6664,11 @@ msgstr "Копирование <b>%s</b>"
 msgid "Compacting database"
 msgstr "Сжатие базы данных"
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:146
+#: /home/kovid/work/calibre/src/calibre/library/server.py:147
 msgid "Password to access your calibre library. Username is "
 msgstr "Пароль для доступа в библиотеку. Имя пользователя "
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:429
+#: /home/kovid/work/calibre/src/calibre/library/server.py:430
 msgid ""
 "[options]\n"
 "\n"
@@ -6933,12 +6939,14 @@ msgstr "Испанский"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_accountancyage.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_al_jazeera.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_azstarnet.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
@@ -6946,6 +6954,7 @@ msgstr "Испанский"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_coding_horror.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_craigslist.py:15
@@ -6983,8 +6992,10 @@ msgstr "Испанский"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linuxdevices.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moneynews.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
@@ -7010,14 +7021,17 @@ msgstr "Испанский"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scott_hanselman.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slate.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_stackoverflow.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
@@ -7043,7 +7057,7 @@ msgstr "Испанский"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
@@ -7101,6 +7115,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
 msgid "Portugese"
 msgstr "Португальский"
 
@@ -7119,10 +7134,6 @@ msgstr "Пропуск статей-дублей: %s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
 msgstr "Пропуск отфильтрованных статей: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
-msgid "Portuguese"
-msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
 msgid "Kovid Goyal and Sujata Raman"
@@ -7495,22 +7506,6 @@ msgstr "подписчик"
 msgid "subscribers"
 msgstr "подписчики"
 
-#~ msgid "Set the title. Default: filename."
-#~ msgstr "Введите заголовок. По умолчанию: имя файла."
-
-#~ msgid ""
-#~ "Set the author(s). Multiple authors should be set as a comma separated list. "
-#~ "Default: %default"
-#~ msgstr ""
-#~ "Введите автора(ов). Несколько авторов могут быть указаны в списке "
-#~ "разделенным запятыми. По умолчанию: %default"
-
-#~ msgid "Set the comment."
-#~ msgstr "Введите комментарий."
-
-#~ msgid "Set the category"
-#~ msgstr "Введите жанр"
-
 #~ msgid "Sort key for the title"
 #~ msgstr "Значение для сортировки по заголовку"
 
@@ -7520,6 +7515,118 @@ msgstr "подписчики"
 #~ msgid "Path to file containing image to be used as cover"
 #~ msgstr "Путь к файлу изображения, которое будет использоваться как обложка"
 
+#~ msgid "Right margin of page. Default is %default px."
+#~ msgstr "Отступ справа на странице. По умолчанию: %default пикселей."
+
+#~ msgid ""
+#~ "Profile of the target device for which this LRF is being generated. The "
+#~ "profile determines things like the resolution and screen size of the target "
+#~ "device. Default: %s Supported profiles: "
+#~ msgstr ""
+#~ "Профиль целевого устройства, для которого будет сгенерирован LRF. Профиль "
+#~ "определяет такие вещи, как разрешение и размер экрана на целевом устройстве. "
+#~ "По умолчанию: %s Поддерживаемые профили: "
+
+#~ msgid "Left margin of page. Default is %default px."
+#~ msgstr "Отступ слева на странице. По умолчанию: %default пикселей."
+
+#~ msgid ""
+#~ "Render all content as black on white instead of the colors specified by the "
+#~ "HTML or CSS."
+#~ msgstr ""
+#~ "Отображать текст черным цветом на белом фоне, игнорируя цвета, указанные в "
+#~ "HTML или CSS."
+
+#~ msgid ""
+#~ "Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
+#~ "it is a string it is interpreted as CSS."
+#~ msgstr ""
+#~ "Переопределить CSS. Можно указать путь к файлу стилей CSS или строку. Строка "
+#~ "будет интерпретирована как CSS-стиль."
+
+#~ msgid ""
+#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
+#~ "to %default"
+#~ msgstr ""
+#~ "Регулярное выражение. Теги <a>, чьи значения href совпадут с ним, будут "
+#~ "проигнорированы. По умолчанию: %default"
+
+#~ msgid ""
+#~ "The maximum number of levels to recursively process links. A value of 0 "
+#~ "means thats links are not followed. A negative value means that <a> tags are "
+#~ "ignored."
+#~ msgstr ""
+#~ "Максимальное количество уровней рекурсивной обработки ссылок. Значение 0 "
+#~ "означает, что ссылки не поддерживаются. Отрицательное значение означает, что "
+#~ "теги <a> будут проигнорированы."
+
+#~ msgid "Bottom margin of page. Default is %default px."
+#~ msgstr "Отступ снизу на странице. По умолчанию: %default пикселей."
+
+#~ msgid "Top margin of page. Default is %default px."
+#~ msgstr "Отступ сверху на странице. По умолчанию: %default пикселей."
+
+#~ msgid "Prevent the automatic detection chapters."
+#~ msgstr "Отключить автоматическое определение глав."
+
+#~ msgid ""
+#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
+#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
+#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
+#~ "    "
+#~ msgstr ""
+#~ "Укажите наборы trutype-шрифтов для групп \"serif\", \"sans-serif\" и "
+#~ "\"monospace\". Эти шрифты будут включены в файл LRF. Учтите, что "
+#~ "использование своих шрифтов приведет к уменьшению скорости переворачивания "
+#~ "страниц. Пример: --serif-family \"Times New Roman\"\n"
+#~ "    "
+
+#~ msgid "Use this option on html0 files from Book Designer."
+#~ msgstr "Используйте эту опцию для файлов html0 после Book Designer."
+
+#~ msgid ""
+#~ "You must add this option if processing files generated by pdftohtml, "
+#~ "otherwise conversion will fail."
+#~ msgstr ""
+#~ "Вы должны добавить эту опцию, если обрабатываемые файлы были сгенерированы "
+#~ "утилитой pdftohtml, иначе преобразования не получится."
+
+#~ msgid ""
+#~ "%prog [options] mybook.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.fb2 to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [опции] mybook.fb2\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog преобразует mybook.fb2 в mybook.lrf"
+
+#~ msgid "No file to convert specified."
+#~ msgstr "Не указан файл для преобразования."
+
+#~ msgid ""
+#~ "An XPath expression to detect chapter titles. The default is to consider "
+#~ "<h1> or\n"
+#~ "<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
+#~ "\"part\" as chapter titles as \n"
+#~ "well as any tags that have class=\"chapter\". \n"
+#~ "The expression used must evaluate to a list of elements. To disable chapter "
+#~ "detection,\n"
+#~ "use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
+#~ "for further\n"
+#~ "help on using this feature.\n"
+#~ msgstr ""
+#~ "Выражение XPath определяет название глав. По умолчанию учитываются\n"
+#~ "тэги названия глав <h1> или <h2>, которые содержат слова  \n"
+#~ "\"chapter\",\"book\",\"section\" или \"part\", так же как и другие тэги "
+#~ "имеющие  class=\"chapter\".\n"
+#~ "Использование данного выражения должно определить список элементов. Для "
+#~ "блокирования \n"
+#~ "определения глав, используйте выражение \"/\". В дальнейшем смотрите  "
+#~ "учебник XPath \n"
+#~ "в Инструкции Пользователя calibre для использования данного элемента.\n"
+
 #~ msgid ""
 #~ "If there is a cover graphic detected in the source file, use that instead of "
 #~ "the specified cover."
@@ -7527,9 +7634,54 @@ msgstr "подписчики"
 #~ "Вместо указанной обложки, если обнаружено изображение обложки в исходном "
 #~ "файле, использовать его."
 
-#~ msgid "Output file name. Default is derived from input filename"
+#~ msgid "The reader has no storage card connected."
+#~ msgstr "Не подключена карта памяти."
+
+#~ msgid "Options to control the conversion to EPUB"
+#~ msgstr "Варианты контроля преобразования в EPUB"
+
+#~ msgid "Path to the cover to be used for this book"
+#~ msgstr "Путь к обложке используемой для этой книги"
+
+#~ msgid "Control page layout"
+#~ msgstr "Управление структурой страницы"
+
+#~ msgid "Set the top margin in pts. Default is %default"
+#~ msgstr "Установить верхнюю границу в точках. По умолчанию %default"
+
+#~ msgid "Set the bottom margin in pts. Default is %default"
+#~ msgstr "Установить нижнюю границу в точках. По умолчанию %default"
+
+#~ msgid "Set the left margin in pts. Default is %default"
+#~ msgstr "Установить левую границу в точках. По умолчанию %default"
+
+#~ msgid "Set the right margin in pts. Default is %default"
+#~ msgstr "Установить правую границу в точках. По умолчанию %default"
+
+#~ msgid ""
+#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
+#~ "rescaling of fonts."
 #~ msgstr ""
-#~ "Выходное имя файла. По умолчанию будет образовано из имени исходного файла"
+#~ "Основной размер шрифта в точках. По умолчанию %defaultpt.\n"
+#~ " Установите 0 чтобы запретить изменение масштаба шрифта."
+
+#~ msgid "Set the title. Default is to autodetect."
+#~ msgstr "Ввести заголовок. По умолчанию автоопределение."
+
+#~ msgid "The subject(s) of this book, as a comma separated list."
+#~ msgstr "Содержание книги, список разделяется запятыми."
+
+#~ msgid "Set the publisher of this book."
+#~ msgstr "Ввести издательство этой книги."
+
+#~ msgid "A summary of this book."
+#~ msgstr "Краткое изложение этой книги."
+
+#~ msgid "Load metadata from the specified OPF file"
+#~ msgstr "Загрузить метаданные из подробного OPF файла."
+
+#~ msgid "Options useful for debugging"
+#~ msgstr "Опции используемые для отладки"
 
 #~ msgid ""
 #~ "Render HTML tables as blocks of text instead of actual tables. This is "
@@ -7540,13 +7692,6 @@ msgstr "подписчики"
 
 #~ msgid "Separate paragraphs by blank lines."
 #~ msgstr "Разделить абзацы."
-
-#~ msgid ""
-#~ "Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
-#~ "it is a string it is interpreted as CSS."
-#~ msgstr ""
-#~ "Переопределить CSS. Можно указать путь к файлу стилей CSS или строку. Строка "
-#~ "будет интерпретирована как CSS-стиль."
 
 #~ msgid ""
 #~ "Use the <spine> element from the OPF file to determine the order in which "
@@ -7567,50 +7712,6 @@ msgstr "подписчики"
 #~ "указано отрицательным, то размер шрифта будет уменьшен."
 
 #~ msgid ""
-#~ "Render all content as black on white instead of the colors specified by the "
-#~ "HTML or CSS."
-#~ msgstr ""
-#~ "Отображать текст черным цветом на белом фоне, игнорируя цвета, указанные в "
-#~ "HTML или CSS."
-
-#~ msgid ""
-#~ "Profile of the target device for which this LRF is being generated. The "
-#~ "profile determines things like the resolution and screen size of the target "
-#~ "device. Default: %s Supported profiles: "
-#~ msgstr ""
-#~ "Профиль целевого устройства, для которого будет сгенерирован LRF. Профиль "
-#~ "определяет такие вещи, как разрешение и размер экрана на целевом устройстве. "
-#~ "По умолчанию: %s Поддерживаемые профили: "
-
-#~ msgid "Left margin of page. Default is %default px."
-#~ msgstr "Отступ слева на странице. По умолчанию: %default пикселей."
-
-#~ msgid "Right margin of page. Default is %default px."
-#~ msgstr "Отступ справа на странице. По умолчанию: %default пикселей."
-
-#~ msgid "Top margin of page. Default is %default px."
-#~ msgstr "Отступ сверху на странице. По умолчанию: %default пикселей."
-
-#~ msgid "Bottom margin of page. Default is %default px."
-#~ msgstr "Отступ снизу на странице. По умолчанию: %default пикселей."
-
-#~ msgid ""
-#~ "The maximum number of levels to recursively process links. A value of 0 "
-#~ "means thats links are not followed. A negative value means that <a> tags are "
-#~ "ignored."
-#~ msgstr ""
-#~ "Максимальное количество уровней рекурсивной обработки ссылок. Значение 0 "
-#~ "означает, что ссылки не поддерживаются. Отрицательное значение означает, что "
-#~ "теги <a> будут проигнорированы."
-
-#~ msgid ""
-#~ "The regular expression used to detect chapter titles. It is searched for in "
-#~ "heading tags (h1-h6). Defaults to %default"
-#~ msgstr ""
-#~ "Регулярное выражение, используемое для определения названия глав. Ищутся "
-#~ "теги заголовков (h1-h6). По умолчанию: %default"
-
-#~ msgid ""
 #~ "If html2lrf does not find any page breaks in the html file and cannot detect "
 #~ "chapter headings, it will automatically insert page-breaks before the tags "
 #~ "whose names match this regular expression. Defaults to %default. You can "
@@ -7629,54 +7730,20 @@ msgstr "подписчики"
 #~ "нескольких элементов."
 
 #~ msgid ""
-#~ "Force a page break before an element having the specified attribute. The "
-#~ "format for this option is tagname regexp,attribute name,attribute value "
-#~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+#~ "Force a page break before tags whose names match this regular expression."
 #~ msgstr ""
-#~ "Принудительный разрыв страницы перед элементом имеющими специальный атрибут. "
-#~ "Формат опции, это tagname regexp,attribute name,attribute value regexp. Для "
-#~ "примера сопоставления всех заголовков тэгов с имеющимся атрибутом "
-#~ "class=\"chapter\" используйте \"h\\d,class,chapter\". По умолчанию %default"
+#~ "Устанавить разрывы страниц перед тегами, имена которых соответствуют этому "
+#~ "регулярному выражению."
+
+#~ msgid "Add detected chapters to the table of contents."
+#~ msgstr "Добавить найденные главы в содержание."
 
 #~ msgid "Preprocess Baen HTML files to improve generated LRF."
 #~ msgstr ""
 #~ "Предварительная обработка файлов Baen HTML для улучшения создаваемого LRF."
 
-#~ msgid ""
-#~ "You must add this option if processing files generated by pdftohtml, "
-#~ "otherwise conversion will fail."
-#~ msgstr ""
-#~ "Вы должны добавить эту опцию, если обрабатываемые файлы были сгенерированы "
-#~ "утилитой pdftohtml, иначе преобразования не получится."
-
-#~ msgid "Use this option on html0 files from Book Designer."
-#~ msgstr "Используйте эту опцию для файлов html0 после Book Designer."
-
 #~ msgid "Be verbose while processing"
 #~ msgstr "Подробная информация при обработке"
-
-#~ msgid "Convert to LRS"
-#~ msgstr "Преобразовать в LRS"
-
-#~ msgid ""
-#~ "Minimize memory usage at the cost of longer processing times. Use this "
-#~ "option if you are on a memory constrained machine."
-#~ msgstr ""
-#~ "Уменьшить использование памяти, увеличив время обработки. Используйте эту "
-#~ "опцию, если на компьютере ограничена память."
-
-#~ msgid ""
-#~ "Specify the character encoding of the source file. If the output LRF file "
-#~ "contains strange characters, try changing this option. A common encoding for "
-#~ "files from windows computers is cp-1252. Another common choice is utf-8. The "
-#~ "default is to try and guess the encoding."
-#~ msgstr ""
-#~ "Укажите кодировку исходного файла. Если выходной файл LRF содержит \n"
-#~ "непонятные символы, то попробуйте изменить эту опцию. Распространенная \n"
-#~ "кодировка для файлов на компьютерах с windows — cp-1251. Другой \n"
-#~ "распространенный вариант — utf-8. По умолчанию будет сделана попытка угадать "
-#~ "кодировку."
 
 #~ msgid ""
 #~ "any2lrf [options] myfile\n"
@@ -7696,9 +7763,6 @@ msgstr "подписчики"
 #~ "ZIP, пытаясь обнаружить электронную книгу в архиве.\n"
 #~ "    "
 
-#~ msgid "No file to convert specified."
-#~ msgstr "Не указан файл для преобразования."
-
 #~ msgid ""
 #~ "Usage: %prog [options] mybook.epub\n"
 #~ "        \n"
@@ -7711,91 +7775,9 @@ msgstr "подписчики"
 #~ "%prog преобразует mybook.epub в mybook.lrf"
 
 #~ msgid ""
-#~ "%prog [options] mybook.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.fb2 to mybook.lrf"
+#~ " is an image based PDF. Only conversion of text based PDFs is supported."
 #~ msgstr ""
-#~ "%prog [опции] mybook.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog преобразует mybook.fb2 в mybook.lrf"
-
-#~ msgid "Print generated HTML to stdout and quit."
-#~ msgstr "Вывести сгенерированный HTML на stdout и выйти."
-
-#~ msgid "Options to control the behavior of feeds2disk"
-#~ msgstr "Опции управления изменениями feeds2disk"
-
-#~ msgid "Options to control the behavior of html2lrf"
-#~ msgstr "Опции управления изменениями html2lrf"
-
-#~ msgid "Fetching of recipe failed: "
-#~ msgstr "Неудачно выбранный набор параметров : "
-
-#~ msgid ""
-#~ "You have to save the website %s as an html file first and then run html2lrf "
-#~ "on it."
-#~ msgstr ""
-#~ "Вы сохранили вебсайт %s как первый html файл, теперь с ним запустите "
-#~ "html2lrf."
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.html\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.html to mybook.lrf. \n"
-#~ "%prog follows all links in mybook.html that point \n"
-#~ "to local files recursively. Thus, you can use it to \n"
-#~ "convert a whole tree of HTML files."
-#~ msgstr ""
-#~ "Usage: %prog [options] mybook.html\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.html в mybook.lrf. \n"
-#~ "%prog follows все линки в mybook.html это рекурсивная точка\n"
-#~ "в локальном файле. Таким образом, вы можете использовать\n"
-#~ "конвертирвание целого дерева файлов HTML."
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.lit\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.lit to mybook.lrf"
-#~ msgstr ""
-#~ "Использовать: %prog [options] mybook.lit\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog конвертирует mybook.lit в mybook.lrf."
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.mobi|prc\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.mobi to mybook.lrf"
-#~ msgstr ""
-#~ "Usage: %prog [options] mybook.mobi|prc\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog конвертирует mybook.mobi в mybook.lrf"
-
-#~ msgid ""
-#~ "%prog [options] mybook.pdf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.pdf to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mybook.pdf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.pdf в mybook.lrf"
-
-#~ msgid ""
-#~ "Path to output directory in which to create the HTML file. Defaults to "
-#~ "current directory."
-#~ msgstr ""
-#~ "Путь директории результата, где создается HTML. По умолчанию, текущая "
-#~ "директория."
+#~ " PDF содержит картинки. Поддерживается преобразование только текстовых PDF."
 
 #~ msgid "Be more verbose."
 #~ msgstr "Больше подробностей."
@@ -7803,127 +7785,41 @@ msgstr "подписчики"
 #~ msgid "You must specify a single PDF file."
 #~ msgstr "Вы должны выбрать единственный файл PDF."
 
-#~ msgid ""
-#~ "%prog [options] mybook.rtf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.rtf to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mybook.rtf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.rtf в mybook.lrf"
-
-#~ msgid ""
-#~ "%prog [options] mybook.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.txt to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mybook.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.txt в mybook.lrf"
-
 #~ msgid "Set the authors"
 #~ msgstr "Ввести автора"
 
 #~ msgid "Set the comment"
 #~ msgstr "Ввести комментарии"
 
+#~ msgid "The series index"
+#~ msgstr "Серия Index"
+
+#~ msgid "The book language"
+#~ msgstr "Язык книги"
+
+#~ msgid "Extract the cover"
+#~ msgstr "Извлечь обложку"
+
 #~ msgid "Usage:"
 #~ msgstr "Обращение:"
 
-#~ msgid "Usage: %s file.lit"
-#~ msgstr "Используется: %s file.lit"
-
-#~ msgid "Usage: pdf-meta file.pdf"
-#~ msgstr "Загрузка: pdf-meta file.pdf"
+#~ msgid "Usage: imp-meta file.imp"
+#~ msgstr "Обращение: imp-meta file.imp"
 
 #~ msgid "No filename specified."
 #~ msgstr "Имя файла не назначено."
 
-#~ msgid "%prog [options] myebook.mobi"
-#~ msgstr "%prog [options] myebook.mobi"
-
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "Выходная директория. По умолчанию текущая директория."
-
-#~ msgid "Raw MOBI HTML saved in"
-#~ msgstr "Сырой MOBI HTML сохранен в"
-
-#~ msgid "OEB ebook created in"
-#~ msgstr "OEB книга создана в"
+#~ msgid "Usage: %s file.lit"
+#~ msgstr "Используется: %s file.lit"
 
 #~ msgid "Configuration"
 #~ msgstr "Конфигурация"
 
-#~ msgid "No available formats"
-#~ msgstr "Не доступный формат"
-
-#~ msgid "Cannot convert %s as this book has no supported formats"
-#~ msgstr "Не могу преобразовать %s, книга неизвестного формата"
-
-#~ msgid "Choose the format to convert into LRF"
-#~ msgstr "Выберете формат преобразования в LRF"
-
-#~ msgid "Convert %s to LRF"
-#~ msgstr "Преобразовать %s в LRF"
-
-#~ msgid "Set conversion defaults"
-#~ msgstr "Выставить параметры преобразования"
-
-#~ msgid ""
-#~ "Preprocess the file before converting to LRF. This is useful if you know "
-#~ "that the file is from a specific source. Known sources:"
-#~ msgstr ""
-#~ "Предварительная обработка файла перед преобразованием в LRF. Это "
-#~ "оиспользуется, если вы знаете из какого источника файл. Источник:"
-
-#~ msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
-#~ msgstr "<ol><li><b>baen</b> - Книга из издательства BAEN</li>"
-
-#~ msgid ""
-#~ "<li><b>pdftohtml</b> - HTML files that are the output of the program "
-#~ "pdftohtml</li>"
-#~ msgstr "<li><b>pdftohtml</b> - файл HTML fрезультат программы pdftohtml</li>"
-
-#~ msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
-#~ msgstr "<li><b>book-designer</b> - файл HTML0 из Book Designer</li>"
-
-#~ msgid ""
-#~ "Specify metadata such as title and author for the book.<p>Metadata will be "
-#~ "updated in the database as well as the generated LRF file."
-#~ msgstr ""
-#~ "Назначить метаданные такие, как Заглавие и Автор книги.<p>Обновление "
-#~ "метаданных в базе данных будет произведено после успешного создания файла "
-#~ "LRF."
-
-#~ msgid ""
-#~ "Adjust the look of the generated LRF file by specifying things like font "
-#~ "sizes and the spacing between words."
-#~ msgstr ""
-#~ "Настроить параметры просмотр созданной книги такие, как размер шрифта и "
-#~ "промежутки между словами."
-
-#~ msgid ""
-#~ "Specify the page settings like margins and the screen size of the target "
-#~ "device."
-#~ msgstr ""
-#~ "Выставить настройки страницы такие, как границы текста и размер экрана "
-#~ "устройства."
-
-#~ msgid "Fine tune the detection of chapter and section headings."
-#~ msgstr "Подправить определенные главы и загаловки разделов."
-
 #~ msgid "Chapter Detection"
 #~ msgstr "Распознавание главы"
 
-#~ msgid "<font color=\"gray\">No help available</font>"
-#~ msgstr "<font color=\"gray\">Справка недоступна</font>"
-
-#~ msgid "Bulk convert ebooks to LRF"
-#~ msgstr "Объем преобразованой книги в LRF"
+#~ msgid "No available formats"
+#~ msgstr "Не доступный формат"
 
 #~ msgid "Waiting"
 #~ msgstr "Ждите"
@@ -7931,24 +7827,63 @@ msgstr "подписчики"
 #~ msgid "Working"
 #~ msgstr "Работа"
 
-#~ msgid "Send to storage card"
-#~ msgstr "Отправить в карту памяти"
-
-#~ msgid ""
-#~ "<p>Books with the same title as the following already exist in the database. "
-#~ "Add them anyway?<ul>"
-#~ msgstr ""
-#~ "<p>Книги с таким названием уже есть в библиотеки. Всеравно добавить?<ul>"
-
-#~ msgid ""
-#~ "<p>An invalid database already exists at %s, delete it before trying to move "
-#~ "the existing database.<br>Error: %s"
-#~ msgstr ""
-#~ "<p>Уже используется неправильная база данных %s, удалите ее прежде, чем "
-#~ "перенести используемую. <br>Ошибка: %s"
+#~ msgid "Copying library to "
+#~ msgstr "Копирование библиотеки в "
 
 #~ msgid "Could not move database"
 #~ msgstr "Невозможно перенести базу данных"
+
+#~ msgid "Don't show the progress bar"
+#~ msgstr "Не показывать индикатор выполнения"
+
+#~ msgid "Very verbose output, useful for debugging."
+#~ msgstr "Очень подробный вывод, используется для отладки."
+
+#~ msgid ""
+#~ "Options to control web2disk (used to fetch websites linked from feeds)"
+#~ msgstr ""
+#~ "Опции контроля web2disk (обычно вызываются линки сайтов переводных страниц )"
+
+#~ msgid "Dont show the progress bar"
+#~ msgstr "Не показывать индикатор выполнения"
+
+#~ msgid ""
+#~ "\n"
+#~ "Downloaded article %s from %s\n"
+#~ "%s"
+#~ msgstr ""
+#~ "\n"
+#~ "Скачена статья %s из %s\n"
+#~ "%s"
+
+#~ msgid "Failed to download article: %s from %s\n"
+#~ msgstr "Ошибка загрузки статьи: %s из %s\n"
+
+#~ msgid ""
+#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
+#~ "option obsoletes the --font-delta option and takes precedence over it. To "
+#~ "use --font-delta, set this to 0. Default: %defaultpt"
+#~ msgstr ""
+#~ "Укажите основной размер шрифта в интервалах. Все шрифты будут "
+#~ "отмасштабированы по нему. Этот параметр перекрывает опцию --font-delta и "
+#~ "имеет приоритет над ней. Для использования --font-delta, установите размер "
+#~ "шрифта 0. По умолчанию: %default интервал(ов)"
+
+#~ msgid ""
+#~ "The regular expression used to detect chapter titles. It is searched for in "
+#~ "heading tags (h1-h6). Defaults to %default"
+#~ msgstr ""
+#~ "Регулярное выражение, используемое для определения названия глав. Ищутся "
+#~ "теги заголовков (h1-h6). По умолчанию: %default"
+
+#~ msgid "Convert to LRS"
+#~ msgstr "Преобразовать в LRS"
+
+#~ msgid "Fetching of recipe failed: "
+#~ msgstr "Неудачно выбранный набор параметров : "
+
+#~ msgid "Send to storage card"
+#~ msgstr "Отправить в карту памяти"
 
 #~ msgid ""
 #~ "%%prog [options] ARG\n"
@@ -7991,9 +7926,864 @@ msgstr "подписчики"
 #~ "%s\n"
 
 #~ msgid ""
-#~ "Options to control web2disk (used to fetch websites linked from feeds)"
+#~ "Path to a .ncx file that contains the table of contents to use for this "
+#~ "ebook. The NCX file should contain links relative to the directory it is "
+#~ "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
+#~ "an overview of the NCX format."
 #~ msgstr ""
-#~ "Опции контроля web2disk (обычно вызываются линки сайтов переводных страниц )"
+#~ "Путь к файлу .ncx который содержит оглавление используемое этой книгой. Файл "
+#~ "NCX может содержать ссылки относящиеся к директории в которой расположенны. "
+#~ "Смотри http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX описание "
+#~ "формата NCX."
+
+#~ msgid "Written processed HTML to "
+#~ msgstr "Записывается обработанный HTML в "
+
+#~ msgid "The output directory. Default is the current directory."
+#~ msgstr "Выходная дериктория. По умолчанию текущая дериктория."
+
+#~ msgid "Character encoding for HTML files. Default is to auto detect."
+#~ msgstr "Кодировка файла HTML. По умолчанию автоопределение."
+
+#~ msgid ""
+#~ "Create the output in a zip file. If this option is specified, the --output "
+#~ "should be the name of a file not a directory."
+#~ msgstr ""
+#~ "Создание выходного zip файла. Если используется эта опция, то  --output имя "
+#~ "файла должно быть отличным от дериктории."
+
+#~ msgid "Options to control the traversal of HTML"
+#~ msgstr "Опции контроля просмотра HTML"
+
+#~ msgid ""
+#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
+#~ "cause incorrect rendering."
+#~ msgstr ""
+#~ "\t\tОчень много закладок. Переразбейте безструктурное сохранение. Это может "
+#~ "быть причиной некорректного выполнения."
+
+#~ msgid "%prog [options] LITFILE"
+#~ msgstr "%prog [options] LITFILE"
+
+#~ msgid "Control the following of links in HTML files."
+#~ msgstr "Контроль следования по ссылкам в файле HTML."
+
+#~ msgid ""
+#~ "Traverse links in HTML files breadth first. Normally, they are traversed "
+#~ "depth first"
+#~ msgstr ""
+#~ "Маршрут включенный в HTML проходится в ширину. Обычно, это проходится "
+#~ "преимущественно в глубину"
+
+#~ msgid ""
+#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
+#~ "negative. 0 implies that no links in the root HTML file are followed."
+#~ msgstr ""
+#~ "Максимальный уровень рекурсии, если следовать по ссылкам в файле HTML. "
+#~ "Должно быть не отрицательным. 0 подразумевает нет ссылок для следования в "
+#~ "корневом файле HTML."
+
+#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
+#~ msgstr ""
+#~ "Выходной HTML \"структурная распечатка\" для простого человеческого анализа"
+
+#~ msgid "Output directory. Defaults to current directory."
+#~ msgstr "Выходная директория. По умолчанию текущая директория."
+
+#~ msgid "OEB ebook created in"
+#~ msgstr "OEB книга создана в"
+
+#~ msgid ""
+#~ "Detect a chapter beginning at an element having the specified attribute. The "
+#~ "format for this option is tagname regexp,attribute name,attribute value "
+#~ "regexp. For example to match all heading tags that have the attribute "
+#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". You can set the "
+#~ "attribute to \"none\" to match only on tag names. So for example, to match "
+#~ "all h2 tags, you would use \"h2,none,\". Default is %default"
+#~ msgstr ""
+#~ "Определить начальную главу, как елемент имеющий специальные атрибуты. Формат "
+#~ "опции, это tagname regexp,attribute name,attribute value regexp. Для примера "
+#~ "сопоставления всех заголовков тэгов с имеющимся атрибутом class=\"chapter\" "
+#~ "используйте \"h\\d,class,chapter\". Вы можете установить атрибут \"none\" "
+#~ "сопоставив только на имя тэга. Так для примера, сопоставить все теги h2 вы "
+#~ "можете как \"h2,none,\". По умолчанию %default"
+
+#~ msgid "Title for generated ebook. Default is to use the filename."
+#~ msgstr "Заголовок для созданной книги. По умолчанию используется имя файла."
+
+#~ msgid "Converting from %s to LRF is not supported."
+#~ msgstr "Преобразование из %s в LRF не поддерживается."
+
+#~ msgid ""
+#~ "Failed to process comic: %s\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ошибка процесса с комиксами: %s\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Force a page break before an element having the specified attribute. The "
+#~ "format for this option is tagname regexp,attribute name,attribute value "
+#~ "regexp. For example to match all heading tags that have the attribute "
+#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+#~ msgstr ""
+#~ "Принудительный разрыв страницы перед элементом имеющими специальный атрибут. "
+#~ "Формат опции, это tagname regexp,attribute name,attribute value regexp. Для "
+#~ "примера сопоставления всех заголовков тэгов с имеющимся атрибутом "
+#~ "class=\"chapter\" используйте \"h\\d,class,chapter\". По умолчанию %default"
+
+#~ msgid ""
+#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
+#~ msgstr ""
+#~ "Опции контроля преобразования файлов комиксов (CBR, CBZ) в электронную книгу"
+
+#~ msgid ""
+#~ "Set the author in the metadata of the generated ebook. Default is %default"
+#~ msgstr ""
+#~ "Ввести автора в метаданные создаваемые электронной книгой. По умолчанию "
+#~ "%default"
+
+#~ msgid "Keep generated HTML files after completing conversion to LRF."
+#~ msgstr "Сохранить созданный файл HTML после выполнения преобразования в LRF."
+
+#~ msgid "Rendering comic pages..."
+#~ msgstr "Отображаются страницы комиксов..."
+
+#~ msgid "Don't show progress bar."
+#~ msgstr "Не показывать строку состояния."
+
+#~ msgid ""
+#~ "%prog [options] comic.cb[z|r]\n"
+#~ "\n"
+#~ "Convert a comic in a CBZ or CBR file to an ebook. \n"
+#~ msgstr ""
+#~ "%prog [options] comic.cb[z|r]\n"
+#~ "\n"
+#~ "Преобразование комиксов из файлов CBZ или CBR в электронную книгу. \n"
+
+#~ msgid "Output written to"
+#~ msgstr "Результат записывается в"
+
+#~ msgid ""
+#~ "You have to save the website %s as an html file first and then run html2lrf "
+#~ "on it."
+#~ msgstr ""
+#~ "Вы сохранили вебсайт %s как первый html файл, теперь с ним запустите "
+#~ "html2lrf."
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.html\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.html to mybook.lrf. \n"
+#~ "%prog follows all links in mybook.html that point \n"
+#~ "to local files recursively. Thus, you can use it to \n"
+#~ "convert a whole tree of HTML files."
+#~ msgstr ""
+#~ "Usage: %prog [options] mybook.html\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.html в mybook.lrf. \n"
+#~ "%prog follows все линки в mybook.html это рекурсивная точка\n"
+#~ "в локальном файле. Таким образом, вы можете использовать\n"
+#~ "конвертирвание целого дерева файлов HTML."
+
+#~ msgid "A comma separated list of tags to set"
+#~ msgstr "Запятая разделяет список установленных тэгов"
+
+#~ msgid ""
+#~ "%prog [options] mybook.txt\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.txt to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] mybook.txt\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.txt в mybook.lrf"
+
+#~ msgid "The series to which this book belongs"
+#~ msgstr "Выпуски к которым эта книга принадлежит"
+
+#~ msgid ""
+#~ "%prog [options] mybook.pdf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.pdf to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] mybook.pdf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.pdf в mybook.lrf"
+
+#~ msgid ""
+#~ "This RTF file has a feature calibre does not support. Convert it to HTML and "
+#~ "then convert it."
+#~ msgstr ""
+#~ "Этот файл RTF не поддерживается calibre. Преобразуйте его в  HTML и "
+#~ "попробуйте снова."
+
+#~ msgid ""
+#~ "%prog [options] mybook.rtf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.rtf to mybook.lrf"
+#~ msgstr ""
+#~ "%prog [options] mybook.rtf\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.rtf в mybook.lrf"
+
+#~ msgid "Set the dc:language field"
+#~ msgstr "Ввести поле dc:language"
+
+#~ msgid "Usage: rb-meta file.rb"
+#~ msgstr "Загрузка: rb-meta file.rb"
+
+#~ msgid "%prog [options] myebook.mobi"
+#~ msgstr "%prog [options] myebook.mobi"
+
+#~ msgid "Usage: pdf-meta file.pdf"
+#~ msgstr "Загрузка: pdf-meta file.pdf"
+
+#~ msgid "The format to use when saving single files to disk"
+#~ msgstr "Формат используется, когда сохраняется единственный файл на диск"
+
+#~ msgid "Format for &single file save:"
+#~ msgstr "Формат для единственного сохраненного файла:"
+
+#~ msgid "Specify the page layout settings like margins."
+#~ msgstr "Установить настройки формата страницы с полями."
+
+#~ msgid ""
+#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
+#~ "existing CSS declarations in the source files."
+#~ msgstr ""
+#~ "Другой путь к таблице стилей CSS  или непосредственно CSS. Этот CSS будет "
+#~ "заменять любые CSS имеющиеся в исходном файле."
+
+#~ msgid ""
+#~ "Control the automatic generation of a Table of Contents. If an OPF file is "
+#~ "detected\n"
+#~ "and it specifies a Table of Contents, then that will be used rather than "
+#~ "trying\n"
+#~ "to auto-generate a Table of Contents.\n"
+#~ msgstr ""
+#~ "Контроль автоматического создания Оглавления. Если OPF файл определяет\n"
+#~ "и детализирует Оглавление, то он будет использовать скорее его, вместо\n"
+#~ "автоматического создания Оглавления.\n"
+
+#~ msgid "You must specify an input HTML file"
+#~ msgstr "Вы должны задать исходный файл HTML"
+
+#~ msgid "Set metadata of the generated ebook"
+#~ msgstr "Ввести созданные метаданные электронной книги"
+
+#~ msgid ""
+#~ "Be more verbose while processing. Can be specified multiple times to "
+#~ "increase verbosity."
+#~ msgstr ""
+#~ "Добавить больше детализации во время обработки. Может быть  определено путем "
+#~ "увеличения времени повышения детализации."
+
+#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
+#~ msgstr ""
+#~ "Удобочитаемый формат извлекаемой разметки. Возможно модифицировать пробелами "
+#~ "имеющими смысл."
+
+#~ msgid ""
+#~ "Set the author(s). Multiple authors should be set as a comma separated list. "
+#~ "Default: %default"
+#~ msgstr ""
+#~ "Введите автора(ов). Несколько авторов могут быть указаны в списке "
+#~ "разделенным запятыми. По умолчанию: %default"
+
+#~ msgid "Set the comment."
+#~ msgstr "Введите комментарий."
+
+#~ msgid "Set the category"
+#~ msgstr "Введите жанр"
+
+#~ msgid "Set the title. Default: filename."
+#~ msgstr "Введите заголовок. По умолчанию: имя файла."
+
+#~ msgid "Output file name. Default is derived from input filename"
+#~ msgstr ""
+#~ "Выходное имя файла. По умолчанию будет образовано из имени исходного файла"
+
+#~ msgid "Don't add links to the table of contents."
+#~ msgstr "Не добавлять ссылки в содержание."
+
+#~ msgid ""
+#~ "Minimize memory usage at the cost of longer processing times. Use this "
+#~ "option if you are on a memory constrained machine."
+#~ msgstr ""
+#~ "Уменьшить использование памяти, увеличив время обработки. Используйте эту "
+#~ "опцию, если на компьютере ограничена память."
+
+#~ msgid ""
+#~ "Be verbose, useful for debugging. Can be specified multiple times for "
+#~ "greater verbosity."
+#~ msgstr ""
+#~ "Детализация, используемая для отладки. Может быть установлено многократное "
+#~ "время для лучшей детализации."
+
+#~ msgid "Options to control the behavior of feeds2disk"
+#~ msgstr "Опции управления изменениями feeds2disk"
+
+#~ msgid "Options to control the behavior of html2lrf"
+#~ msgstr "Опции управления изменениями html2lrf"
+
+#~ msgid ""
+#~ "Path to output directory in which to create the HTML file. Defaults to "
+#~ "current directory."
+#~ msgstr ""
+#~ "Путь директории результата, где создается HTML. По умолчанию, текущая "
+#~ "директория."
+
+#~ msgid "The output directory. Defaults to the current directory."
+#~ msgstr "Директория результата. По умолчанию, текущая директория."
+
+#~ msgid "This book has no available formats"
+#~ msgstr "Формат книги не доступен"
+
+#~ msgid "The expression %s is invalid. Error: %s"
+#~ msgstr "Выражение %s неверное. Ошибка: %s"
+
+#~ msgid "Invalid XPath expression"
+#~ msgstr "Неверное выражение XPath"
+
+#~ msgid "Convert to EPUB"
+#~ msgstr "Преобразовать в EPUB"
+
+#~ msgid "Cannot convert %s as this book has no supported formats"
+#~ msgstr "Не могу преобразовать %s, книга неизвестного формата"
+
+#~ msgid ""
+#~ "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
+#~ "is: %default. Links are only added to the TOC if less than the --toc-"
+#~ "threshold number of chapters were detected."
+#~ msgstr ""
+#~ "Максимальное количество ссылок вставленных в TOC. Для блокировки, выставите "
+#~ "0. По умолчанию: %default. Если будет вставлено в TOC  значение ссылок "
+#~ "больше, чем --toc-threshold, то некоторое количество глав будет обнаруженно."
+
+#~ msgid "Fine tune the detection of chapter and section headings."
+#~ msgstr "Подправить определенные главы и загаловки разделов."
+
+#~ msgid "&XPath:"
+#~ msgstr "XPath:"
+
+#~ msgid "Level &1 TOC"
+#~ msgstr "Уровень &1 TOC"
+
+#~ msgid "Level &2 TOC"
+#~ msgstr "Уровень &2 TOC"
+
+#~ msgid ""
+#~ "Preprocess the file before converting to LRF. This is useful if you know "
+#~ "that the file is from a specific source. Known sources:"
+#~ msgstr ""
+#~ "Предварительная обработка файла перед преобразованием в LRF. Это "
+#~ "оиспользуется, если вы знаете из какого источника файл. Источник:"
+
+#~ msgid ""
+#~ "<li><b>pdftohtml</b> - HTML files that are the output of the program "
+#~ "pdftohtml</li>"
+#~ msgstr "<li><b>pdftohtml</b> - файл HTML fрезультат программы pdftohtml</li>"
+
+#~ msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
+#~ msgstr "<ol><li><b>baen</b> - Книга из издательства BAEN</li>"
+
+#~ msgid "Choose the format to convert into LRF"
+#~ msgstr "Выберете формат преобразования в LRF"
+
+#~ msgid "Set conversion defaults"
+#~ msgstr "Выставить параметры преобразования"
+
+#~ msgid ""
+#~ "Profile of the target device this EPUB is meant for. Set to None to create a "
+#~ "device independent EPUB. The profile is used for device specific "
+#~ "restrictions on the EPUB. Choices are: "
+#~ msgstr ""
+#~ "Профиль целевого устройства для которого предназначен этот EPUB. Установите "
+#~ "в None для создания независимого устройства EPUB. Профиль используется для "
+#~ "для установки специальных настроек устройств в EPUB. Выберете: "
+
+#~ msgid "Override &CSS"
+#~ msgstr "Перезагрузить CSS"
+
+#~ msgid "Preserve &tag structure when splitting"
+#~ msgstr "Зафиксировать структуру коментариев при разделении"
+
+#~ msgid "Automatic &Table of Contents"
+#~ msgstr "Автоматическое Оглавление"
+
+#~ msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
+#~ msgstr "<li><b>book-designer</b> - файл HTML0 из Book Designer</li>"
+
+#~ msgid ""
+#~ "Specify the page settings like margins and the screen size of the target "
+#~ "device."
+#~ msgstr ""
+#~ "Выставить настройки страницы такие, как границы текста и размер экрана "
+#~ "устройства."
+
+#~ msgid ""
+#~ "Adjust the look of the generated LRF file by specifying things like font "
+#~ "sizes and the spacing between words."
+#~ msgstr ""
+#~ "Настроить параметры просмотр созданной книги такие, как размер шрифта и "
+#~ "промежутки между словами."
+
+#~ msgid "<font color=\"gray\">No help available</font>"
+#~ msgstr "<font color=\"gray\">Справка недоступна</font>"
+
+#~ msgid "Add Ta&gs: "
+#~ msgstr "Добавить описание: "
+
+#~ msgid "Bulk convert ebooks to LRF"
+#~ msgstr "Объем преобразованой книги в LRF"
+
+#~ msgid ""
+#~ "Specify metadata such as title and author for the book.<p>Metadata will be "
+#~ "updated in the database as well as the generated LRF file."
+#~ msgstr ""
+#~ "Назначить метаданные такие, как Заглавие и Автор книги.<p>Обновление "
+#~ "метаданных в базе данных будет произведено после успешного создания файла "
+#~ "LRF."
+
+#~ msgid "Convert %s to LRF"
+#~ msgstr "Преобразовать %s в LRF"
+
+#~ msgid "Regular expression (?P<authors>)"
+#~ msgstr "Обычный параметр (?P<authors>)"
+
+#~ msgid "Set defaults for conversion of comics"
+#~ msgstr "Настройки по умолчанию для преобразования комиксов"
+
+#~ msgid "Set defaults for conversion"
+#~ msgstr "Настройки по умолчанию для преобразования"
+
+#~ msgid "Could not save some ebooks"
+#~ msgstr "Не могу сохранить некоторые книги"
+
+#~ msgid ""
+#~ "<p>An invalid database already exists at %s, delete it before trying to move "
+#~ "the existing database.<br>Error: %s"
+#~ msgstr ""
+#~ "<p>Уже используется неправильная база данных %s, удалите ее прежде, чем "
+#~ "перенести используемую. <br>Ошибка: %s"
+
+#~ msgid "Copying database"
+#~ msgstr "Копирование базы данных"
+
+#~ msgid ""
+#~ "<p>Books with the same title as the following already exist in the database. "
+#~ "Add them anyway?<ul>"
+#~ msgstr ""
+#~ "<p>Книги с таким названием уже есть в библиотеки. Всеравно добавить?<ul>"
+
+#~ msgid ""
+#~ "Choose a profile for the device you are generating this file for. The "
+#~ "default is the SONY PRS-500 with a screen size of 584x754 pixels. This is "
+#~ "suitable for any reader with the same screen size. Choices are %s"
+#~ msgstr ""
+#~ "Выбрать профайл устройства для которого вы преобразуете файл. По умолчанию "
+#~ "SONY PRS-500 имеет размер экрана 584x754 пикселей. Это соответствует многим "
+#~ "ридерам с таким же разрешением экрана. Choices are %s"
+
+#~ msgid ""
+#~ "The output EPUB file. If not specified, it is derived from the input file "
+#~ "name."
+#~ msgstr ""
+#~ "Выходной файл EPUB. Если не указано, извлекается из имени входящего файла."
+
+#~ msgid ""
+#~ "XPath expression to detect page boundaries for building a custom pagination "
+#~ "map, as used by AdobeDE. Default is not to build an explicit pagination map."
+#~ msgstr ""
+#~ "Выражение XPath для детектирования границ страниц - для построения "
+#~ "собственнойстраничной карты, как используется AdobeDE. По умаолчанию "
+#~ "страничная карта не строится."
+
+#~ msgid ""
+#~ "XPath expression to find the name of each page in the pagination map "
+#~ "relative to its boundary element. Default is to number all pages staring "
+#~ "with 1."
+#~ msgstr ""
+#~ "Выражение XPath для нахождения имени каждой страницы в страничной карте "
+#~ "относительно границ. По умолчанию для номерации всех страниц, начиная с 1."
+
+#~ msgid ""
+#~ "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
+#~ "1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
+#~ "css. Spacing removal will not work if the source file forces inter-paragraph "
+#~ "spacing."
+#~ msgstr ""
+#~ "Удалить свободное место между параграфами. Также устанавливает отступы для "
+#~ "параграфов 1.5em. Вы можете изменить это добавив p {text-indent: 0cm} к --"
+#~ "override-css. Удаление свободного места не работает, если исходный файл "
+#~ "разбит inter-paragraph порбелами."
+
+#~ msgid "Do not force text to be justified in output."
+#~ msgstr "Не выравнивать текст в выходном файле"
+
+#~ msgid ""
+#~ "Remove table markup, converting it into paragraphs. This is useful if your "
+#~ "source file uses a table to manage layout."
+#~ msgstr ""
+#~ "Убрать таблицу разметки конвертирования в параграфы. Это полезно, если Ваш "
+#~ "исходный файл использует таблицу для управления видом."
+
+#~ msgid "Print generated OPF file to stdout"
+#~ msgstr "Вывести созданный OPF файл на stdout"
+
+#~ msgid "Print generated NCX file to stdout"
+#~ msgstr "Вывести созданный NCX файл на stdout"
+
+#~ msgid "Keep intermediate files during processing by html2epub"
+#~ msgstr "Сохранять промежуточную копию файла во время обработки html2epub"
+
+#~ msgid ""
+#~ "Extract the contents of the produced EPUB file to the specified directory."
+#~ msgstr "Извлечь содержимое созданного файла EPUB в указанную дерикторию."
+
+#~ msgid ""
+#~ "%%prog [options] filename\n"
+#~ "\n"
+#~ "Convert any of a large number of ebook formats to a %s file. Supported "
+#~ "formats are: %s\n"
+#~ msgstr ""
+#~ "%%prog [options] имя файла\n"
+#~ "\n"
+#~ "Конвертировать любое большое количество ebook форматов в файл %s. "
+#~ "Поддерживаются форматы: %s\n"
+
+#~ msgid "The author(s) of the ebook, as a & separated list."
+#~ msgstr "Авторы книги, раздельный список."
+
+#~ msgid "Add extra spacing below the header. Default is %default px."
+#~ msgstr "Добавлять пустое место после заголовка. По умолчанию %default px."
+
+#~ msgid ""
+#~ "Specify the character encoding of the source file. If the output LRF file "
+#~ "contains strange characters, try changing this option. A common encoding for "
+#~ "files from windows computers is cp-1252. Another common choice is utf-8. The "
+#~ "default is to try and guess the encoding."
+#~ msgstr ""
+#~ "Укажите кодировку исходного файла. Если выходной файл LRF содержит \n"
+#~ "непонятные символы, то попробуйте изменить эту опцию. Распространенная \n"
+#~ "кодировка для файлов на компьютерах с windows — cp-1251. Другой \n"
+#~ "распространенный вариант — utf-8. По умолчанию будет сделана попытка угадать "
+#~ "кодировку."
+
+#~ msgid "Print generated HTML to stdout and quit."
+#~ msgstr "Вывести сгенерированный HTML на stdout и выйти."
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.lit\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.lit to mybook.lrf"
+#~ msgstr ""
+#~ "Использовать: %prog [options] mybook.lit\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog конвертирует mybook.lit в mybook.lrf."
+
+#~ msgid ""
+#~ "Usage: %prog [options] mybook.mobi|prc\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog converts mybook.mobi to mybook.lrf"
+#~ msgstr ""
+#~ "Usage: %prog [options] mybook.mobi|prc\n"
+#~ "\n"
+#~ "\n"
+#~ "%prog конвертирует mybook.mobi в mybook.lrf"
+
+#~ msgid "Set the subject tags"
+#~ msgstr "Указать тэги темы"
+
+#~ msgid "Set the language"
+#~ msgstr "Указать язык"
+
+#~ msgid "Set the ISBN"
+#~ msgstr "Указать ISBN"
+
+#~ msgid "Creating Mobipocket file from EPUB..."
+#~ msgstr "Создание Mobipocket файла из EPUB..."
+
+#~ msgid "Raw MOBI HTML saved in"
+#~ msgstr "Сырой MOBI HTML сохранен в"
+
+#~ msgid "Options to control the conversion to MOBI"
+#~ msgstr "Опции управления конвертацией в MOBI"
+
+#~ msgid "Mobipocket-specific options."
+#~ msgstr "Mobipocket-специфические опции."
+
+#~ msgid ""
+#~ "Compress file text using PalmDOC compression. Results in smaller files, but "
+#~ "takes a long time to run."
+#~ msgstr ""
+#~ "Сжимать текст файла, используя PalmDOC компрессию. Результирующие файлы "
+#~ "меньше, но читаются дольше."
+
+#~ msgid ""
+#~ "When present, use the author sorting information for generating the "
+#~ "Mobipocket author metadata."
+#~ msgstr ""
+#~ "Если возможно, использовать информацию сортировки авторов для генерации "
+#~ "метаданных по автору для Mobipocket."
+
+#~ msgid ""
+#~ "Device renderer profiles. Affects conversion of font sizes, image rescaling "
+#~ "and rasterization of tables. Valid profiles are: %s."
+#~ msgstr ""
+#~ "Профили рендерера устройства. Воздействует на размеры шрифта, картинки и "
+#~ "растеризацию таблиц. Валидные профили: %s."
+
+#~ msgid "Source renderer profile. Default is %default."
+#~ msgstr "Профиль исходного рендерера. По умолчанию %default."
+
+#~ msgid "Destination renderer profile. Default is %default."
+#~ msgstr "Профиль выходного рендерера. По умолчанию %default."
+
+#~ msgid "Unknown source profile %r"
+#~ msgstr "Неизвестный профиль источника %r"
+
+#~ msgid "Unknown destination profile %r"
+#~ msgstr "Неизвестный выходной профиль %r"
+
+#~ msgid "Number of pixels to crop from the left most x (default is %d) "
+#~ msgstr "Количество пикселей обрезки слева по x (по умолчанию %d) "
+
+#~ msgid "Number of pixels to crop from the left most y (default is %d) "
+#~ msgstr "Количество пикселей обрезки слева по y (по умолчанию %d) "
+
+#~ msgid "Number of pixels to crop from the right most x (default is %d) "
+#~ msgstr "Количество пикселей обрезки справа по x (по умолчанию %d) "
+
+#~ msgid "Number of pixels to crop from the right most y (default is %d)"
+#~ msgstr "Количество пикселей обрезки справа по y (по умолчанию %d)"
+
+#~ msgid ""
+#~ "A file generated by ghostscript which allows each page to be individually "
+#~ "cropped [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
+#~ msgstr ""
+#~ "Файл, сгенерированный ghostscript, разрешающий каждой странице быть в "
+#~ "отдельности обрезан [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > границей] "
+
+#~ msgid ""
+#~ "\t%prog [options] file.pdf\n"
+#~ "\n"
+#~ "\tCrops a pdf. \n"
+#~ "\t"
+#~ msgstr ""
+#~ "\t%prog [options] file.pdf\n"
+#~ "\n"
+#~ "\tОбрезан в pdf. \n"
+#~ "\t"
+
+#~ msgid "Added %s to library"
+#~ msgstr "%s добавлен в библиотеку"
+
+#~ msgid "Read metadata from "
+#~ msgstr "Читать метаданные из "
+
+#~ msgid "Adding books recursively..."
+#~ msgstr "Добавить книги рекурсивно..."
+
+#~ msgid "Searching for books in all sub-directories..."
+#~ msgstr "Поиск книг во всех поддиректориях"
+
+#~ msgid "Adding books to database..."
+#~ msgstr "Добавление книг в базу данных..."
+
+#~ msgid "Reading metadata..."
+#~ msgstr "Чтение метаданных..."
+
+#~ msgid ""
+#~ "If you want to use the content server to access your ebook collection on "
+#~ "your iphone with Stanza, you will need to add the URL "
+#~ "http://myhostname:8080/stanza as a new catalog in the stanza reader on your "
+#~ "iphone. Here myhostname should be the fully qualified hostname or the IP "
+#~ "address of this computer."
+#~ msgstr ""
+#~ "Если вы хотите использовать контент-сервер для доступа к своей библиотеке "
+#~ "используя iPhone с установленной программой Stanza, вам надо добавить URL "
+#~ "вида http://myhostname:8080/stanza, как новый каталог в Stanza. Где "
+#~ "myhostname должен быть полное имя домена или IP-адрес компьютера."
+
+#~ msgid "Bulk convert to "
+#~ msgstr "Конвертировать пачку в "
+
+#~ msgid "Convert %s to "
+#~ msgstr "Конвертировать %s в "
+
+#~ msgid ""
+#~ "Specify metadata such as title and author for the book.\n"
+#~ "\n"
+#~ "Metadata will be updated in the database as well as the generated %s file."
+#~ msgstr ""
+#~ "Указать метаданные такие, как as название и автор книги.\n"
+#~ "\n"
+#~ "Метаданные будут обновлены в базе данных так же как и в сгенеренном файле %s."
+
+#~ msgid ""
+#~ "Adjust the look of the generated ebook by specifying things like font sizes."
+#~ msgstr ""
+#~ "Настроить фид генериреумой ebook указанием опция типа размера шрифта."
+
+#~ msgid "&Rescale images"
+#~ msgstr "Масштабировать картинки"
+
+#~ msgid "&Ignore tables"
+#~ msgstr "Игнорировать таблицы"
+
+#~ msgid "&Use author sort to set author field in output"
+#~ msgstr ""
+#~ "Использовать сортировку по автору для установки поля автор в выходном"
+
+#~ msgid "Remove &first image from source file"
+#~ msgstr "Удалить первую картинку из входного файла"
+
+#~ msgid "&Source profile:"
+#~ msgstr "Входной профиль:"
+
+#~ msgid "&Destination profile:"
+#~ msgstr "Выходной профиль:"
+
+#~ msgid "&Page map"
+#~ msgstr "Карта страниц"
+
+#~ msgid ""
+#~ "<p>You can control how calibre detects page boundaries using a XPath "
+#~ "expression. To learn how to use XPath expressions see the <a "
+#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+#~ "tutorial</a>. The page boundaries are useful only if you want a mapping from "
+#~ "pages in a paper book, to locations in the e-book. This controls where Adobe "
+#~ "Digital Editions displays the page numbers in the right margin.</p>"
+#~ msgstr ""
+#~ "<p>Теперь Вы можете управлять тем, как calibre определяет границы страниц "
+#~ "при помощи выражения XPath. Описание использования XPath на <a "
+#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+#~ "tutorial</a>. Границы страниц полезно определять когда Вы хотите выделить "
+#~ "страницы бумажной книги для e-book. Это управляется элементами Adobe, "
+#~ "Digital Editions с номерами страниц на правой границе.</p>"
+
+#~ msgid "&Boundary XPath:"
+#~ msgstr "XPath границ:"
+
+#~ msgid "&Name XPath:"
+#~ msgstr "Имя  XPath:"
+
+#~ msgid "Automatic &chapter detection"
+#~ msgstr "Автоматическое определение глав"
+
+#~ msgid ""
+#~ "<p>You can control how calibre detects chapters using a XPath expression. To "
+#~ "learn how to use XPath expressions see the <a "
+#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+#~ "tutorial</a></p>"
+#~ msgstr ""
+#~ "<p>Вы можете управлять как calibre находит главы при помощи XPath. Описание "
+#~ "использования XPath на <a "
+#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+#~ "tutorial</a></p>"
+
+#~ msgid "&Title for generated TOC"
+#~ msgstr "&Заголовок доя оглавления"
+
+#~ msgid "Level &3 TOC"
+#~ msgstr "Уровень 3 оглавления"
+
+#~ msgid "Adding books..."
+#~ msgstr "Добавление книг..."
+
+#~ msgid "Saving to disk..."
+#~ msgstr "Сохранение на диск..."
+
+#~ msgid ""
+#~ "<p>Could not save the following books to disk, because the %s format is not "
+#~ "available for them:<ul>"
+#~ msgstr ""
+#~ "<p>Не могу сохранить книги на диск потому, что формат %s не доступен для:<ul>"
+
+#~ msgid ""
+#~ " is communicating with the device!<br>\n"
+#~ "                      'Quitting may cause corruption on the device.<br>\n"
+#~ "                      'Are you sure you want to quit?"
+#~ msgstr ""
+#~ " соединяется с устройством!<br>\n"
+#~ "                      'Выход может повредить устройство.<br>\n"
+#~ "                      'Желаете выйти?"
+
+#~ msgid "Output:"
+#~ msgstr "Вывод:"
+
+#~ msgid ""
+#~ "Set the output format that is used when converting ebooks and downloading "
+#~ "news"
+#~ msgstr ""
+#~ "Установить формат вывода который используется для конвертирования  ebooks и "
+#~ "загрузки новостей"
+
+#~ msgid "Convert book: "
+#~ msgstr "Конвертировать книгу: "
+
+#~ msgid "Convert comic: "
+#~ msgstr "Конвертировать комикс: "
+
+#~ msgid "Starting Bulk conversion of %d books"
+#~ msgstr "Старт Конвертации пачки из %d книг"
+
+#~ msgid ""
+#~ "<p>Could not convert %d of %d books, because no suitable source format was "
+#~ "found.<ul>%s</ul>"
+#~ msgstr ""
+#~ "<p>Не могу конвертировать %d из %d книг - неподходящий формат "
+#~ "источника.<ul>%s</ul>"
+
+#~ msgid ""
+#~ "Card\n"
+#~ "%s\n"
+#~ "available"
+#~ msgstr ""
+#~ "Карточка\n"
+#~ "%s\n"
+#~ "доступно"
+
+#~ msgid "Click to see the list of books available on your computer"
+#~ msgstr "Кликните чтобы посмотреть список книг на Вашем компьютере"
+
+#~ msgid "Click to see the list of books in the main memory of your reader"
+#~ msgstr "Кликните чтобы посмотреть список книг на Вашем ридере"
+
+#~ msgid "Click to see the list of books on the storage card in your reader"
+#~ msgstr "Кликните чтобы посмотреть список книг на карточке"
+
+#~ msgid "<p>Copying books to %s<br><center>"
+#~ msgstr "<p>Копирование книг в %s<br><center>"
+
+#~ msgid "Could not launch worker process."
+#~ msgstr "Не могу запустить рабочий процесс."
+
+#~ msgid "Job stopped by user"
+#~ msgstr "Задача остановлена пользователем"
+
+#~ msgid "Could not initialize the fontconfig library"
+#~ msgstr "Не могу инициалиализировать библиотеку fontconfig"
+
+#~ msgid "Options to control the fetching of periodical content from the web."
+#~ msgstr "Опции контроля доставки контента (периодика) из Инета."
+
+#~ msgid "Customize the download engine"
+#~ msgstr "Настройка механизма загрузок"
 
 #~ msgid ""
 #~ "Specify a list of feeds to download. For example: \n"
@@ -8029,803 +8819,17 @@ msgstr "подписчики"
 #~ msgstr ""
 #~ "Директория в которой хранится загружаемые данные. По умолчанию текущая."
 
-#~ msgid "Dont show the progress bar"
-#~ msgstr "Не показывать индикатор выполнения"
-
-#~ msgid "Very verbose output, useful for debugging."
-#~ msgstr "Очень подробный вывод, используется для отладки."
-
-#~ msgid ""
-#~ "\n"
-#~ "Downloaded article %s from %s\n"
-#~ "%s"
-#~ msgstr ""
-#~ "\n"
-#~ "Скачена статья %s из %s\n"
-#~ "%s"
-
-#~ msgid "Failed to download article: %s from %s\n"
-#~ msgstr "Ошибка загрузки статьи: %s из %s\n"
-
-#~ msgid "Click to see the list of books available on your computer"
-#~ msgstr "Кликните чтобы посмотреть список книг на Вашем компьютере"
-
-#~ msgid "Click to see the list of books in the main memory of your reader"
-#~ msgstr "Кликните чтобы посмотреть список книг на Вашем ридере"
-
-#~ msgid "Click to see the list of books on the storage card in your reader"
-#~ msgstr "Кликните чтобы посмотреть список книг на карточке"
-
-#~ msgid "Starting Bulk conversion of %d books"
-#~ msgstr "Старт Конвертации пачки из %d книг"
-
-#~ msgid ""
-#~ " is an image based PDF. Only conversion of text based PDFs is supported."
-#~ msgstr ""
-#~ " PDF содержит картинки. Поддерживается преобразование только текстовых PDF."
-
-#~ msgid "Don't add links to the table of contents."
-#~ msgstr "Не добавлять ссылки в содержание."
-
-#~ msgid "Add detected chapters to the table of contents."
-#~ msgstr "Добавить найденные главы в содержание."
-
-#~ msgid ""
-#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
-#~ "to %default"
-#~ msgstr ""
-#~ "Регулярное выражение. Теги <a>, чьи значения href совпадут с ним, будут "
-#~ "проигнорированы. По умолчанию: %default"
-
-#~ msgid ""
-#~ "Force a page break before tags whose names match this regular expression."
-#~ msgstr ""
-#~ "Устанавить разрывы страниц перед тегами, имена которых соответствуют этому "
-#~ "регулярному выражению."
-
-#~ msgid ""
-#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
-#~ "option obsoletes the --font-delta option and takes precedence over it. To "
-#~ "use --font-delta, set this to 0. Default: %defaultpt"
-#~ msgstr ""
-#~ "Укажите основной размер шрифта в интервалах. Все шрифты будут "
-#~ "отмасштабированы по нему. Этот параметр перекрывает опцию --font-delta и "
-#~ "имеет приоритет над ней. Для использования --font-delta, установите размер "
-#~ "шрифта 0. По умолчанию: %default интервал(ов)"
-
-#~ msgid ""
-#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
-#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
-#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
-#~ "    "
-#~ msgstr ""
-#~ "Укажите наборы trutype-шрифтов для групп \"serif\", \"sans-serif\" и "
-#~ "\"monospace\". Эти шрифты будут включены в файл LRF. Учтите, что "
-#~ "использование своих шрифтов приведет к уменьшению скорости переворачивания "
-#~ "страниц. Пример: --serif-family \"Times New Roman\"\n"
-#~ "    "
-
-#~ msgid "Could not initialize the fontconfig library"
-#~ msgstr "Не могу инициалиализировать библиотеку fontconfig"
-
-#~ msgid "Prevent the automatic detection chapters."
-#~ msgstr "Отключить автоматическое определение глав."
-
-#~ msgid "Could not launch worker process."
-#~ msgstr "Не могу запустить рабочий процесс."
-
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "Не подключена карта памяти."
-
-#~ msgid "Format for &single file save:"
-#~ msgstr "Формат для единственного сохраненного файла:"
-
-#~ msgid ""
-#~ "<p>Could not save the following books to disk, because the %s format is not "
-#~ "available for them:<ul>"
-#~ msgstr ""
-#~ "<p>Не могу сохранить книги на диск потому, что формат %s не доступен для:<ul>"
-
-#~ msgid "Could not save some ebooks"
-#~ msgstr "Не могу сохранить некоторые книги"
-
-#~ msgid "Keep generated HTML files after completing conversion to LRF."
-#~ msgstr "Сохранить созданный файл HTML после выполнения преобразования в LRF."
-
-#~ msgid "%prog [options] LITFILE"
-#~ msgstr "%prog [options] LITFILE"
-
-#~ msgid "Title for generated ebook. Default is to use the filename."
-#~ msgstr "Заголовок для созданной книги. По умолчанию используется имя файла."
-
-#~ msgid ""
-#~ "Set the author in the metadata of the generated ebook. Default is %default"
-#~ msgstr ""
-#~ "Ввести автора в метаданные создаваемые электронной книгой. По умолчанию "
-#~ "%default"
-
-#~ msgid "Don't show progress bar."
-#~ msgstr "Не показывать строку состояния."
-
-#~ msgid "Rendering comic pages..."
-#~ msgstr "Отображаются страницы комиксов..."
-
-#~ msgid "A comma separated list of tags to set"
-#~ msgstr "Запятая разделяет список установленных тэгов"
-
-#~ msgid ""
-#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
-#~ msgstr ""
-#~ "Опции контроля преобразования файлов комиксов (CBR, CBZ) в электронную книгу"
-
-#~ msgid ""
-#~ "Be verbose, useful for debugging. Can be specified multiple times for "
-#~ "greater verbosity."
-#~ msgstr ""
-#~ "Детализация, используемая для отладки. Может быть установлено многократное "
-#~ "время для лучшей детализации."
-
-#~ msgid "Output written to"
-#~ msgstr "Результат записывается в"
-
-#~ msgid "Set defaults for conversion of comics"
-#~ msgstr "Настройки по умолчанию для преобразования комиксов"
-
-#~ msgid ""
-#~ "<p>Could not convert %d of %d books, because no suitable source format was "
-#~ "found.<ul>%s</ul>"
-#~ msgstr ""
-#~ "<p>Не могу конвертировать %d из %d книг - неподходящий формат "
-#~ "источника.<ul>%s</ul>"
-
-#~ msgid "Convert book: "
-#~ msgstr "Конвертировать книгу: "
-
-#~ msgid "Convert comic: "
-#~ msgstr "Конвертировать комикс: "
-
-#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
-#~ msgstr ""
-#~ "Удобочитаемый формат извлекаемой разметки. Возможно модифицировать пробелами "
-#~ "имеющими смысл."
-
-#~ msgid "The format to use when saving single files to disk"
-#~ msgstr "Формат используется, когда сохраняется единственный файл на диск"
-
-#~ msgid "Copying library to "
-#~ msgstr "Копирование библиотеки в "
-
-#~ msgid "Job stopped by user"
-#~ msgstr "Задача остановлена пользователем"
-
-#~ msgid "Options to control the conversion to EPUB"
-#~ msgstr "Варианты контроля преобразования в EPUB"
-
-#~ msgid ""
-#~ "The output EPUB file. If not specified, it is derived from the input file "
-#~ "name."
-#~ msgstr ""
-#~ "Выходной файл EPUB. Если не указано, извлекается из имени входящего файла."
-
-#~ msgid "You must specify an input HTML file"
-#~ msgstr "Вы должны задать исходный файл HTML"
-
-#~ msgid "Written processed HTML to "
-#~ msgstr "Записывается обработанный HTML в "
-
-#~ msgid "Options to control the traversal of HTML"
-#~ msgstr "Опции контроля просмотра HTML"
-
-#~ msgid "The output directory. Default is the current directory."
-#~ msgstr "Выходная дериктория. По умолчанию текущая дериктория."
-
-#~ msgid "Character encoding for HTML files. Default is to auto detect."
-#~ msgstr "Кодировка файла HTML. По умолчанию автоопределение."
-
-#~ msgid ""
-#~ "Create the output in a zip file. If this option is specified, the --output "
-#~ "should be the name of a file not a directory."
-#~ msgstr ""
-#~ "Создание выходного zip файла. Если используется эта опция, то  --output имя "
-#~ "файла должно быть отличным от дериктории."
-
-#~ msgid "Control the following of links in HTML files."
-#~ msgstr "Контроль следования по ссылкам в файле HTML."
-
-#~ msgid ""
-#~ "Traverse links in HTML files breadth first. Normally, they are traversed "
-#~ "depth first"
-#~ msgstr ""
-#~ "Маршрут включенный в HTML проходится в ширину. Обычно, это проходится "
-#~ "преимущественно в глубину"
-
-#~ msgid ""
-#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
-#~ "negative. 0 implies that no links in the root HTML file are followed."
-#~ msgstr ""
-#~ "Максимальный уровень рекурсии, если следовать по ссылкам в файле HTML. "
-#~ "Должно быть не отрицательным. 0 подразумевает нет ссылок для следования в "
-#~ "корневом файле HTML."
-
-#~ msgid "Set metadata of the generated ebook"
-#~ msgstr "Ввести созданные метаданные электронной книги"
-
-#~ msgid "Set the title. Default is to autodetect."
-#~ msgstr "Ввести заголовок. По умолчанию автоопределение."
-
-#~ msgid "Options useful for debugging"
-#~ msgstr "Опции используемые для отладки"
-
-#~ msgid ""
-#~ "Be more verbose while processing. Can be specified multiple times to "
-#~ "increase verbosity."
-#~ msgstr ""
-#~ "Добавить больше детализации во время обработки. Может быть  определено путем "
-#~ "увеличения времени повышения детализации."
-
-#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-#~ msgstr ""
-#~ "Выходной HTML \"структурная распечатка\" для простого человеческого анализа"
-
-#~ msgid ""
-#~ "Control the automatic generation of a Table of Contents. If an OPF file is "
-#~ "detected\n"
-#~ "and it specifies a Table of Contents, then that will be used rather than "
-#~ "trying\n"
-#~ "to auto-generate a Table of Contents.\n"
-#~ msgstr ""
-#~ "Контроль автоматического создания Оглавления. Если OPF файл определяет\n"
-#~ "и детализирует Оглавление, то он будет использовать скорее его, вместо\n"
-#~ "автоматического создания Оглавления.\n"
-
-#~ msgid "Usage: imp-meta file.imp"
-#~ msgstr "Обращение: imp-meta file.imp"
-
-#~ msgid "Usage: rb-meta file.rb"
-#~ msgstr "Загрузка: rb-meta file.rb"
-
-#~ msgid ""
-#~ "Profile of the target device this EPUB is meant for. Set to None to create a "
-#~ "device independent EPUB. The profile is used for device specific "
-#~ "restrictions on the EPUB. Choices are: "
-#~ msgstr ""
-#~ "Профиль целевого устройства для которого предназначен этот EPUB. Установите "
-#~ "в None для создания независимого устройства EPUB. Профиль используется для "
-#~ "для установки специальных настроек устройств в EPUB. Выберете: "
-
-#~ msgid ""
-#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
-#~ "existing CSS declarations in the source files."
-#~ msgstr ""
-#~ "Другой путь к таблице стилей CSS  или непосредственно CSS. Этот CSS будет "
-#~ "заменять любые CSS имеющиеся в исходном файле."
-
-#~ msgid ""
-#~ "An XPath expression to detect chapter titles. The default is to consider "
-#~ "<h1> or\n"
-#~ "<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
-#~ "\"part\" as chapter titles as \n"
-#~ "well as any tags that have class=\"chapter\". \n"
-#~ "The expression used must evaluate to a list of elements. To disable chapter "
-#~ "detection,\n"
-#~ "use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
-#~ "for further\n"
-#~ "help on using this feature.\n"
-#~ msgstr ""
-#~ "Выражение XPath определяет название глав. По умолчанию учитываются\n"
-#~ "тэги названия глав <h1> или <h2>, которые содержат слова  \n"
-#~ "\"chapter\",\"book\",\"section\" или \"part\", так же как и другие тэги "
-#~ "имеющие  class=\"chapter\".\n"
-#~ "Использование данного выражения должно определить список элементов. Для "
-#~ "блокирования \n"
-#~ "определения глав, используйте выражение \"/\". В дальнейшем смотрите  "
-#~ "учебник XPath \n"
-#~ "в Инструкции Пользователя calibre для использования данного элемента.\n"
-
-#~ msgid "Path to the cover to be used for this book"
-#~ msgstr "Путь к обложке используемой для этой книги"
-
-#~ msgid ""
-#~ "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
-#~ "is: %default. Links are only added to the TOC if less than the --toc-"
-#~ "threshold number of chapters were detected."
-#~ msgstr ""
-#~ "Максимальное количество ссылок вставленных в TOC. Для блокировки, выставите "
-#~ "0. По умолчанию: %default. Если будет вставлено в TOC  значение ссылок "
-#~ "больше, чем --toc-threshold, то некоторое количество глав будет обнаруженно."
-
-#~ msgid "Control page layout"
-#~ msgstr "Управление структурой страницы"
-
-#~ msgid "Set the top margin in pts. Default is %default"
-#~ msgstr "Установить верхнюю границу в точках. По умолчанию %default"
-
-#~ msgid "Set the bottom margin in pts. Default is %default"
-#~ msgstr "Установить нижнюю границу в точках. По умолчанию %default"
-
-#~ msgid "Set the left margin in pts. Default is %default"
-#~ msgstr "Установить левую границу в точках. По умолчанию %default"
-
-#~ msgid "Set the right margin in pts. Default is %default"
-#~ msgstr "Установить правую границу в точках. По умолчанию %default"
-
-#~ msgid "Print generated OPF file to stdout"
-#~ msgstr "Вывести созданный OPF файл на stdout"
-
-#~ msgid "Print generated NCX file to stdout"
-#~ msgstr "Вывести созданный NCX файл на stdout"
-
-#~ msgid "Keep intermediate files during processing by html2epub"
-#~ msgstr "Сохранять промежуточную копию файла во время обработки html2epub"
-
-#~ msgid ""
-#~ "Extract the contents of the produced EPUB file to the specified directory."
-#~ msgstr "Извлечь содержимое созданного файла EPUB в указанную дерикторию."
-
-#~ msgid ""
-#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
-#~ "cause incorrect rendering."
-#~ msgstr ""
-#~ "\t\tОчень много закладок. Переразбейте безструктурное сохранение. Это может "
-#~ "быть причиной некорректного выполнения."
-
-#~ msgid "Load metadata from the specified OPF file"
-#~ msgstr "Загрузить метаданные из подробного OPF файла."
-
-#~ msgid ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "Convert a comic in a CBZ or CBR file to an ebook. \n"
-#~ msgstr ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "Преобразование комиксов из файлов CBZ или CBR в электронную книгу. \n"
-
-#~ msgid ""
-#~ "This RTF file has a feature calibre does not support. Convert it to HTML and "
-#~ "then convert it."
-#~ msgstr ""
-#~ "Этот файл RTF не поддерживается calibre. Преобразуйте его в  HTML и "
-#~ "попробуйте снова."
-
-#~ msgid "Specify the page layout settings like margins."
-#~ msgstr "Установить настройки формата страницы с полями."
-
-#~ msgid "This book has no available formats"
-#~ msgstr "Формат книги не доступен"
-
-#~ msgid "Convert to EPUB"
-#~ msgstr "Преобразовать в EPUB"
-
-#~ msgid "Override &CSS"
-#~ msgstr "Перезагрузить CSS"
-
-#~ msgid "Automatic &chapter detection"
-#~ msgstr "Автоматическое определение глав"
-
-#~ msgid "&XPath:"
-#~ msgstr "XPath:"
-
-#~ msgid "Automatic &Table of Contents"
-#~ msgstr "Автоматическое Оглавление"
-
-#~ msgid "Set defaults for conversion"
-#~ msgstr "Настройки по умолчанию для преобразования"
-
-#~ msgid "Copying database"
-#~ msgstr "Копирование базы данных"
-
-#~ msgid "<p>Copying books to %s<br><center>"
-#~ msgstr "<p>Копирование книг в %s<br><center>"
-
-#~ msgid "Options to control the fetching of periodical content from the web."
-#~ msgstr "Опции контроля доставки контента (периодика) из Инета."
-
-#~ msgid "Customize the download engine"
-#~ msgstr "Настройка механизма загрузок"
-
-#~ msgid "Don't show the progress bar"
-#~ msgstr "Не показывать индикатор выполнения"
-
-#~ msgid ""
-#~ "Path to a .ncx file that contains the table of contents to use for this "
-#~ "ebook. The NCX file should contain links relative to the directory it is "
-#~ "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
-#~ "an overview of the NCX format."
-#~ msgstr ""
-#~ "Путь к файлу .ncx который содержит оглавление используемое этой книгой. Файл "
-#~ "NCX может содержать ссылки относящиеся к директории в которой расположенны. "
-#~ "Смотри http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX описание "
-#~ "формата NCX."
-
-#~ msgid ""
-#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-#~ "rescaling of fonts."
-#~ msgstr ""
-#~ "Основной размер шрифта в точках. По умолчанию %defaultpt.\n"
-#~ " Установите 0 чтобы запретить изменение масштаба шрифта."
-
-#~ msgid "The subject(s) of this book, as a comma separated list."
-#~ msgstr "Содержание книги, список разделяется запятыми."
-
-#~ msgid "Set the publisher of this book."
-#~ msgstr "Ввести издательство этой книги."
-
-#~ msgid "A summary of this book."
-#~ msgstr "Краткое изложение этой книги."
-
-#~ msgid ""
-#~ "Failed to process comic: %s\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Ошибка процесса с комиксами: %s\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Choose a profile for the device you are generating this file for. The "
-#~ "default is the SONY PRS-500 with a screen size of 584x754 pixels. This is "
-#~ "suitable for any reader with the same screen size. Choices are %s"
-#~ msgstr ""
-#~ "Выбрать профайл устройства для которого вы преобразуете файл. По умолчанию "
-#~ "SONY PRS-500 имеет размер экрана 584x754 пикселей. Это соответствует многим "
-#~ "ридерам с таким же разрешением экрана. Choices are %s"
-
-#~ msgid "The series to which this book belongs"
-#~ msgstr "Выпуски к которым эта книга принадлежит"
-
-#~ msgid "The series index"
-#~ msgstr "Серия Index"
-
-#~ msgid "Invalid XPath expression"
-#~ msgstr "Неверное выражение XPath"
-
-#~ msgid "The expression %s is invalid. Error: %s"
-#~ msgstr "Выражение %s неверное. Ошибка: %s"
-
-#~ msgid "Level &1 TOC"
-#~ msgstr "Уровень &1 TOC"
-
-#~ msgid "Level &2 TOC"
-#~ msgstr "Уровень &2 TOC"
-
-#~ msgid "Converting from %s to LRF is not supported."
-#~ msgstr "Преобразование из %s в LRF не поддерживается."
-
-#~ msgid "The book language"
-#~ msgstr "Язык книги"
-
-#~ msgid "The output directory. Defaults to the current directory."
-#~ msgstr "Директория результата. По умолчанию, текущая директория."
-
-#~ msgid ""
-#~ "Preserve the HTML tag structure while splitting large HTML files. This is "
-#~ "only neccessary if the HTML files contain CSS that uses sibling selectors. "
-#~ "Enabling this greatly slows down processing of large HTML files."
-#~ msgstr ""
-#~ "Сохраняет структуру HTML тегов в процессе разделения больших HTML файлов. "
-#~ "Это необходимо только если файл HTML содержит CSS, использующий "
-#~ "одноуровневые селекторы. Активизация данной настройки очень сильно замедляет "
-#~ "обработку больших HTML файлов."
-
-#~ msgid "Preserve &tag structure when splitting"
-#~ msgstr "Зафиксировать структуру коментариев при разделении"
-
-#~ msgid ""
-#~ "Detect a chapter beginning at an element having the specified attribute. The "
-#~ "format for this option is tagname regexp,attribute name,attribute value "
-#~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". You can set the "
-#~ "attribute to \"none\" to match only on tag names. So for example, to match "
-#~ "all h2 tags, you would use \"h2,none,\". Default is %default"
-#~ msgstr ""
-#~ "Определить начальную главу, как елемент имеющий специальные атрибуты. Формат "
-#~ "опции, это tagname regexp,attribute name,attribute value regexp. Для примера "
-#~ "сопоставления всех заголовков тэгов с имеющимся атрибутом class=\"chapter\" "
-#~ "используйте \"h\\d,class,chapter\". Вы можете установить атрибут \"none\" "
-#~ "сопоставив только на имя тэга. Так для примера, сопоставить все теги h2 вы "
-#~ "можете как \"h2,none,\". По умолчанию %default"
-
-#~ msgid "Extract the cover"
-#~ msgstr "Извлечь обложку"
-
-#~ msgid "Regular expression (?P<authors>)"
-#~ msgstr "Обычный параметр (?P<authors>)"
-
-#~ msgid "Set the dc:language field"
-#~ msgstr "Ввести поле dc:language"
-
-#~ msgid ""
-#~ "If you want to use the content server to access your ebook collection on "
-#~ "your iphone with Stanza, you will need to add the URL "
-#~ "http://myhostname:8080/stanza as a new catalog in the stanza reader on your "
-#~ "iphone. Here myhostname should be the fully qualified hostname or the IP "
-#~ "address of this computer."
-#~ msgstr ""
-#~ "Если вы хотите использовать контент-сервер для доступа к своей библиотеке "
-#~ "используя iPhone с установленной программой Stanza, вам надо добавить URL "
-#~ "вида http://myhostname:8080/stanza, как новый каталог в Stanza. Где "
-#~ "myhostname должен быть полное имя домена или IP-адрес компьютера."
-
-#~ msgid ""
-#~ "Card\n"
-#~ "%s\n"
-#~ "available"
-#~ msgstr ""
-#~ "Карточка\n"
-#~ "%s\n"
-#~ "доступно"
-
-#~ msgid ""
-#~ "%%prog [options] filename\n"
-#~ "\n"
-#~ "Convert any of a large number of ebook formats to a %s file. Supported "
-#~ "formats are: %s\n"
-#~ msgstr ""
-#~ "%%prog [options] имя файла\n"
-#~ "\n"
-#~ "Конвертировать любое большое количество ebook форматов в файл %s. "
-#~ "Поддерживаются форматы: %s\n"
-
 #~ msgid "Output written to "
 #~ msgstr "вывод записан на "
 
 #~ msgid "%prog [options] OPFFILE"
 #~ msgstr "%prog [options] OPFFILE"
 
-#~ msgid "Output:"
-#~ msgstr "Вывод:"
-
-#~ msgid "Adding books recursively..."
-#~ msgstr "Добавить книги рекурсивно..."
-
-#~ msgid "Reading metadata..."
-#~ msgstr "Чтение метаданных..."
-
-#~ msgid "Adding books..."
-#~ msgstr "Добавление книг..."
-
-#~ msgid "Read metadata from "
-#~ msgstr "Читать метаданные из "
-
-#~ msgid "Adding books to database..."
-#~ msgstr "Добавление книг в базу данных..."
-
-#~ msgid "Add extra spacing below the header. Default is %default px."
-#~ msgstr "Добавлять пустое место после заголовка. По умолчанию %default px."
-
-#~ msgid "Number of pixels to crop from the left most x (default is %d) "
-#~ msgstr "Количество пикселей обрезки слева по x (по умолчанию %d) "
-
-#~ msgid "Number of pixels to crop from the left most y (default is %d) "
-#~ msgstr "Количество пикселей обрезки слева по y (по умолчанию %d) "
-
-#~ msgid "Number of pixels to crop from the right most x (default is %d) "
-#~ msgstr "Количество пикселей обрезки справа по x (по умолчанию %d) "
-
-#~ msgid "Number of pixels to crop from the right most y (default is %d)"
-#~ msgstr "Количество пикселей обрезки справа по y (по умолчанию %d)"
-
-#~ msgid ""
-#~ " is communicating with the device!<br>\n"
-#~ "                      'Quitting may cause corruption on the device.<br>\n"
-#~ "                      'Are you sure you want to quit?"
-#~ msgstr ""
-#~ " соединяется с устройством!<br>\n"
-#~ "                      'Выход может повредить устройство.<br>\n"
-#~ "                      'Желаете выйти?"
-
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
-#~ msgstr ""
-#~ "Файл, сгенерированный ghostscript, разрешающий каждой странице быть в "
-#~ "отдельности обрезан [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > границей] "
-
-#~ msgid ""
-#~ "\t%prog [options] file.pdf\n"
-#~ "\n"
-#~ "\tCrops a pdf. \n"
-#~ "\t"
-#~ msgstr ""
-#~ "\t%prog [options] file.pdf\n"
-#~ "\n"
-#~ "\tОбрезан в pdf. \n"
-#~ "\t"
-
-#~ msgid "Creating Mobipocket file from EPUB..."
-#~ msgstr "Создание Mobipocket файла из EPUB..."
-
-#~ msgid "Mobipocket-specific options."
-#~ msgstr "Mobipocket-специфические опции."
-
-#~ msgid ""
-#~ "Compress file text using PalmDOC compression. Results in smaller files, but "
-#~ "takes a long time to run."
-#~ msgstr ""
-#~ "Сжимать текст файла, используя PalmDOC компрессию. Результирующие файлы "
-#~ "меньше, но читаются дольше."
-
-#~ msgid "Unknown source profile %r"
-#~ msgstr "Неизвестный профиль источника %r"
-
-#~ msgid "Unknown destination profile %r"
-#~ msgstr "Неизвестный выходной профиль %r"
-
-#~ msgid "Saving to disk..."
-#~ msgstr "Сохранение на диск..."
-
-#~ msgid "Options to control the conversion to MOBI"
-#~ msgstr "Опции управления конвертацией в MOBI"
-
-#~ msgid ""
-#~ "Device renderer profiles. Affects conversion of font sizes, image rescaling "
-#~ "and rasterization of tables. Valid profiles are: %s."
-#~ msgstr ""
-#~ "Профили рендерера устройства. Воздействует на размеры шрифта, картинки и "
-#~ "растеризацию таблиц. Валидные профили: %s."
-
-#~ msgid "Source renderer profile. Default is %default."
-#~ msgstr "Профиль исходного рендерера. По умолчанию %default."
-
-#~ msgid "Destination renderer profile. Default is %default."
-#~ msgstr "Профиль выходного рендерера. По умолчанию %default."
-
 #~ msgid "[options]"
 #~ msgstr "[options]"
 
-#~ msgid "Bulk convert to "
-#~ msgstr "Конвертировать пачку в "
-
-#~ msgid "Convert %s to "
-#~ msgstr "Конвертировать %s в "
-
-#~ msgid ""
-#~ "Specify metadata such as title and author for the book.\n"
-#~ "\n"
-#~ "Metadata will be updated in the database as well as the generated %s file."
-#~ msgstr ""
-#~ "Указать метаданные такие, как as название и автор книги.\n"
-#~ "\n"
-#~ "Метаданные будут обновлены в базе данных так же как и в сгенеренном файле %s."
-
-#~ msgid ""
-#~ "Adjust the look of the generated ebook by specifying things like font sizes."
-#~ msgstr ""
-#~ "Настроить фид генериреумой ebook указанием опция типа размера шрифта."
-
 #~ msgid "Choose the format to convert to "
 #~ msgstr "Использовать формат для конвертирования "
-
-#~ msgid "&Rescale images"
-#~ msgstr "Масштабировать картинки"
-
-#~ msgid "&Source profile:"
-#~ msgstr "Входной профиль:"
-
-#~ msgid "&Destination profile:"
-#~ msgstr "Выходной профиль:"
-
-#~ msgid "&Title for generated TOC"
-#~ msgstr "&Заголовок доя оглавления"
-
-#~ msgid ""
-#~ "Set the output format that is used when converting ebooks and downloading "
-#~ "news"
-#~ msgstr ""
-#~ "Установить формат вывода который используется для конвертирования  ebooks и "
-#~ "загрузки новостей"
-
-#~ msgid "Set the subject tags"
-#~ msgstr "Указать тэги темы"
-
-#~ msgid "Set the language"
-#~ msgstr "Указать язык"
-
-#~ msgid "Set the ISBN"
-#~ msgstr "Указать ISBN"
-
-#~ msgid ""
-#~ "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
-#~ "1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
-#~ "css. Spacing removal will not work if the source file forces inter-paragraph "
-#~ "spacing."
-#~ msgstr ""
-#~ "Удалить свободное место между параграфами. Также устанавливает отступы для "
-#~ "параграфов 1.5em. Вы можете изменить это добавив p {text-indent: 0cm} к --"
-#~ "override-css. Удаление свободного места не работает, если исходный файл "
-#~ "разбит inter-paragraph порбелами."
-
-#~ msgid "Do not force text to be justified in output."
-#~ msgstr "Не выравнивать текст в выходном файле"
-
-#~ msgid ""
-#~ "Remove table markup, converting it into paragraphs. This is useful if your "
-#~ "source file uses a table to manage layout."
-#~ msgstr ""
-#~ "Убрать таблицу разметки конвертирования в параграфы. Это полезно, если Ваш "
-#~ "исходный файл использует таблицу для управления видом."
-
-#~ msgid "The author(s) of the ebook, as a & separated list."
-#~ msgstr "Авторы книги, раздельный список."
-
-#~ msgid ""
-#~ "When present, use the author sorting information for generating the "
-#~ "Mobipocket author metadata."
-#~ msgstr ""
-#~ "Если возможно, использовать информацию сортировки авторов для генерации "
-#~ "метаданных по автору для Mobipocket."
-
-#~ msgid "&Ignore tables"
-#~ msgstr "Игнорировать таблицы"
-
-#~ msgid "&Use author sort to set author field in output"
-#~ msgstr ""
-#~ "Использовать сортировку по автору для установки поля автор в выходном"
-
-#~ msgid ""
-#~ "<p>You can control how calibre detects chapters using a XPath expression. To "
-#~ "learn how to use XPath expressions see the <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a></p>"
-#~ msgstr ""
-#~ "<p>Вы можете управлять как calibre находит главы при помощи XPath. Описание "
-#~ "использования XPath на <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a></p>"
-
-#~ msgid "Level &3 TOC"
-#~ msgstr "Уровень 3 оглавления"
-
-#~ msgid ""
-#~ "XPath expression to detect page boundaries for building a custom pagination "
-#~ "map, as used by AdobeDE. Default is not to build an explicit pagination map."
-#~ msgstr ""
-#~ "Выражение XPath для детектирования границ страниц - для построения "
-#~ "собственнойстраничной карты, как используется AdobeDE. По умаолчанию "
-#~ "страничная карта не строится."
-
-#~ msgid ""
-#~ "XPath expression to find the name of each page in the pagination map "
-#~ "relative to its boundary element. Default is to number all pages staring "
-#~ "with 1."
-#~ msgstr ""
-#~ "Выражение XPath для нахождения имени каждой страницы в страничной карте "
-#~ "относительно границ. По умолчанию для номерации всех страниц, начиная с 1."
-
-#~ msgid "&Page map"
-#~ msgstr "Карта страниц"
-
-#~ msgid ""
-#~ "<p>You can control how calibre detects page boundaries using a XPath "
-#~ "expression. To learn how to use XPath expressions see the <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a>. The page boundaries are useful only if you want a mapping from "
-#~ "pages in a paper book, to locations in the e-book. This controls where Adobe "
-#~ "Digital Editions displays the page numbers in the right margin.</p>"
-#~ msgstr ""
-#~ "<p>Теперь Вы можете управлять тем, как calibre определяет границы страниц "
-#~ "при помощи выражения XPath. Описание использования XPath на <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a>. Границы страниц полезно определять когда Вы хотите выделить "
-#~ "страницы бумажной книги для e-book. Это управляется элементами Adobe, "
-#~ "Digital Editions с номерами страниц на правой границе.</p>"
-
-#~ msgid "&Boundary XPath:"
-#~ msgstr "XPath границ:"
-
-#~ msgid "&Name XPath:"
-#~ msgstr "Имя  XPath:"
-
-#~ msgid "Remove &first image from source file"
-#~ msgstr "Удалить первую картинку из входного файла"
-
-#~ msgid "Added %s to library"
-#~ msgstr "%s добавлен в библиотеку"
-
-#~ msgid "Searching for books in all sub-directories..."
-#~ msgstr "Поиск книг во всех поддиректориях"
 
 #~ msgid "No preprocessing"
 #~ msgstr "Не предобрабатывать"
@@ -8842,3 +8846,13 @@ msgstr "подписчики"
 
 #~ msgid "Select database location"
 #~ msgstr "Выберите расположение базы данных"
+
+#~ msgid ""
+#~ "Preserve the HTML tag structure while splitting large HTML files. This is "
+#~ "only neccessary if the HTML files contain CSS that uses sibling selectors. "
+#~ "Enabling this greatly slows down processing of large HTML files."
+#~ msgstr ""
+#~ "Сохраняет структуру HTML тегов в процессе разделения больших HTML файлов. "
+#~ "Это необходимо только если файл HTML содержит CSS, использующий "
+#~ "одноуровневые селекторы. Активизация данной настройки очень сильно замедляет "
+#~ "обработку больших HTML файлов."

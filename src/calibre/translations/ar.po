@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-07-19 18:45+0000\n"
+"POT-Creation-Date: 2009-07-25 02:01+0000\n"
 "PO-Revision-Date: 2009-06-10 20:37+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-07-21 16:48+0000\n"
+"X-Launchpad-Export-Date: 2009-07-26 20:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -35,6 +35,8 @@ msgstr "لا يفعل شيءً"
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:52
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:317
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1895
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:225
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:256
@@ -65,14 +67,14 @@ msgstr "لا يفعل شيءً"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:857
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:862
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:900
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:136
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:866
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:871
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:909
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:84
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:101
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:104
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
@@ -109,7 +111,7 @@ msgstr "لا يفعل شيءً"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
@@ -128,10 +130,10 @@ msgstr "لا يفعل شيءً"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1430
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1514
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1599
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1622
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1673
-#: /home/kovid/work/calibre/src/calibre/library/server.py:294
-#: /home/kovid/work/calibre/src/calibre/library/server.py:355
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1621
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1672
+#: /home/kovid/work/calibre/src/calibre/library/server.py:295
+#: /home/kovid/work/calibre/src/calibre/library/server.py:356
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -211,14 +213,14 @@ msgstr "ضبط ميتاداتا من ملفات %s"
 msgid "Conversion Input"
 msgstr "دخل التحويل"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:122
 msgid ""
 "Save the output from the input plugin to the specified directory. Useful if "
 "you are unsure at which stage of the conversion process a bug is occurring. "
 "WARNING: This completely deletes the contents of the specified directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:127
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:131
 msgid ""
 "Specify the character encoding of the input document. If set this option "
 "will override any encoding declared by the document itself. Particularly "
@@ -226,11 +228,11 @@ msgid ""
 "encoding declarations."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:243
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:247
 msgid "Conversion Output"
 msgstr "خرج التحويل"
 
-#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:257
+#: /home/kovid/work/calibre/src/calibre/customize/conversion.py:261
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
@@ -1175,7 +1177,7 @@ msgstr "لم يتمكن من قراءة صورة الغلاف: %s"
 msgid "Cannot read from: %s"
 msgstr "لا يمكن القراءة من: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1990
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1996
 msgid "Failed to process opf file"
 msgstr "فشل في معالجة ملف opf"
 
@@ -1584,6 +1586,11 @@ msgid ""
 "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+msgid "Cover"
+msgstr "الغلاف"
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
@@ -1607,78 +1614,74 @@ msgstr ""
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:103
 msgid "All articles"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
-msgid "Cover"
-msgstr "الغلاف"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1261
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
 msgid "Title Page"
 msgstr "صقحة العنوان"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1262
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr "المحتويات"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1263
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
 msgid "Index"
 msgstr "الفهرس"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1264
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
 msgid "Glossary"
 msgstr "المسرد"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1265
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
 msgid "Acknowledgements"
 msgstr "شكر وتقدير"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1266
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
 msgid "Bibliography"
 msgstr "ببليوغرافيا"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1267
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
 msgid "Colophon"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1268
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1277
 msgid "Copyright"
 msgstr "حقوق المؤلف"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1269
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1278
 msgid "Dedication"
 msgstr "الإهداء"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1270
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1279
 msgid "Epigraph"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1271
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1280
 msgid "Foreword"
 msgstr "افتتاحية"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1272
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1281
 msgid "List of Illustrations"
 msgstr "قائمة الرسوم"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1273
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1282
 msgid "List of Tables"
 msgstr "قائمة الجداول"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1274
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1283
 msgid "Notes"
 msgstr "الملاحظات"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1275
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
 msgid "Preface"
 msgstr "افتتاحية"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1276
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1285
 msgid "Main Text"
 msgstr "النصّ الرئيسي"
 
@@ -1740,11 +1743,11 @@ msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:112
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:114
 msgid "Footnotes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:121
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:123
 msgid "Sidebar"
 msgstr ""
 
@@ -3866,8 +3869,7 @@ msgid "Meta information"
 msgstr "معلومات الميتا"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
-msgid "Author S&ort: "
+msgid "Author s&ort: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:142
@@ -3895,7 +3897,7 @@ msgid " stars"
 msgstr " نجمة"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:148
-msgid "Add Ta&gs: "
+msgid "Add ta&gs: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:150
@@ -3947,50 +3949,50 @@ msgstr ""
 msgid "The cover in the %s format is invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:402
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:405
 msgid "Downloading cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:414
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:428
 msgid "Cannot fetch cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:415
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:429
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:419
 msgid "The download timed out."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:420
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:423
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:435
 msgid "Bad cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:436
 msgid "The cover is not a valid picture"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:475
 msgid "Cannot fetch metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:476
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
 msgid "Permission denied"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 
@@ -4000,6 +4002,10 @@ msgstr "تحرير معلومات الميتا"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Swap the author and title"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:341
+msgid "Author S&ort: "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:343
@@ -6399,11 +6405,11 @@ msgstr ""
 msgid "Compacting database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:146
+#: /home/kovid/work/calibre/src/calibre/library/server.py:147
 msgid "Password to access your calibre library. Username is "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:429
+#: /home/kovid/work/calibre/src/calibre/library/server.py:430
 msgid ""
 "[options]\n"
 "\n"
@@ -6671,12 +6677,14 @@ msgstr "الإسباني"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_accountancyage.py:25
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_al_jazeera.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_azstarnet.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
@@ -6684,6 +6692,7 @@ msgstr "الإسباني"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_coding_horror.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_craigslist.py:15
@@ -6721,8 +6730,10 @@ msgstr "الإسباني"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linuxdevices.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moneynews.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
@@ -6748,14 +6759,17 @@ msgstr "الإسباني"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scott_hanselman.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slate.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_stackoverflow.py:18
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:18
@@ -6781,7 +6795,7 @@ msgstr "الإسباني"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:15
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:14
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
@@ -6839,6 +6853,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
 msgid "Portugese"
 msgstr "البرتغالي"
 
@@ -6856,10 +6871,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
 msgid "Skipping filtered article: %s"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
-msgid "Portuguese"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
@@ -7208,8 +7219,46 @@ msgstr ""
 msgid "subscribers"
 msgstr ""
 
-#~ msgid "Set the title. Default: filename."
-#~ msgstr "تحديد العنوان. الإفتراضي: اسم الملف."
+#~ msgid "A summary of this book."
+#~ msgstr "تلخيص عن هذا الكتاب."
+
+#~ msgid "Convert to LRS"
+#~ msgstr "حول إلى LRS"
+
+#~ msgid "The book language"
+#~ msgstr "لغة الكتاب"
+
+#~ msgid "Usage:"
+#~ msgstr "الاستخدام:"
+
+#~ msgid "Usage: %s file.lit"
+#~ msgstr "الاستخدام: %s file.lit"
+
+#~ msgid "[options]"
+#~ msgstr "[الخيارات]"
+
+#~ msgid "Convert %s to "
+#~ msgstr "حول %s إلى "
+
+#~ msgid "Convert book: "
+#~ msgstr "Convert book: "
+
+#~ msgid "<b>%s</b><br/><p>%s</p>"
+#~ msgstr "<b>%s</b><br/><p>%s</p>"
+
+#~ msgid "The reader has no storage card connected."
+#~ msgstr "ليس للقارئ بطاقة تخزين."
+
+#~ msgid "Options to control the conversion to EPUB"
+#~ msgstr "الخيارات للتحكّم على التحويل لتهيئة EPUB"
+
+#~ msgid ""
+#~ "The output EPUB file. If not specified, it is derived from the input file "
+#~ "name."
+#~ msgstr "خرج الملف EPUB. إذا لم يتم التحديد، سوف يستخرج من اسم ملف الدخل."
+
+#~ msgid "Path to the cover to be used for this book"
+#~ msgstr "المسار إلى الغلاف الذي سيستخدم لهذا الكتاب"
 
 #~ msgid ""
 #~ "Set the author(s). Multiple authors should be set as a comma separated list. "
@@ -7224,44 +7273,20 @@ msgstr ""
 #~ msgid "Set the category"
 #~ msgstr "تحديد التصنيف"
 
-#~ msgid "Sort key for the title"
-#~ msgstr "مفتاح الترتيب للعنوان"
-
-#~ msgid "Sort key for the author"
-#~ msgstr "مفتاح الترتيب للمؤلف"
-
 #~ msgid "Path to file containing image to be used as cover"
 #~ msgstr "المسار إلى الملف الذي يحتوي صورة الغلاف"
-
-#~ msgid ""
-#~ "If there is a cover graphic detected in the source file, use that instead of "
-#~ "the specified cover."
-#~ msgstr ""
-#~ "إذا هناك صورة غلاف متوفرة في الملف المصدر، استخدمها بدلاً من الغلاف الذي تم "
-#~ "تخصيصه."
 
 #~ msgid "Output file name. Default is derived from input filename"
 #~ msgstr "اسم ملف الخرج. الإفتراضي يستخرج من ملف الدخل"
 
-#~ msgid ""
-#~ "Render HTML tables as blocks of text instead of actual tables. This is "
-#~ "neccessary if the HTML contains very large or complex tables."
-#~ msgstr ""
-#~ "تصوير جداول HTML كقطع نصّية بدلاً من جداول حقيقية. يلزم هذا إذا الـHTML "
-#~ "يحتوي على جداول معقّدة أو كبيرة جداً."
+#~ msgid "Set the title. Default: filename."
+#~ msgstr "تحديد العنوان. الإفتراضي: اسم الملف."
 
 #~ msgid "Separate paragraphs by blank lines."
 #~ msgstr "فرّق بين الفقرات بأسطر فارغة."
 
-#~ msgid ""
-#~ "Render all content as black on white instead of the colors specified by the "
-#~ "HTML or CSS."
-#~ msgstr ""
-#~ "تصوير كل المحتويات كأسود على أبيض بدلاً من الألوان كما يوجد في الـHTML أو "
-#~ "CSS."
-
-#~ msgid "Left margin of page. Default is %default px."
-#~ msgstr "الهامش الأيسر من الصفحة. الإفتراضي هو %default px."
+#~ msgid "Bottom margin of page. Default is %default px."
+#~ msgstr "الهامش الأسفل من الصفحة. الإفتراضي هو %default px."
 
 #~ msgid "Right margin of page. Default is %default px."
 #~ msgstr "الهامش الأيمن من الصفحة. الإفتراضي هو %default px."
@@ -7269,29 +7294,31 @@ msgstr ""
 #~ msgid "Top margin of page. Default is %default px."
 #~ msgstr "الهامش الأعلى من الصفحة. الإفتراضي هو %default px."
 
-#~ msgid "Bottom margin of page. Default is %default px."
-#~ msgstr "الهامش الأسفل من الصفحة. الإفتراضي هو %default px."
+#~ msgid "Left margin of page. Default is %default px."
+#~ msgstr "الهامش الأيسر من الصفحة. الإفتراضي هو %default px."
 
-#~ msgid "Use this option on html0 files from Book Designer."
-#~ msgstr "استخدم هذا الخيار على ملفات html0 من Book Designer."
+#~ msgid "Add detected chapters to the table of contents."
+#~ msgstr "إضافة فصول مكشوفة إلى قائمة المحتويات."
 
-#~ msgid "Convert to LRS"
-#~ msgstr "حول إلى LRS"
+#~ msgid "Don't add links to the table of contents."
+#~ msgstr "لا تضف وصلات في قائمة المحتويات."
+
+#~ msgid "Prevent the automatic detection chapters."
+#~ msgstr "منع كشف آلي للفصول."
 
 #~ msgid "No file to convert specified."
 #~ msgstr "لم يتم تحديد الملف لتحويله."
 
-#~ msgid "Options to control the behavior of feeds2disk"
-#~ msgstr "الخيارات للتحكّم بسلوك feeds2disk"
-
-#~ msgid "Options to control the behavior of html2lrf"
-#~ msgstr "الخيارات للتحكّم بسلوك html2lrf"
-
 #~ msgid ""
-#~ "Path to output directory in which to create the HTML file. Defaults to "
-#~ "current directory."
+#~ "Set the author in the metadata of the generated ebook. Default is %default"
 #~ msgstr ""
-#~ "المسار إلى دليل الخرج لإنشاء ملف HTML فيه. الإفتراضي هو الدليل الحالي."
+#~ "تحديد المؤلف في ميتاداتا الكتاب الذي تم إنشاءه. الإفتراضي هو %default"
+
+#~ msgid "Title for generated ebook. Default is to use the filename."
+#~ msgstr "تم إنشاء عنوان للكتاب. الإفتراضي يؤخذ من اسم الملف."
+
+#~ msgid "Output written to"
+#~ msgstr "تم كتابة الخرج إلى"
 
 #~ msgid "You must specify a single PDF file."
 #~ msgstr "يجب أن تحدد ملف PDF واحد."
@@ -7302,44 +7329,254 @@ msgstr ""
 #~ msgid "Set the comment"
 #~ msgstr "تحديد التعليق"
 
-#~ msgid "Usage:"
-#~ msgstr "الاستخدام:"
-
-#~ msgid "Usage: %s file.lit"
-#~ msgstr "الاستخدام: %s file.lit"
-
-#~ msgid "Usage: pdf-meta file.pdf"
-#~ msgstr "الاستخدام: pdf-meta file.pdf"
+#~ msgid "Extract the cover"
+#~ msgstr "استخراج الغلاف"
 
 #~ msgid "No filename specified."
 #~ msgstr "لم يتم تحديد اسم الملف."
 
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "دليل الخرج. الإفتراضي هو الدليل الحالي."
+#~ msgid "Set the ISBN"
+#~ msgstr "تحديد الـISBN"
 
-#~ msgid "OEB ebook created in"
-#~ msgstr "تم إنشاء كتاب OEB في"
+#~ msgid "Set the subject tags"
+#~ msgstr "تحديد وسوم الموضوع"
 
-#~ msgid "Configuration"
-#~ msgstr "إعدادات"
+#~ msgid "Set the language"
+#~ msgstr "تحديد اللغة"
 
-#~ msgid "No available formats"
-#~ msgstr "لم يتوفر التهيئات"
-
-#~ msgid "Cannot convert %s as this book has no supported formats"
-#~ msgstr "لا يمكن تحويل %s لأن هذا الكتاب ليس له تهيئات مدعومة"
-
-#~ msgid "Convert %s to LRF"
-#~ msgstr "تحول %s إلى LRF"
-
-#~ msgid "Chapter Detection"
-#~ msgstr "كشف الفصول"
+#~ msgid "Added %s to library"
+#~ msgstr "تم إضافة %s إلى المكتبة"
 
 #~ msgid ""
 #~ "<p>Books with the same title as the following already exist in the database. "
 #~ "Add them anyway?<ul>"
 #~ msgstr ""
 #~ "<p>توجد كتب بنفس العنوان في قائمة البيانات. هل تريد إضافتهم بأية حال؟<ul>"
+
+#~ msgid "Configuration"
+#~ msgstr "إعدادات"
+
+#~ msgid "Chapter Detection"
+#~ msgstr "كشف الفصول"
+
+#~ msgid "Convert to EPUB"
+#~ msgstr "تحويل لـEPUB"
+
+#~ msgid "&Rescale images"
+#~ msgstr "&إعادة تحجيم الصور"
+
+#~ msgid "&Ignore tables"
+#~ msgstr "&تجاهل الجداول"
+
+#~ msgid "Convert %s to LRF"
+#~ msgstr "تحول %s إلى LRF"
+
+#~ msgid "Output:"
+#~ msgstr "خرج:"
+
+#~ msgid "Control page layout"
+#~ msgstr "تحكّم بتخطيط الصفحة"
+
+#~ msgid "Set the left margin in pts. Default is %default"
+#~ msgstr "ضبط الهامش الأيسر بنقاط. الإفتراضي هو %default"
+
+#~ msgid "Set the right margin in pts. Default is %default"
+#~ msgstr "ضبط الهامش الأيمن بنقاط. الإفتراضي هو %default"
+
+#~ msgid "Set the top margin in pts. Default is %default"
+#~ msgstr "ضبط الهامش الأعلى بنقاط. الإفتراضي هو %default"
+
+#~ msgid "Set the bottom margin in pts. Default is %default"
+#~ msgstr "ضبط الهامش الأسفل بنقاط. الإفتراضي هو %default"
+
+#~ msgid ""
+#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
+#~ "rescaling of fonts."
+#~ msgstr ""
+#~ "حجم الخطوط الأساسية بنقاط. الإفتراضي هو %defaultpt. اضبطه بـ0 كي يعطّل تحجيم "
+#~ "الخطوط."
+
+#~ msgid "Do not force text to be justified in output."
+#~ msgstr "لا تلزم النصّ بأن يكون مساوى في الخرج."
+
+#~ msgid "Output written to "
+#~ msgstr "تم كتابة الخرج في "
+
+#~ msgid "You must specify an input HTML file"
+#~ msgstr "يجب أن تخصص ملف HTML لتدخيله"
+
+#~ msgid "Written processed HTML to "
+#~ msgstr "تم كتابة الـHTML المنفّذ "
+
+#~ msgid "Set metadata of the generated ebook"
+#~ msgstr "ضبط الميتاداتا للكتاب المنشئ"
+
+#~ msgid "Set the title. Default is to autodetect."
+#~ msgstr "ضبط العنوان. الإفتراضي هو ما يكشف آلياً."
+
+#~ msgid "The subject(s) of this book, as a comma separated list."
+#~ msgstr "مواضيع الكتاب، قائمة مفرّقة بفاصلة."
+
+#~ msgid "Set the publisher of this book."
+#~ msgstr "ضبط ناشر هذا الكتاب."
+
+#~ msgid "The author(s) of the ebook, as a & separated list."
+#~ msgstr "مؤلفون الكتاب، قائمة مفرّقة بـ&."
+
+#~ msgid "OEB ebook created in"
+#~ msgstr "تم إنشاء كتاب OEB في"
+
+#~ msgid "Output directory. Defaults to current directory."
+#~ msgstr "دليل الخرج. الإفتراضي هو الدليل الحالي."
+
+#~ msgid "Use this option on html0 files from Book Designer."
+#~ msgstr "استخدم هذا الخيار على ملفات html0 من Book Designer."
+
+#~ msgid "Converting from %s to LRF is not supported."
+#~ msgstr "تحويل من %s إلى LRF غير مدعوم."
+
+#~ msgid "Don't show progress bar."
+#~ msgstr "لا تظهر شريط التقدّم."
+
+#~ msgid ""
+#~ "Failed to process comic: %s\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "فشل في تنفيذ الرسومات: %s\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
+#~ msgstr "خيارات للتحكّم بتحويل ملفات الرسومات (CBR, CBZ) إلى كتب إلكترونية."
+
+#~ msgid "Keep generated HTML files after completing conversion to LRF."
+#~ msgstr "احتفظ بملفات HTML المنشئة بعد إنتهاء من تحويل لـLRF."
+
+#~ msgid "Options to control the behavior of feeds2disk"
+#~ msgstr "الخيارات للتحكّم بسلوك feeds2disk"
+
+#~ msgid "Options to control the behavior of html2lrf"
+#~ msgstr "الخيارات للتحكّم بسلوك html2lrf"
+
+#~ msgid "Usage: pdf-meta file.pdf"
+#~ msgstr "الاستخدام: pdf-meta file.pdf"
+
+#~ msgid "The series to which this book belongs"
+#~ msgstr "السلسلة التي تحتوي الكتاب"
+
+#~ msgid "Usage: rb-meta file.rb"
+#~ msgstr "الاستخدام: rb-meta file.rb"
+
+#~ msgid "Usage: imp-meta file.imp"
+#~ msgstr "الاستخدام: imp-meta file.imp"
+
+#~ msgid "Creating Mobipocket file from EPUB..."
+#~ msgstr "إنشاء ملف Mobipocket من EPUB..."
+
+#~ msgid "The series index"
+#~ msgstr "فهرس السلسلة"
+
+#~ msgid "Read metadata from "
+#~ msgstr "إقرأ الميتاداتا من "
+
+#~ msgid "The format to use when saving single files to disk"
+#~ msgstr "التهيئة لاتسخدامها في حفظ ملفات لوحدها في القرص"
+
+#~ msgid "Reading metadata..."
+#~ msgstr "قراءة الميتاداتا..."
+
+#~ msgid "Specify the page layout settings like margins."
+#~ msgstr "تخصيص إعدادات تخطيط الصفحة مثل الهوامش."
+
+#~ msgid "Bulk convert to "
+#~ msgstr "تحويل جماعي إلى "
+
+#~ msgid "This book has no available formats"
+#~ msgstr "هذا الكتاب ليس له تهيئات متوفرة"
+
+#~ msgid "Cannot convert %s as this book has no supported formats"
+#~ msgstr "لا يمكن تحويل %s لأن هذا الكتاب ليس له تهيئات مدعومة"
+
+#~ msgid "No available formats"
+#~ msgstr "لم يتوفر التهيئات"
+
+#~ msgid "Set defaults for conversion of comics"
+#~ msgstr "ضبط الإفتراضي في تحويل الرسومات"
+
+#~ msgid "Rendering comic pages..."
+#~ msgstr "تصوير صفحات الرسومات..."
+
+#~ msgid ""
+#~ "%prog [options] comic.cb[z|r]\n"
+#~ "\n"
+#~ "Convert a comic in a CBZ or CBR file to an ebook. \n"
+#~ msgstr ""
+#~ "%prog [options] comic.cb[z|r]\n"
+#~ "\n"
+#~ "يحوّل رسومات موجودة في ملف CBR أو CBZ إلى كتاب إلكتروني. \n"
+
+#~ msgid "Convert comic: "
+#~ msgstr "تحويل رسومات: "
+
+#~ msgid ""
+#~ "Render all content as black on white instead of the colors specified by the "
+#~ "HTML or CSS."
+#~ msgstr ""
+#~ "تصوير كل المحتويات كأسود على أبيض بدلاً من الألوان كما يوجد في الـHTML أو "
+#~ "CSS."
+
+#~ msgid ""
+#~ "Render HTML tables as blocks of text instead of actual tables. This is "
+#~ "neccessary if the HTML contains very large or complex tables."
+#~ msgstr ""
+#~ "تصوير جداول HTML كقطع نصّية بدلاً من جداول حقيقية. يلزم هذا إذا الـHTML "
+#~ "يحتوي على جداول معقّدة أو كبيرة جداً."
+
+#~ msgid "Sort key for the title"
+#~ msgstr "مفتاح الترتيب للعنوان"
+
+#~ msgid "Sort key for the author"
+#~ msgstr "مفتاح الترتيب للمؤلف"
+
+#~ msgid "&Use author sort to set author field in output"
+#~ msgstr "استخدم& ترتيب المؤلف لضبط حقل المؤلف في الخرج"
+
+#~ msgid ""
+#~ "When present, use the author sorting information for generating the "
+#~ "Mobipocket author metadata."
+#~ msgstr ""
+#~ "حين يوجد، استخدم معلومات ترتيب المؤلف لإنشاء ميتاداتا المؤلف في Mobipocket."
+
+#~ msgid "Automatic &Table of Contents"
+#~ msgstr "قائمة المحتويات& المنشئة آلياً"
+
+#~ msgid "Character encoding for HTML files. Default is to auto detect."
+#~ msgstr "ترميز الحروف لملفات HTML. الإفتراضي هو للكشف الآلي."
+
+#~ msgid ""
+#~ "If there is a cover graphic detected in the source file, use that instead of "
+#~ "the specified cover."
+#~ msgstr ""
+#~ "إذا هناك صورة غلاف متوفرة في الملف المصدر، استخدمها بدلاً من الغلاف الذي تم "
+#~ "تخصيصه."
+
+#~ msgid "Automatic &chapter detection"
+#~ msgstr "كشف للفصول& آلياً"
+
+#~ msgid "A comma separated list of tags to set"
+#~ msgstr "ضبط قائمة من الوسوم المفرقة بفاصلة"
+
+#~ msgid "Remove &first image from source file"
+#~ msgstr "حذف الصورة الأو&لى من ملف المصدر"
+
+#~ msgid ""
+#~ "Remove table markup, converting it into paragraphs. This is useful if your "
+#~ "source file uses a table to manage layout."
+#~ msgstr ""
+#~ "حذف توسيم الجداول، وتحيلها إلى فقرات. هذا يفيد إذا الملف المصدر يستخدم "
+#~ "الجداول لترتيب تخطيط النصّ."
 
 #~ msgid ""
 #~ "\n"
@@ -7353,202 +7590,6 @@ msgstr ""
 #~ msgid "Failed to download article: %s from %s\n"
 #~ msgstr "فشل تنزيل المقالة: %s من %s\n"
 
-#~ msgid "Don't add links to the table of contents."
-#~ msgstr "لا تضف وصلات في قائمة المحتويات."
-
-#~ msgid "Add detected chapters to the table of contents."
-#~ msgstr "إضافة فصول مكشوفة إلى قائمة المحتويات."
-
-#~ msgid ""
-#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
-#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
-#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
-#~ "    "
-#~ msgstr ""
-#~ "حدد أسر خطوط من هيئة truetype بترويس، بدون ترويس وخطوط أحادية القياس. هذه "
-#~ "الخطوط سوف يتم ضمها في ملفات LRF. لاحظ أن الخطوط المخصصة تقلل سرعة تغيير "
-#~ "الصفحات. مثلا: --serif-family \"Times New Roman\n"
-#~ "    "
-
-#~ msgid "Prevent the automatic detection chapters."
-#~ msgstr "منع كشف آلي للفصول."
-
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "ليس للقارئ بطاقة تخزين."
-
-#~ msgid "Keep generated HTML files after completing conversion to LRF."
-#~ msgstr "احتفظ بملفات HTML المنشئة بعد إنتهاء من تحويل لـLRF."
-
-#~ msgid "Title for generated ebook. Default is to use the filename."
-#~ msgstr "تم إنشاء عنوان للكتاب. الإفتراضي يؤخذ من اسم الملف."
-
-#~ msgid ""
-#~ "Set the author in the metadata of the generated ebook. Default is %default"
-#~ msgstr ""
-#~ "تحديد المؤلف في ميتاداتا الكتاب الذي تم إنشاءه. الإفتراضي هو %default"
-
-#~ msgid "Don't show progress bar."
-#~ msgstr "لا تظهر شريط التقدّم."
-
-#~ msgid "Rendering comic pages..."
-#~ msgstr "تصوير صفحات الرسومات..."
-
-#~ msgid "A comma separated list of tags to set"
-#~ msgstr "ضبط قائمة من الوسوم المفرقة بفاصلة"
-
-#~ msgid ""
-#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
-#~ msgstr "خيارات للتحكّم بتحويل ملفات الرسومات (CBR, CBZ) إلى كتب إلكترونية."
-
-#~ msgid "Output written to"
-#~ msgstr "تم كتابة الخرج إلى"
-
-#~ msgid "Set defaults for conversion of comics"
-#~ msgstr "ضبط الإفتراضي في تحويل الرسومات"
-
-#~ msgid "Convert book: "
-#~ msgstr "Convert book: "
-
-#~ msgid "Convert comic: "
-#~ msgstr "تحويل رسومات: "
-
-#~ msgid "The format to use when saving single files to disk"
-#~ msgstr "التهيئة لاتسخدامها في حفظ ملفات لوحدها في القرص"
-
-#~ msgid "Options to control the conversion to EPUB"
-#~ msgstr "الخيارات للتحكّم على التحويل لتهيئة EPUB"
-
-#~ msgid ""
-#~ "The output EPUB file. If not specified, it is derived from the input file "
-#~ "name."
-#~ msgstr "خرج الملف EPUB. إذا لم يتم التحديد، سوف يستخرج من اسم ملف الدخل."
-
-#~ msgid "You must specify an input HTML file"
-#~ msgstr "يجب أن تخصص ملف HTML لتدخيله"
-
-#~ msgid "Written processed HTML to "
-#~ msgstr "تم كتابة الـHTML المنفّذ "
-
-#~ msgid "The output directory. Default is the current directory."
-#~ msgstr "دليل الخرج. الإفتراض هو الدليل الحالي."
-
-#~ msgid "Character encoding for HTML files. Default is to auto detect."
-#~ msgstr "ترميز الحروف لملفات HTML. الإفتراضي هو للكشف الآلي."
-
-#~ msgid "Control the following of links in HTML files."
-#~ msgstr "تحكّم بالوصلات التالية في ملفات HTML."
-
-#~ msgid "Set metadata of the generated ebook"
-#~ msgstr "ضبط الميتاداتا للكتاب المنشئ"
-
-#~ msgid "Set the title. Default is to autodetect."
-#~ msgstr "ضبط العنوان. الإفتراضي هو ما يكشف آلياً."
-
-#~ msgid "Usage: imp-meta file.imp"
-#~ msgstr "الاستخدام: imp-meta file.imp"
-
-#~ msgid "Usage: rb-meta file.rb"
-#~ msgstr "الاستخدام: rb-meta file.rb"
-
-#~ msgid "Path to the cover to be used for this book"
-#~ msgstr "المسار إلى الغلاف الذي سيستخدم لهذا الكتاب"
-
-#~ msgid "Control page layout"
-#~ msgstr "تحكّم بتخطيط الصفحة"
-
-#~ msgid "Set the top margin in pts. Default is %default"
-#~ msgstr "ضبط الهامش الأعلى بنقاط. الإفتراضي هو %default"
-
-#~ msgid "Set the bottom margin in pts. Default is %default"
-#~ msgstr "ضبط الهامش الأسفل بنقاط. الإفتراضي هو %default"
-
-#~ msgid "Set the left margin in pts. Default is %default"
-#~ msgstr "ضبط الهامش الأيسر بنقاط. الإفتراضي هو %default"
-
-#~ msgid "Set the right margin in pts. Default is %default"
-#~ msgstr "ضبط الهامش الأيمن بنقاط. الإفتراضي هو %default"
-
-#~ msgid ""
-#~ "Extract the contents of the produced EPUB file to the specified directory."
-#~ msgstr "استخراج المحتوى من ملف EPUB المنتج إلى الدليل المخصص."
-
-#~ msgid ""
-#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
-#~ "cause incorrect rendering."
-#~ msgstr ""
-#~ "\t\tيوجد هناك الكثير من التوسيم. سيتم التقسيم بدون الاحتفاظ على التخطيط. قد "
-#~ "يتسبب هذا بتصوير خاطئ."
-
-#~ msgid ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "Convert a comic in a CBZ or CBR file to an ebook. \n"
-#~ msgstr ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "يحوّل رسومات موجودة في ملف CBR أو CBZ إلى كتاب إلكتروني. \n"
-
-#~ msgid "Specify the page layout settings like margins."
-#~ msgstr "تخصيص إعدادات تخطيط الصفحة مثل الهوامش."
-
-#~ msgid "This book has no available formats"
-#~ msgstr "هذا الكتاب ليس له تهيئات متوفرة"
-
-#~ msgid "Convert to EPUB"
-#~ msgstr "تحويل لـEPUB"
-
-#~ msgid "Automatic &chapter detection"
-#~ msgstr "كشف للفصول& آلياً"
-
-#~ msgid "Automatic &Table of Contents"
-#~ msgstr "قائمة المحتويات& المنشئة آلياً"
-
-#~ msgid ""
-#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-#~ "rescaling of fonts."
-#~ msgstr ""
-#~ "حجم الخطوط الأساسية بنقاط. الإفتراضي هو %defaultpt. اضبطه بـ0 كي يعطّل تحجيم "
-#~ "الخطوط."
-
-#~ msgid "The subject(s) of this book, as a comma separated list."
-#~ msgstr "مواضيع الكتاب، قائمة مفرّقة بفاصلة."
-
-#~ msgid "Set the publisher of this book."
-#~ msgstr "ضبط ناشر هذا الكتاب."
-
-#~ msgid "A summary of this book."
-#~ msgstr "تلخيص عن هذا الكتاب."
-
-#~ msgid ""
-#~ "Failed to process comic: %s\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "فشل في تنفيذ الرسومات: %s\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid "The series to which this book belongs"
-#~ msgstr "السلسلة التي تحتوي الكتاب"
-
-#~ msgid "The series index"
-#~ msgstr "فهرس السلسلة"
-
-#~ msgid "Converting from %s to LRF is not supported."
-#~ msgstr "تحويل من %s إلى LRF غير مدعوم."
-
-#~ msgid "The book language"
-#~ msgstr "لغة الكتاب"
-
-#~ msgid "The output directory. Defaults to the current directory."
-#~ msgstr "دليل الخرج. الإفتراضي هو الدليل الحالي."
-
-#~ msgid "Extract the cover"
-#~ msgstr "استخراج الغلاف"
-
-#~ msgid "<b>%s</b><br/><p>%s</p>"
-#~ msgstr "<b>%s</b><br/><p>%s</p>"
-
 #~ msgid ""
 #~ "%%prog [options] filename\n"
 #~ "\n"
@@ -7560,69 +7601,39 @@ msgstr ""
 #~ "يحوّل أي نوع من أنواع تهيئات الكتاب الإلكتروني إلى ملف %s. التهيئات المدعومة "
 #~ "هي: %s.\n"
 
-#~ msgid "Output written to "
-#~ msgstr "تم كتابة الخرج في "
+#~ msgid "The output directory. Default is the current directory."
+#~ msgstr "دليل الخرج. الإفتراض هو الدليل الحالي."
 
-#~ msgid "Output:"
-#~ msgstr "خرج:"
-
-#~ msgid "Reading metadata..."
-#~ msgstr "قراءة الميتاداتا..."
-
-#~ msgid "Read metadata from "
-#~ msgstr "إقرأ الميتاداتا من "
-
-#~ msgid "Creating Mobipocket file from EPUB..."
-#~ msgstr "إنشاء ملف Mobipocket من EPUB..."
-
-#~ msgid "[options]"
-#~ msgstr "[الخيارات]"
-
-#~ msgid "Bulk convert to "
-#~ msgstr "تحويل جماعي إلى "
-
-#~ msgid "Convert %s to "
-#~ msgstr "حول %s إلى "
-
-#~ msgid "&Rescale images"
-#~ msgstr "&إعادة تحجيم الصور"
-
-#~ msgid "Set the subject tags"
-#~ msgstr "تحديد وسوم الموضوع"
-
-#~ msgid "Set the language"
-#~ msgstr "تحديد اللغة"
-
-#~ msgid "Set the ISBN"
-#~ msgstr "تحديد الـISBN"
-
-#~ msgid "Do not force text to be justified in output."
-#~ msgstr "لا تلزم النصّ بأن يكون مساوى في الخرج."
+#~ msgid "Control the following of links in HTML files."
+#~ msgstr "تحكّم بالوصلات التالية في ملفات HTML."
 
 #~ msgid ""
-#~ "Remove table markup, converting it into paragraphs. This is useful if your "
-#~ "source file uses a table to manage layout."
+#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
+#~ "cause incorrect rendering."
 #~ msgstr ""
-#~ "حذف توسيم الجداول، وتحيلها إلى فقرات. هذا يفيد إذا الملف المصدر يستخدم "
-#~ "الجداول لترتيب تخطيط النصّ."
+#~ "\t\tيوجد هناك الكثير من التوسيم. سيتم التقسيم بدون الاحتفاظ على التخطيط. قد "
+#~ "يتسبب هذا بتصوير خاطئ."
 
-#~ msgid "The author(s) of the ebook, as a & separated list."
-#~ msgstr "مؤلفون الكتاب، قائمة مفرّقة بـ&."
+#~ msgid "The output directory. Defaults to the current directory."
+#~ msgstr "دليل الخرج. الإفتراضي هو الدليل الحالي."
 
 #~ msgid ""
-#~ "When present, use the author sorting information for generating the "
-#~ "Mobipocket author metadata."
+#~ "Path to output directory in which to create the HTML file. Defaults to "
+#~ "current directory."
 #~ msgstr ""
-#~ "حين يوجد، استخدم معلومات ترتيب المؤلف لإنشاء ميتاداتا المؤلف في Mobipocket."
+#~ "المسار إلى دليل الخرج لإنشاء ملف HTML فيه. الإفتراضي هو الدليل الحالي."
 
-#~ msgid "&Ignore tables"
-#~ msgstr "&تجاهل الجداول"
+#~ msgid ""
+#~ "Extract the contents of the produced EPUB file to the specified directory."
+#~ msgstr "استخراج المحتوى من ملف EPUB المنتج إلى الدليل المخصص."
 
-#~ msgid "&Use author sort to set author field in output"
-#~ msgstr "استخدم& ترتيب المؤلف لضبط حقل المؤلف في الخرج"
-
-#~ msgid "Remove &first image from source file"
-#~ msgstr "حذف الصورة الأو&لى من ملف المصدر"
-
-#~ msgid "Added %s to library"
-#~ msgstr "تم إضافة %s إلى المكتبة"
+#~ msgid ""
+#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
+#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
+#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
+#~ "    "
+#~ msgstr ""
+#~ "حدد أسر خطوط من هيئة truetype بترويس، بدون ترويس وخطوط أحادية القياس. هذه "
+#~ "الخطوط سوف يتم ضمها في ملفات LRF. لاحظ أن الخطوط المخصصة تقلل سرعة تغيير "
+#~ "الصفحات. مثلا: --serif-family \"Times New Roman\n"
+#~ "    "
