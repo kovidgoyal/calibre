@@ -166,6 +166,11 @@ def fetch_scheduled_recipe(recipe, script):
         recs.append(('base_font_size', lf['base_font_size'],
             OptionRecommendation.HIGH))
 
+    lr = load_defaults('lrf_output')
+    if lr.get('header', False):
+        recs.append(('header', True, OptionRecommendation.HIGH))
+        recs.append(('header_format', '%t', OptionRecommendation.HIGH))
+
     args = [script, pt.name, recs]
     if recipe.needs_subscription:
         x = config.get('recipe_account_info_%s'%recipe.id, False)
