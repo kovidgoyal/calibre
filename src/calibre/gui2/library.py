@@ -1128,6 +1128,7 @@ class SearchBox(QLineEdit):
         self.home(False)
         self.initial_state = True
         self.setStyleSheet("background-color: white")
+        self.emit(SIGNAL('cleared()'))
 
     def clear(self):
         self.clear_to_help()

@@ -456,6 +456,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL('count_changed(int)'), self.location_view.count_changed)
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
                      self.tags_view.recount)
+        self.connect(self.search, SIGNAL('cleared()'), self.tags_view.clear)
         self.library_view.model().count_changed()
         ########################### Cover Flow ################################
         self.cover_flow = None
