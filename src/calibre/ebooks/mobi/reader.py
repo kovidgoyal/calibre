@@ -303,7 +303,12 @@ class MobiReader(object):
         self.cleanup_html()
 
         self.log.debug('Parsing HTML...')
-        root = html.fromstring(self.processed_html)
+        try:
+            root = html.fromstring(self.processed_html)
+        except:
+            self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
+            self.processed_html = self.remove_random_bytes(self.processed_html)
+            root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
@@ -444,7 +449,10 @@ class MobiReader(object):
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
         self.processed_html = self.processed_html.replace('> <', '>\n<')
-        self.processed_html = re.sub('\x14|\x15|\x1c|\x1d|\xef|\x12|\x13|\xec', '', self.processed_html)
+
+    def remove_random_bytes(self, html):
+            return re.sub('\x14|\x15|\x1c|\x1d|\xef|\x12|\x13|\xec',
+                    '', html)
 
     def ensure_unit(self, raw, unit='px'):
         if re.search(r'\d+$', raw) is not None:
