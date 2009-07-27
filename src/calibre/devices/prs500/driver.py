@@ -108,6 +108,9 @@ class PRS500(DeviceConfig, DevicePlugin):
     CARD_PATH_PREFIX = __appname__
     _packet_number = 0     #: Keep track of the packet number for packet tracing
 
+    SUPPORTS_SUB_DIRS = False
+    MUST_READ_METADATA = True
+
     def log_packet(self, packet, header, stream=sys.stderr):
         """
         Log C{packet} to stream C{stream}.

@@ -44,6 +44,7 @@ class PRS505(CLI, Device):
     CARD_PATH_PREFIX          = __appname__
 
     SUPPORTS_SUB_DIRS = True
+    MUST_READ_METADATA = True
 
     def open(self):
         Device.open(self)

@@ -40,7 +40,7 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../gui2/images.qrc">
+             <iconset resource="../images.qrc">
               <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
             </property>
            </widget>
@@ -64,7 +64,7 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../gui2/images.qrc">
+             <iconset resource="../images.qrc">
               <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
             </property>
            </widget>
@@ -73,13 +73,27 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="QCheckBox" name="opt_use_subdirs">
+        <property name="text">
+         <string>Use sub directories</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_read_metadata">
+        <property name="text">
+         <string>Read metadata from files on device</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
  <resources>
-  <include location="../../gui2/images.qrc"/>
+  <include location="../images.qrc"/>
  </resources>
  <connections/>
 </ui>
