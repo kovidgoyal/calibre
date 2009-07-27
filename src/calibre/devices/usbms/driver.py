@@ -1,4 +1,3 @@
-from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 '''
@@ -203,11 +202,15 @@ class USBMS(CLI, Device):
     @classmethod
     def book_from_path(cls, path):
         from calibre.ebooks.metadata.meta import path_to_ext
-        fileext = path_to_ext(path)
-        mi = cls.metadata_from_path(path)
-        mime = mime_type_ext(fileext)
+        mime = mime_type_ext(path_to_ext(path))
+
+        if cls.settings().read_metadata or cls.MUST_READ_METADATA:
+            mi = cls.metadata_from_path(path)
+        else:
+            from calibre.ebooks.metadata import MetaInformation
+            mi = MetaInformation(os.path.basename(path))
+
         authors = authors_to_string(mi.authors)
 
         book = Book(path, mi.title, authors, mime)
         return book
-

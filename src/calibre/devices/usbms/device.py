@@ -44,6 +44,7 @@ class Device(DeviceConfig, DevicePlugin):
     STORAGE_CARD2_VOLUME_LABEL = None
 
     SUPPORTS_SUB_DIRS = False
+    MUST_READ_METADATA = False
 
     FDI_TEMPLATE = \
 '''
@@ -618,7 +619,7 @@ class Device(DeviceConfig, DevicePlugin):
     def create_upload_path(self, path, mdata, fname):
         resizable = []
         newpath = path
-        if self.SUPPORTS_SUB_DIRS:
+        if self.SUPPORTS_SUB_DIRS and self.settings().use_subdirs:
 
             if 'tags' in mdata.keys():
                 for tag in mdata['tags']:

@@ -10,7 +10,9 @@ from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
-    def __init__(self, settings, all_formats):
+    def __init__(self, settings, all_formats, supports_subdirs,
+        must_read_metadata):
+
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
         self.setupUi(self)
@@ -28,6 +30,15 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
         self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
 
+        if supports_subdirs:
+            self.opt_use_subdirs.setChecked(self.settings.use_subdirs)
+        else:
+            self.opt_use_subdirs.hide()
+        if not must_read_metadata:
+            self.opt_read_metadata.setChecked(self.settings.read_metadata)
+        else:
+            self.opt_read_metadata.hide()
+
     def up_column(self):
         idx = self.columns.currentRow()
         if idx > 0:
@@ -44,3 +55,8 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         formats = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
         return formats
 
+    def use_subdirs(self):
+        return self.opt_use_subdirs.isChecked()
+
+    def read_metadata(self):
+        return self.opt_read_metadata.isChecked()
