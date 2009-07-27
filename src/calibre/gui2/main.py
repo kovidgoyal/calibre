@@ -1409,7 +1409,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         self.view_format(row, format)
                         break
                 if not in_prefs:
-                    self.view_format(row, format[0])
+                    self.view_format(row, formats[0])
         else:
             paths = self.current_view().model().paths(rows)
             for path in paths:
