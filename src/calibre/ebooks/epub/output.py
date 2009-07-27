@@ -108,11 +108,16 @@ class EPUBOutput(OutputFormatPlugin):
         <title>%(title)s</title>
         <style type="text/css">
             body {
-                background: white no-repeat fixed center center;
                 text-align: center;
                 vertical-align: center;
                 overflow: hidden;
-                font-size: 18px;
+                font-size: 16pt;
+            }
+            .logo {
+                width: 510px; height: 390px;
+                text-align:center;
+                font-size: 1pt;
+                overflow:hidden;
             }
             h1 { font-family: serif; }
             h2, h4 { font-family: monospace; }
@@ -120,19 +125,9 @@ class EPUBOutput(OutputFormatPlugin):
     </head>
     <body>
         <h1>%(title)s</h1>
-        <br/><br/>
-        <div style="position:relative">
-            <div style="position: absolute; left: 0; top: 0; width:100%%; height:100%%; vertical-align:center">
-                <img src="%(img)s" alt="calibre" style="opacity:0.3"/>
-            </div>
-            <div style="position: absolute; left: 0; top: 0; width:100%%; height:100%%; vertical-align:center">
-                <h2>%(date)s</h2>
-                <br/><br/><br/><br/><br/>
-                <h3>%(author)s</h3>
-                <br/><br/><br/><br/><br/><br/><br/><br/><br/>
-                <h4>Produced by %(app)s</h4>
-            </div>
-        </div>
+        <img class="logo" src="%(img)s" alt="calibre logo" />
+        <h2>%(author)s</h2>
+        <h4>Produced by %(app)s</h4>
     </body>
 </html>
 '''
@@ -211,8 +206,9 @@ class EPUBOutput(OutputFormatPlugin):
                 'calibre-logo.png')
         self.oeb.manifest.add(id, href, 'image/png', data=img_data)
         title, author = map(prepare_string_for_xml, (title, author))
+        if not author or not author.strip():
+            author = strftime('%d %b, %Y')
         html = self.TITLEPAGE%dict(title=title, author=author,
-                date=strftime('%d %b, %Y'),
                 app=__appname__ +' '+__version__,
                 img=href)
         id, href = self.oeb.manifest.generate('calibre-titlepage',
