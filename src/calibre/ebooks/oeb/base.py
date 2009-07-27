@@ -694,7 +694,6 @@ class Metadata(object):
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
         nsrmap = dict((value, key) for key, value in nsmap.items())
-        nsmap.pop('opf', '')
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:

@@ -125,7 +125,9 @@ class EPUBOutput(OutputFormatPlugin):
     </head>
     <body>
         <h1>%(title)s</h1>
-        <img class="logo" src="%(img)s" alt="calibre logo" />
+        <div style="text-align:center">
+            <img class="logo" src="%(img)s" alt="calibre logo" />
+        </div>
         <h2>%(author)s</h2>
         <h4>Produced by %(app)s</h4>
     </body>
@@ -196,7 +198,7 @@ class EPUBOutput(OutputFormatPlugin):
         images_rc
         m = self.oeb.metadata
         title = unicode(m.title[0])
-        a = [unicode(x) for x in m.creators if m.role == 'aut']
+        a = [unicode(x) for x in m.creator if x.role == 'aut']
         author = authors_to_string(a)
         if QApplication.instance() is None: QApplication([])
         f = QFile(':/library')
