@@ -694,7 +694,6 @@ class Metadata(object):
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
         nsrmap = dict((value, key) for key, value in nsmap.items())
-        nsmap.pop('opf', '')
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
@@ -815,15 +814,28 @@ class Manifest(object):
                             data = etree.fromstring(data, parser=RECOVER_PARSER)
                 return data
             data = first_pass(data)
-            # Force into the XHTML namespace
+
+            # Handle weird (non-HTML/fragment) files
             if barename(data.tag) != 'html':
                 self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
                 nroot = etree.fromstring('<html></html>')
+                has_body = False
+                for child in list(data):
+                    if barename(child.tag) == 'body':
+                        has_body = True
+                        break
+                parent = nroot
+                if not has_body:
+                    self.oeb.log.warn('File %r appears to be a HTML fragment'%self.href)
+                    nroot = etree.fromstring('<html><body/></html>')
+                    parent = nroot[0]
                 for child in list(data):
                     child.getparent().remove(child)
-                    nroot.append(child)
+                    parent.append(child)
                 data = nroot
-            elif not namespace(data.tag):
+
+            # Force into the XHTML namespace
+            if not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
                 try:

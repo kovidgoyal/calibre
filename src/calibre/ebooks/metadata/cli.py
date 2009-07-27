@@ -6,6 +6,16 @@ __docformat__ = 'restructuredtext en'
 '''
 ebook-meta
 '''
+import sys, os
+
+from calibre.utils.config import StringConfig
+from calibre.customize.ui import metadata_readers, metadata_writers
+from calibre.ebooks.metadata.meta import get_metadata, set_metadata
+from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
+                    title_sort, MetaInformation
+from calibre.ebooks.lrf.meta import LRFMetaFile
+from calibre import prints
+
 USAGE='%%prog ebook_file [' + _('options') + ']\n' + \
 _('''
 Read/Write metadata from/to ebook files.
@@ -19,15 +29,7 @@ some metadata on a file type that does not support it, the metadata will be
 silently ignored.
 ''')
 
-import sys, os
 
-from calibre.utils.config import StringConfig
-from calibre.customize.ui import metadata_readers, metadata_writers
-from calibre.ebooks.metadata.meta import get_metadata, set_metadata
-from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
-                    title_sort, MetaInformation
-from calibre.ebooks.lrf.meta import LRFMetaFile
-from calibre import prints
 
 def config():
     c = StringConfig('')

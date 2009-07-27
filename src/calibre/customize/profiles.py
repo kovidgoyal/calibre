@@ -199,6 +199,17 @@ class SonyReaderOutput(OutputProfile):
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
+class JetBook5Output(OutputProfile):
+
+    name        = 'JetBook 5-inch'
+    short_name  = 'jetbook5'
+    description = _('This profile is intended for the 5-inch JetBook.')
+
+    screen_size               = (480, 640)
+    dpi                       = 168.451
+
+
+
 class SonyReaderLandscapeOutput(SonyReaderOutput):
 
     name        = 'Sony Reader Landscape'
@@ -334,4 +345,4 @@ class IRexDR1000Output(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, CybookOpusOutput,
         KindleOutput, SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
-        IRexDR1000Output]
+        IRexDR1000Output, JetBook5Output]

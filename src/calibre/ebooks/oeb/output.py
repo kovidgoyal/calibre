@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, re
 
 from lxml import etree
 
@@ -34,6 +34,10 @@ class OEBOutput(OutputFormatPlugin):
                 if root is not None:
                     raw = etree.tostring(root, pretty_print=True,
                             encoding='utf-8', xml_declaration=True)
+                    if key == OPF_MIME:
+                        # Needed as I can't get lxml to output opf:role and
+                        # not output <opf:metadata> as well
+                        raw = re.sub(r'(<[/]{0,1})opf:', r'\1', raw)
                     with open(href, 'wb') as f:
                         f.write(raw)
 

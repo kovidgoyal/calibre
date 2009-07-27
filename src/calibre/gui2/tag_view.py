@@ -36,6 +36,9 @@ class TagsView(QTreeView):
             self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                       self._model.tokens(), self.match_all.isChecked())
 
+    def clear(self):
+        self.model().clear_state()
+
     def recount(self, *args):
         ci = self.currentIndex()
         if not ci.isValid():
@@ -119,6 +122,11 @@ class TagsModel(QStandardItemModel):
                 self._data[category], self.cmap[r], self.bold_font, self.icon_map))
         #self.reset()
 
+    def clear_state(self):
+        for category in self._data.values():
+            for tag in category:
+                tag.state = 0
+        self.refresh()
 
     def reinit(self, *args, **kwargs):
         if not self.ignore_next_search:

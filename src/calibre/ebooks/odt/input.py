@@ -64,4 +64,15 @@ class ODTInput(InputFormatPlugin):
                 accelerators):
         return Extract()(stream, '.')
 
+    def postprocess_book(self, oeb, opts, log):
+        # Fix <p><div> constructs as the asinine epubchecker complains
+        # about them
+        from calibre.ebooks.oeb.base import XPath, XHTML
+        path = XPath('//h:p/h:div')
+        for item in oeb.spine:
+            root = item.data
+            if not hasattr(root, 'xpath'): continue
+            for div in path(root):
+                div.getparent().tag = XHTML('div')
+
 
