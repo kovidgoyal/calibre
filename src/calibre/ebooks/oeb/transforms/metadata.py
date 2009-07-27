@@ -19,7 +19,7 @@ def meta_info_to_oeb_metadata(mi, m, log):
             m.add('title', mi.title_sort)
         m.title[0].file_as = mi.title_sort
     if mi.authors:
-        m.filter('creator', lambda x : x.role.lower() == 'aut')
+        m.filter('creator', lambda x : x.role.lower() in ['aut', ''])
         for a in mi.authors:
             attrib = {'role':'aut'}
             if mi.author_sort:
