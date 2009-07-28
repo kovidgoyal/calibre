@@ -14,7 +14,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
-
+from calibre import patheq
 
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
@@ -220,6 +220,9 @@ def create_option_parser(args, log):
     from calibre.ebooks.conversion.plumber import Plumber
 
     reporter = ProgressBar(log)
+    if patheq(input, output):
+        raise ValueError('Input file is the same as the output file')
+
     plumber = Plumber(input, output, log, reporter)
     add_input_output_options(parser, plumber)
     add_pipeline_options(parser, plumber)
