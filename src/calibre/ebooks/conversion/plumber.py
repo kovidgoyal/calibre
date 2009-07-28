@@ -53,6 +53,8 @@ class Plumber(object):
         '''
         self.input = os.path.abspath(input)
         self.output = os.path.abspath(output)
+        if self.input == self.output:
+            raise ValueError('Input file is the same as the output file')
         self.log = log
         self.ui_reporter = report_progress
 

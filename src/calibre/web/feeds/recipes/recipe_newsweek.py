@@ -30,6 +30,7 @@ class Newsweek(BasicNewsRecipe):
     remove_tags = [
             {'class':['fwArticle noHr','fwArticle','subinfo','hdlBulletItem','head-content','navbar','link', 'ad', 'sponsorLinksArticle', 'mm-content',
                 'inline-social-links-wrapper', 'email-article',
+                'inlineComponentRight',
                 'comments-and-social-links-wrapper', 'EmailArticleBlock']},
             {'id' : ['footer', 'ticker-data', 'topTenVertical',
                 'digg-top-five', 'mesothorax', 'nw-comments',
