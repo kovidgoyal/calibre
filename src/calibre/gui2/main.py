@@ -418,8 +418,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         try:
             db = LibraryDatabase2(self.library_path)
         except Exception, err:
+            import traceback
             error_dialog(self, _('Bad database location'),
-                    unicode(err)).exec_()
+                    _('Bad database location')+':'+self.library_path,
+                    det_msg=traceback.format_exc()).exec_()
             dir = unicode(QFileDialog.getExistingDirectory(self,
                             _('Choose a location for your ebook library.'),
                             os.path.expanduser('~')))
