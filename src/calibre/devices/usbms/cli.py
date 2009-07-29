@@ -37,6 +37,9 @@ class CLI(object):
             path = os.path.join(path, infile.name)
         if not replace_file and os.path.exists(path):
             raise PathError('File already exists: ' + path)
+        d = os.path.dirname(path)
+        if not os.path.exists(d):
+            os.makedirs(d)
         dest = open(path, 'wb')
         shutil.copyfileobj(infile, dest, 10*1024*1024)
         dest.flush()
