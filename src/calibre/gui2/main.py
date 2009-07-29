@@ -427,6 +427,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                             os.path.expanduser('~')))
             if not dir:
                 QCoreApplication.exit(1)
+                raise SystemExit(1)
             else:
                 self.library_path = dir
                 db = LibraryDatabase2(self.library_path)
@@ -522,6 +523,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     @property
     def spare_server(self):
+        # Because of the use of the property decorator, we're called one
+        # extra time. Ignore.
+        if not hasattr(self, '__spare_server_property_limiter'):
+            self.__spare_server_property_limiter = True
+            return None
         try:
             QTimer.singleShot(1000, self.add_spare_server)
             return self.spare_servers.pop()
@@ -872,6 +878,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     _('Failed to read metadata from the following')+':',
                     det_msg='\n\n'.join(det_msg), show=True)
 
+        self._adder.cleanup()
         self._adder = None
 
 
