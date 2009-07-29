@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.2\n"
-"POT-Creation-Date: 2009-07-28 10:32+MDT\n"
-"PO-Revision-Date: 2009-07-28 10:32+MDT\n"
+"POT-Creation-Date: 2009-07-29 09:42+MDT\n"
+"PO-Revision-Date: 2009-07-29 09:42+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -52,8 +52,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:870
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:27
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:65
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:28
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:66
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/txt.py:14
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:44
@@ -688,7 +688,7 @@ msgstr ""
 msgid "List builtin recipes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:246
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:249
 msgid "Output saved to"
 msgstr ""
 
@@ -837,7 +837,7 @@ msgid "Read metadata from the specified OPF file. Metadata read from this file w
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:353
-msgid "Transliterate unicode characters to an ASCII representation. Use with care because this will remove replace unicode characters with ASCII. For instance it will replace \"%s\" with \"Mikhail Gorbachiov\". Also, note that in cases where there are multiple representations of a character (characters shared by Chinese and Japanese for instance) the representation used by the largest number of people will be used (Chinese in the previous example)."
+msgid "Transliterate unicode characters to an ASCII representation. Use with care because this will replace unicode characters with ASCII. For instance it will replace \"%s\" with \"Mikhail Gorbachiov\". Also, note that in cases where there are multiple representations of a character (characters shared by Chinese and Japanese for instance) the representation used by the largest number of people will be used (Chinese in the previous example)."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:368
@@ -5579,7 +5579,7 @@ msgstr ""
 msgid "Could not move library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:506
 msgid "welcome wizard"
 msgstr ""
 
@@ -6485,7 +6485,7 @@ msgstr ""
 msgid "Kovid Goyal and Sujata Raman"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:19
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:17
 msgid "Chinese"
 msgstr ""
 
