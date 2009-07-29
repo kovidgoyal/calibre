@@ -275,7 +275,7 @@ class CSSFlattener(object):
             items = cssdict.items()
             items.sort()
             css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
-            classes = node.get('class', None) or 'calibre'
+            classes = node.get('class', '').strip() or 'calibre'
             klass = STRIPNUM.sub('', classes.split()[0].replace('_', ''))
             if css in styles:
                 match = styles[css]
