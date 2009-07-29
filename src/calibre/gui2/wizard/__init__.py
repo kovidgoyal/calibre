@@ -219,7 +219,7 @@ class KindlePage(QWizardPage, KindleUI):
 
         if self.send_email_widget.set_email_settings(True):
             conf = smtp_prefs()
-            accounts = conf.get('accounts', {})
+            accounts = conf.parse().accounts
             if not accounts: accounts = {}
             for y in accounts.values():
                 y[2] = False
@@ -494,6 +494,9 @@ class FinishPage(QWizardPage, FinishUI):
     def nextId(self):
         return -1
 
+    def commit(self):
+        pass
+
 
 
 class Wizard(QWizard):
@@ -536,7 +539,11 @@ class Wizard(QWizard):
 
 
     def accept(self):
-        self.device_page.commit()
+        pages = map(self.page, self.visitedPages())
+        for page in pages:
+            if page is not self.library_page:
+                page.commit()
+
         if not self.library_page.commit(self.completed):
             self.completed(None)
 

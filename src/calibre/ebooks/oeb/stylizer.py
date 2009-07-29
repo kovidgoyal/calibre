@@ -411,6 +411,8 @@ class Style(object):
                     result = size
             else:
                 result = self._unit_convert(value, base=base, font=base)
+                if not isinstance(result, (int, float, long)):
+                    return base
                 if result < 0:
                     result = normalize_fontsize("smaller", base)
             if factor:

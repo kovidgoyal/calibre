@@ -21,6 +21,7 @@ from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
     set_metadata as podofo_set_metadata, Unavailable, get_metadata_quick
 
 def get_quick_metadata(stream):
+    return get_metadata_pypdf(stream)
     raw = stream.read()
     mi = get_metadata_quick(raw)
     if mi.title == '_':

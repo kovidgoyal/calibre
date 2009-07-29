@@ -5,10 +5,8 @@ __copyright__ = '2009, Pu Bo <pubo at pubolab.com>'
 '''
 zaobao.com
 '''
-import time, os, traceback, sys
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.web.feeds import feeds_from_index, Feed, Article
-from BeautifulSoup import Tag
+from calibre.web.feeds import feeds_from_index
 
 class ZAOBAO(BasicNewsRecipe):
     title          = u'\u8054\u5408\u65e9\u62a5\u7f51 zaobao.com'
@@ -72,7 +70,7 @@ class ZAOBAO(BasicNewsRecipe):
         return soup
 
     def parse_feeds(self):
-        self.log_debug('ZAOBAO overrided parse_feeds()')
+        self.log.debug('ZAOBAO overrided parse_feeds()')
         parsed_feeds = BasicNewsRecipe.parse_feeds(self)
 
         for id, obj in enumerate(self.INDEXES):
@@ -89,7 +87,7 @@ class ZAOBAO(BasicNewsRecipe):
                     a_title = self.tag_to_string(a)
                     date = ''
                     description = ''
-                    self.log_debug('adding %s at %s'%(a_title,a_url))
+                    self.log.debug('adding %s at %s'%(a_title,a_url))
                     articles.append({
                                     'title':a_title,
                                     'date':date,
@@ -100,23 +98,23 @@ class ZAOBAO(BasicNewsRecipe):
             pfeeds = feeds_from_index([(title, articles)], oldest_article=self.oldest_article,
                                      max_articles_per_feed=self.max_articles_per_feed)
 
-            self.log_debug('adding %s to feed'%(title))
+            self.log.debug('adding %s to feed'%(title))
             for feed in pfeeds:
-                self.log_debug('adding feed: %s'%(feed.title))
+                self.log.debug('adding feed: %s'%(feed.title))
                 feed.description = self.DESC_SENSE
                 parsed_feeds.append(feed)
                 for a, article in enumerate(feed):
-                    self.log_debug('added article %s from %s'%(article.title, article.url))
-                self.log_debug('added feed %s'%(feed.title))
+                    self.log.debug('added article %s from %s'%(article.title, article.url))
+                self.log.debug('added feed %s'%(feed.title))
 
         for i, feed in enumerate(parsed_feeds):
             # workaorund a strange problem: Somethimes the xml encoding is not apllied correctly by parse()
             weired_encoding_detected = False
             if not isinstance(feed.description, unicode) and self.encoding and feed.description:
-                self.log_debug('Feed %s is not encoded correctly, manually replace it'%(feed.title))
+                self.log.debug('Feed %s is not encoded correctly, manually replace it'%(feed.title))
                 feed.description = feed.description.decode(self.encoding, 'replace')
             elif feed.description.find(self.DESC_SENSE) == -1 and self.encoding and feed.description:
-                self.log_debug('Feed %s is strangely encoded, manually redo all'%(feed.title))
+                self.log.debug('Feed %s is strangely encoded, manually redo all'%(feed.title))
                 feed.description = feed.description.encode('cp1252', 'replace').decode(self.encoding, 'replace')
                 weired_encoding_detected = True
 
@@ -138,7 +136,7 @@ class ZAOBAO(BasicNewsRecipe):
                         article.text_summary = article.text_summary.encode('cp1252', 'replace').decode(self.encoding, 'replace')
 
                 if article.title == "Untitled article":
-                    self.log_debug('Removing empty article %s from %s'%(article.title, article.url))
+                    self.log.debug('Removing empty article %s from %s'%(article.title, article.url))
                     # remove the article
                     feed.articles[a:a+1] = []
         return parsed_feeds

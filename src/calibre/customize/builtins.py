@@ -27,8 +27,11 @@ every time you add an HTML file to the library.\
         from calibre.ebooks.epub import initialize_container
 
         with TemporaryDirectory('_plugin_html2zip') as tdir:
-            gui_convert(htmlfile, tdir, [('debug_input', tdir,
-                OptionRecommendation.HIGH)])
+            recs =[('debug_input', tdir, OptionRecommendation.HIGH)]
+            if self.site_customization and self.site_customization.strip():
+                recs.append(['input_encoding', self.site_customization.strip(),
+                    OptionRecommendation.HIGH])
+            gui_convert(htmlfile, tdir, recs)
             of = self.temporary_file('_plugin_html2zip.zip')
             opf = glob.glob(os.path.join(tdir, '*.opf'))[0]
             ncx = glob.glob(os.path.join(tdir, '*.ncx'))
@@ -39,6 +42,10 @@ every time you add an HTML file to the library.\
             epub.close()
 
         return of.name
+
+    def customization_help(self, gui=False):
+        return _('Character encoding for the input HTML files. Common choices '
+        'include: cp1252, latin1, iso-8859-1 and utf-8.')
 
 
 class ComicMetadataReader(MetadataReaderPlugin):

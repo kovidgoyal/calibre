@@ -287,6 +287,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.set_max_width()
         ca = self.view.copy_action
         ca.setShortcut(QKeySequence.Copy)
+        self.addAction(ca)
 
 
     def set_max_width(self):

@@ -11,23 +11,23 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 class Publico(BasicNewsRecipe):
-    title          = u'P\xc3\xbablico'
+    title          = u'P\xfablico'
     __author__     = 'David Rodrigues'
     oldest_article = 1
     max_articles_per_feed = 30
     encoding='utf-8'
     no_stylesheets = True
-    language = _('Portugese')
+    language = _('Portuguese')
     preprocess_regexps = [(re.compile(u"\uFFFD", re.DOTALL|re.IGNORECASE),  lambda match: ''),]
 
     feeds          = [
                         (u'Geral', u'http://feeds.feedburner.com/PublicoUltimaHora'),
                         (u'Internacional', u'http://www.publico.clix.pt/rss.ashx?idCanal=11'),
-                        (u'Pol\xc3\xadtica', u'http://www.publico.clix.pt/rss.ashx?idCanal=12'),
-                        (u'Ci\xc3\xaancias', u'http://www.publico.clix.pt/rss.ashx?idCanal=13'),
+                        (u'Pol\xedtica', u'http://www.publico.clix.pt/rss.ashx?idCanal=12'),
+                        (u'Ci\xcencias', u'http://www.publico.clix.pt/rss.ashx?idCanal=13'),
                         (u'Desporto', u'http://desporto.publico.pt/rss.ashx'),
                         (u'Economia', u'http://www.publico.clix.pt/rss.ashx?idCanal=57'),
-                        (u'Educa\xc3\xa7\xc3\xa3o', u'http://www.publico.clix.pt/rss.ashx?idCanal=58'),
+                        (u'Educa\xe7\xe3o', u'http://www.publico.clix.pt/rss.ashx?idCanal=58'),
                         (u'Local', u'http://www.publico.clix.pt/rss.ashx?idCanal=59'),
                         (u'Media e Tecnologia', u'http://www.publico.clix.pt/rss.ashx?idCanal=61'),
                         (u'Sociedade', u'http://www.publico.clix.pt/rss.ashx?idCanal=62')

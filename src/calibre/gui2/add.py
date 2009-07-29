@@ -1,7 +1,7 @@
 '''
 UI for adding books to the database and saving books to disk
 '''
-import os
+import os, shutil
 from Queue import Queue, Empty
 
 from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer, Qt
@@ -166,6 +166,15 @@ class Adder(QObject):
                         add_duplicates=True)
                 self.add_formats(id, formats)
                 self.number_of_books_added += 1
+
+    def cleanup(self):
+        if hasattr(self, 'worker') and hasattr(self.worker, 'tdir') and \
+                self.worker.tdir is not None:
+            if os.path.exists(self.worker.tdir):
+                try:
+                    shutil.rmtree(self.worker.tdir)
+                except:
+                    pass
 
 class Saver(QObject):
 

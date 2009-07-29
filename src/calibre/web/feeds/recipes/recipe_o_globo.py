@@ -21,18 +21,18 @@ class OGlobo(BasicNewsRecipe):
     encoding              = 'cp1252'
     cover_url             = 'http://oglobo.globo.com/_img/o-globo.png'
     remove_javascript     = True
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                        
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     keep_only_tags = [dict(name='div', attrs={'id':'ltintb'})]
 
-    remove_tags = [  
+    remove_tags = [
                      dict(name='script')
                     ,dict(name='object')
                     ,dict(name='form')
@@ -42,7 +42,7 @@ class OGlobo(BasicNewsRecipe):
                     ,dict(name='link')
                   ]
 
-    
+
     feeds = [
                (u'Todos os canais', u'http://oglobo.globo.com/rss/plantao.xml')
               ,(u'Ciencia', u'http://oglobo.globo.com/rss/plantaociencia.xml')
@@ -66,4 +66,4 @@ class OGlobo(BasicNewsRecipe):
             del item['style']
         return soup
 
-    language = _('Portugese')
+    language = _('Portuguese')

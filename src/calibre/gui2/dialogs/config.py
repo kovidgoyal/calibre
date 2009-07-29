@@ -7,7 +7,7 @@ from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QInputDialog, QAbstractTableModel, \
-                        QDialogButtonBox, QTabWidget, QBrush
+                        QDialogButtonBox, QTabWidget, QBrush, QLineEdit
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
@@ -553,10 +553,14 @@ class ConfigDialog(QDialog, Ui_Dialog):
                         self._plugin_model.refresh_plugin(plugin)
                 else:
                     help = plugin.customization_help()
+                    sc = plugin_customization(plugin)
+                    if not sc:
+                        sc = ''
+                    sc = sc.strip()
                     text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
-                                                    help)
+                                                    help, QLineEdit.Normal, sc)
                     if ok:
-                        customize_plugin(plugin, unicode(text))
+                        customize_plugin(plugin, unicode(text).strip())
                     self._plugin_model.refresh_plugin(plugin)
             if op == 'remove':
                 if remove_plugin(plugin):

@@ -147,10 +147,10 @@ def setup_completion(fatal_errors):
         from calibre.utils.smtp import option_parser as smtp_op
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt']
-        f = open_file('/etc/bash_completion.d/libprs500')
-        f.close()
-        os.remove(f.name)
-        f = open_file('/etc/bash_completion.d/calibre')
+        if os.path.exists('/usr/share/bash-completion'):
+            f = open_file('/usr/share/bash-completion/calibre')
+        else:
+            f = open_file('/etc/bash_completion.d/calibre')
         manifest.append(f.name)
 
         f.write('# calibre Bash Shell Completion\n')
