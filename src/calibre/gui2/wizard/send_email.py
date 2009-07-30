@@ -112,7 +112,8 @@ class SendEmail(QWidget, Ui_Form):
         self.relay_tls.setChecked(True)
 
         info_dialog(self, _('Finish gmail setup'),
-            _('Dont forget to enter your gmail username and password')).exec_()
+            _('Dont forget to enter your gmail username and password. '
+                'You can sign up for a free gmail account at http://gmail.com')).exec_()
         self.relay_username.setFocus(Qt.OtherFocusReason)
         self.relay_username.setCursorPosition(0)
 
