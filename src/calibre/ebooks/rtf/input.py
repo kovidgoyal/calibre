@@ -69,6 +69,8 @@ class RTFInput(InputFormatPlugin):
         for match in re.finditer(r'\{\\pict([^}]+)\}', raw):
             starts.append(match.start(1))
 
+        imap = {}
+
         for start in starts:
             pos, bc = start, 1
             while bc > 0:
@@ -80,10 +82,17 @@ class RTFInput(InputFormatPlugin):
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
             data = enc.decode('hex')
+            ext = '.jpg'
+            if 'EMF' in data[:200]:
+                ext = '.wmf'
+            elif 'PNG' in data[:200]:
+                ext = '.png'
             count += 1
-            name = (('%4d'%count).replace(' ', '0'))+'.jpg'
+            name = (('%4d'%count).replace(' ', '0'))+ext
             open(name, 'wb').write(data)
+            imap[count] = name
             #open(name+'.hex', 'wb').write(enc)
+        return imap
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -100,13 +109,20 @@ class RTFInput(InputFormatPlugin):
             'support. Convert it to HTML first and then try it.'))
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
+            imap = {}
             try:
-                self.extract_images(d[0])
+                imap = self.extract_images(d[0])
             except:
                 self.log.exception('Failed to extract images...')
         self.log('Parsing XML...')
         parser = etree.XMLParser(recover=True, no_network=True)
         doc = etree.fromstring(xml, parser=parser)
+        for pict in doc.xpath('//rtf:pict[@num]',
+                namespaces={'rtf':'http://rtf2xml.sourceforge.net/'}):
+            num = int(pict.get('num'))
+            name = imap.get(num, None)
+            if name is not None:
+                pict.set('num', name)
         self.log('Converting XML to HTML...')
         styledoc = etree.fromstring(xhtml)
 

@@ -525,7 +525,7 @@ xhtml = '''\
 
     <xsl:template match="rtf:pict">
         <xsl:element name="img">
-            <xsl:attribute name="src"><xsl:value-of select="@num" />.jpg</xsl:attribute>
+            <xsl:attribute name="src"><xsl:value-of select="@num" /></xsl:attribute>
         </xsl:element>
     </xsl:template>
 
