@@ -18,11 +18,11 @@
 
 xhtml = '''\
 <?xml version="1.0"?>
-<xsl:stylesheet version="1.0" 
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns:rtf="http://rtf2xml.sourceforge.net/"
-    exclude-result-prefixes="rtf"    
+    exclude-result-prefixes="rtf"
 >
 
     <xsl:template match = "rtf:para">
@@ -36,7 +36,7 @@ xhtml = '''\
                               parent::rtf:paragraph-definition[@name='heading 7']|
                               parent::rtf:paragraph-definition[@name='heading 8']|
                               parent::rtf:paragraph-definition[@name='heading 9']
-            
+
             ">
                 <xsl:variable name="head-number" select="substring(parent::rtf:paragraph-definition/@name, 9)"/>
                 <xsl:element name="h{$head-number}">
@@ -64,7 +64,7 @@ xhtml = '''\
                               parent::rtf:paragraph-definition[@name='heading 7']|
                               parent::rtf:paragraph-definition[@name='heading 8']|
                               parent::rtf:paragraph-definition[@name='heading 9']
-            
+
             ">
                 <xsl:apply-templates/>
             </xsl:when>
@@ -108,17 +108,17 @@ xhtml = '''\
             <xsl:when test = "@italics = 'true' ">
                <emph rend = "paragraph-emph-italics">
                     <xsl:apply-templates/>
-               </emph> 
+               </emph>
             </xsl:when>
             <xsl:when test = "@bold = 'true' ">
                <emph rend = "paragraph-emph-bold">
                     <xsl:apply-templates/>
-               </emph> 
+               </emph>
             </xsl:when>
             <xsl:when test = "@underlined">
                <emph rend = "paragraph-emph-underlined">
                     <xsl:apply-templates/>
-               </emph> 
+               </emph>
             </xsl:when>
             <xsl:when test = "(@strike-through = 'true')
                 or (@double-strike-through = 'true')
@@ -128,18 +128,18 @@ xhtml = '''\
                 or (@shadow = 'true')
                 or (@hidden = 'true')
                 or (@outline = 'true')
-            
+
                 ">
                <emph rend = "paragraph-emph">
                     <xsl:apply-templates/>
-               </emph> 
+               </emph>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:apply-templates/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    
+
     <xsl:template name="make-header">
         <head>
             <xsl:element name="meta">
@@ -150,7 +150,7 @@ xhtml = '''\
                     <xsl:text>http://rtf2xml.sourceforge.net/</xsl:text>
                 </xsl:attribute>
             </xsl:element>
-            
+
             <xsl:choose>
                 <xsl:when test="/rtf:doc/rtf:preamble/rtf:doc-information">
                     <xsl:apply-templates select="/rtf:doc/rtf:preamble/rtf:doc-information" mode="header"/>
@@ -333,7 +333,7 @@ xhtml = '''\
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    
+
     <xsl:template match="rtf:inline">
         <xsl:variable name="num-attrs" select="count(@*)"/>
         <xsl:choose>
@@ -387,7 +387,7 @@ xhtml = '''\
                     </xsl:attribute>
                     <xsl:apply-templates/>
                 </xsl:element>
-                
+
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -401,9 +401,9 @@ xhtml = '''\
             </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>
-        
+
     </xsl:template>
-    
+
        <xsl:template match="rtf:list[@list-type='unordered']">
        <xsl:element name="ul">
            <xsl:apply-templates/>
@@ -479,13 +479,13 @@ xhtml = '''\
     <xsl:template match="rtf:preamble">
         <xsl:apply-templates/>
     </xsl:template>
-    
+
     <xsl:template match="rtf:page-break">
         <xsl:element name="br">
             <xsl:attribute name="style">page-break-after:always</xsl:attribute>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="rtf:rtf-definition|rtf:font-table|rtf:color-table|rtf:style-table|rtf:page-definition|rtf:list-table|rtf:override-table|rtf:override-list|rtf:list-text"/>
 
     <xsl:template match="rtf:body">
@@ -505,11 +505,11 @@ xhtml = '''\
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match = "rtf:field-block">
       <xsl:apply-templates/>
     </xsl:template>
-    
+
     <xsl:template match = "rtf:field[@type='hyperlink']">
         <xsl:element name ="a">
             <xsl:attribute name = "href">
@@ -522,9 +522,13 @@ xhtml = '''\
     <xsl:template match = "rtf:field">
         <xsl:apply-templates/>
     </xsl:template>
-    
-    <xsl:template match="rtf:pict" />
-    
+
+    <xsl:template match="rtf:pict">
+        <xsl:element name="img">
+            <xsl:attribute name="src"><xsl:value-of select="@num" />.jpg</xsl:attribute>
+        </xsl:element>
+    </xsl:template>
+
     <xsl:template match="*">
         <xsl:message>
             <xsl:text>no match for element: "</xsl:text>
@@ -533,6 +537,6 @@ xhtml = '''\
         </xsl:message>
         <xsl:apply-templates/>
     </xsl:template>
-    
+
 </xsl:stylesheet>
 '''

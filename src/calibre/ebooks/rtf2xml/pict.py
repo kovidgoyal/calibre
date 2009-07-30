@@ -55,7 +55,7 @@ class Pict:
         return "}\n"
     def __text_func(self, line):
         #tx<nu<__________<true text
-        return line[18:]
+        return line[17:]
     def __make_dir(self):
         """ Make a dirctory to put the image data in"""
         base_name = os.path.basename(getattr(self.__orig_file, 'name',
