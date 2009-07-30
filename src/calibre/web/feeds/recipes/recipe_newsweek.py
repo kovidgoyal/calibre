@@ -4,6 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from calibre import strftime
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Newsweek(BasicNewsRecipe):
@@ -128,3 +129,39 @@ class Newsweek(BasicNewsRecipe):
         return cover_url
 
 
+    def postprocess_book(self, oeb, opts, log) :
+
+        def extractByline(href) :
+            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))            
+            byline = soup.find(True,attrs={'class':'authorInfo'})
+            byline = self.tag_to_string(byline) if byline is not None else ''
+            issueDate = soup.find(True,attrs={'class':'issueDate'})
+            issueDate = self.tag_to_string(issueDate) if issueDate is not None else ''
+            issueDate = re.sub(',','', issueDate)
+            if byline > '' and issueDate > '' :
+                return byline + ' | ' + issueDate
+            else :
+                return byline + issueDate
+            
+        def extractDescription(href) :
+            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
+            description = soup.find(True,attrs={'name':'description'})
+            if description is not None and description.has_key('content'):
+                description = description['content']
+                if description.startswith('Newsweek magazine online plus') :
+                    description = soup.find(True, attrs={'class':'story'})
+                    firstPara = soup.find('p')
+                    description = self.tag_to_string(firstPara)
+            else :
+                description = soup.find(True, attrs={'class':'story'})
+                firstPara = soup.find('p')
+                description = self.tag_to_string(firstPara)
+            return description    
+        
+        for section in oeb.toc :
+            for article in section :
+                if article.author is None :
+                    article.author = extractByline(article.href)
+                if article.description is None :
+                    article.description = extractDescription(article.href)
+        return

@@ -36,6 +36,7 @@ mimetypes.add_type('application/ereader',                 '.pdb')
 mimetypes.add_type('application/mobi',                    '.mobi')
 mimetypes.add_type('application/mobi',                    '.prc')
 mimetypes.add_type('application/mobi',                    '.azw')
+mimetypes.add_type('image/wmf',                           '.wmf')
 guess_type = mimetypes.guess_type
 import cssutils
 cssutils.log.setLevel(logging.WARN)
