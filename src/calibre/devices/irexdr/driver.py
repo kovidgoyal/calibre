@@ -16,7 +16,7 @@ class IREXDR1000(USBMS):
     name           = 'IRex Digital Reader 1000 Device Interface'
     description    = _('Communicate with the IRex Digital Reader 1000 eBook reader.')
     author         = _('John Schember')
-    supported_platforms = ['windows', 'linux']
+    supported_platforms = ['windows', 'osx', 'linux']
 
 
     # Ordered list of supported formats
@@ -30,7 +30,7 @@ class IREXDR1000(USBMS):
     VENDOR_NAME = 'IREX'
     WINDOWS_MAIN_MEM = 'DR1000'
 
-    #OSX_MAIN_MEM = ''
+    OSX_MAIN_MEM = 'iRex DR1000 Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'IRex Digital Reader 1000 Main Memory'
 
