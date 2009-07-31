@@ -19,8 +19,6 @@ from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
-from calibre.ebooks.pml.pmlconverter import footnote_sidebar_to_html
-from calibre.ebooks.pml.pmlconverter import pml_to_html
 
 class HeaderRecord(object):
     '''
@@ -99,16 +97,21 @@ class Reader132(FormatReader):
         return self.decompress_text(number)
 
     def extract_content(self, output_dir):
+        from calibre.ebooks.pml.pmlconverter import footnote_sidebar_to_html
+        from calibre.ebooks.pml.pmlconverter import pml_to_html
+
         output_dir = os.path.abspath(output_dir)
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        html = u'<html><head><title></title></head><body>'
+        html = u'<html><head><title>%s</title></head><body>' % self.mi.title
 
+        pml = u''
         for i in range(1, self.header_record.num_text_pages + 1):
             self.log.debug('Extracting text page %i' % i)
-            html += pml_to_html(self.get_text_page(i))
+            pml += self.get_text_page(i)
+        html += pml_to_html(pml)
 
         if self.header_record.footnote_rec > 0:
             html += '<br /><h1>%s</h1>' % _('Footnotes')
