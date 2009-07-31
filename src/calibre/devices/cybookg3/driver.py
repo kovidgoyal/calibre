@@ -124,3 +124,23 @@ class CYBOOKG3(USBMS):
                 except:
                     pass
         self.report_progress(1.0, _('Removing books from device...'))
+
+class CYBOOK_OPUS(CYBOOKG3):
+
+    FORMATS = ['epub', 'pdf', 'txt']
+
+    VENDOR_ID   = [0x0bda]
+    PRODUCT_ID  = [0x0703]
+    BCD         = [0x110]
+
+    WINDOWS_MAIN_MEM = 'CYBOOK_OPUS__-FD'
+    WINDOWS_CARD_A_MEM = 'CYBOOK_OPUS__-SD'
+
+    OSX_MAIN_MEM = 'Bookeen Cybook Opus -FD Media'
+    OSX_CARD_A_MEM = 'Bookeen Cybook Opus -SD Media'
+
+    def upload_books(self, *args, **kwargs):
+        USBMS.upload_books(self, *args, **kwargs)
+
+    def delete_books(self, *args, **kwargs):
+        USBMS.delete_books(self, *args, **kwargs)
