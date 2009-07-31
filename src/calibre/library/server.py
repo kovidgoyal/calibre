@@ -23,7 +23,7 @@ except ImportError:
 
 from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
-from calibre import fit_image, guess_type
+from calibre import fit_image, guess_type, prepare_string_for_xml
 from calibre.resources import jquery, server_resources, build_time
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
@@ -302,11 +302,13 @@ class LibraryServer(object):
                     extra.append('RATING: %s<br />'%rating)
                 tags = record[FIELD_MAP['tags']]
                 if tags:
-                    extra.append('TAGS: %s<br />'%', '.join(tags.split(',')))
+                    extra.append('TAGS: %s<br />'%\
+                            prepare_string_for_xml(', '.join(tags.split(','))))
                 series = record[FIELD_MAP['series']]
                 if series:
-                    extra.append('SERIES: %s [%s]<br />'%(series,
-                                            fmt_sidx(float(record[FIELD_MAP['series_index']]))))
+                    extra.append('SERIES: %s [%s]<br />'%\
+                            (prepare_string_for_xml(series),
+                            fmt_sidx(float(record[FIELD_MAP['series_index']]))))
                 fmt = 'epub' if 'EPUB' in r else 'pdb'
                 mimetype = guess_type('dummy.'+fmt)[0]
                 books.append(self.STANZA_ENTRY.generate(
