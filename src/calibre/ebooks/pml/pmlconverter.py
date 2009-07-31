@@ -34,7 +34,7 @@ PML_HTML_RULES = [
     (re.compile(r'\\B(?P<text>.*?)\\B', re.DOTALL), lambda match: '<b>%s</b>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\Sp(?P<text>.*?)\\Sp', re.DOTALL), lambda match: '<sup>%s</sup>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\Sb(?P<text>.*?)\\Sb', re.DOTALL), lambda match: '<sub>%s</sub>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\k(?P<text>.*?)\\k', re.DOTALL), lambda match: '<small>%s</small>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\k(?P<text>.*?)\\k', re.DOTALL), lambda match: '<span style="font-size: 50%%">%s</span>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\a(?P<num>\d\d\d)'), lambda match: '&#%s;' % match.group('num')),
     (re.compile(r'\\U(?P<num>\d\d\d\d)'), lambda match: '%s' % my_unichr(int(match.group('num'), 16))),
     (re.compile(r'\\m="(?P<name>.+?)"'), lambda match: '<img src="images/%s" />' % image_name(match.group('name')).strip('\x00')),
