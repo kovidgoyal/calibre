@@ -20,7 +20,7 @@ class EB600(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt', 'pdf']
+    FORMATS     = ['epub', 'mobi', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt', 'pdf']
     DRM_FORMATS = ['prc', 'mobi', 'html', 'pdf', 'txt']
 
     VENDOR_ID   = [0x1f85]
@@ -50,4 +50,13 @@ class EB600(USBMS):
 
         return drives
 
+
+class COOL_ER(EB600):
+
+    FORMATS = ['epub', 'mobi', 'prc', 'pdf', 'txt']
+
+    VENDOR_NAME = 'COOL-ER'
+    WINDOWS_MAIN_MEM = 'EREADER'
+
+    EBOOK_DIR_MAIN = 'my docs'
 

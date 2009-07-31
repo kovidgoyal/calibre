@@ -114,16 +114,37 @@ def debug_device_driver():
         raw = Device.run_ioreg()
         open('/tmp/ioreg.txt', 'wb').write(raw)
         print 'ioreg output saved to /tmp/ioreg.txt'
+    connected_devices = []
     for dev in device_plugins():
         print 'Looking for', dev.__class__.__name__
         connected = s.is_device_connected(dev)
         if connected:
-            print 'Device Connected:', dev
-            print 'Trying to open device...'
+            connected_devices.append(dev)
+
+    errors = {}
+    success = False
+    for dev in connected_devices:
+        print 'Device possibly connected:', dev
+        print 'Trying to open device...',
+        try:
             dev.open()
-            print 'Main memory:', repr(dev._main_prefix)
-            print 'Total space:', dev.total_space()
-            break
+            print 'OK'
+        except:
+            import traceback
+            errors[dev] = traceback.format_exc()
+            print 'failed'
+            continue
+        success = True
+        print 'Main memory:', repr(dev._main_prefix)
+        print 'Total space:', dev.total_space()
+        break
+    if not success and errors:
+        print 'Opening of the following devices failed'
+        for dev,msg in errors.items():
+            print dev
+            print msg
+            print
+
 
 def add_simple_plugin(path_to_plugin):
     import tempfile, zipfile, shutil

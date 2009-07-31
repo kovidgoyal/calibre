@@ -89,33 +89,39 @@ class DeviceManager(Thread):
         self.current_job    = None
         self.scanner        = DeviceScanner()
 
+    def do_connect(self, connected_devices):
+        if iswindows:
+            import pythoncom
+            pythoncom.CoInitialize()
+        try:
+            for dev in connected_devices:
+                dev.reset()
+                try:
+                    dev.open()
+                except:
+                    print 'Unable to open device', dev
+                    traceback.print_exc()
+                    continue
+                self.device       = dev
+                self.device_class = dev.__class__
+                self.connected_slot(True)
+                break
+        finally:
+            if iswindows:
+                pythoncom.CoUninitialize()
+
+
     def detect_device(self):
         self.scanner.scan()
+        connected_devices = []
         for device in self.devices:
             connected = self.scanner.is_device_connected(device[0])
-            if connected and not device[1]:
-                if device[2]:
-                    continue
-                try:
-                    dev = device[0]
-                    dev.reset()
-                    if iswindows:
-                        import pythoncom
-                        pythoncom.CoInitialize()
-                    try:
-                        dev.open()
-                    finally:
-                        if iswindows:
-                            pythoncom.CoUninitialize()
-                    self.device       = dev
-                    self.device_class = dev.__class__
-                    self.connected_slot(True)
-                except:
-                    print 'Unable to open device'
-                    traceback.print_exc()
-                finally:
-                    device[1] = True
+            if connected and not device[1] and not device[2]:
+                # If connected and not showing in GUI and not ejected
+                connected_devices.append(device[0])
+                device[1] = True
             elif not connected and device[1]:
+                # Disconnected but showing in GUI
                 while True:
                     try:
                         job = self.jobs.get_nowait()
@@ -126,6 +132,8 @@ class DeviceManager(Thread):
                 self.device = None
                 self.connected_slot(False)
                 device[1] ^= True
+        if connected_devices:
+            self.do_connect(connected_devices)
 
     def umount_device(self):
         if self.device is not None:

@@ -354,8 +354,8 @@ from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.bebook.driver import BEBOOK, BEBOOK_MINI
 from calibre.devices.blackberry.driver import BLACKBERRY
-from calibre.devices.cybookg3.driver import CYBOOKG3
-from calibre.devices.eb600.driver import EB600
+from calibre.devices.cybookg3.driver import CYBOOKG3, CYBOOK_OPUS
+from calibre.devices.eb600.driver import EB600, COOL_ER
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
@@ -412,6 +412,8 @@ plugins += [
     PRS505,
     PRS700,
     ANDROID,
+    CYBOOK_OPUS,
+    COOL_ER
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

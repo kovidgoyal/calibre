@@ -204,14 +204,26 @@ def main():
         _wmi = wmi.WMI()
     scanner = DeviceScanner(_wmi)
     scanner.scan()
+    connected_devices = []
     for d in device_plugins():
         if scanner.is_device_connected(d):
             dev = d
             dev.reset(log_packets=options.log_packets)
+            connected_devices.append(dev)
 
     if dev is None:
         print >>sys.stderr, 'Unable to find a connected ebook reader.'
         return 1
+
+    for d in connected_devices:
+        try:
+            d.open()
+        except:
+            continue
+        else:
+            dev = d
+            break
+
 
     try:
         dev.open()
