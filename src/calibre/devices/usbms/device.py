@@ -313,10 +313,13 @@ class Device(DeviceConfig, DevicePlugin):
         for i, line in enumerate(lines):
             if 'main' not in names and self.check_ioreg_line(line, self.OSX_MAIN_MEM):
                 get_dev_node(lines[i+1:], 'main')
+                continue
             if 'carda' not in names and self.check_ioreg_line(line, self.OSX_CARD_A_MEM):
                 get_dev_node(lines[i+1:], 'carda')
+                continue
             if 'cardb' not in names and self.check_ioreg_line(line, self.OSX_CARD_B_MEM):
                 get_dev_node(lines[i+1:], 'cardb')
+                continue
             if len(names.keys()) == 3:
                 break
         return self.osx_sort_names(names)
