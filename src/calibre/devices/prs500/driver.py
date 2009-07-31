@@ -87,6 +87,7 @@ class PRS500(DeviceConfig, DevicePlugin):
     description    = _('Communicate with the Sony PRS-500 eBook reader.')
     author         = _('Kovid Goyal')
     supported_platforms = ['windows', 'osx', 'linux']
+    log_packets    = False
 
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x029b #: Product Id for the PRS-500

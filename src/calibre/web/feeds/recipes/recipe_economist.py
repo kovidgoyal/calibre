@@ -20,6 +20,7 @@ class Economist(BasicNewsRecipe):
     oldest_article = 7.0
     needs_subscription = False # Strange but true
     INDEX = 'http://www.economist.com/printedition'
+    cover_url = 'http://www.economist.com/images/covers/currentcovereu_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title'])]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
 

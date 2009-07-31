@@ -1972,7 +1972,7 @@ class MobiWriter(object):
                         continue
                     if h not in self._id_offsets:
                         self._oeb.logger.warn('  Ignoring missing TOC entry:',
-                                child)
+                                unicode(child))
                         continue
 
                     currentOffset = self._id_offsets[h]

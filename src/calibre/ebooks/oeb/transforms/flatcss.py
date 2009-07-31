@@ -213,7 +213,10 @@ class CSSFlattener(object):
                             esize = 7
                         cssdict['font-size'] = fnums[esize]
                     else:
-                        cssdict['font-size'] = fnums[force_int(size)]
+                        try:
+                            cssdict['font-size'] = fnums[force_int(size)]
+                        except:
+                            cssdict['font-size'] = fnums[3]
                 del node.attrib['size']
         if 'color' in node.attrib:
             cssdict['color'] = node.attrib['color']

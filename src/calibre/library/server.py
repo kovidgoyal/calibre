@@ -23,7 +23,7 @@ except ImportError:
 
 from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
-from calibre import fit_image, guess_type
+from calibre import fit_image, guess_type, prepare_string_for_xml
 from calibre.resources import jquery, server_resources, build_time
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
@@ -100,6 +100,7 @@ class LibraryServer(object):
       <title>calibre Library</title>
       <id>$id</id>
       <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+      <link rel="search" title="Search" type="application/atom+xml" href="/?search={searchTerms}"/>
       <author>
         <name>calibre</name>
         <uri>http://calibre.kovidgoyal.net</uri>
@@ -283,10 +284,12 @@ class LibraryServer(object):
 
 
     @expose
-    def stanza(self):
+    def stanza(self, search=None):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
+        ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         for record in iter(self.db):
+            if record[0] not in ids: continue
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
             if 'EPUB' in r or 'PDB' in r:
@@ -302,11 +305,13 @@ class LibraryServer(object):
                     extra.append('RATING: %s<br />'%rating)
                 tags = record[FIELD_MAP['tags']]
                 if tags:
-                    extra.append('TAGS: %s<br />'%', '.join(tags.split(',')))
+                    extra.append('TAGS: %s<br />'%\
+                            prepare_string_for_xml(', '.join(tags.split(','))))
                 series = record[FIELD_MAP['series']]
                 if series:
-                    extra.append('SERIES: %s [%s]<br />'%(series,
-                                            fmt_sidx(float(record[FIELD_MAP['series_index']]))))
+                    extra.append('SERIES: %s [%s]<br />'%\
+                            (prepare_string_for_xml(series),
+                            fmt_sidx(float(record[FIELD_MAP['series_index']]))))
                 fmt = 'epub' if 'EPUB' in r else 'pdb'
                 mimetype = guess_type('dummy.'+fmt)[0]
                 books.append(self.STANZA_ENTRY.generate(
@@ -369,7 +374,7 @@ class LibraryServer(object):
         'The / URL'
         want_opds = cherrypy.request.headers.get('Stanza-Device-Name', 919) != \
             919 or cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919
-        return self.stanza() if want_opds else self.static('index.html')
+        return self.stanza(search=kwargs.get('search', None)) if want_opds else self.static('index.html')
 
 
     @expose

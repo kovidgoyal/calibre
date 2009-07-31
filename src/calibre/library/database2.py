@@ -1678,8 +1678,11 @@ books_series_link      feeds
             au = self.authors(id, index_is_id=True)
             if not au:
                 au = _('Unknown')
-            fname = '%s - %s.%s'%(title, au, format.lower())
+            fname = '%s - %s'%(title, au)
+            while fname.endswith('.'):
+                fname = fname[:-1]
             fname = ascii_filename(fname)
+            fname = fname + '.' + format.lower()
             dir = os.path.abspath(dir)
             fname = shorten_components_to(plen - len(dir), (fname,))[0]
             if not os.path.exists(dir):

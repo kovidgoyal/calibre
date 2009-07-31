@@ -137,6 +137,11 @@ class Stylizer(object):
                         'Stylesheet %r referenced by file %r not in manifest' %
                         (path, item.href))
                     continue
+                if not hasattr(sitem.data, 'cssRules'):
+                    self.logger.warn(
+                    'Stylesheet %r referenced by file %r is not CSS'%(path,
+                        item.href))
+                    continue
                 stylesheets.append(sitem.data)
         for x in (extra_css, user_css):
             if x:
@@ -220,6 +225,7 @@ class Stylizer(object):
         if 'font-size' in style:
             size = style['font-size']
             if size == 'normal': size = 'medium'
+            if size == 'smallest': size = 'xx-small'
             if size in FONT_SIZE_NAMES:
                 style['font-size'] = "%dpt" % self.profile.fnames[size]
         return style

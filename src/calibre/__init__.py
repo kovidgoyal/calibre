@@ -114,9 +114,11 @@ def prints(*args, **kwargs):
                     raise
                 arg = repr(arg)
         if not isinstance(arg, str):
-            arg = str(arg)
-            if not isinstance(arg, unicode):
-                arg = arg.decode(preferred_encoding, 'replace')
+            try:
+                arg = str(arg)
+            except ValueError:
+                arg = unicode(arg)
+            if isinstance(arg, unicode):
                 try:
                     arg = arg.encode(enc)
                 except UnicodeEncodeError:

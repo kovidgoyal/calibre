@@ -904,12 +904,6 @@ class Manifest(object):
                 if key == 'lang' or key.endswith('}lang'):
                     body.attrib.pop(key)
 
-            # Remove invalid links as they casue overflow until the next link
-            # in rendering.
-            data = etree.tostring(data)
-            data = re.sub('<a[^/]*?/>', '', data)
-            data = etree.fromstring(data)
-
             return data
 
         def _parse_txt(self, data):
