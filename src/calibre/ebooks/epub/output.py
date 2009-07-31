@@ -148,6 +148,20 @@ class EPUBOutput(OutputFormatPlugin):
                 if not pre.text and len(pre) == 0:
                     pre.tag = 'div'
 
+            # Remove hyperlinks with no content as they cause rendering
+            # artifacts in browser based renderers
+            for a in body.xpath('//a[@href]'):
+                if a.get('id', None) is None and a.get('name', None) is None \
+                        and len(a) == 0 and not a.text:
+                    p = a.getparent()
+                    idx = p.index(a) -1
+                    p.remove(a)
+                    if a.tail:
+                        if idx <= 0:
+                            p.text += a.tail
+                        else:
+                            p[idx].tail += a.tail
+
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
