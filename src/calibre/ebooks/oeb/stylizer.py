@@ -137,6 +137,11 @@ class Stylizer(object):
                         'Stylesheet %r referenced by file %r not in manifest' %
                         (path, item.href))
                     continue
+                if not hasattr(sitem.data, 'cssRules'):
+                    self.logger.warn(
+                    'Stylesheet %r referenced by file %r is not CSS'%(path,
+                        item.href))
+                    continue
                 stylesheets.append(sitem.data)
         for x in (extra_css, user_css):
             if x:
