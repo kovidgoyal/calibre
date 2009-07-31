@@ -225,6 +225,7 @@ class Stylizer(object):
         if 'font-size' in style:
             size = style['font-size']
             if size == 'normal': size = 'medium'
+            if size == 'smallest': size = 'xx-small'
             if size in FONT_SIZE_NAMES:
                 style['font-size'] = "%dpt" % self.profile.fnames[size]
         return style

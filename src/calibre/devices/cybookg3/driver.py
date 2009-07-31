@@ -13,7 +13,7 @@ from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
 
 class CYBOOKG3(USBMS):
-    name           = 'Cybook Gen 3 Device Interface'
+    name           = 'Cybook Gen 3/Opus Device Interface'
     description    = _('Communicate with the Cybook eBook reader.')
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
@@ -31,7 +31,7 @@ class CYBOOKG3(USBMS):
     WINDOWS_MAIN_MEM = 'CYBOOK_GEN3__-FD'
     WINDOWS_CARD_A_MEM = 'CYBOOK_GEN3__-SD'
 
-    OSX_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
+    OSX_MAIN_MEM = ['Bookeen Cybook Gen3 -FD Media', 'Bookeen Cybook Opus -FD Media']
     OSX_CARD_A_MEM = 'Bookeen Cybook Gen3 -SD Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
