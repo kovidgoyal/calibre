@@ -43,7 +43,8 @@ PML_HTML_RULES = [
     (re.compile(r'\\-'), lambda match: ''),
     (re.compile(r'\\Fn="(?P<target>.+?)"(?P<text>.*?)\\Fn'), lambda match: '<a href="#footnote-%s">%s</a>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
     (re.compile(r'\\Sd="(?P<target>.+?)"(?P<text>.*?)\\Sd'), lambda match: '<a href="#sidebar-%s">%s</a>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
-    (re.compile(r'\\I'), lambda match: ''),
+    # Just italicize index items as that is how the eReader software renders them.
+    (re.compile(r'\\I(?P<text>.*?)\\I', re.DOTALL), lambda match: '<i>%s</i>' % match.group('text') if match.group('text') else ''),
     
     # Sidebar and Footnotes
     (re.compile(r'<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', re.DOTALL), lambda match: '<div id="sidebar-%s">%s</div>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
@@ -55,7 +56,7 @@ PML_HTML_RULES = [
     # Remove empty <p>'s.
     (re.compile('<p>[ ]*</p>'), lambda match: ''),
     # Ensure empty lines carry over.
-    (re.compile('^$', re.MULTILINE), lambda match: '<br />'),
+    (re.compile('(\r\n|\n|\r){3}'), lambda match: '<br />'),
     
     # Remove unmatched plm codes.
     (re.compile(r'(?<=[^\\])\\[pxcriouvtblBk]'), lambda match: ''),
