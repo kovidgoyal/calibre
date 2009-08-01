@@ -904,6 +904,20 @@ class Manifest(object):
                 if key == 'lang' or key.endswith('}lang'):
                     body.attrib.pop(key)
 
+            # Remove hyperlinks with no content as they cause rendering
+            # artifacts in browser based renderers
+            for a in xpath(data, '//h:a[@href]'):
+                if a.get('id', None) is None and a.get('name', None) is None \
+                        and len(a) == 0 and not a.text:
+                    p = a.getparent()
+                    idx = p.index(a) -1
+                    p.remove(a)
+                    if a.tail:
+                        if idx <= 0:
+                            p.text += a.tail
+                        else:
+                            p[idx].tail += a.tail
+
             return data
 
         def _parse_txt(self, data):
