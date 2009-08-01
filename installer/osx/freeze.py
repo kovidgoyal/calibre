@@ -237,8 +237,9 @@ _check_symlinks_prescript()
         print
         print 'Adding poppler'
         for x in ('pdftohtml', 'libpoppler.4.dylib', 'libpoppler-qt4.3.dylib'):
-            os.link(os.path.join(os.path.expanduser('~/poppler'), x),
-                    os.path.join(frameworks_dir, x))
+            tgt = os.path.join(frameworks_dir, x)
+            os.link(os.path.join(os.path.expanduser('~/poppler'), x), tgt)
+            self.fix_qt_dependencies(tgt, self.qt_dependencies(tgt))
 
 
 
