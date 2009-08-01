@@ -60,7 +60,7 @@ if plugins is None:
             sys.path.insert(0, plugin_path)
 
         for plugin in ['pictureflow', 'lzx', 'msdes', 'podofo', 'cPalmdoc',
-            'fontconfig'] + \
+            'fontconfig', 'calibre_poppler'] + \
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):
             try:

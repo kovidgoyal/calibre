@@ -10,6 +10,7 @@ QT_DIR           = 'C:\\Qt\\4.5.2'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 PDFTOHTML        = 'C:\\cygwin\\home\\kovid\\poppler-0.10.6\\rel\\pdftohtml.exe'
+POPPLER          = 'C:\\cygwin\\home\\kovid\\poppler'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 PDFTK            = 'C:\\pdftk.exe'
 PODOFO           = 'C:\\podofo'
@@ -98,13 +99,17 @@ class BuildEXE(py2exe.build_exe.py2exe):
                 shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
-        print '\tAdding pdftohtml'
-        shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
-        shutil.copyfile(PDFTOHTML+'.manifest', os.path.join(PY2EXE_DIR,
-            os.path.basename(PDFTOHTML)+'.manifest'))
+        print '\tAdding poppler'
+        for x in ('bin\\pdftohtml.exe', 'bin\\poppler-qt4.dll',
+            'bin\\freetype.dll', 'bin\\jpeg62.dll'):
+            shutil.copyfile(os.path.join(POPPLER, x),
+                    os.path.join(PY2EXE_DIR, os.path.basename(x)))
+        #shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
+        #shutil.copyfile(PDFTOHTML+'.manifest', os.path.join(PY2EXE_DIR,
+        #    os.path.basename(PDFTOHTML)+'.manifest'))
         #print '\tAdding pdftk'
         #shutil.copyfile(PDFTK, os.path.join(PY2EXE_DIR, os.path.basename(PDFTK)))
-        print 'Adding podofo'
+        print '\tAdding podofo'
         for f in glob.glob(os.path.join(PODOFO, '*.dll')):
             shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
 

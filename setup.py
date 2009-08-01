@@ -58,6 +58,18 @@ if __name__ == '__main__':
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
     optional = []
+    qmake = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
+    qmake = os.environ.get('QMAKE', qmake)
+    raw = subprocess.Popen([qmake, '-query'],
+            stdout=subprocess.PIPE).stdout.read()
+    qt_inc = qt_lib = None
+    for line in raw.splitlines():
+        q, _, w = line.partition(':')
+        if q == 'QT_INSTALL_HEADERS':
+            qt_inc = w
+        elif q == 'QT_INSTALL_LIBS':
+            qt_lib = w
+
 
     if iswindows:
         optional.append(Extension('calibre.plugins.winutil',
@@ -69,6 +81,28 @@ if __name__ == '__main__':
                 extra_compile_args=['/X']
                 ))
 
+    poppler_inc = '/usr/include/poppler/qt4'
+    poppler_lib = '/usr/lib'
+    poppler_libs = []
+    if iswindows:
+        poppler_inc = r'C:\cygwin\home\kovid\poppler\include\poppler\qt4'
+        poppler_lib = r'C:\cygwin\home\kovid\poppler\lib'
+        poppler_libs = ['QtCore4', 'QtGui4']
+    if isosx:
+        poppler_inc = '/Volumes/sw/build/poppler-0.10.7/qt4/src'
+        poppler_lib = '/Users/kovid/poppler/lib'
+    poppler_inc = os.environ.get('POPPLER_INC_DIR', poppler_inc)
+    if os.path.exists(os.path.join(poppler_inc, 'poppler-qt4.h')):
+        optional.append(Extension('calibre.plugins.calibre_poppler',
+                        sources=['src/calibre/utils/poppler/poppler.cpp'],
+                        libraries=(['poppler', 'poppler-qt4']+poppler_libs),
+                        library_dirs=[os.environ.get('POPPLER_LIB_DIR',
+                            poppler_lib), qt_lib],
+                        include_dirs=[poppler_inc, qt_inc]))
+    else:
+        print 'WARNING: Poppler not found on your system. Various PDF related',
+        print 'functionality will not work. Use the POPPLER_INC_DIR and',
+        print 'POPPLER_LIB_DIR environment variables.'
 
     podofo_inc = '/usr/include/podofo' if islinux else \
     'C:\\podofo\\include\\podofo' if iswindows else \
@@ -84,7 +118,8 @@ if __name__ == '__main__':
                         include_dirs=[podofo_inc]))
     else:
         print 'WARNING: PoDoFo not found on your system. Various PDF related',
-        print 'functionality will not work.'
+        print 'functionality will not work. Use the PODOFO_INC_DIR and',
+        print 'PODOFO_LIB_DIR environment variables.'
 
     fc_inc = '/usr/include/fontconfig' if islinux else \
             r'C:\cygwin\home\kovid\fontconfig\include\fontconfig' if iswindows else \

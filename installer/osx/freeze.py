@@ -234,6 +234,12 @@ _check_symlinks_prescript()
         print 'Adding PoDoFo'
         pdf = glob.glob(os.path.expanduser('/Volumes/sw/podofo/libpodofo*.dylib'))[0]
         shutil.copyfile(pdf, os.path.join(frameworks_dir, os.path.basename(pdf)))
+        print
+        print 'Adding poppler'
+        for x in ('pdftohtml', 'libpoppler.4.dylib', 'libpoppler-qt4.3.dylib'):
+            os.link(os.path.join(os.path.expanduser('~/poppler'), x),
+                    os.path.join(frameworks_dir, x))
+
 
 
         loader_path = os.path.join(resource_dir, 'loaders')
@@ -248,14 +254,9 @@ _check_symlinks_prescript()
             f.close()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
+
+
         self.add_plugins()
-
-
-        print
-        print 'Adding pdftohtml'
-        os.link(os.path.expanduser('~/pdftohtml/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
-        os.link(os.path.expanduser('~/pdftohtml/libpoppler.4.dylib'),
-                os.path.join(frameworks_dir, 'libpoppler.4.dylib'))
         print 'Adding fontconfig'
         for f in glob.glob(os.path.expanduser('~/fontconfig-bundled/*')):
             dest = os.path.join(frameworks_dir, os.path.basename(f))

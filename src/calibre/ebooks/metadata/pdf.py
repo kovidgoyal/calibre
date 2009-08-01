@@ -19,6 +19,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors, authors_
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
 from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
     set_metadata as podofo_set_metadata, Unavailable, get_metadata_quick
+from calibre.utils.poppler import get_metadata as get_metadata_poppler, NotAvailable
 
 def get_quick_metadata(stream):
     return get_metadata_pypdf(stream)
@@ -31,6 +32,10 @@ def get_quick_metadata(stream):
 
 
 def get_metadata(stream, extract_cover=True):
+    try:
+       return get_metadata_poppler(stream, extract_cover)
+    except NotAvailable:
+        pass
     try:
         with TemporaryDirectory('_pdfmeta') as tdir:
             cpath = os.path.join(tdir, 'cover.pdf')
