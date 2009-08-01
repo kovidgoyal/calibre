@@ -108,11 +108,11 @@ def crop_pdf(pdf_path, opts, metadata=None):
             mo = bounding_regex.search(blines.next())
             if mo == None:
                 raise Exception('Error in bounding file %s' % opts.bounding)
-            page.mediaBox.upperRight = (mo.group('top_x'), mo.group('top_y'))
-            page.mediaBox.lowerLeft  = (mo.group('bottom_x'), mo.group('bottom_y'))
+            page.mediaBox.upperRight = (float(mo.group('top_x')), float(mo.group('top_y')))
+            page.mediaBox.lowerLeft  = (float(mo.group('bottom_x')), float(mo.group('bottom_y')))
         else:
-            page.mediaBox.upperRight = (page.bleedBox.getUpperRight_x() - opts.top_right_x, page.bleedBox.getUpperRight_y() - opts.top_right_y)
-            page.mediaBox.lowerLeft  = (page.bleedBox.getLowerLeft_x() + opts.bottom_left_x, page.bleedBox.getLowerLeft_y() + opts.bottom_left_y)
+            page.mediaBox.upperRight = (page.bleedBox.getUpperRight_x() - float(opts.top_right_x), page.bleedBox.getUpperRight_y() - float(opts.top_right_y))
+            page.mediaBox.lowerLeft  = (page.bleedBox.getLowerLeft_x() + float(opts.bottom_left_x), page.bleedBox.getLowerLeft_y() + float(opts.bottom_left_y))
         output_pdf.addPage(page)
 
     with open(opts.output, 'wb') as output_file:
