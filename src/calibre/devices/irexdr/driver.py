@@ -34,7 +34,7 @@ class IREXDR1000(USBMS):
 
     MAIN_MEMORY_VOLUME_LABEL  = 'IRex Digital Reader 1000 Main Memory'
 
-    EBOOK_DIR_MAIN = ''
+    EBOOK_DIR_MAIN = 'ebooks'
     SUPPORTS_SUB_DIRS = True
 
     def delete_books(self, paths, end_session=True):
