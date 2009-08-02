@@ -299,7 +299,7 @@ class LibraryServer(object):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
         ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
-        for record in iter(self.db):
+        for record in reversed(list(iter(self.db))):
             if record[0] not in ids: continue
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
