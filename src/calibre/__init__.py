@@ -326,7 +326,7 @@ def walk(dir):
             yield os.path.join(record[0], f)
 
 def strftime(fmt, t=None):
-    ''' A version of strtime that returns unicode strings and tries to handle dates
+    ''' A version of strftime that returns unicode strings and tries to handle dates
     before 1900 '''
     if t is None:
         t = time.localtime()
