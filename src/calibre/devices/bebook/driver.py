@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Tijmen Ruizendaal <tijmen at mybebook.com>'
+__docformat__ = 'restructuredtext en'
 
 '''
 Device driver for BeBook
@@ -10,11 +13,11 @@ import re
 from calibre.devices.usbms.driver import USBMS
 
 class BEBOOK(USBMS):
+
     name           = 'BeBook driver'
     description    = _('Communicate with the BeBook eBook reader.')
     author         = 'Tijmen Ruizendaal'
     supported_platforms = ['windows', 'osx', 'linux']
-
 
     # Ordered list of supported formats
     FORMATS     = ['mobi', 'epub', 'pdf', 'txt']
@@ -94,4 +97,3 @@ class BEBOOK_MINI(BEBOOK):
 
     MAIN_MEMORY_VOLUME_LABEL  = 'BeBook Mini Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'BeBook Mini Storage Card'
-

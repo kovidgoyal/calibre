@@ -1,20 +1,17 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+# -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
 from calibre.devices.usbms.driver import USBMS
 
 class ANDROID(USBMS):
+
     name           = 'Android driver'
     description    = _('Communicate with Android phones.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
-
 
     # Ordered list of supported formats
     FORMATS     = ['epub']
@@ -34,5 +31,3 @@ class ANDROID(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'Android Internal Memory'
 
     SUPPORTS_SUB_DIRS = True
-
-

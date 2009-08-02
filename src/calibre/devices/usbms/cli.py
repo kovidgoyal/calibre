@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os
+import shutil
 
 from calibre.devices.errors import PathError
 
@@ -33,6 +33,10 @@ class CLI(object):
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
+        close = False
+        if not hasattr(infile, 'read'):
+            infile, close = open(infile, 'rb'), True
+        infile.seek(0)
         if os.path.isdir(path):
             path = os.path.join(path, infile.name)
         if not replace_file and os.path.exists(path):
@@ -44,6 +48,8 @@ class CLI(object):
         shutil.copyfileobj(infile, dest, 10*1024*1024)
         dest.flush()
         dest.close()
+        if close:
+            infile.close()
 
     def munge_path(self, path):
         if path.startswith('/') and not (path.startswith(self._main_prefix) or \
