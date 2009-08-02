@@ -35,6 +35,12 @@ def get_metadata(stream, cover=True):
     if creator:
         mi.book_producer = creator
 
+    if doc.subject:
+        mi.category = doc.subject
+
+    if doc.keywords:
+        mi.tags = [x.strip() for x in doc.keywords.split(',')]
+
     if cover:
         from calibre.gui2 import is_ok_to_use_qt
         cdata = None
