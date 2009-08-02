@@ -60,17 +60,15 @@ if __name__ == '__main__':
     optional = []
     qmake = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
     qmake = os.environ.get('QMAKE', qmake)
-    raw = subprocess.Popen([qmake, '-query'],
+    def qmake_query(arg=''):
+        return subprocess.Popen([qmake, '-query', arg],
             stdout=subprocess.PIPE).stdout.read()
     qt_inc = qt_lib = None
-    for line in raw.splitlines():
-        q, _, w = line.partition(':')
-        if q == 'QT_INSTALL_HEADERS':
-            qt_inc = w
-        elif q == 'QT_INSTALL_LIBS':
-            qt_lib = w
-
-
+    qt_inc = qmake_query('QT_INSTALL_HEADERS').splitlines()[0]
+    qt_inc = qt_inc if qt_inc not in ('', '**Unknown**') and os.path.isdir(qt_inc) else None
+    qt_lib = qmake_query('QT_INSTALL_LIBS').splitlines()[0]
+    qt_lib = qt_lib if qt_lib not in ('', '**Unknown**') and os.path.isdir(qt_lib) else None
+    
     if iswindows:
         optional.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
