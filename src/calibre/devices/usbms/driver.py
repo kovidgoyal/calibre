@@ -8,6 +8,7 @@ for a particular device.
 
 import os
 import fnmatch
+import re
 import shutil
 from itertools import cycle
 
@@ -207,8 +208,9 @@ class USBMS(CLI, Device):
         if cls.settings().read_metadata or cls.MUST_READ_METADATA:
             mi = cls.metadata_from_path(path)
         else:
-            from calibre.ebooks.metadata import MetaInformation
-            mi = MetaInformation(os.path.basename(path))
+            from calibre.ebooks.metadata.meta import metadata_from_filename
+            mi = metadata_from_filename(os.path.basename(path),
+                re.compile(r'^(?P<title>[ \S]+?)[ _]-[ _](?P<author>[ \S]+?)_+\d+'))
 
         authors = authors_to_string(mi.authors)
 
