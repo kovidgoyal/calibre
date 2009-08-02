@@ -188,7 +188,7 @@ class PageTree(LRFObject):
     tag_map.update(LRFObject.tag_map)
 
     def __iter__(self):
-        for id in self._contents:
+        for id in getattr(self, '_contents', []):
             yield self._document.objects[id]
 
 class StyleObject(object):
