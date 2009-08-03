@@ -48,11 +48,12 @@ class RecipeInput(InputFormatPlugin):
         if os.access(recipe_or_file, os.R_OK):
             recipe = compile_recipe(open(recipe_or_file, 'rb').read())
         else:
-            title = os.path.basename(recipe_or_file).rpartition('.')[0]
+            title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
+            title = os.path.basename(title).rpartition('.')[0]
             recipe = get_builtin_recipe(title)
 
         if recipe is None:
-            raise ValueError('%s is not a valid recipe file or builtin recipe' %
+            raise ValueError('%r is not a valid recipe file or builtin recipe' %
                     recipe_or_file)
 
         ro = recipe(opts, log, self.report_progress)
