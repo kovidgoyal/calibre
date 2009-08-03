@@ -305,6 +305,8 @@ class MobiReader(object):
         self.log.debug('Parsing HTML...')
         try:
             root = html.fromstring(self.processed_html)
+            if len(root.xpath('//html')) > 5:
+                root = html.fromstring(self.processed_html.replace('\x0c', ''))
         except:
             self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
             self.processed_html = self.remove_random_bytes(self.processed_html)
