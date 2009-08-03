@@ -317,7 +317,10 @@ class CSSFlattener(object):
         items.sort()
         css = '; '.join("%s: %s" % (key, val) for key, val in items)
         style = etree.SubElement(head, XHTML('style'), type=CSS_MIME)
-        style.text = "@page { %s; }" % css
+        style.text = "\n\t\t@page { %s; }" % css
+        rules = [r.cssText for r in stylizer.font_face_rules]
+        for r in rules:
+            style.text += '\n\t\t'+r+'\n'
 
     def replace_css(self, css):
         manifest = self.oeb.manifest
