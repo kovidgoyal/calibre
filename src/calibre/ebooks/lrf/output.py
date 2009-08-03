@@ -158,6 +158,13 @@ class LRFOutput(OutputFormatPlugin):
 
         book.renderLrf(open(opts.output, 'wb'))
 
+    def flatten_toc(self):
+        from calibre.ebooks.oeb.base import TOC
+        nroot = TOC()
+        for x in self.oeb.toc.iterdescendants():
+            nroot.add(x.title, x.href)
+        self.oeb.toc = nroot
+
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
@@ -168,6 +175,8 @@ class LRFOutput(OutputFormatPlugin):
             self.convert_images(input_plugin.get_images(), lrf_opts,
                     getattr(opts, 'wide', False))
             return
+
+        self.flatten_toc()
 
         from calibre.ptempfile import TemporaryDirectory
         with TemporaryDirectory('_lrf_output') as tdir:
