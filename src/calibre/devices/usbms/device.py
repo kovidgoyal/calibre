@@ -272,6 +272,8 @@ class Device(DeviceConfig, DevicePlugin):
                     'cardb' in drives.keys():
                 break
 
+        drives = self.windows_open_callback(drives)
+
         if 'main' not in drives:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
@@ -281,6 +283,9 @@ class Device(DeviceConfig, DevicePlugin):
         self._main_prefix = drives.get('main')
         self._card_a_prefix = drives.get('carda', None)
         self._card_b_prefix = drives.get('cardb', None)
+
+    def windows_open_callback(self, drives):
+        return drives
 
     @classmethod
     def run_ioreg(cls, raw=None):
