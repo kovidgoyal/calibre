@@ -13,10 +13,11 @@ from base64 import b64encode
 
 from lxml import etree
 
+from calibre import prepare_string_for_xml
+from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.base import OEB_IMAGES
-from calibre.constants import __appname__, __version__
 
 TAG_MAP = {
     'b' : 'strong',
@@ -56,7 +57,6 @@ class FB2MLizer(object):
         output += self.fb2_body_footer()
         output += self.fb2mlize_images()
         output += self.fb2_footer()
-        output = self.clean_text(output)
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
@@ -89,11 +89,6 @@ class FB2MLizer(object):
                     data += char
                 images += '<binary id="%s" content-type="%s">%s\n</binary>' % (os.path.basename(item.href),  item.media_type, data)
         return images
-
-    def clean_text(self, text):
-        text = text.replace('&', '')
-
-        return text
 
     def dump_text(self, elem, stylizer, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
@@ -130,7 +125,7 @@ class FB2MLizer(object):
                 tag_stack.append(style_tag)
 
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            fb2_text += elem.text
+            fb2_text += prepare_string_for_xml(elem.text)
         
         for item in elem:
             fb2_text += self.dump_text(item, stylizer, tag_stack)
@@ -142,9 +137,9 @@ class FB2MLizer(object):
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             if 'p' not in tag_stack:
-                fb2_text += '<p>%s</p>' % elem.tail
+                fb2_text += '<p>%s</p>' % prepare_string_for_xml(elem.tail)
             else:
-                fb2_text += elem.tail
+                fb2_text += prepare_string_for_xml(elem.tail)
             
         return fb2_text
 

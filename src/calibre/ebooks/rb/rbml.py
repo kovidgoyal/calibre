@@ -11,6 +11,7 @@ Transform OEB content into RB compatible markup.
 import os
 import re
 
+from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 
@@ -149,7 +150,7 @@ class RBMLizer(object):
 
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            text += elem.text
+            text += prepare_string_for_xml(elem.text)
 
         for item in elem:
             text += self.dump_text(item, stylizer, tag_stack)
@@ -161,7 +162,7 @@ class RBMLizer(object):
         text += self.close_tags(close_tag_list)
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
-                text += elem.tail
+                text += prepare_string_for_xml(elem.tail)
 
         return text
 
