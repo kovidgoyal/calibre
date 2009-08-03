@@ -345,8 +345,10 @@ def binary_install():
     for exe in exes:
         dest = os.path.join('/usr', 'bin', exe)
         if os.path.exists(dest):
-            os.remove(dest)
-        os.symlink(os.path.join(getattr(sys, 'frozen_path'), exe), dest)
+            os.unlink(dest)
+        tgt = os.path.join(getattr(sys, 'frozen_path'), exe)
+        print '\tSymlinking %s to %s'%(tgt, dest)
+        os.symlink(tgt, dest)
     post_install()
     return 0
 
