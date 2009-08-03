@@ -1,14 +1,21 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Device driver for Amazon's Kindle
 '''
 
-import os, re, sys
+import os
+import re
+import sys
 
 from calibre.devices.usbms.driver import USBMS
 
 class KINDLE(USBMS):
+
     name           = 'Kindle Device Interface'
     description    = _('Communicate with the Kindle eBook reader.')
     author         = _('John Schember')
@@ -31,25 +38,13 @@ class KINDLE(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'Kindle Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Kindle Storage Card'
 
-    EBOOK_DIR_MAIN = "documents"
-    EBOOK_DIR_CARD_A = "documents"
+    EBOOK_DIR_MAIN = 'documents'
+    EBOOK_DIR_CARD_A = 'documents'
+    DELETE_EXTS = ['.mbp']
     SUPPORTS_SUB_DIRS = True
 
     WIRELESS_FILE_NAME_PATTERN = re.compile(
     r'(?P<title>[^-]+)-asin_(?P<asin>[a-zA-Z\d]{10,})-type_(?P<type>\w{4})-v_(?P<index>\d+).*')
-
-    def delete_books(self, paths, end_session=True):
-        for i, path in enumerate(paths):
-            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
-            if os.path.exists(path):
-                os.unlink(path)
-
-                filepath = os.path.splitext(path)[0]
-
-                # Delete the ebook auxiliary file
-                if os.path.exists(filepath + '.mbp'):
-                    os.unlink(filepath + '.mbp')
-        self.report_progress(1.0, _('Removing books from device...'))
 
     @classmethod
     def metadata_from_path(cls, path):
@@ -65,6 +60,7 @@ class KINDLE(USBMS):
 
 
 class KINDLE2(KINDLE):
+
     name           = 'Kindle 2 Device Interface'
     description    = _('Communicate with the Kindle 2 eBook reader.')
     author         = _('John Schember')
@@ -73,7 +69,9 @@ class KINDLE2(KINDLE):
     PRODUCT_ID = [0x0002]
     BCD        = [0x0100]
 
+
 class KINDLE_DX(KINDLE):
+
     name           = 'Kindle DX Device Interface'
     description    = _('Communicate with the Kindle 2 eBook reader.')
     author         = _('John Schember')
@@ -83,5 +81,3 @@ class KINDLE_DX(KINDLE):
 
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
-
-

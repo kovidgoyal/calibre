@@ -1,23 +1,25 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Device driver for Bookeen's Cybook Gen 3
 '''
 
 import os
-import shutil
 from itertools import cycle
 
-from calibre.utils.filenames import ascii_filename as sanitize
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
 
 class CYBOOKG3(USBMS):
-    name           = 'Cybook Gen 3/Opus Device Interface'
-    description    = _('Communicate with the Cybook eBook reader.')
+
+    name           = 'Cybook Gen 3 Device Interface'
+    description    = _('Communicate with the Cybook Gen 3 eBook reader.')
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
-
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
@@ -31,19 +33,21 @@ class CYBOOKG3(USBMS):
     WINDOWS_MAIN_MEM = 'CYBOOK_GEN3__-FD'
     WINDOWS_CARD_A_MEM = 'CYBOOK_GEN3__-SD'
 
-    OSX_MAIN_MEM = ['Bookeen Cybook Gen3 -FD Media', 'Bookeen Cybook Opus -FD Media']
+    OSX_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
     OSX_CARD_A_MEM = 'Bookeen Cybook Gen3 -SD Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
 
-    EBOOK_DIR_MAIN = "eBooks"
-    EBOOK_DIR_CARD_A = "eBooks"
+    EBOOK_DIR_MAIN = 'eBooks'
+    EBOOK_DIR_CARD_A = 'eBooks'
     THUMBNAIL_HEIGHT = 144
+    DELETE_EXTS = ['.mbp', '.dat', '_6090.t2b']
     SUPPORTS_SUB_DIRS = True
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
+
         path = self._sanity_check(on_card, files)
 
         paths = []
@@ -51,45 +55,16 @@ class CYBOOKG3(USBMS):
         metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            newpath = path
-            mdata = metadata.next()
-
-            if 'tags' in mdata.keys():
-                for tag in mdata['tags']:
-                    if tag.startswith(_('News')):
-                        newpath = os.path.join(newpath, 'news')
-                        newpath = os.path.join(newpath, sanitize(mdata.get('title', '')))
-                        newpath = os.path.join(newpath, sanitize(mdata.get('timestamp', '')))
-                    elif tag.startswith('/'):
-                        newpath += tag
-                        newpath = os.path.normpath(newpath)
-                        break
-
-            if newpath == path:
-                newpath = os.path.join(newpath, sanitize(mdata.get('authors', _('Unknown'))))
-                newpath = os.path.join(newpath, sanitize(mdata.get('title', _('Unknown'))))
-
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-
-            filepath = os.path.join(newpath, sanitize(names.next()))
+            mdata, fname = metadata.next(), names.next()
+            filepath = self.create_upload_path(path, mdata, fname)
             paths.append(filepath)
 
-            if hasattr(infile, 'read'):
-                infile.seek(0)
-
-                dest = open(filepath, 'wb')
-                shutil.copyfileobj(infile, dest, 10*1024*1024)
-
-                dest.flush()
-                dest.close()
-            else:
-                shutil.copy2(infile, filepath)
+            self.put_file(infile, filepath, replace_file=True)
 
             coverdata = None
-            if 'cover' in mdata.keys():
-                if mdata['cover'] != None:
-                    coverdata = mdata['cover'][2]
+            cover = mdata.get('cover', None)
+            if cover:
+                coverdata = cover[2]
 
             t2bfile = open('%s_6090.t2b' % (os.path.splitext(filepath)[0]), 'wb')
             t2b.write_t2b(t2bfile, coverdata)
@@ -101,31 +76,13 @@ class CYBOOKG3(USBMS):
 
         return zip(paths, cycle([on_card]))
 
-    def delete_books(self, paths, end_session=True):
-        for i, path in enumerate(paths):
-            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
-            if os.path.exists(path):
-                os.unlink(path)
 
-                filepath, ext = os.path.splitext(path)
+class CYBOOK_OPUS(USBMS):
 
-                # Delete the ebook auxiliary file
-                if os.path.exists(filepath + '.mbp'):
-                    os.unlink(filepath + '.mbp')
-                if os.path.exists(filepath + '.dat'):
-                    os.unlink(filepath + '.dat')
-
-                # Delete the thumbnails file auto generated for the ebook
-                if os.path.exists(filepath + '_6090.t2b'):
-                    os.unlink(filepath + '_6090.t2b')
-
-                try:
-                    os.removedirs(os.path.dirname(path))
-                except:
-                    pass
-        self.report_progress(1.0, _('Removing books from device...'))
-
-class CYBOOK_OPUS(CYBOOKG3):
+    name           = 'Cybook Opus Device Interface'
+    description    = _('Communicate with the Cybook Opus eBook reader.')
+    author         = _('John Schember')
+    supported_platforms = ['windows', 'osx', 'linux']
 
     FORMATS = ['epub', 'pdf', 'txt']
 
@@ -133,14 +90,13 @@ class CYBOOK_OPUS(CYBOOKG3):
     PRODUCT_ID  = [0x0703]
     BCD         = [0x110]
 
+    VENDOR_NAME = 'BOOKEEN'
     WINDOWS_MAIN_MEM = 'CYBOOK_OPUS__-FD'
     WINDOWS_CARD_A_MEM = 'CYBOOK_OPUS__-SD'
 
     OSX_MAIN_MEM = 'Bookeen Cybook Opus -FD Media'
     OSX_CARD_A_MEM = 'Bookeen Cybook Opus -SD Media'
 
-    def upload_books(self, *args, **kwargs):
-        USBMS.upload_books(self, *args, **kwargs)
-
-    def delete_books(self, *args, **kwargs):
-        USBMS.delete_books(self, *args, **kwargs)
+    EBOOK_DIR_MAIN = 'eBooks'
+    EBOOK_DIR_CARD_A = 'eBooks'
+    SUPPORTS_SUB_DIRS = True

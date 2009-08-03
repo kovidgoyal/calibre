@@ -1,15 +1,21 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
                 '2009, John Schember <john at nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Device driver for the SONY PRS-505
 '''
-import os, re, time
+
+import os
+import re
+import time
 from itertools import cycle
 
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
-from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.prs505.books import BookList, fix_ids
 from calibre import __appname__
 
@@ -80,7 +86,6 @@ class PRS505(CLI, Device):
         self.report_progress(1.0, _('Get device information...'))
         return (self.__class__.__name__, '', '', '')
 
-
     def books(self, oncard=None, end_session=True):
         if oncard == 'carda' and not self._card_a_prefix:
             self.report_progress(1.0, _('Getting list of books on device...'))
@@ -105,48 +110,13 @@ class PRS505(CLI, Device):
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-        if on_card == 'carda' and not self._card_a_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
-        elif on_card == 'cardb' and not self._card_b_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
-        elif on_card and on_card not in ('carda', 'cardb'):
-            raise DeviceError(_('The reader has no storage card in this slot.'))
 
-        if on_card == 'carda':
-            path = os.path.join(self._card_a_prefix, self.CARD_PATH_PREFIX)
-        elif on_card == 'cardb':
-            path = os.path.join(self._card_b_prefix, self.CARD_PATH_PREFIX)
-        else:
-            path = os.path.join(self._main_prefix, 'database', 'media', 'books')
-
-        def get_size(obj):
-            if hasattr(obj, 'seek'):
-                obj.seek(0, 2)
-                size = obj.tell()
-                obj.seek(0)
-                return size
-            return os.path.getsize(obj)
-
-        sizes = [get_size(f) for f in files]
-        size = sum(sizes)
-
-        if not on_card and size > self.free_space()[0] - 2*1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space in main memory"))
-        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
-        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        path = self._sanity_check(on_card, files)
 
         paths, ctimes = [], []
-
         names = iter(names)
         metadata = iter(metadata)
         for i, infile in enumerate(files):
-            close = False
-            if not hasattr(infile, 'read'):
-                infile, close = open(infile, 'rb'), True
-            infile.seek(0)
-
             mdata, fname = metadata.next(), names.next()
             filepath = self.create_upload_path(path, mdata, fname)
 
@@ -154,8 +124,6 @@ class PRS505(CLI, Device):
 
             self.put_file(infile, paths[-1], replace_file=True)
 
-            if close:
-                infile.close()
             ctimes.append(os.path.getctime(paths[-1]))
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))

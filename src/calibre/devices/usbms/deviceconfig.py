@@ -41,7 +41,7 @@ class DeviceConfig(object):
     @classmethod
     def settings(cls):
         return cls._config().parse()
-    
+
     @classmethod
     def customization_help(cls, gui=False):
         return cls.HELP_MESSAGE

@@ -1,13 +1,23 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
-__copyright__ = '''2009, John Schember <john at nachtimwald.com>
-                    and Kovid Goyal <kovid@kovidgoyal.net>'''
+__copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
+                '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Generic device driver. This is not a complete stand alone driver. It is
 intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import os, subprocess, time, re, sys, glob, shutil
+import os
+import subprocess
+import time
+import re
+import sys
+import glob
+import shutil
 from itertools import repeat
 from math import ceil
 
@@ -18,6 +28,7 @@ from calibre import iswindows, islinux, isosx, __appname__
 from calibre.utils.filenames import ascii_filename as sanitize
 
 class Device(DeviceConfig, DevicePlugin):
+
     '''
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. If you are writing such a driver, inherit from this
@@ -240,7 +251,6 @@ class Device(DeviceConfig, DevicePlugin):
                     return True
             return False
 
-
         time.sleep(6)
         drives = {}
         wmi = __import__('wmi', globals(), locals(), [], -1)
@@ -293,7 +303,6 @@ class Device(DeviceConfig, DevicePlugin):
             if x in line:
                 return True
         return False
-
 
     def get_osx_mountpoints(self, raw=None):
         raw = self.run_ioreg(raw)
@@ -458,7 +467,6 @@ class Device(DeviceConfig, DevicePlugin):
             return node
         return nodes[-1][0]
 
-
     def open_linux(self):
 
         def mount(node, type):
@@ -496,7 +504,6 @@ class Device(DeviceConfig, DevicePlugin):
             if ret != 0:
                 return None, ret
             return self.node_mountpoint(node)+'/', 0
-
 
         main, carda, cardb = self.find_device_nodes()
         if main is None:
@@ -600,7 +607,6 @@ class Device(DeviceConfig, DevicePlugin):
                     except:
                         pass
 
-
     def eject(self):
         if islinux:
             try:
@@ -618,6 +624,40 @@ class Device(DeviceConfig, DevicePlugin):
             except:
                 pass
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+
+    def _sanity_check(self, on_card, files):
+        if on_card == 'carda' and not self._card_a_prefix:
+            raise ValueError(_('The reader has no storage card in this slot.'))
+        elif on_card == 'cardb' and not self._card_b_prefix:
+            raise ValueError(_('The reader has no storage card in this slot.'))
+        elif on_card and on_card not in ('carda', 'cardb'):
+            raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
+
+        if on_card == 'carda':
+            path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
+        elif on_card == 'cardb':
+            path = os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B)
+        else:
+            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
+
+        def get_size(obj):
+            if hasattr(obj, 'seek'):
+                obj.seek(0, os.SEEK_END)
+                size = obj.tell()
+                obj.seek(0)
+                return size
+            return os.path.getsize(obj)
+
+        sizes = [get_size(f) for f in files]
+        size = sum(sizes)
+
+        if not on_card and size > self.free_space()[0] - 2*1024*1024:
+            raise FreeSpaceError(_("There is insufficient free space in main memory"))
+        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
+            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
+            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        return path
 
     def create_upload_path(self, path, mdata, fname):
         resizable = []
@@ -681,10 +721,7 @@ class Device(DeviceConfig, DevicePlugin):
             filepath = filepath.replace(os.sep+os.sep, os.sep)
             newpath = os.path.dirname(filepath)
 
-
         if not os.path.exists(newpath):
             os.makedirs(newpath)
 
         return filepath
-
-

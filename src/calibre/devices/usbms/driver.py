@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Generic USB Mass storage device driver. This is not a complete stand alone
 driver. It is intended to be subclassed with the relevant parts implemented
@@ -9,14 +13,12 @@ for a particular device.
 import os
 import fnmatch
 import re
-import shutil
 from itertools import cycle
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
-from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.mime import mime_type_ext
 
 # CLI must come before Device as it implments the CLI functions that
@@ -32,6 +34,7 @@ class USBMS(CLI, Device):
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD_A = ''
     EBOOK_DIR_CARD_B = ''
+    DELETE_EXTS = []
     CAN_SET_METADATA = False
 
     def reset(self, key='-1', log_packets=False, report_progress=None):
@@ -80,40 +83,6 @@ class USBMS(CLI, Device):
 
         return bl
 
-    def _sanity_check(self, on_card, files):
-        if on_card == 'carda' and not self._card_a_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
-        elif on_card == 'cardb' and not self._card_b_prefix:
-            raise ValueError(_('The reader has no storage card in this slot.'))
-        elif on_card and on_card not in ('carda', 'cardb'):
-            raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
-
-        if on_card == 'carda':
-            path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
-        elif on_card == 'cardb':
-            path = os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B)
-        else:
-            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
-
-        def get_size(obj):
-            if hasattr(obj, 'seek'):
-                obj.seek(0, os.SEEK_END)
-                size = obj.tell()
-                obj.seek(0)
-                return size
-            return os.path.getsize(obj)
-
-        sizes = [get_size(f) for f in files]
-        size = sum(sizes)
-
-        if not on_card and size > self.free_space()[0] - 2*1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space in main memory"))
-        if on_card == 'carda' and size > self.free_space()[1] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
-        if on_card == 'cardb' and size > self.free_space()[2] - 1024*1024:
-            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
-        return path
-
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
 
@@ -129,23 +98,13 @@ class USBMS(CLI, Device):
 
             paths.append(filepath)
 
-            if hasattr(infile, 'read'):
-                infile.seek(0)
-
-                dest = open(filepath, 'wb')
-                shutil.copyfileobj(infile, dest, 10*1024*1024)
-
-                dest.flush()
-                dest.close()
-            else:
-                shutil.copy2(infile, filepath)
+            self.put_file(infile, filepath, replace_file=True)
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
 
         return zip(paths, cycle([on_card]))
-
 
     def add_books_to_metadata(self, locations, metadata, booklists):
         for i, location in enumerate(locations):
@@ -159,13 +118,18 @@ class USBMS(CLI, Device):
                 booklists[blist].append(book)
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
-
     def delete_books(self, paths, end_session=True):
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             if os.path.exists(path):
                 # Delete the ebook
                 os.unlink(path)
+
+                filepath = os.path.splitext(path)[0]
+                for ext in self.DELETE_EXTS:
+                    if os.path.exists(filepath + ext):
+                        os.unlink(filepath + ext)
+
                 if self.SUPPORTS_SUB_DIRS:
                     try:
                         os.removedirs(os.path.dirname(path))
@@ -198,7 +162,6 @@ class USBMS(CLI, Device):
         from calibre.customize.ui import quick_metadata
         with quick_metadata:
             return metadata_from_formats(fmts)
-
 
     @classmethod
     def book_from_path(cls, path):

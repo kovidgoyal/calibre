@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Device driver for the Netronix EB600
 
@@ -14,13 +18,15 @@ Windows PNP strings:
 from calibre.devices.usbms.driver import USBMS
 
 class EB600(USBMS):
+
     name           = 'Netronix EB600 Device Interface'
     description    = _('Communicate with the EB600 eBook reader.')
     author         = _('Kovid Goyal')
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt', 'pdf']
+    FORMATS     = ['epub', 'mobi', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt',
+        'pdf']
     DRM_FORMATS = ['prc', 'mobi', 'html', 'pdf', 'txt']
 
     VENDOR_ID   = [0x1f85]
@@ -59,4 +65,3 @@ class COOL_ER(EB600):
     WINDOWS_MAIN_MEM = 'EREADER'
 
     EBOOK_DIR_MAIN = 'my docs'
-

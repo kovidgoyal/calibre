@@ -1,10 +1,16 @@
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, James Ralston <jralston at mindspring.com>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Device driver for Ectaco Jetbook firmware >= JL04_v030e
 '''
 
-import os, re, sys, shutil
+import os
+import re
+import sys
 from itertools import cycle
 
 from calibre.devices.usbms.driver import USBMS
@@ -54,46 +60,18 @@ class JETBOOK(USBMS):
         metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            newpath = path
-
-            mdata = metadata.next()
-
-            if 'tags' in mdata.keys():
-                for tag in mdata['tags']:
-                    if tag.startswith(_('News')):
-                        newpath = os.path.join(newpath, 'news')
-                        newpath = os.path.join(newpath, mdata.get('title', ''))
-                        newpath = os.path.join(newpath, mdata.get('timestamp', ''))
-                        break
-                    elif tag.startswith('/'):
-                        newpath += tag
-                        newpath = os.path.normpath(newpath)
-                        break
+            mdata, fname = metadata.next(), names.next()
+            path = os.path.dirname(self.create_upload_path(path, mdata, fname))
 
             author = sanitize(mdata.get('authors','Unknown')).replace(' ', '_')
             title = sanitize(mdata.get('title', 'Unknown')).replace(' ', '_')
-            fileext = os.path.splitext(os.path.basename(names.next()))[1]
+            fileext = os.path.splitext(os.path.basename(fname))[1]
             fname = '%s#%s%s' % (author, title, fileext)
 
-            if newpath == path:
-                newpath = os.path.join(newpath, author, title)
-
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-
-            filepath = os.path.join(newpath, fname)
+            filepath = os.path.join(path, fname)
             paths.append(filepath)
 
-            if hasattr(infile, 'read'):
-                infile.seek(0)
-
-                dest = open(filepath, 'wb')
-                shutil.copyfileobj(infile, dest, 10*1024*1024)
-
-                dest.flush()
-                dest.close()
-            else:
-                shutil.copy2(infile, filepath)
+            self.put_file(infile, filepath, replace_file=True)
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
@@ -132,6 +110,3 @@ class JETBOOK(USBMS):
             drives['carda'] = main
 
         return drives
-
-
-

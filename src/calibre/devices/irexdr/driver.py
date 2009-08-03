@@ -8,16 +8,15 @@ __docformat__ = 'restructuredtext en'
 Device driver for IRex Digiatal Reader
 '''
 
-import os
-
 from calibre.devices.usbms.driver import USBMS
 
 class IREXDR1000(USBMS):
+
     name           = 'IRex Digital Reader 1000 Device Interface'
-    description    = _('Communicate with the IRex Digital Reader 1000 eBook reader.')
+    description    = _('Communicate with the IRex Digital Reader 1000 eBook ' \
+        'reader.')
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
-
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
@@ -35,23 +34,5 @@ class IREXDR1000(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'IRex Digital Reader 1000 Main Memory'
 
     EBOOK_DIR_MAIN = 'ebooks'
+    DELETE_EXTS = ['.mbp']
     SUPPORTS_SUB_DIRS = True
-
-    def delete_books(self, paths, end_session=True):
-        for i, path in enumerate(paths):
-            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
-            if os.path.exists(path):
-                os.unlink(path)
-
-                filepath, ext = os.path.splitext(path)
-
-                # Delete the ebook auxiliary file
-                if os.path.exists(filepath + '.mbp'):
-                    os.unlink(filepath + '.mbp')
-
-                try:
-                    os.removedirs(os.path.dirname(path))
-                except:
-                    pass
-
-        self.report_progress(1.0, _('Removing books from device...'))
