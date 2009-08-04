@@ -239,6 +239,8 @@ class PRS500(DeviceConfig, DevicePlugin):
         Also initialize the device.
         See the source code for the sequence of initialization commands.
         """
+        if not hasattr(self, 'key'):
+            self.key = '-1\0\0\0\0\0\0'
         self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)
         if not self.device:
             raise DeviceError()

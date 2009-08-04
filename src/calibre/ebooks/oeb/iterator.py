@@ -150,7 +150,8 @@ class EbookIterator(object):
         self.language = self.opf.language
         if self.language:
             self.language = self.language.lower()
-        self.spine = [SpineItem(i.path) for i in self.opf.spine]
+        self.spine = [SpineItem(i.path) for i in self.opf.spine if i.is_linear]
+        self.spine += [SpineItem(i.path) for i in self.opf.spine if not i.is_linear]
 
         cover = self.opf.cover
         if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:

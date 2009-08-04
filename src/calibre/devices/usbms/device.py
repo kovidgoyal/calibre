@@ -727,11 +727,14 @@ class Device(DeviceConfig, DevicePlugin):
                         if r.startswith('.'): r = x[0]+r
                     else:
                         r = x[:-delta]
+                r = r.strip()
+                if not r:
+                    r = x.strip()[0] if x.strip() else 'x'
                 if x is resizable[-1]:
                     filepath = filepath.replace(os.sep+x, os.sep+r)
                 else:
                     filepath = filepath.replace(os.sep+x+os.sep, os.sep+r+os.sep)
-            filepath = filepath.replace(os.sep+os.sep, os.sep)
+            filepath = filepath.replace(os.sep+os.sep, os.sep).strip()
             newpath = os.path.dirname(filepath)
 
         if not os.path.exists(newpath):

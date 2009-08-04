@@ -289,6 +289,7 @@ def available_input_formats():
         if not is_disabled(plugin):
             for format in plugin.file_types:
                 formats.add(format)
+    formats.add('zip'), formats.add('rar')
     return formats
 
 def output_format_plugins():

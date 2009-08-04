@@ -63,6 +63,14 @@ class Kindle(Device):
     manufacturer = 'Amazon'
     id = 'kindle'
 
+class JetBook(Device):
+
+    output_profile = 'jetbook5'
+    output_format  = 'EPUB'
+    name = 'JetBook'
+    manufacturer = 'Ectaco'
+    id = 'jetbook'
+
 class KindleDX(Kindle):
 
     output_profile = 'kindle_dx'
