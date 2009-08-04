@@ -812,9 +812,9 @@ class DeviceGUI(object):
             bad = '\n'.join('%s'%(i,) for i in bad)
             d = warning_dialog(self, _('No suitable formats'),
                     _('Could not upload the following books to the device, '
-                'as no suitable formats were found. Try changing the output '
-                'format in the upper right corner next to the red heart and '
-                're-converting.'), bad)
+                'as no suitable formats were found. Convert the book(s) to a '
+                'format supported by your device first.'
+                ), bad)
             d.exec_()
 
     def upload_booklists(self):
