@@ -22,7 +22,7 @@ from itertools import repeat
 from math import ceil
 
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import DeviceError
+from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
 from calibre.utils.filenames import ascii_filename as sanitize
@@ -56,6 +56,11 @@ class Device(DeviceConfig, DevicePlugin):
 
     SUPPORTS_SUB_DIRS = False
     MUST_READ_METADATA = False
+
+    EBOOK_DIR_MAIN = ''
+    EBOOK_DIR_CARD_A = ''
+    EBOOK_DIR_CARD_B = ''
+    DELETE_EXTS = []
 
     FDI_TEMPLATE = \
 '''
@@ -267,6 +272,8 @@ class Device(DeviceConfig, DevicePlugin):
                     'cardb' in drives.keys():
                 break
 
+        drives = self.windows_open_callback(drives)
+
         if 'main' not in drives:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
@@ -276,6 +283,9 @@ class Device(DeviceConfig, DevicePlugin):
         self._main_prefix = drives.get('main')
         self._card_a_prefix = drives.get('carda', None)
         self._card_b_prefix = drives.get('cardb', None)
+
+    def windows_open_callback(self, drives):
+        return drives
 
     @classmethod
     def run_ioreg(cls, raw=None):
@@ -634,11 +644,14 @@ class Device(DeviceConfig, DevicePlugin):
             raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
 
         if on_card == 'carda':
-            path = os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A)
+            path = os.path.join(self._card_a_prefix,
+                    *(self.EBOOK_DIR_CARD_A.split('/')))
         elif on_card == 'cardb':
-            path = os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B)
+            path = os.path.join(self._card_b_prefix,
+                    *(self.EBOOK_DIR_CARD_B.split('/')))
         else:
-            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
+            path = os.path.join(self._main_prefix,
+                    *(self.EBOOK_DIR_MAIN.split('/')))
 
         def get_size(obj):
             if hasattr(obj, 'seek'):

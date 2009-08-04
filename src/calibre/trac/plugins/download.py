@@ -19,7 +19,7 @@ DEPENDENCIES = [
             ('python-dateutil', '1.4.1', 'python-dateutil', 'python-dateutil', 'python-dateutil'),
             ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
             ('dnspython', '1.6.0', 'dnspython', 'dnspython', 'dnspython', 'dnspython'),
-            ('poppler', '0.10.5', 'poppler', 'poppler', 'poppler', 'poppler'),
+            ('poppler-qt4', '0.10.6', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4'),
             ('podofo', '0.7', 'podofo', 'podofo', 'podofo', 'podofo'),
             ('pmount', '0.9.19', 'pmount', 'pmount', 'pmount', 'pmount'),
             ]

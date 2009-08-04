@@ -23,7 +23,8 @@ except ImportError:
 
 from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
-from calibre import fit_image, guess_type, prepare_string_for_xml
+from calibre import fit_image, guess_type, prepare_string_for_xml, \
+        strftime as _strftime
 from calibre.resources import jquery, server_resources, build_time
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
@@ -34,6 +35,15 @@ from calibre.ebooks.metadata import fmt_sidx
 
 build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
 server_resources['jquery.js'] = jquery
+
+def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
+    if not hasattr(dt, 'timetuple'):
+        dt = datetime.now()
+    dt = dt.timetuple()
+    try:
+        return _strftime(fmt, dt)
+    except:
+        return _strftime(fmt, datetime.now().timetuple())
 
 def expose(func):
 
@@ -59,7 +69,8 @@ class LibraryServer(object):
             author_sort="${r[12]}"
             authors="${authors}"
             rating="${r[4]}"
-            timestamp="${r[5].strftime('%Y/%m/%d %H:%M:%S')}"
+            timestamp="${timestamp}"
+            pubdate="${pubdate}"
             size="${r[6]}"
             isbn="${r[14] if r[14] else ''}"
             formats="${r[13] if r[13] else ''}"
@@ -84,7 +95,7 @@ class LibraryServer(object):
         <title>${record[FM['title']]}</title>
         <id>urn:calibre:${record[FM['id']]}</id>
         <author><name>${authors}</name></author>
-        <updated>${record[FM['timestamp']].strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+        <updated>${timestamp}</updated>
         <link type="${mimetype}" href="/get/${fmt}/${record[FM['id']]}" />
         <link rel="x-stanza-cover-image" type="image/jpeg" href="/get/cover/${record[FM['id']]}" />
         <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="/get/thumb/${record[FM['id']]}" />
@@ -288,7 +299,7 @@ class LibraryServer(object):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
         ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
-        for record in iter(self.db):
+        for record in reversed(list(iter(self.db))):
             if record[0] not in ids: continue
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
@@ -318,9 +329,10 @@ class LibraryServer(object):
                                                 authors=authors,
                                                 record=record, FM=FIELD_MAP,
                                                 port=self.opts.port,
-                                                extra = ''.join(extra),
+                                                extra=''.join(extra),
                                                 mimetype=mimetype,
                                                 fmt=fmt,
+                                                timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5]),
                                                 ).render('xml').decode('utf8'))
 
         updated = self.db.last_modified()
@@ -361,7 +373,10 @@ class LibraryServer(object):
             aus = record[2] if record[2] else __builtin__._('Unknown')
             authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
             record[10] = fmt_sidx(float(record[10]))
-            books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
+            ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[5]), \
+                strftime('%Y/%m/%d %H:%M:%S', record[FIELD_MAP['pubdate']])
+            books.append(book.generate(r=record, authors=authors, timestamp=ts,
+                pubdate=pd).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
 
         cherrypy.response.headers['Content-Type'] = 'text/xml'

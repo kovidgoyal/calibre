@@ -134,7 +134,6 @@ class Adder(QObject):
             mi.title = os.path.splitext(name)[0]
         mi.title = mi.title if isinstance(mi.title, unicode) else \
                    mi.title.decode(preferred_encoding, 'replace')
-        self.pd.set_msg(_('Added')+' '+mi.title)
 
         if self.db is not None:
             if cover:
@@ -152,6 +151,9 @@ class Adder(QObject):
                            'authors':', '.join(mi.authors),
                            'cover':None,
                            'tags':mi.tags if mi.tags else []})
+
+        self.pd.set_msg(_('Added')+' '+mi.title)
+
 
     def process_duplicates(self):
         if not self.duplicates:

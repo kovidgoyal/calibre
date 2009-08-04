@@ -51,6 +51,11 @@ class BEBOOK(USBMS):
 
         return drives
 
+    def windows_open_callback(self, drives):
+        if 'main' not in drives and 'carda' in drives:
+            drives['main'] = drives.pop('carda')
+        return drives
+
     def osx_sort_names(self, names):
         main = names.get('main', None)
         card = names.get('carda', None)

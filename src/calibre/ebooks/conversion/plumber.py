@@ -51,6 +51,7 @@ class Plumber(object):
         :param input: Path to input file.
         :param output: Path to output file/directory
         '''
+        self.original_input_arg = input
         self.input = os.path.abspath(input)
         self.output = os.path.abspath(output)
         self.log = log
@@ -636,6 +637,8 @@ OptionRecommendation(name='language',
         tdir = PersistentTemporaryDirectory('_plumber')
         stream = self.input if self.input_fmt == 'recipe' else \
                 open(self.input, 'rb')
+        if self.input_fmt == 'recipe':
+            self.opts.original_recipe_input_arg = self.original_input_arg
 
         if hasattr(self.opts, 'lrf') and self.output_plugin.file_type == 'lrf':
             self.opts.lrf = True

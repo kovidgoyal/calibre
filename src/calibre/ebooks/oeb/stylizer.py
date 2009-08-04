@@ -17,7 +17,7 @@ from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
-    CSSValueList, cssproperties
+    CSSValueList, CSSFontFaceRule, cssproperties
 from cssutils import profile as cssprofiles
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
@@ -119,6 +119,7 @@ class Stylizer(object):
         head = xpath(tree, '/h:html/h:head')[0]
         parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
+        self.font_face_rules = []
         for elem in head:
             if elem.tag == XHTML('style') and elem.text \
                and elem.get('type', CSS_MIME) in OEB_STYLES:
@@ -210,6 +211,8 @@ class Stylizer(object):
         elif isinstance(rule, CSSPageRule):
             style = self.flatten_style(rule.style)
             self.page_rule.update(style)
+        elif isinstance(rule, CSSFontFaceRule):
+            self.font_face_rules.append(rule)
         return results
 
     def flatten_style(self, cssstyle):

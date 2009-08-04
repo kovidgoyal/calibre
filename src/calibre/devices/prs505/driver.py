@@ -51,6 +51,7 @@ class PRS505(CLI, Device):
 
     SUPPORTS_SUB_DIRS = True
     MUST_READ_METADATA = True
+    EBOOK_DIR_MAIN = 'database/media/books'
 
     def open(self):
         Device.open(self)
@@ -113,7 +114,7 @@ class PRS505(CLI, Device):
 
         path = self._sanity_check(on_card, files)
 
-        paths, ctimes = [], []
+        paths, ctimes, sizes = [], [], []
         names = iter(names)
         metadata = iter(metadata)
         for i, infile in enumerate(files):
@@ -121,10 +122,9 @@ class PRS505(CLI, Device):
             filepath = self.create_upload_path(path, mdata, fname)
 
             paths.append(filepath)
-
             self.put_file(infile, paths[-1], replace_file=True)
-
             ctimes.append(os.path.getctime(paths[-1]))
+            sizes.append(os.stat(paths[-1]).st_size)
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 

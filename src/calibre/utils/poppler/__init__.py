@@ -54,6 +54,8 @@ def get_metadata(stream, cover=True):
 
         if cdata is not None:
             mi.cover_data = ('jpg', cdata)
+    del doc
+    del raw
     return mi
 
 
