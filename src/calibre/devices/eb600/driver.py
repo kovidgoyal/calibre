@@ -64,4 +64,6 @@ class COOL_ER(EB600):
     VENDOR_NAME = 'COOL-ER'
     WINDOWS_MAIN_MEM = 'EREADER'
 
+    OSX_MAIN_MEM = 'COOL-ER eReader Media'
+
     EBOOK_DIR_MAIN = 'my docs'
