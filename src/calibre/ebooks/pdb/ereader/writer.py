@@ -20,7 +20,7 @@ except ImportError:
 import cStringIO
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
-from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml.pmlml import PMLMLizer
@@ -72,21 +72,24 @@ class Writer(FormatWriter):
         images = []
 
         for item in manifest:
-            if item.media_type in OEB_IMAGES:
-                header = 'PNG '
+            if item.media_type in OEB_RASTER_IMAGES:
+                try:
+                    im = Image.open(cStringIO.StringIO(item.data)).convert('P')
+                    im.thumbnail((300,300), Image.ANTIALIAS)
 
-                header += image_name(item.href)
-                header = header.ljust(62, '\x00')
+                    data = cStringIO.StringIO()
+                    im.save(data, 'PNG')
+                    data = data.getvalue()
 
-                im = Image.open(cStringIO.StringIO(item.data)).convert('P')
-                im.thumbnail((300,300), Image.ANTIALIAS)
+                    header = 'PNG '
+                    header += image_name(item.href)
+                    header = header.ljust(62, '\x00')
 
-                data = cStringIO.StringIO()
-                im.save(data, 'PNG')
-                data = data.getvalue()
-
-                if len(data) + len(header) < 65505:
-                    images.append((header, data))
+                    if len(data) + len(header) < 65505:
+                        images.append((header, data))
+                except Exception as e:
+                    self.log.error('Error: Could not include file %s becuase ' \
+                        '%s.' % (item.href, e))
 
         return images
 

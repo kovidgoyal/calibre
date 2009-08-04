@@ -20,7 +20,7 @@ except ImportError:
 import cStringIO
 
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
-    OEB_IMAGES
+    OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.metadata import authors_to_string
 
@@ -115,7 +115,7 @@ class RTFMLizer(object):
 
     def insert_images(self, text):
         for item in self.oeb_book.manifest:
-            if item.media_type in OEB_IMAGES:
+            if item.media_type in OEB_RASTER_IMAGES:
                 src = os.path.basename(item.href)
                 data, width, height = self.image_to_hexstring(item.data)
                 text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, '\n\n{\\*\\shppict{\\pict\\picw%i\\pich%i\\jpegblip \n%s\n}}\n\n' % (width, height, data))

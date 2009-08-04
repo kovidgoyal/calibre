@@ -19,7 +19,7 @@ import cStringIO
 from calibre.ebooks.rb.rbml import RBMLizer
 from calibre.ebooks.rb import HEADER
 from calibre.ebooks.rb import unique_name
-from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.constants import __appname__, __version__
 
 TEXT_RECORD_SIZE = 4096
@@ -116,20 +116,24 @@ class RBWriter(object):
         used_names = []
 
         for item in manifest:
-            if item.media_type in OEB_IMAGES:
-                data = ''
+            if item.media_type in OEB_RASTER_IMAGES:
+                try:
+                    data = ''
 
-                im = Image.open(cStringIO.StringIO(item.data)).convert('L')
-                data = cStringIO.StringIO()
-                im.save(data, 'PNG')
-                data = data.getvalue()
+                    im = Image.open(cStringIO.StringIO(item.data)).convert('L')
+                    data = cStringIO.StringIO()
+                    im.save(data, 'PNG')
+                    data = data.getvalue()
 
-                name = '%s.png' % os.path.splitext(os.path.basename(item.href))[0]
-                name = unique_name(name, used_names)
-                used_names.append(name)
-                self.name_map[os.path.basename(item.href)] = name
+                    name = '%s.png' % os.path.splitext(os.path.basename(item.href))[0]
+                    name = unique_name(name, used_names)
+                    used_names.append(name)
+                    self.name_map[os.path.basename(item.href)] = name
 
-                images.append((name, data))
+                    images.append((name, data))
+                except Exception as e:
+                    self.log.error('Error: Could not include file %s becuase ' \
+                        '%s.' % (item.href, e))
 
         return images
 
