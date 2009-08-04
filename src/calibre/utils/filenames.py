@@ -54,6 +54,9 @@ def shorten_components_to(length, components):
                 if r.startswith('.'): r = x[0]+r
             else:
                 r = x[:-delta]
+            r = r.strip()
+            if not r:
+                r = x.strip()[0] if x.strip() else 'x'
         ans.append(r)
     return ans
 
