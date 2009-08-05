@@ -17,14 +17,19 @@ from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
 TAG_MAP = {
     'b' : 'strong',
     'i' : 'emphasis',
     'p' : 'p',
-    'li' : 'p'
+    'li' : 'p',
 }
+
+TAG_SPACE = [
+    'div',
+    'br',
+]
 
 STYLES = [
     ('font-weight', {'bold'   : 'strong', 'bolder' : 'strong'}),
@@ -60,12 +65,32 @@ class FB2MLizer(object):
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
+        author_first = u''
+        author_middle = u''
+        author_last = u''
+        author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
+        
+        if len(author_parts) == 1:
+            author_last = author_parts[0]
+        elif len(author_parts == 2):
+            author_first = author_parts[0]
+            author_last = author_parts[1]
+        else:
+            author_first = author_parts[0]
+            author_middle = ' '.join(author_parts[1:-2])
+            author_last = author_parts[-1]
+
         return u'<FictionBook xmlns:xlink="http://www.w3.org/1999/xlink" ' \
         'xmlns="http://www.gribuser.ru/xml/fictionbook/2.0">\n' \
-        '<description>\n<title-info><book-title>%s</book-title> ' \
+        '<description>\n<title-info>\n ' \
+        '<author>\n<first-name>%s</first-name>\n<middle-name>%s' \
+        '</middle-name>\n<last-name>%s</last-name>\n</author>\n' \
+        '<book-title>%s</book-title> ' \
         '</title-info><document-info> ' \
         '<program-used>%s - %s</program-used></document-info>\n' \
-        '</description>\n<body>\n<section>' % (self.oeb_book.metadata.title[0].value, __appname__, __version__)
+        '</description>\n<body>\n<section>' % (author_first, author_middle,
+            author_last, self.oeb_book.metadata.title[0].value,
+            __appname__, __version__)
         
     def fb2_body_footer(self):
         return u'\n</section>\n</body>'
@@ -76,7 +101,7 @@ class FB2MLizer(object):
     def fb2mlize_images(self):
         images = u''
         for item in self.oeb_book.manifest:
-            if item.media_type in OEB_IMAGES:
+            if item.media_type in OEB_RASTER_IMAGES:
                 raw_data = b64encode(item.data)
                 # Don't put the encoded image on a single line.
                 data = ''
@@ -108,13 +133,11 @@ class FB2MLizer(object):
         if tag == 'img':
             fb2_text += '<image xlink:href="#%s" />' % os.path.basename(elem.attrib['src'])
         
-
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack:
             tag_count += 1
             fb2_text += '<%s>' % fb2_tag
             tag_stack.append(fb2_tag)
-
 
         # Processes style information
         for s in STYLES:
@@ -124,7 +147,11 @@ class FB2MLizer(object):
                 fb2_text += '<%s>' % style_tag
                 tag_stack.append(style_tag)
 
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+        if tag in TAG_SPACE:
+            if not fb2_text or fb2_text[-1] != ' ':
+                fb2_text += ' '
+
+        if hasattr(elem, 'text') and elem.text != None:
             fb2_text += prepare_string_for_xml(elem.text)
         
         for item in elem:
@@ -135,12 +162,12 @@ class FB2MLizer(object):
             close_tag_list.insert(0, tag_stack.pop())
         fb2_text += self.close_tags(close_tag_list)
 
-        if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
+        if hasattr(elem, 'tail') and elem.tail != None:
             if 'p' not in tag_stack:
                 fb2_text += '<p>%s</p>' % prepare_string_for_xml(elem.tail)
             else:
                 fb2_text += prepare_string_for_xml(elem.tail)
-            
+
         return fb2_text
 
     def close_tags(self, tags):
