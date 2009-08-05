@@ -23,8 +23,13 @@ TAG_MAP = {
     'b' : 'strong',
     'i' : 'emphasis',
     'p' : 'p',
-    'li' : 'p'
+    'li' : 'p',
 }
+
+TAG_SPACE = [
+    'div',
+    'br',
+]
 
 STYLES = [
     ('font-weight', {'bold'   : 'strong', 'bolder' : 'strong'}),
@@ -128,13 +133,11 @@ class FB2MLizer(object):
         if tag == 'img':
             fb2_text += '<image xlink:href="#%s" />' % os.path.basename(elem.attrib['src'])
         
-
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack:
             tag_count += 1
             fb2_text += '<%s>' % fb2_tag
             tag_stack.append(fb2_tag)
-
 
         # Processes style information
         for s in STYLES:
@@ -144,7 +147,11 @@ class FB2MLizer(object):
                 fb2_text += '<%s>' % style_tag
                 tag_stack.append(style_tag)
 
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+        if tag in TAG_SPACE:
+            if not fb2_text or fb2_text[-1] != ' ':
+                fb2_text += ' '
+
+        if hasattr(elem, 'text') and elem.text != None:
             fb2_text += prepare_string_for_xml(elem.text)
         
         for item in elem:
@@ -155,12 +162,12 @@ class FB2MLizer(object):
             close_tag_list.insert(0, tag_stack.pop())
         fb2_text += self.close_tags(close_tag_list)
 
-        if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
+        if hasattr(elem, 'tail') and elem.tail != None:
             if 'p' not in tag_stack:
                 fb2_text += '<p>%s</p>' % prepare_string_for_xml(elem.tail)
             else:
                 fb2_text += prepare_string_for_xml(elem.tail)
-            
+
         return fb2_text
 
     def close_tags(self, tags):
