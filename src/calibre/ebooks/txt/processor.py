@@ -17,7 +17,7 @@ def txt_to_markdown(txt, title=''):
     md = markdown.Markdown(
         extensions=['footnotes', 'tables', 'toc'],
         safe_mode=False,)
-    html = u'<html><head><title>%s</title></head><body>%s</body></html>' % (title,
+    html = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>%s</body></html>' % (title,
         md.convert(txt))
 
     return html

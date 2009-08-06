@@ -189,8 +189,8 @@ class EPUBOutput(OutputFormatPlugin):
         Create a generic cover for books that dont have a cover
         '''
         try:
-            from calibre.gui2 import images_rc # Needed for access to logo
-            from PyQt4.Qt import QApplication, QFile, QIODevice
+            from calibre.gui2 import images_rc, is_ok_to_use_qt # Needed for access to logo
+            from PyQt4.Qt import QFile, QIODevice
         except:
             return None
         from calibre.ebooks.metadata import authors_to_string
@@ -199,7 +199,7 @@ class EPUBOutput(OutputFormatPlugin):
         title = unicode(m.title[0])
         a = [unicode(x) for x in m.creator if x.role == 'aut']
         author = authors_to_string(a)
-        if QApplication.instance() is None: QApplication([])
+        if not is_ok_to_use_qt(): return
         f = QFile(':/library')
         f.open(QIODevice.ReadOnly)
         img_data = str(f.readAll())
