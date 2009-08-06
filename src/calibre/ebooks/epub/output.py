@@ -77,6 +77,10 @@ class EPUBOutput(OutputFormatPlugin):
                 'for Adobe Digital Editions.')
         ),
 
+        OptionRecommendation(name='no_default_epub_cover', recommended_value=False,
+            help=_('Normally, if the input file ahs no cover and you don\'t'
+            ' specify one, a default cover is generated with the title, '
+            'authors, etc. This option disables the generation of this cover.')),
 
         ])
 
@@ -188,6 +192,8 @@ class EPUBOutput(OutputFormatPlugin):
         '''
         Create a generic cover for books that dont have a cover
         '''
+        if self.opts.no_default_epub_cover:
+            return None
         try:
             from calibre.gui2 import images_rc, is_ok_to_use_qt # Needed for access to logo
             from PyQt4.Qt import QFile, QIODevice
