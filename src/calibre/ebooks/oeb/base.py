@@ -914,8 +914,12 @@ class Manifest(object):
                     p.remove(a)
                     if a.tail:
                         if idx <= 0:
+                            if p.text is None:
+                                p.text = ''
                             p.text += a.tail
                         else:
+                            if p[idx].tail is None:
+                                p[idx].tail = ''
                             p[idx].tail += a.tail
 
             return data

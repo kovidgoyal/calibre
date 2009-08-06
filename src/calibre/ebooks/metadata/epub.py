@@ -130,6 +130,9 @@ def get_metadata(stream, extract_cover=True):
             traceback.print_exc()
     return mi
 
+def get_quick_metadata(stream):
+    return get_metadata(stream, False)
+
 def set_metadata(stream, mi):
     stream.seek(0)
     reader = OCFZipReader(stream, root=os.getcwdu())
