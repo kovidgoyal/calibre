@@ -555,20 +555,8 @@ OptionRecommendation(name='language',
                 rec.recommended_value = val
                 rec.level = level
 
-    def read_user_metadata(self):
-        '''
-        Read all metadata specified by the user. Command line options override
-        metadata from a specified OPF file.
-        '''
-        from calibre.ebooks.metadata import MetaInformation, string_to_authors
-        from calibre.ebooks.metadata.opf2 import OPF
-        mi = MetaInformation(None, [])
-        if self.opts.read_metadata_from_opf is not None:
-            self.opts.read_metadata_from_opf = os.path.abspath(
-                                            self.opts.read_metadata_from_opf)
-            opf = OPF(open(self.opts.read_metadata_from_opf, 'rb'),
-                      os.path.dirname(self.opts.read_metadata_from_opf))
-            mi = MetaInformation(opf)
+    def opts_to_mi(self, mi):
+        from calibre.ebooks.metadata import string_to_authors
         for x in self.metadata_option_names:
             val = getattr(self.opts, x, None)
             if val is not None:
@@ -579,6 +567,23 @@ OptionRecommendation(name='language',
                 elif x in ('rating', 'series_index'):
                     val = float(val)
                 setattr(mi, x, val)
+
+
+    def read_user_metadata(self):
+        '''
+        Read all metadata specified by the user. Command line options override
+        metadata from a specified OPF file.
+        '''
+        from calibre.ebooks.metadata import MetaInformation
+        from calibre.ebooks.metadata.opf2 import OPF
+        mi = MetaInformation(None, [])
+        if self.opts.read_metadata_from_opf is not None:
+            self.opts.read_metadata_from_opf = os.path.abspath(
+                                            self.opts.read_metadata_from_opf)
+            opf = OPF(open(self.opts.read_metadata_from_opf, 'rb'),
+                      os.path.dirname(self.opts.read_metadata_from_opf))
+            mi = MetaInformation(opf)
+        self.opts_to_mi(mi)
         if mi.cover:
             mi.cover_data = ('', open(mi.cover, 'rb').read())
             mi.cover = None
@@ -649,6 +654,8 @@ OptionRecommendation(name='language',
         self.oeb = self.input_plugin(stream, self.opts,
                                     self.input_fmt, self.log,
                                     accelerators, tdir)
+        if self.input_fmt == 'recipe':
+            self.opts_to_mi(self.user_metadata)
         if self.opts.debug_input is not None:
             self.log('Debug input called, aborting the rest of the pipeline.')
             return
