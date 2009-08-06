@@ -20,8 +20,10 @@ def MBP(name): return '{%s}%s' % (MBP_NS, name)
 MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}
 
 HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
-NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td', 'th'])
-TABLE_TAGS = set(['table', 'tr', 'td', 'th'])
+# GR: Added 'caption' to both sets
+NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td', 'th', 'caption'])
+TABLE_TAGS = set(['table', 'tr', 'td', 'th', 'caption'])
+
 SPECIAL_TAGS = set(['hr', 'br'])
 CONTENT_TAGS = set(['img', 'hr', 'br'])
 
@@ -186,7 +188,7 @@ class MobiMLizer(object):
             bstate.vpadding = bstate.vmargin = 0
             if tag not in TABLE_TAGS:
                 wrapper.attrib['height'] = self.mobimlize_measure(vspace)
-                para.attrib['width'] = self.mobimlize_measure(indent)
+                para.attrib['width'] = self.mobimlize_measure(indent)                
             elif tag == 'table' and vspace > 0:
                 vspace = int(round(vspace / self.profile.fbase))
                 while vspace > 0:
@@ -357,8 +359,10 @@ class MobiMLizer(object):
             tag = 'td'
         if tag in TABLE_TAGS and self.ignore_tables:
             tag = 'span' if tag == 'td' else 'div'
+
+        # GR: Added 'width', 'border' and 'scope'
         if tag in TABLE_TAGS:
-            for attr in ('rowspan', 'colspan'):
+            for attr in ('rowspan', 'colspan','width','border','scope'):
                 if attr in elem.attrib:
                     istate.attrib[attr] = elem.attrib[attr]
         text = None
