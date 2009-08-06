@@ -39,6 +39,10 @@ options. the available options depend on the input and output file types. \
 To get help on them specify the input and output file and then use the -h \
 option.
 
+You can also get detailed help on all the options any input/output pair \
+of formats supports by specifying the -h flag after the input and output \
+filenames.
+
 For full documentation of the conversion system see
 ''') + 'http://calibre.kovidgoyal.net/user_manual/conversion.html'
 
