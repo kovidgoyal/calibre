@@ -57,7 +57,8 @@ def check_command_line_options(parser, args, log):
         raise SystemExit(1)
 
     input = os.path.abspath(args[1])
-    if not input.endswith('.recipe') and not os.access(input, os.R_OK):
+    if not input.endswith('.recipe') and not os.access(input, os.R_OK) and not \
+            ('-h' in args or '--help' in args):
         log.error('Cannot read from', input)
         raise SystemExit(1)
 
