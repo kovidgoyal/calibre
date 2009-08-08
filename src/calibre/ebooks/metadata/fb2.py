@@ -19,6 +19,8 @@ def get_metadata(stream):
     author= [firstname+" "+lastname]
     title = soup.find("book-title").string
     comments = soup.find("annotation")
+    tags = soup.findAll('genre')
+    tags = [t.contents[0] for t in tags]
     cp = soup.find('coverpage')
     cdata = None
     if cp:
@@ -39,6 +41,8 @@ def get_metadata(stream):
     mi = MetaInformation(title, author)
     mi.comments = comments
     mi.author_sort = lastname+'; '+firstname
+    if tags:
+        mi.tags = tags
     if series:
         mi.series = series.get('name', None)
         try:
