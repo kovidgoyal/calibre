@@ -84,7 +84,7 @@ class PRS505(CLI, Device):
                 self._card_b_prefix = None
 
     def get_device_information(self, end_session=True):
-        self.report_progress(1.0, _('Get device information...'))
+        #self.report_progress(1.0, _('Get device information...'))
         return (self.__class__.__name__, '', '', '')
 
     def books(self, oncard=None, end_session=True):

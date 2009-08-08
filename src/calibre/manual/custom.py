@@ -3,7 +3,8 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, os, inspect, re
+import sys, os, inspect, re, textwrap
+
 from sphinx.builder import StandaloneHTMLBuilder
 from sphinx.util import rpartition
 from sphinx.util.console import bold
@@ -60,9 +61,6 @@ CLI_CMD=r'''
 ||
 .. _$cmd:
 ||
-#def option(opt)
-:option:`${opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')}`
-#end
 $cmd
 ====================================================================
 ||
@@ -81,9 +79,14 @@ $line
 #end
 #end
 ||
+'''
+CLI_GROUPS=r'''
 [options]
 ------------
 ||
+#def option(opt)
+:option:`${opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')}`
+#end
 #for title, desc, options in groups
 #if title
 $title
@@ -102,6 +105,49 @@ ${option(opt)}
 #end
 '''
 
+EBOOK_CONVERT = CLI_CMD + r'''
+$groups
+'''
+
+CLI_CMD += CLI_GROUPS
+
+
+def generate_ebook_convert_help():
+    from calibre.ebooks.conversion.cli import create_option_parser
+    from calibre.customize.ui import input_format_plugins, output_format_plugins
+    from calibre.utils.logging import default_log
+    ans = textwrap.dedent('''
+    Since the options supported by ebook-convert vary depending on both the
+    input and the output formats, the various combinations are listed below:
+
+    ''')
+    c = 0
+    sections = []
+    for ip in input_format_plugins():
+        for op in output_format_plugins():
+            c += 1
+            idr = 'ebook-convert-sec-'+str(c)
+            title = ip.name + ' to ' + op.name
+            section = '.. _'+idr+':||||'
+            section += title+'||'+\
+                    '-------------------------------------------------------'
+            #ans += '  * :ref:`'+idr+'`\n'
+            parser, plumber = create_option_parser(['ebook-convert',
+                'dummyi.'+list(ip.file_types)[0],
+                'dummyo.'+op.file_type, '-h'], default_log)
+            groups = [(None, None, parser.option_list)]
+            for grp in parser.option_groups:
+                groups.append((grp.title, grp.description, grp.option_list))
+            template = str(CLI_GROUPS)
+            template = TextTemplate(template[template.find('||'):])
+            section += template.generate(groups=groups).render()
+
+            sections.append(section)
+
+    ans += '||||'+'||||'.join(sections)
+
+    return ans
+
 def cli_docs(app):
     info = app.builder.info
     info(bold('creating CLI documentation...'))
@@ -117,8 +163,8 @@ def cli_docs(app):
         else:
             undocumented_cmds.append(cmd)
 
-        documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
-        undocumented_cmds.sort()
+    documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
+    undocumented_cmds.sort()
 
     templ = TextTemplate(CLI_INDEX)
     raw = templ.generate(documented_commands=documented_cmds,
@@ -141,7 +187,9 @@ def cli_docs(app):
         groups = [(None, None, parser.option_list)]
         for grp in parser.option_groups:
             groups.append((grp.title, grp.description, grp.option_list))
-
+        if cmd == 'ebook-convert':
+            groups = generate_ebook_convert_help()
+            templ = TextTemplate(EBOOK_CONVERT)
         raw = templ.generate(cmd=cmd, cmdline=cmdline, usage=usage, groups=groups).render()
         raw = raw.replace('||', '\n').replace('&lt;', '<').replace('&gt;', '>')
         if not os.path.exists(os.path.join('cli', cmd+'.rst')):
@@ -199,9 +247,6 @@ def auto_member(dirname, arguments, options, content, lineno,
     state.nested_parse(result, content_offset, node)
 
     return list(node)
-
-
-
 
 def setup(app):
     app.add_builder(CustomBuilder)
