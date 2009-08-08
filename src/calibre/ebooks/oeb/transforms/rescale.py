@@ -6,32 +6,60 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import cStringIO
+
 from calibre import fit_image
 
 class RescaleImages(object):
     'Rescale all images to fit inside given screen size'
 
     def __call__(self, oeb, opts):
-        from PyQt4.Qt import QApplication, QImage, Qt
-        from calibre.gui2 import pixmap_to_data
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
-        page_width, page_height = opts.dest.width, opts.dest.height
-        for item in oeb.manifest:
+        from calibre.gui2 import is_ok_to_use_qt
+        self.rescale(qt=is_ok_to_use_qt())
+
+    def rescale(self, qt=True):
+        from PyQt4.Qt import QImage, Qt
+        from calibre.gui2 import pixmap_to_data
+        try:
+            from PIL import Image as PILImage
+            PILImage
+        except ImportError:
+            import Image as PILImage
+
+
+        page_width, page_height = self.opts.dest.width, self.opts.dest.height
+        for item in self.oeb.manifest:
             if item.media_type.startswith('image'):
                 raw = item.data
                 if not raw: continue
-                if QApplication.instance() is None:
-                    QApplication([])
+                if qt:
+                    img = QImage(10, 10, QImage.Format_ARGB32_Premultiplied)
+                    if not img.loadFromData(raw): continue
+                    width, height = img.width(), img.height()
+                else:
+                    f = cStringIO.StringIO(raw)
+                    try:
+                        im = PILImage.open(f)
+                    except IOError:
+                        continue
+                    width, height = im.size
 
-                img = QImage(10, 10, QImage.Format_ARGB32_Premultiplied)
-                if not img.loadFromData(raw): continue
-                width, height = img.width(), img.height()
+
+
                 scaled, new_width, new_height = fit_image(width, height,
                         page_width, page_height)
                 if scaled:
                     self.log('Rescaling image', item.href)
-                    img = img.scaled(new_width, new_height,
-                            Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                    item.data = pixmap_to_data(img)
+                    if qt:
+                        img = img.scaled(new_width, new_height,
+                                Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                        item.data = pixmap_to_data(img)
+                    else:
+                        im = im.resize((int(new_width), int(new_height)), PILImage.ANTIALIAS)
+                        of = cStringIO.StringIO()
+                        im.convert('RGB').save(of, 'JPEG')
+                        item.data = of.getvalue()
+
 
 
