@@ -5,7 +5,7 @@ import os
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QUrl, QTranslator, QCoreApplication, QThread
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QTableView, QApplication, QDialog
+                        QIcon, QTableView, QApplication, QDialog, QPushButton
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -103,36 +103,49 @@ def available_width():
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
 
-def warning_dialog(parent, title, msg, det_msg='', show=False):
-    d = QMessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
-                    parent)
-    d.setDetailedText(det_msg)
-    d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+class MessageBox(QMessageBox):
 
+    def __init__(self, type_, title, msg, buttons, parent, det_msg=''):
+        QMessageBox.__init__(self, type_, title, msg, buttons, parent)
+        self.title = title
+        self.msg = msg
+        self.det_msg = det_msg
+        self.setDetailedText(det_msg)
+        self.cb = QPushButton(_('Copy to Clipboard'))
+        self.layout().addWidget(self.cb)
+        self.connect(self.cb, SIGNAL('clicked()'), self.copy_to_clipboard)
+
+    def copy_to_clipboard(self):
+        QApplication.clipboard().setText('%s: %s\n\n%s' %
+                (self.title, self.msg, self.det_msg))
+
+
+
+def warning_dialog(parent, title, msg, det_msg='', show=False):
+    d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
+                    parent, det_msg)
+    d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
     if show:
         return d.exec_()
     return d
 
 def error_dialog(parent, title, msg, det_msg='', show=False):
-    d = QMessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
-                    parent)
-    d.setDetailedText(det_msg)
+    d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
+                    parent, det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
     if show:
         return d.exec_()
     return d
 
 def question_dialog(parent, title, msg, det_msg=''):
-    d = QMessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
-                    parent)
-    d.setDetailedText(det_msg)
+    d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
+                    parent, det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
-    d = QMessageBox(QMessageBox.Information, title, msg, QMessageBox.NoButton,
-                    parent)
-    d.setDetailedText(det_msg)
+    d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.NoButton,
+                    parent, det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
     if show:
         return d.exec_()

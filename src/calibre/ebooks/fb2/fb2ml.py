@@ -9,7 +9,14 @@ Transform OEB content into FB2 markup
 '''
 
 import os
+import cStringIO
 from base64 import b64encode
+
+try:
+    from PIL import Image
+    Image
+except ImportError:
+    import Image
 
 from lxml import etree
 
@@ -37,8 +44,10 @@ STYLES = [
 ]
 
 class FB2MLizer(object):
+    
     def __init__(self, log):
         self.log = log
+        self.image_hrefs = {}
         
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to FB2 markup...')
@@ -47,6 +56,7 @@ class FB2MLizer(object):
         return self.fb2mlize_spine()
         
     def fb2mlize_spine(self):
+        self.image_hrefs = {}
         output = self.fb2_header()
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating cover page...')
@@ -54,11 +64,11 @@ class FB2MLizer(object):
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-            output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+            output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         output += self.fb2_body_footer()
         output += self.fb2mlize_images()
         output += self.fb2_footer()
@@ -102,20 +112,29 @@ class FB2MLizer(object):
         images = u''
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_RASTER_IMAGES:
-                raw_data = b64encode(item.data)
-                # Don't put the encoded image on a single line.
-                data = ''
-                col = 1
-                for char in raw_data:
-                    if col == 72:
-                        data += '\n'
-                        col = 1
-                    col += 1
-                    data += char
-                images += '<binary id="%s" content-type="%s">%s\n</binary>' % (os.path.basename(item.href),  item.media_type, data)
+                try:
+                    im = Image.open(cStringIO.StringIO(item.data))
+                    data = cStringIO.StringIO()
+                    im.save(data, 'JPEG')
+                    data = data.getvalue()
+
+                    raw_data = b64encode(data)
+                    # Don't put the encoded image on a single line.
+                    data = ''
+                    col = 1
+                    for char in raw_data:
+                        if col == 72:
+                            data += '\n'
+                            col = 1
+                        col += 1
+                        data += char
+                    images += '<binary id="%s" content-type="%s">%s\n</binary>' % (self.image_hrefs.get(item.href, '0000.JPEG'), item.media_type, data)
+                except Exception as e:
+                    self.log.error('Error: Could not include file %s becuase ' \
+                        '%s.' % (item.href, e))
         return images
 
-    def dump_text(self, elem, stylizer, tag_stack=[]):
+    def dump_text(self, elem, stylizer, page, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return u''
@@ -131,7 +150,9 @@ class FB2MLizer(object):
         tag_count = 0
 
         if tag == 'img':
-            fb2_text += '<image xlink:href="#%s" />' % os.path.basename(elem.attrib['src'])
+            if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
+                self.image_hrefs[page.abshref(elem.attrib['src'])] = '%s.jpg' % len(self.image_hrefs.keys())
+            fb2_text += '<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem.attrib['src'])]
         
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack:
@@ -155,7 +176,7 @@ class FB2MLizer(object):
             fb2_text += prepare_string_for_xml(elem.text)
         
         for item in elem:
-            fb2_text += self.dump_text(item, stylizer, tag_stack)
+            fb2_text += self.dump_text(item, stylizer, page, tag_stack)
 
         close_tag_list = []
         for i in range(0, tag_count):
