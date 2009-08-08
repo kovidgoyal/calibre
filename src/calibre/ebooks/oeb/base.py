@@ -795,14 +795,18 @@ class Manifest(object):
             def first_pass(data):
                 try:
                     data = etree.fromstring(data)
-                except etree.XMLSyntaxError:
+                except etree.XMLSyntaxError, err:
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
                         data = etree.fromstring(data)
-                    except etree.XMLSyntaxError:
+                    except etree.XMLSyntaxError, err:
                         self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
-                        data = html.fromstring(data)
+                        if err.args and err.args[0].startswith('Excessive depth'):
+                            from lxml.html import soupparser
+                            data = soupparser.fromstring(data)
+                        else:
+                            data = html.fromstring(data)
                         data.attrib.pop('xmlns', None)
                         for elem in data.iter(tag=etree.Comment):
                             if elem.text:
