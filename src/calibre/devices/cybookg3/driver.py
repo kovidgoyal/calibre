@@ -23,7 +23,7 @@ class CYBOOKG3(USBMS):
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
-    FORMATS     = ['mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
+    FORMATS     = ['epub', 'mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
 
     VENDOR_ID   = [0x0bda, 0x3034]
     PRODUCT_ID  = [0x0703, 0x1795]

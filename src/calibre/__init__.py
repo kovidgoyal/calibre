@@ -387,7 +387,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     except KeyError:
         return '&'+ent+';'
 
-_ent_pat = re.compile(r'&(\S+);')
+_ent_pat = re.compile(r'&(\S+?);')
 
 def prepare_string_for_xml(raw, attribute=False):
     raw = _ent_pat.sub(entity_to_unicode, raw)

@@ -21,7 +21,7 @@ class Article(object):
         self.id = id
         self._title = title.strip() if title else title
         try:
-            self._title = re.sub(r'&(\S+);',
+            self._title = re.sub(r'&(\S+?);',
                 entity_to_unicode, self._title)
         except:
             pass

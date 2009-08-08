@@ -76,7 +76,9 @@ class EPUBMetadataReader(MetadataReaderPlugin):
     description = _('Read metadata from %s files')%'EPUB'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.epub import get_metadata
+        from calibre.ebooks.metadata.epub import get_metadata, get_quick_metadata
+        if self.quick:
+            return get_quick_metadata(stream)
         return get_metadata(stream)
 
 class FB2MetadataReader(MetadataReaderPlugin):

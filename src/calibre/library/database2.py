@@ -1525,6 +1525,9 @@ class LibraryDatabase2(LibraryDatabase):
             if formats:
                 for fmt in formats.split(','):
                     path = self.format_abspath(x['id'], fmt, index_is_id=True)
+                    if prefix != self.library_path:
+                        path = os.path.relpath(path, self.library_path)
+                        path = os.path.join(prefix, path)
                     x['formats'].append(path)
                     x['fmt_'+fmt.lower()] = path
                 x['available_formats'] = [i.upper() for i in formats.split(',')]

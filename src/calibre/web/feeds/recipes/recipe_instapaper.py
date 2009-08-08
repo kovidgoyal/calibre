@@ -12,25 +12,28 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Instapaper(BasicNewsRecipe):
     title                 = 'Instapaper.com'
     __author__            = 'Darko Miletic'
-    description           = 'Personalized news feeds. Go to instapaper.com to setup up your news.'    
+    description           = '''Personalized news feeds. Go to instapaper.com to
+                               setup up your news. Fill in your instapaper
+                               username, and leave the password field
+                               below blank.'''
     publisher             = 'Instapaper.com'
-    category              = 'news, custom' 
+    category              = 'news, custom'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     remove_javascript     = True
-    needs_subscription    = True 
+    needs_subscription    = True
     INDEX                 = u'http://www.instapaper.com'
     LOGIN                 = INDEX + u'/user/login'
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"'
 
     feeds = [
               (u'Unread articles' , INDEX + u'/u'      )
@@ -47,7 +50,7 @@ class Instapaper(BasicNewsRecipe):
                br['password'] = self.password
             br.submit()
         return br
-    
+
     def parse_index(self):
         totalfeeds = []
         lfeeds = self.get_feeds()
@@ -71,4 +74,4 @@ class Instapaper(BasicNewsRecipe):
                                     })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
-        
+

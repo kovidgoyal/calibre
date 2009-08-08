@@ -10,7 +10,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from threading import RLock
 
 class ChicagoTribune(BasicNewsRecipe):
-    
+
     title       = 'Chicago Tribune'
     __author__  = 'Kovid Goyal'
     description = 'Politics, local and business news from Chicago'
@@ -19,7 +19,7 @@ class ChicagoTribune(BasicNewsRecipe):
     articles_are_obfuscated = True
     remove_tags_before      = dict(name='h1')
     obfuctation_lock        = RLock()
-    
+
     feeds = [
              ('Latest news', 'http://feeds.chicagotribune.com/chicagotribune/news/'),
              ('Local news', 'http://feeds.chicagotribune.com/chicagotribune/news/local/'),
@@ -52,13 +52,13 @@ class ChicagoTribune(BasicNewsRecipe):
              ('iPhone Blog', 'http://feeds.feedburner.com/redeye/iphoneblog'),
              ('Julie\'s Health Club', 'http://feeds.chicagotribune.com/chicagotribune_julieshealthclub/'),
              ]
-    
+
     temp_files = []
-    
+
     def get_article_url(self, article):
         return article.get('feedburner_origlink', article.get('guid', article.get('link')))
-    
-    def get_obfuscated_article(self, url, logger):
+
+    def get_obfuscated_article(self, url):
         with self.obfuctation_lock:
             soup = self.index_to_soup(url)
             img = soup.find('img', alt='Print')
@@ -79,4 +79,4 @@ class ChicagoTribune(BasicNewsRecipe):
             self.temp_files[-1].write(html.encode('utf-8'))
             self.temp_files[-1].close()
             return self.temp_files[-1].name
-    
+

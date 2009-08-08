@@ -57,18 +57,19 @@ def import_from_launchpad(url):
     print path
     subprocess.check_call('python setup.py translations'.split(), cwd=path)
     return 0
- 
+
 def check_for_critical_bugs():
     if os.path.exists('.errors'):
         shutil.rmtree('.errors')
     pofilter = ('pofilter', '-i', '.', '-o', '.errors',
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
-                '-t', 'xmltags', '-t', 'printf')
+                #'-t', 'xmltags',
+                '-t', 'printf')
     subprocess.check_call(pofilter)
     errs = os.listdir('.errors')
     if errs:
         print 'WARNING: Translation errors detected'
-        print 'See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter' 
+        print 'See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter'
 
 if __name__ == '__main__':
     import sys

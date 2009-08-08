@@ -41,7 +41,7 @@ def title_sort(title):
     match = _title_pat.search(title)
     if match:
         prep = match.group(1)
-        title = title.replace(prep, '') + ', ' + prep
+        title = title[len(prep):] + ', ' + prep
     return title.strip()
 
 coding = zip(

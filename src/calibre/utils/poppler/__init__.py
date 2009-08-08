@@ -26,7 +26,7 @@ def get_metadata(stream, cover=True):
     if not title or not title.strip():
         title = _('Unknown')
         if hasattr(stream, 'name'):
-            title = os.path.splitext(stream.name)[0]
+            title = os.path.splitext(os.path.basename(stream.name))[0]
     author = doc.author
     authors = string_to_authors(author) if author else  [_('Unknown')]
     creator = doc.creator

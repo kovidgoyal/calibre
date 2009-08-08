@@ -22,6 +22,11 @@ from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
 from calibre.utils.poppler import get_metadata as get_metadata_poppler, NotAvailable
 
 def get_quick_metadata(stream):
+    try:
+       return get_metadata_poppler(stream, False)
+    except NotAvailable:
+        pass
+
     return get_metadata_pypdf(stream)
     raw = stream.read()
     mi = get_metadata_quick(raw)
