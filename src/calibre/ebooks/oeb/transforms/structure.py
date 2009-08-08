@@ -78,6 +78,7 @@ class DetectStructure(object):
             page_break_after = 'display: block; page-break-after: always'
             for item, elem in self.detected_chapters:
                 text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
+                text = text.strip()
                 self.log('\tDetected chapter:', text[:50])
                 if chapter_mark == 'none':
                     continue
