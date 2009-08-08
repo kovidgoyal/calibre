@@ -267,6 +267,7 @@ class FileIconProvider(QFileIconProvider):
              'azw'     : 'mobi',
              'mobi'    : 'mobi',
              'epub'    : 'epub',
+             'fb2'     : 'fb2',
              }
 
     def __init__(self):
