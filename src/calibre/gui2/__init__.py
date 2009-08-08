@@ -5,7 +5,7 @@ import os
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QUrl, QTranslator, QCoreApplication, QThread
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QTableView, QApplication, QDialog
+                        QIcon, QTableView, QApplication, QDialog, QPushButton
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -108,7 +108,11 @@ def warning_dialog(parent, title, msg, det_msg='', show=False):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
-    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    clipboard_button = QPushButton(_('Copy to Clipboard'))
+    d.layout().addWidget(clipboard_button)
+    def copy_to_clipboard():
+        QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    d.connect(clipboard_button, SIGNAL('clicked()'), copy_to_clipboard)
     if show:
         return d.exec_()
     return d
@@ -118,7 +122,11 @@ def error_dialog(parent, title, msg, det_msg='', show=False):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
-    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    clipboard_button = QPushButton(_('Copy to Clipboard'))
+    d.layout().addWidget(clipboard_button)
+    def copy_to_clipboard():
+        QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    d.connect(clipboard_button, SIGNAL('clicked()'), copy_to_clipboard)
     if show:
         return d.exec_()
     return d
@@ -128,7 +136,11 @@ def question_dialog(parent, title, msg, det_msg=''):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
-    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    clipboard_button = QPushButton(_('Copy to Clipboard'))
+    d.layout().addWidget(clipboard_button)
+    def copy_to_clipboard():
+        QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    d.connect(clipboard_button, SIGNAL('clicked()'), copy_to_clipboard)
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
@@ -136,7 +148,11 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
-    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    clipboard_button = QPushButton(_('Copy to Clipboard'))
+    d.layout().addWidget(clipboard_button)
+    def copy_to_clipboard():
+        QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
+    d.connect(clipboard_button, SIGNAL('clicked()'), copy_to_clipboard)
     if show:
         return d.exec_()
     return d

@@ -153,7 +153,6 @@ class FB2MLizer(object):
             if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
                 self.image_hrefs[page.abshref(elem.attrib['src'])] = '%s.jpg' % len(self.image_hrefs.keys())
             fb2_text += '<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem.attrib['src'])]
-            
         
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack:
