@@ -108,7 +108,7 @@ def warning_dialog(parent, title, msg, det_msg='', show=False):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
-
+    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
     if show:
         return d.exec_()
     return d
@@ -118,6 +118,7 @@ def error_dialog(parent, title, msg, det_msg='', show=False):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
+    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
     if show:
         return d.exec_()
     return d
@@ -127,6 +128,7 @@ def question_dialog(parent, title, msg, det_msg=''):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
@@ -134,6 +136,7 @@ def info_dialog(parent, title, msg, det_msg='', show=False):
                     parent)
     d.setDetailedText(det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    QApplication.clipboard().setText('%s - %s: %s' % (title, msg, det_msg))
     if show:
         return d.exec_()
     return d
