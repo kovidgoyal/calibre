@@ -1010,7 +1010,10 @@ class Manifest(object):
         def __str__(self):
             data = self.data
             if isinstance(data, etree._Element):
-                return xml2str(data, pretty_print=self.oeb.pretty_print)
+                ans = xml2str(data, pretty_print=self.oeb.pretty_print)
+                if self.media_type in OEB_DOCS:
+                    ans = re.sub(r'<(div|a)([^>]*)/>', r'<\1\2></\1>', ans)
+                return ans
             if isinstance(data, unicode):
                 return data.encode('utf-8')
             if hasattr(data, 'cssText'):

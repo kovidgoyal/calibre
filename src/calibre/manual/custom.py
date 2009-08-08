@@ -123,7 +123,9 @@ def generate_ebook_convert_help():
     ''')
     c = 0
     sections = []
+    toc = {}
     for ip in input_format_plugins():
+        toc[ip.name] = []
         for op in output_format_plugins():
             c += 1
             idr = 'ebook-convert-sec-'+str(c)
@@ -131,7 +133,7 @@ def generate_ebook_convert_help():
             section = '.. _'+idr+':||||'
             section += title+'||'+\
                     '-------------------------------------------------------'
-            #ans += '  * :ref:`'+idr+'`\n'
+            toc[ip.name].append([idr, op.name])
             parser, plumber = create_option_parser(['ebook-convert',
                 'dummyi.'+list(ip.file_types)[0],
                 'dummyo.'+op.file_type, '-h'], default_log)
@@ -144,7 +146,14 @@ def generate_ebook_convert_help():
 
             sections.append(section)
 
-    ans += '||||'+'||||'.join(sections)
+    toct = '||||'
+    for ip in sorted(toc):
+        toct += '  * '+ip+'||||'
+        for idr, name in toc[ip]:
+            toct += '    * :ref:`'+name +' <'+idr+'>`||'
+        toct += '||'
+
+    ans += toct+'||||'+'||||'.join(sections)
 
     return ans
 
