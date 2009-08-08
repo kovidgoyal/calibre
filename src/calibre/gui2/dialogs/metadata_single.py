@@ -115,7 +115,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 pix = QPixmap()
                 pix.loadFromData(cover)
                 if pix.isNull():
-                    d = error_dialog(self.window, _file + " is not a valid picture")
+                    d = error_dialog(self.window,
+                        _("Not a valid picture"),
+                            _file + _(" is not a valid picture"))
                     d.exec_()
                 else:
                     self.cover_path.setText(_file)
