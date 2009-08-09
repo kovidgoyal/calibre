@@ -127,8 +127,6 @@ class FB2MLizer(object):
         aid = '%s#%s' % (page.href, aid)
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
-        print aid,
-        print self.link_hrefs[aid]
         aid = self.link_hrefs[aid]
         return '<v id="%s"></v>' % aid
 
@@ -174,9 +172,10 @@ class FB2MLizer(object):
         tag_count = 0
 
         if tag in TAG_IMAGES:
-            if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
-                self.image_hrefs[page.abshref(elem.attrib['src'])] = '%s.jpg' % len(self.image_hrefs.keys())
-            fb2_text += '<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem.attrib['src'])]
+            if elem.attrib.get('src', None):
+                if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
+                    self.image_hrefs[page.abshref(elem.attrib['src'])] = '%s.jpg' % len(self.image_hrefs.keys())
+                fb2_text += '<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem.attrib['src'])]
 
         if tag in TAG_LINKS:
             href = elem.get('href')
@@ -189,8 +188,6 @@ class FB2MLizer(object):
                         href += '#'
                     if href not in self.link_hrefs.keys():
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
-                    print href,
-                    print self.link_hrefs[href]
                     href = self.link_hrefs[href]
                     fb2_text += '<a xlink:href="#%s">' % href
                 tag_count += 1
