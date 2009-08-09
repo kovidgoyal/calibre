@@ -125,10 +125,10 @@ class RBWriter(object):
                     im.save(data, 'PNG')
                     data = data.getvalue()
 
-                    name = '%s.png' % os.path.splitext(os.path.basename(item.href))[0]
+                    name = '%s.png' % len(used_names)
                     name = unique_name(name, used_names)
                     used_names.append(name)
-                    self.name_map[os.path.basename(item.href)] = name
+                    self.name_map[item.href] = name
 
                     images.append((name, data))
                 except Exception as e:

@@ -112,7 +112,6 @@ class PMLMLizer(object):
         aid = self.link_hrefs[aid]
         return u'\\Q="%s"' % aid
 
-
     def clean_text(self, text):
         # Remove excess spaces at beginning and end of lines
         text = re.sub('(?m)^[ ]+', '', text)
