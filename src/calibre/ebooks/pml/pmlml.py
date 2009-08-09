@@ -53,6 +53,10 @@ LINK_TAGS = [
     'a',
 ]
 
+IMAGE_TAGS = [
+    'img',
+]
+
 SEPARATE_TAGS = [
     'h1',
     'h2',
@@ -69,6 +73,8 @@ SEPARATE_TAGS = [
 class PMLMLizer(object):
     def __init__(self, log):
         self.log = log
+        self.image_hrefs = {}
+        self.link_hrefs = {}
         
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to PML markup...')
@@ -77,6 +83,8 @@ class PMLMLizer(object):
         return self.pmlmlize_spine()
         
     def pmlmlize_spine(self):
+        self.image_hrefs = {}
+        self.link_hrefs = {}
         output = u''
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating title page...')
@@ -84,19 +92,26 @@ class PMLMLizer(object):
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-            output += self.add_page_anchor(item.href)
-            output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+            output += self.add_page_anchor(item)
+            output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         output = self.clean_text(output)
 
         return output
 
-    def add_page_anchor(self, href):
-        href = os.path.splitext(os.path.basename(href))[0]
-        return u'\\Q="%s"' % href
+    def add_page_anchor(self, page):
+        return self.get_anchor(page, '')
+
+    def get_anchor(self, page, aid):
+        aid = '%s#%s' % (page.href, aid)
+        if aid not in self.link_hrefs.keys():
+            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+        aid = self.link_hrefs[aid]
+        return u'\\Q="%s"' % aid
+
 
     def clean_text(self, text):
         # Remove excess spaces at beginning and end of lines
@@ -123,7 +138,7 @@ class PMLMLizer(object):
         
         return text
 
-    def dump_text(self, elem, stylizer, tag_stack=[]):
+    def dump_text(self, elem, stylizer, page, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return u''
@@ -146,8 +161,11 @@ class PMLMLizer(object):
         
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
-        if tag == 'img':
-            text += '\\m="%s"' % image_name(os.path.basename(elem.get('src'))).strip('\x00')
+        if tag in IMAGE_TAGS:
+            if elem.attrib.get('src', None):
+                if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
+                    self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
+                text += '\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])]
         if tag == 'hr':
             text += '\\w'
             width = elem.get('width')
@@ -171,17 +189,22 @@ class PMLMLizer(object):
         # Anchors links
         if tag in LINK_TAGS and 'q' not in tag_stack:
             href = elem.get('href')
-            if href and '://' not in href:
-                if '#' in href:
-                    href = href.partition('#')[2]
-                href = os.path.splitext(os.path.basename(href))[0]
+            if href:
+                href = page.abshref(href)
+                if '://' not in href:
+                    if '#' not in href:
+                        href += '#'
+                    if href not in self.link_hrefs.keys():
+                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+                    href = self.link_hrefs[href]
+                    text += '\\q="#%s"' % href
                 tag_count += 1
-                text += '\\q="#%s"' % href
                 tag_stack.append('q')
+
         # Anchor ids
         id_name = elem.get('id')
         if id_name:
-            text += '\\Q="%s"' % os.path.splitext(id_name)[0]
+            text += self.get_anchor(page, id_name)
 
         # Processes style information
         for s in STYLES:
@@ -197,7 +220,7 @@ class PMLMLizer(object):
             text += self.elem_text(elem, tag_stack)
             
         for item in elem:
-            text += self.dump_text(item, stylizer, tag_stack)
+            text += self.dump_text(item, stylizer, page, tag_stack)
         
         close_tag_list = []
         for i in range(0, tag_count):
