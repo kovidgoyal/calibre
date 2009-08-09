@@ -226,7 +226,6 @@ def main():
 
 
     try:
-        dev.open()
         if command == "df":
             total = dev.total_space(end_session=False)
             free = dev.free_space()

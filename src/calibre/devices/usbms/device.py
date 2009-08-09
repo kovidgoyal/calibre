@@ -17,7 +17,6 @@ import time
 import re
 import sys
 import glob
-import shutil
 from itertools import repeat
 from math import ceil
 
@@ -489,7 +488,7 @@ class Device(DeviceConfig, DevicePlugin):
                 label = self.STORAGE_CARD_VOLUME_LABEL
             if type == 'cardb':
                 label = self.STORAGE_CARD2_VOLUME_LABEL
-                if label is None:
+                if not label:
                     label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
             extra = 0
             while True:
@@ -501,11 +500,15 @@ class Device(DeviceConfig, DevicePlugin):
                 label += ' (%d)'%extra
 
             def do_mount(node, label):
-                cmd = ['pmount', '-w', '-s']
+                cmd = 'calibre-mount-helper'
+                if getattr(sys, 'frozen_path', False):
+                    cmd = os.path.join(sys.frozen_path, cmd)
+                cmd = [cmd, 'mount']
                 try:
-                    p = subprocess.Popen(cmd + [node, label])
+                    p = subprocess.Popen(cmd + [node, '/media/'+label])
                 except OSError:
-                    raise DeviceError(_('You must install the pmount package.'))
+                    raise DeviceError(
+                    _('Could not find mount helper: %s.')%cmd[0])
                 while p.poll() is None:
                     time.sleep(0.1)
                 return p.returncode
@@ -520,11 +523,13 @@ class Device(DeviceConfig, DevicePlugin):
             raise DeviceError(_('Unable to detect the %s disk drive.')
                     %self.__class__.__name__)
 
+        self._linux_mount_map = {}
         mp, ret = mount(main, 'main')
         if mp is None:
             raise DeviceError(
             _('Unable to mount main memory (Error code: %d)')%ret)
         if not mp.endswith('/'): mp += '/'
+        self._linux_mount_map[main] = mp
         self._main_prefix = mp
         cards = [(carda, '_card_a_prefix', 'carda'),
                  (cardb, '_card_b_prefix', 'cardb')]
@@ -536,6 +541,7 @@ class Device(DeviceConfig, DevicePlugin):
             else:
                 if not mp.endswith('/'): mp += '/'
                 setattr(self, prefix, mp)
+                self._linux_mount_map[card] = mp
 
     def open(self):
         time.sleep(5)
@@ -595,27 +601,16 @@ class Device(DeviceConfig, DevicePlugin):
         success = False
         for drive in drives:
             if drive:
-                cmd = ['pumount', '-l']
+                cmd = 'calibre-mount-helper'
+                if getattr(sys, 'frozen_path', False):
+                    cmd = os.path.join(sys.frozen_path, cmd)
+                cmd = [cmd, 'eject']
+                mp = getattr(self, "_linux_mount_map", {}).get(drive,
+                        'dummy/')[:-1]
                 try:
-                    p = subprocess.Popen(cmd + [drive])
+                    subprocess.Popen(cmd + [drive, mp]).wait()
                 except:
                     pass
-                while p.poll() is None:
-                    time.sleep(0.1)
-                success = success or p.returncode == 0
-                try:
-                    subprocess.Popen(['sudo', 'eject', drive])
-                except:
-                    pass
-        for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
-            x = getattr(self, x, None)
-            if x is not None:
-                if x.startswith('/media/') and os.path.exists(x) \
-                        and not os.listdir(x):
-                    try:
-                        shutil.rmtree(x)
-                    except:
-                        pass
 
     def eject(self):
         if islinux:

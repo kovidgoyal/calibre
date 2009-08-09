@@ -21,7 +21,6 @@ DEPENDENCIES = [
             ('dnspython', '1.6.0', 'dnspython', 'dnspython', 'dnspython', 'dnspython'),
             ('poppler-qt4', '0.10.6', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4'),
             ('podofo', '0.7', 'podofo', 'podofo', 'podofo', 'podofo'),
-            ('pmount', '0.9.19', 'pmount', 'pmount', 'pmount', 'pmount'),
             ]
 
 
@@ -385,6 +384,15 @@ else:
 
         print 'Extracting files to %s ...'%destdir
         extract_tarball(f, destdir)
+        mh = os.path.join(destdir, 'calibre-mount-helper')
+        if os.geteuid() == 0:
+            os.chown(mh, 0, 0)
+            os.chmod(mh,
+                stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
+        else:
+            print 'WARNING: Not running as root. Cannot install mount helper.',
+            print 'Device automounting may not work.'
+
         pi = os.path.join(destdir, 'calibre_postinstall')
         subprocess.call(pi, shell=True)
         return 0

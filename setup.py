@@ -45,6 +45,24 @@ main_functions = {
                 'gui' : [_ep_to_function(i) for i in entry_points['gui_scripts']],
                }
 
+def setup_mount_helper():
+    def warn():
+        print 'WARNING: Failed to compile mount helper. Auto mounting of',
+        print 'devices will not work'
+
+    if os.geteuid() != 0:
+        return warn()
+    import stat
+    src = os.path.join('src', 'calibre', 'devices', 'linux_mount_helper.c')
+    dest = '/usr/bin/calibre-mount-helper'
+    p = subprocess.Popen(['gcc', '-Wall', src, '-o', dest])
+    ret = p.wait()
+    if ret != 0:
+        return warn()
+    os.chown(dest, 0, 0)
+    os.chmod(dest,
+       stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
+
 if __name__ == '__main__':
     from setuptools import setup, find_packages
     from pyqtdistutils import PyQtExtension, build_ext, Extension
@@ -68,7 +86,11 @@ if __name__ == '__main__':
     qt_inc = qt_inc if qt_inc not in ('', '**Unknown**') and os.path.isdir(qt_inc) else None
     qt_lib = qmake_query('QT_INSTALL_LIBS').splitlines()[0]
     qt_lib = qt_lib if qt_lib not in ('', '**Unknown**') and os.path.isdir(qt_lib) else None
-    
+    if qt_lib is None or qt_inc is None:
+        print 'WARNING: Could not find QT librariers and headers.',
+        print 'Is qmake in your PATH?'
+
+
     if iswindows:
         optional.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
@@ -90,7 +112,8 @@ if __name__ == '__main__':
         poppler_inc = '/Volumes/sw/build/poppler-0.10.7/qt4/src'
         poppler_lib = '/Users/kovid/poppler/lib'
     poppler_inc = os.environ.get('POPPLER_INC_DIR', poppler_inc)
-    if os.path.exists(os.path.join(poppler_inc, 'poppler-qt4.h')):
+    if os.path.exists(os.path.join(poppler_inc, 'poppler-qt4.h'))\
+            and qt_lib is not None and qt_inc is not None:
         optional.append(Extension('calibre.plugins.calibre_poppler',
                         sources=['src/calibre/utils/poppler/poppler.cpp'],
                         libraries=(['poppler', 'poppler-qt4']+poppler_libs),
@@ -253,6 +276,7 @@ if __name__ == '__main__':
 
     if 'develop' in ' '.join(sys.argv) and islinux:
         subprocess.check_call('calibre_postinstall --do-not-reload-udev-hal', shell=True)
+        setup_mount_helper()
     if 'install' in sys.argv and islinux:
         subprocess.check_call('calibre_postinstall', shell=True)
-
+        setup_mount_helper()

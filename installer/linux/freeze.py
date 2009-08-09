@@ -28,6 +28,7 @@ def freeze():
 
     binary_includes = [
                        '/usr/bin/pdftohtml',
+                       '/usr/bin/calibre-mount-helper',
                        '/usr/lib/libunrar.so',
                        '/usr/lib/libsqlite3.so.0',
                        '/usr/lib/libsqlite3.so.0',

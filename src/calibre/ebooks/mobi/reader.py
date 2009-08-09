@@ -78,7 +78,10 @@ class EXTHHeader(object):
         if id == 100:
             if self.mi.authors == [_('Unknown')]:
                 self.mi.authors = []
-            self.mi.authors.append(content.decode(codec, 'ignore').strip())
+            au = content.decode(codec, 'ignore').strip()
+            self.mi.authors.append(au)
+            if re.match(r'\S+?\s*,\s+\S+', au.strip()):
+                self.mi.author_sort = au.strip()
         elif id == 101:
             self.mi.publisher = content.decode(codec, 'ignore').strip()
         elif id == 103:

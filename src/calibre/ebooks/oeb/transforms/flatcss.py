@@ -183,7 +183,12 @@ class CSSFlattener(object):
                 elif value <= slineh:
                     cssdict[property] = "%0.5fem" % (dlineh / fsize)
                 else:
-                    value = round(value / slineh) * dlineh
+                    try:
+                        value = round(value / slineh) * dlineh
+                    except:
+                        self.oeb.logger.warning(
+                                'Invalid length:', value)
+                        value = 0.0
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
     def flatten_node(self, node, stylizer, names, styles, psize, left=0):
