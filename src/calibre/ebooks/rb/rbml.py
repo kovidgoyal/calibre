@@ -45,6 +45,10 @@ LINK_TAGS = [
     'a',
 ]
 
+IMAGE_TAGS = [
+    'img',
+]
+
 STYLES = [
     ('font-weight', {'bold'   : 'b', 'bolder' : 'b'}),
     ('font-style', {'italic' : 'i'}),
@@ -56,6 +60,7 @@ class RBMLizer(object):
     def __init__(self, log, name_map={}):
         self.log = log
         self.name_map = name_map
+        self.link_hrefs = {}
 
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to RB markup...')
@@ -65,6 +70,7 @@ class RBMLizer(object):
 
 
     def mlize_spine(self):
+        self.link_hrefs = {}
         output = u'<HTML><HEAD><TITLE></TITLE></HEAD><BODY>'
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating cover page...')
@@ -72,19 +78,25 @@ class RBMLizer(object):
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RocketBook HTML...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-            output += self.add_page_anchor(item.href)
-            output += self.dump_text(item.data.find(XHTML('body')), stylizer)
+            output += self.add_page_anchor(item)
+            output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         output += u'</BODY></HTML>'
         output = self.clean_text(output)
         return output
 
-    def add_page_anchor(self, href):
-        href = os.path.splitext(os.path.basename(href))[0]
-        return u'<A NAME="%s"></A>' % href
+    def add_page_anchor(self, page):
+        return self.get_anchor(page, '')
+
+    def get_anchor(self, page, aid):
+        aid = '%s#%s' % (page.href, aid)
+        if aid not in self.link_hrefs.keys():
+            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+        aid = self.link_hrefs[aid]
+        return u'<A NAME="%s"></A>' % aid
 
     def clean_text(self, text):        
         # Remove anchors that do not have links
@@ -95,7 +107,7 @@ class RBMLizer(object):
 
         return text
 
-    def dump_text(self, elem, stylizer, tag_stack=[]):
+    def dump_text(self, elem, stylizer, page, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return u''
@@ -112,10 +124,11 @@ class RBMLizer(object):
         
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
-        if tag == 'img':
-            src = os.path.basename(elem.get('src'))
-            name = self.name_map.get(src, src)
-            text += '<IMG SRC="%s">' % name
+        if tag in IMAGE_TAGS:
+            if elem.attrib.get('src', None):
+                if page.abshref(elem.attrib['src']) not in self.name_map.keys():
+                    self.name_map[page.abshref(elem.attrib['src'])] = unique_name('%s' % len(self.image_hrefs.keys()), self.image_hrefs.keys(), self.name_map.keys())
+                text += '<IMG SRC="%s">' % self.name_map[page.abshref(elem.attrib['src'])]
 
         rb_tag = tag.upper() if tag in TAGS else None
         if rb_tag:
@@ -123,21 +136,25 @@ class RBMLizer(object):
             text += '<%s>' % rb_tag
             tag_stack.append(rb_tag)
 
+        # Anchors links
         if tag in LINK_TAGS:
             href = elem.get('href')
             if href:
+                href = page.abshref(href)
                 if '://' not in href:
-                    if '#' in href:
-                        href = href.partition('#')[2]
-                    href = os.path.splitext(os.path.basename(href))[0]
+                    if '#' not in href:
+                        href += '#'
+                    if href not in self.link_hrefs.keys():
+                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+                    href = self.link_hrefs[href]
+                    text += '<A HREF="#%s">' % href
                 tag_count += 1
-                text += '<A HREF="#%s">' % href
                 tag_stack.append('A')
 
         # Anchor ids
         id_name = elem.get('id')
         if id_name:
-            text += '<A NAME="%s"></A>' % os.path.splitext(id_name)[0]
+            text += self.get_anchor(page, id_name)
 
         # Processes style information
         for s in STYLES:
@@ -153,7 +170,7 @@ class RBMLizer(object):
             text += prepare_string_for_xml(elem.text)
 
         for item in elem:
-            text += self.dump_text(item, stylizer, tag_stack)
+            text += self.dump_text(item, stylizer, page, tag_stack)
 
         close_tag_list = []
         for i in range(0, tag_count):

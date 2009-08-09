@@ -22,7 +22,6 @@ import cStringIO
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
-from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml.pmlml import PMLMLizer
 
 IDENTITY = 'PNRdPPrs'
@@ -38,8 +37,8 @@ class Writer(FormatWriter):
         self.log = log
 
     def write_content(self, oeb_book, out_stream, metadata=None):
-        text = self._text(oeb_book)
-        images = self._images(oeb_book.manifest)
+        text, image_hrefs = self._text(oeb_book)
+        images = self._images(oeb_book.manifest, image_hrefs)
         metadata = [self._metadata(metadata)]
 
         hr = [self._header_record(len(text), len(images))]
@@ -66,13 +65,13 @@ class Writer(FormatWriter):
         for i in range(0, (len(pml) / MAX_RECORD_SIZE) + 1):
             pml_pages.append(zlib.compress(pml[i * MAX_RECORD_SIZE : (i * MAX_RECORD_SIZE) + MAX_RECORD_SIZE]))
 
-        return pml_pages
+        return pml_pages, pmlmlizer.image_hrefs
 
-    def _images(self, manifest):
+    def _images(self, manifest, image_hrefs):
         images = []
 
         for item in manifest:
-            if item.media_type in OEB_RASTER_IMAGES:
+            if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 try:
                     im = Image.open(cStringIO.StringIO(item.data)).convert('P')
                     im.thumbnail((300,300), Image.ANTIALIAS)
@@ -82,7 +81,7 @@ class Writer(FormatWriter):
                     data = data.getvalue()
 
                     header = 'PNG '
-                    header += image_name(item.href)
+                    header += image_hrefs[item.href].ljust(32, '\x00')[:32]
                     header = header.ljust(62, '\x00')
 
                     if len(data) + len(header) < 65505:
