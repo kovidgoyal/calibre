@@ -93,7 +93,7 @@ class FB2MLizer(object):
         
         if len(author_parts) == 1:
             author_last = author_parts[0]
-        elif len(author_parts == 2):
+        elif len(author_parts) == 2:
             author_first = author_parts[0]
             author_last = author_parts[1]
         else:
