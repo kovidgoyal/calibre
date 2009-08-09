@@ -38,6 +38,14 @@ TAG_SPACE = [
     'br',
 ]
 
+TAG_IMAGES = [
+    'img',
+]
+
+TAG_LINKS = [
+    'a',
+]
+
 STYLES = [
     ('font-weight', {'bold'   : 'strong', 'bolder' : 'strong'}),
     ('font-style', {'italic' : 'emphasis'}),
@@ -48,6 +56,7 @@ class FB2MLizer(object):
     def __init__(self, log):
         self.log = log
         self.image_hrefs = {}
+        self.link_hrefs = {}
         
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to FB2 markup...')
@@ -57,6 +66,7 @@ class FB2MLizer(object):
         
     def fb2mlize_spine(self):
         self.image_hrefs = {}
+        self.link_hrefs = {}
         output = self.fb2_header()
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating cover page...')
@@ -68,6 +78,7 @@ class FB2MLizer(object):
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+            output += self.add_page_anchor(item)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
         output += self.fb2_body_footer()
         output += self.fb2mlize_images()
@@ -107,6 +118,19 @@ class FB2MLizer(object):
         
     def fb2_footer(self):
         return u'</FictionBook>'
+
+    def add_page_anchor(self, page):
+        return self.get_anchor(page, '')
+
+    def get_anchor(self, page, aid):
+        aid = prepare_string_for_xml(aid)
+        aid = '%s#%s' % (page.href, aid)
+        if aid not in self.link_hrefs.keys():
+            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+        print aid,
+        print self.link_hrefs[aid]
+        aid = self.link_hrefs[aid]
+        return '<v id="%s"></v>' % aid
 
     def fb2mlize_images(self):
         images = u''
@@ -149,11 +173,34 @@ class FB2MLizer(object):
         tag = barename(elem.tag)
         tag_count = 0
 
-        if tag == 'img':
+        if tag in TAG_IMAGES:
             if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
                 self.image_hrefs[page.abshref(elem.attrib['src'])] = '%s.jpg' % len(self.image_hrefs.keys())
             fb2_text += '<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem.attrib['src'])]
-        
+
+        if tag in TAG_LINKS:
+            href = elem.get('href')
+            if href:
+                href = prepare_string_for_xml(page.abshref(href))
+                if '://' in href:
+                    fb2_text += '<a xlink:href="%s">' % href
+                else:
+                    if '#' not in href:
+                        href += '#'
+                    if href not in self.link_hrefs.keys():
+                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+                    print href,
+                    print self.link_hrefs[href]
+                    href = self.link_hrefs[href]
+                    fb2_text += '<a xlink:href="#%s">' % href
+                tag_count += 1
+                tag_stack.append('a')
+
+        # Anchor ids
+        id_name = elem.get('id')
+        if id_name:
+            fb2_text += self.get_anchor(page, id_name)
+
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack:
             tag_count += 1
