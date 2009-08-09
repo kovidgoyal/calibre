@@ -153,7 +153,7 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
                 break
 
         widths = list(base_widths)
-        titles = map(lambda x, y: '%-*s'%(x, y), widths, fields)
+        titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator), widths, fields)
         print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
 
         wrappers = map(lambda x: TextWrapper(x-1), widths)
