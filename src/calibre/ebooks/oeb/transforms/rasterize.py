@@ -187,6 +187,10 @@ class SVGRasterizer(object):
         covers = self.oeb.metadata.cover
         if not covers:
             return
+        if unicode(covers[0]) not in self.oeb.manifest.ids:
+            self.oeb.logger.warn('Cover not in manifest, skipping.')
+            self.oeb.metadata.clear('cover')
+            return
         cover = self.oeb.manifest.ids[unicode(covers[0])]
         if not cover.media_type == SVG_MIME:
             return

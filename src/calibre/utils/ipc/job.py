@@ -11,6 +11,9 @@ _count = 0
 import time, cStringIO
 from Queue import Queue, Empty
 
+from calibre import prints
+from calibre.constants import DEBUG
+
 class BaseJob(object):
 
     WAITING  = 0
@@ -47,6 +50,9 @@ class BaseJob(object):
                 self._status_text = _('Stopped')
             else:
                 self._status_text = _('Error') if self.failed else _('Finished')
+            if DEBUG:
+                prints('Job:', self.id, self.description, 'finished')
+                prints('\t'.join(self.details.splitlines(True)))
             if not self._done_called:
                 self._done_called = True
                 try:

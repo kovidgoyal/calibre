@@ -1,13 +1,14 @@
 '''
 UI for adding books to the database and saving books to disk
 '''
-import os, shutil
+import os, shutil, time
 from Queue import Queue, Empty
+from threading import Thread
 
 from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer, Qt
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import question_dialog
+from calibre.gui2 import question_dialog, error_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding
@@ -36,6 +37,96 @@ class RecursiveFind(QThread):
         if not self.canceled:
             self.emit(SIGNAL('found(PyQt_PyObject)'), self.books)
 
+class DBAdder(Thread):
+
+    def __init__(self, db, ids, nmap):
+        self.db, self.ids, self.nmap = db, dict(**ids), dict(**nmap)
+        self.end = False
+        self.critical = {}
+        self.number_of_books_added = 0
+        self.duplicates = []
+        self.names, self.path, self.infos = [], [], []
+        Thread.__init__(self)
+        self.daemon = True
+        self.input_queue = Queue()
+        self.output_queue = Queue()
+
+    def run(self):
+        while not self.end:
+            try:
+                id, opf, cover = self.input_queue.get(True, 0.2)
+            except Empty:
+                continue
+            name = self.nmap.pop(id)
+            title = None
+            try:
+                title = self.add(id, opf, cover, name)
+            except:
+                import traceback
+                self.critical[name] = traceback.format_exc()
+                title = name
+            self.output_queue.put(title)
+
+    def process_formats(self, opf, formats):
+        imp = opf[:-4]+'.import'
+        if not os.access(imp, os.R_OK):
+            return formats
+        fmt_map = {}
+        for line in open(imp, 'rb').readlines():
+            if ':' not in line:
+                continue
+            f, _, p = line.partition(':')
+            fmt_map[f] = p.rstrip()
+        fmts = []
+        for fmt in formats:
+            e = os.path.splitext(fmt)[1].replace('.', '').lower()
+            fmts.append(fmt_map.get(e, fmt))
+            if not os.access(fmts[-1], os.R_OK):
+                fmts[-1] = fmt
+        return fmts
+
+    def add(self, id, opf, cover, name):
+        formats = self.ids.pop(id)
+        if opf.endswith('.error'):
+            mi = MetaInformation('', [_('Unknown')])
+            self.critical[name] = open(opf, 'rb').read().decode('utf-8', 'replace')
+        else:
+            try:
+                mi = MetaInformation(OPF(opf))
+            except:
+                import traceback
+                mi = MetaInformation('', [_('Unknown')])
+                self.critical[name] = traceback.format_exc()
+        formats = self.process_formats(opf, formats)
+        if not mi.title:
+            mi.title = os.path.splitext(name)[0]
+        mi.title = mi.title if isinstance(mi.title, unicode) else \
+                   mi.title.decode(preferred_encoding, 'replace')
+        if self.db is not None:
+            if cover:
+                cover = open(cover, 'rb').read()
+            id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
+            self.number_of_books_added += 1
+            if id is None:
+                self.duplicates.append((mi, cover, formats))
+            else:
+                self.add_formats(id, formats)
+        else:
+            self.names.append(name)
+            self.paths.append(formats[0])
+            self.infos.append({'title':mi.title,
+                           'authors':', '.join(mi.authors),
+                           'cover':None,
+                           'tags':mi.tags if mi.tags else []})
+        return mi.title
+
+    def add_formats(self, id, formats):
+        for path in formats:
+            fmt = os.path.splitext(path)[-1].replace('.', '').upper()
+            with open(path, 'rb') as f:
+                self.db.add_format(id, fmt, f, index_is_id=True,
+                    notify=False)
+
 
 class Adder(QObject):
 
@@ -44,15 +135,12 @@ class Adder(QObject):
         self.pd = ProgressDialog(_('Adding...'), parent=parent)
         self.spare_server = spare_server
         self.db = db
-        self.critical = {}
         self.pd.setModal(True)
         self.pd.show()
         self._parent = parent
-        self.number_of_books_added = 0
         self.rfind = self.worker = self.timer = None
         self.callback = callback
         self.callback_called = False
-        self.infos, self.paths, self.names = [], [], []
         self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
 
     def add_recursive(self, root, single=True):
@@ -87,32 +175,33 @@ class Adder(QObject):
         self.pd.set_max(len(self.ids))
         self.pd.value = 0
         self.timer = QTimer(self)
+        self.db_adder = DBAdder(self.db, self.ids, self.nmap)
+        self.db_adder.start()
         self.connect(self.timer, SIGNAL('timeout()'), self.update)
+        self.last_added_at = time.time()
+        self.entry_count = len(self.ids)
         self.timer.start(200)
-
-    def add_formats(self, id, formats):
-        for path in formats:
-            fmt = os.path.splitext(path)[-1].replace('.', '').upper()
-            self.db.add_format_with_hooks(id, fmt, path, index_is_id=True,
-                    notify=False)
 
     def canceled(self):
         if self.rfind is not None:
-            self.rfind.cenceled = True
+            self.rfind.canceled = True
         if self.timer is not None:
             self.timer.stop()
         if self.worker is not None:
             self.worker.canceled = True
+        if hasattr(self, 'db_adder'):
+            self.db_adder.end = True
         self.pd.hide()
         if not self.callback_called:
             self.callback(self.paths, self.names, self.infos)
             self.callback_called = True
 
     def update(self):
-        if not self.ids:
+        if self.entry_count <= 0:
             self.timer.stop()
             self.process_duplicates()
             self.pd.hide()
+            self.db_adder.end = True
             if not self.callback_called:
                self.callback(self.paths, self.names, self.infos)
                self.callback_called = True
@@ -120,61 +209,53 @@ class Adder(QObject):
 
         try:
             id, opf, cover = self.rq.get_nowait()
+            self.db_adder.input_queue.put((id, opf, cover))
+            self.last_added_at = time.time()
         except Empty:
-            return
-        self.pd.value += 1
-        formats = self.ids.pop(id)
-        name = self.nmap.pop(id)
-        if opf.endswith('.error'):
-            mi = MetaInformation('', [_('Unknown')])
-            self.critical[name] = open(opf, 'rb').read().decode('utf-8', 'replace')
-        else:
-            try:
-                mi = MetaInformation(OPF(opf))
-            except:
-                import traceback
-                mi = MetaInformation('', [_('Unknown')])
-                self.critical[name] = traceback.format_exc()
-        if not mi.title:
-            mi.title = os.path.splitext(name)[0]
-        mi.title = mi.title if isinstance(mi.title, unicode) else \
-                   mi.title.decode(preferred_encoding, 'replace')
+            pass
 
-        if self.db is not None:
-            if cover:
-                cover = open(cover, 'rb').read()
-            id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
-            self.number_of_books_added += 1
-            if id is None:
-                self.duplicates.append((mi, cover, formats))
-            else:
-                self.add_formats(id, formats)
-        else:
-            self.names.append(name)
-            self.paths.append(formats[0])
-            self.infos.append({'title':mi.title,
-                           'authors':', '.join(mi.authors),
-                           'cover':None,
-                           'tags':mi.tags if mi.tags else []})
+        try:
+            title = self.db_adder.output_queue.get_nowait()
+            self.pd.value += 1
+            self.pd.set_msg(_('Added')+' '+title)
+            self.last_added_at = time.time()
+            self.entry_count -= 1
+        except Empty:
+            pass
 
-        self.pd.set_msg(_('Added')+' '+mi.title)
+        if (time.time() - self.last_added_at) > 300:
+            self.timer.stop()
+            self.pd.hide()
+            self.db_adder.end = True
+            if not self.callback_called:
+               self.callback([], [], [])
+               self.callback_called = True
+            error_dialog(self._parent, _('Adding failed'),
+                    _('The add books process seems to have hung.'
+                        ' Try restarting calibre and adding the '
+                        'books in smaller increments, until you '
+                        'find the problem book.'), show=True)
 
 
     def process_duplicates(self):
-        if not self.duplicates:
+        duplicates = self.db_adder.duplicates
+        if not duplicates:
             return
-        files = [x[0].title for x in self.duplicates]
+        self.pd.hide()
+        files = [x[0].title for x in duplicates]
         if question_dialog(self._parent, _('Duplicates found!'),
                         _('Books with the same title as the following already '
                         'exist in the database. Add them anyway?'),
                         '\n'.join(files)):
-            for mi, cover, formats in self.duplicates:
+            for mi, cover, formats in duplicates:
                 id = self.db.create_book_entry(mi, cover=cover,
                         add_duplicates=True)
-                self.add_formats(id, formats)
-                self.number_of_books_added += 1
+                self.db_adder.add_formats(id, formats)
+                self.db_adder.number_of_books_added += 1
 
     def cleanup(self):
+        if hasattr(self, 'pd'):
+            self.pd.hide()
         if hasattr(self, 'worker') and hasattr(self.worker, 'tdir') and \
                 self.worker.tdir is not None:
             if os.path.exists(self.worker.tdir):
@@ -182,6 +263,35 @@ class Adder(QObject):
                     shutil.rmtree(self.worker.tdir)
                 except:
                     pass
+
+    @property
+    def number_of_books_added(self):
+        return getattr(getattr(self, 'db_adder', None), 'number_of_books_added',
+                0)
+
+    @property
+    def critical(self):
+        return getattr(getattr(self, 'db_adder', None), 'critical',
+                {})
+    @property
+    def paths(self):
+        return getattr(getattr(self, 'db_adder', None), 'paths',
+                [])
+
+    @property
+    def names(self):
+        return getattr(getattr(self, 'db_adder', None), 'names',
+                [])
+
+    @property
+    def infos(self):
+        return getattr(getattr(self, 'db_adder', None), 'infos',
+                [])
+
+
+###############################################################################
+############################## END ADDER ######################################
+###############################################################################
 
 class Saver(QObject):
 

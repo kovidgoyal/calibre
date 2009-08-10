@@ -17,15 +17,15 @@ class BLACKBERRY(USBMS):
     FORMATS     = ['mobi', 'prc']
 
     VENDOR_ID   = [0x0fca]
-    PRODUCT_ID  = [0x8004]
-    BCD         = [0x0200]
+    PRODUCT_ID  = [0x8004, 0x0004]
+    BCD         = [0x0200, 0x0107]
 
     VENDOR_NAME = 'RIM'
     WINDOWS_MAIN_MEM = 'BLACKBERRY_SD'
 
     #OSX_MAIN_MEM = 'Kindle Internal Storage Media'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Blackberry Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Blackberry SD Card'
 
     EBOOK_DIR_MAIN = 'ebooks'
     SUPPORTS_SUB_DIRS = True
