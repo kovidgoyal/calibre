@@ -78,7 +78,8 @@ class ConnectedWorker(Thread):
             self._returncode = r
         return r
 
-
+class CriticalError(Exception):
+    pass
 
 class Server(Thread):
 
@@ -112,6 +113,8 @@ class Server(Thread):
             id = self.launched_worker_count
         rfile = os.path.join(tempfile.gettempdir(),
         'calibre_ipc_result_%d_%d.pickle'%(self.id, id))
+        if redirect_output is None:
+            redirect_output = not gui
 
         env = {
                 'CALIBRE_WORKER_ADDRESS' :
@@ -126,14 +129,12 @@ class Server(Thread):
             if isinstance(cw, ConnectedWorker):
                 break
         if isinstance(cw, basestring):
-            raise Exception('Failed to launch worker process:\n'+cw)
+            raise CriticalError('Failed to launch worker process:\n'+cw)
         return cw
 
     def do_launch(self, env, gui, redirect_output, rfile):
         w = Worker(env, gui=gui)
 
-        if redirect_output is None:
-            redirect_output = not gui
         try:
             w(redirect_output=redirect_output)
             conn = self.listener.accept()
@@ -191,7 +192,9 @@ class Server(Thread):
             if len(self.pool) + len(self.workers) < self.pool_size:
                 try:
                     self.pool.append(self.launch_worker())
-                except Exception, err:
+                except CriticalError:
+                    raise
+                except Exception:
                     pass
 
             if len(self.pool) > 0 and len(self.waiting_jobs) > 0:

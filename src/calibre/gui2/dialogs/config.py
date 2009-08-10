@@ -166,7 +166,8 @@ class PluginModel(QAbstractItemModel):
         if index.internalId() == 0:
             if role == Qt.DisplayRole:
                 category = self.categories[index.row()]
-                return QVariant(category + _(' plugins'))
+                return QVariant(_("%(plugin_type)s %(plugins)s")%\
+                        dict(plugin_type=category, plugins=_('plugins')))
         else:
             plugin = self.index_to_plugin(index)
             if role == Qt.DisplayRole:
