@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.txt.processor import txt_to_markdown, opf_writer
+from calibre.ebooks.txt.processor import txt_to_markdown
 
 class TXTInput(InputFormatPlugin):
 
@@ -50,21 +50,3 @@ class TXTInput(InputFormatPlugin):
         options.debug_input = odi
         os.remove(htmlfile.name)
         return oeb
-
-
-
-        log.debug('Writing html output...')
-        with open('index.html', 'wb') as index:
-            index.write(html.encode('utf-8'))
-
-        from calibre.ebooks.metadata.meta import get_metadata
-        log.debug('Retrieving source document metadata...')
-        stream.seek(0)
-        mi = get_metadata(stream, 'txt')
-        manifest = [('index.html', None)]
-        spine = ['index.html']
-        log.debug('Generating manifest...')
-        opf_writer(os.getcwd(), 'metadata.opf', manifest, spine, mi)
-
-        return os.path.join(os.getcwd(), 'metadata.opf')
-
