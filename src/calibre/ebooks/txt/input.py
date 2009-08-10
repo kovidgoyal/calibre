@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import InputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.txt.processor import txt_to_markdown
 
 class TXTInput(InputFormatPlugin):
@@ -16,6 +16,13 @@ class TXTInput(InputFormatPlugin):
     description = 'Convert TXT files to HTML'
     file_types  = set(['txt'])
 
+    options = set([
+        OptionRecommendation(name='single_line_paras', recommended_value=False,
+            help=_('Normally calibre treats blank lines as paragraph markers. '
+                'With this option it will assume that every line represents '
+                'a paragraph instead.')),
+    ])
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         ienc = stream.encoding if stream.encoding else 'utf-8'
@@ -23,6 +30,11 @@ class TXTInput(InputFormatPlugin):
             ienc = options.input_encoding
         log.debug('Reading text from file...')
         txt = stream.read().decode(ienc, 'replace')
+
+        if options.single_line_paras:
+            txt = txt.replace('\r\n', '\n')
+            txt = txt.replace('\r', '\n')
+            txt = txt.replace('\n', '\n\n')
 
         log.debug('Running text though markdown conversion...')
         try:
