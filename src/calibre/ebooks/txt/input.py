@@ -16,6 +16,11 @@ class TXTInput(InputFormatPlugin):
     description = 'Convert TXT files to HTML'
     file_types  = set(['txt'])
 
+    options = set([
+        OptionRecommendation(name='single_line_paras', recommended_value=False,
+            help=_('Each line is a paragraph.')),
+    ])
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         ienc = stream.encoding if stream.encoding else 'utf-8'
@@ -23,6 +28,11 @@ class TXTInput(InputFormatPlugin):
             ienc = options.input_encoding
         log.debug('Reading text from file...')
         txt = stream.read().decode(ienc, 'replace')
+
+        if options.single_line_paras:
+            txt = txt.replace('\r\n', '\n')
+            txt = txt.replace('\r', '\n')
+            txt = txt.replace('\n', '\n\n')
 
         log.debug('Running text though markdown conversion...')
         try:
