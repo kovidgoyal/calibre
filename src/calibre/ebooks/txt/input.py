@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import InputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.txt.processor import txt_to_markdown
 
 class TXTInput(InputFormatPlugin):
