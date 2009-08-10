@@ -9,7 +9,7 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import islinux, iswindows
+from calibre import islinux, iswindows, isosx
 from calibre.startup import get_lang
 from calibre.utils.config import Config, ConfigProxy, dynamic
 import calibre.resources as resources
@@ -110,7 +110,7 @@ class CopyButton(QPushButton):
     def copied(self):
         self.emit(SIGNAL('copy()'))
         self.setDisabled(True)
-        self.setText(_('Copied to clipboard'))
+        self.setText(_('Copied'))
 
 
     def keyPressEvent(self, ev):
@@ -139,7 +139,7 @@ class MessageBox(QMessageBox):
         self.det_msg = det_msg
         self.setDetailedText(det_msg)
         # Cannot set keyboard shortcut as the event is not easy to filter
-        self.cb = CopyButton(_('Copy to Clipboard'))
+        self.cb = CopyButton(_('Copy') if isosx else _('Copy to Clipboard'))
         self.connect(self.cb, SIGNAL('copy()'), self.copy_to_clipboard)
         self.addButton(self.cb, QMessageBox.ActionRole)
         default_button = self.button(self.Ok)
@@ -158,6 +158,7 @@ class MessageBox(QMessageBox):
 def warning_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
+    d.setEscapeButton(QMessageBox.Ok)
     d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
     if show:
         return d.exec_()
@@ -167,6 +168,7 @@ def error_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
+    d.setEscapeButton(QMessageBox.Ok)
     if show:
         return d.exec_()
     return d
@@ -175,6 +177,7 @@ def question_dialog(parent, title, msg, det_msg=''):
     d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    d.setEscapeButton(QMessageBox.No)
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):

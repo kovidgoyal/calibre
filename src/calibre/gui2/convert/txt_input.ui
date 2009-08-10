@@ -30,7 +30,7 @@
    <item row="0" column="0">
     <widget class="QCheckBox" name="opt_single_line_paras">
      <property name="text">
-      <string>Single Line Paragraphs</string>
+      <string>Treat each &amp;line as a paragraph</string>
      </property>
     </widget>
    </item>

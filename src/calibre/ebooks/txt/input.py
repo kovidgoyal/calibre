@@ -18,7 +18,9 @@ class TXTInput(InputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='single_line_paras', recommended_value=False,
-            help=_('Each line is a paragraph.')),
+            help=_('Normally calibre treats blank lines as paragraph markers. '
+                'With this option it will assume that every line represents '
+                'a paragraph instead.')),
     ])
 
     def convert(self, stream, options, file_ext, log,

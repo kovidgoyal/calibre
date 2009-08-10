@@ -14,6 +14,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 if iswindows:
     import win32process
+    _windows_null_file = open(os.devnull, 'wb')
 
 class Worker(object):
     '''
@@ -149,9 +150,20 @@ class Worker(object):
             self._file = PersistentTemporaryFile('_worker_redirect.log')
             args['stdout'] = self._file._fd
             args['stderr'] = subprocess.STDOUT
+            if iswindows:
+                args['stdin'] = subprocess.PIPE
             ret = self._file.name
 
+        if iswindows and 'stdin' not in args:
+            # On windows when usingthepythonw interpreter,
+            # stdout, stderr and stdin may not be valid
+            args['stdin'] = subprocess.PIPE
+            args['stdout'] = _windows_null_file
+            args['stderr'] = subprocess.STDOUT
+
         self.child = subprocess.Popen(cmd, **args)
+        if 'stdin' in args:
+            self.child.stdin.close()
 
         self.log_path = ret
         return ret
