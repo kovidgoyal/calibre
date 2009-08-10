@@ -164,6 +164,8 @@ def add_simple_plugin(path_to_plugin):
 
 
 def main(args=sys.argv):
+    from calibre.constants import debug
+    debug()
     opts, args = option_parser().parse_args(args)
     if opts.gui:
         from calibre.gui2.main import main

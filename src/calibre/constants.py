@@ -38,6 +38,11 @@ fcntl      = None if iswindows else __import__('fcntl')
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
 
+DEBUG = False
+
+def debug():
+    global DEBUG
+    DEBUG = True
 
 ################################################################################
 plugins = None

@@ -119,13 +119,33 @@ class Server(Thread):
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile),
               }
+        for i in range(2):
+            # Try launch twice as occasionally on OS X
+            # Listener.accept fails with EINTR
+            cw = self.do_launch(env, gui, redirect_output, rfile)
+            if isinstance(cw, ConnectedWorker):
+                break
+        if isinstance(cw, basestring):
+            raise Exception('Failed to launch worker process:\n'+cw)
+        return cw
+
+    def do_launch(self, env, gui, redirect_output, rfile):
         w = Worker(env, gui=gui)
+
         if redirect_output is None:
             redirect_output = not gui
-        w(redirect_output=redirect_output)
-        conn = self.listener.accept()
-        if conn is None:
-            raise Exception('Failed to launch worker process')
+        try:
+            w(redirect_output=redirect_output)
+            conn = self.listener.accept()
+            if conn is None:
+                raise Exception('Failed to launch worker process')
+        except BaseException:
+            try:
+                w.kill()
+            except:
+                pass
+            import traceback
+            return traceback.format_exc()
         return ConnectedWorker(w, conn, rfile)
 
     def add_job(self, job):

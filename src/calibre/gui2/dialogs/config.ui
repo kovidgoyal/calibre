@@ -710,7 +710,7 @@
               <string>Free unused diskspace from the database</string>
              </property>
              <property name="text">
-              <string>&amp;Compact database</string>
+              <string>&amp;Check database integrity</string>
              </property>
             </widget>
            </item>

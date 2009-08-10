@@ -8,12 +8,13 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Thread
 from Queue import Empty
-import os, time, sys
+import os, time, sys, shutil
 
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import prints
+from calibre.constants import filesystem_encoding
 
 
 def debug(*args):
@@ -23,6 +24,7 @@ def debug(*args):
 def read_metadata_(task, tdir, notification=lambda x,y:x):
     from calibre.ebooks.metadata.meta import metadata_from_formats
     from calibre.ebooks.metadata.opf2 import metadata_to_opf
+    from calibre.customize.ui import run_plugins_on_import
     for x in task:
         try:
             id, formats = x
@@ -38,6 +40,24 @@ def read_metadata_(task, tdir, notification=lambda x,y:x):
             if cdata:
                 with open(os.path.join(tdir, str(id)), 'wb') as f:
                     f.write(cdata)
+            import_map = {}
+            for format in formats:
+                nfp = run_plugins_on_import(format)
+                nfp = os.path.abspath(nfp)
+                if isinstance(nfp, unicode):
+                    nfp.encode(filesystem_encoding)
+                x = lambda j : os.path.abspath(os.path.normpath(os.path.normcase(j)))
+                if x(nfp) != x(format) and os.access(nfp, os.R_OK|os.W_OK):
+                    fmt = os.path.splitext(format)[1].replace('.', '').lower()
+                    nfmt = os.path.splitext(nfp)[1].replace('.', '').lower()
+                    dest = os.path.join(tdir, '%s.%s'%(id, nfmt))
+                    shutil.copyfile(nfp, dest)
+                    import_map[fmt] = dest
+                    os.remove(nfp)
+            if import_map:
+                with open(os.path.join(tdir, str(id)+'.import'), 'wb') as f:
+                    for fmt, nfp in import_map.items():
+                        f.write(fmt+':'+nfp+'\n')
             notification(0.5, id)
         except:
             import traceback
@@ -66,6 +86,7 @@ class ReadMetadata(Thread):
         self.canceled = False
         Thread.__init__(self)
         self.daemon = True
+        self.failure_details = {}
         self.tdir = PersistentTemporaryDirectory('_rm_worker')
 
 
@@ -76,33 +97,34 @@ class ReadMetadata(Thread):
                 ids.add(b[0])
         progress = Progress(self.result_queue, self.tdir)
         server = Server() if self.spare_server is None else self.spare_server
-        for i, task in enumerate(self.tasks):
-            job = ParallelJob('read_metadata',
-                'Read metadata (%d of %d)'%(i, len(self.tasks)),
-                lambda x,y:x,  args=[task, self.tdir])
-            jobs.add(job)
-            server.add_job(job)
+        try:
+            for i, task in enumerate(self.tasks):
+                job = ParallelJob('read_metadata',
+                    'Read metadata (%d of %d)'%(i, len(self.tasks)),
+                    lambda x,y:x,  args=[task, self.tdir])
+                jobs.add(job)
+                server.add_job(job)
 
-        while not self.canceled:
-            time.sleep(0.2)
-            running = False
-            for job in jobs:
-                while True:
-                    try:
-                        id = job.notifications.get_nowait()[-1]
-                        if id in ids:
-                            progress(id)
-                            ids.remove(id)
-                    except Empty:
-                        break
-                job.update(consume_notifications=False)
-                if not job.is_finished:
-                    running = True
+            while not self.canceled:
+                time.sleep(0.2)
+                running = False
+                for job in jobs:
+                    while True:
+                        try:
+                            id = job.notifications.get_nowait()[-1]
+                            if id in ids:
+                                progress(id)
+                                ids.remove(id)
+                        except Empty:
+                            break
+                    job.update(consume_notifications=False)
+                    if not job.is_finished:
+                        running = True
 
-            if not running:
-                break
-
-        server.close()
+                if not running:
+                    break
+        finally:
+            server.close()
         time.sleep(1)
 
         if self.canceled:

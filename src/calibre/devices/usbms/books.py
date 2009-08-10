@@ -17,7 +17,10 @@ class Book(object):
         self.authors = authors
         self.mime = mime
         self.size = os.path.getsize(path)
-        self.datetime = time.gmtime(os.path.getctime(path))
+        try:
+            self.datetime = time.gmtime(os.path.getctime(path))
+        except ValueError:
+            self.datetime = time.gmtime()
         self.path = path
         self.thumbnail = None
         self.tags = []

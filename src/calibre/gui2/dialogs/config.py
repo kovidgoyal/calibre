@@ -5,14 +5,15 @@ import os, re, time, textwrap
 from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
                         QStringListModel, QAbstractItemModel, QFont, \
-                        SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
+                        SIGNAL, QThread, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QInputDialog, QAbstractTableModel, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
-                         ALL_COLUMNS, NONE, info_dialog, choose_files
+                         ALL_COLUMNS, NONE, info_dialog, choose_files, \
+                         warning_dialog
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.library import BooksModel
@@ -736,18 +737,45 @@ class ConfigDialog(QDialog, Ui_Dialog):
             config['frequently_used_directories'] =  self.directories
             QDialog.accept(self)
 
+class VacThread(QThread):
+
+    def __init__(self, parent, db):
+        QThread.__init__(self, parent)
+        self.db = db
+        self._parent = parent
+
+    def run(self):
+        bad = self.db.check_integrity()
+        self.emit(SIGNAL('check_done(PyQt_PyObject)'), bad)
+
 class Vacuum(QMessageBox):
 
     def __init__(self, parent, db):
         self.db = db
-        QMessageBox.__init__(self, QMessageBox.Information, _('Compacting...'),
-                             _('Compacting database. This may take a while.'),
+        QMessageBox.__init__(self, QMessageBox.Information, _('Checking...'),
+                             _('Checking database integrity. This may take a while.'),
                              QMessageBox.NoButton, parent)
-        QTimer.singleShot(200, self.vacuum)
+        self.vthread = VacThread(self, db)
+        self.connect(self.vthread, SIGNAL('check_done(PyQt_PyObject)'),
+                self.check_done,
+                Qt.QueuedConnection)
+        self.vthread.start()
 
-    def vacuum(self):
-        self.db.vacuum()
+
+    def check_done(self, bad):
+        if bad:
+            titles = [self.db.title(x, index_is_id=True) for x in bad]
+            det_msg = '\n'.join(titles)
+            warning_dialog(self, _('Some inconsistencies found'),
+                    _('The following books had formats listed in the '
+                        'database that are not actually available. '
+                        'The entries for the formats have been removed. '
+                        'You should check them manually. This can '
+                        'happen if you manipulate the files in the '
+                        'library folder directly.'), det_msg=det_msg, show=True)
         self.accept()
+
+
 
 if __name__ == '__main__':
     from calibre.library.database2 import LibraryDatabase2

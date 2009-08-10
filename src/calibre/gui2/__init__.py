@@ -103,6 +103,33 @@ def available_width():
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
 
+class CopyButton(QPushButton):
+
+    ACTION_KEYS = [Qt.Key_Enter, Qt.Key_Return, Qt.Key_Space]
+
+    def copied(self):
+        self.emit(SIGNAL('copy()'))
+        self.setDisabled(True)
+        self.setText(_('Copied to clipboard'))
+
+
+    def keyPressEvent(self, ev):
+        if ev.key() in self.ACTION_KEYS:
+            self.copied()
+        else:
+            QPushButton.event(self, ev)
+
+
+    def keyReleaseEvent(self, ev):
+        if ev.key() in self.ACTION_KEYS:
+            pass
+        else:
+            QPushButton.event(self, ev)
+
+    def mouseReleaseEvent(self, ev):
+        ev.accept()
+        self.copied()
+
 class MessageBox(QMessageBox):
 
     def __init__(self, type_, title, msg, buttons, parent, det_msg=''):
@@ -111,9 +138,16 @@ class MessageBox(QMessageBox):
         self.msg = msg
         self.det_msg = det_msg
         self.setDetailedText(det_msg)
-        self.cb = QPushButton(_('Copy to Clipboard'))
-        self.layout().addWidget(self.cb)
-        self.connect(self.cb, SIGNAL('clicked()'), self.copy_to_clipboard)
+        # Cannot set keyboard shortcut as the event is not easy to filter
+        self.cb = CopyButton(_('Copy to Clipboard'))
+        self.connect(self.cb, SIGNAL('copy()'), self.copy_to_clipboard)
+        self.addButton(self.cb, QMessageBox.ActionRole)
+        default_button = self.button(self.Ok)
+        if default_button is None:
+            default_button = self.button(self.Yes)
+        if default_button is not None:
+            self.setDefaultButton(default_button)
+
 
     def copy_to_clipboard(self):
         QApplication.clipboard().setText('%s: %s\n\n%s' %

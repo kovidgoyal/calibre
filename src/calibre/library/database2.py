@@ -1787,4 +1787,38 @@ books_series_link      feeds
 
         return duplicates
 
+    def check_integrity(self):
+        bad = {}
+        for id in self.data.universal_set():
+            formats = self.data.get(id, FIELD_MAP['formats'], row_is_id=True)
+            if not formats:
+                formats = []
+            else:
+                formats = [x.lower() for x in formats.split(',')]
+            actual_formats = self.formats(id, index_is_id=True)
+            if not actual_formats:
+                actual_formats = []
+            else:
+                actual_formats = [x.lower() for x in actual_formats.split(',')]
+
+            mismatch = False
+            for fmt in formats:
+                if fmt in actual_formats:
+                    continue
+                mismatch = True
+                if id not in bad:
+                    bad[id] = []
+                bad[id].append(fmt)
+
+        for id in bad:
+            for fmt in bad[id]:
+                self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
+        self.conn.commit()
+        self.refresh_ids(list(bad.keys()))
+
+        self.vacuum()
+
+        return bad
+
+
 
