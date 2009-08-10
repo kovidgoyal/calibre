@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-08-03 21:27+0000\n"
-"PO-Revision-Date: 2009-08-06 19:22+0000\n"
-"Last-Translator: Laszlo Tamas <Unknown>\n"
+"PO-Revision-Date: 2009-08-09 18:40+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-08-07 16:28+0000\n"
+"X-Launchpad-Export-Date: 2009-08-10 16:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -730,7 +730,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:96
 msgid "INPUT OPTIONS"
-msgstr ""
+msgstr "BEMENET OPCIÓK"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "Options to control the processing of the input %s file"
@@ -738,7 +738,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:103
 msgid "OUTPUT OPTIONS"
-msgstr ""
+msgstr "KIMENET OPCIÓK"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "Options to control the processing of the output %s"
@@ -1053,6 +1053,9 @@ msgid ""
 "Attempt to detect and correct hard line breaks and other problems in the "
 "source file. This may make things worse, so use with care."
 msgstr ""
+"Megkísérli felismerni és korrigálni a szükségtelen sortöréseket és más "
+"problémákat a  forrásfájlban. Az eredmény azonban akár a vártnál rosszabb is "
+"lehet, úgyhogy óvatosan használd."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:320
 msgid "Use a regular expression to try and remove the header."
@@ -1661,7 +1664,7 @@ msgstr "Könyv kategória megadása."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Get the cover from the ebook and save it at as the specified file."
-msgstr ""
+msgstr "A könyvborító mentése az ebookból egy megadott fájlba."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid ""
@@ -2361,7 +2364,7 @@ msgstr "Képregény bemenet"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "Options specific to"
-msgstr ""
+msgstr "Beállítás:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:13
@@ -2554,7 +2557,7 @@ msgstr "Széles képek automatikus forgatásának engedélyezése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:117
 msgid "&Wordspace:"
-msgstr ""
+msgstr "Szavak közötti távolság:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:119
 msgid "Minimum para. &indent:"
@@ -2874,7 +2877,7 @@ msgstr "Konvertálás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:161
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "A bemeneti formátumnak megfelelő beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:61
@@ -2990,7 +2993,7 @@ msgstr "Tartalomjegyzék"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
-msgstr ""
+msgstr "A Tartalomjegyzék készítésének beállításai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
@@ -3122,6 +3125,13 @@ msgid ""
 "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
 "Tutorial</a>."
 msgstr ""
+"<p>Például minden 'h2' tag kiválasztásához, amelyik 'class' értéke 'chapter' "
+"add meg tag-ként a <i>h2</i>-t, attribútumként a <i>class</i>-ot és "
+"értékként <i>chapter</i>-t.</p><p>Üresen hagyott attribútum=bármilyen "
+"attribútum és üresen hagyott érték=bármilyen értk. Minden tag-hoz add meg a "
+"'*'-ot.</p><p>További információk az XPath használatához elérhetőek az <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
+"Tutorial</a>-ban."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:39
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:123
@@ -3264,6 +3274,8 @@ msgstr "Nincs megfeleő formátum"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:595
 msgid "Auto convert the following books before sending via email?"
 msgstr ""
+"Az email-ben való elküldés előtt automatikusan konvertáljam a kijelölt "
+"könyveket?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:602
 msgid ""
@@ -3731,7 +3743,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:535
 msgid "Free unused diskspace from the database"
-msgstr ""
+msgstr "Lemezterület felszabadítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:536
 msgid "&Compact database"
@@ -3909,7 +3921,7 @@ msgstr "Nem találhatók metaadatok"
 msgid ""
 "No metadata found, try adjusting the title and author or the ISBN key."
 msgstr ""
-"Nem találhat metaadat, próbáld meg finomítani a könyvcímet, szerzőt vagy az "
+"Nem található metaadat, próbáld meg finomítani a könyvcímet, szerzőt vagy az "
 "ISBN-t."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:78
@@ -6049,6 +6061,8 @@ msgstr "/Ismeretlen"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:213
 msgid "Go to a reference. To get reference numbers, use the reference mode."
 msgstr ""
+"Ugrás egy referenciára. A referencia számok használatához be kell kapcsolnod "
+"a Referencia Módot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:219
 msgid "Search for text in book"
@@ -6262,6 +6276,9 @@ msgid ""
 "your calibre book collection directly on the device. To do this you have to "
 "turn on the content server."
 msgstr ""
+"Ha Androidos telefonodon a WordPlayer ebook olvasó programot használod, "
+"akkor calibre adatbázisod hálózaton keresztül is elérhető lesz, ha "
+"bekapcsolod a tartalomkiszolgálót."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:283
 msgid ""
@@ -6276,6 +6293,9 @@ msgid ""
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
 "address of the computer calibre is running on."
 msgstr ""
+"Hozzá kell adnod a 'http://myhostname:8080' URL-t, mint a calibre adatbázist "
+"a WordPlayerben. A 'myhostname' helyére a calibre-t futtató számítógép "
+"teljes neve, vagy IP címe kerüljön."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:362
 msgid "Moving library..."
@@ -6688,6 +6708,7 @@ msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
 msgstr ""
+"Feltéve, hogy minden mappa egy köny kölönböző formátumait tartalmazza"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:332
 msgid "Process directories recursively"
