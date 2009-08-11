@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.6\n"
-"POT-Creation-Date: 2009-08-10 19:10+MDT\n"
-"PO-Revision-Date: 2009-08-10 19:10+MDT\n"
+"POT-Creation-Date: 2009-08-11 11:45+MDT\n"
+"PO-Revision-Date: 2009-08-11 11:45+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -643,54 +643,52 @@ msgid ""
 "\n"
 "The output ebook format is guessed from the file extension of output_file. output_file can also be of the special format .EXT where EXT is the output file extension. In this case, the name of the output file is derived the name of the input file. Note that the filenames must not start with a hyphen. Finally, if output_file has no extension, then it is treated as a directory and an \"open ebook\" (OEB) consisting of HTML files is written to that directory. These files are the files that would normally have been passed to the output plugin.\n"
 "\n"
-"After specifying the input and output file you can customize the conversion by specifying various options. the available options depend on the input and output file types. To get help on them specify the input and output file and then use the -h option.\n"
-"\n"
-"You can also get detailed help on all the options any input/output pair of formats supports by specifying the -h flag after the input and output filenames.\n"
+"After specifying the input and output file you can customize the conversion by specifying various options. The available options depend on the input and output file types. To get help on them specify the input and output file and then use the -h option.\n"
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:101
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:108
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:109
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:123
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:134
 msgid "Control auto-detection of document structure."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:148
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:144
 msgid "Control the automatic generation of a Table of Contents. By default, if the source file has a Table of Contents, it will be used in preference to the automatically generated one."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:154
 msgid "Options to set metadata in the output"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:161
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:157
 msgid "Options to help with debugging the conversion"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:185
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:181
 msgid "List builtin recipes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:254
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:250
 msgid "Output saved to"
 msgstr ""
 
@@ -4129,7 +4127,7 @@ msgid ""
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression pattern to use when trying to guess ebook metadata from filenames. </p>\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">A <a href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-decoration: underline; color:#0000ff;\">reference</span></a> on the syntax of regular expressions is available.</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">A <a href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-decoration: underline; color:#0000ee;\">reference</span></a> on the syntax of regular expressions is available.</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" font-weight:600;\">Test</span> functionality below to test your regular expression on a few sample filenames. The group names for the various metadata entries are documented in tooltips.</p></body></html>"
 msgstr ""
 
@@ -5889,47 +5887,51 @@ msgid ""
 "%sUsage%s: %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:81
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:87
 msgid "Created by "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:538
-msgid "Path to the database in which books are stored"
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:88
+msgid "Whenever you pass arguments to %prog that have spaces in them, enclose the arguments in quotation marks."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:540
-msgid "Pattern to guess metadata from filenames"
+msgid "Path to the database in which books are stored"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:542
-msgid "Access key for isbndb.com"
+msgid "Pattern to guess metadata from filenames"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:544
-msgid "Default timeout for network operations (seconds)"
+msgid "Access key for isbndb.com"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:546
-msgid "Path to directory in which your library of books is stored"
+msgid "Default timeout for network operations (seconds)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:548
-msgid "The language in which to display the user interface"
+msgid "Path to directory in which your library of books is stored"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:550
+msgid "The language in which to display the user interface"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:552
 msgid "The default output format for ebook conversions."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:554
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:556
 msgid "Ordered list of formats to prefer for input."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:556
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:558
 msgid "Read metadata from files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:558
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:560
 msgid "The priority of worker processes"
 msgstr ""
 
@@ -6404,274 +6406,5 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
 msgid "Show detailed output information. Useful for debugging"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:12
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:38
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:45
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:103
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:141
-msgid "title"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:13
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:39
-msgid "slug"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:16
-msgid "category"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:17
-msgid "categories"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:35
-msgid "Draft"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:36
-msgid "Public"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:41
-msgid "body"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:42
-msgid "tease"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:43
-msgid "status"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:44
-msgid "allow comments"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:45
-msgid "publish"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:46
-msgid "created"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:47
-msgid "modified"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:53
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:153
-msgid "post"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/blog/models.py:54
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:154
-msgid "posts"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/admin.py:31
-msgid "Fields updated automatically by Feedjack"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:17
-msgid "Date published."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:18
-msgid "Date the post was first obtained."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:22
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:38
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:98
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:126
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:173
-msgid "name"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:23
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:26
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:105
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:142
-msgid "link"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:27
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:61
-msgid "links"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:39
-msgid "url"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:42
-msgid "Example"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:46
-msgid "description"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:47
-msgid "welcome"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:48
-msgid "greets"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:50
-msgid "default site"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:51
-msgid "posts per page"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:52
-msgid "order posts by"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:54
-msgid "tagcloud level"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:55
-msgid "show tagcloud"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:57
-msgid "use internal cache"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:58
-msgid "cache duration"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:59
-msgid "Duration in seconds of the cached pages and data."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:63
-msgid "template"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:65
-msgid "This template must be a directory in your feedjack templates directory. Leave blank to use the default template."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:69
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:170
-msgid "site"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:70
-msgid "sites"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:96
-msgid "feed url"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:99
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:175
-msgid "shortname"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:100
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:178
-msgid "is active"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:101
-msgid "If disabled, this feed will not be further updated."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:104
-msgid "tagline"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:108
-msgid "etag"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:109
-msgid "last modified"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:110
-msgid "last checked"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:113
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:140
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:171
-msgid "feed"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:114
-msgid "feeds"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:129
-msgid "tag"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:130
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:149
-msgid "tags"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:143
-msgid "content"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:144
-msgid "date modified"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:145
-msgid "guid"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:146
-msgid "author"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:147
-msgid "author email"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:148
-msgid "comments"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:150
-msgid "date created"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:174
-msgid "Keep blank to use the Feed's original name."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:177
-msgid "Keep blank to use the Feed's original shortname."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:179
-msgid "If disabled, this subscriber will not appear in the site or in the site's feed."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:183
-msgid "subscriber"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/www/apps/feedjack/models.py:184
-msgid "subscribers"
 msgstr ""
 

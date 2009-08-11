@@ -10,11 +10,17 @@ from distutils.core import Extension as _Extension
 from distutils.command.build_ext import build_ext as _build_ext
 from distutils.dep_util import newer_group
 from distutils import log
+from distutils.spawn import find_executable
 
 import sipconfig, os, sys, string, glob, shutil
 from PyQt4 import pyqtconfig
 iswindows = 'win32' in sys.platform
-QMAKE = os.path.expanduser('~/qt/bin/qmake') if 'darwin' in sys.platform else'qmake'
+isosx = 'darwin' in sys.platform
+QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
+if find_executable('qmake-qt4'):
+    QMAKE = find_executable('qmake-qt4')
+elif find_executable('qmake'):
+    QMAKE = find_executable('qmake')
 QMAKE = os.environ.get('QMAKE', QMAKE)
 WINDOWS_PYTHON = ['C:/Python26/libs']
 OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'

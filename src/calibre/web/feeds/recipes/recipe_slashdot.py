@@ -3,8 +3,7 @@
 from __future__ import with_statement
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net> edited by Huan T'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -13,19 +12,16 @@ class Slashdot(BasicNewsRecipe):
              oldest_article = 7
              max_articles_per_feed = 100
              language = _('English')
-             __author__ = 'floweros'
+             __author__ = 'floweros edited by Huan T'
              no_stylesheets = True
-             keep_only_tags = [dict(name='div',attrs={'id':'article'})]
-             remove_tags    = [
-                 dict(name='div',attrs={'id':'userlogin-title'}),
-                 dict(name='div',attrs={'id':'userlogin-content'}),
-                 dict(name='div',attrs={'id':'commentwrap'}),
-                 dict(name='span',attrs={'id':'more_comments_num_a'}),
-                 ]
+#             keep_only_tags = [
+#                 dict(name='div',attrs={'class':'article'}),
+#                 dict(name='div',attrs={'class':'commentTop'}),
+#                 ]
 
              feeds          = [
                  (u'Slashdot',
- u'http://rss.slashdot.org/Slashdot/slashdot?m=5072'),
+ u'http://rss.slashdot.org/Slashdot/slashdot'),
                  (u'/. IT',
  u'http://rss.slashdot.org/Slashdot/slashdotIT'),
                  (u'/. Hardware',
@@ -36,4 +32,5 @@ class Slashdot(BasicNewsRecipe):
  u'http://rss.slashdot.org/Slashdot/slashdotYourRightsOnline')
                  ]
 
-
+             def get_article_url(self, article):
+                          return article.get('feedburner_origlink', None)

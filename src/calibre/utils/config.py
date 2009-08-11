@@ -78,13 +78,15 @@ class OptionParser(_OptionParser):
     def __init__(self,
                  usage='%prog [options] filename',
                  version='%%prog (%s %s)'%(__appname__, __version__),
-                 epilog=_('Created by ')+terminal_controller.RED+__author__+terminal_controller.NORMAL,
+                 epilog=None,
                  gui_mode=False,
                  conflict_handler='resolve',
                  **kwds):
         usage = textwrap.dedent(usage)
-        usage += '''\n\nWhenever you pass arguments to %prog that have spaces in them, '''\
-                 '''enclose the arguments in quotation marks.'''
+        if epilog is None:
+            epilog = _('Created by ')+terminal_controller.RED+__author__+terminal_controller.NORMAL
+        usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
+                 '''enclose the arguments in quotation marks.''')
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
                                formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)
