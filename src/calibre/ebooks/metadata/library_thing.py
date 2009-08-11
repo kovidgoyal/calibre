@@ -38,17 +38,16 @@ def cover_from_isbn(isbn, timeout=5., username=None, password=None):
     global browser
     if browser is None:
         browser = _browser()
-    _timeout = socket.getdefaulttimeout()
-    socket.setdefaulttimeout(timeout)
     src = None
     try:
-        return browser.open(OPENLIBRARY%isbn).read(), 'jpg'
+        return browser.open(OPENLIBRARY%isbn, timeout=timeout).read(), 'jpg'
     except:
         pass # Cover not found
     if username and password:
         login(username, password, force=False)
     try:
-        src = browser.open('http://www.librarything.com/isbn/'+isbn).read().decode('utf-8', 'replace')
+        src = browser.open('http://www.librarything.com/isbn/'+isbn,
+                timeout=timeout).read().decode('utf-8', 'replace')
     except Exception, err:
         if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
             err = LibraryThingError(_('LibraryThing.com timed out. Try again later.'))
@@ -66,8 +65,6 @@ def cover_from_isbn(isbn, timeout=5., username=None, password=None):
         url = re.sub(r'_S[XY]\d+', '', url['src'])
         cover_data = browser.open(url).read()
         return cover_data, url.rpartition('.')[-1]
-    finally:
-        socket.setdefaulttimeout(_timeout)
 
 def option_parser():
     parser = OptionParser(usage=\

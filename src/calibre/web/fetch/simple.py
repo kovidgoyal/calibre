@@ -105,9 +105,8 @@ class RecursiveFetcher(object):
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
         self.log = log
-        self.default_timeout = socket.getdefaulttimeout()
-        socket.setdefaulttimeout(options.timeout)
         self.verbose = options.verbose
+        self.timeout = options.timeout
         self.encoding = options.encoding
         self.browser = options.browser if hasattr(options, 'browser') else browser()
         self.max_recursions = options.max_recursions
@@ -194,7 +193,7 @@ class RecursiveFetcher(object):
             url = urlparse.urlunparse(purl)
         with self.browser_lock:
             try:
-                with closing(self.browser.open(url)) as f:
+                with closing(self.browser.open(url, timeout=self.timeout)) as f:
                     data = response(f.read()+f.read())
                     data.newurl = f.geturl()
             except urllib2.URLError, err:
@@ -204,7 +203,7 @@ class RecursiveFetcher(object):
                     getattr(getattr(err, 'args', [None])[0], 'errno', None) == -2: # Connection reset by peer or Name or service not know
                     self.log.debug('Temporary error, retrying in 1 second')
                     time.sleep(1)
-                    with closing(self.browser.open(url)) as f:
+                    with closing(self.browser.open(url, timeout=self.timeout)) as f:
                         data = response(f.read()+f.read())
                         data.newurl = f.geturl()
                 else:
@@ -449,11 +448,6 @@ class RecursiveFetcher(object):
         if self.show_progress:
             print
         return res
-
-    def __del__(self):
-        dt = getattr(self, 'default_timeout', None)
-        if dt is not None:
-            socket.setdefaulttimeout(dt)
 
 def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.com')):
     parser = OptionParser(usage=usage)
