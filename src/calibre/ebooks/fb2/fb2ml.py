@@ -118,7 +118,7 @@ class FB2MLizer(object):
 
     def get_toc(self):
         toc = u''
-        if not self.opts.no_inline_toc:
+        if self.opts.inline_toc:
             self.log.debug('Generating table of contents...')
             toc += u'<p>%s</p>' % _('Table of Contents:')
             for item in self.oeb_book.toc:

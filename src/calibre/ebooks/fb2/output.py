@@ -16,9 +16,9 @@ class FB2Output(OutputFormatPlugin):
     file_type = 'fb2'
 
     options = set([
-        OptionRecommendation(name='no_inline_toc',
+        OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Don\'t add Table of Contents to the book. Useful if '
+            help=_('Add Table of Contents to begenning of the book. Useful if '
                 'the book has its own table of contents.')),
     ])
 
