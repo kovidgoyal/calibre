@@ -54,7 +54,7 @@ class ChangelogFormatter(blog.LogFormatter):
                 for msg in entry[1]:
                     txt.append(u'  * ' + msg)
 
-        return u'\n'.join(txt)
+        return (u'\n'.join(txt)).encode('ascii', 'replace')
 
 def bzr_log_to_txt():
     path = BZR_PATH

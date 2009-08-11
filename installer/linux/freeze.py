@@ -26,9 +26,12 @@ def freeze():
 
     binary_excludes = ['libGLcore*', 'libGL*', 'libnvidia*']
 
+    os.system('sudo cp /usr/bin/calibre-mount-helper /tmp/calibre-mount-helper')
+    os.system('sudo chown kovid:users /tmp/calibre-mount-helper')
+
     binary_includes = [
                        '/usr/bin/pdftohtml',
-                       '/usr/bin/calibre-mount-helper',
+                       '/tmp/calibre-mount-helper',
                        '/usr/lib/libunrar.so',
                        '/usr/lib/libsqlite3.so.0',
                        '/usr/lib/libsqlite3.so.0',

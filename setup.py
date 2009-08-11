@@ -65,7 +65,7 @@ def setup_mount_helper():
 
 if __name__ == '__main__':
     from setuptools import setup, find_packages
-    from pyqtdistutils import PyQtExtension, build_ext, Extension
+    from pyqtdistutils import PyQtExtension, build_ext, Extension, QMAKE
     from upload import sdist, pot, build, build_py, manual, \
                         resources, clean, gui, translations, update, \
                         tag_release, upload_demo, build_linux, build_windows, \
@@ -76,10 +76,8 @@ if __name__ == '__main__':
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
     optional = []
-    qmake = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
-    qmake = os.environ.get('QMAKE', qmake)
     def qmake_query(arg=''):
-        return subprocess.Popen([qmake, '-query', arg],
+        return subprocess.Popen([QMAKE, '-query', arg],
             stdout=subprocess.PIPE).stdout.read()
     qt_inc = qt_lib = None
     qt_inc = qmake_query('QT_INSTALL_HEADERS').splitlines()[0]
