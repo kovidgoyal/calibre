@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin
+from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre.ebooks.fb2.fb2ml import FB2MLizer
 
 class FB2Output(OutputFormatPlugin):
@@ -14,6 +14,13 @@ class FB2Output(OutputFormatPlugin):
     name = 'FB2 Output'
     author = 'John Schember'
     file_type = 'fb2'
+
+    options = set([
+        OptionRecommendation(name='no_inline_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Don\'t add Table of Contents to the book. Useful if '
+                'the book has its own table of contents.')),
+    ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):    
         fb2mlizer = FB2MLizer(log)
