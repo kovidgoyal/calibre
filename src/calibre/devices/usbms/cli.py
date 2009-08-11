@@ -29,7 +29,7 @@ class CLI(object):
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)
         with open(path, 'rb') as src:
-            shutil.copyfileobj(src, outfile, 10*1024*1024)
+            shutil.copyfileobj(src, outfile)
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
@@ -44,10 +44,8 @@ class CLI(object):
         d = os.path.dirname(path)
         if not os.path.exists(d):
             os.makedirs(d)
-        dest = open(path, 'wb')
-        shutil.copyfileobj(infile, dest, 10*1024*1024)
-        dest.flush()
-        dest.close()
+        with open(path, 'wb') as dest:
+            shutil.copyfileobj(infile, dest)
         if close:
             infile.close()
 

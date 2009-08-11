@@ -38,7 +38,10 @@ class LRFOptions(object):
         self.use_metadata_cover = True
         self.output = output
         self.ignore_tables = opts.linearize_tables
-        self.base_font_size = opts.base_font_size
+        if opts.disable_font_rescaling:
+            self.base_font_size = 0
+        else:
+            self.base_font_size = opts.base_font_size
         self.blank_after_para = opts.insert_blank_line
         self.use_spine = True
         self.font_delta = 0

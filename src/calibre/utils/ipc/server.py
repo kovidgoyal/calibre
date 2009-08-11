@@ -192,8 +192,6 @@ class Server(Thread):
             if len(self.pool) + len(self.workers) < self.pool_size:
                 try:
                     self.pool.append(self.launch_worker())
-                except CriticalError:
-                    raise
                 except Exception:
                     pass
 

@@ -84,5 +84,5 @@ class MainWindow(QMainWindow):
             msg = '<b>%s</b>:'%type.__name__ + unicode(str(value), 'utf8', 'replace')
             error_dialog(self, _('ERROR: Unhandled exception'), msg, det_msg=fe,
                     show=True)
-        except:
+        except BaseException:
             pass

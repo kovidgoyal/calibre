@@ -4,12 +4,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Interface to isbndb.com. My key HLLXQX2A.
 '''
 
-import sys, re, socket
-from urllib import urlopen, quote
+import sys, re
+from urllib import quote
 
 from calibre.utils.config import OptionParser
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
+from calibre import browser
 
 BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&results=subjects,authors,texts&'
 
@@ -20,28 +21,24 @@ def fetch_metadata(url, max=100, timeout=5.):
     books = []
     page_number = 1
     total_results = sys.maxint
-    timeout = socket.getdefaulttimeout()
-    socket.setdefaulttimeout(timeout)
-    try:
-        while len(books) < total_results and max > 0:
-            try:
-                raw = urlopen(url).read()
-            except Exception, err:
-                raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
-            soup = BeautifulStoneSoup(raw,
-                    convertEntities=BeautifulStoneSoup.XML_ENTITIES)
-            book_list = soup.find('booklist')
-            if book_list is None:
-                errmsg = soup.find('errormessage').string
-                raise ISBNDBError('Error fetching metadata: '+errmsg)
-            total_results = int(book_list['total_results'])
-            np = '&page_number=%s&'%(page_number+1)
-            url = re.sub(r'\&page_number=\d+\&', np, url)
-            books.extend(book_list.findAll('bookdata'))
-            max -= 1
-        return books
-    finally:
-        socket.setdefaulttimeout(timeout)
+    br = browser()
+    while len(books) < total_results and max > 0:
+        try:
+            raw = br.open(url, timeout=timeout).read()
+        except Exception, err:
+            raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
+        soup = BeautifulStoneSoup(raw,
+                convertEntities=BeautifulStoneSoup.XML_ENTITIES)
+        book_list = soup.find('booklist')
+        if book_list is None:
+            errmsg = soup.find('errormessage').string
+            raise ISBNDBError('Error fetching metadata: '+errmsg)
+        total_results = int(book_list['total_results'])
+        np = '&page_number=%s&'%(page_number+1)
+        url = re.sub(r'\&page_number=\d+\&', np, url)
+        books.extend(book_list.findAll('bookdata'))
+        max -= 1
+    return books
 
 
 class ISBNDBMetadata(MetaInformation):
