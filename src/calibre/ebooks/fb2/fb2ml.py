@@ -104,7 +104,7 @@ class FB2MLizer(object):
         '</description>\n<body>\n<section>' % (author_first, author_middle,
             author_last, self.oeb_book.metadata.title[0].value,
             __appname__, __version__)
-        
+
     def get_cover_page(self):
         output = u''
         if 'titlepage' in self.oeb_book.guide:

@@ -17,7 +17,7 @@ class PluginWidget(Widget, Ui_Form):
     HELP = _('Options specific to')+' TXT '+_('output')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'txt_output', ['newline'])
+        Widget.__init__(self, parent, 'txt_output', ['newline', 'inline_toc'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
 

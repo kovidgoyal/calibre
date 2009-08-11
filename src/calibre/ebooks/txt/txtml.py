@@ -44,6 +44,7 @@ class TXTMLizer(object):
 
     def mlize_spine(self):
         output = u''
+        output += self.get_toc()
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to TXT...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
@@ -61,6 +62,15 @@ class TXTMLizer(object):
         text = text.replace('\r', ' ')
 
         return text
+
+    def get_toc(self):
+        toc = u''
+        if getattr(self.opts, 'inline_toc', None):
+            self.log.debug('Generating table of contents...')
+            toc += u'%s\n\n' % _(u'Table of Contents:')
+            for item in self.oeb_book.toc:
+                toc += u'* %s\n\n' % item.title
+        return toc
 
     def cleanup_text(self, text):
         self.log.debug('\tClean up text...')

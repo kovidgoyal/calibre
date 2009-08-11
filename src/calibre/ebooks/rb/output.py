@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin
+from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre.ebooks.rb.writer import RBWriter
 
 class RBOutput(OutputFormatPlugin):
@@ -14,6 +14,12 @@ class RBOutput(OutputFormatPlugin):
     name = 'RB Output'
     author = 'John Schember'
     file_type = 'rb'
+
+    options = set([
+        OptionRecommendation(name='inline_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Add Table of Contents to begenning of the book.')),
+    ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         close = False
