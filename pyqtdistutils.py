@@ -15,6 +15,7 @@ import sipconfig, os, sys, string, glob, shutil
 from PyQt4 import pyqtconfig
 iswindows = 'win32' in sys.platform
 QMAKE = os.path.expanduser('~/qt/bin/qmake') if 'darwin' in sys.platform else'qmake'
+QMAKE = os.environ.get('QMAKE', QMAKE)
 WINDOWS_PYTHON = ['C:/Python26/libs']
 OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
 
