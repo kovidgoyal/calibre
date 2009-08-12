@@ -27,7 +27,7 @@ TAG_MAP = {
     'del'     : 'o',
     'h1'      : 'x',
     'h2'      : 'X0',
-    'h3'      : 'x1',
+    'h3'      : 'X1',
     'h4'      : 'X2',
     'h5'      : 'X3',
     'h6'      : 'X4',
@@ -86,6 +86,15 @@ class PMLMLizer(object):
         self.image_hrefs = {}
         self.link_hrefs = {}
         output = u''
+        output += self.get_cover_page()
+        output += u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk'
+        output += self.get_text()
+        output = output.replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
+        output = self.clean_text(output)
+        return output
+
+    def get_cover_page(self):
+        output = u''
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating title page...')
             href = self.oeb_book.guide['titlepage'].href
@@ -93,14 +102,28 @@ class PMLMLizer(object):
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+        return output
+
+    def get_toc(self):
+        toc = u''
+        if self.opts.inline_toc:
+            self.log.debug('Generating table of contents...')
+            toc += u'\\X0%s\\X0\n\n' % _('Table of Contents:')
+            for item in self.oeb_book.toc:
+                if item.href in self.link_hrefs.keys():
+                    toc += '* \\q="#%s"%s\\q\n' % (self.link_hrefs[item.href], item.title)
+                else:
+                    self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
+        return toc
+
+    def get_text(self):
+        text = u''
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-            output += self.add_page_anchor(item)
-            output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
-        output = self.clean_text(output)
-
-        return output
+            text += self.add_page_anchor(item)
+            text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+        return text
 
     def add_page_anchor(self, page):
         return self.get_anchor(page, '')

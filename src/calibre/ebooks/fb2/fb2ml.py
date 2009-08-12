@@ -68,21 +68,13 @@ class FB2MLizer(object):
         self.image_hrefs = {}
         self.link_hrefs = {}
         output = self.fb2_header()
-        if 'titlepage' in self.oeb_book.guide:
-            self.log.debug('Generating cover page...')
-            href = self.oeb_book.guide['titlepage'].href
-            item = self.oeb_book.manifest.hrefs[href]
-            if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
-        for item in self.oeb_book.spine:
-            self.log.debug('Converting %s to FictionBook2 XML' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-            output += self.add_page_anchor(item)
-            output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+        output += self.get_cover_page()
+        output += u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk'
+        output += self.get_text()
         output += self.fb2_body_footer()
         output += self.fb2mlize_images()
         output += self.fb2_footer()
+        output = output.replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
@@ -112,7 +104,39 @@ class FB2MLizer(object):
         '</description>\n<body>\n<section>' % (author_first, author_middle,
             author_last, self.oeb_book.metadata.title[0].value,
             __appname__, __version__)
-        
+
+    def get_cover_page(self):
+        output = u''
+        if 'titlepage' in self.oeb_book.guide:
+            self.log.debug('Generating cover page...')
+            href = self.oeb_book.guide['titlepage'].href
+            item = self.oeb_book.manifest.hrefs[href]
+            if item.spine_position is None:
+                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+        return output
+
+    def get_toc(self):
+        toc = u''
+        if self.opts.inline_toc:
+            self.log.debug('Generating table of contents...')
+            toc += u'<p>%s</p>' % _('Table of Contents:')
+            for item in self.oeb_book.toc:
+                if item.href in self.link_hrefs.keys():
+                    toc += '<p><a xlink:href="#%s">%s</a></p>\n' % (self.link_hrefs[item.href], item.title)
+                else:
+                    self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
+        return toc
+
+    def get_text(self):
+        text = u''
+        for item in self.oeb_book.spine:
+            self.log.debug('Converting %s to FictionBook2 XML' % item.href)
+            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
+            text += self.add_page_anchor(item)
+            text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+        return text
+
     def fb2_body_footer(self):
         return u'\n</section>\n</body>'
         
@@ -135,7 +159,7 @@ class FB2MLizer(object):
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    im = Image.open(cStringIO.StringIO(item.data))
+                    im = Image.open(cStringIO.StringIO(item.data)).convert('RGB')
                     data = cStringIO.StringIO()
                     im.save(data, 'JPEG')
                     data = data.getvalue()

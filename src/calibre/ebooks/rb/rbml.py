@@ -72,6 +72,16 @@ class RBMLizer(object):
     def mlize_spine(self):
         self.link_hrefs = {}
         output = u'<HTML><HEAD><TITLE></TITLE></HEAD><BODY>'
+        output += self.get_cover_page()
+        output += u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk'
+        output += self.get_text()
+        output += u'</BODY></HTML>'
+        output = output.replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
+        output = self.clean_text(output)
+        return output
+
+    def get_cover_page(self):
+        output = u''
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating cover page...')
             href = self.oeb_book.guide['titlepage'].href
@@ -79,13 +89,28 @@ class RBMLizer(object):
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+        return output
+
+    def get_toc(self):
+        toc = u''
+        if self.opts.inline_toc:
+            self.log.debug('Generating table of contents...')
+            toc += u'<H1>%s</H1><UL>\n' % _('Table of Contents:')
+            for item in self.oeb_book.toc:
+                if item.href in self.link_hrefs.keys():
+                    toc += '<LI><A HREF="#%s">%s</A></LI>\n' % (self.link_hrefs[item.href], item.title)
+                else:
+                    self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
+            toc += '</UL>'
+        return toc
+
+    def get_text(self):
+        output = u''
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RocketBook HTML...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             output += self.add_page_anchor(item)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
-        output += u'</BODY></HTML>'
-        output = self.clean_text(output)
         return output
 
     def add_page_anchor(self, page):
