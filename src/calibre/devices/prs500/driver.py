@@ -794,10 +794,16 @@ class PRS500(DeviceConfig, DevicePlugin):
     def card(self, end_session=True):
         """ Return path prefix to installed card or None """
         card = None
-        if self._exists("a:/")[0]:
-            card = "a:"
-        if self._exists("b:/")[0]:
-            card = "b:"
+        try:
+            if self._exists("a:/")[0]:
+                card = "a:"
+        except:
+            pass
+        try:
+            if self._exists("b:/")[0]:
+                card = "b:"
+        except:
+            pass
         return card
 
     @safe
