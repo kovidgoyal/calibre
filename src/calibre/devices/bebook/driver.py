@@ -20,7 +20,7 @@ class BEBOOK(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['mobi', 'epub', 'pdf', 'rtf', 'txt']
+    FORMATS     = ['mobi', 'epub', 'fb2', 'lit', 'prc', 'pdf', 'rtf', 'txt']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0x8803, 0x6803]

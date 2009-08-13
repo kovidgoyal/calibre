@@ -181,7 +181,7 @@ def question_dialog(parent, title, msg, det_msg=''):
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
-    d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.NoButton,
+    d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
     if show:
