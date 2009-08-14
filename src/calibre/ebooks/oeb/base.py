@@ -1543,7 +1543,10 @@ class TOC(object):
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
-            element(label, NCX('text')).text = node.title
+            title = node.title
+            if title:
+                title = re.sub(r'\s', ' ', title)
+            element(label, NCX('text')).text = title
             element(point, NCX('content'), src=urlunquote(node.href))
             node.to_ncx(point)
         return parent

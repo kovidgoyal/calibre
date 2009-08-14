@@ -1,7 +1,7 @@
 from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import traceback, os, sys, functools, collections
+import traceback, os, sys, functools, collections, re
 from functools import partial
 from threading import Thread
 
@@ -28,7 +28,10 @@ from calibre.customize.ui import available_input_formats
 class TOCItem(QStandardItem):
 
     def __init__(self, toc):
-        QStandardItem.__init__(self, toc.text if toc.text else '')
+        text = toc.text
+        if text:
+            text = re.sub(r'\s', ' ', text)
+        QStandardItem.__init__(self, text if text else '')
         self.abspath = toc.abspath
         self.fragment = toc.fragment
         for t in toc:
