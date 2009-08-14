@@ -538,7 +538,7 @@ class Application(QApplication):
 
 def is_ok_to_use_qt():
     global gui_thread
-    if islinux and ':' in os.environ.get('DISPLAY', ''):
+    if islinux and ':' not in os.environ.get('DISPLAY', ''):
         return False
     if QApplication.instance() is None:
         QApplication([])
