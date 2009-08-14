@@ -24,6 +24,12 @@ class File(object):
         self.name = os.path.basename(path)
 
 
+def check_transfer(infile, dest):
+    infile.seek(0)
+    dest.seek(0)
+    return infile.read() == dest.read()
+
+
 class CLI(object):
 
     def get_file(self, path, outfile, end_session=True):
@@ -45,7 +51,15 @@ class CLI(object):
         if not os.path.exists(d):
             os.makedirs(d)
         with open(path, 'wb') as dest:
-            shutil.copyfileobj(infile, dest)
+            try:
+                shutil.copyfileobj(infile, dest)
+            except IOError:
+                print 'WARNING: First attempt to send file to device failed'
+                infile.seek(0)
+                dest.seek(0)
+                dest.truncate()
+                shutil.copyfileobj(infile, dest)
+            #if not check_transfer(infile, dest): raise Exception('Transfer failed')
         if close:
             infile.close()
 
