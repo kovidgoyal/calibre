@@ -103,6 +103,15 @@ First install the Stanza reader on your iPhone from http://www.lexcycle.com . Th
 
 Now you should be able to access your books on your iPhone. 
 
+Why is my device not detected in linux?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|app| uses something called SYSFS to detect devices in linux. The linux kernel can export two version of SYSFS, one of which is deprecated. Some linux distributions still ship with kernels that support the deprecated version of SYSFS, even though it was deprecated a long time ago. In this case, device detection in |app| will not work. You can check what version of SYSFS is exported by your kernel with the following command::
+    
+    grep SYSFS_DEPRECATED /boot/config-`uname -r`
+
+You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``. 
+
 Library Management
 ------------------
 

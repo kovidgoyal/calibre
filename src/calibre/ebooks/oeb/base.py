@@ -1016,7 +1016,7 @@ class Manifest(object):
             if isinstance(data, etree._Element):
                 ans = xml2str(data, pretty_print=self.oeb.pretty_print)
                 if self.media_type in OEB_DOCS:
-                    ans = re.sub(r'<(div|a)([^>]*)/>', r'<\1\2></\1>', ans)
+                    ans = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ans)
                 return ans
             if isinstance(data, unicode):
                 return data.encode('utf-8')
