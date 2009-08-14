@@ -344,6 +344,7 @@ class gui(OptionlessCommand):
                 dat = dat.replace('from convert.xpath_wizard import',
                     'from calibre.gui2.convert.xpath_wizard import')
                 dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
+                dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
 
                 # Workaround bug in Qt 4.4 on Windows
                 if form.endswith('dialogs%sconfig.ui'%os.sep) or form.endswith('dialogs%slrf_single.ui'%os.sep):

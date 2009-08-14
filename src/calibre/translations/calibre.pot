@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.6\n"
-"POT-Creation-Date: 2009-08-13 12:06+MDT\n"
-"PO-Revision-Date: 2009-08-13 12:06+MDT\n"
+"POT-Creation-Date: 2009-08-13 12:30+MDT\n"
+"PO-Revision-Date: 2009-08-13 12:30+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -3686,10 +3686,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:360
 msgid "Publishe&d:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:362
-msgid "MMM yyyy"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:363
