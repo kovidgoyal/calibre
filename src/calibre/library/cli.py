@@ -126,7 +126,8 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
     fields = ['id'] + fields
     if output_format == 'text':
         for f in data:
-            f['formats'] = u'[%s]'%u','.join(f['formats'])
+            fmts = [x for x in f['formats'] if x is not None]
+            f['formats'] = u'[%s]'%u','.join(fmts)
         widths = list(map(lambda x : 0, fields))
         for record in data:
             for f in record.keys():
