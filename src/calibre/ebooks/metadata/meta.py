@@ -31,7 +31,7 @@ def metadata_from_formats(formats):
     try:
         return _metadata_from_formats(formats)
     except:
-        mi = metadata_from_filename(list(formats)[0])
+        mi = metadata_from_filename(list(iter(formats))[0])
         if not mi.authors:
             mi.authors = [_('Unknown')]
 
