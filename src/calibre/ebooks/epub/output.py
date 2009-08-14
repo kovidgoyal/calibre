@@ -161,10 +161,8 @@ class EPUBOutput(OutputFormatPlugin):
                 )
         split(self.oeb, self.opts)
 
-
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
-
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
         RescaleImages()(oeb, opts)
         self.insert_cover()
@@ -194,6 +192,7 @@ class EPUBOutput(OutputFormatPlugin):
         '''
         if self.opts.no_default_epub_cover:
             return None
+        self.log('Generating default cover')
         try:
             from calibre.gui2 import images_rc, is_ok_to_use_qt # Needed for access to logo
             from PyQt4.Qt import QFile, QIODevice

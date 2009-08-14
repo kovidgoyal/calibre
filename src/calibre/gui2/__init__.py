@@ -181,7 +181,7 @@ def question_dialog(parent, title, msg, det_msg=''):
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
-    d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.NoButton,
+    d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
     if show:
@@ -538,7 +538,7 @@ class Application(QApplication):
 
 def is_ok_to_use_qt():
     global gui_thread
-    if islinux and os.environ.get('DISPLAY', None) is None:
+    if islinux and ':' not in os.environ.get('DISPLAY', ''):
         return False
     if QApplication.instance() is None:
         QApplication([])

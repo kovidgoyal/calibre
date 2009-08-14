@@ -1525,6 +1525,8 @@ class LibraryDatabase2(LibraryDatabase):
             if formats:
                 for fmt in formats.split(','):
                     path = self.format_abspath(x['id'], fmt, index_is_id=True)
+                    if path is None:
+                        continue
                     if prefix != self.library_path:
                         path = os.path.relpath(path, self.library_path)
                         path = os.path.join(prefix, path)
@@ -1762,7 +1764,7 @@ books_series_link      feeds
         formats = self.find_books_in_directory(dirpath, True)
         if not formats:
             return
-        formats = list(formats)
+        formats = list(iter(formats))
         mi = metadata_from_formats(formats)
         if mi.title is None:
             return

@@ -104,6 +104,7 @@ class CybookOpus(CybookG3):
 
     name = 'Cybook Opus'
     output_format = 'EPUB'
+    output_profile = 'cybook_opus'
     id = 'cybook_opus'
 
 class BeBook(Device):

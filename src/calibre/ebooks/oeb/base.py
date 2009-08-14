@@ -1016,7 +1016,7 @@ class Manifest(object):
             if isinstance(data, etree._Element):
                 ans = xml2str(data, pretty_print=self.oeb.pretty_print)
                 if self.media_type in OEB_DOCS:
-                    ans = re.sub(r'<(div|a)([^>]*)/>', r'<\1\2></\1>', ans)
+                    ans = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ans)
                 return ans
             if isinstance(data, unicode):
                 return data.encode('utf-8')
@@ -1543,7 +1543,10 @@ class TOC(object):
                 attrib['class'] = node.klass
             point = element(parent, NCX('navPoint'), attrib=attrib)
             label = etree.SubElement(point, NCX('navLabel'))
-            element(label, NCX('text')).text = node.title
+            title = node.title
+            if title:
+                title = re.sub(r'\s', ' ', title)
+            element(label, NCX('text')).text = title
             element(point, NCX('content'), src=urlunquote(node.href))
             node.to_ncx(point)
         return parent

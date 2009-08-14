@@ -22,9 +22,14 @@ def ascii_text(orig):
     return ascii
 
 
-def ascii_filename(orig):
-    return sanitize_file_name(ascii_text(orig).replace('?', '_'))
-
+def ascii_filename(orig, substitute='_'):
+    ans = []
+    orig = ascii_text(orig).replace('?', '_')
+    for x in orig:
+        if ord(x) < 32:
+            x = substitute
+        ans.append(x)
+    return sanitize_file_name(''.join(ans), substitute=substitute)
 
 def supports_long_names(path):
     t = ('a'*300)+'.txt'

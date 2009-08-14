@@ -88,7 +88,8 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     one = re.sub(r'^\.+$', '_', one)
     if as_unicode:
         one = one.decode(filesystem_encoding)
-    return one.replace('..', '_')
+    one = one.replace('..', substitute)
+    return one
 
 
 def prints(*args, **kwargs):

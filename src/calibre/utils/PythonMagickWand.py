@@ -62,7 +62,7 @@ and save it to a new file.
 
     >>> MagickWriteImage(wand,"out.png") #doctest: +ELLIPSIS
     <MagickBooleanType object at ...>
-    >>> 
+    >>>
 
 
 """
@@ -82,14 +82,15 @@ else:
     _lib = util.find_library('MagickWand')
     if _lib is None:
         _lib = util.find_library('Wand')
-           
+
 _magick = _magick_error = None
 try:
     _magick = ctypes.CDLL(_lib)
 except Exception, err:
-    _magick_erorr = str(err)
+    global _magick_error
+    _magick_error = str(err)
 
-_initialized = False    
+_initialized = False
 def initialize():
     global _initialized
     if not _initialized:
@@ -97,22 +98,22 @@ def initialize():
             _magick.MagickWandGenesis()
         else:
             raise RuntimeError('Failed to load ImageMagick: %s'%_magick_error)
-        
+
 def finalize():
     global _initialized
     if _initialized:
         _magick.MagickWandTerminus()
         _initialized = False
-        
+
 class ImageMagick(object):
-    
+
     def __enter__(self):
         initialize()
-        
+
     def __exit__(self, *args):
         finalize()
-        
-        
+
+
 class MetricType(ctypes.c_int): pass
 UndefinedMetric = MetricType(0)
 AbsoluteErrorMetric = MetricType(1)
@@ -489,7 +490,7 @@ SetEvaluateOperator = MagickEvaluateOperator(10)
 SubtractEvaluateOperator = MagickEvaluateOperator(11)
 XorEvaluateOperator = MagickEvaluateOperator(12)
 
-class ExceptionType(ctypes.c_int): 
+class ExceptionType(ctypes.c_int):
     pass
 
 UndefinedException = ExceptionType(0)
@@ -4361,7 +4362,6 @@ except AttributeError,e:
     pass
 else:
     PixelSetColor = _magick.PixelSetColor
-
 
 if __name__=='__main__':
     import doctest

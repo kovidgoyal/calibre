@@ -270,7 +270,7 @@ class CybookG3Output(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
-class CybookOpusOutput(OutputProfile):
+class CybookOpusOutput(SonyReaderOutput):
 
     author      = 'John Schember'
     name        = 'Cybook Opus'
@@ -278,7 +278,6 @@ class CybookOpusOutput(OutputProfile):
     description = _('This profile is intended for the Cybook Opus.')
 
     # Screen size is a best guess
-    screen_size               = (600, 800)
     dpi                       = 200
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]

@@ -381,7 +381,7 @@
               <item>
                <widget class="QGroupBox" name="groupBox_2">
                 <property name="title">
-                 <string>Comments</string>
+                 <string>&amp;Comments</string>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_4">
                  <item row="0" column="0">
