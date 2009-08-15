@@ -7,7 +7,7 @@
 """
 __all__ = ['CSSValue', 'CSSPrimitiveValue', 'CSSValueList', 'RGBColor']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssvalue.py 1684 2009-03-01 18:26:21Z cthedot $'
+__version__ = '$Id: cssvalue.py 1834 2009-08-02 12:20:21Z cthedot $'
 
 from cssutils.prodparser import *
 import cssutils
@@ -81,6 +81,7 @@ class CSSValue(cssutils.util._NewBase):
                 [ NUMBER S* | PERCENTAGE S* | LENGTH S* | EMS S* | EXS S* | ANGLE S* |
                   TIME S* | FREQ S* ]
               | STRING S* | IDENT S* | URI S* | hexcolor | function
+              | UNICODE-RANGE S*
               ;
             function
               : FUNCTION S* expr ')' S*
@@ -108,7 +109,7 @@ class CSSValue(cssutils.util._NewBase):
         
         # used as operator is , / or S
         nextSor = u',/'
-        
+                
         term = Choice(Sequence(PreDef.unary(), 
                                Choice(PreDef.number(nextSor=nextSor), 
                                       PreDef.percentage(nextSor=nextSor),
@@ -117,22 +118,25 @@ class CSSValue(cssutils.util._NewBase):
                       PreDef.ident(nextSor=nextSor),
                       PreDef.uri(nextSor=nextSor),
                       PreDef.hexcolor(nextSor=nextSor),
+                      PreDef.unicode_range(nextSor=nextSor),
                       # special case IE only expression
                       Prod(name='expression', 
-                           match=lambda t, v: t == self._prods.FUNCTION and 
+                           match=lambda t, v: t == self._prods.FUNCTION and (
                                               cssutils.helper.normalize(v) in (u'expression(', 
-                                                                               u'alpha('),
+                                                                               u'alpha(') or
+                                              v.startswith(u'progid:DXImageTransform.Microsoft.')                                 ),
                            nextSor=nextSor,
                            toSeq=lambda t, tokens: (ExpressionValue.name, 
                                                     ExpressionValue(cssutils.helper.pushtoken(t, 
-                                                                                         tokens)))),
+                                                                                         tokens)))
+                      ),
                       PreDef.function(nextSor=nextSor,
                                       toSeq=lambda t, tokens: ('FUNCTION', 
                                                                CSSFunction(cssutils.helper.pushtoken(t, 
                                                                                                      tokens)))))
-        operator = Choice(PreDef.S(optional=False, mayEnd=True),
-                          PreDef.CHAR('comma', ',', toSeq=lambda t, tokens: ('operator', t[1])),
-                          PreDef.CHAR('slash', '/', toSeq=lambda t, tokens: ('operator', t[1])),
+        operator = Choice(PreDef.S(),
+                          PreDef.char('comma', ',', toSeq=lambda t, tokens: ('operator', t[1])),
+                          PreDef.char('slash', '/', toSeq=lambda t, tokens: ('operator', t[1])),
                           optional=True)
         # CSSValue PRODUCTIONS
         valueprods = Sequence(term, 
@@ -154,19 +158,22 @@ class CSSValue(cssutils.util._NewBase):
                 item = seq[i]
                 if item.type == self._prods.S:
                     pass
-                elif item.value == u',' and item.type not in (self._prods.URI, self._prods.STRING):
-                    # counts as a single one
+
+                elif (item.value, item.type) == (u',', 'operator'):
+                    # , separared counts as a single STRING for now
+                    # URI or STRING value might be a single CHAR too!
                     newseq.appendItem(item)
-                    if firstvalue:
-                        # may be IDENT or STRING but with , it is always STRING
-                        firstvalue = firstvalue[0], 'STRING'
-                    # each comma separated list counts as a single one only
                     count -= 1
+                    if firstvalue:
+                        # list of IDENTs is handled as STRING!
+                        if firstvalue[1] == self._prods.IDENT:
+                            firstvalue = firstvalue[0], 'STRING'
+                    
                 elif item.value == u'/':
-                    # counts as a single one
+                    # / separated items count as one
                     newseq.appendItem(item)
                 
-                elif item.value == u'+' or item.value == u'-':
+                elif item.value == u'-' or item.value == u'+':
                     # combine +- and following number or other
                     i += 1
                     try:
@@ -187,12 +194,12 @@ class CSSValue(cssutils.util._NewBase):
                     if not firstvalue:
                         firstvalue = (item.value, item.type)
                     count += 1
-    
+
                 else:
                     newseq.appendItem(item)
                                         
                 i += 1
-                
+
             if not firstvalue:
                 self._log.error(
                         u'CSSValue: Unknown syntax or no value: %r.' %
@@ -201,7 +208,7 @@ class CSSValue(cssutils.util._NewBase):
                 # ok and set
                 self._setSeq(newseq)
                 self.wellformed = wellformed
-                                           
+
                 if hasattr(self, '_value'):
                     # only in case of CSSPrimitiveValue, else remove!
                     del self._value
@@ -228,6 +235,8 @@ class CSSValue(cssutils.util._NewBase):
                             return cssutils.helper.string(item.value)
                         elif self._prods.URI == item.type:
                             return cssutils.helper.uri(item.value)
+                        elif self._prods.FUNCTION == item.type:
+                            return item.value.cssText
                         else:
                             return item.value
                     
@@ -253,7 +262,8 @@ class CSSValue(cssutils.util._NewBase):
                                          self._prods.NUMBER,
                                          self._prods.PERCENTAGE,
                                          self._prods.STRING,
-                                         self._prods.URI):
+                                         self._prods.URI,
+                                         self._prods.UNICODE_RANGE):
                             if nexttocommalist:
                                 # wait until complete
                                 commalist.append(itemValue(item))
@@ -353,6 +363,7 @@ class CSSPrimitiveValue(CSSValue):
     CSS_RGBCOLOR = 25
     # NOT OFFICIAL:
     CSS_RGBACOLOR = 26
+    CSS_UNICODE_RANGE = 27
 
     _floattypes = (CSS_NUMBER, CSS_PERCENTAGE, CSS_EMS, CSS_EXS,
                    CSS_PX, CSS_CM, CSS_MM, CSS_IN, CSS_PT, CSS_PC,
@@ -426,9 +437,10 @@ class CSSPrimitiveValue(CSSValue):
                   'CSS_MS', 'CSS_S',
                   'CSS_HZ', 'CSS_KHZ',
                   'CSS_DIMENSION', 
-                  'CSS_STRING', 'CSS_URI', 'CSS_IDENT', 
+                  'CSS_STRING', 'CSS_URI', 'CSS_IDENT',
                   'CSS_ATTR', 'CSS_COUNTER', 'CSS_RECT',
                   'CSS_RGBCOLOR', 'CSS_RGBACOLOR',
+                  'CSS_UNICODE_RANGE'
                   ]
 
     _reNumDim = re.compile(ur'([+-]?\d*\.\d+|[+-]?\d+)(.*)$', re.I| re.U|re.X)
@@ -464,6 +476,7 @@ class CSSPrimitiveValue(CSSValue):
         __types.NUMBER: 'CSS_NUMBER',
         __types.PERCENTAGE: 'CSS_PERCENTAGE',
         __types.STRING: 'CSS_STRING',
+        __types.UNICODE_RANGE: 'CSS_UNICODE_RANGE',
         __types.URI: 'CSS_URI',
         __types.IDENT: 'CSS_IDENT',
         __types.HASH: 'CSS_RGBCOLOR',
@@ -474,7 +487,6 @@ class CSSPrimitiveValue(CSSValue):
     def __set_primitiveType(self):
         """primitiveType is readonly but is set lazy if accessed"""
         # TODO: check unary and font-family STRING a, b, "c"
-        
         val, type_ = self._value
         # try get by type_
         pt = self.__unitbytype.get(type_, 'CSS_UNKNOWN')
@@ -827,7 +839,7 @@ class CSSFunction(CSSPrimitiveValue):
                                                   types.PERCENTAGE,
                                                   types.STRING),
                          toSeq=lambda t, tokens: (t[0], CSSPrimitiveValue(t[1])))
-        
+                
         funcProds = Sequence(Prod(name='FUNC', 
                                   match=lambda t, v: t == types.FUNCTION, 
                                   toSeq=lambda t, tokens: (t[0], cssutils.helper.normalize(t[1]))),
@@ -969,23 +981,31 @@ class RGBColor(CSSPrimitiveValue):
 
 class ExpressionValue(CSSFunction):
     """Special IE only CSSFunction which may contain *anything*.
-    Used for expressions and ``alpha(opacity=100)`` currently"""
+    Used for expressions and ``alpha(opacity=100)`` currently."""
     name = u'Expression (IE only)'
     
     def _productiondefinition(self):
         """Return defintion used for parsing."""
         types = self._prods # rename!
+        
+        def toSeq(t, tokens):
+            "Do not normalize function name!"
+            return t[0], t[1]
+        
         funcProds = Sequence(Prod(name='expression', 
                                   match=lambda t, v: t == types.FUNCTION, 
-                                  toSeq=lambda t, tokens: (t[0], cssutils.helper.normalize(t[1]))),
+                                  toSeq=toSeq
+                             ),
                              Sequence(Choice(Prod(name='nested function', 
                                                   match=lambda t, v: t == self._prods.FUNCTION,
                                                   toSeq=lambda t, tokens: (CSSFunction.name, 
                                                                            CSSFunction(cssutils.helper.pushtoken(t, 
-                                                                                                                 tokens)))),
+                                                                                                                 tokens)))
+                                                  ),
                                              Prod(name='part', 
                                                   match=lambda t, v: v != u')',
-                                                  toSeq=lambda t, tokens: (t[0], t[1])),                                             ),
+                                                  toSeq=lambda t, tokens: (t[0], t[1])),                                 
+                                                  ),
                                       minmax=lambda: (0, None)),
                              PreDef.funcEnd(stop=True))
         return funcProds

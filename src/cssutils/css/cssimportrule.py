@@ -1,10 +1,8 @@
 """CSSImportRule implements DOM Level 2 CSS CSSImportRule plus the 
-``name`` property from http://www.w3.org/TR/css3-cascade/#cascading.
-
-"""
+``name`` property from http://www.w3.org/TR/css3-cascade/#cascading."""
 __all__ = ['CSSImportRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssimportrule.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: cssimportrule.py 1824 2009-08-01 21:00:34Z cthedot $'
 
 import cssrule
 import cssutils
@@ -320,7 +318,8 @@ class CSSImportRule(cssrule.CSSRule):
             parentHref = self.parentStyleSheet.href
             if parentHref is None:
                 # use cwd instead
-                parentHref = u'file:' + urllib.pathname2url(os.getcwd()) + '/'
+                #parentHref = u'file:' + urllib.pathname2url(os.getcwd()) + '/'
+                parentHref = cssutils.helper.path2url(os.getcwd()) + '/'
             href = urlparse.urljoin(parentHref, self.href)
 
             # all possible exceptions are ignored (styleSheet is None then)

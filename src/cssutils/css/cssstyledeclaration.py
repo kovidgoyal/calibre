@@ -51,7 +51,7 @@ TODO:
 """
 __all__ = ['CSSStyleDeclaration', 'Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstyledeclaration.py 1710 2009-04-18 15:46:20Z cthedot $'
+__version__ = '$Id: cssstyledeclaration.py 1819 2009-08-01 20:52:43Z cthedot $'
 
 from cssproperties import CSS2Properties
 from property import Property
@@ -127,6 +127,11 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
             for name in self.__nnames():
                 yield self.getProperty(name)
         return properties()
+
+    def keys(self):
+        """Analoguous to standard dict returns property names which are set in
+        this declaration."""
+        return list(self.__nnames())
     
     def __getitem__(self, CSSName):
         """Retrieve the value of property ``CSSName`` from this declaration.
@@ -247,6 +252,13 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
         """
         self.removeProperty(CSSName)
 
+    def children(self):
+        """Generator yielding any known child in this declaration including
+         *all* properties, comments or CSSUnknownrules.
+        """
+        for item in self._seq:
+            yield item.value
+
     def _getCssText(self):
         """Return serialized property cssText."""
         return cssutils.ser.do_css_CSSStyleDeclaration(self)
@@ -275,10 +287,10 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
                                        semicolon=True)
             if self._tokenvalue(tokens[-1]) == u';':
                 tokens.pop()
-            property = Property()
+            property = Property(parent=self)
             property.cssText = tokens
             if property.wellformed:
-                seq.append(property, 'Property')
+                seq.append(property, 'Property')                
             else:
                 self._log.error(u'CSSStyleDeclaration: Syntax Error in Property: %s'
                                 % self._valuestr(tokens))
@@ -301,12 +313,13 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
             productions={'IDENT': ident},#, 'CHAR': char},
             default=unexpected)
         # wellformed set by parse
-        # post conditions
 
+        for item in newseq:
+            item.value._parent = self
+         
         # do not check wellformed as invalid things are removed anyway            
-        #if wellformed: 
         self._setSeq(newseq)
-
+        
     cssText = property(_getCssText, _setCssText,
         doc="(DOM) A parsable textual representation of the declaration\
         block excluding the surrounding curly braces.")
@@ -322,13 +335,12 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
         """
         return cssutils.ser.do_css_CSSStyleDeclaration(self, separator)
 
-    def _getParentRule(self):
-        return self._parentRule
-
     def _setParentRule(self, parentRule):
         self._parentRule = parentRule
-
-    parentRule = property(_getParentRule, _setParentRule,
+        for x in self.children():
+            x.parent = self
+            
+    parentRule = property(lambda self: self._parentRule, _setParentRule,
         doc="(DOM) The CSS rule that contains this declaration block or "
             "None if this CSSStyleDeclaration is not attached to a CSSRule.")
 
@@ -581,6 +593,7 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
                     property.priority = newp.priority
                     break
             else:
+                newp.parent = self
                 self.seq._readonly = False
                 self.seq.append(newp, 'Property')
                 self.seq._readonly = True

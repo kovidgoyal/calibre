@@ -1,9 +1,8 @@
 """CSSRuleList implements DOM Level 2 CSS CSSRuleList.
-Partly also http://dev.w3.org/csswg/cssom/#the-cssrulelist
-"""
+Partly also http://dev.w3.org/csswg/cssom/#the-cssrulelist."""
 __all__ = ['CSSRuleList']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssrulelist.py 1641 2009-01-13 21:05:37Z cthedot $'
+__version__ = '$Id: cssrulelist.py 1824 2009-08-01 21:00:34Z cthedot $'
 
 class CSSRuleList(list):
     """The CSSRuleList object represents an (ordered) list of statements.

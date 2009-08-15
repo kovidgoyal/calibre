@@ -1,7 +1,7 @@
 """CSSMediaRule implements DOM Level 2 CSS CSSMediaRule."""
 __all__ = ['CSSMediaRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssmediarule.py 1743 2009-05-09 20:33:15Z cthedot $'
+__version__ = '$Id: cssmediarule.py 1820 2009-08-01 20:53:08Z cthedot $'
 
 import cssrule
 import cssutils
@@ -34,15 +34,11 @@ class CSSMediaRule(cssrule.CSSRule):
                                                      readonly=readonly)
         self.name = name
         self.cssRules = cssutils.css.cssrulelist.CSSRuleList()
-        self.cssRules.append = self.insertRule
-        self.cssRules.extend = self.insertRule
-        self.cssRules.__delitem__ == self.deleteRule
-
         self._readonly = readonly
 
     def __iter__(self):
         """Generator iterating over these rule's cssRules."""
-        for rule in self.cssRules:
+        for rule in self._cssRules:
             yield rule
             
     def __repr__(self):
@@ -52,6 +48,20 @@ class CSSMediaRule(cssrule.CSSRule):
     def __str__(self):
         return "<cssutils.css.%s object mediaText=%r at 0x%x>" % (
                 self.__class__.__name__, self.media.mediaText, id(self))
+
+    def _setCssRules(self, cssRules):
+        "Set new cssRules and update contained rules refs."
+        cssRules.append = self.insertRule
+        cssRules.extend = self.insertRule
+        cssRules.__delitem__ == self.deleteRule
+        for rule in cssRules:
+            rule._parentStyleSheet = self.parentStyleSheet
+            rule._parentRule = self
+        self._cssRules = cssRules
+
+    cssRules = property(lambda self: self._cssRules, _setCssRules,
+            "All Rules in this style sheet, a "
+            ":class:`~cssutils.css.CSSRuleList`.")
 
     def _getCssText(self):
         """Return serialized property cssText."""
@@ -204,9 +214,9 @@ class CSSMediaRule(cssrule.CSSRule):
                     self._media.mediaText = newmedia.mediaText  
                     self.name = name
                     self._setSeq(nameseq)
-                    del self.cssRules[:]
+                    del self._cssRules[:]
                     for r in newcssrules:
-                        self.cssRules.append(r)
+                        self._cssRules.append(r)
         
     cssText = property(_getCssText, _setCssText,
         doc="(DOM) The parsable textual representation of this rule.")
@@ -245,12 +255,12 @@ class CSSMediaRule(cssrule.CSSRule):
         self._checkReadonly()
 
         try:
-            self.cssRules[index]._parentRule = None # detach
-            del self.cssRules[index] # remove from @media
+            self._cssRules[index]._parentRule = None # detach
+            del self._cssRules[index] # remove from @media
         except IndexError:
             raise xml.dom.IndexSizeErr(
                 u'CSSMediaRule: %s is not a valid index in the rulelist of length %i' % (
-                index, self.cssRules.length))
+                index, self._cssRules.length))
 
     def add(self, rule):
         """Add `rule` to end of this mediarule. 
@@ -300,11 +310,11 @@ class CSSMediaRule(cssrule.CSSRule):
 
         # check position
         if index is None:
-            index = len(self.cssRules)
-        elif index < 0 or index > self.cssRules.length:
+            index = len(self._cssRules)
+        elif index < 0 or index > self._cssRules.length:
             raise xml.dom.IndexSizeErr(
                 u'CSSMediaRule: Invalid index %s for CSSRuleList with a length of %s.' % (
-                    index, self.cssRules.length))
+                    index, self._cssRules.length))
 
         # parse
         if isinstance(rule, basestring):
@@ -315,6 +325,13 @@ class CSSMediaRule(cssrule.CSSRule):
                 self._log.error(u'CSSMediaRule: Invalid Rule: %s' % rule)
                 return
             rule = tempsheet.cssRules[0]
+            
+        elif isinstance(rule, cssutils.css.CSSRuleList):
+            # insert all rules
+            for i, r in enumerate(rule):
+                self.insertRule(r, index + i)
+            return index
+            
         elif not isinstance(rule, cssutils.css.CSSRule):
             self._log.error(u'CSSMediaRule: Not a CSSRule: %s' % rule)
             return
@@ -332,7 +349,7 @@ class CSSMediaRule(cssrule.CSSRule):
                       error=xml.dom.HierarchyRequestErr)
             return
 
-        self.cssRules.insert(index, rule)
+        self._cssRules.insert(index, rule)
         rule._parentRule = self
         rule._parentStyleSheet = self.parentStyleSheet
         return index

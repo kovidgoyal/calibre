@@ -2,7 +2,7 @@
 """
 __all__ = []
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: util.py 1743 2009-05-09 20:33:15Z cthedot $'
+__version__ = '$Id: util.py 1781 2009-07-19 12:30:49Z cthedot $'
 
 from helper import normalize
 from itertools import ifilter
@@ -662,6 +662,9 @@ class _Namespaces(object):
         "no initial values are set, only the relevant sheet is"
         self.parentStyleSheet = parentStyleSheet
         self._log = log
+
+    def __repr__(self):
+        return "%r" % self.namespaces
 
     def __contains__(self, prefix):
         return prefix in self.namespaces

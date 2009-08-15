@@ -1,7 +1,7 @@
 """CSSRule implements DOM Level 2 CSS CSSRule."""
 __all__ = ['CSSRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssrule.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: cssrule.py 1808 2009-07-29 13:09:36Z cthedot $'
 
 import cssutils
 import xml.dom
@@ -35,6 +35,7 @@ class CSSRule(cssutils.util.Base2):
     def __init__(self, parentRule=None, parentStyleSheet=None, readonly=False):
         """Set common attributes for all rules."""
         super(CSSRule, self).__init__()
+        self._parent = parentRule
         self._parentRule = parentRule
         self._parentStyleSheet = parentStyleSheet
         self._setSeq(self._tempSeq())
@@ -78,6 +79,10 @@ class CSSRule(cssutils.util.Base2):
                            "rule. This reflects the current state of the rule "
                            "and not its initial value.")
 
+    parent = property(lambda self: self._parent,
+                      doc="The Parent Node of this CSSRule (currently if a "
+                          "CSSStyleDeclaration only!) or None.")    
+    
     parentRule = property(lambda self: self._parentRule,
                                 doc="If this rule is contained inside "
                                     "another rule (e.g. a style rule inside "
