@@ -83,7 +83,8 @@ else:
     if _lib is None:
         _lib = util.find_library('Wand')
 
-_magick = _magick_error = None
+_magick = None
+_magick_error = None
 try:
     _magick = ctypes.CDLL(_lib)
 except Exception, err:

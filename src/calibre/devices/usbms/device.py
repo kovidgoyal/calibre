@@ -42,7 +42,6 @@ class Device(DeviceConfig, DevicePlugin):
     WINDOWS_MAIN_MEM = None
     WINDOWS_CARD_A_MEM = None
     WINDOWS_CARD_B_MEM = None
-    ALLOW_NO_MAIN_MEMORY = False
 
     # The following are used by the check_ioreg_line method and can be either:
     # None, a string, a list of strings or a compiled regular expression
@@ -267,9 +266,6 @@ class Device(DeviceConfig, DevicePlugin):
                 drives['cardb'] = self.windows_get_drive_prefix(drive)
             elif self.windows_match_device(drive, 'WINDOWS_MAIN_MEM') and not drives.get('main', None):
                 drives['main'] = self.windows_get_drive_prefix(drive)
-                if not self.ALLOW_NO_MAIN_MEMORY:
-                    raise DeviceError('Failed to find the drive corresponding'
-                            ' to the main memory')
 
             if 'main' in drives.keys() and 'carda' in drives.keys() and \
                     'cardb' in drives.keys():
@@ -277,7 +273,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         drives = self.windows_open_callback(drives)
 
-        if 'main' not in drives:
+        if drives.get('main', None) is None:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
                 self.__class__.__name__)
