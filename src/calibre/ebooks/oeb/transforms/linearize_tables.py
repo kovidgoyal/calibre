@@ -14,6 +14,9 @@ class LinearizeTables(object):
         for x in root.xpath('//h:table|//h:td|//h:tr|//h:th',
                 namespaces=XPNSMAP):
             x.tag = 'div'
+            for attr in ('valign', 'colspan', 'rowspan', 'width', 'halign'):
+                if attr in x.attrib:
+                    del x.attrib[attr]
 
     def __call__(self, oeb, context):
         for x in oeb.manifest.items:
