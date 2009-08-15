@@ -210,6 +210,12 @@ class BasicNewsRecipe(Recipe):
     #: tags before the first element with `id="content"`.
     remove_tags_before    = None
 
+    #: List of attributes to remove from all tags
+    #: For example::
+    #:
+    #:   remove_attributes = ['style', 'font']
+    remove_attributes = []
+
     #: Keep only the specified tags and their children.
     #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
     #: If this list is not empty, then the `<body>` tag will be emptied and re-filled with
@@ -562,6 +568,9 @@ class BasicNewsRecipe(Recipe):
                 script.extract()
         for script in list(soup.findAll('noscript')):
                 script.extract()
+        for attr in self.remove_attributes:
+            for x in soup.findAll(attrs={attr:True}):
+                del x[attr]
         return self.postprocess_html(soup, first_fetch)
 
 
