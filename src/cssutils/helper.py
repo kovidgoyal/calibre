@@ -3,7 +3,10 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: errorhandler.py 1234 2008-05-22 20:26:12Z cthedot $'
 
+import os
 import re
+import sys
+import urllib
 
 class Deprecated(object):
     """This is a decorator which can be used to mark functions
@@ -47,6 +50,10 @@ def normalize(x):
         return x.lower()
     else:
         return x
+
+def path2url(path):
+    """Return file URL of `path`"""
+    return u'file:' + urllib.pathname2url(os.path.abspath(path))    
 
 def pushtoken(token, tokens):
     """Return new generator starting with token followed by all tokens in 
@@ -107,24 +114,24 @@ def urivalue(uri):
     else:
         return uri
 
-def normalnumber(num):
-    """
-    Return normalized number as string.
-    """
-    sign = ''
-    if num.startswith('-'):
-        sign = '-'
-        num = num[1:]
-    elif num.startswith('+'):
-        num = num[1:]
-
-    if float(num) == 0.0:
-        return '0'
-    else:        
-        if num.find('.') == -1:
-            return sign + str(int(num)) 
-        else: 
-            a, b = num.split('.')
-            if not a:
-                a = '0'
-            return '%s%s.%s' % (sign, int(a), b)
+#def normalnumber(num):
+#    """
+#    Return normalized number as string.
+#    """
+#    sign = ''
+#    if num.startswith('-'):
+#        sign = '-'
+#        num = num[1:]
+#    elif num.startswith('+'):
+#        num = num[1:]
+#
+#    if float(num) == 0.0:
+#        return '0'
+#    else:        
+#        if num.find('.') == -1:
+#            return sign + str(int(num)) 
+#        else: 
+#            a, b = num.split('.')
+#            if not a:
+#                a = '0'
+#            return '%s%s.%s' % (sign, int(a), b)

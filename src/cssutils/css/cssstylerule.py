@@ -1,7 +1,7 @@
 """CSSStyleRule implements DOM Level 2 CSS CSSStyleRule."""
 __all__ = ['CSSStyleRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstylerule.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: cssstylerule.py 1815 2009-07-29 16:51:58Z cthedot $'
 
 from cssstyledeclaration import CSSStyleDeclaration
 from selectorlist import SelectorList
@@ -107,6 +107,8 @@ class CSSStyleRule(cssrule.CSSRule):
         else:
             wellformed = True
             
+            testselectorlist, teststyle = None, None
+            
             bracetoken = selectortokens.pop()
             if self._tokenvalue(bracetoken) != u'{':
                 wellformed = False
@@ -117,11 +119,11 @@ class CSSStyleRule(cssrule.CSSRule):
                 wellformed = False
                 self._log.error(u'CSSStyleRule: No selector found: %r.' %
                             self._valuestr(cssText), bracetoken)
-            newselectorlist = SelectorList(selectorText=(selectortokens, 
+                
+            testselectorlist = SelectorList(selectorText=(selectortokens, 
                                                          namespaces),
                                            parentRule=self)
 
-            newstyle = CSSStyleDeclaration()
             if not styletokens:
                 wellformed = False
                 self._log.error(
@@ -139,11 +141,14 @@ class CSSStyleRule(cssrule.CSSRule):
                     if 'EOF' == typ:
                         # add again as style needs it
                         styletokens.append(braceorEOFtoken)
-                    newstyle.cssText = styletokens
+                    teststyle = CSSStyleDeclaration(styletokens, parentRule=self)
 
-            if wellformed:
-                self._selectorList = newselectorlist
-                self.style = newstyle
+            if wellformed and testselectorlist and teststyle:
+                # known as correct from before
+                cssutils.log.enabled = False
+                self.style.cssText = styletokens
+                self.selectorList.selectorText=(selectortokens, namespaces)
+                cssutils.log.enabled = True
 
     cssText = property(_getCssText, _setCssText,
         doc="(DOM) The parsable textual representation of this rule.")
@@ -164,11 +169,12 @@ class CSSStyleRule(cssrule.CSSRule):
 
     def _setSelectorList(self, selectorList):
         """
-        :param selectorList: selectorList, only content is used, not the actual
-            object
+        :param selectorList: A SelectorList which replaces the current 
+            selectorList object
         """
         self._checkReadonly()
-        self.selectorText = selectorList.selectorText
+        selectorList._parentRule = self
+        self._selectorList = selectorList
             
     selectorList = property(lambda self: self._selectorList, _setSelectorList,
         doc="The SelectorList of this rule.")
@@ -200,16 +206,15 @@ class CSSStyleRule(cssrule.CSSRule):
 
     def _setStyle(self, style):
         """
-        :param style: CSSStyleDeclaration or string, only the cssText of a 
-            declaration is used, not the actual object
+        :param style: A string or CSSStyleDeclaration which replaces the 
+            current style object.
         """
         self._checkReadonly()
         if isinstance(style, basestring):
             self._style.cssText = style
         else:
-            # cssText would be serialized with optional preferences
-            # so use _seq!
-            self._style._seq = style._seq 
+            style._parentRule = self
+            self._style = style
 
     style = property(lambda self: self._style, _setStyle,
                      doc="(DOM) The declaration-block of this rule set.")

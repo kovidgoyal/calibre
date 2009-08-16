@@ -1,8 +1,11 @@
 """CSSFontFaceRule implements DOM Level 2 CSS CSSFontFaceRule.
+
+From cssutils 0.9.6 additions from CSS Fonts Module Level 3 are
+added http://www.w3.org/TR/css3-fonts/.
 """
 __all__ = ['CSSFontFaceRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssfontfacerule.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: cssfontfacerule.py 1818 2009-07-30 21:39:00Z cthedot $'
 
 from cssstyledeclaration import CSSStyleDeclaration
 import cssrule
@@ -21,6 +24,11 @@ class CSSFontFaceRule(cssrule.CSSRule):
           : FONT_FACE_SYM S*
             '{' S* declaration [ ';' S* declaration ]* '}' S*
           ;
+          
+    cssutils uses a :class:`~cssutils.css.CSSStyleDeclaration`  to
+    represent the font descriptions. For validation a specific profile
+    is used though were some properties have other valid values than
+    when used in e.g. a :class:`~cssutils.css.CSSStyleRule`.
     """
     def __init__(self, style=None, parentRule=None, 
                  parentStyleSheet=None, readonly=False):
@@ -28,25 +36,26 @@ class CSSFontFaceRule(cssrule.CSSRule):
         If readonly allows setting of properties in constructor only.
 
         :param style:
-            CSSStyleDeclaration for this CSSStyleRule
+            CSSStyleDeclaration used to hold any font descriptions 
+            for this CSSFontFaceRule
         """
         super(CSSFontFaceRule, self).__init__(parentRule=parentRule, 
                                               parentStyleSheet=parentStyleSheet)
         self._atkeyword = u'@font-face'
+        self._style = CSSStyleDeclaration(parentRule=self)
         if style:
             self.style = style
-        else:
-            self._style = CSSStyleDeclaration(parentRule=self)
         
         self._readonly = readonly
-
+        
     def __repr__(self):
         return "cssutils.css.%s(style=%r)" % (
                 self.__class__.__name__, self.style.cssText)
 
     def __str__(self):
-        return "<cssutils.css.%s object style=%r at 0x%x>" % (
-                self.__class__.__name__, self.style.cssText, id(self))
+        return "<cssutils.css.%s object style=%r valid=%r at 0x%x>" % (
+                self.__class__.__name__, self.style.cssText, self.valid, 
+                id(self))
 
     def _getCssText(self):
         """Return serialized property cssText."""
@@ -112,15 +121,22 @@ class CSSFontFaceRule(cssrule.CSSRule):
                 self._log.error(u'CSSFontFaceRule: Trailing content found.',
                                 token=nonetoken)
 
-            newstyle = CSSStyleDeclaration()
+            teststyle = CSSStyleDeclaration(parentRule=self)
             if 'EOF' == typ:
                 # add again as style needs it
                 styletokens.append(braceorEOFtoken)
-            newstyle.cssText = styletokens
+            # may raise:
+            teststyle.cssText = styletokens
 
             if wellformed:
-                self.style = newstyle
-                self._setSeq(newseq) # contains (probably comments) upto { only
+                # contains probably comments only upto {
+                self._setSeq(newseq)
+                
+                # known as correct from before
+                cssutils.log.enabled = False
+                self.style.cssText = styletokens
+                cssutils.log.enabled = True
+                
 
     cssText = property(_getCssText, _setCssText,
         doc="(DOM) The parsable textual representation of this rule.")
@@ -132,9 +148,10 @@ class CSSFontFaceRule(cssrule.CSSRule):
         """
         self._checkReadonly()
         if isinstance(style, basestring):
-            self._style = CSSStyleDeclaration(parentRule=self, cssText=style)
+            self._style.cssText = style
         else:
-            self._style._seq = style.seq
+            self._style = style
+            self._style.parentRule = self
 
     style = property(lambda self: self._style, _setStyle,
                      doc="(DOM) The declaration-block of this rule set, "
@@ -144,5 +161,20 @@ class CSSFontFaceRule(cssrule.CSSRule):
                     doc="The type of this rule, as defined by a CSSRule "
                         "type constant.")
 
+    def _getValid(self):
+        needed = ['font-family', 'src']
+        for p in self.style.getProperties(all=True):
+            if not p.valid:
+                return False
+            try:
+                needed.remove(p.name)
+            except ValueError:
+                pass
+        return not bool(needed)
+
+    valid = property(_getValid, doc='CSSFontFace is valid if properties '
+                     '`font-family` and `src` are set and all properties are '
+                     'valid.')
+    
     # constant but needed:
     wellformed = property(lambda self: True)

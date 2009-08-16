@@ -70,11 +70,11 @@ Usage may be::
 __all__ = ['css', 'stylesheets', 'CSSParser', 'CSSSerializer']
 __docformat__ = 'restructuredtext'
 __author__ = 'Christof Hoeke with contributions by Walter Doerwald'
-__date__ = '$LastChangedDate:: 2009-05-09 13:59:54 -0700 #$:'
+__date__ = '$LastChangedDate:: 2009-08-01 16:10:11 -0600 #$:'
 
-VERSION = '0.9.6a5'
+VERSION = '0.9.6b3'
 
-__version__ = '%s $Id: __init__.py 1747 2009-05-09 20:59:54Z cthedot $' % VERSION
+__version__ = '%s $Id: __init__.py 1832 2009-08-01 22:10:11Z cthedot $' % VERSION
 
 import codec
 import xml.dom
@@ -165,13 +165,29 @@ def parse(*a, **k):
     return parseFile(*a, **k)
 parse.__doc__ = CSSParser.parse.__doc__
 
+def parseStyle(cssText, encoding='utf-8'):
+    """Parse given `cssText` which is assumed to be the content of
+    a HTML style attribute.
+    
+    :param cssText:
+        CSS string to parse
+    :param encoding:
+        It will be used to decode `cssText` if given as a (byte)
+        string.
+    :returns:
+        :class:`~cssutils.css.CSSStyleDeclaration`
+    """
+    if isinstance(cssText, str):
+        cssText = cssText.decode(encoding)
+    style = css.CSSStyleDeclaration()
+    style.cssText = cssText
+    return style
 
 # set "ser", default serializer
 def setSerializer(serializer):
     """Set the global serializer used by all class in cssutils."""
     global ser
     ser = serializer
-
 
 def getUrls(sheet):
     """Retrieve all ``url(urlstring)`` values (in e.g.
@@ -283,6 +299,7 @@ def resolveImports(sheet, target=None):
         else:
             target.add(rule)
     return target
+
 
 if __name__ == '__main__':
     print __doc__

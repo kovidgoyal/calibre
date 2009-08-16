@@ -43,8 +43,10 @@ class Profiles(object):
     macros.
     """
     CSS_LEVEL_2 = 'CSS Level 2.1'
-    CSS3_COLOR = CSS_COLOR_LEVEL_3 = 'CSS Color Module Level 3'
     CSS3_BOX = CSS_BOX_LEVEL_3 = 'CSS Box Module Level 3'
+    CSS3_COLOR = CSS_COLOR_LEVEL_3 = 'CSS Color Module Level 3'
+    CSS3_FONTS = 'CSS Fonts Module Level 3'
+    CSS3_FONT_FACE = 'CSS Fonts Module Level 3 @font-face properties'
     CSS3_PAGED_MEDIA = 'CSS3 Paged Media Module'
 
     _TOKEN_MACROS = {
@@ -58,6 +60,7 @@ class Profiles(object):
         'int': r'[-]?\d+',
         'nmchar': r'[\w-]|{nonascii}|{escape}',
         'num': r'[-]?\d+|[-]?\d*\.\d+',
+        'positivenum': r'\d+|[-]?\d*\.\d+',
         'number': r'{num}',
         'string': r'{string1}|{string2}',
         'string1': r'"(\\\"|[^\"])*"',
@@ -75,6 +78,7 @@ class Profiles(object):
         #'color': r'(maroon|red|orange|yellow|olive|purple|fuchsia|white|lime|green|navy|blue|aqua|teal|black|silver|gray|ActiveBorder|ActiveCaption|AppWorkspace|Background|ButtonFace|ButtonHighlight|ButtonShadow|ButtonText|CaptionText|GrayText|Highlight|HighlightText|InactiveBorder|InactiveCaption|InactiveCaptionText|InfoBackground|InfoText|Menu|MenuText|Scrollbar|ThreeDDarkShadow|ThreeDFace|ThreeDHighlight|ThreeDLightShadow|ThreeDShadow|Window|WindowFrame|WindowText)|#[0-9a-f]{3}|#[0-9a-f]{6}|rgb\({w}{int}{w},{w}{int}{w},{w}{int}{w}\)|rgb\({w}{num}%{w},{w}{num}%{w},{w}{num}%{w}\)',
         'integer': r'{int}',
         'length': r'0|{num}(em|ex|px|in|cm|mm|pt|pc)',
+        'positivelength': r'0|{positivenum}(em|ex|px|in|cm|mm|pt|pc)',
         'angle': r'0|{num}(deg|grad|rad)',
         'time': r'0|{num}m?s',
         'frequency': r'0|{num}k?Hz',
@@ -97,6 +101,16 @@ class Profiles(object):
         self.addProfile(self.CSS3_COLOR,
                         properties[self.CSS3_COLOR],
                         macros[self.CSS3_COLOR])
+        
+        self.addProfile(self.CSS3_FONTS,
+                        properties[self.CSS3_FONTS],
+                        macros[self.CSS3_FONTS])
+        
+        # new object for font-face only?
+        self.addProfile(self.CSS3_FONT_FACE,
+                        properties[self.CSS3_FONT_FACE],
+                        macros[self.CSS3_FONTS]) # same
+        
         self.addProfile(self.CSS3_PAGED_MEDIA,
                         properties[self.CSS3_PAGED_MEDIA],
                         macros[self.CSS3_PAGED_MEDIA])
@@ -132,7 +146,7 @@ class Profiles(object):
     def _getDefaultProfiles(self):
         "If not explicitly set same as Profiles.profiles but in reverse order."
         if not self._defaultProfiles:
-            return self.profiles#list(reversed(self.profiles))
+            return self.profiles
         else:
             return self._defaultProfiles
 
@@ -338,12 +352,12 @@ macros[Profiles.CSS_LEVEL_2] = {
     'shape': r'rect\(({w}({length}|auto}){w},){3}{w}({length}|auto){w}\)',
     'counter': r'counter\({w}{identifier}{w}(?:,{w}{list-style-type}{w})?\)',
     'identifier': r'{ident}',
-    'family-name': r'{string}|{identifier}',
+    'family-name': r'{string}|{identifier}({w}{identifier})*',
     'generic-family': r'serif|sans-serif|cursive|fantasy|monospace',
     'absolute-size': r'(x?x-)?(small|large)|medium',
     'relative-size': r'smaller|larger',
     'font-family': r'(({family-name}|{generic-family}){w},{w})*({family-name}|{generic-family})|inherit',
-    'font-size': r'{absolute-size}|{relative-size}|{length}|{percentage}|inherit',
+    'font-size': r'{absolute-size}|{relative-size}|{positivelength}|{percentage}|inherit',
     'font-style': r'normal|italic|oblique|inherit',
     'font-variant': r'normal|small-caps|inherit',
     'font-weight': r'normal|bold|bolder|lighter|[1-9]00|inherit',
@@ -495,7 +509,7 @@ macros[Profiles.CSS3_BOX] = {
     'overflow': macros[Profiles.CSS_LEVEL_2]['overflow']
     }
 properties[Profiles.CSS3_BOX] = {
-    'overflow': '{overflow}\s?{overflow}?|inherit',
+    'overflow': '{overflow}{w}{overflow}?|inherit',
     'overflow-x': '{overflow}|inherit',
     'overflow-y': '{overflow}|inherit'
     }
@@ -514,6 +528,28 @@ properties[Profiles.CSS3_COLOR] = {
     'color': r'{namedcolor}|{hexcolor}|{rgbcolor}|{rgbacolor}|{hslcolor}|inherit',
     'opacity': r'{num}|inherit'
     }
+
+# CSS Fonts Module Level 3 http://www.w3.org/TR/css3-fonts/
+macros[Profiles.CSS3_FONTS] = {
+    'family-name': r'{string}|{ident}', # but STRING is effectively an IDENT??? 
+    'font-face-name': 'local\({w}{ident}{w}\)',
+    'font-stretch-names': r'(ultra-condensed|extra-condensed|condensed|semi-condensed|semi-expanded|expanded|extra-expanded|ultra-expanded)',
+    'unicode-range': r'[uU]\+[0-9A-Fa-f?]{1,6}(\-[0-9A-Fa-f]{1,6})?'
+    }
+properties[Profiles.CSS3_FONTS] = {
+    'font-size-adjust': r'{number}|none|inherit',
+    'font-stretch': r'normal|wider|narrower|{font-stretch-names}|inherit'
+    }
+properties[Profiles.CSS3_FONT_FACE] = {
+    'font-family': '{family-name}',
+    'font-stretch': r'{font-stretch-names}',                                       
+    'font-style': r'normal|italic|oblique',
+    'font-weight': r'normal|bold|[1-9]00',
+    'src': r'({uri}{w}(format\({w}{string}{w}(\,{w}{string}{w})*\))?|{font-face-name})({w},{w}({uri}{w}(format\({w}{string}{w}(\,{w}{string}{w})*\))?|{font-face-name}))*',
+    'unicode-range': '{unicode-range}({w},{w}{unicode-range})*'
+    }
+
+
 
 # CSS3 Paged Media
 macros[Profiles.CSS3_PAGED_MEDIA] = {

@@ -1,8 +1,9 @@
 """Default URL reading functions"""
-__all__ = ['_defaultFetcher', '_readUrl']
+__all__ = ['_defaultFetcher']
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: tokenize2.py 1547 2008-12-10 20:42:26Z cthedot $'
 
+from cssutils import VERSION
 import encutils
 import errorhandler
 import urllib2
@@ -16,8 +17,11 @@ def _defaultFetcher(url):
 
     Returns ``(encoding, string)`` or ``None``
     """
-    try:
-        res = urllib2.urlopen(url)
+    request = urllib2.Request(url)
+    request.add_header('User-agent', 
+                       'cssutils %s (http://www.cthedot.de/cssutils/)' % VERSION)
+    try:        
+        res = urllib2.urlopen(request)
     except OSError, e:
         # e.g if file URL and not found
         log.warn(e, error=OSError)

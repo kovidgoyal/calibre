@@ -533,105 +533,98 @@ class PreDef(object):
     types = cssutils.cssproductions.CSSProductions
 
     @staticmethod
-    def CHAR(name='char', char=u',', toSeq=None, toStore=None, stop=False,
+    def char(name='char', char=u',', toSeq=None, stop=False,
              nextSor=False):
         "any CHAR"
         return Prod(name=name, match=lambda t, v: v == char,
                     toSeq=toSeq,
-                    toStore=toStore,
                     stop=stop,
                     nextSor=nextSor)
 
     @staticmethod
-    def comma(toStore=None):
-        return PreDef.CHAR(u'comma', u',', toStore=toStore)
+    def comma():
+        return PreDef.char(u'comma', u',')
 
     @staticmethod
-    def dimension(toStore=None, nextSor=False):
+    def dimension(nextSor=False):
         return Prod(name=u'dimension',
                     match=lambda t, v: t == PreDef.types.DIMENSION,
-                    toStore=toStore,
                     toSeq=lambda t, tokens: (t[0], cssutils.helper.normalize(t[1])),
                     nextSor=nextSor)
 
     @staticmethod
-    def function(toSeq=None, toStore=None, nextSor=False):
+    def function(toSeq=None, nextSor=False):
         return Prod(name=u'function',
                     match=lambda t, v: t == PreDef.types.FUNCTION,
                     toSeq=toSeq,
-                    toStore=toStore,
                     nextSor=nextSor)
 
     @staticmethod
-    def funcEnd(toStore=None, stop=False, nextSor=False):
+    def funcEnd(stop=False):
         ")"
-        return PreDef.CHAR(u'end FUNC ")"', u')',
-                           toStore=toStore,
-                           stop=stop,
-                           nextSor=nextSor)
+        return PreDef.char(u'end FUNC ")"', u')',
+                           stop=stop)
 
     @staticmethod
-    def ident(toStore=None, nextSor=False):
+    def ident(nextSor=False):
         return Prod(name=u'ident',
                     match=lambda t, v: t == PreDef.types.IDENT,
-                    toStore=toStore,
                     nextSor=nextSor)
 
     @staticmethod
-    def number(toStore=None, nextSor=False):
+    def number(nextSor=False):
         return Prod(name=u'number',
                     match=lambda t, v: t == PreDef.types.NUMBER,
-                    toStore=toStore,
                     nextSor=nextSor)
 
     @staticmethod
-    def string(toStore=None, nextSor=False):
+    def string(nextSor=False):
         "string delimiters are removed by default"
         return Prod(name=u'string',
                     match=lambda t, v: t == PreDef.types.STRING,
-                    toStore=toStore,
                     toSeq=lambda t, tokens: (t[0], cssutils.helper.stringvalue(t[1])),
                     nextSor=nextSor)
 
     @staticmethod
-    def percentage(toStore=None, nextSor=False):
+    def percentage(nextSor=False):
         return Prod(name=u'percentage',
                     match=lambda t, v: t == PreDef.types.PERCENTAGE,
-                    toStore=toStore,
                     nextSor=nextSor)
 
     @staticmethod
-    def S(name=u'whitespace', optional=True, toSeq=None, toStore=None, nextSor=False,
-          mayEnd=False):
-        return Prod(name=name,
+    def S():
+        return Prod(name=u'whitespace',
                     match=lambda t, v: t == PreDef.types.S,
-                    optional=optional,
-                    toSeq=toSeq,
-                    toStore=toStore,
-                    mayEnd=mayEnd)
+                    mayEnd=True)
 
     @staticmethod
-    def unary(optional=True, toStore=None):
+    def unary():
         "+ or -"
         return Prod(name=u'unary +-', match=lambda t, v: v in (u'+', u'-'),
-                    optional=optional,
-                    toStore=toStore)
+                    optional=True)
 
     @staticmethod
-    def uri(toStore=None, nextSor=False):
+    def uri(nextSor=False):
         "'url(' and ')' are removed and URI is stripped"
         return Prod(name=u'URI',
                     match=lambda t, v: t == PreDef.types.URI,
-                    toStore=toStore,
                     toSeq=lambda t, tokens: (t[0], cssutils.helper.urivalue(t[1])),
                     nextSor=nextSor)
 
     @staticmethod
-    def hexcolor(toStore=None, toSeq=None, nextSor=False):
+    def hexcolor(nextSor=False):
+        "#123456"
         return Prod(name='HEX color',
-                    match=lambda t, v: t == PreDef.types.HASH and
-                                       len(v) == 4 or len(v) == 7,
-                    toStore=toStore,
-                    toSeq=toSeq,
+                    match=lambda t, v: t == PreDef.types.HASH and (
+                                       len(v) == 4 or len(v) == 7),
+                    nextSor=nextSor
+                    )
+    
+    @staticmethod
+    def unicode_range(nextSor=False):
+        "u+123456-abc normalized to lower `u`"
+        return Prod(name='unicode-range',
+                    match=lambda t, v: t == PreDef.types.UNICODE_RANGE,
+                    toSeq=lambda t, tokens: (t[0], t[1].lower()),
                     nextSor=nextSor
                     )

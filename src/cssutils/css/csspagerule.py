@@ -1,8 +1,7 @@
-"""CSSPageRule implements DOM Level 2 CSS CSSPageRule.
-"""
+"""CSSPageRule implements DOM Level 2 CSS CSSPageRule."""
 __all__ = ['CSSPageRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: csspagerule.py 1658 2009-02-07 18:24:40Z cthedot $'
+__version__ = '$Id: csspagerule.py 1824 2009-08-01 21:00:34Z cthedot $'
 
 from cssstyledeclaration import CSSStyleDeclaration
 from selectorlist import SelectorList
@@ -45,11 +44,12 @@ class CSSPageRule(cssrule.CSSRule):
             tempseq.append(self.selectorText, 'selectorText')
         else:
             self._selectorText = self._tempSeq()
+        
+        self._style = CSSStyleDeclaration(parentRule=self)
         if style:
             self.style = style
             tempseq.append(self.style, 'style')
-        else:
-            self._style = CSSStyleDeclaration(parentRule=self)
+
         self._setSeq(tempseq)
         
         self._readonly = readonly
@@ -192,7 +192,7 @@ class CSSPageRule(cssrule.CSSRule):
                 
             wellformed, newselectorseq = self.__parseSelectorText(selectortokens)
 
-            newstyle = CSSStyleDeclaration()
+            teststyle = CSSStyleDeclaration(parentRule=self)
             val, typ = self._tokenvalue(braceorEOFtoken), self._type(braceorEOFtoken)
             if val != u'}' and typ != 'EOF':
                 wellformed = False
@@ -203,13 +203,15 @@ class CSSPageRule(cssrule.CSSRule):
                 if 'EOF' == typ:
                     # add again as style needs it
                     styletokens.append(braceorEOFtoken)
-                newstyle.cssText = styletokens
+                teststyle.cssText = styletokens
 
             if wellformed:
-                self._selectorText = newselectorseq # already parsed
-                self.style = newstyle
-                self._setSeq(newselectorseq) # contains upto style only
-
+                # known as correct from before
+                cssutils.log.enabled = False
+                self._selectorText = newselectorseq # TODO: TEST and REFS
+                self.style.cssText = styletokens
+                cssutils.log.enabled = True
+                
     cssText = property(_getCssText, _setCssText,
         doc="(DOM) The parsable textual representation of this rule.")
 
@@ -239,7 +241,7 @@ class CSSPageRule(cssrule.CSSRule):
 
         # may raise SYNTAX_ERR
         wellformed, newseq = self.__parseSelectorText(selectorText)
-        if wellformed and newseq:
+        if wellformed:
             self._selectorText = newseq
 
     selectorText = property(_getSelectorText, _setSelectorText,
@@ -251,18 +253,15 @@ class CSSPageRule(cssrule.CSSRule):
             a CSSStyleDeclaration or string
         """
         self._checkReadonly()
-        
         if isinstance(style, basestring):
             self._style.cssText = style
         else:
-            # cssText would be serialized with optional preferences
-            # so use seq!
-            self._style._seq = style.seq 
+            self._style = style
+            self._style.parentRule = self
 
     style = property(lambda self: self._style, _setStyle,
                      doc="(DOM) The declaration-block of this rule set, "
                          "a :class:`~cssutils.css.CSSStyleDeclaration`.")
-
 
     type = property(lambda self: self.PAGE_RULE, 
                     doc="The type of this rule, as defined by a CSSRule "

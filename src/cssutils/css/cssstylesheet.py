@@ -9,7 +9,7 @@ TODO:
 """
 __all__ = ['CSSStyleSheet']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstylesheet.py 1641 2009-01-13 21:05:37Z cthedot $'
+__version__ = '$Id: cssstylesheet.py 1820 2009-08-01 20:53:08Z cthedot $'
 
 from cssutils.helper import Deprecated
 from cssutils.util import _Namespaces, _SimpleNamespaces, _readUrl
@@ -42,8 +42,6 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
 
         self._ownerRule = ownerRule
         self.cssRules = cssutils.css.CSSRuleList()
-        self.cssRules.append = self.insertRule
-        self.cssRules.extend = self.insertRule
         self._namespaces = _Namespaces(parentStyleSheet=self, log=self._log)
         self._readonly = readonly
 
@@ -53,7 +51,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
 
     def __iter__(self):
         "Generator which iterates over cssRules."
-        for rule in self.cssRules:
+        for rule in self._cssRules:
             yield rule
 
     def __repr__(self):
@@ -78,7 +76,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
 
     def _cleanNamespaces(self):
         "Remove all namespace rules with same namespaceURI but last one set."
-        rules = self.cssRules
+        rules = self._cssRules
         namespaceitems = self.namespaces.items()
         i = 0
         while i < len(rules):
@@ -100,6 +98,19 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                     if r2.type == r2.STYLE_RULE:
                         useduris.update(r2.selectorList._getUsedUris())
         return useduris
+
+    def _setCssRules(self, cssRules):
+        "Set new cssRules and update contained rules refs."
+        cssRules.append = self.insertRule
+        cssRules.extend = self.insertRule
+        cssRules.__delitem__ == self.deleteRule
+        for rule in cssRules:
+            rule._parentStyleSheet = self
+        self._cssRules = cssRules
+
+    cssRules = property(lambda self: self._cssRules, _setCssRules,
+            "All Rules in this style sheet, a "
+            ":class:`~cssutils.css.CSSRuleList`.")
 
     def _getCssText(self):
         "Textual representation of the stylesheet (a byte string)."
@@ -260,7 +271,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
              default=ruleset)
 
         if wellformed:
-            del self.cssRules[:]
+            del self._cssRules[:]
             for rule in newseq:
                 self.insertRule(rule, _clean=False)
             self._cleanNamespaces()
@@ -277,7 +288,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         except AttributeError:
             try:
                 # explicit @charset
-                selfAsParentEncoding = self.cssRules[0].encoding
+                selfAsParentEncoding = self._cssRules[0].encoding
             except (IndexError, AttributeError):
                 # default not UTF-8 but None!
                 selfAsParentEncoding = None
@@ -312,6 +323,14 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         """Set @import URL loader, if None the default is used."""
         self._fetcher = fetcher
 
+    def _getEncoding(self):
+        """Encoding set in :class:`~cssutils.css.CSSCharsetRule` or if ``None``
+        resulting in default ``utf-8`` encoding being used."""
+        try:
+            return self._cssRules[0].encoding
+        except (IndexError, AttributeError):
+            return 'utf-8'
+
     def _setEncoding(self, encoding):
         """Set `encoding` of charset rule if present in sheet or insert a new
         :class:`~cssutils.css.CSSCharsetRule` with given `encoding`. 
@@ -319,7 +338,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         default encoding of utf-8.
         """
         try:
-            rule = self.cssRules[0]
+            rule = self._cssRules[0]
         except IndexError:
             rule = None
         if rule and rule.CHARSET_RULE == rule.type:
@@ -329,14 +348,6 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                 self.deleteRule(0)
         elif encoding:
             self.insertRule(cssutils.css.CSSCharsetRule(encoding=encoding), 0)
-
-    def _getEncoding(self):
-        """Encoding set in :class:`~cssutils.css.CSSCharsetRule` or if ``None``
-        resulting in default ``utf-8`` encoding being used."""
-        try:
-            return self.cssRules[0].encoding
-        except (IndexError, AttributeError):
-            return 'utf-8'
 
     encoding = property(_getEncoding, _setEncoding,
             "(cssutils) Reflect encoding of an @charset rule or 'utf-8' "
@@ -371,11 +382,11 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         self._checkReadonly()
 
         try:
-            rule = self.cssRules[index]
+            rule = self._cssRules[index]
         except IndexError:
             raise xml.dom.IndexSizeErr(
                 u'CSSStyleSheet: %s is not a valid index in the rulelist of length %i' % (
-                index, self.cssRules.length))
+                index, self._cssRules.length))
         else:
             if rule.type == rule.NAMESPACE_RULE:
                 # check all namespacerules if used
@@ -388,7 +399,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                     return
 
             rule._parentStyleSheet = None # detach
-            del self.cssRules[index] # delete from StyleSheet
+            del self._cssRules[index] # delete from StyleSheet
 
     def insertRule(self, rule, index=None, inOrder=False, _clean=True):
         """
@@ -427,11 +438,11 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
 
         # check position
         if index is None:
-            index = len(self.cssRules)
-        elif index < 0 or index > self.cssRules.length:
+            index = len(self._cssRules)
+        elif index < 0 or index > self._cssRules.length:
             raise xml.dom.IndexSizeErr(
                 u'CSSStyleSheet: Invalid index %s for CSSRuleList with a length of %s.' % (
-                    index, self.cssRules.length))
+                    index, self._cssRules.length))
             return
 
         if isinstance(rule, basestring):
@@ -447,11 +458,11 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
             # prepend encoding if in this sheet to be able to use it in
             # @import rules encoding resolution
             # do not add if new rule startswith "@charset" (which is exact!)
-            if not rule.startswith(u'@charset') and (self.cssRules and
-                self.cssRules[0].type == self.cssRules[0].CHARSET_RULE):
+            if not rule.startswith(u'@charset') and (self._cssRules and
+                self._cssRules[0].type == self._cssRules[0].CHARSET_RULE):
                 # rule 0 is @charset!
                 newrulescount, newruleindex = 2, 1
-                rule = self.cssRules[0].cssText + rule
+                rule = self._cssRules[0].cssText + rule
             else:
                 newrulescount, newruleindex = 1, 0
 
@@ -484,29 +495,29 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
             if inOrder:
                 index = 0
                 # always first and only
-                if (self.cssRules and self.cssRules[0].type == rule.CHARSET_RULE):
-                    self.cssRules[0].encoding = rule.encoding
+                if (self._cssRules and self._cssRules[0].type == rule.CHARSET_RULE):
+                    self._cssRules[0].encoding = rule.encoding
                 else:
-                    self.cssRules.insert(0, rule)
-            elif index != 0 or (self.cssRules and
-                              self.cssRules[0].type == rule.CHARSET_RULE):
+                    self._cssRules.insert(0, rule)
+            elif index != 0 or (self._cssRules and
+                              self._cssRules[0].type == rule.CHARSET_RULE):
                 self._log.error(
                     u'CSSStylesheet: @charset only allowed once at the beginning of a stylesheet.',
                     error=xml.dom.HierarchyRequestErr)
                 return
             else:
-                self.cssRules.insert(index, rule)
+                self._cssRules.insert(index, rule)
 
         # @unknown or comment
         elif rule.type in (rule.UNKNOWN_RULE, rule.COMMENT) and not inOrder:
-            if index == 0 and self.cssRules and\
-               self.cssRules[0].type == rule.CHARSET_RULE:
+            if index == 0 and self._cssRules and\
+               self._cssRules[0].type == rule.CHARSET_RULE:
                 self._log.error(
                     u'CSSStylesheet: @charset must be the first rule.',
                     error=xml.dom.HierarchyRequestErr)
                 return
             else:
-                self.cssRules.insert(index, rule)
+                self._cssRules.insert(index, rule)
 
         # @import
         elif rule.type == rule.IMPORT_RULE:
@@ -514,27 +525,27 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                 # automatic order
                 if rule.type in (r.type for r in self):
                     # find last of this type
-                    for i, r in enumerate(reversed(self.cssRules)):
+                    for i, r in enumerate(reversed(self._cssRules)):
                         if r.type == rule.type:
-                            index = len(self.cssRules) - i
+                            index = len(self._cssRules) - i
                             break
                 else:
                     # find first point to insert
-                    if self.cssRules and self.cssRules[0].type in (rule.CHARSET_RULE,
+                    if self._cssRules and self._cssRules[0].type in (rule.CHARSET_RULE,
                                                                    rule.COMMENT):
                         index = 1
                     else:
                         index = 0
             else:
                 # after @charset
-                if index == 0 and self.cssRules and\
-                   self.cssRules[0].type == rule.CHARSET_RULE:
+                if index == 0 and self._cssRules and\
+                   self._cssRules[0].type == rule.CHARSET_RULE:
                     self._log.error(
                         u'CSSStylesheet: Found @charset at index 0.',
                         error=xml.dom.HierarchyRequestErr)
                     return
                 # before @namespace, @page, @font-face, @media and stylerule
-                for r in self.cssRules[:index]:
+                for r in self._cssRules[:index]:
                     if r.type in (r.NAMESPACE_RULE, r.MEDIA_RULE, r.PAGE_RULE,
                                   r.STYLE_RULE, r.FONT_FACE_RULE):
                         self._log.error(
@@ -542,27 +553,27 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                             index,
                             error=xml.dom.HierarchyRequestErr)
                         return
-            self.cssRules.insert(index, rule)
+            self._cssRules.insert(index, rule)
 
         # @namespace
         elif rule.type == rule.NAMESPACE_RULE:
             if inOrder:
                 if rule.type in (r.type for r in self):
                     # find last of this type
-                    for i, r in enumerate(reversed(self.cssRules)):
+                    for i, r in enumerate(reversed(self._cssRules)):
                         if r.type == rule.type:
-                            index = len(self.cssRules) - i
+                            index = len(self._cssRules) - i
                             break
                 else:
                     # find first point to insert
-                    for i, r in enumerate(self.cssRules):
+                    for i, r in enumerate(self._cssRules):
                         if r.type in (r.MEDIA_RULE, r.PAGE_RULE, r.STYLE_RULE,
                                       r.FONT_FACE_RULE, r.UNKNOWN_RULE, r.COMMENT):
                             index = i # before these
                             break
             else:
                 # after @charset and @import
-                for r in self.cssRules[index:]:
+                for r in self._cssRules[index:]:
                     if r.type in (r.CHARSET_RULE, r.IMPORT_RULE):
                         self._log.error(
                             u'CSSStylesheet: Cannot insert @namespace here, found @charset or @import after index %s.' %
@@ -570,7 +581,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
                             error=xml.dom.HierarchyRequestErr)
                         return
                 # before @media and stylerule
-                for r in self.cssRules[:index]:
+                for r in self._cssRules[:index]:
                     if r.type in (r.MEDIA_RULE, r.PAGE_RULE, r.STYLE_RULE,
                                   r.FONT_FACE_RULE):
                         self._log.error(
@@ -582,7 +593,7 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
             if not (rule.prefix in self.namespaces and
                self.namespaces[rule.prefix] == rule.namespaceURI):
                 # no doublettes
-                self.cssRules.insert(index, rule)
+                self._cssRules.insert(index, rule)
                 if _clean:
                     self._cleanNamespaces()
 
@@ -590,17 +601,17 @@ class CSSStyleSheet(cssutils.stylesheets.StyleSheet):
         else:
             if inOrder:
                 # simply add to end as no specific order
-                self.cssRules.append(rule)
-                index = len(self.cssRules) - 1
+                self._cssRules.append(rule)
+                index = len(self._cssRules) - 1
             else:
-                for r in self.cssRules[index:]:
+                for r in self._cssRules[index:]:
                     if r.type in (r.CHARSET_RULE, r.IMPORT_RULE, r.NAMESPACE_RULE):
                         self._log.error(
                             u'CSSStylesheet: Cannot insert rule here, found @charset, @import or @namespace before index %s.' %
                             index,
                             error=xml.dom.HierarchyRequestErr)
                         return
-                self.cssRules.insert(index, rule)
+                self._cssRules.insert(index, rule)
 
         # post settings, TODO: for other rules which contain @rules
         rule._parentStyleSheet = self

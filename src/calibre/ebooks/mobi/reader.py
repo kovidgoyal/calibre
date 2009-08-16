@@ -317,7 +317,13 @@ class MobiReader(object):
         if root.xpath('descendant::p/descendant::p'):
             from lxml.html import soupparser
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
-            root = soupparser.fromstring(self.processed_html)
+            try:
+                root = soupparser.fromstring(self.processed_html)
+            except Exception, err:
+                self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
+                self.processed_html = self.remove_random_bytes(self.processed_html)
+                root = soupparser.fromstring(self.processed_html)
+
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
@@ -457,7 +463,7 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
 
     def remove_random_bytes(self, html):
-            return re.sub('\x14|\x15|\x1c|\x1d|\xef|\x12|\x13|\xec',
+        return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08',
                     '', html)
 
     def ensure_unit(self, raw, unit='px'):
@@ -492,11 +498,12 @@ class MobiReader(object):
                     styles.append(style)
             if attrib.has_key('height'):
                 height = attrib.pop('height').strip()
-                if height:
+                if height and '<' not in height and '>' not in height and \
+                    re.search(r'\d+', height):
                     styles.append('margin-top: %s' % self.ensure_unit(height))
             if attrib.has_key('width'):
                 width = attrib.pop('width').strip()
-                if width:
+                if width and re.search(r'\d+', width):
                     styles.append('text-indent: %s' % self.ensure_unit(width))
                     if width.startswith('-'):
                         styles.append('margin-left: %s' % self.ensure_unit(width[1:]))
@@ -714,6 +721,9 @@ class MobiReader(object):
             self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
             pos = end
         self.processed_html += self.mobi_html[pos:]
+        # Remove anchors placed inside entities
+        self.processed_html = re.sub(r'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);',
+                r'&\1\3;\2', self.processed_html)
 
 
     def extract_images(self, processed_records, output_dir):
