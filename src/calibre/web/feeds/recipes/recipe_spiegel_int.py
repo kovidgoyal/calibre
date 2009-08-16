@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 spiegel.de
 '''
@@ -9,21 +9,25 @@ spiegel.de
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Spiegel_int(BasicNewsRecipe):
-    title                 = u'Spiegel Online International'
+    title                 = 'Spiegel Online International'
     __author__            = 'Darko Miletic'
     description           = "News and POV from Europe's largest newsmagazine"
     oldest_article        = 7
     max_articles_per_feed = 100
-    language = _('English')
+    language              = _('English')
     no_stylesheets        = True
     use_embedded_content  = False
-    cover_url = 'http://www.spiegel.de/static/sys/v8/headlines/spiegelonline.gif'
-    html2lrf_options = [
-                          '--comment', description
-                        , '--base-font-size', '10'
-                        , '--category', 'news, politics, Germany'
-                        , '--publisher', 'SPIEGEL ONLINE GmbH'
-                        ]
+    publisher             = 'SPIEGEL ONLINE GmbH'
+    category              = 'news, politics, Germany'
+    lang                  = 'en'
+    
+    conversion_options = {  
+                             'comments'    : description
+                            ,'tags'        : category
+                            ,'language'    : lang
+                            ,'publisher'   : publisher
+                            ,'pretty_print': True
+                         }
 
     remove_tags_after = dict(name='div', attrs={'id':'spArticleBody'})
 

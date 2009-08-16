@@ -9,6 +9,7 @@ e-novine.com
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class E_novine(BasicNewsRecipe):
     title                 = 'E-Novine'
@@ -16,23 +17,22 @@ class E_novine(BasicNewsRecipe):
     description           = 'News from Serbia'
     publisher             = 'E-novine'
     category              = 'news, politics, Balcans'
-    oldest_article        = 1
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'cp1250'
-    cover_url             = 'http://www.e-novine.com/slike/slike_3/r1/g2008/m03/y3165525326702598.jpg'
-    remove_javascript     = True
     use_embedded_content  = False
     language              = _('Serbian')
+    lang                  = 'sr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"' 
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
      
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -43,10 +43,10 @@ class E_novine(BasicNewsRecipe):
     feeds = [(u'Sve vesti', u'http://www.e-novine.com/rss/e-novine.xml' )]
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = 'sr-Latn-ME'
-        soup.html['lang']     = 'sr-Latn-ME'
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-ME"/>'
-        soup.head.insert(0,mtag)
+        soup.html['xml:lang'] = self.lang
+        soup.html['lang']     = self.lang
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        soup.head.insert(0,mlang)
         for item in soup.findAll(style=True):
             del item['style']
         ftag = soup.find('div', attrs={'id':'css_47_0_2844H'})

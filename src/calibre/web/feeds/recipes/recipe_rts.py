@@ -24,13 +24,13 @@ class RTS(BasicNewsRecipe):
     lang                  = 'sr-Latn-RS'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
     
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"'
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
 
     
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]

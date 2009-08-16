@@ -22,22 +22,20 @@ class Vreme(BasicNewsRecipe):
     needs_subscription   = True    
     INDEX                = 'http://www.vreme.com'
     LOGIN                = 'http://www.vreme.com/account/login.php?url=%2F'
-    remove_javascript    = True
     use_embedded_content = False
     encoding             = 'utf-8'
     language             = _('Serbian')
     lang                 = 'sr-Latn-RS'
     direction            = 'ltr'    
-    extra_css            = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .heading1{font-family: sans1, sans-serif; font-size: x-large; font-weight: bold} .heading2{font-family: sans1, sans-serif; font-size: large; font-weight: bold} .toc-heading{font-family: sans1, sans-serif; font-size: small} .column-heading2{font-family: sans1, sans-serif; font-size: large} .column-heading1{font-family: sans1, sans-serif; font-size: x-large} .column-normal{font-family: sans1, sans-serif; font-size: medium} .large{font-family: sans1, sans-serif; font-size: large} ' 
+    extra_css            = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .heading1{font-family: sans1, sans-serif; font-size: x-large; font-weight: bold} .heading2{font-family: sans1, sans-serif; font-size: large; font-weight: bold} .toc-heading{font-family: sans1, sans-serif; font-size: small} .column-heading2{font-family: sans1, sans-serif; font-size: large} .column-heading1{font-family: sans1, sans-serif; font-size: x-large} .column-normal{font-family: sans1, sans-serif; font-size: medium} .large{font-family: sans1, sans-serif; font-size: large} ' 
     
-    html2lrf_options = [
-                          '--comment'  , description
-                        , '--category' , category
-                        , '--publisher', publisher
-                        , '--ignore-tables'
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
     
     
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
@@ -84,12 +82,21 @@ class Vreme(BasicNewsRecipe):
         del soup.body['text'   ]
         del soup.body['bgcolor']
         del soup.body['onload' ]
-        for item in soup.findAll(face=True):
-            del item['face']
-        for item in soup.findAll(size=True):
-            del item['size']
         soup.html['lang'] = self.lang
         soup.html['dir' ] = self.direction
+        
+        attribs = [  'style','font','valign'
+                    ,'colspan','width','height'
+                    ,'rowspan','summary','align'
+                    ,'cellspacing','cellpadding'
+                    ,'frames','rules','border'
+                  ]
+        for item in soup.body.findAll(name=['table','td','tr','th','caption','thead','tfoot','tbody','colgroup','col']):
+            item.name = 'div'
+            for attrib in attribs:
+                if item.has_key(attrib):
+                   del item[attrib]                        
+        
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
         soup.head.insert(0,mlang)
