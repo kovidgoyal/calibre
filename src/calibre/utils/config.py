@@ -216,6 +216,14 @@ class OptionSet(object):
                 return True
         return False
 
+    def get_option(self, name_or_option_object):
+        idx = self.preferences.index(name_or_option_object)
+        if idx > -1:
+            return self.preferences[idx]
+        for p in self.preferences:
+            if p.name == name_or_option_object:
+                return p
+
     def add_group(self, name, description=''):
         if name in self.group_list:
             raise ValueError('A group by the name %s already exists in this set'%name)
@@ -370,6 +378,7 @@ class ConfigInterface(object):
         self.add_group        = self.option_set.add_group
         self.remove_opt       = self.remove = self.option_set.remove_opt
         self.parse_string     = self.option_set.parse_string
+        self.get_option       = self.option_set.get_option
 
     def update(self, other):
         self.option_set.update(other.option_set)
@@ -380,6 +389,7 @@ class ConfigInterface(object):
 
     def smart_update(self, opts1, opts2):
         self.option_set.smart_update(opts1, opts2)
+
 
 class Config(ConfigInterface):
     '''

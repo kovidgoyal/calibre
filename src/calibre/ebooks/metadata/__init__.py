@@ -301,6 +301,15 @@ class MetaInformation(object):
     def authors_from_string(self, raw):
         self.authors = string_to_authors(raw)
 
+    def format_authors(self):
+        return authors_to_string(self.authors)
+
+    def format_tags(self):
+        return u', '.join([unicode(t) for t in self.tags])
+
+    def format_rating(self):
+        return unicode(self.rating)
+
     def __unicode__(self):
         ans = []
         def fmt(x, y):

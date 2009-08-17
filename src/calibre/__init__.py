@@ -75,7 +75,7 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
     The set of invalid characters is the union of the invalid characters in Windows,
-    OS X and Linux. Also removes leading an trailing whitespace.
+    OS X and Linux. Also removes leading and trailing whitespace.
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     *NOTE:* This function always returns byte strings, not unicode objects. The byte strings

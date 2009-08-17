@@ -520,7 +520,8 @@ class Device(DeviceConfig, DevicePlugin):
 
         main, carda, cardb = self.find_device_nodes()
         if main is None:
-            raise DeviceError(_('Unable to detect the %s disk drive.')
+            raise DeviceError(_('Unable to detect the %s disk drive. Your '
+            ' kernel is probably exporting a deprecated version of SYSFS.')
                     %self.__class__.__name__)
 
         self._linux_mount_map = {}
