@@ -1,15 +1,16 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 politika.rs
 '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Politika(BasicNewsRecipe):
-    title                 = u'Politika Online'
+    title                 = 'Politika Online'
     __author__            = 'Darko Miletic'
     description           = 'Najstariji dnevni list na Balkanu'
     publisher             = 'Politika novine i Magazini d.o.o'
@@ -21,16 +22,18 @@ class Politika(BasicNewsRecipe):
     remove_javascript     = True
     encoding              = 'utf8'
     language              = _('Serbian')
+    lang                 = 'sr-Latn-RS'
+    direction            = 'ltr'    
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
     
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -55,11 +58,13 @@ class Politika(BasicNewsRecipe):
                      ]
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>'
-        soup.head.insert(0,mtag)    
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction      
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        soup.head.insert(0,mlang)
         for item in soup.findAll(style=True):
             del item['style']
         ftag = soup.find('div',attrs={'class':'content_center_border'})
         if ftag.has_key('align'):
            del ftag['align']
-        return soup
+        return self.adeify_images(soup)

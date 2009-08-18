@@ -9,6 +9,7 @@ pressonline.rs
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class PressOnline(BasicNewsRecipe):
     title                 = 'Press Online'
@@ -19,20 +20,21 @@ class PressOnline(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
-    encoding              = 'utf8'
+    encoding              = 'utf-8'
     use_embedded_content  = True
-    cover_url             = 'http://www.pressonline.rs/img/logo.gif'
     language              = _('Serbian')
+    lang                  = 'sr-Latn-RS'
+    direction             = 'ltr'
 
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
     
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"' 
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
      
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -57,10 +59,8 @@ class PressOnline(BasicNewsRecipe):
             ]
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = 'sr-Latn-RS'
-        soup.html['lang']     = 'sr-Latn-RS'
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-RS"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
-        soup.head.insert(0,mtag)
-        for img in soup.findAll('img', align=True):
-            del img['align']
-        return soup        
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        soup.head.insert(0,mlang)
+        return self.adeify_images(soup)

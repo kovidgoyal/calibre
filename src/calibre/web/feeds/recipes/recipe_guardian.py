@@ -8,6 +8,7 @@ www.guardian.co.uk
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Guardian(BasicNewsRecipe):
 
@@ -16,14 +17,33 @@ class Guardian(BasicNewsRecipe):
     language = _('English')
     oldest_article = 7
     max_articles_per_feed = 20
-
+    remove_javascript = True
+    
     timefmt = ' [%a, %d %b %Y]'
-
-    remove_tags_before = dict(id='main-article-info')
-    remove_tags_after = dict(id='article-wrapper')
-    remove_tags_after = dict(id='content')
+    keep_only_tags = [
+                      dict(name='div', attrs={'id':["content","article_header","main-article-info",]}),
+                           ]
+    remove_tags = [
+                        dict(name='div', attrs={'class':["video-content","videos-third-column"]}),
+                        dict(name='div', attrs={'id':["article-toolbox","subscribe-feeds",]}),
+                        dict(name='ul', attrs={'class':["pagination"]}),
+                        dict(name='ul', attrs={'id':["content-actions"]}),
+                        ]
+    use_embedded_content    = False
+    
     no_stylesheets = True
-    extra_css = 'h2 {font-size: medium;} \n h1 {text-align: left;}'
+    extra_css = '''
+                    .article-attributes{font-size: x-small; font-family:Arial,Helvetica,sans-serif;}
+                    .h1{font-size: large ;font-family:georgia,serif; font-weight:bold;}
+                    .stand-first-alone{color:#666666; font-size:small; font-family:Arial,Helvetica,sans-serif;}
+                    .caption{color:#666666; font-size:x-small; font-family:Arial,Helvetica,sans-serif;}
+                    #article-wrapper{font-size:small; font-family:Arial,Helvetica,sans-serif;}
+                    .main-article-info{font-family:Arial,Helvetica,sans-serif;}
+                    #full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;}
+                    #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;}                    
+                '''
+    
+    
 
     feeds = [
         ('Front Page', 'http://www.guardian.co.uk/rss'),
@@ -37,3 +57,21 @@ class Guardian(BasicNewsRecipe):
         ('Comment','http://www.guardian.co.uk/commentisfree/rss'),
         ]
 
+    
+    def preprocess_html(self, soup):
+ 
+          for item in soup.findAll(style=True): 
+              del item['style']
+ 
+          for item in soup.findAll(face=True): 
+              del item['face']
+          for tag in soup.findAll(name=['ul','li']):
+                tag.name = 'div'
+          
+          return soup
+ 
+
+   
+   
+
+ 

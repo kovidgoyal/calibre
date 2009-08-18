@@ -74,6 +74,8 @@ def _config():
     c.add_opt('search_as_you_type', default=True,
             help='Start searching as you type. If this is disabled then search will '
             'only take place when the Enter or Return key is pressed.')
+    c.add_opt('save_to_disk_template_history', default=[],
+        help='Previously used Save to Disk templates')
     return ConfigProxy(c)
 
 config = _config()

@@ -48,7 +48,7 @@ recipe_modules = ['recipe_' + r for r in (
            'the_budget_fashionista', 'elperiodico_catalan',
            'elperiodico_spanish', 'expansion_spanish', 'lavanguardia',
            'marca', 'kellog_faculty', 'kellog_insight', 'noaa',
-           '7dias', 'buenosaireseconomico', 'huntechnet',
+           '7dias', 'buenosaireseconomico', 'huntechnet', 'cubadebate',
            'diagonales', 'miradasalsur', 'newsweek_argentina', 'veintitres',
            'gva_be', 'hln', 'tijd', 'degentenaar', 'inquirer_net', 'uncrate',
            'fastcompany', 'accountancyage', 'laprensa_hn', 'latribuna',

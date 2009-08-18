@@ -8,32 +8,32 @@ jutarnji.hr
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Jutarnji(BasicNewsRecipe):
-    title                 = u'Jutarnji'
-    __author__            = u'Darko Miletic'
-    description           = u'Hrvatski portal'
+    title                 = 'Jutarnji'
+    __author__            = 'Darko Miletic'
+    description           = 'Hrvatski portal'
     publisher             = 'Jutarnji.hr'
     category              = 'news, politics, Croatia'    
-    oldest_article        = 1
+    oldest_article        = 2
     max_articles_per_feed = 100
-    simultaneous_downloads = 2
     delay                 = 1
     language              = _('Croatian')
     no_stylesheets        = True
     use_embedded_content  = False
-    remove_javascript     = True
     encoding              = 'cp1250'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
+    lang                  = 'hr-HR'
+    direction             = 'ltr'    
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .vijestnaslov{font-size: x-large; font-weight: bold}'
     
-    html2lrf_options = [
-                          '--comment'  , description
-                        , '--category' , category
-                        , '--publisher', publisher
-                        , '--ignore-tables'
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
 
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
@@ -59,11 +59,24 @@ class Jutarnji(BasicNewsRecipe):
         return 'http://www.jutarnji.hr/ispis_clanka.jl?artid=' + rrest
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n<meta http-equiv="Content-Language" content="hr-HR"/>'
-        soup.head.insert(0,mtag)
-        for item in soup.findAll(style=True):
-            del item['style']        
-        for item in soup.findAll(width=True):
-            del item['width']        
-        return soup
+        soup.html['lang'] = self.lang
+        soup.html['dir' ] = self.direction
+        
+        attribs = [  'style','font','valign'
+                    ,'colspan','width','height'
+                    ,'rowspan','summary','align'
+                    ,'cellspacing','cellpadding'
+                    ,'frames','rules','border'
+                  ]
+        for item in soup.body.findAll(name=['table','td','tr','th','caption','thead','tfoot','tbody','colgroup','col']):
+            item.name = 'div'
+            for attrib in attribs:
+                if item.has_key(attrib):
+                   del item[attrib]                        
+        
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        return self.adeify_images(soup)
         

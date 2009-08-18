@@ -1064,11 +1064,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         if self.current_view() is self.library_view:
             from calibre.gui2.add import Saver
+            from calibre.library.save_to_disk import config
+            opts = config().parse()
+            if single_format is not None:
+                opts.formats = single_format
+            if single_dir:
+                opts.template = '{title} - {authors}'
             self._saver = Saver(self, self.library_view.model().db,
-                    Dispatcher(self._books_saved), rows, path,
-                    by_author=self.library_view.model().by_author,
-                    single_dir=single_dir,
-                    single_format=single_format,
+                    Dispatcher(self._books_saved), rows, path, opts,
                     spare_server=self.spare_server)
 
         else:
@@ -1078,19 +1081,20 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
 
     def _books_saved(self, path, failures, error):
-        single_format = self._saver.worker.single_format
         self._saver = None
         if error:
             return error_dialog(self, _('Error while saving'),
                     _('There was an error while saving.'),
                     error, show=True)
-        if failures and single_format:
-            single_format = single_format.upper()
+        if failures:
+            failures = [u'%s\n\t%s'%
+                    (title, '\n\t'.join(err.splitlines())) for title, err in
+                    failures]
+
             warning_dialog(self, _('Could not save some books'),
             _('Could not save some books') + ', ' +
-            (_('as the %s format is not available for them.')%single_format) +
             _('Click the show details button to see which ones.'),
-            '\n'.join(failures), show=True)
+            u'\n\n'.join(failures), show=True)
         QDesktopServices.openUrl(QUrl.fromLocalFile(path))
 
     def books_saved(self, job):

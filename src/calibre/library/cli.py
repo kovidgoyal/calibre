@@ -11,7 +11,7 @@ import sys, os, cStringIO
 from textwrap import TextWrapper
 from urllib import quote
 
-from calibre import terminal_controller, preferred_encoding
+from calibre import terminal_controller, preferred_encoding, prints
 from calibre.utils.config import OptionParser, prefs
 try:
     from calibre.utils.single_qt_application import send_message
@@ -488,10 +488,18 @@ show_metadata command.
     do_set_metadata(get_db(dbpath, opts), id, opf)
     return 0
 
-def do_export(db, ids, dir, single_dir, by_author):
+def do_export(db, ids, dir, opts):
     if ids is None:
         ids = list(db.all_ids())
-    db.export_to_dir(dir, ids, byauthor=by_author, single_dir=single_dir, index_is_id=True)
+    from calibre.library.save_to_disk import save_to_disk
+    failures = save_to_disk(db, ids, dir, opts=opts)
+
+    if failures:
+        prints('Failed to save the following books:')
+        for id, title, tb in failures:
+            prints(str(id)+':', title)
+            prints('\t'+'\n\t'.join(tb.splitlines()))
+            prints(' ')
 
 def command_export(args, dbpath):
     parser = get_parser(_('''\
@@ -507,8 +515,21 @@ an opf file). You can get id numbers from the list command.
                       help=(_('Export books to the specified directory. Default is')+' %default'))
     parser.add_option('--single-dir', default=False, action='store_true',
                       help=_('Export all books into a single directory'))
-    parser.add_option('--by-author', default=False, action='store_true',
-                      help=_('Create file names as author - title instead of title - author'))
+    from calibre.library.save_to_disk import config
+    c = config()
+    for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover']:
+        opt = c.get_option(pref)
+        switch = '--dont-'+pref.replace('_', '-')
+        parser.add_option(switch, default=True, action='store_false',
+                help=opt.help+' '+_('Specifying this switch will turn '
+                    'this behavior off.'), dest=pref)
+
+    for pref in ['timefmt', 'template', 'formats']:
+        opt = c.get_option(pref)
+        switch = '--'+pref
+        parser.add_option(switch, default=opt.default,
+                help=opt.help, dest=pref)
+
     opts, args = parser.parse_args(sys.argv[1:]+args)
     if (len(args) < 2 and not opts.all):
         parser.print_help()
@@ -517,7 +538,7 @@ an opf file). You can get id numbers from the list command.
         return 1
     ids = None if opts.all else map(int, args[1].split(','))
     dir = os.path.abspath(os.path.expanduser(opts.to_dir))
-    do_export(get_db(dbpath, opts), ids, dir, opts.single_dir, opts.by_author)
+    do_export(get_db(dbpath, opts), ids, dir, opts)
     return 0
 
 def main(args=sys.argv):

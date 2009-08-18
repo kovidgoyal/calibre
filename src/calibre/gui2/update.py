@@ -6,7 +6,7 @@ import traceback
 from PyQt4.QtCore import QThread, SIGNAL
 import mechanize
 
-from calibre.constants import __version__
+from calibre.constants import __version__, iswindows, isosx
 from calibre import browser
 
 URL = 'http://status.calibre-ebook.com/latest'
@@ -18,6 +18,8 @@ class CheckForUpdates(QThread):
             br = browser()
             req = mechanize.Request(URL)
             req.add_header('CALIBRE_VERSION', __version__)
+            req.add_header('CALIBRE_OS',
+                    'win' if iswindows else 'osx' if isosx else 'oth')
             version = br.open(req).read().strip()
             if version and version != __version__:
                 self.emit(SIGNAL('update_found(PyQt_PyObject)'), version)

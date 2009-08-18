@@ -20,14 +20,15 @@ class Twitchfilm(BasicNewsRecipe):
     publisher             = 'Twitch'
     category              = 'twitch, twitchfilm, movie news, movie reviews, cult cinema, independent cinema, anime, foreign cinema, geek talk'
     language              = _('English')
+    lang                  = 'en-US'
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
 
     remove_tags = [dict(name='div', attrs={'class':'feedflare'})]
 
@@ -36,6 +37,6 @@ class Twitchfilm(BasicNewsRecipe):
     def preprocess_html(self, soup):
         mtag = Tag(soup,'meta',[('http-equiv','Content-Type'),('context','text/html; charset=utf-8')])
         soup.head.insert(0,mtag)
-        soup.html['lang'] = 'en-US'
-        return soup
+        soup.html['lang'] = self.lang
+        return self.adeify_images(soup)
 

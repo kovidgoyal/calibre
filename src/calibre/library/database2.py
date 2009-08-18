@@ -850,20 +850,14 @@ class LibraryDatabase2(LibraryDatabase):
             return None
         ans = []
         for format in formats:
-            _format = ('.' + format.lower()) if format else ''
-            if os.access(os.path.join(path, name+_format), os.R_OK|os.W_OK):
+            if self.format_abspath(id, format, index_is_id=True) is not None:
                 ans.append(format)
+        if not ans:
+            return None
         return ','.join(ans)
 
     def has_format(self, index, format, index_is_id=False):
-        id = index if index_is_id else self.id(index)
-        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
-        if name:
-            path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-            format = ('.' + format.lower()) if format else ''
-            path = os.path.join(path, name+format)
-            return os.access(path, os.R_OK|os.W_OK)
-        return False
+        return self.format_abspath(index, format, index_is_id) is not None
 
     def format_abspath(self, index, format, index_is_id=False):
         'Return absolute path to the ebook file of format `format`'
@@ -872,9 +866,13 @@ class LibraryDatabase2(LibraryDatabase):
         if name:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
             format = ('.' + format.lower()) if format else ''
-            path = os.path.join(path, name+format)
-            if os.access(path, os.R_OK|os.W_OK):
-                return path
+            fmt_path = os.path.join(path, name+format)
+            if os.path.exists(fmt_path):
+                return fmt_path
+            candidates = glob.glob(os.path.join(path, '*'+format))
+            if format and candidates and os.path.exists(candidates[0]):
+                shutil.copyfile(candidates[0], fmt_path)
+                return fmt_path
 
     def format(self, index, format, index_is_id=False, as_file=False, mode='r+b'):
         '''
@@ -886,9 +884,10 @@ class LibraryDatabase2(LibraryDatabase):
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
             f = open(path, mode)
-            return f if as_file else f.read()
-        if self.has_format(index, format, index_is_id):
-            self.remove_format(id, format, index_is_id=True)
+            ret = f if as_file else f.read()
+            if not as_file:
+                f.close()
+            return ret
 
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False,
                               path=None, notify=True):
@@ -944,11 +943,9 @@ class LibraryDatabase2(LibraryDatabase):
 
     def remove_format(self, index, format, index_is_id=False, notify=True):
         id = index if index_is_id else self.id(index)
-        path = os.path.join(self.library_path, *self.path(id, index_is_id=True).split(os.sep))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
-            ext = ('.' + format.lower()) if format else ''
-            path = os.path.join(path, name+ext)
+            path = self.format_abspath(id, format, index_is_id=True)
             try:
                 delete_file(path)
             except:
@@ -1488,8 +1485,9 @@ class LibraryDatabase2(LibraryDatabase):
                 yield record
 
     def all_ids(self):
+        x = FIELD_MAP['id']
         for i in iter(self):
-            yield i['id']
+            yield i[x]
 
     def get_data_as_dict(self, prefix=None, authors_as_string=False):
         '''

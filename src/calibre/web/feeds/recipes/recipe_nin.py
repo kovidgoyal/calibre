@@ -26,21 +26,19 @@ class Nin(BasicNewsRecipe):
     INDEX                  = PREFIX + '/?change_lang=ls'
     LOGIN                  = PREFIX + '/?logout=true'
     FEED                   = PREFIX + '/misc/rss.php?feed=RSS2.0'
-    remove_javascript      = True
     use_embedded_content   = False
     language               = _('Serbian')
     lang                   = 'sr-Latn-RS'
     direction              = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold}'
     
-    html2lrf_options = [
-                          '--comment'  , description
-                        , '--category' , category
-                        , '--publisher', publisher
-                        , '--ignore-tables'
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
                           
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     
@@ -74,12 +72,20 @@ class Nin(BasicNewsRecipe):
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
         soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)
-        for item in soup.findAll(style=True):
-            del item['style']        
+        soup.head.insert(1,mcharset)        
+        attribs = [  'style','font','valign'
+                    ,'colspan','width','height'
+                    ,'rowspan','summary','align'
+                    ,'cellspacing','cellpadding'
+                    ,'frames','rules','border'
+                  ]
+        for item in soup.body.findAll(name=['table','td','tr','th','caption','thead','tfoot','tbody','colgroup','col']):
+            item.name = 'div'
+            for attrib in attribs:
+                if item.has_key(attrib):
+                   del item[attrib]            
         return soup
 
     def get_article_url(self, article):
         raw = article.get('link',  None)         
         return raw.replace('.co.yu','.co.rs')
-        

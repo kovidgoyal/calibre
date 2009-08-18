@@ -20,22 +20,19 @@ class Vijesti(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 150
     no_stylesheets        = True
-    remove_javascript     = True
     encoding              = 'cp1250'
-    cover_url             = 'http://www.vijesti.me/img/logo.gif'
-    remove_javascript     = True
     use_embedded_content  = False
-    language              = _('Serbian')
+    language              = _('Montenegrin')
     lang                  ='sr-Latn-Me'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
      
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 

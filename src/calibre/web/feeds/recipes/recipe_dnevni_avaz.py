@@ -9,6 +9,7 @@ dnevniavaz.ba
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class DnevniAvaz(BasicNewsRecipe):
     title                 = 'Dnevni Avaz'
@@ -25,17 +26,18 @@ class DnevniAvaz(BasicNewsRecipe):
     cover_url             = 'http://www.dnevniavaz.ba/img/logo.gif'
     lang                  = 'bs-BA'
     language              = _('Bosnian')
+    direction             = 'ltr'
 
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"'
-
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
+  
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags = [dict(name='div', attrs={'id':['fullarticle-title','fullarticle-leading','fullarticle-date','fullarticle-text','articleauthor']})]
@@ -47,9 +49,20 @@ class DnevniAvaz(BasicNewsRecipe):
               ,(u'Najpopularnije', u'http://www.dnevniavaz.ba/rss/popularno')
             ]
 
+    def replace_tagname(self,soup,tagname,tagid,newtagname):
+        headtag = soup.find(tagname,attrs={'id':tagid})
+        if headtag:
+           headtag.name = newtagname
+        return
+        
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang
-        mtag = '<meta http-equiv="Content-Language" content="bs-BA"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
-        soup.head.insert(0,mtag)
-        return soup
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        soup.head.insert(0,mlang)
+        soup.head.insert(1,mcharset)
+        self.replace_tagname(soup,'div','fullarticle-title'  ,'h1')
+        self.replace_tagname(soup,'div','fullarticle-leading','h3')
+        self.replace_tagname(soup,'div','fullarticle-date'   ,'h5')
+        return self.adeify_images(soup)

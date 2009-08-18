@@ -17,24 +17,23 @@ class Borba(BasicNewsRecipe):
     publisher             = 'IP Novine Borba'
     category              = 'news, politics, Serbia'    
     language              = _('Serbian')
-    oldest_article        = 1
+    lang                  = _('sr-Latn-RS')
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
-    encoding              = 'utf8'
-    remove_javascript     = True
+    encoding              = 'utf-8'
     use_embedded_content  = False
     cover_url             = 'http://www.borba.rs/images/stories/novine/naslovna_v.jpg'
     INDEX                 = u'http://www.borba.rs/'
-    extra_css = '@font-face {font-family: "serif0";src:url(res:///Data/FONT/serif0.ttf)} @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif0, serif1, serif} .article_description{font-family: serif0, serif1, serif}'
+    extra_css = ' @font-face {font-family: "serif1"; src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} .contentheading{font-size: x-large; font-weight: bold} .createdate{font-size: small; font-weight: bold} '
     
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        , '--ignore-tables'
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
      
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -60,14 +59,17 @@ class Borba(BasicNewsRecipe):
             ]
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = 'sr-Latn-ME'
-        soup.html['lang']     = 'sr-Latn-ME'
-        mtag = '<meta http-equiv="Content-Language" content="sr-Latn-ME"/>'
-        soup.head.insert(0,mtag)
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll(font=True):
-            del item['font']
+        attribs = [  'style','font','valign'
+                    ,'colspan','width','height'
+                    ,'rowspan','summary','align'
+                    ,'cellspacing','cellpadding'
+                    ,'frames','rules','border'
+                  ]
+        for item in soup.body.findAll(name=['table','td','tr','th','caption','thead','tfoot','tbody','colgroup','col']):
+            item.name = 'div'
+            for attrib in attribs:
+                if item.has_key(attrib):
+                   del item[attrib]            
         return soup
 
     def parse_index(self):

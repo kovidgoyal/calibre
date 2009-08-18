@@ -1121,13 +1121,14 @@ class SearchBox(QLineEdit):
     def normalize_state(self):
         self.setText('')
         self.setPalette(self.default_palette)
+        self.setStyleSheet('QLineEdit { background-color: white; }')
 
     def clear_to_help(self):
         self.setPalette(self.gray)
         self.setText(self.help_text)
         self.home(False)
         self.initial_state = True
-        self.setStyleSheet("background-color: white")
+        self.setStyleSheet('QLineEdit { background-color: white; }')
         self.emit(SIGNAL('cleared()'))
 
     def clear(self):
@@ -1135,8 +1136,8 @@ class SearchBox(QLineEdit):
         self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), '', False)
 
     def search_done(self, ok):
-        col = 'rgba(0,255,0,25%)' if ok else 'rgb(255,0,0,25%)'
-        self.setStyleSheet('background-color: '+col)
+        col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
+        self.setStyleSheet('QLineEdit { background-color: %s; }' % col)
 
     def keyPressEvent(self, event):
         if self.initial_state:
