@@ -156,7 +156,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.formats.takeItem(row.row())
             self.formats_changed = True
 
-    def set_cover(self):
+    def get_selected_format_metadata(self):
         row = self.formats.currentRow()
         fmt = self.formats.item(row)
         if fmt is None:
@@ -165,7 +165,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if fmt is None:
                 error_dialog(self, _('No format selected'),
                     _('No format selected')).exec_()
-                return
+                return None, None
         ext = fmt.ext.lower()
         if fmt.path is None:
             stream = self.db.format(self.row, ext, as_file=True)
@@ -173,9 +173,44 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             stream = open(fmt.path, 'r+b')
         try:
             mi = get_metadata(stream, ext)
+            return mi, ext
         except:
             error_dialog(self, _('Could not read metadata'),
                          _('Could not read metadata from %s format')%ext).exec_()
+        return None, None
+
+    def set_metadata_from_format(self):
+        mi, ext = self.get_selected_format_metadata()
+        if mi is None:
+            return
+        if mi.title:
+            self.title.setText(mi.title)
+        if mi.authors:
+            self.authors.setEditText(authors_to_string(mi.authors))
+        if mi.author_sort:
+            self.author_sort.setText(mi.author_sort)
+        if mi.rating is not None:
+            try:
+                self.rating.setValue(mi.rating)
+            except:
+                pass
+        if mi.publisher:
+            self.publisher.setEditText(mi.publisher)
+        if mi.tags:
+            self.tags.setText(', '.join(mi.tags))
+        if mi.isbn:
+            self.isbn.setText(mi.isbn)
+        if mi.pubdate:
+            self.pubdate.setDate(QDate(mi.pubdate.year, mi.pubdate.month,
+                mi.pubdate.day))
+        if mi.series:
+            self.series.setEditText(mi.series)
+        if mi.series_index is not None:
+            self.series_index.setValue(float(mi.series_index))
+
+    def set_cover(self):
+        mi, ext = self.get_selected_format_metadata()
+        if mi is None:
             return
         cdata = None
         if mi.cover and os.access(mi.cover, os.R_OK):
@@ -253,6 +288,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.connect(self.formats, SIGNAL('itemDoubleClicked(QListWidgetItem*)'),
                 self.show_format)
         self.connect(self.button_set_cover, SIGNAL('clicked()'), self.set_cover)
+        self.connect(self.button_set_metadata, SIGNAL('clicked()'),
+                self.set_metadata_from_format)
         self.connect(self.reset_cover, SIGNAL('clicked()'), self.do_reset_cover)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(prefs['network_timeout'])
