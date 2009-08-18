@@ -498,10 +498,7 @@ def do_export(db, ids, dir, opts):
         prints('Failed to save the following books:')
         for id, title, tb in failures:
             prints(str(id)+':', title)
-            if tb:
-                prints('\t'+'\n\t'.join(tb.splitlines()))
-            else:
-                prints('\tRequested formats not available')
+            prints('\t'+'\n\t'.join(tb.splitlines()))
             prints(' ')
 
 def command_export(args, dbpath):

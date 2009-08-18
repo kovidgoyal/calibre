@@ -379,6 +379,7 @@ class ConfigInterface(object):
         self.remove_opt       = self.remove = self.option_set.remove_opt
         self.parse_string     = self.option_set.parse_string
         self.get_option       = self.option_set.get_option
+        self.preferences      = self.option_set.preferences
 
     def update(self, other):
         self.option_set.update(other.option_set)

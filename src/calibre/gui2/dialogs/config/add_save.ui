@@ -34,7 +34,7 @@
     <item>
      <widget class="QCheckBox" name="opt_read_metadata_from_filename">
       <property name="text">
-       <string>Read metadata from &amp;file name</string>
+       <string>Read metadata only from &amp;file name</string>
       </property>
      </widget>
     </item>
@@ -174,22 +174,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>opt_read_metadata_from_filename</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>metadata_box</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>159</x>
-     <y>81</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>178</x>
-     <y>122</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

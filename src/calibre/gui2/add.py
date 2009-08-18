@@ -295,13 +295,13 @@ class Adder(QObject):
 
 class Saver(QObject):
 
-    def __init__(self, parent, db, callback, rows, path,
-            by_author=False, single_dir=False, single_format=None,
+    def __init__(self, parent, db, callback, rows, path, opts,
             spare_server=None):
         QObject.__init__(self, parent)
         self.pd = ProgressDialog(_('Saving...'), parent=parent)
         self.spare_server = spare_server
         self.db = db
+        self.opts = opts
         self.pd.setModal(True)
         self.pd.show()
         self.pd.set_min(0)
@@ -315,8 +315,8 @@ class Saver(QObject):
         self.failures = set([])
 
         from calibre.ebooks.metadata.worker import SaveWorker
-        self.worker = SaveWorker(self.rq, db, self.ids, path, by_author,
-                single_dir, single_format, spare_server=self.spare_server)
+        self.worker = SaveWorker(self.rq, db, self.ids, path, self.opts,
+                spare_server=self.spare_server)
         self.connect(self.pd, SIGNAL('canceled()'), self.canceled)
         self.timer = QTimer(self)
         self.connect(self.timer, SIGNAL('timeout()'), self.update)
@@ -344,15 +344,14 @@ class Saver(QObject):
             return
 
         try:
-            id, title, ok = self.rq.get_nowait()
+            id, title, ok, tb = self.rq.get_nowait()
         except Empty:
             return
         self.pd.value += 1
         self.ids.remove(id)
         if not isinstance(title, unicode):
-            title = str(title).decode('utf-8', preferred_encoding)
+            title = str(title).decode(preferred_encoding, 'replace')
         self.pd.set_msg(_('Saved')+' '+title)
         if not ok:
-            self.failures.add(title)
-
+            self.failures.add((title, tb))
 

@@ -176,7 +176,8 @@ def save_book_to_disk(id, db, root, opts, length):
                 traceback.print_exc()
             stream.seek(0)
             data = stream.read()
-        with open(base_path+'.'+fmt, 'wb') as f:
+        fmt_path = base_path+'.'+str(fmt)
+        with open(fmt_path, 'wb') as f:
             f.write(data)
 
     return not written, id, mi.title
@@ -189,7 +190,9 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
 
     :param:`ids` iterable of book ids to save from the database.
     :param:`callback` is an optional callable that is called on after each
-    book is processed with the arguments: id, title and failed
+    book is processed with the arguments: id, title, failed, traceback.
+    If the callback returns False, further processing is terminated and
+    the function returns.
     :return: A list of failures. Each element of the list is a tuple
     (id, title, traceback)
     '''
@@ -209,13 +212,14 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
         tb = ''
         try:
             failed, id, title = save_book_to_disk(x, db, root, opts, length)
+            tb = _('Requested formats not available')
         except:
             failed, id, title = True, x, db.title(x, index_is_id=True)
             tb = traceback.format_exc()
         if failed:
             failures.append((id, title, tb))
         if callable(callback):
-            if not callback(int(id), title, failed):
+            if not callback(int(id), title, failed, tb):
                 break
     return failures
 

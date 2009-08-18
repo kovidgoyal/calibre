@@ -52,12 +52,9 @@ class AddSave(QTabWidget, Ui_TabWidget):
         table = u'<table>%s</table>'%(u'\n'.join(rows))
         self.template_variables.setText(table)
 
-        self.opt_read_metadata_from_filename.setChecked(prefs['read_file_metadata'])
-        self.metadata_box.setEnabled(self.opt_read_metadata_from_filename.isChecked())
+        self.opt_read_metadata_from_filename.setChecked(not prefs['read_file_metadata'])
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
-
-
 
     def validate(self):
         tmpl = preprocess_template(self.opt_template.text())
@@ -82,7 +79,7 @@ class AddSave(QTabWidget, Ui_TabWidget):
         for x in ('formats', 'template', 'timefmt'):
             c.set(x, unicode(getattr(self, 'opt_'+x).text()).strip())
         self.opt_template.save_history('save_to_disk_template_history')
-        prefs['read_file_metadata'] = bool(self.opt_read_metadata_from_filename.isChecked())
+        prefs['read_file_metadata'] = not bool(self.opt_read_metadata_from_filename.isChecked())
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
 

@@ -153,14 +153,17 @@ def read_metadata(paths, result_queue, chunk=50, spare_server=None):
     t.start()
     return t
 
+
+###########################################################################
+############ Saving #####################
+###########################################################################
+
 class SaveWorker(Thread):
 
-    def __init__(self, result_queue, db, ids, path, by_author=False,
-            single_dir=False,  single_format=None, spare_server=None):
+    def __init__(self, result_queue, db, ids, path, opts, spare_server=None):
         Thread.__init__(self)
         self.daemon = True
-        self.path, self.by_author = path, by_author
-        self.single_dir, self.single_format = single_dir, single_format
+        self.path, self.opts = path, opts
         self.ids = ids
         self.library_path = db.library_path
         self.canceled = False
@@ -170,17 +173,22 @@ class SaveWorker(Thread):
         self.start()
 
     def run(self):
+        from calibre.library.save_to_disk import config
         server = Server() if self.spare_server is None else self.spare_server
         ids = set(self.ids)
         tasks = server.split(list(ids))
         jobs = set([])
+        c = config()
+        recs = {}
+        for pref in c.preferences:
+            recs[pref.name] = getattr(self.opts, pref.name)
+
         for i, task in enumerate(tasks):
             tids = [x[-1] for x in task]
             job = ParallelJob('save_book',
                     'Save books (%d of %d)'%(i, len(tasks)),
                     lambda x,y:x,
-                    args=[tids, self.library_path, self.path, self.single_dir,
-                        self.single_format, self.by_author])
+                    args=[tids, self.library_path, self.path, recs])
             jobs.add(job)
             server.add_job(job)
 
@@ -192,9 +200,9 @@ class SaveWorker(Thread):
                 job.update(consume_notifications=False)
                 while True:
                     try:
-                        id, title, ok = job.notifications.get_nowait()[0]
+                        id, title, ok, tb = job.notifications.get_nowait()[0]
                         if id in ids:
-                            self.result_queue.put((id, title, ok))
+                            self.result_queue.put((id, title, ok, tb))
                             ids.remove(id)
                     except Empty:
                         break
@@ -221,23 +229,18 @@ class SaveWorker(Thread):
                     pass
 
 
-def save_book(task, library_path, path, single_dir, single_format,
-        by_author, notification=lambda x,y:x):
+def save_book(task, library_path, path, recs, notification=lambda x,y:x):
     from calibre.library.database2 import LibraryDatabase2
     db = LibraryDatabase2(library_path)
+    from calibre.library.save_to_disk import config, save_to_disk
+    opts = config().parse()
+    for name in recs:
+        setattr(opts, name, recs[name])
 
-    def callback(id, title):
-        notification((id, title, True))
+
+    def callback(id, title, failed, tb):
+        notification((id, title, not failed, tb))
         return True
 
-    if single_format is None:
-        failures = []
-        db.export_to_dir(path, task, index_is_id=True, byauthor=by_author,
-                callback=callback, single_dir=single_dir)
-    else:
-        failures = db.export_single_format_to_dir(path, task, single_format,
-                index_is_id=True, callback=callback)
-
-    for id, title in failures:
-        notification((id, title, False))
+    save_to_disk(db, task, path, opts, callback)
 
