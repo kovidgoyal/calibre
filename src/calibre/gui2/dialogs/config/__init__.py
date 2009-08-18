@@ -10,12 +10,11 @@ from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit
 
 from calibre.constants import islinux, iswindows
-from calibre.gui2.dialogs.config_ui import Ui_Dialog
+from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
                          warning_dialog
 from calibre.utils.config import prefs
-from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
@@ -193,12 +192,12 @@ class CategoryModel(QStringListModel):
     def __init__(self, *args):
         QStringListModel.__init__(self, *args)
         self.setStringList([_('General'), _('Interface'), _('Conversion'),
-                            _('Email\nDelivery'),
+                            _('Email\nDelivery'), _('Add/Save'),
                             _('Advanced'), _('Content\nServer'), _('Plugins')])
         self.icons = list(map(QVariant, map(QIcon,
             [':/images/dialog_information.svg', ':/images/lookfeel.svg',
                 ':/images/convert.svg',
-             ':/images/mail.svg', ':/images/view.svg',
+                ':/images/mail.svg', ':/images/save.svg', ':/images/view.svg',
              ':/images/network-server.svg', ':/images/plugins.svg'])))
 
     def data(self, index, role):
@@ -373,9 +372,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
         self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
 
-        self.filename_pattern = FilenamePattern(self)
-        self.metadata_box.layout().insertWidget(0, self.filename_pattern)
-
         icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
         self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
@@ -408,7 +404,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))
 
-        self.pdf_metadata.setChecked(prefs['read_file_metadata'])
 
         exts = set([])
         for ext in BOOK_EXTENSIONS:
@@ -439,7 +434,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.password.setText(opts.password if opts.password else '')
         self.auto_launch.setChecked(config['autolaunch_server'])
         self.systray_icon.setChecked(config['systray_icon'])
-        self.search_as_you_type.setChecked(config['search_as_you_type'])
         self.sync_news.setChecked(config['upload_news_to_device'])
         self.delete_news.setChecked(config['delete_news_from_library_on_upload'])
         p = {'normal':0, 'high':1, 'low':2}[prefs['worker_process_priority']]
@@ -683,6 +677,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
             return
         if not self.conversion_options.commit():
             return
+        if not self.add_save.save_settings():
+            return
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
@@ -697,11 +693,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['separate_cover_flow'] = bool(self.separate_cover_flow.isChecked())
         config['disable_tray_notification'] = not self.systray_notifications.isChecked()
-        pattern = self.filename_pattern.commit()
-        prefs['filename_pattern'] = pattern
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
         prefs['worker_process_priority'] = p
-        prefs['read_file_metadata'] = bool(self.pdf_metadata.isChecked())
         prefs['output_format'] = unicode(self.output_format.currentText()).upper()
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())

@@ -1488,8 +1488,9 @@ class LibraryDatabase2(LibraryDatabase):
                 yield record
 
     def all_ids(self):
+        x = FIELD_MAP['id']
         for i in iter(self):
-            yield i['id']
+            yield i[x]
 
     def get_data_as_dict(self, prefix=None, authors_as_string=False):
         '''

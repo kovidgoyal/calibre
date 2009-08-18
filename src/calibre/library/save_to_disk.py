@@ -6,31 +6,36 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, sys, cStringIO
+import os, traceback, cStringIO
 
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
                                     ascii_filename, sanitize_file_name
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.meta import set_metadata
+from calibre.constants import preferred_encoding, filesystem_encoding
 
 from calibre import strftime
 
 DEFAULT_TEMPLATE = '{author_sort}/{title} - {authors}'
-FORMAT_ARGS = dict(
-        title='',
-        authors='',
-        author_sort='',
-        tags='',
-        series='',
-        series_index='',
-        rating='',
-        isbn='',
-        publisher='',
-        timestamp='',
-        pubdate='',
-        id=''
+FORMAT_ARG_DESCS = dict(
+        title=_('The title'),
+        authors=_('The authors'),
+        author_sort=_('The author sort string'),
+        tags=_('The tags'),
+        series=_('The series'),
+        series_index=_('The series number'),
+        rating=_('The rating'),
+        isbn=_('The ISBN'),
+        publisher=_('The publisher'),
+        timestamp=_('The date'),
+        pubdate=_('The published date'),
+        id=_('The calibre internal id')
         )
+
+FORMAT_ARGS = {}
+for x in FORMAT_ARG_DESCS:
+    FORMAT_ARGS[x] = ''
 
 
 def config(defaults=None):
@@ -72,6 +77,8 @@ def preprocess_template(template):
     template = template.replace('//', '/')
     template = template.replace('{author}', '{authors}')
     template = template.replace('{tag}', '{tags}')
+    if not isinstance(template, unicode):
+        template = template.decode(preferred_encoding, 'replace')
     return template
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250, sanitize_func=ascii_filename):
@@ -104,6 +111,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250, sanitize_func=
     components = [sanitize_func(x) for x in components if x]
     if not components:
         components = [str(id)]
+    components = [x.encode(filesystem_encoding, 'replace') if isinstance(x,
+        unicode) else x for x in components]
     return shorten_components_to(length, components)
 
 
@@ -187,7 +196,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
     if opts is None:
         opts = config().parse()
     if isinstance(root, unicode):
-        root = root.encode(sys.getfilesystemencoding())
+        root = root.encode(filesystem_encoding)
     root = os.path.abspath(root)
 
     opts.template = preprocess_template(opts.template)

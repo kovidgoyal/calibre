@@ -15,7 +15,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../images.qrc">
     <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
   <layout class="QGridLayout">
@@ -115,7 +115,7 @@
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../images.qrc">
                  <normaloff>:/images/mimetypes/dir.svg</normaloff>:/images/mimetypes/dir.svg</iconset>
                </property>
               </widget>
@@ -128,19 +128,6 @@
           <widget class="QCheckBox" name="new_version_notification">
            <property name="text">
             <string>Show notification when &amp;new version is available</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="pdf_metadata">
-           <property name="toolTip">
-            <string>If you disable this setting, metadata is guessed from the filename instead. This can be configured in the Advanced section.</string>
-           </property>
-           <property name="text">
-            <string>Read &amp;metadata from files</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -258,7 +245,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../images.qrc">
+                   <iconset resource="../../images.qrc">
                     <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                   </property>
                  </widget>
@@ -282,7 +269,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../images.qrc">
+                   <iconset resource="../../images.qrc">
                     <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                   </property>
                  </widget>
@@ -339,7 +326,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../images.qrc">
+                   <iconset resource="../../images.qrc">
                     <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                   </property>
                  </widget>
@@ -366,7 +353,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../images.qrc">
+                   <iconset resource="../../images.qrc">
                     <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
                   </property>
                  </widget>
@@ -543,7 +530,7 @@
                      <string>...</string>
                     </property>
                     <property name="icon">
-                     <iconset resource="../images.qrc">
+                     <iconset resource="../../images.qrc">
                       <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                     </property>
                    </widget>
@@ -567,7 +554,7 @@
                      <string>...</string>
                     </property>
                     <property name="icon">
-                     <iconset resource="../images.qrc">
+                     <iconset resource="../../images.qrc">
                       <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                     </property>
                    </widget>
@@ -627,7 +614,7 @@
                 <string>&amp;Add email</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../images.qrc">
                  <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                </property>
                <property name="iconSize">
@@ -654,7 +641,7 @@
                 <string>&amp;Remove email</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../images.qrc">
                  <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
                </property>
                <property name="iconSize">
@@ -684,6 +671,14 @@
          </item>
          <item row="2" column="0" colspan="2">
           <widget class="SendEmail" name="send_email_widget" native="true"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_7">
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <widget class="AddSave" name="add_save">
+          </widget>
          </item>
         </layout>
        </widget>
@@ -728,28 +723,6 @@
             </spacer>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="metadata_box">
-           <property name="title">
-            <string>&amp;Metadata from file name</string>
-           </property>
-           <layout class="QVBoxLayout">
-            <item>
-             <spacer>
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
          </item>
         </layout>
        </widget>
@@ -1020,7 +993,7 @@
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../images.qrc">
+                 <iconset resource="../../images.qrc">
                   <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
                 </property>
                </widget>
@@ -1079,9 +1052,15 @@
    <header>calibre/gui2/wizard/send_email.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>AddSave</class>
+   <extends>QTabWidget</extends>
+   <header>calibre/gui2/dialogs/config/add_save.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../images.qrc"/>
  </resources>
  <connections>
   <connection>
