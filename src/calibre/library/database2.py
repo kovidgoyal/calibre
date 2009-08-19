@@ -1643,9 +1643,9 @@ books_series_link      feeds
     def import_book_directory(self, dirpath, callback=None):
         dirpath = os.path.abspath(dirpath)
         formats = self.find_books_in_directory(dirpath, True)
+        formats = list(formats)[0]
         if not formats:
             return
-        formats = list(iter(formats))
         mi = metadata_from_formats(formats)
         if mi.title is None:
             return
