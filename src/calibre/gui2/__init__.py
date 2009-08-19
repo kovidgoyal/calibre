@@ -82,6 +82,9 @@ def _config():
         help='Search history for the ebook viewer')
     c.add_opt('lrf_viewer_search_history', default=[],
         help='Search history for the LRF viewer')
+    c.add_opt('scheduler_search_history', default=[],
+        help='Search history for the recipe scheduler')
+
     return ConfigProxy(c)
 
 config = _config()

@@ -9,12 +9,13 @@ Scheduler for automated recipe downloads
 
 import sys, copy, time
 from datetime import datetime, timedelta, date
-from PyQt4.Qt import QDialog, QApplication, QLineEdit, QPalette, SIGNAL, QBrush, \
+from PyQt4.Qt import QDialog, QApplication, SIGNAL, \
                      QColor, QAbstractItemModel, Qt, QVariant, QFont, QIcon, \
                      QFile, QObject, QTimer, QMutex, QMenu, QAction, QTime, QModelIndex
 
 from calibre import english_sort
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
+from calibre.gui2.search_box import SearchBox2
 from calibre.web.feeds.recipes import recipes, recipe_modules, compile_recipe
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
@@ -163,7 +164,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 results.add(recipe)
         return results
 
-    def search(self, query):
+    def search(self, query, refinement):
         try:
             results = self.parse(unicode(query))
         except ParseException:
@@ -176,6 +177,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                     if recipe in results:
                         self._map[category].append(recipe)
         self.reset()
+        self.emit(SIGNAL('searched(PyQt_PyObject)'), True)
 
     def resort(self):
         self.recipes.sort()
@@ -235,45 +237,6 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 srecipe.schedule = recipe.schedule
 
 
-class Search(QLineEdit):
-
-    HELP_TEXT = _('Search')
-    INTERVAL = 500 #: Time to wait before emitting search signal
-
-    def __init__(self, *args):
-        QLineEdit.__init__(self, *args)
-        self.default_palette = QApplication.palette(self)
-        self.gray = QPalette(self.default_palette)
-        self.gray.setBrush(QPalette.Text, QBrush(QColor('gray')))
-        self.connect(self, SIGNAL('editingFinished()'),
-                     lambda : self.emit(SIGNAL('goto(PyQt_PyObject)'), unicode(self.text())))
-        self.clear_to_help_mode()
-        self.timer = None
-        self.connect(self, SIGNAL('textEdited(QString)'), self.text_edited_slot)
-
-    def focusInEvent(self, ev):
-        self.setPalette(QApplication.palette(self))
-        if self.in_help_mode():
-            self.setText('')
-        return QLineEdit.focusInEvent(self, ev)
-
-    def in_help_mode(self):
-        return unicode(self.text()) == self.HELP_TEXT
-
-    def clear_to_help_mode(self):
-        self.setPalette(self.gray)
-        self.setText(self.HELP_TEXT)
-
-    def text_edited_slot(self, text):
-        text = unicode(text)
-        self.timer = self.startTimer(self.INTERVAL)
-
-    def timerEvent(self, event):
-        self.killTimer(event.timerId())
-        if event.timerId() == self.timer:
-            text = unicode(self.text())
-            self.emit(SIGNAL('search(PyQt_PyObject)'), text)
-
 def encode_schedule(day, hour, minute):
     day = 1e7 * (day+1)
     hour = 1e4 * (hour+1)
@@ -291,7 +254,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
     def __init__(self, db, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        self.search = Search(self)
+        self.search = SearchBox2(self)
+        self.search.initialize('scheduler_search_history')
         self.recipe_box.layout().insertWidget(0, self.search)
         self.detail_box.setVisible(False)
         self._model = RecipeModel(db)
@@ -308,7 +272,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.connect(self.time, SIGNAL('timeChanged(QTime)'), self.do_schedule)
         for button in (self.daily_button, self.interval_button):
             self.connect(button, SIGNAL('toggled(bool)'), self.do_schedule)
-        self.connect(self.search, SIGNAL('search(PyQt_PyObject)'), self._model.search)
+        self.connect(self.search, SIGNAL('search(PyQt_PyObject,PyQt_PyObject)'), self._model.search)
+        self.connect(self._model,  SIGNAL('searched(PyQt_PyObject)'),
+                self.search.search_done)
         self.connect(self._model, SIGNAL('modelReset()'), lambda : self.detail_box.setVisible(False))
         self.connect(self.download_all_button, SIGNAL('clicked()'),
                 self.download_all)

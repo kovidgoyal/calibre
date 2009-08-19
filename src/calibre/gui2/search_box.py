@@ -22,6 +22,15 @@ class SearchLineEdit(QLineEdit):
 
 class SearchBox2(QComboBox):
 
+    '''
+    To use this class:
+
+        * Call initialize()
+        * Connect to the search() and cleared() signals from this widget
+        * Call search_done() after evry search is complete
+        * Use clear() to clear back to the help message
+    '''
+
     INTERVAL = 1500 #: Time to wait before emitting search signal
     MAX_COUNT = 25
 

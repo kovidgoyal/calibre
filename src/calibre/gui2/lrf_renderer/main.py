@@ -155,6 +155,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.document.search(search)
         except StopIteration:
             error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.')%(search,)).exec_()
+        self.search.search_done(True)
 
     def parsed(self):
         if not self.renderer.aborted and self.renderer.lrf is not None:
