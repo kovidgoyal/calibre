@@ -18,13 +18,12 @@ import re
 import sys
 import glob
 from itertools import repeat
-from math import ceil
 
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
-from calibre.utils.filenames import ascii_filename as sanitize
+from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 
 class Device(DeviceConfig, DevicePlugin):
 
@@ -669,71 +668,47 @@ class Device(DeviceConfig, DevicePlugin):
         return path
 
     def create_upload_path(self, path, mdata, fname):
-        resizable = []
+        path = os.path.abspath(path)
         newpath = path
-        if self.SUPPORTS_SUB_DIRS and self.settings().use_subdirs:
+        extra_components = []
 
+        if self.SUPPORTS_SUB_DIRS and self.settings().use_subdirs:
             if 'tags' in mdata.keys():
                 for tag in mdata['tags']:
                     if tag.startswith(_('News')):
-                        newpath = os.path.join(newpath, 'news')
+                        extra_components.append('news')
                         c = sanitize(mdata.get('title', ''))
                         if c:
-                            newpath = os.path.join(newpath, c)
-                            resizable.append(c)
+                            extra_components.append(c)
                         c = sanitize(mdata.get('timestamp', ''))
                         if c:
-                            newpath = os.path.join(newpath, c)
-                            resizable.append(c)
+                            extra_components.append(c)
                         break
                     elif tag.startswith('/'):
                         for c in tag.split('/'):
                             c = sanitize(c)
                             if not c: continue
-                            newpath = os.path.join(newpath, c)
-                            resizable.append(c)
+                            extra_components.append(c)
                         break
 
-            if newpath == path:
+            if not extra_components:
                 c = sanitize(mdata.get('authors', _('Unknown')))
                 if c:
-                    newpath = os.path.join(newpath, c)
-                    resizable.append(c)
+                    extra_components.append(c)
                 c = sanitize(mdata.get('title', _('Unknown')))
                 if c:
+                    extra_components.append(c)
                     newpath = os.path.join(newpath, c)
-                    resizable.append(c)
 
-        newpath = os.path.abspath(newpath)
         fname = sanitize(fname)
-        resizable.append(fname)
+        extra_components.append(fname)
+        extra_components = [str(x) for x in extra_components]
+        components = shorten_components_to(250 - len(path), extra_components)
+        filepath = os.path.join(path, *components)
+        filedir = os.path.dirname(filepath)
 
-        filepath = os.path.join(newpath, fname)
 
-        if len(filepath) > 245:
-            extra = len(filepath) - 245
-            delta = int(ceil(extra/float(len(resizable))))
-            for x in resizable:
-                if delta > len(x):
-                    r = x[0] if x is resizable[-1] else ''
-                else:
-                    if x is resizable[-1]:
-                        b, e = os.path.splitext(x)
-                        r = b[:-delta]+e
-                        if r.startswith('.'): r = x[0]+r
-                    else:
-                        r = x[:-delta]
-                r = r.strip()
-                if not r:
-                    r = x.strip()[0] if x.strip() else 'x'
-                if x is resizable[-1]:
-                    filepath = filepath.replace(os.sep+x, os.sep+r)
-                else:
-                    filepath = filepath.replace(os.sep+x+os.sep, os.sep+r+os.sep)
-            filepath = filepath.replace(os.sep+os.sep, os.sep).strip()
-            newpath = os.path.dirname(filepath)
-
-        if not os.path.exists(newpath):
-            os.makedirs(newpath)
+        if not os.path.exists(filedir):
+            os.makedirs(filedir)
 
         return filepath

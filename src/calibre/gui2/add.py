@@ -45,7 +45,7 @@ class DBAdder(Thread):
         self.critical = {}
         self.number_of_books_added = 0
         self.duplicates = []
-        self.names, self.path, self.infos = [], [], []
+        self.names, self.paths, self.infos = [], [], []
         Thread.__init__(self)
         self.daemon = True
         self.input_queue = Queue()

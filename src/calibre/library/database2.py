@@ -1445,36 +1445,40 @@ class LibraryDatabase2(LibraryDatabase):
             self.notify('add', [id])
 
     def move_library_to(self, newloc, progress=lambda x: x):
-        books = self.conn.get('SELECT id, path, title FROM books')
         if not os.path.exists(newloc):
             os.makedirs(newloc)
+        items = os.listdir(self.library_path)
         old_dirs = set([])
-        for i, book in enumerate(books):
-            path = book[1]
-            if not path:
-                continue
-            dir = path.split('/')[0]
-            srcdir = os.path.join(self.library_path, dir)
-            tdir = os.path.join(newloc, dir)
-            if os.path.exists(tdir):
-                shutil.rmtree(tdir)
-            if os.path.exists(srcdir):
-                shutil.copytree(srcdir, tdir)
-            old_dirs.add(srcdir)
-            progress(book[2])
+        for i, x in enumerate(items):
+            src = os.path.join(self.library_path, x)
+            dest = os.path.join(newloc, x)
+            if os.path.isdir(src):
+                if os.path.exists(dest):
+                    shutil.rmtree(dest)
+                shutil.copytree(src, dest)
+                old_dirs.add(src)
+            else:
+                if os.path.exists(dest):
+                    os.remove(dest)
+                shutil.copyfile(src, dest)
+            if not isinstance(x, unicode):
+                x = x.decode(filesystem_encoding, 'replace')
+            progress(x)
 
         dbpath = os.path.join(newloc, os.path.basename(self.dbpath))
-        shutil.copyfile(self.dbpath, dbpath)
         opath = self.dbpath
         self.conn.close()
         self.library_path, self.dbpath = newloc, dbpath
         self.connect()
         try:
             os.unlink(opath)
-            for dir in old_dirs:
-                shutil.rmtree(dir)
         except:
             pass
+        for dir in old_dirs:
+            try:
+                shutil.rmtree(dir)
+            except:
+                pass
 
     def __iter__(self):
         for record in self.data._data:
@@ -1639,9 +1643,9 @@ books_series_link      feeds
     def import_book_directory(self, dirpath, callback=None):
         dirpath = os.path.abspath(dirpath)
         formats = self.find_books_in_directory(dirpath, True)
+        formats = list(formats)[0]
         if not formats:
             return
-        formats = list(iter(formats))
         mi = metadata_from_formats(formats)
         if mi.title is None:
             return
