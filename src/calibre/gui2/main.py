@@ -121,6 +121,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowTitle(__appname__)
+        self.search.initialize('main_search_history', colorize=True,
+                help_text=_('Search (For Advanced Search click the button to the left)'))
+        self.connect(self.clear_button, SIGNAL('clicked()'), self.search.clear)
         self.progress_indicator = ProgressIndicator(self)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
@@ -148,7 +151,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.system_tray_icon.hide()
         else:
             self.system_tray_icon.show()
-        self.search.search_as_you_type(config['search_as_you_type'])
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
                 QIcon(':/images/page.svg'), _('&Restore'))

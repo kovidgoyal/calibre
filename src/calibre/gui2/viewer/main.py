@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux
 from calibre.utils.config import Config, StringConfig, dynamic
-from calibre.gui2.library import SearchBox
+from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 
@@ -218,7 +218,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar2.insertWidget(self.action_find_next, self.reference)
         self.tool_bar2.insertSeparator(self.action_find_next)
         self.setFocusPolicy(Qt.StrongFocus)
-        self.search = SearchBox(self, _('Search'))
+        self.search = SearchBox2(self)
+        self.search.initialize('viewer_search_history')
         self.search.setToolTip(_('Search for text in book'))
         self.tool_bar2.insertWidget(self.action_find_next, self.search)
         self.view.set_manager(self)
@@ -408,10 +409,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def find(self, text, refinement, repeat=False):
         if not text:
-            return
+            return self.search.search_done(False)
         if self.view.search(text):
             self.scrolled(self.view.scroll_fraction)
-            return
+            return self.search.search_done(True)
         index = self.iterator.search(text, self.current_index)
         if index is None:
             if self.current_index > 0:
@@ -419,8 +420,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 if index is None:
                     info_dialog(self, _('No matches found'),
                                 _('No matches found for: %s')%text).exec_()
-                    return
-            return
+                    return self.search.search_done(True)
+            return self.search.search_done(True)
         self.pending_search = text
         self.load_path(self.iterator.spine[index])
 
