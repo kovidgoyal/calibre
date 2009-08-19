@@ -31,7 +31,7 @@ from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
 from calibre.utils.mdns import publish as publish_zeroconf, \
                                stop_server as stop_zeroconf
-from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata import fmt_sidx, title_sort
 
 build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
 server_resources['jquery.js'] = jquery
@@ -122,6 +122,41 @@ class LibraryServer(object):
       <py:for each="entry in data">
       ${Markup(entry)}
       </py:for>
+    </feed>
+    '''))
+
+    STANZA_MAIN = MarkupTemplate(textwrap.dedent('''\
+    <?xml version="1.0" encoding="utf-8"?>
+    <feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
+      <title>calibre Library</title>
+      <id>$id</id>
+      <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+      <link rel="search" title="Search" type="application/atom+xml" href="/?search={searchTerms}"/>
+      <author>
+        <name>calibre</name>
+        <uri>http://calibre.kovidgoyal.net</uri>
+      </author>
+      <subtitle>
+            ${subtitle}
+      </subtitle>
+      <entry>
+        <title>By Author</title>
+        <id>urn:uuid:fc000fa0-8c23-11de-a31d-0002a5d5c51b</id>
+        <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+        <link type="application/atom+xml" href="/?sortby=byauthor" />
+      </entry>
+      <entry>
+        <title>By Title</title>
+        <id>urn:uuid:1df4fe40-8c24-11de-b4c6-0002a5d5c51b</id>
+        <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+        <link type="application/atom+xml" href="/?sortby=bytitle" />
+      </entry>
+      <entry>
+        <title>By Newest</title>
+        <id>urn:uuid:3c6d4940-8c24-11de-a4d7-0002a5d5c51b</id>
+        <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+        <link type="application/atom+xml" href="/?sortby=bynewest" />
+      </entry>
     </feed>
     '''))
 
@@ -295,11 +330,25 @@ class LibraryServer(object):
 
 
     @expose
-    def stanza(self, search=None):
+    def stanza(self, search=None, sortby=None):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
+        updated = self.db.last_modified()
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        if not sortby and not search:
+            return self.STANZA_MAIN.generate(subtitle='', data=books, FM=FIELD_MAP,
+                    updated=updated, id='urn:calibre:main').render('xml')
         ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
-        for record in reversed(list(iter(self.db))):
+        record_list = list(iter(self.db))
+        if sortby == "byauthor":
+            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['author_sort']], y[FIELD_MAP['author_sort']]))
+        elif sortby == "bytitle":
+            record_list.sort(lambda x, y: cmp(title_sort(x[FIELD_MAP['title']]),
+                title_sort(y[FIELD_MAP['title']])))
+        else:
+            record_list = reversed(record_list)
+        for record in record_list:
             if record[0] not in ids: continue
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
@@ -334,10 +383,6 @@ class LibraryServer(object):
                                                 fmt=fmt,
                                                 timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5]),
                                                 ).render('xml').decode('utf8'))
-
-        updated = self.db.last_modified()
-        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
 
         return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
@@ -389,7 +434,7 @@ class LibraryServer(object):
         'The / URL'
         want_opds = cherrypy.request.headers.get('Stanza-Device-Name', 919) != \
             919 or cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919
-        return self.stanza(search=kwargs.get('search', None)) if want_opds else self.static('index.html')
+        return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None)) if want_opds else self.static('index.html')
 
 
     @expose
