@@ -27,15 +27,12 @@ from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
                                     MetaInformation, authors_to_sort_string
-from calibre.ebooks.metadata.meta import get_metadata, set_metadata, \
-    metadata_from_formats
-from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 
-from calibre.utils.filenames import ascii_filename, shorten_components_to, \
-                                    supports_long_names
+from calibre.utils.filenames import ascii_filename
 from calibre.ebooks import BOOK_EXTENSIONS
 
 if iswindows:
@@ -1586,124 +1583,6 @@ books_series_link      feeds
         self.vacuum()
         progress.reset()
         return len(books)
-
-    def export_to_dir(self, dir, indices, byauthor=False, single_dir=False,
-                      index_is_id=False, callback=None):
-        if not os.path.exists(dir):
-            raise IOError('Target directory does not exist: '+dir)
-        by_author = {}
-        count = 0
-        path_len, au_len = (1000, 500) if supports_long_names(dir) else (240, 50)
-        for index in indices:
-            id = index if index_is_id else self.id(index)
-            au = self.conn.get('SELECT author_sort FROM books WHERE id=?',
-                                   (id,), all=False)
-            if not au:
-                au = self.authors(index, index_is_id=index_is_id)
-                if not au:
-                    au = _('Unknown')
-                au = au.split(',')[0]
-            if not by_author.has_key(au):
-                by_author[au] = []
-            by_author[au].append(index)
-        for au in by_author.keys():
-            aname = ascii_filename(au)[:au_len]
-            apath = os.path.abspath(os.path.join(dir, aname))
-            if not single_dir and not os.path.exists(apath):
-                os.mkdir(apath)
-            for idx in by_author[au]:
-                title = re.sub(r'\s', ' ', self.title(idx, index_is_id=index_is_id))
-                name = au + ' - ' + title if byauthor else title + ' - ' + au
-                name = ascii_filename(name)
-                tname = ascii_filename(title)
-                tname, name = shorten_components_to(path_len-len(apath), (tname,
-                    name))
-                name += '_'+str(id)
-
-                tpath = os.path.join(apath, tname)
-                id = idx if index_is_id else self.id(idx)
-                id = str(id)
-                if not single_dir and not os.path.exists(tpath):
-                    os.makedirs(tpath)
-
-                base  = dir if single_dir else tpath
-                mi = self.get_metadata(idx, index_is_id=index_is_id, get_cover=True)
-                if not mi.authors:
-                    mi.authors = [_('Unknown')]
-                cdata = self.cover(int(id), index_is_id=True)
-                if cdata is not None:
-                    cname = name+'.jpg'
-                    open(os.path.join(base, cname), 'wb').write(cdata)
-                    mi.cover = cname
-                with open(os.path.join(base, name+'.opf'),
-                        'wb') as f:
-                    f.write(metadata_to_opf(mi))
-
-                fmts = self.formats(idx, index_is_id=index_is_id)
-                if not fmts:
-                    fmts = ''
-                for fmt in fmts.split(','):
-                    data = self.format(idx, fmt, index_is_id=index_is_id)
-                    if not data:
-                        continue
-                    fname = name +'.'+fmt.lower()
-                    f = open(os.path.join(base, fname), 'w+b')
-                    f.write(data)
-                    f.flush()
-                    f.seek(0)
-                    try:
-                        set_metadata(f, mi, fmt.lower())
-                    except:
-                        pass
-                    f.close()
-                count += 1
-                if callable(callback):
-                    if not callback(int(id), mi.title):
-                        return
-
-    def export_single_format_to_dir(self, dir, indices, format,
-                                    index_is_id=False, callback=None):
-        dir = os.path.abspath(dir)
-        if not index_is_id:
-            indices = map(self.id, indices)
-        failures = []
-        plen = 1000 if supports_long_names(dir) else 245
-        for count, id in enumerate(indices):
-            try:
-                data = self.format(id, format, index_is_id=True)
-                if not data:
-                    failures.append((id, self.title(id, index_is_id=True)))
-                    continue
-            except:
-                failures.append((id, self.title(id, index_is_id=True)))
-                continue
-            title = self.title(id, index_is_id=True)
-            au = self.authors(id, index_is_id=True)
-            if not au:
-                au = _('Unknown')
-            fname = '%s - %s'%(title, au)
-            while fname.endswith('.'):
-                fname = fname[:-1]
-            fname = ascii_filename(fname)
-            fname = fname + '.' + format.lower()
-            dir = os.path.abspath(dir)
-            fname = shorten_components_to(plen - len(dir), (fname,))[0]
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            f = open(os.path.join(dir, fname), 'w+b')
-            f.write(data)
-            f.flush()
-            f.seek(0)
-            try:
-                set_metadata(f, self.get_metadata(id, index_is_id=True, get_cover=True),
-                             stream_type=format.lower())
-            except:
-                pass
-            f.close()
-            if callable(callback):
-                if not callback(int(id), title):
-                    break
-        return failures
 
     def find_books_in_directory(self, dirpath, single_book_per_directory):
         dirpath = os.path.abspath(dirpath)

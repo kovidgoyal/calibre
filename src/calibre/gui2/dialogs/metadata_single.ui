@@ -44,7 +44,7 @@
         <x>0</x>
         <y>0</y>
         <width>879</width>
-        <height>710</height>
+        <height>711</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -415,7 +415,7 @@
                 <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
                   <layout class="QGridLayout" name="gridLayout">
-                   <item row="0" column="0" rowspan="3">
+                   <item row="0" column="1" rowspan="3">
                     <widget class="QListWidget" name="formats">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -437,7 +437,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="1">
+                   <item row="0" column="2">
                     <widget class="QToolButton" name="add_format_button">
                      <property name="toolTip">
                       <string>Add a new format for this book to the database</string>
@@ -457,7 +457,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
+                   <item row="2" column="2">
                     <widget class="QToolButton" name="remove_format_button">
                      <property name="toolTip">
                       <string>Remove the selected formats for this book from the database.</string>
@@ -477,7 +477,7 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="1">
+                   <item row="0" column="0">
                     <widget class="QToolButton" name="button_set_cover">
                      <property name="toolTip">
                       <string>Set the cover for the book from the selected format</string>
@@ -488,6 +488,26 @@
                      <property name="icon">
                       <iconset resource="../images.qrc">
                        <normaloff>:/images/book.svg</normaloff>:/images/book.svg</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>32</width>
+                       <height>32</height>
+                      </size>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QToolButton" name="button_set_metadata">
+                     <property name="toolTip">
+                      <string>Update metadata from the metadata in the selected format</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../images.qrc">
+                       <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
                      </property>
                      <property name="iconSize">
                       <size>
@@ -680,7 +700,6 @@
   <tabstop>fetch_metadata_button</tabstop>
   <tabstop>formats</tabstop>
   <tabstop>add_format_button</tabstop>
-  <tabstop>button_set_cover</tabstop>
   <tabstop>remove_format_button</tabstop>
   <tabstop>cover_path</tabstop>
   <tabstop>cover_button</tabstop>

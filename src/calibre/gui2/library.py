@@ -8,10 +8,10 @@ from operator import attrgetter
 from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
-                        QPen, QStyle, QPainter, QLineEdit, \
-                        QPalette, QImage, QApplication, QMenu, \
+                        QPen, QStyle, QPainter, \
+                        QImage, QApplication, QMenu, \
                         QStyledItemDelegate, QCompleter
-from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
+from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
@@ -1100,94 +1100,4 @@ class DeviceBooksModel(BooksModel):
         self.editable = editable
 
 
-class SearchBox(QLineEdit):
-
-    INTERVAL = 1000 #: Time to wait before emitting search signal
-
-    def __init__(self, parent, help_text=_('Search (For Advanced Search click the button to the left)')):
-        QLineEdit.__init__(self, parent)
-        self.help_text = help_text
-        self.initial_state = True
-        self.as_you_type = True
-        self.default_palette = QApplication.palette(self)
-        self.gray = QPalette(self.default_palette)
-        self.gray.setBrush(QPalette.Text, QBrush(QColor('gray')))
-        self.prev_search = ''
-        self.timer = None
-        self.clear_to_help()
-        QObject.connect(self, SIGNAL('textEdited(QString)'), self.text_edited_slot)
-
-
-    def normalize_state(self):
-        self.setText('')
-        self.setPalette(self.default_palette)
-        self.setStyleSheet('QLineEdit { background-color: white; }')
-
-    def clear_to_help(self):
-        self.setPalette(self.gray)
-        self.setText(self.help_text)
-        self.home(False)
-        self.initial_state = True
-        self.setStyleSheet('QLineEdit { background-color: white; }')
-        self.emit(SIGNAL('cleared()'))
-
-    def clear(self):
-        self.clear_to_help()
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), '', False)
-
-    def search_done(self, ok):
-        col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
-        self.setStyleSheet('QLineEdit { background-color: %s; }' % col)
-
-    def keyPressEvent(self, event):
-        if self.initial_state:
-            self.normalize_state()
-            self.initial_state = False
-        if not self.as_you_type:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                self.do_search()
-        QLineEdit.keyPressEvent(self, event)
-
-    def mouseReleaseEvent(self, event):
-        if self.initial_state:
-            self.normalize_state()
-            self.initial_state = False
-        QLineEdit.mouseReleaseEvent(self, event)
-
-    def text_edited_slot(self, text):
-        if self.as_you_type:
-            text = qstring_to_unicode(text) if isinstance(text, QString) else unicode(text)
-            self.prev_text = text
-            self.timer = self.startTimer(self.__class__.INTERVAL)
-
-    def timerEvent(self, event):
-        self.killTimer(event.timerId())
-        if event.timerId() == self.timer:
-            self.do_search()
-
-    def do_search(self):
-        text = qstring_to_unicode(self.text())
-        refinement = text.startswith(self.prev_search) and ':' not in text
-        self.prev_search = text
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
-
-    def search_from_tokens(self, tokens, all):
-        ans = u' '.join([u'%s:%s'%x for x in tokens])
-        if not all:
-            ans = '[' + ans + ']'
-        self.set_search_string(ans)
-
-    def search_from_tags(self, tags, all):
-        joiner = ' and ' if all else ' or '
-        self.set_search_string(joiner.join(tags))
-
-    def set_search_string(self, txt):
-        self.normalize_state()
-        self.setText(txt)
-        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
-        self.end(False)
-        self.initial_state = False
-
-    def search_as_you_type(self, enabled):
-        self.as_you_type = enabled
 

@@ -185,33 +185,18 @@
        </widget>
       </item>
       <item>
-       <widget class="SearchBox" name="search">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
+       <widget class="SearchBox2" name="search">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>1</horstretch>
+          <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="acceptDrops">
-         <bool>false</bool>
-        </property>
         <property name="toolTip">
-         <string>Search the list of books by title or author&lt;br&gt;&lt;br&gt;Words separated by spaces are ANDed</string>
+         <string>&lt;p&gt;Search the list of books by title, author, publisher, tags, comments, etc.&lt;br&gt;&lt;br&gt;Words separated by spaces are ANDed</string>
         </property>
         <property name="whatsThis">
-         <string>Search the list of books by title, author, publisher, tags and comments&lt;br&gt;&lt;br&gt;Words separated by spaces are ANDed</string>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="frame">
-         <bool>true</bool>
+         <string>&lt;p&gt;Search the list of books by title, author, publisher, tags, comments, etc.&lt;br&gt;&lt;br&gt;Words separated by spaces are ANDed</string>
         </property>
        </widget>
       </item>
@@ -674,11 +659,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SearchBox</class>
-   <extends>QLineEdit</extends>
-   <header>library.h</header>
-  </customwidget>
-  <customwidget>
    <class>BooksView</class>
    <extends>QTableView</extends>
    <header>library.h</header>
@@ -698,26 +678,14 @@
    <extends>QTreeView</extends>
    <header>calibre/gui2/tag_view.h</header>
   </customwidget>
+  <customwidget>
+   <class>SearchBox2</class>
+   <extends>QComboBox</extends>
+   <header>calibre.gui2.search_box</header>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="images.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>clear_button</sender>
-   <signal>clicked()</signal>
-   <receiver>search</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>787</x>
-     <y>215</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>755</x>
-     <y>213</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
