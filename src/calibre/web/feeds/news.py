@@ -11,6 +11,7 @@ import os, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
+from datetime import datetime
 
 from PyQt4.Qt import QApplication, QFile, QIODevice
 
@@ -872,6 +873,8 @@ class BasicNewsRecipe(Recipe):
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type
+        mi.timestamp = datetime.now()
+        mi.pubdate = datetime.now()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
         opf = OPFCreator(dir, mi)
