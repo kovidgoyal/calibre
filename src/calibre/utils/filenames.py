@@ -8,7 +8,7 @@ from math import ceil
 
 from calibre.ebooks.unidecode.unidecoder import Unidecoder
 from calibre import sanitize_file_name
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, iswindows
 udc = Unidecoder()
 
 def ascii_text(orig):
@@ -65,3 +65,14 @@ def shorten_components_to(length, components):
         ans.append(r)
     return ans
 
+def find_executable_in_path(name, path=None):
+    if path is None:
+        path = os.environ.get('PATH', '')
+    sep = ';' if iswindows else ':'
+    if iswindows and not name.endswith('.exe'):
+        name += '.exe'
+    path = path.split(sep)
+    for x in path:
+        q = os.path.abspath(os.path.join(x, name))
+        if os.access(q, os.X_OK):
+            return q

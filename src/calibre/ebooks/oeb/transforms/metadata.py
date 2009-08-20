@@ -71,7 +71,7 @@ def meta_info_to_oeb_metadata(mi, m, log):
         m.clear('publication_type')
         m.add('publication_type', mi.publication_type)
     if not m.timestamp:
-        m.add('timestamp', datetime.utcnow().isoformat())
+        m.add('timestamp', datetime.now().isoformat())
 
 
 class MergeMetadata(object):
