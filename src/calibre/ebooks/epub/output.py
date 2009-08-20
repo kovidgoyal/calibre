@@ -163,6 +163,7 @@ class EPUBOutput(OutputFormatPlugin):
 
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
+        self.workaround_sony_quirks()
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
         RescaleImages()(oeb, opts)
         self.insert_cover()
@@ -346,5 +347,48 @@ class EPUBOutput(OutputFormatPlugin):
         else:
             self.oeb.log.warn('No stylesheet found')
 
+    def workaround_sony_quirks(self):
+        '''
+        Perform toc link transforms to alleviate slow loading.
+        '''
+        from calibre.ebooks.oeb.base import urldefrag, XPath
 
+        def frag_is_at_top(root, frag):
+            body = XPath('//h:body')(root)
+            if body:
+                body = body[0]
+            else:
+                return 0 # Impossible?
+            tree = body.getroottree()
+            elem = XPath('//*[@id="%s" or @name="%s"]'%(frag, frag))(root)
+            if elem:
+                elem = elem[0]
+            else:
+                return 0
+            path = tree.getpath(elem)
+            for el in body.iterdescendants():
+                epath = tree.getpath(el)
+                if epath == path:
+                    break
+                if el.text and el.text.strip():
+                    return 0
+                if not path.startswith(epath):
+                    # Only check tail of non-parent elements
+                    if el.tail and el.tail.strip():
+                        return 0
+            return 1
 
+        def simplify_toc_entry(toc):
+            if toc.href:
+                href, frag = urldefrag(toc.href)
+                if frag:
+                    for x in self.oeb.spine:
+                        if x.href == href:
+                            if frag_is_at_top(x.data, frag):
+                                toc.href = href
+                            break
+            for x in toc:
+                simplify_toc_entry(x)
+
+        if self.oeb.toc:
+            simplify_toc_entry(self.oeb.toc)
