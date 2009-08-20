@@ -457,10 +457,9 @@ class FlowSplitter(object):
             root = tree.getroot()
             self.files.append(self.base%i)
             for elem in root.xpath('//*[@id or @name]'):
-                anchor = elem.get('id', '')
-                if not anchor:
-                    anchor = elem.get('name')
-                self.anchor_map[anchor] = self.files[-1]
+                for anchor in elem.get('id', ''), elem.get('name', ''):
+                    if anchor != '' and anchor not in self.anchor_map:
+                        self.anchor_map[anchor] = self.files[-1]
             for elem in root.xpath('//*[@%s]'%SPLIT_POINT_ATTR):
                 elem.attrib.pop(SPLIT_POINT_ATTR, '0')
 
