@@ -144,7 +144,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             ext = os.path.splitext(_file)[1].lower().replace('.', '')
             for row in range(self.formats.count()):
                 fmt = self.formats.item(row)
-                if fmt.ext == ext:
+                if fmt.ext.lower() == ext:
                     self.formats.takeItem(row)
                     break
             Format(self.formats, ext, size, path=_file)

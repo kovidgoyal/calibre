@@ -358,25 +358,25 @@ class EPUBOutput(OutputFormatPlugin):
             if body:
                 body = body[0]
             else:
-                return 0 # Impossible?
+                return False
             tree = body.getroottree()
             elem = XPath('//*[@id="%s" or @name="%s"]'%(frag, frag))(root)
             if elem:
                 elem = elem[0]
             else:
-                return 0
+                return False
             path = tree.getpath(elem)
             for el in body.iterdescendants():
                 epath = tree.getpath(el)
                 if epath == path:
                     break
                 if el.text and el.text.strip():
-                    return 0
+                    return False
                 if not path.startswith(epath):
                     # Only check tail of non-parent elements
                     if el.tail and el.tail.strip():
-                        return 0
-            return 1
+                        return False
+            return True
 
         def simplify_toc_entry(toc):
             if toc.href:
@@ -385,6 +385,8 @@ class EPUBOutput(OutputFormatPlugin):
                     for x in self.oeb.spine:
                         if x.href == href:
                             if frag_is_at_top(x.data, frag):
+                                self.log.debug('Removing anchor from TOC href:',
+                                        href+'#'+frag)
                                 toc.href = href
                             break
             for x in toc:
