@@ -105,6 +105,15 @@ class LibraryServer(object):
     </entry>
     '''))
 
+    STANZA_AUTHOR_ENTRY=MarkupTemplate(textwrap.dedent('''\
+    <entry xmlns:py="http://genshi.edgewall.org/">
+        <title>${authors}</title>
+        <id>urn:calibre:${record[FM['id']]}</id>
+        <updated>${timestamp}</updated>
+        <link type="application/atom+xml" href="/?authorid=${record[FM['id']]}" />
+    </entry>
+    '''))
+
     STANZA = MarkupTemplate(textwrap.dedent('''\
     <?xml version="1.0" encoding="utf-8"?>
     <feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
@@ -330,24 +339,30 @@ class LibraryServer(object):
 
 
     @expose
-    def stanza(self, search=None, sortby=None):
+    def stanza(self, search=None, sortby=None, authorid=None):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
         updated = self.db.last_modified()
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'text/xml'
-        if not sortby and not search:
+        if not sortby and not search and not authorid:
             return self.STANZA_MAIN.generate(subtitle='', data=books, FM=FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
-        ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
+        if authorid:
+            authorid=int(authorid)
+            au = self.db.authors(authorid, index_is_id=True)
+            ids = self.db.data.get_matches('authors', au)
+        else:
+            ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         record_list = list(iter(self.db))
         if sortby == "byauthor":
             record_list.sort(lambda x, y: cmp(x[FIELD_MAP['author_sort']], y[FIELD_MAP['author_sort']]))
-        elif sortby == "bytitle":
+        elif sortby == "bytitle" or authorid:
             record_list.sort(lambda x, y: cmp(title_sort(x[FIELD_MAP['title']]),
                 title_sort(y[FIELD_MAP['title']])))
         else:
             record_list = reversed(record_list)
+        author_list=[]
         for record in record_list:
             if record[0] not in ids: continue
             r = record[FIELD_MAP['formats']]
@@ -374,7 +389,20 @@ class LibraryServer(object):
                             fmt_sidx(float(record[FIELD_MAP['series_index']]))))
                 fmt = 'epub' if 'EPUB' in r else 'pdb'
                 mimetype = guess_type('dummy.'+fmt)[0]
-                books.append(self.STANZA_ENTRY.generate(
+                if sortby == "byauthor":
+                    if authors and authors not in author_list:
+                        author_list.append(authors)
+                        books.append(self.STANZA_AUTHOR_ENTRY.generate(
+                                                authors=authors,
+                                                record=record, FM=FIELD_MAP,
+                                                port=self.opts.port,
+                                                extra=''.join(extra),
+                                                mimetype=mimetype,
+                                                fmt=fmt,
+                                                timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5]),
+                                                ).render('xml').decode('utf8'))
+                else:
+                    books.append(self.STANZA_ENTRY.generate(
                                                 authors=authors,
                                                 record=record, FM=FIELD_MAP,
                                                 port=self.opts.port,
@@ -434,7 +462,7 @@ class LibraryServer(object):
         'The / URL'
         want_opds = cherrypy.request.headers.get('Stanza-Device-Name', 919) != \
             919 or cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919
-        return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None)) if want_opds else self.static('index.html')
+        return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None)) if want_opds else self.static('index.html')
 
 
     @expose
