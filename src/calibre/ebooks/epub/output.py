@@ -312,6 +312,8 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:script')(root):
                 if not tag.text and not tag.get('src', False):
                     tag.getparent().remove(tag)
+            for tag in XPath('//h:body/descendant::h:script')(root):
+                tag.getparent().remove(tag)
 
             for tag in XPath('//h:form')(root):
                 tag.getparent().remove(tag)
