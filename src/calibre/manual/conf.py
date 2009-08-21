@@ -105,8 +105,8 @@ html_logo        = 'resources/logo.png'
 # template names.
 #html_additional_pages = {}
 
-# If false, no module index is generated.
-# html_use_modindex = True
+html_use_modindex = False
+html_use_index = False
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 html_copy_source = False
@@ -115,6 +115,8 @@ html_copy_source = False
 htmlhelp_basename = 'calibredoc'
 
 html_use_opensearch = 'http://calibre.kovidgoyal.net/user_manual'
+
+html_show_sphinx = False
 
 # Options for LaTeX output
 # ------------------------

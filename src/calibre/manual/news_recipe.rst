@@ -101,6 +101,8 @@ Pre/post processing of downloaded HTML
 
 .. automember:: BasicNewsRecipe.remove_tags_before
 
+.. automember:: BasicNewsRecipe.remove_attributes
+
 .. automember:: BasicNewsRecipe.keep_only_tags
 
 .. automember:: BasicNewsRecipe.preprocess_regexps

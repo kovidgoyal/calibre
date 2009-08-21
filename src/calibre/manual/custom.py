@@ -6,6 +6,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, inspect, re, textwrap
 
 from sphinx.builder import StandaloneHTMLBuilder
+from qthelp import QtHelpBuilder
+from epub import EPUBHelpBuilder
 from sphinx.util import rpartition
 from sphinx.util.console import bold
 from sphinx.ext.autodoc import prepare_docstring
@@ -19,6 +21,8 @@ from calibre.linux import entry_points
 class CustomBuilder(StandaloneHTMLBuilder):
     name = 'custom'
 
+class CustomQtBuild(QtHelpBuilder):
+    name = 'customqt'
 
 def substitute(app, doctree):
     pass
@@ -121,39 +125,42 @@ def generate_ebook_convert_help():
     input and the output formats, the various combinations are listed below:
 
     ''')
-    c = 0
     sections = []
     toc = {}
-    for ip in input_format_plugins():
-        toc[ip.name] = []
-        for op in output_format_plugins():
-            c += 1
-            idr = 'ebook-convert-sec-'+str(c)
-            title = ip.name + ' to ' + op.name
-            section = '.. _'+idr+':||||'
-            section += title+'||'+\
-                    '-------------------------------------------------------'
-            toc[ip.name].append([idr, op.name])
-            parser, plumber = create_option_parser(['ebook-convert',
-                'dummyi.'+list(ip.file_types)[0],
-                'dummyo.'+op.file_type, '-h'], default_log)
-            groups = [(None, None, parser.option_list)]
-            for grp in parser.option_groups:
-                groups.append((grp.title, grp.description, grp.option_list))
-            template = str(CLI_GROUPS)
-            template = TextTemplate(template[template.find('||'):])
-            section += template.generate(groups=groups).render()
+    sec_templ = textwrap.dedent('''\
+        .. include:: global.rst
 
-            sections.append(section)
+        {0}
+        ================================================================
 
-    toct = '||||'
+        .. contents:: Contents
+          :depth: 1
+          :local:
+
+    ''')
+    for i, ip in enumerate(input_format_plugins()):
+        with open(os.path.join('cli', 'ebook-convert-%d.rst'%i), 'wb') as f:
+            f.write(sec_templ.format(ip.name))
+            toc[ip.name] = 'ebook-convert-%d'%i
+            for op in output_format_plugins():
+                title = ip.name + ' to ' + op.name
+                parser, plumber = create_option_parser(['ebook-convert',
+                    'dummyi.'+list(ip.file_types)[0],
+                    'dummyo.'+op.file_type, '-h'], default_log)
+                groups = [(None, None, parser.option_list)]
+                for grp in parser.option_groups:
+                    groups.append((grp.title, grp.description, grp.option_list))
+                template = str(CLI_GROUPS)
+                template = TextTemplate(template[template.find('||'):])
+                options  = template.generate(groups=groups).render()
+                f.write(title+'\n------------------------------------------------------')
+                f.write('\n\n'+options.replace('||', '\n'))
+
+    toct = '||||.. toctree::||    :maxdepth: 2||||'
     for ip in sorted(toc):
-        toct += '  * '+ip+'||||'
-        for idr, name in toc[ip]:
-            toct += '    * :ref:`'+name +' <'+idr+'>`||'
-        toct += '||'
+        toct += '    ' + toc[ip]+'||'
 
-    ans += toct+'||||'+'||||'.join(sections)
+    ans += toct+'||||'
 
     return ans
 
@@ -259,6 +266,8 @@ def auto_member(dirname, arguments, options, content, lineno,
 
 def setup(app):
     app.add_builder(CustomBuilder)
+    app.add_builder(CustomQtBuild)
+    app.add_builder(EPUBHelpBuilder)
     app.add_directive('automember', auto_member, 1, (1, 0, 1))
     app.connect('doctree-read', substitute)
     app.connect('builder-inited', cli_docs)

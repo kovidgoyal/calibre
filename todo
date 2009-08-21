@@ -3,5 +3,6 @@
 
 * Testing framework
 
-* MOBI navigation indexing support
 
+* Add a languages column to books. Best implementation is comma separated IANA codes
+* Add a hash column to the formats table (used for stanza identifier)
