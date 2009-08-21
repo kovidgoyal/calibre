@@ -123,8 +123,13 @@ class manual(OptionlessCommand):
                 os.makedirs(d)
             if not os.path.exists('.build'+os.sep+'html'):
                 os.makedirs('.build'+os.sep+'html')
-            check_call(['sphinx-build', '-b', 'custom', '-d',
+            check_call(['sphinx-build', '-b', 'custom', '-d', '-t', 'online',
                                    '.build/doctrees', '.', '.build/html'])
+            check_call(['sphinx-build', '-b', 'epub', '-d',
+                                   '.build/doctrees', '.', '.build/epub'])
+            j = os.path.join
+            shutil.copyfile(j('.build', 'epub', 'calibre.epub'), j('.build',
+                'html', 'calibre.epub'))
         finally:
             os.chdir(cwd)
 

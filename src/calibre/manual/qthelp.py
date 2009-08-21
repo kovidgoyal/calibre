@@ -120,6 +120,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
         #self.config.html_style = 'traditional.css'
 
     def handle_finish(self):

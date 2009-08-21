@@ -112,3 +112,8 @@ Metadata plugins
 -------------------
 
 Metadata plugins add the ability to read/write metadata from ebook files to |app|. See :ref:`pluginsMetadataPlugin` for details. 
+
+.. toctree::
+   :hidden:
+   
+   plugins

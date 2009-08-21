@@ -3,7 +3,7 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, os, inspect, re, textwrap
+import sys, os, inspect, re, textwrap, cStringIO
 
 from sphinx.builder import StandaloneHTMLBuilder
 from qthelp import QtHelpBuilder
@@ -116,7 +116,7 @@ $groups
 CLI_CMD += CLI_GROUPS
 
 
-def generate_ebook_convert_help():
+def generate_ebook_convert_help(info):
     from calibre.ebooks.conversion.cli import create_option_parser
     from calibre.customize.ui import input_format_plugins, output_format_plugins
     from calibre.utils.logging import default_log
@@ -139,22 +139,26 @@ def generate_ebook_convert_help():
 
     ''')
     for i, ip in enumerate(input_format_plugins()):
-        with open(os.path.join('cli', 'ebook-convert-%d.rst'%i), 'wb') as f:
-            f.write(sec_templ.format(ip.name))
-            toc[ip.name] = 'ebook-convert-%d'%i
-            for op in output_format_plugins():
-                title = ip.name + ' to ' + op.name
-                parser, plumber = create_option_parser(['ebook-convert',
-                    'dummyi.'+list(ip.file_types)[0],
-                    'dummyo.'+op.file_type, '-h'], default_log)
-                groups = [(None, None, parser.option_list)]
-                for grp in parser.option_groups:
-                    groups.append((grp.title, grp.description, grp.option_list))
-                template = str(CLI_GROUPS)
-                template = TextTemplate(template[template.find('||'):])
-                options  = template.generate(groups=groups).render()
-                f.write(title+'\n------------------------------------------------------')
-                f.write('\n\n'+options.replace('||', '\n'))
+        f = cStringIO.StringIO()
+        path = os.path.join('cli', 'ebook-convert-%d.rst'%i)
+        f.write(sec_templ.format(ip.name))
+        toc[ip.name] = 'ebook-convert-%d'%i
+        for op in output_format_plugins():
+            title = ip.name + ' to ' + op.name
+            parser, plumber = create_option_parser(['ebook-convert',
+                'dummyi.'+list(ip.file_types)[0],
+                'dummyo.'+op.file_type, '-h'], default_log)
+            groups = [(None, None, parser.option_list)]
+            for grp in parser.option_groups:
+                groups.append((grp.title, grp.description, grp.option_list))
+            template = str(CLI_GROUPS)
+            template = TextTemplate(template[template.find('||'):])
+            options  = template.generate(groups=groups).render()
+            f.write(title+'\n------------------------------------------------------')
+            f.write('\n\n'+options.replace('||', '\n'))
+        if not os.path.exists(path):
+            info('creating '+path)
+            open(path, 'wb').write(f.getvalue())
 
     toct = '||||.. toctree::||    :maxdepth: 2||||'
     for ip in sorted(toc):
@@ -204,7 +208,7 @@ def cli_docs(app):
         for grp in parser.option_groups:
             groups.append((grp.title, grp.description, grp.option_list))
         if cmd == 'ebook-convert':
-            groups = generate_ebook_convert_help()
+            groups = generate_ebook_convert_help(info)
             templ = TextTemplate(EBOOK_CONVERT)
         raw = templ.generate(cmd=cmd, cmdline=cmdline, usage=usage, groups=groups).render()
         raw = raw.replace('||', '\n').replace('&lt;', '<').replace('&gt;', '>')
@@ -265,6 +269,9 @@ def auto_member(dirname, arguments, options, content, lineno,
     return list(node)
 
 def setup(app):
+    app.add_config_value('epub_titlepage', None, False)
+    app.add_config_value('epub_author', '', False)
+    app.add_config_value('epub_logo', None, False)
     app.add_builder(CustomBuilder)
     app.add_builder(CustomQtBuild)
     app.add_builder(EPUBHelpBuilder)

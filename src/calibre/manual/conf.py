@@ -91,12 +91,15 @@ html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = True
 
 # Overall title of the documentation
 html_title       = 'calibre User Manual'
 html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
+epub_titlepage   = 'resources/titlepage.html'
+epub_logo        = 'resources/logo.png'
+epub_author      = 'Kovid Goyal'
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
