@@ -92,7 +92,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def select_cover(self, checked):
         files = choose_images(self, 'change cover dialog',
-                             u'Choose cover for ' + qstring_to_unicode(self.title.text()))
+                             _('Choose cover for ') + unicode(self.title.text()))
         if not files:
             return
         _file = files[0]

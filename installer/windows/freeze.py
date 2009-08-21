@@ -91,7 +91,6 @@ class BuildEXE(py2exe.build_exe.py2exe):
 
         print
         print 'Adding third party dependencies'
-        print '\tAdding devcon'
         tdir = os.path.join(PY2EXE_DIR, 'driver')
         os.makedirs(tdir)
         for pat in ('*.dll', '*.sys', '*.cat', '*.inf'):
@@ -104,11 +103,6 @@ class BuildEXE(py2exe.build_exe.py2exe):
             'bin\\freetype.dll', 'bin\\jpeg62.dll'):
             shutil.copyfile(os.path.join(POPPLER, x),
                     os.path.join(PY2EXE_DIR, os.path.basename(x)))
-        #shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
-        #shutil.copyfile(PDFTOHTML+'.manifest', os.path.join(PY2EXE_DIR,
-        #    os.path.basename(PDFTOHTML)+'.manifest'))
-        #print '\tAdding pdftk'
-        #shutil.copyfile(PDFTK, os.path.join(PY2EXE_DIR, os.path.basename(PDFTK)))
         print '\tAdding podofo'
         for f in glob.glob(os.path.join(PODOFO, '*.dll')):
             shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))

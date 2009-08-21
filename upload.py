@@ -123,8 +123,8 @@ class manual(OptionlessCommand):
                 os.makedirs(d)
             if not os.path.exists('.build'+os.sep+'html'):
                 os.makedirs('.build'+os.sep+'html')
-            check_call(['sphinx-build', '-b', 'custom', '-d', '-t', 'online',
-                                   '.build/doctrees', '.', '.build/html'])
+            check_call(['sphinx-build', '-b', 'custom', '-t', 'online',
+                                   '-d', '.build/doctrees', '.', '.build/html'])
             check_call(['sphinx-build', '-b', 'epub', '-d',
                                    '.build/doctrees', '.', '.build/epub'])
             j = os.path.join
@@ -706,6 +706,9 @@ class stage3(OptionlessCommand):
                    shell=True)
         check_call('ssh divok bzr update /usr/local/calibre',
                    shell=True)
+        check_call('ssh divok /etc/init.d/apache2 graceful',
+                   shell=True)
+
 
 
     def run(self):

@@ -160,7 +160,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             sections.extend(self.write_toc(node))
 
         if self.config.html_use_modindex:
-            item = section_template % {'title': _('Global Module Index'),
+            item = section_template % {'title': 'Global Module Index',
                                        'ref': 'modindex.html'}
             sections.append(' '*4*4 + item)
         sections = '\n'.join(sections)
