@@ -79,19 +79,19 @@ class USBMS(CLI, Device):
 
         return bl
 
-    def upload_books(self, files, names, on_card=None, end_session=True,
-                     metadata=None):
+    def upload_books(self, files, metadatas, ids, on_card=None,
+                     end_session=True):
 
         path = self._sanity_check(on_card, files)
 
         paths = []
-        names = iter(names)
-        metadata = iter(metadata)
+        metadatas = iter(metadatas)
+        ids = iter(ids)
 
         for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
-            filepath = self.create_upload_path(path, mdata, fname)
-
+            mdata, id = metadatas.next(), ids.next()
+            ext = os.path.splitext(infile)[1]
+            filepath = self.create_upload_path(path, mdata, ext, id)
             paths.append(filepath)
 
             self.put_file(infile, filepath, replace_file=True)
