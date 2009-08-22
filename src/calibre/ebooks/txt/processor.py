@@ -13,7 +13,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-def txt_to_markdown(txt, title=''):
+def txt_to_markdown(txt, title='', single_line_paras=False):
+    if single_line_paras:
+        txt = txt.replace('\r\n', '\n')
+        txt = txt.replace('\r', '\n')
+        txt = txt.replace('\n', '\n\n')
     md = markdown.Markdown(
         extensions=['footnotes', 'tables', 'toc'],
         safe_mode=False,)

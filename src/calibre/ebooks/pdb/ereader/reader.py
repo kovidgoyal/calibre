@@ -15,13 +15,13 @@ from calibre.ebooks.pdb.ereader.reader202 import Reader202
 
 class Reader(FormatReader):
 
-    def __init__(self, header, stream, log, encoding=None):
+    def __init__(self, header, stream, log, options):
         record0_size = len(header.section_data(0))
 
         if record0_size == 132:
-            self.reader = Reader132(header, stream, log, encoding)
+            self.reader = Reader132(header, stream, log, options)
         elif record0_size == 202:
-            self.reader = Reader202(header, stream, log, encoding)
+            self.reader = Reader202(header, stream, log, options)
         else:
             raise EreaderError('Size mismatch. eReader header record size %s KB is not supported.' % record0_size)
 

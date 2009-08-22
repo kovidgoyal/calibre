@@ -33,9 +33,9 @@ class HeaderRecord(object):
 
 class Reader202(FormatReader):
 
-    def __init__(self, header, stream, log, encoding=None):
+    def __init__(self, header, stream, log, options):
         self.log = log
-        self.encoding = encoding
+        self.encoding = options.input_encoding
 
         self.log.debug('202 byte header version found.')
 

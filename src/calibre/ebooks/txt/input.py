@@ -31,14 +31,9 @@ class TXTInput(InputFormatPlugin):
         log.debug('Reading text from file...')
         txt = stream.read().decode(ienc, 'replace')
 
-        if options.single_line_paras:
-            txt = txt.replace('\r\n', '\n')
-            txt = txt.replace('\r', '\n')
-            txt = txt.replace('\n', '\n\n')
-
         log.debug('Running text though markdown conversion...')
         try:
-            html = txt_to_markdown(txt)
+            html = txt_to_markdown(txt, single_line_paras=options.single_line_paras)
         except RuntimeError:
             raise ValueError('This txt file has malformed markup, it cannot be'
                 'converted by calibre. See http://daringfireball.net/projects/markdown/syntax')

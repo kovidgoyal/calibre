@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import InputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb import PDBError, IDENTITY_TO_NAME, get_reader
 
@@ -16,6 +16,13 @@ class PDBInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert PDB to HTML'
     file_types  = set(['pdb'])
+
+    options = set([
+        OptionRecommendation(name='single_line_paras', recommended_value=False,
+            help=_('Normally calibre treats blank lines as paragraph markers. '
+                'With this option it will assume that every line represents '
+                'a paragraph instead.')),
+    ])
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -27,7 +34,7 @@ class PDBInput(InputFormatPlugin):
 
         log.debug('Detected ebook format as: %s with identity: %s' % (IDENTITY_TO_NAME[header.ident], header.ident))
 
-        reader = Reader(header, stream, log, options.input_encoding)
+        reader = Reader(header, stream, log, options)
         opf = reader.extract_content(os.getcwd())
 
         return opf
