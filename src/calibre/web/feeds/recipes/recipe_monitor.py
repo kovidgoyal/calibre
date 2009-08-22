@@ -26,7 +26,7 @@ class MonitorCG(BasicNewsRecipe):
     lang                  ='sr-Latn-Me'
     INDEX                 = 'http://www.monitorcg.com'
     
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
+    extra_css = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} '
     
     conversion_options = {
                           'comment'          : description
@@ -42,15 +42,28 @@ class MonitorCG(BasicNewsRecipe):
 
     remove_tags = [ dict(name=['object','link','embed'])
                   , dict(attrs={'class':['buttonheading','article-section']})]
-
+    
+    remove_attributes = ['style','width','height','font','border','align']
+     
+    def adeify_images2(cls, soup):
+        for item in soup.findAll('img'):
+            for attrib in ['height','width','border','align','style']:
+                if item.has_key(attrib):
+                   del item[attrib]
+            oldParent = item.parent
+            if oldParent.name == 'a':
+               oldParent.name == 'p'
+            myIndex = oldParent.contents.index(item)
+            brtag  = Tag(soup,'br')
+            oldParent.insert(myIndex+1,brtag)
+        return soup
+ 
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
-        soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)
-        return self.adeify_images(soup)
+        soup.html.insert(0,mlang)
+        return self.adeify_images2(soup)
 
     def parse_index(self):
         totalfeeds = []
