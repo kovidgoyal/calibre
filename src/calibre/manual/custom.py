@@ -6,156 +6,143 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, inspect, re, textwrap
 
 from sphinx.builder import StandaloneHTMLBuilder
+from qthelp import QtHelpBuilder
+from epub import EPUBHelpBuilder
 from sphinx.util import rpartition
 from sphinx.util.console import bold
 from sphinx.ext.autodoc import prepare_docstring
 from docutils.statemachine import ViewList
 from docutils import nodes
 
-from genshi.template import OldTextTemplate as TextTemplate
 sys.path.append(os.path.abspath('../../../'))
 from calibre.linux import entry_points
 
 class CustomBuilder(StandaloneHTMLBuilder):
     name = 'custom'
 
+class CustomQtBuild(QtHelpBuilder):
+    name = 'customqt'
 
 def substitute(app, doctree):
     pass
 
-CLI_INDEX = '''\
+CLI_INDEX='''
 .. include:: ../global.rst
-||
+
 .. _cli:
-||
-||
+
 Command Line Interface
 ==========================
-||
+
 .. image:: ../images/cli.png
-||
-||
+
+
 Documented Commands
 --------------------
-||
+
 .. toctree::
     :maxdepth: 1
-    ||
-#for cmd, parser in documented_commands
-    $cmd
-#end
-||
+
+{documented}
+
 Undocumented Commands
 -------------------------
-||
-#for cmd in undocumented_commands
-  * ${cmd}
-  ||
-#end
-||
-You can see usage for undocumented commands by executing them without arguments in a terminal
+
+{undocumented}
+
+You can see usage for undocumented commands by executing them without arguments
+in a terminal.
 '''
 
-CLI_CMD=r'''
+CLI_PREAMBLE='''\
 .. include:: ../global.rst
-||
-.. _$cmd:
-||
-$cmd
-====================================================================
-||
+
+.. _{cmd}:
+
+{cmd}
+===================================================================
+
 .. code-block:: none
-||
-    $cmdline
-||
-#for line in usage
-#choose
-#when len(line) > 0
-$line
-#end
-#otherwise
-||
-#end
-#end
-#end
-||
-'''
-CLI_GROUPS=r'''
-[options]
-------------
-||
-#def option(opt)
-:option:`${opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')}`
-#end
-#for title, desc, options in groups
-#if title
-$title
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-||
-#end
-#if desc
-$desc
-||
-#end
-#for opt in options
-${option(opt)}
-     ${opt.help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default)) if opt.help else ''}
-||
-#end
-#end
+
+    {cmdline}
+
+{usage}
 '''
 
-EBOOK_CONVERT = CLI_CMD + r'''
-$groups
-'''
 
-CLI_CMD += CLI_GROUPS
-
-
-def generate_ebook_convert_help():
+def generate_ebook_convert_help(preamble, info):
     from calibre.ebooks.conversion.cli import create_option_parser
     from calibre.customize.ui import input_format_plugins, output_format_plugins
     from calibre.utils.logging import default_log
-    ans = textwrap.dedent('''
+    preamble = re.sub(r'http.*\.html', ':ref:`conversion`', preamble)
+    raw = preamble + textwrap.dedent('''
     Since the options supported by ebook-convert vary depending on both the
     input and the output formats, the various combinations are listed below:
 
     ''')
-    c = 0
     sections = []
     toc = {}
-    for ip in input_format_plugins():
-        toc[ip.name] = []
+    sec_templ = textwrap.dedent('''\
+        .. include:: ../global.rst
+
+        {0}
+        ================================================================
+
+        .. contents:: Contents
+          :depth: 1
+          :local:
+
+    ''')
+    for i, ip in enumerate(input_format_plugins()):
+        path = os.path.join('cli', 'ebook-convert-%d.rst'%i)
+        sraw = sec_templ.format(ip.name)
+        toc[ip.name] = 'ebook-convert-%d'%i
         for op in output_format_plugins():
-            c += 1
-            idr = 'ebook-convert-sec-'+str(c)
             title = ip.name + ' to ' + op.name
-            section = '.. _'+idr+':||||'
-            section += title+'||'+\
-                    '-------------------------------------------------------'
-            toc[ip.name].append([idr, op.name])
             parser, plumber = create_option_parser(['ebook-convert',
                 'dummyi.'+list(ip.file_types)[0],
                 'dummyo.'+op.file_type, '-h'], default_log)
+            cmd = 'ebook-convert '+list(ip.file_types)[0]+' '+op.file_type
             groups = [(None, None, parser.option_list)]
             for grp in parser.option_groups:
                 groups.append((grp.title, grp.description, grp.option_list))
-            template = str(CLI_GROUPS)
-            template = TextTemplate(template[template.find('||'):])
-            section += template.generate(groups=groups).render()
+            options = '\n'.join(render_options(cmd, groups, False))
+            sraw += title+'\n------------------------------------------------------\n\n'
+            sraw += options + '\n\n'
+        update_cli_doc(os.path.join('cli', toc[ip.name]+'.rst'), sraw, info)
 
-            sections.append(section)
-
-    toct = '||||'
+    toct = '\n\n.. toctree::\n    :maxdepth: 2\n\n'
     for ip in sorted(toc):
-        toct += '  * '+ip+'||||'
-        for idr, name in toc[ip]:
-            toct += '    * :ref:`'+name +' <'+idr+'>`||'
-        toct += '||'
+        toct += '    ' + toc[ip]+'\n'
 
-    ans += toct+'||||'+'||||'.join(sections)
+    raw += toct+'\n\n'
+    update_cli_doc(os.path.join('cli', 'ebook-convert.rst'), raw, info)
 
-    return ans
+def update_cli_doc(path, raw, info):
+    if isinstance(raw, unicode):
+        raw = raw.encode('utf-8')
+    if not os.path.exists(path) or open(path, 'rb').read() != raw:
+        info('creating '+os.path.splitext(os.path.basename(path))[0])
+        open(path, 'wb').write(raw)
+
+def render_options(cmd, groups, options_header=True):
+    lines = []
+    if options_header:
+        lines = ['[options]', '-'*15, '']
+    lines += ['.. program:: '+cmd, '']
+    for title, desc, options in groups:
+        if title:
+            lines.extend([title, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'])
+            lines.append('')
+        if desc:
+            lines.extend([desc, ''])
+        for opt in options:
+            help = opt.help if opt.help else ''
+            help = help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default))
+            opt = opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')
+            opt = '.. cmdoption:: '+opt
+            lines.extend([opt, '', '    '+help, ''])
+    return lines
 
 def cli_docs(app):
     info = app.builder.info
@@ -175,36 +162,32 @@ def cli_docs(app):
     documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
     undocumented_cmds.sort()
 
-    templ = TextTemplate(CLI_INDEX)
-    raw = templ.generate(documented_commands=documented_cmds,
-                         undocumented_commands=undocumented_cmds).render()
-    raw = raw.replace('||', '\n')
+    documented = [' '*4 + cmd[0] for cmd in documented_cmds]
+    undocumented = ['  * ' + cmd for cmd in undocumented_cmds]
+
+    raw = CLI_INDEX.format(documented='\n'.join(documented),
+            undocumented='\n'.join(undocumented))
     if not os.path.exists('cli'):
         os.makedirs('cli')
-    if not os.path.exists(os.path.join('cli', 'global.rst')):
-        os.link('global.rst', os.path.join('cli', 'global.rst'))
-    if not os.path.exists(os.path.join('cli', 'cli-index.rst')):
-        info(bold('creating cli-index...'))
-        open(os.path.join('cli', 'cli-index.rst'), 'wb').write(raw)
+    update_cli_doc(os.path.join('cli', 'cli-index.rst'), raw, info)
 
-    templ = TextTemplate(CLI_CMD)
     for cmd, parser in documented_cmds:
         usage = [i for i in parser.usage.replace('%prog', cmd).splitlines()]
         cmdline = usage[0]
         usage = usage[1:]
         usage = [i.replace(cmd, ':command:`%s`'%cmd) for i in usage]
-        groups = [(None, None, parser.option_list)]
-        for grp in parser.option_groups:
-            groups.append((grp.title, grp.description, grp.option_list))
+        usage = '\n'.join(usage)
+        preamble = CLI_PREAMBLE.format(cmd=cmd, cmdline=cmdline, usage=usage)
         if cmd == 'ebook-convert':
-            groups = generate_ebook_convert_help()
-            templ = TextTemplate(EBOOK_CONVERT)
-        raw = templ.generate(cmd=cmd, cmdline=cmdline, usage=usage, groups=groups).render()
-        raw = raw.replace('||', '\n').replace('&lt;', '<').replace('&gt;', '>')
-        if not os.path.exists(os.path.join('cli', cmd+'.rst')):
-            info(bold('creating docs for %s...'%cmd))
-            open(os.path.join('cli', cmd+'.rst'), 'wb').write(raw)
-
+            generate_ebook_convert_help(preamble, info)
+        else:
+            groups = [(None, None, parser.option_list)]
+            for grp in parser.option_groups:
+                groups.append((grp.title, grp.description, grp.option_list))
+            raw = preamble
+            lines = render_options(cmd, groups)
+            raw += '\n'+'\n'.join(lines)
+            update_cli_doc(os.path.join('cli', cmd+'.rst'), raw, info)
 
 def auto_member(dirname, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
@@ -258,7 +241,12 @@ def auto_member(dirname, arguments, options, content, lineno,
     return list(node)
 
 def setup(app):
+    app.add_config_value('epub_titlepage', None, False)
+    app.add_config_value('epub_author', '', False)
+    app.add_config_value('epub_logo', None, False)
     app.add_builder(CustomBuilder)
+    app.add_builder(CustomQtBuild)
+    app.add_builder(EPUBHelpBuilder)
     app.add_directive('automember', auto_member, 1, (1, 0, 1))
     app.connect('doctree-read', substitute)
     app.connect('builder-inited', cli_docs)

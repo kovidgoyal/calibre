@@ -39,7 +39,7 @@ class GlasJavnosti(BasicNewsRecipe):
                            ,dict(name='div', attrs={'class':'node'      })
                          ]
     remove_tags = [
-                     dict(name=['object','link'])
+                     dict(name=['object','link','img'])
                     ,dict(name='div',attrs={'class':['links','meta']})
                     ,dict(name='div',attrs={'id':'block-block-12'})
                   ]
@@ -74,7 +74,5 @@ class GlasJavnosti(BasicNewsRecipe):
                        ,(u'Konjske Snage', u'http://www.glas-javnosti.rs/aktuelni-clanci/46')
                      ]
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return self.adeify_images(soup)
+    remove_attributes = ['style','width','height','font','border','align']
+    

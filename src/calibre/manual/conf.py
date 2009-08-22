@@ -91,12 +91,15 @@ html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = True
 
 # Overall title of the documentation
 html_title       = 'calibre User Manual'
 html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
+epub_titlepage   = 'resources/titlepage.html'
+epub_logo        = 'resources/logo.png'
+epub_author      = 'Kovid Goyal'
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
@@ -105,8 +108,8 @@ html_logo        = 'resources/logo.png'
 # template names.
 #html_additional_pages = {}
 
-# If false, no module index is generated.
-# html_use_modindex = True
+html_use_modindex = False
+html_use_index = False
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 html_copy_source = False
@@ -115,6 +118,8 @@ html_copy_source = False
 htmlhelp_basename = 'calibredoc'
 
 html_use_opensearch = 'http://calibre.kovidgoyal.net/user_manual'
+
+html_show_sphinx = False
 
 # Options for LaTeX output
 # ------------------------

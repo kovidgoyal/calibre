@@ -2,12 +2,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, time, textwrap
 
-from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
+from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QThread, Qt, QSize, QVariant, QUrl, \
                         QModelIndex, QInputDialog, QAbstractTableModel, \
-                        QDialogButtonBox, QTabWidget, QBrush, QLineEdit
+                        QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
+                        QProgressDialog
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
@@ -648,7 +649,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         QDesktopServices.openUrl(QUrl('http://127.0.0.1:'+str(self.port.value())))
 
     def compact(self, toggled):
-        d = Vacuum(self, self.db)
+        d = CheckIntegrity(self.db, self)
         d.exec_()
 
     def browse(self):
@@ -739,25 +740,48 @@ class VacThread(QThread):
         self._parent = parent
 
     def run(self):
-        bad = self.db.check_integrity()
-        self.emit(SIGNAL('check_done(PyQt_PyObject)'), bad)
+        err = bad = None
+        try:
+            bad = self.db.check_integrity(self.callback)
+        except:
+            import traceback
+            err = traceback.format_exc()
+        self.emit(SIGNAL('check_done(PyQt_PyObject, PyQt_PyObject)'), bad, err)
 
-class Vacuum(QMessageBox):
+    def callback(self, progress, msg):
+        self.emit(SIGNAL('callback(PyQt_PyObject,PyQt_PyObject)'), progress,
+                msg)
 
-    def __init__(self, parent, db):
-        self.db = db
-        QMessageBox.__init__(self, QMessageBox.Information, _('Checking...'),
-                             _('Checking database integrity. This may take a while.'),
-                             QMessageBox.NoButton, parent)
+class CheckIntegrity(QProgressDialog):
+
+    def __init__(self, db, parent=None):
+        QProgressDialog.__init__(self, parent)
+        self.setCancelButtonText('')
+        self.setMinimum(0)
+        self.setMaximum(100)
+        self.setWindowTitle(_('Checking database integrity'))
+        self.setAutoReset(False)
+        self.setValue(0)
+
         self.vthread = VacThread(self, db)
-        self.connect(self.vthread, SIGNAL('check_done(PyQt_PyObject)'),
+        self.connect(self.vthread, SIGNAL('check_done(PyQt_PyObject,PyQt_PyObject)'),
                 self.check_done,
                 Qt.QueuedConnection)
+        self.connect(self.vthread,
+                SIGNAL('callback(PyQt_PyObject,PyQt_PyObject)'),
+                self.callback, Qt.QueuedConnection)
         self.vthread.start()
 
+    def callback(self, progress, msg):
+        self.setLabelText(msg)
+        self.setValue(int(100*progress))
 
-    def check_done(self, bad):
-        if bad:
+    def check_done(self, bad, err):
+        if err:
+            error_dialog(self, _('Error'),
+                    _('Failed to check database integrity'),
+                    det_msg=err, show=True)
+        elif bad:
             titles = [self.db.title(x, index_is_id=True) for x in bad]
             det_msg = '\n'.join(titles)
             warning_dialog(self, _('Some inconsistencies found'),
@@ -767,7 +791,7 @@ class Vacuum(QMessageBox):
                         'You should check them manually. This can '
                         'happen if you manipulate the files in the '
                         'library folder directly.'), det_msg=det_msg, show=True)
-        self.accept()
+        self.reset()
 
 
 

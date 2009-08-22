@@ -368,6 +368,7 @@ class DocumentView(QWebView):
         self.setPage(self.document)
         self.manager = None
         self._reference_mode = False
+        self._ignore_scrollbar_signals = False
         self.connect(self.document, SIGNAL('loadStarted()'), self.load_started)
         self.connect(self.document, SIGNAL('loadFinished(bool)'), self.load_finished)
         self.connect(self.document, SIGNAL('linkClicked(QUrl)'), self.link_clicked)
@@ -467,13 +468,16 @@ class DocumentView(QWebView):
         if getattr(self, 'scrollbar', None) is not None:
             delta = self.document.width - self.size().width()
             if delta > 0:
+                self._ignore_scrollbar_signals = True
                 self.scrollbar.blockSignals(True)
                 self.scrollbar.setRange(0, delta)
                 self.scrollbar.setValue(0)
                 self.scrollbar.setSingleStep(1)
                 self.scrollbar.setPageStep(int(delta/10.))
-                self.scrollbar.blockSignals(False)
             self.scrollbar.setVisible(delta > 0)
+            self.scrollbar.blockSignals(False)
+            self._ignore_scrollbar_signals = False
+
 
     def load_finished(self, ok):
         self._size_hint = self.document.mainFrame().contentsSize()
@@ -565,6 +569,8 @@ class DocumentView(QWebView):
             self.manager.scrolled(self.scroll_fraction)
 
     def scroll_to(self, pos, notify=True):
+        if self._ignore_scrollbar_signals:
+            return
         old_pos = self.document.ypos
         if isinstance(pos, basestring):
             self.document.jump_to_anchor(pos)
@@ -572,8 +578,9 @@ class DocumentView(QWebView):
             if pos >= 1:
                 self.document.scroll_to(0, self.document.height)
             else:
-                self.document.scroll_to(0, int(math.ceil(
-                        pos*(self.document.height-self.document.window_height))))
+                y = int(math.ceil(
+                        pos*(self.document.height-self.document.window_height)))
+                self.document.scroll_to(0, y)
         if notify and self.manager is not None and self.document.ypos != old_pos:
             self.manager.scrolled(self.scroll_fraction)
 

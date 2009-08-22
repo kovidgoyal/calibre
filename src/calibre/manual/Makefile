@@ -29,6 +29,20 @@ html:
 	@echo
 	@echo "Build finished. The HTML pages are in .build/html."
 
+qthelp:
+	mkdir -p .build/qthelp .build/doctrees
+	$(SPHINXBUILD) -b customqt $(ALLSPHINXOPTS) .build/qthelp
+	@echo
+	@echo "Build finished." 
+
+epub:
+	mkdir -p .build/qthelp .build/doctrees
+	$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) .build/epub
+	@echo
+	@echo "Build finished."
+
+
+
 web:
 	mkdir -p .build/web .build/doctrees
 	$(SPHINXBUILD) -b web $(ALLSPHINXOPTS) .build/web

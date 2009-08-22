@@ -107,7 +107,7 @@ class EPUBOutput(OutputFormatPlugin):
 '''
 
     TITLEPAGE = '''\
-<html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
         <title>%(title)s</title>
         <style type="text/css">
@@ -312,6 +312,8 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:script')(root):
                 if not tag.text and not tag.get('src', False):
                     tag.getparent().remove(tag)
+            for tag in XPath('//h:body/descendant::h:script')(root):
+                tag.getparent().remove(tag)
 
             for tag in XPath('//h:form')(root):
                 tag.getparent().remove(tag)

@@ -303,7 +303,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         username, password = username.strip(), password.strip()
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)
         key = 'recipe_account_info_%s'%recipe.id
-        config[key] = (username, password) if username and password else None
+        config[key] = (username, password) if username else None
 
     def do_schedule(self, *args):
         if not getattr(self, 'allow_scheduling', False):

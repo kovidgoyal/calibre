@@ -164,6 +164,7 @@ class BasicNewsRecipe(Recipe):
     #: Recipe specific options to control the conversion of the downloaded
     #: content into an e-book. These will override any user or plugin specified
     #: values, so only use if absolutely necessary. For example::
+    #:
     #:   conversion_options = {
     #:     'base_font_size'   : 16,
     #:     'tags'             : 'mytag1,mytag2',
