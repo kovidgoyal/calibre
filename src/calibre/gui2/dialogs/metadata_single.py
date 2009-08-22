@@ -203,10 +203,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         if mi.pubdate:
             self.pubdate.setDate(QDate(mi.pubdate.year, mi.pubdate.month,
                 mi.pubdate.day))
-        if mi.series:
+        if mi.series and mi.series.strip():
             self.series.setEditText(mi.series)
-        if mi.series_index is not None:
-            self.series_index.setValue(float(mi.series_index))
+            if mi.series_index is not None:
+                self.series_index.setValue(float(mi.series_index))
 
     def set_cover(self):
         mi, ext = self.get_selected_format_metadata()
