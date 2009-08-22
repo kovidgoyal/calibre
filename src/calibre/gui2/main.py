@@ -1046,10 +1046,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################## Save to disk ################################
     def save_single_format_to_disk(self, checked):
-        self.save_to_disk(checked, True, prefs['output_format'])
+        self.save_to_disk(checked, False, prefs['output_format'])
 
     def save_specific_format_disk(self, fmt):
-        self.save_to_disk(False, True, fmt)
+        self.save_to_disk(False, False, fmt)
 
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
@@ -1071,7 +1071,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             if single_format is not None:
                 opts.formats = single_format
             if single_dir:
-                opts.template = '{title} - {authors}'
+                opts.template = opts.template.split('/')[-1].strip()
+                if not opts.template:
+                    opts.template = '{title} - {authors}'
             self._saver = Saver(self, self.library_view.model().db,
                     Dispatcher(self._books_saved), rows, path, opts,
                     spare_server=self.spare_server)
