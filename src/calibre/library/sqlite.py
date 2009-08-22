@@ -130,11 +130,17 @@ class DBThread(Thread):
                 if func == self.CLOSE:
                     self.conn.close()
                     break
-                func = getattr(self.conn, func)
-                try:
-                    ok, res = True, func(*args, **kwargs)
-                except Exception, err:
-                    ok, res = False, (err, traceback.format_exc())
+                if func == 'dump':
+                    try:
+                        ok, res = True, '\n'.join(self.conn.iterdump())
+                    except Exception, err:
+                        ok, res = False, (err, traceback.format_exc())
+                else:
+                    func = getattr(self.conn, func)
+                    try:
+                        ok, res = True, func(*args, **kwargs)
+                    except Exception, err:
+                        ok, res = False, (err, traceback.format_exc())
                 self.results.put((ok, res))
         except Exception, err:
             self.unhandled_error = (err, traceback.format_exc())
@@ -196,6 +202,9 @@ class ConnectionProxy(object):
 
     @proxy
     def cursor(self): pass
+
+    @proxy
+    def dump(self): pass
 
 def connect(dbpath, row_factory=None):
     conn = ConnectionProxy(DBThread(dbpath, row_factory))

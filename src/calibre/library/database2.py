@@ -23,7 +23,7 @@ from PyQt4.QtGui import QImage
 
 from calibre.ebooks.metadata import title_sort
 from calibre.library.database import LibraryDatabase
-from calibre.library.sqlite import connect, IntegrityError
+from calibre.library.sqlite import connect, IntegrityError, DBThread
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, \
                                     MetaInformation, authors_to_sort_string
@@ -1670,9 +1670,40 @@ books_series_link      feeds
 
         return duplicates
 
-    def check_integrity(self):
+    def check_integrity(self, callback):
+        callback(0., _('Checking SQL integrity...'))
+        user_version = self.user_version
+        sql = self.conn.dump()
+        self.conn.close()
+        dest = self.dbpath+'.old'
+        if os.path.exists(dest):
+            os.remove(dest)
+        shutil.copyfile(self.dbpath, dest)
+        try:
+            os.remove(self.dbpath)
+            ndb = DBThread(self.dbpath, None)
+            ndb.connect()
+            conn = ndb.conn
+            conn.executescript(sql)
+            conn.commit()
+            conn.execute('pragma user_version=%d'%user_version)
+            conn.commit()
+            conn.close()
+        except:
+            if os.path.exists(self.dbpath):
+                os.remove(self.dbpath)
+            shutil.copyfile(dest, self.dbpath)
+            os.remove(dest)
+            raise
+        else:
+            os.remove(dest)
+            self.connect()
+            self.refresh()
+        callback(0.1, _('Checking for missing files.'))
         bad = {}
-        for id in self.data.universal_set():
+        us = self.data.universal_set()
+        total = float(len(us))
+        for i, id in enumerate(us):
             formats = self.data.get(id, FIELD_MAP['formats'], row_is_id=True)
             if not formats:
                 formats = []
@@ -1692,14 +1723,13 @@ books_series_link      feeds
                 if id not in bad:
                     bad[id] = []
                 bad[id].append(fmt)
+            callback(0.1+0.9*(1+i)/total, _('Checked id') + ' %d'%id)
 
         for id in bad:
             for fmt in bad[id]:
                 self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
         self.conn.commit()
         self.refresh_ids(list(bad.keys()))
-
-        self.vacuum()
 
         return bad
 
