@@ -291,7 +291,7 @@ class BookList(_BookList):
         book.datetime = ctime
         self.append(book)
         self.set_next_id(cid+1)
-        self.set_playlists(book.id, info.tags
+        self.set_playlists(book.id, info.tags)
 
 
     def playlist_by_title(self, title):
