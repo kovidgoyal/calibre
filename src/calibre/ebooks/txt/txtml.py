@@ -90,8 +90,8 @@ class TXTMLizer(object):
         text = re.sub('[  ]+', ' ', text)
 
         # Remove excessive newlines.
-        #text = re.sub('\n[ ]+\n', '\n\n', text)
-        #text = re.sub('\n{3,}', '\n\n', text)
+        text = re.sub('\n[ ]+\n', '\n\n', text)
+        text = re.sub('\n{5,}', '\n\n\n\n', text)
 
         # Replace spaces at the beginning and end of lines
         text = re.sub('(?imu)^[ ]+', '', text)
