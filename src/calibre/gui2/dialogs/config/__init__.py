@@ -299,7 +299,8 @@ class EmailAccounts(QAbstractTableModel):
         while y in self.accounts:
             c += 1
             y = x + str(c)
-        self.accounts[y] = ['MOBI, EPUB', True,
+        auto_send = len(self.accounts) < 1
+        self.accounts[y] = ['MOBI, EPUB', auto_send,
                                                 len(self.account_order) == 0]
         self.account_order = sorted(self.accounts.keys())
         self.reset()
