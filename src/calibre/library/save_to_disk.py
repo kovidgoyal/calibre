@@ -17,7 +17,7 @@ from calibre.constants import preferred_encoding, filesystem_encoding
 
 from calibre import strftime
 
-DEFAULT_TEMPLATE = '{author_sort}/{title} - {authors}'
+DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 FORMAT_ARG_DESCS = dict(
         title=_('The title'),
         authors=_('The authors'),
