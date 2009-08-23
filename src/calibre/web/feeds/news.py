@@ -679,7 +679,7 @@ class BasicNewsRecipe(Recipe):
             fetcher.browser_lock = fetcher.DUMMY_LOCK
         res, path, failures = fetcher.start_fetch(url), fetcher.downloaded_paths, fetcher.failed_links
         if not res or not os.path.exists(res):
-            raise Exception(_('Could not fetch article. Run with --debug to see the reason'))
+            raise Exception(_('Could not fetch article. Run with -vv to see the reason'))
         return res, path, failures
 
     def fetch_article(self, url, dir, f, a, num_of_feeds):

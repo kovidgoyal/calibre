@@ -1,87 +1,95 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-'''
-outlookindia.com
-'''
-
-from calibre.web.feeds.news import BasicNewsRecipe
+__copyright__ = '2009, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class OutlookIndia(BasicNewsRecipe):
-    
-    title = 'Outlook India'
-    __author__  = 'Kovid Goyal'
-    description = 'Weekly news magazine focused on India.'
-    language = _('English')
-    recursions = 1
-    match_regexp = r'full.asp.*&pn=\d+'
-    
-    remove_tags = [
-                   dict(name='img', src="images/space.gif"),
-                   dict(name=lambda tag: tag.name == 'tr' and tag.find('img', src="image/tl.gif") is not None ),
-                   dict(name=lambda tag: tag.name == 'table' and tag.find('font', attrs={'class':'fontemailfeed'}) is not None),
-                   ]
-    
-    preprocess_regexps = [
-                          (re.compile(r'<body.*?<!--Add Banner ends from here-->', re.DOTALL|re.IGNORECASE),
-                           lambda match: '<body>'),
-                          
-                          (re.compile(r'>More Stories:.*', re.DOTALL), 
-                           lambda match: '></body></html>'),
-                          
-                          (re.compile(r'<!-- Google panel start -->.*', re.DOTALL),
-                           lambda match: '</body></html>'), 
-                          ]
-    
-    def parse_index(self):
-        soup = self.index_to_soup('http://www.outlookindia.com/archivecontents.asp')
-        feeds = []
-        title = None
-        bogus = True
-        for table in soup.findAll('table'):
-            if title is None:
-                td = table.find('td', background="images/content_band1.jpg")
-                if td is not None:
-                    title = self.tag_to_string(td, False)
-                    title = title.replace(u'\xa0', u'').strip()
-                    if 'Cover Story' in title and bogus:
-                        bogus = False
-                        title = None
-            else:
-                articles = []
-                for a in table.findAll('a', href=True):
-                    if a.find('img') is not None:
-                        continue
-                    atitle = self.tag_to_string(a, use_alt=False)
-                    desc = a.findNextSibling('font', attrs={'class':'fontintro'})
-                    if desc is not None:
-                        desc = self.tag_to_string(desc)
-                    if not desc:
-                        desc = ''
-                    articles.append({
-                            'title':atitle,
-                            'description': desc,
-                            'content': '',
-                            'url':'http://www.outlookindia.com/'+a['href'],
-                            'date': '',
-                                     })
-                feeds.append((title, articles))
-                title = None 
-                
-                    
-        return feeds
 
-    def postprocess_html(self, soup, first_fetch):
-        bad = []
-        for table in soup.findAll('table'):
-            if table.find(text=re.compile(r'\(\d+ of \d+\)')):
-                bad.append(table)
-        for b in bad:
-            b.extract()
-        soup = soup.findAll('html')[0]
-        for t in soup.findAll(['table', 'tr', 'td']):
-            t.name = 'div' 
-        return soup
-    
+    title          = 'Outlook India'
+    __author__     = 'Kovid Goyal and Sujata Raman'
+    description    = 'Weekly news and current affairs in India'
+    no_stylesheets = True
+    encoding       = 'utf-8'
+    language = _('English')
+    keep_only_tags = [
+                      dict(name='div', attrs={'id':["ctl00_cphpagemiddle_reparticle_ctl00_divfullstorytext","ctl00_cphpagemiddle_reparticle_ctl00_divartpic","ctl00_cphpagemiddle_reparticle_ctl00_divfspheading", "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccaption",  "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccredit","ctl00_cphpagemiddle_reparticle_ctl00_divfspintro", "ctl00_cphpagemiddle_reparticle_ctl00_divartbyline", ]}),
+                           ]
+    remove_tags = [dict(name=['script','object'])]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        # This site sends article titles in the cookie which occasionally
+        # contain non ascii characters causing httplib to fail. Instead just
+        # disable cookies as they're not needed for download. Proper solution
+        # would be to implement a unicode aware cookie jar
+        br.set_cookiejar(None)
+        return br
+
+
+    def parse_index(self):
+
+
+        soup = self.index_to_soup('http://www.outlookindia.com/issues.aspx')
+# find cover pic
+        div = soup.find('div', attrs={'class':re.compile('cententcellpadding')})
+
+        if div is None: return None
+        a = div.find('a')
+
+        if a is not None:
+            href =  'http://www.outlookindia.com/' + a['href']
+
+        soup = self.index_to_soup(href)
+        cover = soup.find('img', attrs={'id':"ctl00_cphpagemiddle_dlissues_ctl00_imgcoverpic"}, src=True)
+        if cover is not None:
+
+            self.cover_url = cover['src']
+
+ # end find cover pic
+
+        div = soup.find('table', attrs={'id':re.compile('ctl00_cphpagemiddle_dlissues')})
+
+        if div is None: return None
+        a = div.find('a')
+
+        if a is not None:
+            href =  'http://www.outlookindia.com/' + a['href']
+
+        soup = self.index_to_soup(href)
+
+        articles = []
+
+        for a in soup.findAll('a', attrs={'class':'contentpgsubheadinglink'}):
+
+            if a and a.has_key('href'):
+                url = 'http://www.outlookindia.com/' + a['href']
+            else:
+                url =''
+            title = self.tag_to_string(a)
+
+            date = ''
+            description = ''
+            articles.append({
+                                 'title':title,
+                                 'date':date,
+                                 'url':url,
+                                 'description':description
+                                })
+
+        return [('Current Issue', articles)]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return self.adeify_images(soup)
+
+    def postrocess_html(self, soup, first):
+
+            for tag in soup.findAll(name=['table', 'tr', 'td','tbody']):
+                tag.name = 'div'
+
+
+            return soup
+
