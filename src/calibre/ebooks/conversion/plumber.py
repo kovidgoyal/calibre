@@ -46,7 +46,8 @@ class Plumber(object):
         'tags', 'book_producer', 'language'
         ]
 
-    def __init__(self, input, output, log, report_progress=DummyReporter(), dummy=False):
+    def __init__(self, input, output, log, report_progress=DummyReporter(),
+            dummy=False, merge_plugin_recs=True):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -483,7 +484,8 @@ OptionRecommendation(name='language',
             for x in getattr(self, w):
                 temp.add(x.clone())
             setattr(self, w, temp)
-        self.merge_plugin_recommendations()
+        if merge_plugin_recs:
+            self.merge_plugin_recommendations()
 
     @classmethod
     def unarchive(self, path, tdir):
