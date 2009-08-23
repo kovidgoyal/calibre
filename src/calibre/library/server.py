@@ -460,8 +460,11 @@ class LibraryServer(object):
     @expose
     def index(self, **kwargs):
         'The / URL'
-        want_opds = cherrypy.request.headers.get('Stanza-Device-Name', 919) != \
-            919 or cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919
+        ua = cherrypy.request.headers.get('User-Agent', '').strip()
+        want_opds = \
+            cherrypy.request.headers.get('Stanza-Device-Name', 919) != 919 or \
+            cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919 or \
+            ua.startswith('Stanza')
         return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None)) if want_opds else self.static('index.html')
 
 
