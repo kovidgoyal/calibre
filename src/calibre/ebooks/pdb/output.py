@@ -29,7 +29,7 @@ class PDBOutput(OutputFormatPlugin):
             'formats.')),
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Add Table of Contents to begenning of the book.')),
+            help=_('Add Table of Contents to beginning of the book.')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):

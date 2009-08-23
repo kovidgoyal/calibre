@@ -32,13 +32,13 @@ class TXTOutput(OutputFormatPlugin):
             'formats.')),
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Add Table of Contents to begenning of the book.')),
+            help=_('Add Table of Contents to beginning of the book.')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         writer = TXTMLizer(log)
         txt = writer.extract_content(oeb_book, opts)
-        
+
         log.debug('\tReplacing newlines with selected type...')
         txt = specified_newlines(TxtNewlines(opts.newline).newline, txt)
 
