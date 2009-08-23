@@ -42,7 +42,7 @@ recipe_modules = ['recipe_' + r for r in (
            'moneynews', 'der_standard', 'diepresse', 'nzz_ger', 'hna',
            'seattle_times', 'scott_hanselman', 'coding_horror', 'twitchfilms',
            'stackoverflow', 'telepolis_artikel', 'zaobao', 'usnews',
-           'straitstimes', 'index_hu', 'pcworld_hu', 'hrt', 'rts',
+           'straitstimes', 'index_hu', 'pcworld_hu', 'hrt', 'rts', 'axxon_news',
            'h1', 'h2', 'h3', 'phd_comics', 'woz_die', 'elektrolese',
            'climate_progress', 'carta', 'slashdot', 'publico',
            'the_budget_fashionista', 'elperiodico_catalan',

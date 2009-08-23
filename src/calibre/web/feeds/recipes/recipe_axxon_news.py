@@ -1,0 +1,61 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+axxon.com.ar
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+class Axxon_news(BasicNewsRecipe):
+    title                 = 'Axxon noticias'
+    __author__            = 'Darko Miletic'
+    description           = 'Axxon, Ciencia Ficcion en Bits'
+    publisher             = 'Axxon'
+    category              = 'news, SF, Argentina, science, movies'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = False
+    use_embedded_content  = False
+    language              = _('Spanish')
+    lang                  = 'es-AR'
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : lang
+                        , 'pretty_print'     : True
+                        }
+
+
+    keep_only_tags     = [dict(name='div', attrs={'class':'post'})]
+
+    remove_tags = [dict(name=['object','link','iframe','embed'])]
+
+    feeds          = [(u'Noticias', u'http://axxon.com.ar/noticias/feed/')]
+
+    remove_attributes = ['style','width','height','font','border','align']
+
+
+    def adeify_images2(cls, soup):
+        for item in soup.findAll('img'):
+            for attrib in ['height','width','border','align','style']:
+                if item.has_key(attrib):
+                   del item[attrib]
+            oldParent = item.parent
+            if oldParent.name == 'a':
+               oldParent.name == 'p'
+            myIndex = oldParent.contents.index(item)
+            brtag  = Tag(soup,'br')
+            oldParent.insert(myIndex+1,brtag)
+        return soup
+
+    def preprocess_html(self, soup):
+        soup.html['xml:lang'] = self.lang
+        soup.html['lang']     = self.lang
+        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
+        soup.html.insert(0,mlang)
+        return self.adeify_images2(soup)
+
