@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.8\n"
-"POT-Creation-Date: 2009-08-24 08:38+MDT\n"
-"PO-Revision-Date: 2009-08-24 08:38+MDT\n"
+"POT-Creation-Date: 2009-08-24 08:57+MDT\n"
+"PO-Revision-Date: 2009-08-24 08:57+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -2006,7 +2006,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:71
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:35
@@ -2523,91 +2523,71 @@ msgstr ""
 msgid "Fine tune the detection of chapter headings and other document structure."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:34
 msgid "Detect chapters at (XPath expression):"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:33
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Insert page breaks before (XPath expression):"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:43
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:72
 msgid "Invalid regular expression"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:73
 msgid "Invalid regular expression: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:38
 msgid "Invalid XPath"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
 msgid "The XPath expression %s is invalid."
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:72
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:68
 msgid "Chapter &mark:"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:73
-msgid "pagebreak"
-msgstr ""
-
-#:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:74
-msgid "rule"
-msgstr ""
-
-#:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:75
-msgid "both"
-msgstr ""
-
-#:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:76
-msgid "none"
-msgstr ""
-
-#:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:69
 msgid "Remove first &image"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:70
 msgid "Insert &metadata as page at start of book"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:71
 msgid "&Footer regular expression:"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:72
 msgid "&Preprocess input file to possibly improve structure detection"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:73
 msgid "&Header regular expression:"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:74
 msgid "Remove F&ooter"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:75
 msgid "Remove H&eader"
 msgstr ""
 
