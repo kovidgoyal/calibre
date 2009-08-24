@@ -4,7 +4,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import shutil, os, glob, re, cStringIO, sys, tempfile, time, textwrap, socket, \
-       struct, subprocess
+       struct, subprocess, platform
 from datetime import datetime
 from setuptools.command.build_py import build_py as _build_py, convert_path
 from distutils.core import Command
@@ -24,6 +24,7 @@ HTML2LRF = "src/calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 
+is64bit = platform.architecture()[0] == '64bit'
 
 def get_ip_address(ifname):
     import fcntl
@@ -35,7 +36,7 @@ def get_ip_address(ifname):
     )[20:24])
 
 try:
-    HOST=get_ip_address('eth0')
+    HOST=get_ip_address('br0')
 except:
     try:
         HOST=get_ip_address('wlan0')
@@ -481,12 +482,12 @@ class upload_demo(OptionlessCommand):
 def installer_name(ext):
     if ext in ('exe', 'dmg'):
         return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
-    return 'dist/%s-%s-i686.%s'%(__appname__, __version__, ext)
+    ans = 'dist/%s-%s-i686.%s'%(__appname__, __version__, ext)
+    if is64bit:
+        ans = ans.replace('i686', 'x86_64')
+    return ans
 
-
-class build_linux(OptionlessCommand):
-    description = 'Build linux installer'
-    def run(self):
+def _build_linux():
         installer = installer_name('tar.bz2')
         locals = {}
         exec open('installer/linux/freeze.py') in locals
@@ -495,9 +496,15 @@ class build_linux(OptionlessCommand):
             raise Exception('Failed to build installer '+installer)
         return os.path.basename(installer)
 
+class build_linux64(OptionlessCommand):
+    description = 'Build linux 64bit installer'
+
+    def run(self):
+        return _build_linux()
+
 class VMInstaller(OptionlessCommand):
 
-    user_options = [('dont-shutdown', 'd', 'Dont shutdown Vm after build')]
+    user_options = [('dont-shutdown', 'd', 'Dont shutdown VM after build')]
     boolean_options = ['dont-shutdown']
 
     def initialize_options(self):
@@ -521,10 +528,13 @@ class VMInstaller(OptionlessCommand):
     def get_build_script(self, subs):
         return self.BUILD_SCRIPT%subs
 
-    def start_vm(self, ssh_host, build_script, sleep=75):
-        build_script = self.get_build_script(build_script)
+    def run_vm(self):
         vmware = ('vmware', '-q', '-x', '-n', self.VM)
-        Popen(vmware)
+        self.__p = Popen(vmware)
+
+    def start_vm(self, ssh_host, build_script, sleep=75):
+        self.run_vm()
+        build_script = self.get_build_script(build_script)
         t = tempfile.NamedTemporaryFile(suffix='.sh')
         t.write(build_script)
         t.flush()
@@ -536,6 +546,28 @@ class VMInstaller(OptionlessCommand):
         print 'Trying to SSH into VM'
         check_call(('scp', t.name, ssh_host+':build-calibre'))
         check_call('ssh -t %s bash build-calibre'%ssh_host, shell=True)
+
+class build_linux32(VMInstaller):
+
+    description = 'Build linux 32bit installer'
+
+    def run_vm(self):
+        self.__p = Popen('/vmware/bin/linux_build')
+
+    def run(self):
+        if is64bit:
+            installer = installer_name('tar.bz2').replace('x86_64', 'i686')
+            self.start_vm('linux_build', ('python setup.py build_ext',
+                'python', 'setup.py build_linux32'))
+            check_call(('scp', 'linux_build:build/calibre/dist/*.tar.bz2', 'dist'))
+            if not os.path.exists(installer):
+                raise Exception('Failed to build installer '+installer)
+            if not self.dont_shutdown:
+                Popen(('ssh', 'linux_build', 'sudo', '/sbin/poweroff'))
+            return os.path.basename(installer)
+        else:
+            return _build_linux()
+
 
 class build_windows(VMInstaller):
     description = 'Build windows installer'
@@ -573,9 +605,7 @@ class build_windows(VMInstaller):
 
 class build_osx(VMInstaller):
     description = 'Build OS X app bundle'
-    VM = '/mnt/backup/calibre_os_x/Mac OSX.vmx'
-    if not os.path.exists(VM):
-        VM = '/home/kovid/calibre_os_x/Mac OSX.vmx'
+    VM = '/vmware/calibre_os_x/Mac OSX.vmx'
 
     def get_build_script(self, subs):
         return (self.BUILD_SCRIPT%subs).replace('rm ', 'sudo rm ')
@@ -583,13 +613,25 @@ class build_osx(VMInstaller):
     def run(self):
         installer = installer_name('dmg')
         python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
-        self.start_vm('osx', ('sudo %s setup.py develop'%python, python,
+        if os.path.exists('/dev/kvm'):
+            check_call('sudo rmmod -w kvm-intel kvm', shell=True)
+        check_call('sudo /etc/init.d/vmware restart', shell=True)
+        self.start_vm('osx_build', ('sudo %s setup.py develop'%python, python,
                               'installer/osx/freeze.py'))
-        check_call(('scp', 'osx:build/calibre/dist/*.dmg', 'dist'))
+        check_call(('scp', 'osx_build:build/calibre/dist/*.dmg', 'dist'))
         if not os.path.exists(installer):
             raise Exception('Failed to build installer '+installer)
         if not self.dont_shutdown:
-            Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', 'now'))
+            Popen(('ssh', 'osx_build', 'sudo', '/sbin/shutdown', '-h', 'now'))
+            time.sleep(20)
+            while True:
+                try:
+                    check_call('sudo /etc/init.d/vmware stop', shell=True)
+                    break
+                except:
+                    pass
+            check_call('sudo modprobe kvm-intel', shell=True)
+
         return os.path.basename(installer)
 
 
@@ -661,8 +703,9 @@ class upload_installers(OptionlessCommand):
 
     def run(self):
         print 'Uploading installers...'
-        for i in ('dmg', 'exe', 'tar.bz2'):
-            self.upload_installer(installer_name(i))
+        installers = list(map(installer_name, ('dmg', 'exe', 'tar.bz2')))
+        installers.append(installers[-1].replace('x86_64', 'i686'))
+        map(self.upload_installer, installers)
 
         check_call('''ssh divok echo %s \\> %s/latest_version'''\
                    %(__version__, DOWNLOADS), shell=True)
@@ -714,6 +757,10 @@ class stage3(OptionlessCommand):
     def run(self):
         OptionlessCommand.run(self)
         self.misc()
+
+class build_linux(OptionlessCommand):
+    description = 'Build linux installers'
+    sub_commands = [ ('build_linux64', None), ('build_linux32', None) ]
 
 class stage2(OptionlessCommand):
     description = 'Stage 2 of the build process'
