@@ -10,11 +10,11 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Pagina12(BasicNewsRecipe):
-    title                 = 'Pagina/12'
+    title                 = 'Pagina - 12'
     __author__            = 'Darko Miletic'
     description           = 'Noticias de Argentina y el resto del mundo'
     publisher             = 'La Pagina S.A.'
-    category              = 'news, politics, Argentina'    
+    category              = 'news, politics, Argentina'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -22,16 +22,16 @@ class Pagina12(BasicNewsRecipe):
     cover_url             = strftime('http://www.pagina12.com.ar/fotos/%Y%m%d/diario/tapagn.jpg')
     remove_javascript     = True
     use_embedded_content  = False
-    language              = _('Spanish')    
-    
-    
+    language              = _('Spanish')
+
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
 
     remove_tags = [
@@ -39,7 +39,7 @@ class Pagina12(BasicNewsRecipe):
                     ,dict(name='div', attrs={'id':'logo'  })
                   ]
 
-    
+
     feeds = [(u'Pagina/12', u'http://www.pagina12.com.ar/diario/rss/principal.xml')]
 
     def print_version(self, url):
@@ -47,7 +47,7 @@ class Pagina12(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
