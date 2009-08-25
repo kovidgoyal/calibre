@@ -14,8 +14,9 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import __version__, __appname__, \
-                    iswindows, isosx, prints, patheq
+from calibre import  prints, patheq
+from calibre.constants import __version__, __appname__, \
+                    iswindows, isosx, filesystem_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
@@ -424,7 +425,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             error_dialog(self, _('Bad database location'),
                     _('Bad database location')+':'+self.library_path,
                     det_msg=traceback.format_exc()).exec_()
-            x = os.path.expanduser('~'+os.sep+'library')
+            fname = _('Calibre Library')
+            if isinstance(fname, unicode):
+                try:
+                    fname = fname.encode(filesystem_encoding)
+                except:
+                    fname = 'Calibre Library'
+            x = os.path.expanduser('~'+os.sep+fname)
             if not os.path.exists(x):
                 os.makedirs(x)
             dir = unicode(QFileDialog.getExistingDirectory(self,

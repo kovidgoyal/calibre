@@ -140,6 +140,12 @@ Why doesn't |app| have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| is designed to have columns for the most frequently and widely used fields. If it does not have a coulmn for your favorite field, you can always add a tag to the book for that piece of information. |app| also supports a general purpose "comments" fields for longer items.
 
+How do I move my |app| library from one computer to another?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking Preferences. The very first item is the path tot he library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. 
+
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to Preferences->Advanced and click the Check database integrity button. It will warn you about missing files, if any, which you should then transfer by hand.
+
 
 Content From The Web
 ---------------------

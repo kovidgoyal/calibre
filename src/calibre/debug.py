@@ -135,7 +135,8 @@ def debug_device_driver():
             print 'failed'
             continue
         success = True
-        print 'Main memory:', repr(dev._main_prefix)
+        if hasattr(dev, '_main_prefix'):
+            print 'Main memory:', repr(dev._main_prefix)
         print 'Total space:', dev.total_space()
         break
     if not success and errors:

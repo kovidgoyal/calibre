@@ -171,7 +171,8 @@ def main(args=sys.argv):
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],
-                                  'dll_excludes' : ['mswsock.dll'],
+                                  'dll_excludes' : ['mswsock.dll', 'tcl85.dll',
+                                      'MSVCP90.dll', 'tk85.dll'],
                                  },
                     },
 

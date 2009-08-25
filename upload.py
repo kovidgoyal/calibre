@@ -614,9 +614,9 @@ class build_windows(KVMInstaller):
                      'build'))
         if not os.path.exists('build/py2exe'):
             raise Exception('Failed to run py2exe')
+        self.run_windows_install_jammer(installer)
         if not self.dont_shutdown:
             Popen(('ssh', 'win_build', 'shutdown', '-s', '-t', '0'))
-        self.run_windows_install_jammer(installer)
         return os.path.basename(installer)
 
     @classmethod
