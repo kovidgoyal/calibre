@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 import sys, textwrap
 from urllib import urlencode
 from functools import partial
+from datetime import datetime
 
 from lxml import etree
 from dateutil import parser
@@ -151,7 +152,9 @@ class ResultList(list):
         try:
             d = date(entry)
             if d:
-                d = parser.parse(d[0].text)
+                default = datetime.utcnow()
+                default = datetime(default.year, default.month, 1)
+                d = parser.parse(d[0].text, default=default)
             else:
                 d = None
         except:
