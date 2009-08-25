@@ -528,6 +528,27 @@ class VMInstaller(OptionlessCommand):
     def get_build_script(self, subs):
         return self.BUILD_SCRIPT%subs
 
+    def vmware_started(self):
+        return 'started' in subprocess.Popen('/etc/init.d/vmware status', shell=True, stdout=subprocess.PIPE).stdout.read()
+
+    def start_vmware(self):
+        if not self.vmware_started():
+            if os.path.exists('/dev/kvm'):
+                check_call('sudo rmmod -w kvm-intel kvm', shell=True)
+            subprocess.Popen('sudo /etc/init.d/vmware start', shell=True)
+
+    def stop_vmware(self):
+            while True:
+                try:
+                    check_call('sudo /etc/init.d/vmware stop', shell=True)
+                    break
+                except:
+                    pass
+            while 'vmblock' in open('/proc/modules').read():
+                check_call('sudo rmmod -f vmblock')
+            check_call('sudo modprobe kvm-intel', shell=True)
+
+
     def run_vm(self):
         vmware = ('vmware', '-q', '-x', '-n', self.VM)
         self.__p = Popen(vmware)
@@ -547,9 +568,18 @@ class VMInstaller(OptionlessCommand):
         check_call(('scp', t.name, ssh_host+':build-calibre'))
         check_call('ssh -t %s bash build-calibre'%ssh_host, shell=True)
 
-class build_linux32(VMInstaller):
+class KVMInstaller(VMInstaller):
+
+    def run_vm(self):
+        self.stop_vmware()
+        self.__p = Popen(self.VM)
+
+
+
+class build_linux32(KVMInstaller):
 
     description = 'Build linux 32bit installer'
+    VM = '/vmware/bin/linux_build'
 
     def run_vm(self):
         self.__p = Popen('/vmware/bin/linux_build')
@@ -569,25 +599,23 @@ class build_linux32(VMInstaller):
             return _build_linux()
 
 
-class build_windows(VMInstaller):
+class build_windows(KVMInstaller):
     description = 'Build windows installer'
-    VM = '/mnt/backup/calibre_windows_xp_home/calibre_windows_xp_home.vmx'
-    if not os.path.exists(VM):
-        VM = '/home/kovid/calibre_windows_xp_home/calibre_windows_xp_home.vmx'
+    VM = '/vmware/bin/win_build'
 
     def run(self):
         installer = installer_name('exe')
-        self.start_vm('windows', ('python setup.py develop',
+        self.start_vm('win_build', ('python setup.py develop',
                                   'python',
                                   r'installer\\windows\\freeze.py'))
         if os.path.exists('build/py2exe'):
             shutil.rmtree('build/py2exe')
-        check_call(('scp', '-rp', 'windows:build/%s/build/py2exe'%__appname__,
+        check_call(('scp', '-rp', 'win_build:build/%s/build/py2exe'%__appname__,
                      'build'))
         if not os.path.exists('build/py2exe'):
             raise Exception('Failed to run py2exe')
         if not self.dont_shutdown:
-            Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
+            Popen(('ssh', 'win_build', 'shutdown', '-s', '-t', '0'))
         self.run_windows_install_jammer(installer)
         return os.path.basename(installer)
 
@@ -613,9 +641,7 @@ class build_osx(VMInstaller):
     def run(self):
         installer = installer_name('dmg')
         python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
-        if os.path.exists('/dev/kvm'):
-            check_call('sudo rmmod -w kvm-intel kvm', shell=True)
-        check_call('sudo /etc/init.d/vmware restart', shell=True)
+        self.start_vmware()
         self.start_vm('osx_build', ('sudo %s setup.py develop'%python, python,
                               'installer/osx/freeze.py'))
         check_call(('scp', 'osx_build:build/calibre/dist/*.dmg', 'dist'))
@@ -624,17 +650,8 @@ class build_osx(VMInstaller):
         if not self.dont_shutdown:
             Popen(('ssh', 'osx_build', 'sudo', '/sbin/shutdown', '-h', 'now'))
             time.sleep(20)
-            while True:
-                try:
-                    check_call('sudo /etc/init.d/vmware stop', shell=True)
-                    break
-                except:
-                    pass
-            check_call('sudo modprobe kvm-intel', shell=True)
-
+            self.stop_vmware()
         return os.path.basename(installer)
-
-
 
 class upload_installers(OptionlessCommand):
     description = 'Upload any installers present in dist/'
