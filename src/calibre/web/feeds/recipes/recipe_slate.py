@@ -16,7 +16,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
     title                   = 'Slate'
     description             = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
     __author__              = 'GRiker'
-    max_articles_per_feed   = 40
+    max_articles_per_feed   = 20
     oldest_article          = 7.0
     recursions              = 0
     delay                   = 0
@@ -106,11 +106,15 @@ class PeriodicalNameHere(BasicNewsRecipe):
         older_section_dates = soup.findAll(True, attrs={'class':'maindateline'})
         for older_section in older_section_dates :
             self.section_dates.append(self.tag_to_string(older_section,use_alt=False))
-
-        headline_stories = soup_top_stories.find('ul')
+            
+        if soup_top_stories:
+            headline_stories = soup_top_stories.find('ul')
+        else:
+            headline_stories = None
         section_lists = soup.findAll('ul')
         # Prepend the headlines to the first section
-        section_lists[0].insert(0,headline_stories)
+        if headline_stories:
+            section_lists[0].insert(0,headline_stories)
 
         sections = []
         for section in section_lists :
@@ -290,7 +294,8 @@ class PeriodicalNameHere(BasicNewsRecipe):
             excluded = re.compile('|'.join(self.excludedContentKeywords))
             found_excluded = excluded.search(str(soup))
             if found_excluded :
-                return None
+                print "no allowed content found, removing article"
+                raise StringError
 
         # Articles from www.thebigmoney.com use different tagging for byline, dateline and body
         head = soup.find('head')
@@ -423,4 +428,3 @@ class PeriodicalNameHere(BasicNewsRecipe):
                     if article.description is None :
                         article.description = extract_description(article.href)
         
-    
