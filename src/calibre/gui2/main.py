@@ -1576,6 +1576,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.device_error_dialog.show()
 
     def job_exception(self, job):
+        if not hasattr(self, '_modeless_dialogs'):
+            self._modeless_dialogs = []
+        if self.isVisible():
+            for x in list(self._modeless_dialogs):
+                if not x.isVisible():
+                    self._modeless_dialogs.remove(x)
         try:
             if 'calibre.ebooks.DRMError' in job.details:
                 d = error_dialog(self, _('Conversion Error'),
@@ -1586,6 +1592,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                             'http://wiki.mobileread.com/wiki/DRM'))
                 d.setModal(False)
                 d.show()
+                self._modeless_dialogs.append(d)
                 return
         except:
             pass
@@ -1600,6 +1607,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 det_msg=job.details)
         d.setModal(False)
         d.show()
+        self._modeless_dialogs.append(d)
 
 
     def initialize_database(self):
