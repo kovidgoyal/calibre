@@ -32,7 +32,7 @@ BLOCK_STYLES = [
 ]
 
 class TXTMLizer(object):
-    
+
     def __init__(self, log):
         self.log = log
 
@@ -90,8 +90,8 @@ class TXTMLizer(object):
         text = re.sub('[  ]+', ' ', text)
 
         # Remove excessive newlines.
-        #text = re.sub('\n[ ]+\n', '\n\n', text)
-        #text = re.sub('\n{3,}', '\n\n', text)
+        text = re.sub('\n[ ]+\n', '\n\n', text)
+        text = re.sub('\n{3,}', '\n\n', text)
 
         # Replace spaces at the beginning and end of lines
         text = re.sub('(?imu)^[ ]+', '', text)
