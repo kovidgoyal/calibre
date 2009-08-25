@@ -1578,12 +1578,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def job_exception(self, job):
         try:
             if 'calibre.ebooks.DRMError' in job.details:
-                error_dialog(self, _('Conversion Error'),
+                d = error_dialog(self, _('Conversion Error'),
                     _('<p>Could not convert: %s<p>It is a '
                       '<a href="%s">DRM</a>ed book. You must first remove the '
                       'DRM using 3rd party tools.')%\
                         (job.description.split(':')[-1],
-                            'http://wiki.mobileread.com/wiki/DRM')).exec_()
+                            'http://wiki.mobileread.com/wiki/DRM'))
+                d.setModal(False)
+                d.show()
                 return
         except:
             pass
@@ -1593,9 +1595,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             prints(job.details, file=sys.stderr)
         except:
             pass
-        error_dialog(self, _('Conversion Error'),
+        d = error_dialog(self, _('Conversion Error'),
                 _('<b>Failed</b>')+': '+unicode(job.description),
-                det_msg=job.details).exec_()
+                det_msg=job.details)
+        d.setModal(False)
+        d.show()
 
 
     def initialize_database(self):
