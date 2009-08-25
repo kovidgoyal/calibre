@@ -92,7 +92,10 @@ class CSSSelector(etree.XPath):
 
     def __init__(self, css, namespaces=XPNSMAP):
         css = self.MIN_SPACE_RE.sub(r'\1', css)
-        path = css_to_xpath(css)
+        try:
+            path = css_to_xpath(css)
+        except UnicodeEncodeError: # Bug in css_to_xpath
+            path = '/'
         path = self.LOCAL_NAME_RE.sub(r"local-name() = '", path)
         etree.XPath.__init__(self, path, namespaces=namespaces)
         self.css = css
