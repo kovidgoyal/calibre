@@ -31,10 +31,11 @@ class HeaderRecord(object):
 
 class Reader(FormatReader):
 
-    def __init__(self, header, stream, log, encoding=None):
+    def __init__(self, header, stream, log, options):
         self.stream = stream
         self.log = log
-        self.encoding = encoding
+        self.encoding = options.input_encoding
+        self.single_line_paras = options.single_line_paras
 
         self.sections = []
         for i in range(header.num_sections):
@@ -61,7 +62,7 @@ class Reader(FormatReader):
             txt += self.decompress_text(i)
 
         self.log.info('Converting text to OEB...')
-        html = txt_to_markdown(txt)
+        html = txt_to_markdown(txt, single_line_paras=self.single_line_paras)
         with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
 
