@@ -1447,7 +1447,18 @@ class LibraryDatabase2(LibraryDatabase):
     def move_library_to(self, newloc, progress=lambda x: x):
         if not os.path.exists(newloc):
             os.makedirs(newloc)
-        items = os.listdir(self.library_path)
+        items = set(os.listdir(self.library_path))
+        paths = set([])
+        for x in self.data.universal_set():
+            path = self.path(x, index_is_id=True)
+            path = path.split(os.sep)[0]
+            paths.add(path)
+        paths.add('metadata.db')
+        if not self.is_case_sensitive:
+            items = set([x.lower() for x in items])
+            paths = set([x.lower() for x in paths])
+        items = items.intersection(paths)
+
         old_dirs = set([])
         for i, x in enumerate(items):
             src = os.path.join(self.library_path, x)
