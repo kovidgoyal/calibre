@@ -1503,6 +1503,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search.clear_to_help()
         self.status_bar.reset_info()
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
+        self.library_view.model().count_changed()
 
     ############################################################################
 

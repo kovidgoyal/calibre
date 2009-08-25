@@ -93,7 +93,7 @@ class TagsModel(QStandardItemModel):
                 QIcon(':/images/minus.svg')]
         QStandardItemModel.__init__(self)
         self.db = db
-        self.ignore_next_search = False
+        self.ignore_next_search = 0
         self._data = {}
         self.bold_font = QFont()
         self.bold_font.setBold(True)
@@ -129,19 +129,20 @@ class TagsModel(QStandardItemModel):
         self.refresh()
 
     def reinit(self, *args, **kwargs):
-        if not self.ignore_next_search:
+        if self.ignore_next_search == 0:
             for category in self._data.values():
                 for tag in category:
                     tag.state = 0
             self.reset()
-        self.ignore_next_search = False
+        else:
+            self.ignore_next_search -= 1
 
     def toggle(self, index):
         if index.parent().isValid():
             category = self.row_map[index.parent().row()]
             tag = self._data[category][index.row()]
             self.invisibleRootItem().child(index.parent().row()).child(index.row()).toggle()
-            self.ignore_next_search = True
+            self.ignore_next_search = 2
             self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), index, index)
             return True
         return False
