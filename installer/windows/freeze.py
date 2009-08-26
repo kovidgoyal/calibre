@@ -158,7 +158,7 @@ def main(args=sys.argv):
                                              'email.iterators',
                                              'email.generator',
                                              'win32process', 'win32api', 'msvcrt',
-                                             'win32event',
+                                             'win32event', 'sqlite3.dump',
                                              'BeautifulSoup', 'pyreadline',
                                              'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*',

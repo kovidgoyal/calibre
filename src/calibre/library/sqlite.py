@@ -157,6 +157,8 @@ class DatabaseException(Exception):
 def proxy(fn):
     ''' Decorator to call methods on the database connection in the proxy thread '''
     def run(self, *args, **kwargs):
+        if self.closed:
+            raise DatabaseException('Connection closed', '')
         with global_lock:
             if self.proxy.unhandled_error[0] is not None:
                 raise DatabaseException(*self.proxy.unhandled_error)
@@ -174,10 +176,12 @@ class ConnectionProxy(object):
 
     def __init__(self, proxy):
         self.proxy = proxy
+        self.closed = False
 
     def close(self):
-        if self.proxy.unhandled_error is None:
+        if self.proxy.unhandled_error[0] is None:
             self.proxy.requests.put((self.proxy.CLOSE, [], {}))
+            self.closed = True
 
     @proxy
     def get(self, query, all=True): pass

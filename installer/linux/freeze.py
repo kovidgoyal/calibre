@@ -93,7 +93,7 @@ def freeze():
 
     includes = [x[0] for x in executables.values()]
     includes += ['calibre.ebooks.lrf.fonts.prs500.'+x for x in FONT_MAP.values()]
-    includes += ['email.iterators', 'email.generator']
+    includes += ['email.iterators', 'email.generator', 'sqlite3.dump']
 
 
     excludes = ['matplotlib', "Tkconstants", "Tkinter", "tcl", "_imagingtk",

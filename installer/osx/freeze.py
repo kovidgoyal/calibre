@@ -353,7 +353,7 @@ def main():
                                        'keyword', 'codeop', 'pydoc', 'readline',
                                        'BeautifulSoup', 'calibre.ebooks.lrf.fonts.prs500.*',
                                        'dateutil', 'email.iterators',
-                                       'email.generator',
+                                       'email.generator', 'sqlite3.dump',
                                        'calibre.ebooks.metadata.amazon',
                                        ],
                          'packages' : ['PIL', 'Authorization', 'lxml', 'dns'],

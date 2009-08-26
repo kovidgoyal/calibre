@@ -929,6 +929,7 @@ initwinutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_COOKIES", CSIDL_COOKIES);
     PyModule_AddIntConstant(m, "CSIDL_FLAG_CREATE", CSIDL_FLAG_CREATE);
     PyModule_AddIntConstant(m, "CSIDL_FLAG_DONT_VERIFY", CSIDL_FLAG_DONT_VERIFY);
+    PyModule_AddIntConstant(m, "CSIDL_FONTS", CSIDL_FONTS);
     PyModule_AddIntConstant(m, "CSIDL_HISTORY", CSIDL_HISTORY);
     PyModule_AddIntConstant(m, "CSIDL_INTERNET_CACHE", CSIDL_INTERNET_CACHE);
     PyModule_AddIntConstant(m, "CSIDL_LOCAL_APPDATA", CSIDL_LOCAL_APPDATA);

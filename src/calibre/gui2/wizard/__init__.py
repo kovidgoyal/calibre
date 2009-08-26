@@ -424,7 +424,8 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
                         callback)
                 else:
                     rq = Queue()
-                    m = MoveLibrary(oldloc, newloc, db.data.count(), rq)
+                    m = MoveLibrary(oldloc, newloc,
+                            len(db.get_top_level_move_items()[0]), rq)
                     global _mm
                     _mm = MoveMonitor(m, rq, callback, parent)
                     return

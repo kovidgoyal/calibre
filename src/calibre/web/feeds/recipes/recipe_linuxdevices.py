@@ -6,10 +6,9 @@ Fetch Linuxdevices.
 '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 
-class Sueddeutsche(BasicNewsRecipe):
+class LinuxDevices(BasicNewsRecipe):
 
     title = u'Linuxdevices'
     description = 'News about Linux driven Hardware'
@@ -20,7 +19,7 @@ class Sueddeutsche(BasicNewsRecipe):
     no_stylesheets = True
     language = _('English')
     remove_javascript = True
-    conversion_options {' linearize_tables' : True}
+    conversion_options = { 'linearize_tables' : True}
     encoding = 'latin1'
 
 
@@ -83,9 +82,9 @@ class Sueddeutsche(BasicNewsRecipe):
         for item in soup.findAll('b', text=match):
             item.extract()
         for item in soup.findAll(re.compile('^ul')):
-	    item.extract()
+            item.extract()
         for item in soup.findAll('br', limit=10):
-	    item.extract()
+            item.extract()
         return soup
 
 

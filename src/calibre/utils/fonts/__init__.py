@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, sys
 from threading import Thread
 
-from calibre.constants import plugins
+from calibre.constants import plugins, iswindows
 
 _fc, _fc_err = plugins['fontconfig']
 
@@ -28,6 +28,12 @@ class FontConfig(Thread):
         if getattr(sys, 'frameworks_dir', False):
             config_dir = os.path.join(os.path.dirname(
                 getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
+            if isinstance(config_dir, unicode):
+                config_dir = config_dir.encode(sys.getfilesystemencoding())
+            config = os.path.join(config_dir, 'fonts.conf')
+        if iswindows and getattr(sys, 'frozen', False):
+            config_dir = os.path.join(os.path.dirname(sys.executable),
+                'etc', 'fonts')
             if isinstance(config_dir, unicode):
                 config_dir = config_dir.encode(sys.getfilesystemencoding())
             config = os.path.join(config_dir, 'fonts.conf')

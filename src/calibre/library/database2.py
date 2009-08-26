@@ -1444,9 +1444,7 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('add', [id])
 
-    def move_library_to(self, newloc, progress=lambda x: x):
-        if not os.path.exists(newloc):
-            os.makedirs(newloc)
+    def get_top_level_move_items(self):
         items = set(os.listdir(self.library_path))
         paths = set([])
         for x in self.data.universal_set():
@@ -1454,15 +1452,25 @@ class LibraryDatabase2(LibraryDatabase):
             path = path.split(os.sep)[0]
             paths.add(path)
         paths.add('metadata.db')
+        path_map = {}
+        for x in paths:
+            path_map[x] = x
         if not self.is_case_sensitive:
-            items = set([x.lower() for x in items])
+            for x in items:
+                path_map[x.lower()] = x
+            items = set(path_map)
             paths = set([x.lower() for x in paths])
         items = items.intersection(paths)
+        return items, path_map
 
+    def move_library_to(self, newloc, progress=lambda x: x):
+        if not os.path.exists(newloc):
+            os.makedirs(newloc)
         old_dirs = set([])
-        for i, x in enumerate(items):
+        items, path_map = self.get_top_level_move_items()
+        for x in items:
             src = os.path.join(self.library_path, x)
-            dest = os.path.join(newloc, x)
+            dest = os.path.join(newloc, path_map[x])
             if os.path.isdir(src):
                 if os.path.exists(dest):
                     shutil.rmtree(dest)
@@ -1472,6 +1480,7 @@ class LibraryDatabase2(LibraryDatabase):
                 if os.path.exists(dest):
                     os.remove(dest)
                 shutil.copyfile(src, dest)
+            x = path_map[x]
             if not isinstance(x, unicode):
                 x = x.decode(filesystem_encoding, 'replace')
             progress(x)
@@ -1686,13 +1695,12 @@ books_series_link      feeds
         user_version = self.user_version
         sql = self.conn.dump()
         self.conn.close()
-        dest = self.dbpath+'.old'
+        dest = self.dbpath+'.tmp'
         if os.path.exists(dest):
             os.remove(dest)
-        shutil.copyfile(self.dbpath, dest)
+        conn = None
         try:
-            os.remove(self.dbpath)
-            ndb = DBThread(self.dbpath, None)
+            ndb = DBThread(dest, None)
             ndb.connect()
             conn = ndb.conn
             conn.executescript(sql)
@@ -1701,15 +1709,21 @@ books_series_link      feeds
             conn.commit()
             conn.close()
         except:
-            if os.path.exists(self.dbpath):
-                os.remove(self.dbpath)
-            shutil.copyfile(dest, self.dbpath)
-            os.remove(dest)
+            if conn is not None:
+                try:
+                    conn.close()
+                except:
+                    pass
+            if os.path.exists(dest):
+                os.remove(dest)
             raise
         else:
-            os.remove(dest)
+            os.remove(self.dbpath)
+            shutil.copyfile(dest, self.dbpath)
             self.connect()
             self.refresh()
+        if os.path.exists(dest):
+            os.remove(dest)
         callback(0.1, _('Checking for missing files.'))
         bad = {}
         us = self.data.universal_set()
