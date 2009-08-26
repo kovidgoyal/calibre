@@ -176,12 +176,13 @@ poppler_PDFDoc_render_page(poppler_PDFDoc *self, PyObject *args, PyObject *kwarg
     int num;
 
     if (!PyArg_ParseTuple(args, "i|ff", &num, &xdpi, &ydpi)) return ans;
-    if ( num < 0 || num >= self->doc->numPages()) {
-        PyErr_SetString(PyExc_ValueError, "Invalid page number");
-        return ans;
-    }
     if ( self->doc->isLocked()) { 
         PyErr_SetString(PyExc_ValueError, "This document is copyrighted.");
+        return ans;
+    }
+
+    if ( num < 0 || num >= self->doc->numPages()) {
+        PyErr_SetString(PyExc_ValueError, "Invalid page number");
         return ans;
     }
 

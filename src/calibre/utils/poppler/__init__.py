@@ -22,6 +22,7 @@ def get_metadata(stream, cover=True):
     raw = stream.read()
     doc = poppler.PDFDoc()
     doc.load(raw)
+    del raw
     title = doc.title
     if not title or not title.strip():
         title = _('Unknown')
@@ -55,7 +56,6 @@ def get_metadata(stream, cover=True):
         if cdata is not None:
             mi.cover_data = ('jpg', cdata)
     del doc
-    del raw
     return mi
 
 
