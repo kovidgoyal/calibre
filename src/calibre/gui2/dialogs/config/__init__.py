@@ -758,7 +758,8 @@ class CheckIntegrity(QProgressDialog):
 
     def __init__(self, db, parent=None):
         QProgressDialog.__init__(self, parent)
-        self.setCancelButtonText('')
+        self.db = db
+        self.setCancelButton(None)
         self.setMinimum(0)
         self.setMaximum(100)
         self.setWindowTitle(_('Checking database integrity'))

@@ -530,6 +530,12 @@ an opf file). You can get id numbers from the list command.
         parser.add_option(switch, default=opt.default,
                 help=opt.help, dest=pref)
 
+    for pref in ('replace_whitespace', 'to_lowercase'):
+        opt = c.get_option(pref)
+        switch = '--'+pref.replace('_', '-')
+        parser.add_option(switch, default=False, action='store_true',
+                help=opt.help)
+
     opts, args = parser.parse_args(sys.argv[1:]+args)
     if (len(args) < 2 and not opts.all):
         parser.print_help()

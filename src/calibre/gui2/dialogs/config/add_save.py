@@ -26,7 +26,8 @@ class AddSave(QTabWidget, Ui_TabWidget):
             self.removeTab(2)
         c = config()
         opts = c.parse()
-        for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf'):
+        for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf',
+                'replace_whitespace', 'to_lowercase'):
             g = getattr(self, 'opt_'+x)
             g.setChecked(getattr(opts, x))
             help = '\n'.join(textwrap.wrap(c.get_option(x).help, 75))
@@ -74,7 +75,8 @@ class AddSave(QTabWidget, Ui_TabWidget):
         if not self.validate():
             return False
         c = config()
-        for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf'):
+        for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf',
+                'replace_whitespace', 'to_lowercase'):
             c.set(x, getattr(self, 'opt_'+x).isChecked())
         for x in ('formats', 'template', 'timefmt'):
             c.set(x, unicode(getattr(self, 'opt_'+x).text()).strip())
