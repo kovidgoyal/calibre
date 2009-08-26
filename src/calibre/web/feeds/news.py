@@ -741,6 +741,9 @@ class BasicNewsRecipe(Recipe):
                     url = self.print_version(article.url)
                 except NotImplementedError:
                     url = article.url
+                except:
+                    self.log.exception('Failed to find print version for: '+article.url)
+                    url = None
                 if not url:
                     continue
                 func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \

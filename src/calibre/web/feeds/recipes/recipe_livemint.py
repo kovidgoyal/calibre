@@ -30,10 +30,7 @@ class LiveMint(BasicNewsRecipe):
 
     def print_version(self, url):
         link = url
-        try:
-            msoup = self.index_to_soup(link)
-        except:
-            return 'http://invalid_url_generated_by_calibre.com'
+        msoup = self.index_to_soup(link)
         mlink = msoup.find(attrs={'id':'ctl00_bodyplaceholdercontent_cntlArtTool_printUrl'})
         if mlink:
            link = 'http://www.livemint.com/Articles/' + mlink['href'].rpartition('/Articles/')[2]
