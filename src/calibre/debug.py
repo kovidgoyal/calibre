@@ -145,6 +145,10 @@ def debug_device_driver():
             print dev
             print msg
             print
+    if isosx and os.path.exists('/tmp/ioreg.txt'):
+        print
+        print
+        print "Don't forget to send the file /tmp/ioreg.txt as well"
 
 
 def add_simple_plugin(path_to_plugin):

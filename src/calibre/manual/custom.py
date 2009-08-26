@@ -194,6 +194,7 @@ def cli_docs(app):
     for script in entry_points['console_scripts']:
         module = script[script.index('=')+1:script.index(':')].strip()
         cmd = script[:script.index('=')].strip()
+        if cmd in ('calibre-complete', 'calibre-parallel'): continue
         module = __import__(module, fromlist=[module.split('.')[-1]])
         if hasattr(module, 'option_parser'):
             documented_cmds.append((cmd, getattr(module, 'option_parser')()))
