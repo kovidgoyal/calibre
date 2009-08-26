@@ -69,6 +69,46 @@ CLI_PREAMBLE='''\
 {usage}
 '''
 
+def generate_calibredb_help(preamble, info):
+    from calibre.library.cli import COMMANDS, get_parser
+    import calibre.library.cli as cli
+    preamble = preamble[:preamble.find('\n\n\n', preamble.find('code-block'))]
+    preamble += textwrap.dedent('''
+
+    :command:`calibredb` is the command line interface to the |app| database. It has
+    several sub-commands, documented below:
+
+    ''')
+
+    global_parser = get_parser('')
+    groups = []
+    for grp in global_parser.option_groups:
+        groups.append((grp.title.capitalize(), grp.description, grp.option_list))
+
+    global_options = '\n'.join(render_options('calibredb', groups, False, False))
+
+
+    lines, toc = [], []
+    for cmd in COMMANDS:
+        parser = getattr(cli, cmd+'_option_parser')()
+        toc.append('  * :ref:`calibredb-%s`'%cmd)
+        lines += ['.. _calibredb-'+cmd+':', '']
+        lines += [cmd, '~'*20, '']
+        usage = parser.usage.strip()
+        usage = [i for i in usage.replace('%prog', 'calibredb').splitlines()]
+        cmdline = '    '+usage[0]
+        usage = usage[1:]
+        usage = [i.replace(cmd, ':command:`%s`'%cmd) for i in usage]
+        lines += ['.. code-block:: none', '', cmdline, '']
+        lines += usage
+        groups = [(None, None, parser.option_list)]
+        lines += ['']
+        lines += render_options('calibredb '+cmd, groups, False)
+        lines += ['']
+
+    toc = '\n'.join(toc)
+    raw = preamble + '\n\n'+toc + '\n\n' + global_options+'\n\n'+'\n'.join(lines)
+    update_cli_doc(os.path.join('cli', 'calibredb.rst'), raw, info)
 
 def generate_ebook_convert_help(preamble, info):
     from calibre.ebooks.conversion.cli import create_option_parser
@@ -125,11 +165,12 @@ def update_cli_doc(path, raw, info):
         info('creating '+os.path.splitext(os.path.basename(path))[0])
         open(path, 'wb').write(raw)
 
-def render_options(cmd, groups, options_header=True):
-    lines = []
+def render_options(cmd, groups, options_header=True, add_program=True):
+    lines = ['']
     if options_header:
         lines = ['[options]', '-'*15, '']
-    lines += ['.. program:: '+cmd, '']
+    if add_program:
+        lines += ['.. program:: '+cmd, '']
     for title, desc, options in groups:
         if title:
             lines.extend([title, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'])
@@ -180,6 +221,8 @@ def cli_docs(app):
         preamble = CLI_PREAMBLE.format(cmd=cmd, cmdline=cmdline, usage=usage)
         if cmd == 'ebook-convert':
             generate_ebook_convert_help(preamble, info)
+        elif cmd == 'calibredb':
+            generate_calibredb_help(preamble, info)
         else:
             groups = [(None, None, parser.option_list)]
             for grp in parser.option_groups:
