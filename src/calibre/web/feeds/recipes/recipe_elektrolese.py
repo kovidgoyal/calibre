@@ -32,7 +32,6 @@ class elektrolese(BasicNewsRecipe):
 
 
 
-    feeds =  [ (u'electrolese', u'http://elektrolese.blogspot.com/feeds/posts/default?alt=rss') ]
-
+    feeds =  [ (u'elektrolese', u'http://elektrolese.blogspot.com/feeds/posts/default?alt=rss') ]
 
 

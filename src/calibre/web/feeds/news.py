@@ -679,7 +679,7 @@ class BasicNewsRecipe(Recipe):
             fetcher.browser_lock = fetcher.DUMMY_LOCK
         res, path, failures = fetcher.start_fetch(url), fetcher.downloaded_paths, fetcher.failed_links
         if not res or not os.path.exists(res):
-            raise Exception(_('Could not fetch article. Run with --debug to see the reason'))
+            raise Exception(_('Could not fetch article. Run with -vv to see the reason'))
         return res, path, failures
 
     def fetch_article(self, url, dir, f, a, num_of_feeds):
@@ -741,6 +741,9 @@ class BasicNewsRecipe(Recipe):
                     url = self.print_version(article.url)
                 except NotImplementedError:
                     url = article.url
+                except:
+                    self.log.exception('Failed to find print version for: '+article.url)
+                    url = None
                 if not url:
                     continue
                 func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \

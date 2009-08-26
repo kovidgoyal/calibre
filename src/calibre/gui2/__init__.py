@@ -450,11 +450,12 @@ class FileDialog(QObject):
                 if os.path.exists(f):
                     self.selected_files.append(f)
             if self.selected_files:
-                self.selected_files = [qstring_to_unicode(q) for q in self.selected_files]
-                dynamic[self.dialog_name] =  os.path.dirname(self.selected_files[0])
+                self.selected_files = [unicode(q) for q in self.selected_files]
+                saved_loc = self.selected_files[0]
+                if os.path.isfile(saved_loc):
+                    saved_loc = os.path.dirname(saved_loc)
+                dynamic[self.dialog_name] = saved_loc
             self.accepted = bool(self.selected_files)
-
-
 
     def get_files(self):
         if islinux and self.fd.result() != self.fd.Accepted:

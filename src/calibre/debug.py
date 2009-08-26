@@ -135,7 +135,8 @@ def debug_device_driver():
             print 'failed'
             continue
         success = True
-        print 'Main memory:', repr(dev._main_prefix)
+        if hasattr(dev, '_main_prefix'):
+            print 'Main memory:', repr(dev._main_prefix)
         print 'Total space:', dev.total_space()
         break
     if not success and errors:
@@ -144,6 +145,10 @@ def debug_device_driver():
             print dev
             print msg
             print
+    if isosx and os.path.exists('/tmp/ioreg.txt'):
+        print
+        print
+        print "Don't forget to send the file /tmp/ioreg.txt as well"
 
 
 def add_simple_plugin(path_to_plugin):

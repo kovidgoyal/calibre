@@ -18,10 +18,10 @@ class FB2Output(OutputFormatPlugin):
     options = set([
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Add Table of Contents to begenning of the book.')),
+            help=_('Add Table of Contents to beginning of the book.')),
     ])
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):    
+    def convert(self, oeb_book, output_path, input_plugin, opts, log):
         fb2mlizer = FB2MLizer(log)
         fb2_content = fb2mlizer.extract_content(oeb_book, opts)
 
@@ -33,11 +33,11 @@ class FB2Output(OutputFormatPlugin):
             out_stream = open(output_path, 'wb')
         else:
             out_stream = output_path
-        
+
         out_stream.seek(0)
         out_stream.truncate()
         out_stream.write(fb2_content.encode('utf-8', 'replace'))
-        
+
         if close:
             out_stream.close()
 

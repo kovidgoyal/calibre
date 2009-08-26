@@ -28,11 +28,12 @@ class StructureDetectionWidget(Widget, Ui_Form):
                 'remove_footer', 'footer_regex']
                 )
         self.db, self.book_id = db, book_id
+        for x in ('pagebreak', 'rule', 'both', 'none'):
+            self.opt_chapter_mark.addItem(x)
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_chapter.set_msg(_('Detect chapters at (XPath expression):'))
         self.opt_page_breaks_before.set_msg(_('Insert page breaks before '
             '(XPath expression):'))
-
     def pre_commit_check(self):
         for x in ('header_regex', 'footer_regex'):
             x = getattr(self, 'opt_'+x)

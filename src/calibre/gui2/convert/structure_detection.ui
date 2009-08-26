@@ -29,26 +29,6 @@
    </item>
    <item row="1" column="1">
     <widget class="QComboBox" name="opt_chapter_mark">
-     <item>
-      <property name="text">
-       <string>pagebreak</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>rule</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>both</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>none</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item row="2" column="0">

@@ -69,7 +69,7 @@ def osx_version():
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
 
 
-_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
+_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
 
 def sanitize_file_name(name, substitute='_', as_unicode=False):
     '''

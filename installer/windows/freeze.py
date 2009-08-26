@@ -7,15 +7,12 @@ __docformat__ = 'restructuredtext en'
 Freeze app into executable using py2exe.
 '''
 QT_DIR           = 'C:\\Qt\\4.5.2'
-LIBUSB_DIR       = 'C:\\libusb'
+LIBUSB_DIR       = r'C:\cygwin\home\kovid\win32\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
-PDFTOHTML        = 'C:\\cygwin\\home\\kovid\\poppler-0.10.6\\rel\\pdftohtml.exe'
-POPPLER          = 'C:\\cygwin\\home\\kovid\\poppler'
-IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
-PDFTK            = 'C:\\pdftk.exe'
-PODOFO           = 'C:\\podofo'
-FONTCONFIG_DIR   = 'C:\\fontconfig'
-VC90             = r'C:\VC90.CRT'
+BINARIES         = r'C:\cygwin\home\kovid\win32\bin'
+IMAGEMAGICK_DIR  = r'C:\cygwin\home\kovid\win32\imagemagick'
+FONTCONFIG_DIR   = r'C:\cygwin\home\kovid\win32\etc'
+VC90             = r'C:\Program Files\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT'
 
 # ModuleFinder can't handle runtime changes to __path__, but win32com uses them
 import sys
@@ -98,25 +95,17 @@ class BuildEXE(py2exe.build_exe.py2exe):
                 shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
-        print '\tAdding poppler'
-        for x in ('bin\\pdftohtml.exe', 'bin\\poppler-qt4.dll',
-            'bin\\freetype.dll', 'bin\\jpeg62.dll'):
-            shutil.copyfile(os.path.join(POPPLER, x),
-                    os.path.join(PY2EXE_DIR, os.path.basename(x)))
-        print '\tAdding podofo'
-        for f in glob.glob(os.path.join(PODOFO, '*.dll')):
-            shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
-
+        print '\tAdding Binaries'
+        for x in glob.glob(os.path.join(BINARIES, '*.dll')) + \
+            [os.path.join(BINARIES, 'pdftohtml.exe')] + \
+            glob.glob(os.path.join(BINARIES, '*.manifest')):
+            shutil.copyfile(x, os.path.join(PY2EXE_DIR, os.path.basename(x)))
         print '\tAdding ImageMagick'
         for f in os.listdir(IMAGEMAGICK_DIR):
             shutil.copyfile(os.path.join(IMAGEMAGICK_DIR, f), os.path.join(PY2EXE_DIR, f))
         print '\tCopying fontconfig'
-        for f in glob.glob(os.path.join(FONTCONFIG_DIR, '*')):
-            tgt = os.path.join(PY2EXE_DIR, os.path.basename(f))
-            if os.path.isdir(f):
-                shutil.copytree(f, tgt)
-            else:
-                shutil.copyfile(f, tgt)
+        tgt = os.path.join(PY2EXE_DIR, 'etc')
+        shutil.copytree(FONTCONFIG_DIR, tgt)
 
         print
         print 'Doing DLL redirection' # See http://msdn.microsoft.com/en-us/library/ms682600(VS.85).aspx
@@ -169,8 +158,7 @@ def main(args=sys.argv):
                                              'email.iterators',
                                              'email.generator',
                                              'win32process', 'win32api', 'msvcrt',
-                                             'win32event', 'calibre.ebooks.lrf.any.*',
-                                             'calibre.ebooks.lrf.feeds.*',
+                                             'win32event', 'sqlite3.dump',
                                              'BeautifulSoup', 'pyreadline',
                                              'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*',
@@ -183,7 +171,8 @@ def main(args=sys.argv):
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],
-                                  'dll_excludes' : ['mswsock.dll'],
+                                  'dll_excludes' : ['mswsock.dll', 'tcl85.dll',
+                                      'MSVCP90.dll', 'tk85.dll'],
                                  },
                     },
 

@@ -9,7 +9,7 @@ Create linux binary.
 '''
 
 def freeze():
-    import glob, sys, tarfile, os, textwrap, shutil
+    import glob, sys, tarfile, os, textwrap, shutil, platform
     from contextlib import closing
     from cx_Freeze import Executable, setup
     from calibre.constants import __version__, __appname__
@@ -18,6 +18,9 @@ def freeze():
     from calibre.web.feeds.recipes import recipe_modules
     from calibre.ebooks.lrf.fonts import FONT_MAP
     import calibre
+
+    is64bit = platform.architecture()[0] == '64bit'
+    arch = 'x86_64' if is64bit else 'i686'
 
 
     QTDIR          = '/usr/lib/qt4'
@@ -47,7 +50,8 @@ def freeze():
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libgthread-2.0.so.0',
-                       '/usr/lib/gcc/i686-pc-linux-gnu/4.3.3/libstdc++.so.6',
+                       '/usr/lib/gcc/***-pc-linux-gnu/4.4.1/libstdc++.so.6'.replace('***',
+                           arch).replace('i686', 'i486'),
                        '/usr/lib/libpng12.so.0',
                        '/usr/lib/libexslt.so.0',
                        '/usr/lib/libMagickWand.so',
@@ -89,7 +93,7 @@ def freeze():
 
     includes = [x[0] for x in executables.values()]
     includes += ['calibre.ebooks.lrf.fonts.prs500.'+x for x in FONT_MAP.values()]
-    includes += ['email.iterators', 'email.generator']
+    includes += ['email.iterators', 'email.generator', 'sqlite3.dump']
 
 
     excludes = ['matplotlib', "Tkconstants", "Tkinter", "tcl", "_imagingtk",
@@ -228,7 +232,8 @@ def freeze():
     open(os.path.join(FREEZE_DIR, 'manifest'), 'wb').write('\n'.join(exes))
 
     print 'Creating archive...'
-    dist = open(os.path.join(DIST_DIR, 'calibre-%s-i686.tar.bz2'%__version__), 'wb')
+    dist = open(os.path.join(DIST_DIR, 'calibre-%s-%s.tar.bz2'%(__version__,
+        arch)), 'wb')
     with closing(tarfile.open(fileobj=dist, mode='w:bz2',
                               format=tarfile.PAX_FORMAT)) as tf:
         for f in walk(FREEZE_DIR):

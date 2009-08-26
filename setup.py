@@ -71,7 +71,7 @@ if __name__ == '__main__':
                         tag_release, upload_demo, build_linux, build_windows, \
                         build_osx, upload_installers, upload_user_manual, \
                         upload_to_pypi, stage3, stage2, stage1, upload, \
-                        upload_rss, betas
+                        upload_rss, betas, build_linux32, build_linux64
 
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
@@ -94,8 +94,8 @@ if __name__ == '__main__':
                 sources=['src/calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi'],
                 include_dirs=os.environ.get('INCLUDE',
-                        'C:/WinDDK/6001.18001/inc/api/;'
-                        'C:/WinDDK/6001.18001/inc/crt/').split(';'),
+                        'C:/WinDDK/7600.16385.0/inc/api/;'
+                        'C:/WinDDK/7600.16385.0/inc/crt/').split(';'),
                 extra_compile_args=['/X']
                 ))
 
@@ -103,8 +103,8 @@ if __name__ == '__main__':
     poppler_lib = '/usr/lib'
     poppler_libs = []
     if iswindows:
-        poppler_inc = r'C:\cygwin\home\kovid\poppler\include\poppler\qt4'
-        poppler_lib = r'C:\cygwin\home\kovid\poppler\lib'
+        poppler_inc = r'C:\cygwin\home\kovid\win32\include\poppler\qt4'
+        poppler_lib = r'C:\cygwin\home\kovid\win32\lib'
         poppler_libs = ['QtCore4', 'QtGui4']
     if isosx:
         poppler_inc = '/Volumes/sw/build/poppler-0.10.7/qt4/src'
@@ -124,9 +124,10 @@ if __name__ == '__main__':
         print 'POPPLER_LIB_DIR environment variables.'
 
     podofo_inc = '/usr/include/podofo' if islinux else \
-    'C:\\podofo\\include\\podofo' if iswindows else \
+    r'C:\cygwin\home\kovid\win32\include\podofo' if iswindows else \
     '/usr/local/include/podofo'
-    podofo_lib = '/usr/lib' if islinux else r'C:\podofo' if iswindows else \
+    podofo_lib = '/usr/lib' if islinux else \
+            r'C:\cygwin\home\kovid\win32\lib' if iswindows else \
             '/usr/local/lib'
     podofo_inc = os.environ.get('PODOFO_INC_DIR', podofo_inc)
     if os.path.exists(os.path.join(podofo_inc, 'podofo.h')):
@@ -141,10 +142,10 @@ if __name__ == '__main__':
         print 'PODOFO_LIB_DIR environment variables.'
 
     fc_inc = '/usr/include/fontconfig' if islinux else \
-            r'C:\cygwin\home\kovid\fontconfig\include\fontconfig' if iswindows else \
+            r'C:\cygwin\home\kovid\win32\include\fontconfig' if iswindows else \
             '/Users/kovid/fontconfig/include/fontconfig'
     fc_lib = '/usr/lib' if islinux else \
-            r'C:\cygwin\home\kovid\fontconfig\lib' if iswindows else \
+            r'C:\cygwin\home\kovid\win32\lib' if iswindows else \
             '/Users/kovid/fontconfig/lib'
 
 
@@ -258,6 +259,8 @@ if __name__ == '__main__':
                       'tag_release'   : tag_release,
                       'upload_demo'   : upload_demo,
                       'build_linux'   : build_linux,
+                      'build_linux32'  : build_linux32,
+                      'build_linux64' : build_linux64,
                       'build_windows' : build_windows,
                       'build_osx'     : build_osx,
                       'upload_installers': upload_installers,

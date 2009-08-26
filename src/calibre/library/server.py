@@ -110,7 +110,7 @@ class LibraryServer(object):
         <title>${authors}</title>
         <id>urn:calibre:${record[FM['id']]}</id>
         <updated>${timestamp}</updated>
-        <link type="application/atom+xml" href="/?authorid=${record[FM['id']]}" />
+        <link type="application/atom+xml" href="/stanza/?authorid=${record[FM['id']]}" />
     </entry>
     '''))
 
@@ -120,7 +120,7 @@ class LibraryServer(object):
       <title>calibre Library</title>
       <id>$id</id>
       <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-      <link rel="search" title="Search" type="application/atom+xml" href="/?search={searchTerms}"/>
+      <link rel="search" title="Search" type="application/atom+xml" href="/stanza/?search={searchTerms}"/>
       <author>
         <name>calibre</name>
         <uri>http://calibre.kovidgoyal.net</uri>
@@ -140,7 +140,7 @@ class LibraryServer(object):
       <title>calibre Library</title>
       <id>$id</id>
       <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-      <link rel="search" title="Search" type="application/atom+xml" href="/?search={searchTerms}"/>
+      <link rel="search" title="Search" type="application/atom+xml" href="/stanza/?search={searchTerms}"/>
       <author>
         <name>calibre</name>
         <uri>http://calibre.kovidgoyal.net</uri>
@@ -152,19 +152,19 @@ class LibraryServer(object):
         <title>By Author</title>
         <id>urn:uuid:fc000fa0-8c23-11de-a31d-0002a5d5c51b</id>
         <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/atom+xml" href="/?sortby=byauthor" />
+        <link type="application/atom+xml" href="/stanza/?sortby=byauthor" />
       </entry>
       <entry>
         <title>By Title</title>
         <id>urn:uuid:1df4fe40-8c24-11de-b4c6-0002a5d5c51b</id>
         <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/atom+xml" href="/?sortby=bytitle" />
+        <link type="application/atom+xml" href="/stanza/?sortby=bytitle" />
       </entry>
       <entry>
         <title>By Newest</title>
         <id>urn:uuid:3c6d4940-8c24-11de-a4d7-0002a5d5c51b</id>
         <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/atom+xml" href="/?sortby=bynewest" />
+        <link type="application/atom+xml" href="/stanza/?sortby=bynewest" />
       </entry>
     </feed>
     '''))
@@ -460,8 +460,11 @@ class LibraryServer(object):
     @expose
     def index(self, **kwargs):
         'The / URL'
-        want_opds = cherrypy.request.headers.get('Stanza-Device-Name', 919) != \
-            919 or cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919
+        ua = cherrypy.request.headers.get('User-Agent', '').strip()
+        want_opds = \
+            cherrypy.request.headers.get('Stanza-Device-Name', 919) != 919 or \
+            cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919 or \
+            ua.startswith('Stanza')
         return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None)) if want_opds else self.static('index.html')
 
 

@@ -41,7 +41,8 @@ class ConfigTabs(QTabWidget):
         log = Log()
         log.outputs = []
 
-        self.plumber = Plumber('dummy.epub', 'dummy.epub', log, dummy=True)
+        self.plumber = Plumber('dummy.epub', 'dummy.epub', log, dummy=True,
+                merge_plugin_recs=False)
 
         def widget_factory(cls):
             return cls(self, self.plumber.get_option_by_name,
@@ -298,7 +299,8 @@ class EmailAccounts(QAbstractTableModel):
         while y in self.accounts:
             c += 1
             y = x + str(c)
-        self.accounts[y] = ['MOBI, EPUB', True,
+        auto_send = len(self.accounts) < 1
+        self.accounts[y] = ['MOBI, EPUB', auto_send,
                                                 len(self.account_order) == 0]
         self.account_order = sorted(self.accounts.keys())
         self.reset()
@@ -756,7 +758,8 @@ class CheckIntegrity(QProgressDialog):
 
     def __init__(self, db, parent=None):
         QProgressDialog.__init__(self, parent)
-        self.setCancelButtonText('')
+        self.db = db
+        self.setCancelButton(None)
         self.setMinimum(0)
         self.setMaximum(100)
         self.setWindowTitle(_('Checking database integrity'))

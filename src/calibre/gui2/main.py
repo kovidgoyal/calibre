@@ -14,8 +14,9 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import __version__, __appname__, \
-                    iswindows, isosx, prints, patheq
+from calibre import  prints, patheq
+from calibre.constants import __version__, __appname__, \
+                    iswindows, isosx, filesystem_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
@@ -424,9 +425,18 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             error_dialog(self, _('Bad database location'),
                     _('Bad database location')+':'+self.library_path,
                     det_msg=traceback.format_exc()).exec_()
+            fname = _('Calibre Library')
+            if isinstance(fname, unicode):
+                try:
+                    fname = fname.encode(filesystem_encoding)
+                except:
+                    fname = 'Calibre Library'
+            x = os.path.expanduser('~'+os.sep+fname)
+            if not os.path.exists(x):
+                os.makedirs(x)
             dir = unicode(QFileDialog.getExistingDirectory(self,
                             _('Choose a location for your ebook library.'),
-                            os.path.expanduser('~')))
+                            x))
             if not dir:
                 QCoreApplication.exit(1)
                 raise SystemExit(1)
@@ -1493,6 +1503,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.search.clear_to_help()
         self.status_bar.reset_info()
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
+        self.library_view.model().count_changed()
 
     ############################################################################
 
@@ -1565,14 +1576,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.device_error_dialog.show()
 
     def job_exception(self, job):
+        if not hasattr(self, '_modeless_dialogs'):
+            self._modeless_dialogs = []
+        if self.isVisible():
+            for x in list(self._modeless_dialogs):
+                if not x.isVisible():
+                    self._modeless_dialogs.remove(x)
         try:
             if 'calibre.ebooks.DRMError' in job.details:
-                error_dialog(self, _('Conversion Error'),
+                d = error_dialog(self, _('Conversion Error'),
                     _('<p>Could not convert: %s<p>It is a '
                       '<a href="%s">DRM</a>ed book. You must first remove the '
                       'DRM using 3rd party tools.')%\
                         (job.description.split(':')[-1],
-                            'http://wiki.mobileread.com/wiki/DRM')).exec_()
+                            'http://wiki.mobileread.com/wiki/DRM'))
+                d.setModal(False)
+                d.show()
+                self._modeless_dialogs.append(d)
                 return
         except:
             pass
@@ -1582,9 +1602,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             prints(job.details, file=sys.stderr)
         except:
             pass
-        error_dialog(self, _('Conversion Error'),
+        d = error_dialog(self, _('Conversion Error'),
                 _('<b>Failed</b>')+': '+unicode(job.description),
-                det_msg=job.details).exec_()
+                det_msg=job.details)
+        d.setModal(False)
+        d.show()
+        self._modeless_dialogs.append(d)
 
 
     def initialize_database(self):

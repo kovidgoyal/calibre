@@ -17,6 +17,7 @@ from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
 from calibre.resources import server_resources
+from calibre.constants import filesystem_encoding
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
 from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
@@ -423,7 +424,8 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
                         callback)
                 else:
                     rq = Queue()
-                    m = MoveLibrary(oldloc, newloc, db.data.count(), rq)
+                    m = MoveLibrary(oldloc, newloc,
+                            len(db.get_top_level_move_items()[0]), rq)
                     global _mm
                     _mm = MoveMonitor(m, rq, callback, parent)
                     return
@@ -473,7 +475,18 @@ class LibraryPage(QWizardPage, LibraryUI):
     def initializePage(self):
         lp = prefs['library_path']
         if not lp:
-            lp = os.path.expanduser('~')
+            fname = _('Calibre Library')
+            if isinstance(fname, unicode):
+                try:
+                    fname = fname.encode(filesystem_encoding)
+                except:
+                    fname = 'Calibre Library'
+            lp = os.path.expanduser('~'+os.sep+fname)
+            if not os.path.exists(lp):
+                try:
+                    os.makedirs(lp)
+                except:
+                    lp = os.path.expanduser('~')
         self.location.setText(lp)
 
     def isComplete(self):

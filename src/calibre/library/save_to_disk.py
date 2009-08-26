@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, cStringIO
+import os, traceback, cStringIO, re
 
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
@@ -17,7 +17,7 @@ from calibre.constants import preferred_encoding, filesystem_encoding
 
 from calibre import strftime
 
-DEFAULT_TEMPLATE = '{author_sort}/{title} - {authors}'
+DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 FORMAT_ARG_DESCS = dict(
         title=_('The title'),
         authors=_('The authors'),
@@ -71,6 +71,10 @@ def config(defaults=None):
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %d - day, %b - month, '
                 '%Y - year. Default is: %b, %Y'))
+    x('to_lowercase', default=False,
+            help=_('Convert paths to lowercase.'))
+    x('replace_whitespace', default=False,
+            help=_('Replace whitespace with underscores.'))
     return c
 
 def preprocess_template(template):
@@ -81,7 +85,9 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
-def get_components(template, mi, id, timefmt='%b %Y', length=250, sanitize_func=ascii_filename):
+def get_components(template, mi, id, timefmt='%b %Y', length=250,
+        sanitize_func=ascii_filename, replace_whitespace=False,
+        to_lowercase=False):
     format_args = dict(**FORMAT_ARGS)
     if mi.title:
         format_args['title'] = mi.title
@@ -113,6 +119,11 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250, sanitize_func=
         components = [str(id)]
     components = [x.encode(filesystem_encoding, 'replace') if isinstance(x,
         unicode) else x for x in components]
+    if to_lowercase:
+        components = [x.lower() for x in components]
+    if replace_whitespace:
+        components = [re.sub(r'\s', '_', x) for x in components]
+
     return shorten_components_to(length, components)
 
 
@@ -134,7 +145,9 @@ def save_book_to_disk(id, db, root, opts, length):
         return True, id, mi.title
 
     components = get_components(opts.template, mi, id, opts.timefmt, length,
-            ascii_filename if opts.asciiize else sanitize_file_name)
+            ascii_filename if opts.asciiize else sanitize_file_name,
+            to_lowercase=opts.to_lowercase,
+            replace_whitespace=opts.replace_whitespace)
     base_path = os.path.join(root, *components)
     base_name = os.path.basename(base_path)
     dirpath = os.path.dirname(base_path)

@@ -54,11 +54,11 @@ In order to convert a collection of HTML files in a specific oder, you have to c
 
 Then just add this HTML file to the GUI and use the convert button to create your ebook.
 
-How do I convert my file containing non-English characters?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I convert my file containing non-English characters, or smart quotes?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There are two aspects to this problem: 
   1. Knowing the encoding of the source file: |app| tries to guess what character encoding your source files use, but often, this is impossible, so you need to tell it what encoding to use. This can be done in the GUI via the :guilabel:`Input character encoding` field in the :guilabel:`Look & Feel` section. The command-line tools all have an :option:`--input-encoding` option.
-  2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to Preferences->Plugins->File Type plugins and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. |app| will then automatically convert the HTML files into the UTF-8 encoding when adding them.
+  2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to Preferences->Plugins->File Type plugins and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first.
   3. Embedding fonts: If you are generating an LRF file to read on your SONY Reader, you are limited by the fact that the Reader only supports a few non-English characters in the fonts it comes pre-loaded with. You can work around this problem by embedding a unicode-aware font that supports the character set your file uses into the LRF file. You should embed atleast a serif and a sans-serif font. Be aware that embedding fonts significantly slows down page-turn speed on the reader. 
 
 
@@ -95,13 +95,17 @@ turned into a collection on the reader. Note that the PRS-500 does not support c
 
 How do I use |app| with my iPhone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-First install the Stanza reader on your iPhone from http://www.lexcycle.com . Then,
+First install the Stanza reader on your iPhone using iTunes.
 
-  * Set the output format for calibre to EPUB (The output format can be set next to the big red heart) 
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under Preferences->General) 
   * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
   * Turn on the Content Server in |app|'s preferences and leave |app| running.
 
-Now you should be able to access your books on your iPhone. 
+Now you should be able to access your books on your iPhone by opening Stanza and going to "Shared Books". Under Shared Books you will see an entry "Book in calibre". If you don't, make sure your iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza, by clicking "Online Catalog" and the clicking the plus icon in the lower right corner to add a new catalog. In the Add Catalog screen enter whatever name you like and in the URL field, enter the following::
+
+    http://192.168.1.2:8080/
+
+Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.  
 
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,6 +139,12 @@ The whole point of |app|'s library management features is that they provide an i
 Why doesn't |app| have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| is designed to have columns for the most frequently and widely used fields. If it does not have a coulmn for your favorite field, you can always add a tag to the book for that piece of information. |app| also supports a general purpose "comments" fields for longer items.
+
+How do I move my |app| library from one computer to another?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking Preferences. The very first item is the path tot he library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. 
+
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to Preferences->Advanced and click the Check database integrity button. It will warn you about missing files, if any, which you should then transfer by hand.
 
 
 Content From The Web

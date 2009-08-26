@@ -5,13 +5,33 @@ import os, shutil, time
 from Queue import Queue, Empty
 from threading import Thread
 
-from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer, Qt
+from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer, Qt, \
+        QProgressDialog
 
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import question_dialog, error_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding
+
+class DuplicatesAdder(QThread):
+
+    def __init__(self, parent, db, duplicates, db_adder):
+        QThread.__init__(self, parent)
+        self.db, self.db_adder = db, db_adder
+        self.duplicates = duplicates
+
+    def run(self):
+        count = 1
+        for mi, cover, formats in self.duplicates:
+            id = self.db.create_book_entry(mi, cover=cover,
+                    add_duplicates=True)
+            self.db_adder.add_formats(id, formats)
+            self.db_adder.number_of_books_added += 1
+            self.emit(SIGNAL('added(PyQt_PyObject)'), count)
+            count += 1
+        self.emit(SIGNAL('adding_done()'))
+
 
 class RecursiveFind(QThread):
 
@@ -196,15 +216,19 @@ class Adder(QObject):
             self.callback(self.paths, self.names, self.infos)
             self.callback_called = True
 
+    def duplicates_processed(self):
+        self.db_adder.end = True
+        if not self.callback_called:
+            self.callback(self.paths, self.names, self.infos)
+            self.callback_called = True
+        if hasattr(self, '__p_d'):
+            self.__p_d.hide()
+
     def update(self):
         if self.entry_count <= 0:
             self.timer.stop()
-            self.process_duplicates()
             self.pd.hide()
-            self.db_adder.end = True
-            if not self.callback_called:
-               self.callback(self.paths, self.names, self.infos)
-               self.callback_called = True
+            self.process_duplicates()
             return
 
         try:
@@ -240,18 +264,28 @@ class Adder(QObject):
     def process_duplicates(self):
         duplicates = self.db_adder.duplicates
         if not duplicates:
-            return
+            return self.duplicates_processed()
         self.pd.hide()
         files = [x[0].title for x in duplicates]
         if question_dialog(self._parent, _('Duplicates found!'),
                         _('Books with the same title as the following already '
                         'exist in the database. Add them anyway?'),
                         '\n'.join(files)):
-            for mi, cover, formats in duplicates:
-                id = self.db.create_book_entry(mi, cover=cover,
-                        add_duplicates=True)
-                self.db_adder.add_formats(id, formats)
-                self.db_adder.number_of_books_added += 1
+            pd = QProgressDialog(_('Adding duplicates...'), '', 0, len(duplicates),
+                    self._parent)
+            pd.setCancelButton(None)
+            pd.setValue(0)
+            pd.show()
+            self.__p_d = pd
+            self.__d_a = DuplicatesAdder(self._parent, self.db, duplicates,
+                    self.db_adder)
+            self.connect(self.__d_a, SIGNAL('added(PyQt_PyObject)'),
+                    pd.setValue)
+            self.connect(self.__d_a, SIGNAL('adding_done()'),
+                    self.duplicates_processed)
+            self.__d_a.start()
+        else:
+            return self.duplicates_processed()
 
     def cleanup(self):
         if hasattr(self, 'pd'):

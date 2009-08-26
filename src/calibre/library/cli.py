@@ -183,9 +183,7 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle,
                 sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
 
-
-
-def command_list(args, dbpath):
+def list_option_parser():
     parser = get_parser(_(
 '''\
 %prog list [options]
@@ -208,6 +206,11 @@ List the books available in the calibre database.
     of = ['text', 'xml', 'stanza']
     parser.add_option('--output-format', choices=of, default='text',
                       help=_('The format in which to output the data. Available choices: %s. Defaults is text.')%of)
+    return parser
+
+
+def command_list(args, dbpath):
+    parser = list_option_parser()
     opts, args = parser.parse_args(sys.argv[:1] + args)
     fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
     if 'all' in fields:
@@ -316,9 +319,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
     finally:
         sys.stdout = orig
 
-
-
-def command_add(args, dbpath):
+def add_option_parser():
     parser = get_parser(_(
 '''\
 %prog add [options] file1 file2 file3 ...
@@ -333,6 +334,11 @@ the directory related options below.
                       help=_('Process directories recursively'))
     parser.add_option('-d', '--duplicates', action='store_true', default=False,
                       help=_('Add books to database even if they already exist. Comparison is done based on book titles.'))
+    return parser
+
+
+def command_add(args, dbpath):
+    parser = add_option_parser()
     opts, args = parser.parse_args(sys.argv[:1] + args)
     if len(args) < 2:
         parser.print_help()
@@ -353,9 +359,8 @@ def do_remove(db, ids):
     if send_message is not None:
         send_message('refreshdb:', 'calibre GUI')
 
-
-def command_remove(args, dbpath):
-    parser = get_parser(_(
+def remove_option_parser():
+    return get_parser(_(
 '''\
 %prog remove ids
 
@@ -363,6 +368,9 @@ Remove the books identified by ids from the database. ids should be a comma sepa
 list of id numbers (you can get id numbers by using the list command). For example, \
 23,34,57-85
 '''))
+
+def command_remove(args, dbpath):
+    parser = remove_option_parser()
     opts, args = parser.parse_args(sys.argv[:1] + args)
     if len(args) < 2:
         parser.print_help()
@@ -385,15 +393,18 @@ list of id numbers (you can get id numbers by using the list command). For examp
 def do_add_format(db, id, fmt, path):
     db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True)
 
-
-def command_add_format(args, dbpath):
-    parser = get_parser(_(
+def add_format_option_parser():
+    return get_parser(_(
 '''\
 %prog add_format [options] id ebook_file
 
 Add the ebook in ebook_file to the available formats for the logical book identified \
 by id. You can get id by using the list command. If the format already exists, it is replaced.
 '''))
+
+
+def command_add_format(args, dbpath):
+    parser = add_format_option_parser()
     opts, args = parser.parse_args(sys.argv[:1] + args)
     if len(args) < 3:
         parser.print_help()
@@ -410,8 +421,8 @@ by id. You can get id by using the list command. If the format already exists, i
 def do_remove_format(db, id, fmt):
     db.remove_format(id, fmt, index_is_id=True)
 
-def command_remove_format(args, dbpath):
-    parser = get_parser(_(
+def remove_format_option_parser():
+    return get_parser(_(
 '''
 %prog remove_format [options] id fmt
 
@@ -420,6 +431,10 @@ You can get id by using the list command. fmt should be a file extension \
 like LRF or TXT or EPUB. If the logical book does not have fmt available, \
 do nothing.
 '''))
+
+
+def command_remove_format(args, dbpath):
+    parser = remove_format_option_parser()
     opts, args = parser.parse_args(sys.argv[:1] + args)
     if len(args) < 3:
         parser.print_help()
@@ -441,7 +456,7 @@ def do_show_metadata(db, id, as_opf):
     else:
         print unicode(mi).encode(preferred_encoding)
 
-def command_show_metadata(args, dbpath):
+def show_metadata_option_parser():
     parser = get_parser(_(
 '''
 %prog show_metadata [options] id
@@ -451,6 +466,10 @@ id is an id number from the list command.
 '''))
     parser.add_option('--as-opf', default=False, action='store_true',
                       help=_('Print metadata in OPF form (XML)'))
+    return parser
+
+def command_show_metadata(args, dbpath):
+    parser = show_metadata_option_parser()
     opts, args = parser.parse_args(sys.argv[1:]+args)
     if len(args) < 2:
         parser.print_help()
@@ -468,8 +487,8 @@ def do_set_metadata(db, id, stream):
     if send_message is not None:
         send_message('refreshdb:', 'calibre GUI')
 
-def command_set_metadata(args, dbpath):
-    parser = get_parser(_(
+def set_metadata_option_parser():
+    return get_parser(_(
 '''
 %prog set_metadata [options] id /path/to/metadata.opf
 
@@ -478,6 +497,9 @@ from the OPF file metadata.opf. id is an id number from the list command. You
 can get a quick feel for the OPF format by using the --as-opf switch to the
 show_metadata command.
 '''))
+
+def command_set_metadata(args, dbpath):
+    parser = set_metadata_option_parser()
     opts, args = parser.parse_args(sys.argv[1:]+args)
     if len(args) < 3:
         parser.print_help()
@@ -501,7 +523,7 @@ def do_export(db, ids, dir, opts):
             prints('\t'+'\n\t'.join(tb.splitlines()))
             prints(' ')
 
-def command_export(args, dbpath):
+def export_option_parser():
     parser = get_parser(_('''\
 %prog export [options] ids
 
@@ -530,6 +552,16 @@ an opf file). You can get id numbers from the list command.
         parser.add_option(switch, default=opt.default,
                 help=opt.help, dest=pref)
 
+    for pref in ('replace_whitespace', 'to_lowercase'):
+        opt = c.get_option(pref)
+        switch = '--'+pref.replace('_', '-')
+        parser.add_option(switch, default=False, action='store_true',
+                help=opt.help)
+
+    return parser
+
+def command_export(args, dbpath):
+    parser = export_option_parser()
     opts, args = parser.parse_args(sys.argv[1:]+args)
     if (len(args) < 2 and not opts.all):
         parser.print_help()
@@ -541,9 +573,11 @@ an opf file). You can get id numbers from the list command.
     do_export(get_db(dbpath, opts), ids, dir, opts)
     return 0
 
-def main(args=sys.argv):
-    commands = ('list', 'add', 'remove', 'add_format', 'remove_format',
+COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
                 'show_metadata', 'set_metadata', 'export')
+
+
+def option_parser():
     parser = OptionParser(_(
 '''\
 %%prog command [options] [arguments]
@@ -555,11 +589,16 @@ command is one of:
 
 For help on an individual command: %%prog command --help
 '''
-                          )%'\n  '.join(commands))
+                          )%'\n  '.join(COMMANDS))
+    return parser
+
+
+def main(args=sys.argv):
+    parser = option_parser()
     if len(args) < 2:
         parser.print_help()
         return 1
-    if args[1] not in commands:
+    if args[1] not in COMMANDS:
         if args[1] == '--version':
             parser.print_version()
             return 0
