@@ -19,6 +19,8 @@ from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
+from calibre.gui2.convert.debug import DebugWidget
+
 
 from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats
 from calibre.customize.ui import available_output_formats
@@ -139,6 +141,7 @@ class Config(ResizableDialog, Ui_Dialog):
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
+        debug = widget_factory(DebugWidget)
 
         output_widget = None
         name = self.plumber.output_plugin.name.lower().replace(' ', '_')
@@ -173,6 +176,7 @@ class Config(ResizableDialog, Ui_Dialog):
             widgets.append(input_widget)
         if output_widget is not None:
             widgets.append(output_widget)
+        widgets.append(debug)
         for w in widgets:
             self.stack.addWidget(w)
             self.connect(w, SIGNAL('set_help(PyQt_PyObject)'),
