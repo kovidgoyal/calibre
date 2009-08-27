@@ -7,7 +7,7 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CNN(BasicNewsRecipe):
-    
+
     title = 'CNN'
     description = 'Global news'
     timefmt  = ' [%d %b %Y]'
@@ -20,7 +20,7 @@ class CNN(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in [
         (r'<head>.*?<title', lambda match : '<head><title'),
         (r'</title>.*?</head>', lambda match : '</title></head>'),
-        (r'<body.*?<\!\-\-Article.*?>', lambda match : ''),
+        (r'<body.*?<\!\-\-Article.*?>', lambda match : '<body>'),
         (r'<\!\-\-Article End\-\->.*?</body>', lambda match : '</body>'),
         (r'(</h\d>)<ul>.*?</ul>', lambda match : match.group(1)), # drop story highlights
         (r'<h2>(.*?)</h2><h1>(.*?)</h1>', lambda match : '<h1>' + match.group(1) + '</h1><h2>' + match.group(2) + '</h2>'), # sports uses h2 for main title and h1 for subtitle (???) switch these around
@@ -33,7 +33,7 @@ class CNN(BasicNewsRecipe):
 
     def print_version(self, url):
         return 'http://www.printthis.clickability.com/pt/printThis?clickMap=printThis&fb=Y&url=' + url
-    
+
     feeds =  [
              ('Top News', 'http://rss.cnn.com/rss/cnn_topstories.rss'),
              ('World', 'http://rss.cnn.com/rss/cnn_world.rss'),
