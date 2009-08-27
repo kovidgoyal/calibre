@@ -486,6 +486,7 @@ class LibraryPage(QWizardPage, LibraryUI):
                 try:
                     os.makedirs(lp)
                 except:
+                    traceback.print_exc()
                     lp = os.path.expanduser('~')
         self.location.setText(lp)
 

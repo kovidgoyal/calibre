@@ -364,7 +364,7 @@ from calibre.devices.jetbook.driver import JETBOOK
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.prs500.driver import PRS500
 from calibre.devices.prs505.driver import PRS505
-from calibre.devices.prs700.driver import PRS700
+from calibre.devices.prs700.driver import PRS700, PRS600
 from calibre.devices.android.driver import ANDROID
 
 plugins = [HTML2ZIP]
@@ -413,6 +413,7 @@ plugins += [
     PRS500,
     PRS505,
     PRS700,
+    PRS600,
     ANDROID,
     CYBOOK_OPUS,
     COOL_ER

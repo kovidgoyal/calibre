@@ -28,3 +28,12 @@ class PRS700(PRS505):
     OSX_CARD_A_MEM = re.compile(r'Sony PRS-700/[^:]+:MS Media')
     OSX_CARD_B_MEM = re.compile(r'Sony PRS-700/[^:]+:SD Media')
 
+class PRS600(PRS700):
+
+    name = 'PRS-600 Device Interface'
+    description = PRS700.description.replace('700', '600')
+
+    WINDOWS_MAIN_MEM = 'PRS-600'
+    WINDOWS_CARD_A_MEM = re.compile(r'PRS-700/\S+:MS')
+    WINDOWS_CARD_B_MEM = re.compile(r'PRS-700/\S+:SD')
+
