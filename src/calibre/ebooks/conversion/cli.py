@@ -248,6 +248,8 @@ def main(args=sys.argv):
 
     plumber.run()
 
+    log(_('Output saved to'), ' ', plumber.output)
+
     return 0
 
 if __name__ == '__main__':

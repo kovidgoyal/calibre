@@ -18,7 +18,7 @@ This debug directory contains snapshots of the e-book as it passes through the
 various stages of conversion. The stages are:
 
     1. input - This is the result of running the input plugin on the source
-    file.
+    file. Use this directory to debug the input plugin.
 
     2. parsed - This is the result of preprocessing and parsing the output of
     the input plugin. Note that for some input plugins this will be identical to
@@ -26,10 +26,11 @@ various stages of conversion. The stages are:
     etc.
 
     3. structure - This corresponds to the stage in the pipeline when structure
-    detection has run, but before the CSS is flattened.
+    detection has run, but before the CSS is flattened. Use this directory to
+    debug the CSS flattening, font size conversion, etc.
 
     4. processed - This corresponds to the e-book as it is passed to the output
-    plugin.
+    plugin. Use this directory to debug the output plugin.
 
 '''
 
@@ -96,9 +97,7 @@ OptionRecommendation(name='debug_pipeline',
             help=_('Save the output from different stages of the conversion '
                    'pipeline to the specified '
                    'directory. Useful if you are unsure at which stage '
-                   'of the conversion process a bug is occurring. '
-                   'WARNING: This completely deletes the contents of '
-                   'the specified directory.')
+                   'of the conversion process a bug is occurring.')
         ),
 
 OptionRecommendation(name='input_profile',
@@ -682,10 +681,14 @@ OptionRecommendation(name='language',
         if self.opts.debug_pipeline is not None:
             self.opts.verbose = max(self.opts.verbose, 4)
             self.opts.debug_pipeline = os.path.abspath(self.opts.debug_pipeline)
-            if os.path.exists(self.opts.debug_pipeline):
-                shutil.rmtree(self.opts.debug_pipeline)
-            os.makedirs(self.opts.debug_pipeline)
-
+            if not os.path.exists(self.opts.debug_pipeline):
+                os.makedirs(self.opts.debug_pipeline)
+            open(os.path.join(self.opts.debug_pipeline, 'README.txt'),
+                    'w').write(DEBUG_README.encode('utf-8'))
+            for x in ('input', 'parsed', 'structure', 'processed'):
+                x = os.path.join(self.opts.debug_pipeline, x)
+                if os.path.exists(x):
+                    shutil.rmtree(x)
 
         # Run any preprocess plugins
         from calibre.customize.ui import run_plugins_on_preprocess
@@ -808,9 +811,6 @@ OptionRecommendation(name='language',
             out_dir = os.path.join(self.opts.debug_pipeline, 'processed')
             self.dump_oeb(self.oeb, out_dir)
             self.log('Processed HTML written to:', out_dir)
-            open(os.path.join(self.opts.debug_pipeline, 'README.txt'),
-                    'w').write(DEBUG_README.encode('utf-8'))
-            self.log('Debug pipeline called, not running output plugin')
             return
 
         self.log.info('Creating %s...'%self.output_plugin.name)
