@@ -646,7 +646,11 @@ class Request(object):
             # Handle cookies differently because on Konqueror, multiple
             # cookies come on different lines with the same key
             if name == 'Cookie':
-                self.cookie.load(value)
+                try:
+                    self.cookie.load(value)
+                except Cookie.CookieError:
+                    msg = "Illegal cookie name %s" % value.split('=')[0]
+                    raise cherrypy.HTTPError(400, msg)
         
         if not dict.__contains__(headers, 'Host'):
             # All Internet-based HTTP/1.1 servers MUST respond with a 400

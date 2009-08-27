@@ -13,7 +13,13 @@ try:
 except ImportError:
     import pickle
 import random
-import sha
+
+try:
+    # Python 2.5+
+    from hashlib import sha1 as sha
+except ImportError:
+    from sha import new as sha
+
 import time
 import threading
 import types
@@ -108,7 +114,7 @@ class Session(object):
         # os.urandom not available until Python 2.4. Fall back to random.random.
         def generate_id(self):
             """Return a new session id."""
-            return sha.new('%s' % random.random()).hexdigest()
+            return sha('%s' % random.random()).hexdigest()
     else:
         def generate_id(self):
             """Return a new session id."""

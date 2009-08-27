@@ -187,7 +187,9 @@ class HTTPError(CherryPyException):
         self.status = status = int(status)
         if status < 400 or status > 599:
             raise ValueError("status must be between 400 and 599.")
-        self.message = message
+        # See http://www.python.org/dev/peps/pep-0352/
+        # self.message = message
+        self._message = message
         CherryPyException.__init__(self, status, message)
     
     def set_response(self):
@@ -211,7 +213,7 @@ class HTTPError(CherryPyException):
         response.headers['Content-Type'] = "text/html"
         
         content = self.get_error_page(self.status, traceback=tb,
-                                      message=self.message)
+                                      message=self._message)
         response.body = content
         response.headers['Content-Length'] = len(content)
         

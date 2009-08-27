@@ -57,7 +57,7 @@ These API's are described in the CherryPy specification:
 http://www.cherrypy.org/wiki/CherryPySpec
 """
 
-__version__ = "3.1.1"
+__version__ = "3.1.2"
 
 from urlparse import urljoin as _urljoin
 
