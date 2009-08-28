@@ -50,10 +50,10 @@ class TXTInput(InputFormatPlugin):
         htmlfile.write(html.encode('utf-8'))
         htmlfile.close()
         cwd = os.getcwdu()
-        odi = options.debug_input
-        options.debug_input = None
+        odi = options.debug_pipeline
+        options.debug_pipeline = None
         oeb = html_input(open(htmlfile.name, 'rb'), options, 'html', log,
                 {}, cwd)
-        options.debug_input = odi
+        options.debug_pipeline = odi
         os.remove(htmlfile.name)
         return oeb

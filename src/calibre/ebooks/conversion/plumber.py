@@ -68,7 +68,7 @@ class Plumber(object):
         ]
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
-            dummy=False, merge_plugin_recs=True):
+            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -78,6 +78,7 @@ class Plumber(object):
         self.output = os.path.abspath(output)
         self.log = log
         self.ui_reporter = report_progress
+        self.abort_after_input_dump = abort_after_input_dump
 
         # Initialize the conversion options that are independent of input and
         # output formats. The input and output plugins can still disable these
@@ -716,6 +717,8 @@ OptionRecommendation(name='language',
                                     accelerators, tdir)
         if self.opts.debug_pipeline is not None:
             self.dump_input(self.oeb, tdir)
+            if self.abort_after_input_dump:
+                return
         if self.input_fmt == 'recipe':
             self.opts_to_mi(self.user_metadata)
         if not hasattr(self.oeb, 'manifest'):
