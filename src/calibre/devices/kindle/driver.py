@@ -17,6 +17,7 @@ from calibre.devices.usbms.driver import USBMS
 class KINDLE(USBMS):
 
     name           = 'Kindle Device Interface'
+    gui_name       = 'Amazon Kindle'
     description    = _('Communicate with the Kindle eBook reader.')
     author         = _('John Schember')
     supported_platforms = ['windows', 'osx', 'linux']

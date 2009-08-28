@@ -633,7 +633,7 @@ class build_windows(VMInstaller):
 
 class build_osx(VMInstaller):
     description = 'Build OS X app bundle'
-    VM = '/vmware/calibre_os_x/Mac OSX.vmx'
+    VM = '/vmware/bin/tiger_build'
 
     def get_build_script(self, subs):
         return (self.BUILD_SCRIPT%subs).replace('rm ', 'sudo rm ')
@@ -642,15 +642,13 @@ class build_osx(VMInstaller):
         installer = installer_name('dmg')
         python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
         self.start_vmware()
-        self.start_vm('osx_build', ('sudo %s setup.py develop'%python, python,
+        self.start_vm('tiger_build', ('sudo %s setup.py develop'%python, python,
                               'installer/osx/freeze.py'))
-        check_call(('scp', 'osx_build:build/calibre/dist/*.dmg', 'dist'))
+        check_call(('scp', 'tiger_build:build/calibre/dist/*.dmg', 'dist'))
         if not os.path.exists(installer):
             raise Exception('Failed to build installer '+installer)
         if not self.dont_shutdown:
-            Popen(('ssh', 'osx_build', 'sudo', '/sbin/shutdown', '-h', 'now'))
-            time.sleep(20)
-            self.stop_vmware()
+            Popen(('ssh', 'tiger_build', 'sudo', '/sbin/shutdown', '-h', 'now'))
         return os.path.basename(installer)
 
 class upload_installers(OptionlessCommand):

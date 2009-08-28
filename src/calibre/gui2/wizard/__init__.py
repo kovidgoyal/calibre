@@ -90,7 +90,7 @@ class Sony500(Device):
 class Sony505(Sony500):
 
     output_format = 'EPUB'
-    name = 'SONY PRS 505/700'
+    name = 'SONY Reader Pocket/Touch Edition'
     id = 'prs505'
 
 class CybookG3(Device):
