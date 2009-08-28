@@ -42,6 +42,8 @@ class DebugWidget(Widget, Ui_Form):
     def pre_commit_check(self):
         try:
             x = unicode(self.opt_debug_pipeline.text()).strip()
+            if not x:
+                return True
             x = os.path.abspath(x)
             if x:
                 if not os.path.exists(x):
