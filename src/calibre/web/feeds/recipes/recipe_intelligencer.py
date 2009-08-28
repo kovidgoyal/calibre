@@ -1,0 +1,45 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+
+'''
+Inteligencer.ca
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Inteligencer(BasicNewsRecipe):
+    title                 = u'Intelligencer'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    encoding              = 'utf-8'
+    language              = _('English')
+    no_stylesheets        = True
+    use_embedded_content  = False
+    lang                  = 'en-CA'
+    
+    conversion_options = {
+                          'language'         : lang
+                        , 'pretty_print'     : True
+                        }
+                        
+    remove_attributes = ['style','width','height','font','border','align','action','onload']
+
+    keep_only_tags     = [dict(name='td',attrs={'colspan':'2'})]
+
+    remove_tags = [
+                    dict(name=['object','link','embed','iframe'])
+                   ,dict(name='div',attrs={'id':'header'})
+                  ]
+    feeds          = [(u'Recent News', u'http://www.intelligencer.ca/rss/')]
+
+    def print_version(self, url):
+        return url.replace('/ArticleDisplay.aspx?','/PrintArticle.aspx?')
+        
+    def preprocess_html(self, soup):
+        for item in soup.findAll('td'):
+            del item['colspan']
+            item.name = 'div'
+        return soup
+        

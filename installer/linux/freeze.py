@@ -48,6 +48,8 @@ def freeze():
                        '/usr/lib/libdbus-1.so.3',
                        '/usr/lib/libopenjpeg.so.2',
                        '/usr/lib/libxslt.so.1',
+                       '/usr/lib64/libjpeg.so.7'.replace('64', '64' if is64bit
+                           else ''),
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libgthread-2.0.so.0',
                        '/usr/lib/gcc/***-pc-linux-gnu/4.4.1/libstdc++.so.6'.replace('***',
