@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.9\n"
-"POT-Creation-Date: 2009-08-27 16:37+MDT\n"
-"PO-Revision-Date: 2009-08-27 16:37+MDT\n"
+"Project-Id-Version: calibre 0.6.10\n"
+"POT-Creation-Date: 2009-08-27 20:01+MDT\n"
+"PO-Revision-Date: 2009-08-27 20:01+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -158,50 +158,50 @@ msgstr ""
 msgid "Follow all local links in an HTML file and create a ZIP file containing all linked files. This plugin is run every time you add an HTML file to the library."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:47
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:48
 msgid "Character encoding for the input HTML files. Common choices include: cp1252, latin1, iso-8859-1 and utf-8."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:55
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:56
 msgid "Extract cover from comic files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:76
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:88
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:98
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:108
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:119
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:129
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:139
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:149
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:159
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:169
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:180
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:191
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:213
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:224
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:234
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:244
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:77
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:89
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:99
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:109
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:130
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:140
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:150
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:160
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:170
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:181
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:192
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:214
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:225
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:235
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:245
 msgid "Read metadata from %s files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:203
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:204
 msgid "Read metadata from ebooks in RAR archives"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:255
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:256
 msgid "Read metadata from ebooks in ZIP archives"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:266
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:276
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:286
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:308
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:319
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:267
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:277
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:287
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:320
 msgid "Set metadata in %s files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:297
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:298
 msgid "Set metadata from %s files"
 msgstr ""
 
@@ -689,238 +689,238 @@ msgstr ""
 msgid "Output saved to"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:90
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:91
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:97
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:98
 msgid "Save the output from different stages of the conversion pipeline to the specified directory. Useful if you are unsure at which stage of the conversion process a bug is occurring."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:106
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:107
 msgid "Specify the input profile. The input profile gives the conversion system information on how to interpret various information in the input document. For example resolution dependent lengths (i.e. lengths in pixels). Choices are:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:117
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:118
 msgid "Specify the output profile. The output profile tells the conversion system how to optimize the created document for the specified device. In some cases, an output profile is required to produce documents that will work on a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:128
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:129
 msgid "The base font size in pts. All font sizes in the produced book will be rescaled based on this size. By choosing a larger size you can make the fonts in the output bigger and vice versa. By default, the base font size is chosen based on the output profile you chose."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:138
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:139
 msgid "Mapping from CSS font names to font sizes in pts. An example setting is 12,12,14,16,18,20,22,24. These are the mappings for the sizes xx-small to xx-large, with the final size being for huge fonts. The font rescaling algorithm uses these sizes to intelligently rescale fonts. The default is to use a mapping based on the output profile you chose."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:150
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:151
 msgid "Disable all rescaling of font sizes."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:157
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:158
 msgid "The line height in pts. Controls spacing between consecutive lines of text. By default no line height manipulation is performed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:165
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:166
 msgid "Some badly designed documents use tables to control the layout of text on the page. When converted these documents often have text that runs off the page and other artifacts. This option will extract the content from the tables and present it in a linear fashion."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:175
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:176
 msgid "XPath expression that specifies all tags that should be added to the Table of Contents at level one. If this is specified, it takes precedence over other forms of auto-detection."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:184
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:185
 msgid "XPath expression that specifies all tags that should be added to the Table of Contents at level two. Each entry is added under the previous level one entry."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:192
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:193
 msgid "XPath expression that specifies all tags that should be added to the Table of Contents at level three. Each entry is added under the previous level two entry."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:200
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:201
 msgid "Normally, if the source file already has a Table of Contents, it is used in preference to the auto-generated one. With this option, the auto-generated one is always used."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:208
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid "Don't add auto-detected chapters to the Table of Contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:215
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:216
 msgid "If fewer than this number of chapters is detected, then links are added to the Table of Contents. Default: %default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:222
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:223
 msgid "Maximum number of links to insert into the TOC. Set to 0 to disable. Default is: %default. Links are only added to the TOC if less than the threshold number of chapters were detected."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:230
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:231
 msgid "Remove entries from the Table of Contents whose titles match the specified regular expression. Matching entries and all their children are removed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:241
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:242
 msgid "An XPath expression to detect chapter titles. The default is to consider <h1> or <h2> tags that contain the words \"chapter\",\"book\",\"section\" or \"part\" as chapter titles as well as any tags that have class=\"chapter\". The expression used must evaluate to a list of elements. To disable chapter detection, use the expression \"/\". See the XPath Tutorial in the calibre User Manual for further help on using this feature."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:255
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:256
 msgid "Specify how to mark detected chapters. A value of \"pagebreak\" will insert page breaks before chapters. A value of \"rule\" will insert a line before chapters. A value of \"none\" will disable chapter marking and a value of \"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:265
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:266
 msgid "Either the path to a CSS stylesheet or raw CSS. This CSS will be appended to the style rules from the source file, so it can be used to override those rules."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:274
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:275
 msgid "An XPath expression. Page breaks are inserted before the specified elements."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:280
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:285
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:286
 msgid "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:290
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:291
 msgid "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:296
 msgid "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:300
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:301
 msgid "Do not force text to be justified in output. Whether text is actually displayed justified or not depends on whether the ebook format and reading device support justification."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:307
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:308
 msgid "Remove spacing between paragraphs. Also sets an indent on paragraphs of 1.5em. Spacing removal will not work if the source file does not use paragraphs (<p> or <div> tags)."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:314
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:315
 msgid "Use the cover detected from the source file in preference to the specified cover."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:321
 msgid "Insert a blank line between paragraphs. Will not work if the source file does not use paragraphs (<p> or <div> tags)."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:327
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:328
 msgid "Remove the first image from the input ebook. Useful if the first image in the source file is a cover and you are specifying an external cover."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:335
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:336
 msgid "Insert the book metadata at the start of the book. This is useful if your ebook reader does not support displaying/searching metadata directly."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:343
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:344
 msgid "Attempt to detect and correct hard line breaks and other problems in the source file. This may make things worse, so use with care."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:351
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:352
 msgid "Use a regular expression to try and remove the header."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:358
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid "The regular expression to use to remove the header."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:364
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:365
 msgid "Use a regular expression to try and remove the footer."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:371
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:372
 msgid "The regular expression to use to remove the footer."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:378
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:379
 msgid "Read metadata from the specified OPF file. Metadata read from this file will override any metadata in the source file."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:385
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:386
 msgid "Transliterate unicode characters to an ASCII representation. Use with care because this will replace unicode characters with ASCII. For instance it will replace \"%s\" with \"Mikhail Gorbachiov\". Also, note that in cases where there are multiple representations of a character (characters shared by Chinese and Japanese for instance) the representation used by the largest number of people will be used (Chinese in the previous example)."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:400
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:401
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:37
 msgid "Set the title."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:404
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:405
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:409
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:410
 msgid "The version of the title to be used for sorting. "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:413
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:414
 msgid "String to be used when sorting by author. "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:417
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:418
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:51
 msgid "Set the cover to the specified file."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:421
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:422
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:53
 msgid "Set the ebook description."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:425
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:426
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:55
 msgid "Set the ebook publisher."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:429
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:430
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:59
 msgid "Set the series this ebook belongs to."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:433
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:434
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:61
 msgid "Set the index of the book in this series."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:437
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:438
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:63
 msgid "Set the rating. Should be a number between 1 and 5."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:441
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:442
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:65
 msgid "Set the ISBN of the book."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:445
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:446
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:67
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:449
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:450
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:69
 msgid "Set the book producer."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:453
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:454
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:71
 msgid "Set the language."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:545
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:546
 msgid "Could not find an ebook inside the archive"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:711
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:712
 msgid "Converting input to HTML..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:732
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:735
 msgid "Running transforms on ebook..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:819
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:822
 msgid "Creating"
 msgstr ""
 
