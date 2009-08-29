@@ -808,6 +808,9 @@ class BasicNewsRecipe(Recipe):
         '''
         Create a generic cover for recipes that dont have a cover
         '''
+        from calibre.gui2 import is_ok_to_use_qt
+        if not is_ok_to_use_qt():
+            return False
         from calibre.gui2 import images_rc # Needed for access to logo
         images_rc
         if QApplication.instance() is None: QApplication([])
@@ -868,6 +871,7 @@ class BasicNewsRecipe(Recipe):
         else:
             cover_file.write(renderer.data)
             cover_file.flush()
+        return True
 
 
     def create_opf(self, feeds, dir=None):
@@ -892,8 +896,8 @@ class BasicNewsRecipe(Recipe):
         cpath = getattr(self, 'cover_path', None)
         if cpath is None:
             pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
-            self.default_cover(pf)
-            cpath =  pf.name
+            if self.default_cover(pf):
+                cpath =  pf.name
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)

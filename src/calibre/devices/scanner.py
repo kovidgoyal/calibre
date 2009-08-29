@@ -58,8 +58,8 @@ class DeviceScanner(object):
     def __init__(self, *args):
         if isosx and osx_scanner is None:
             raise RuntimeError('The Python extension usbobserver must be available on OS X.')
-        if not (isosx or iswindows) and not os.access(_DEVICES, os.R_OK):
-            raise RuntimeError('DeviceScanner requires %s to work.'%_DEVICES)
+        if not (isosx or iswindows) and (not os.access(_DEVICES, os.R_OK) and not libusb.has_library):
+            raise RuntimeError('DeviceScanner requires %s or libusb to work.'%_DEVICES)
         self.scanner = win_scanner if iswindows else osx_scanner if isosx else linux_scanner
         self.devices = []
 
