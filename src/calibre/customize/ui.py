@@ -351,6 +351,10 @@ def initialize_plugins():
 
 initialize_plugins()
 
+def intialized_plugins():
+    for plugin in _initialized_plugins:
+        yield plugin
+
 def option_parser():
     parser = OptionParser(usage=_('''\
     %prog options

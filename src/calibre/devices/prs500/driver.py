@@ -112,6 +112,10 @@ class PRS500(DeviceConfig, DevicePlugin):
     SUPPORTS_SUB_DIRS = False
     MUST_READ_METADATA = True
 
+    @classmethod
+    def get_gui_name(cls):
+        return 'PRS-500'
+
     def log_packet(self, packet, header, stream=sys.stderr):
         """
         Log C{packet} to stream C{stream}.

@@ -17,7 +17,11 @@ class MemoryCache:
         self.clear()
         t = threading.Thread(target=self.expire_cache, name='expire_cache')
         self.expiration_thread = t
-        t.setDaemon(True)
+        if hasattr(threading.Thread, "daemon"):
+            # Python 2.6+
+            t.daemon = True
+        else:
+            t.setDaemon(True)
         t.start()
     
     def clear(self):

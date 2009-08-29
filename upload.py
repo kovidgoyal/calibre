@@ -36,7 +36,7 @@ def get_ip_address(ifname):
     )[20:24])
 
 try:
-    HOST=get_ip_address('br0')
+    HOST=get_ip_address('eth0')
 except:
     try:
         HOST=get_ip_address('wlan0')
@@ -506,6 +506,7 @@ class VMInstaller(OptionlessCommand):
 
     user_options = [('dont-shutdown', 'd', 'Dont shutdown VM after build')]
     boolean_options = ['dont-shutdown']
+    EXTRA_SLEEP = 5
 
     def initialize_options(self):
         self.dont_shutdown = False
@@ -546,12 +547,10 @@ class VMInstaller(OptionlessCommand):
                     pass
             while 'vmblock' in open('/proc/modules').read():
                 check_call('sudo rmmod -f vmblock')
-            check_call('sudo modprobe kvm-intel', shell=True)
 
 
     def run_vm(self):
-        vmware = ('vmware', '-q', '-x', '-n', self.VM)
-        self.__p = Popen(vmware)
+        self.__p = Popen(self.VM)
 
     def start_vm(self, ssh_host, build_script, sleep=75):
         self.run_vm()
@@ -563,7 +562,7 @@ class VMInstaller(OptionlessCommand):
         while call('ping -q -c1 '+ssh_host, shell=True,
                    stdout=open('/dev/null', 'w')) != 0:
             time.sleep(5)
-        time.sleep(20)
+        time.sleep(self.EXTRA_SLEEP)
         print 'Trying to SSH into VM'
         check_call(('scp', t.name, ssh_host+':build-calibre'))
         check_call('ssh -t %s bash build-calibre'%ssh_host, shell=True)
@@ -572,6 +571,7 @@ class KVMInstaller(VMInstaller):
 
     def run_vm(self):
         self.stop_vmware()
+        check_call('sudo modprobe kvm-intel', shell=True)
         self.__p = Popen(self.VM)
 
 
@@ -599,24 +599,24 @@ class build_linux32(KVMInstaller):
             return _build_linux()
 
 
-class build_windows(KVMInstaller):
+class build_windows(VMInstaller):
     description = 'Build windows installer'
-    VM = '/vmware/bin/win_build'
+    VM = '/vmware/bin/xp_build'
 
     def run(self):
         installer = installer_name('exe')
-        self.start_vm('win_build', ('python setup.py develop',
+        self.start_vm('xp_build', ('python setup.py develop',
                                   'python',
                                   r'installer\\windows\\freeze.py'))
         if os.path.exists('build/py2exe'):
             shutil.rmtree('build/py2exe')
-        check_call(('scp', '-rp', 'win_build:build/%s/build/py2exe'%__appname__,
+        check_call(('scp', '-rp', 'xp_build:build/%s/build/py2exe'%__appname__,
                      'build'))
         if not os.path.exists('build/py2exe'):
             raise Exception('Failed to run py2exe')
         self.run_windows_install_jammer(installer)
         if not self.dont_shutdown:
-            Popen(('ssh', 'win_build', 'shutdown', '-s', '-t', '0'))
+            Popen(('ssh', 'xp_build', 'shutdown', '-s', '-t', '0'))
         return os.path.basename(installer)
 
     @classmethod
@@ -633,7 +633,7 @@ class build_windows(KVMInstaller):
 
 class build_osx(VMInstaller):
     description = 'Build OS X app bundle'
-    VM = '/vmware/calibre_os_x/Mac OSX.vmx'
+    VM = '/vmware/bin/tiger_build'
 
     def get_build_script(self, subs):
         return (self.BUILD_SCRIPT%subs).replace('rm ', 'sudo rm ')
@@ -642,15 +642,13 @@ class build_osx(VMInstaller):
         installer = installer_name('dmg')
         python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
         self.start_vmware()
-        self.start_vm('osx_build', ('sudo %s setup.py develop'%python, python,
+        self.start_vm('tiger_build', ('sudo %s setup.py develop'%python, python,
                               'installer/osx/freeze.py'))
-        check_call(('scp', 'osx_build:build/calibre/dist/*.dmg', 'dist'))
+        check_call(('scp', 'tiger_build:build/calibre/dist/*.dmg', 'dist'))
         if not os.path.exists(installer):
             raise Exception('Failed to build installer '+installer)
         if not self.dont_shutdown:
-            Popen(('ssh', 'osx_build', 'sudo', '/sbin/shutdown', '-h', 'now'))
-            time.sleep(20)
-            self.stop_vmware()
+            Popen(('ssh', 'tiger_build', 'sudo', '/sbin/shutdown', '-h', 'now'))
         return os.path.basename(installer)
 
 class upload_installers(OptionlessCommand):

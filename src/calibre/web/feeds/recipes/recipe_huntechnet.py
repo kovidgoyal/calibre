@@ -18,13 +18,16 @@ class HunTechNet(BasicNewsRecipe):
      __author__ = 'Devilinside'
      max_articles_per_feed = 30
      timefmt = ' [%Y, %b %d, %a]'
-     extra_css      = '''
-                         body{font-family:Arial,Helvetica,sans-serif; font-size:small;}
-                         h1{font-size:large;}
-                      '''
-     remove_tags_after  = dict(name='ul', attrs={'class':'cikk_bottom box'})
+
+
+
+     
      remove_tags_before = dict(name='div', attrs={'id':'c-main'})
-     remove_tags = [dict(name='div', attrs={'class':'wrp clr'})]
+     remove_tags = [dict(name='div', attrs={'class':'wrp clr'}), 
+ {'class' : ['screenrdr','forum','print','startlap','text_small','text_normal','text_big','email']},
+                                   ]
+     keep_only_tags = [dict(name='div', attrs={'class':'cikk_head box'}),dict(name='div', attrs={'class':'cikk_txt box'})]
+
 
 
      feeds          = [(u'C\xedmlap',

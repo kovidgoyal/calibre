@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, sys
+import os, re, sys, shutil
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.customize.ui import input_profiles, output_profiles, \
@@ -12,6 +12,27 @@ from calibre.customize.ui import input_profiles, output_profiles, \
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import extract, walk
+
+DEBUG_README=u'''
+This debug directory contains snapshots of the e-book as it passes through the
+various stages of conversion. The stages are:
+
+    1. input - This is the result of running the input plugin on the source
+    file. Use this directory to debug the input plugin.
+
+    2. parsed - This is the result of preprocessing and parsing the output of
+    the input plugin. Note that for some input plugins this will be identical to
+    the input sub-directory. Use this directory to debug structure detection,
+    etc.
+
+    3. structure - This corresponds to the stage in the pipeline when structure
+    detection has run, but before the CSS is flattened. Use this directory to
+    debug the CSS flattening, font size conversion, etc.
+
+    4. processed - This corresponds to the e-book as it is passed to the output
+    plugin. Use this directory to debug the output plugin.
+
+'''
 
 def supported_input_formats():
     fmts = available_input_formats()
@@ -47,7 +68,7 @@ class Plumber(object):
         ]
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
-            dummy=False, merge_plugin_recs=True):
+            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -57,6 +78,7 @@ class Plumber(object):
         self.output = os.path.abspath(output)
         self.log = log
         self.ui_reporter = report_progress
+        self.abort_after_input_dump = abort_after_input_dump
 
         # Initialize the conversion options that are independent of input and
         # output formats. The input and output plugins can still disable these
@@ -68,6 +90,15 @@ OptionRecommendation(name='verbose',
             short_switch='v',
             help=_('Level of verbosity. Specify multiple times for greater '
                    'verbosity.')
+        ),
+
+OptionRecommendation(name='debug_pipeline',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            short_switch='d',
+            help=_('Save the output from different stages of the conversion '
+                   'pipeline to the specified '
+                   'directory. Useful if you are unsure at which stage '
+                   'of the conversion process a bug is occurring.')
         ),
 
 OptionRecommendation(name='input_profile',
@@ -622,6 +653,22 @@ OptionRecommendation(name='language',
         except:
             pass
 
+    def dump_oeb(self, oeb, out_dir):
+        from calibre.ebooks.oeb.writer import OEBWriter
+        w = OEBWriter(pretty_print=self.opts.pretty_print)
+        w(oeb, out_dir)
+
+    def dump_input(self, ret, output_dir):
+        out_dir = os.path.join(self.opts.debug_pipeline, 'input')
+        if isinstance(ret, basestring):
+            shutil.copytree(output_dir, out_dir)
+        else:
+            os.makedirs(out_dir)
+            self.dump_oeb(ret, out_dir)
+
+        self.log.info('Input debug saved to:', out_dir)
+
+
     def run(self):
         '''
         Run the conversion pipeline
@@ -631,6 +678,18 @@ OptionRecommendation(name='language',
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
         self.flush()
+
+        if self.opts.debug_pipeline is not None:
+            self.opts.verbose = max(self.opts.verbose, 4)
+            self.opts.debug_pipeline = os.path.abspath(self.opts.debug_pipeline)
+            if not os.path.exists(self.opts.debug_pipeline):
+                os.makedirs(self.opts.debug_pipeline)
+            open(os.path.join(self.opts.debug_pipeline, 'README.txt'),
+                    'w').write(DEBUG_README.encode('utf-8'))
+            for x in ('input', 'parsed', 'structure', 'processed'):
+                x = os.path.join(self.opts.debug_pipeline, x)
+                if os.path.exists(x):
+                    shutil.rmtree(x)
 
         # Run any preprocess plugins
         from calibre.customize.ui import run_plugins_on_preprocess
@@ -656,17 +715,23 @@ OptionRecommendation(name='language',
         self.oeb = self.input_plugin(stream, self.opts,
                                     self.input_fmt, self.log,
                                     accelerators, tdir)
+        if self.opts.debug_pipeline is not None:
+            self.dump_input(self.oeb, tdir)
+            if self.abort_after_input_dump:
+                return
         if self.input_fmt == 'recipe':
             self.opts_to_mi(self.user_metadata)
-        if self.opts.debug_input is not None:
-            self.log('Debug input called, aborting the rest of the pipeline.')
-            return
         if not hasattr(self.oeb, 'manifest'):
             self.oeb = create_oebbook(self.log, self.oeb, self.opts,
                     self.input_plugin)
         self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
         pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
         self.flush()
+        if self.opts.debug_pipeline is not None:
+            out_dir = os.path.join(self.opts.debug_pipeline, 'parsed')
+            self.dump_oeb(self.oeb, out_dir)
+            self.log('Parsed HTML written to:', out_dir)
+
         pr(0., _('Running transforms on ebook...'))
 
         from calibre.ebooks.oeb.transforms.guide import Clean
@@ -701,6 +766,12 @@ OptionRecommendation(name='language',
         Jacket()(self.oeb, self.opts, self.user_metadata)
         pr(0.4)
         self.flush()
+
+        if self.opts.debug_pipeline is not None:
+            out_dir = os.path.join(self.opts.debug_pipeline, 'structure')
+            self.dump_oeb(self.oeb, out_dir)
+            self.log('Structured HTML written to:', out_dir)
+
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
             self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
@@ -738,6 +809,12 @@ OptionRecommendation(name='language',
         self.oeb.toc.rationalize_play_orders()
         pr(1.)
         self.flush()
+
+        if self.opts.debug_pipeline is not None:
+            out_dir = os.path.join(self.opts.debug_pipeline, 'processed')
+            self.dump_oeb(self.oeb, out_dir)
+            self.log('Processed HTML written to:', out_dir)
+            return
 
         self.log.info('Creating %s...'%self.output_plugin.name)
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)

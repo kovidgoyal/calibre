@@ -1,7 +1,13 @@
 """Functions for builtin CherryPy tools."""
 
 import logging
-import md5
+
+try:
+    # Python 2.5+
+    from hashlib import md5
+except ImportError:
+    from md5 import new as md5
+
 import re
 
 import cherrypy
@@ -40,7 +46,7 @@ def validate_etags(autotags=False):
     if (not etag) and autotags:
         if status == 200:
             etag = response.collapse_body()
-            etag = '"%s"' % md5.new(etag).hexdigest()
+            etag = '"%s"' % md5(etag).hexdigest()
             response.headers['ETag'] = etag
     
     response.ETag = etag

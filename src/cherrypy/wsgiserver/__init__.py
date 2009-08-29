@@ -1191,28 +1191,39 @@ class HTTPConnection(object):
             # Close the connection.
             return
         except NoSSLError:
-            # Unwrap our wfile
-            req.wfile = CP_fileobject(self.socket, "wb", -1)
             if req and not req.sent_headers:
+                # Unwrap our wfile
+                req.wfile = CP_fileobject(self.socket._sock, "wb", -1)
                 req.simple_response("400 Bad Request",
                     "The client sent a plain HTTP request, but "
                     "this server only speaks HTTPS on this port.")
+                self.linger = True
         except Exception, e:
             if req and not req.sent_headers:
                 req.simple_response("500 Internal Server Error", format_exc())
+    
+    linger = False
     
     def close(self):
         """Close the socket underlying this connection."""
         self.rfile.close()
         
-        # Python's socket module does NOT call close on the kernel socket
-        # when you call socket.close(). We do so manually here because we
-        # want this server to send a FIN TCP segment immediately. Note this
-        # must be called *before* calling socket.close(), because the latter
-        # drops its reference to the kernel socket.
-        self.socket._sock.close()
-        
-        self.socket.close()
+        if not self.linger:
+            # Python's socket module does NOT call close on the kernel socket
+            # when you call socket.close(). We do so manually here because we
+            # want this server to send a FIN TCP segment immediately. Note this
+            # must be called *before* calling socket.close(), because the latter
+            # drops its reference to the kernel socket.
+            self.socket._sock.close()
+            self.socket.close()
+        else:
+            # On the other hand, sometimes we want to hang around for a bit
+            # to make sure the client has a chance to read our entire
+            # response. Skipping the close() calls here delays the FIN
+            # packet until the socket object is garbage-collected later.
+            # Someday, perhaps, we'll do the full lingering_close that
+            # Apache does, but not today.
+            pass
 
 
 def format_exc(limit=None):
@@ -1457,7 +1468,7 @@ class CherryPyWSGIServer(object):
     
     protocol = "HTTP/1.1"
     _bind_addr = "127.0.0.1"
-    version = "CherryPy/3.1.1"
+    version = "CherryPy/3.1.2"
     ready = False
     _interrupt = None
     
@@ -1709,7 +1720,7 @@ class CherryPyWSGIServer(object):
                 try:
                     host, port = sock.getsockname()[:2]
                 except socket.error, x:
-                    if x.args[1] != "Bad file descriptor":
+                    if x.args[0] not in socket_errors_to_ignore:
                         raise
                 else:
                     # Note that we're explicitly NOT using AI_PASSIVE,

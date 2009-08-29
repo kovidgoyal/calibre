@@ -27,12 +27,13 @@ every time you add an HTML file to the library.\
         from calibre.ebooks.epub import initialize_container
 
         with TemporaryDirectory('_plugin_html2zip') as tdir:
-            recs =[('debug_input', tdir, OptionRecommendation.HIGH)]
+            recs =[('debug_pipeline', tdir, OptionRecommendation.HIGH)]
             if self.site_customization and self.site_customization.strip():
                 recs.append(['input_encoding', self.site_customization.strip(),
                     OptionRecommendation.HIGH])
-            gui_convert(htmlfile, tdir, recs)
+            gui_convert(htmlfile, tdir, recs, abort_after_input_dump=True)
             of = self.temporary_file('_plugin_html2zip.zip')
+            tdir = os.path.join(tdir, 'input')
             opf = glob.glob(os.path.join(tdir, '*.opf'))[0]
             ncx = glob.glob(os.path.join(tdir, '*.ncx'))
             if ncx:

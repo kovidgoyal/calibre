@@ -78,7 +78,7 @@
                                 and press Enter: 
                             </p>
                             <pre class="wiki">
-sudo python -c "import urllib2; exec urllib2.urlopen('http://calibre.kovidgoyal.net/download_linux_binary_installer').read(); main()"
+sudo python -c "import urllib2; exec urllib2.urlopen('http://status.calibre-ebook.com/linux_installer').read(); main()"
                             </pre>
                             <h4>Note</h4>
                             <ul>
@@ -90,15 +90,6 @@ sudo python -c "import urllib2; exec urllib2.urlopen('http://calibre.kovidgoyal.
                                 <li>
                                     You must have xdg-utils installed 
                                     on your system before running the installer.
-                                </li>
-                                <li>
-                                    For device automounting to work, you must have the pmount 
-                                    package installed on your system.
-                                </li>
-                                <li>
-                                    On a 64bit machine, you must have 32-bit versions
-                                    of common libraries like X11, freetype, fontconfig,
-                                    expat and their various dependencies installed.
                                 </li>
                             </ul>
                             <h3>Source install</h3>
@@ -117,7 +108,7 @@ sudo python -c "import urllib2; exec urllib2.urlopen('http://calibre.kovidgoyal.
                                 <pre class="wiki">
 wget -O- http://calibre.kovidgoyal.net/downloads/${app}-${version}.tar.gz | tar xvz 
 cd calibre*
-python setup.py build &amp;&amp; sudo python setup.py install
+python setup.py build_ext &amp;&amp; python setup.py build &amp;&amp; sudo python setup.py install
 sudo calibre_postinstall
                                 </pre>
                                 Note that if your distribution does not have a

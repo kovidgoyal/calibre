@@ -117,15 +117,6 @@ class InputFormatPlugin(Plugin):
     #: in sub-classes. Use :member:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
     common_options = set([
-        OptionRecommendation(name='debug_input',
-            recommended_value=None, level=OptionRecommendation.LOW,
-            help=_('Save the output from the input plugin to the specified '
-                   'directory. Useful if you are unsure at which stage '
-                   'of the conversion process a bug is occurring. '
-                   'WARNING: This completely deletes the contents of '
-                   'the specified directory.')
-        ),
-
         OptionRecommendation(name='input_encoding',
             recommended_value=None, level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the input document. If '
@@ -216,19 +207,6 @@ class InputFormatPlugin(Plugin):
             ret = self.convert(stream, options, file_ext,
                                log, accelerators)
 
-        if options.debug_input is not None:
-            options.debug_input = os.path.abspath(options.debug_input)
-            if not os.path.exists(options.debug_input):
-                os.makedirs(options.debug_input)
-            if isinstance(ret, basestring):
-                shutil.rmtree(options.debug_input)
-                shutil.copytree(output_dir, options.debug_input)
-            else:
-                from calibre.ebooks.oeb.writer import OEBWriter
-                w = OEBWriter(pretty_print=options.pretty_print)
-                w(ret, options.debug_input)
-
-            log.info('Input debug saved to:', options.debug_input)
 
         return ret
 

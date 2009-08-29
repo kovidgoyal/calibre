@@ -158,6 +158,7 @@ def add_pipeline_options(parser, plumber):
               'DEBUG': (_('Options to help with debugging the conversion'),
                         [
                          'verbose',
+                         'debug_pipeline',
                          ]),
 
 
@@ -247,8 +248,7 @@ def main(args=sys.argv):
 
     plumber.run()
 
-    if plumber.opts.debug_input is None:
-        log(_('Output saved to'), ' ', plumber.output)
+    log(_('Output saved to'), ' ', plumber.output)
 
     return 0
 

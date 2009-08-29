@@ -167,6 +167,9 @@ def staticdir(section, dir, root="", match="", content_types=None, index=""):
     '/home/me', the Request-URI is 'myapp', and the index arg is
     'index.html', the file '/home/me/myapp/index.html' will be sought.
     """
+    if cherrypy.request.method not in ('GET', 'HEAD'):
+        return False
+    
     if match and not re.search(match, cherrypy.request.path_info):
         return False
     
@@ -217,6 +220,9 @@ def staticfile(filename, root=None, match="", content_types=None):
     a string (e.g. "gif") and 'content-type' is the value to write
     out in the Content-Type response header (e.g. "image/gif").
     """
+    if cherrypy.request.method not in ('GET', 'HEAD'):
+        return False
+    
     if match and not re.search(match, cherrypy.request.path_info):
         return False
     

@@ -722,7 +722,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
             self.status_bar.showMessage(_('Device: ')+\
-                self.device_manager.device.__class__.__name__+\
+                self.device_manager.device.__class__.get_gui_name()+\
                         _(' detected.'), 3000)
             self.device_connected = True
             self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix())

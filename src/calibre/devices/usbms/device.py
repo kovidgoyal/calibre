@@ -112,6 +112,14 @@ class Device(DeviceConfig, DevicePlugin):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
     @classmethod
+    def get_gui_name(cls):
+        x = getattr(cls, 'gui_name', None)
+        if x is None:
+            x = cls.__name__
+        return x
+
+
+    @classmethod
     def get_fdi(cls):
         fdi = ''
         for vid in cls.VENDOR_ID:

@@ -13,28 +13,30 @@ class USAToday(BasicNewsRecipe):
 
     title = 'USA Today'
     timefmt  = ' [%d %b %Y]'
+    __author__ = 'Kovid Goyal and Sujata Raman'
     max_articles_per_feed = 20
     language = _('English')
-    __author__ = _('Kovid Goyal and Sujata Raman')
 
     no_stylesheets = True
     extra_css = '''
             .inside-head{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
             .inside-head2{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
             .inside-head3{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
-            h3{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold }
-            h4{font-family:Arial,Helvetica,sans-serif; font-size:x-small; font-weight:bold }
+            h3{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight:bold; }
+            h4{font-family:Arial,Helvetica,sans-serif; font-size:x-small; font-weight:bold; }
             .side-by-side{font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
             #byLineTag{font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-            .inside-copy{font-family:Arial,Helvetica,sans-serif; font-size:x-small;text-align:left}
+            .inside-copy{font-family:Arial,Helvetica,sans-serif; font-size:x-small;text-align:left;}
             .caption{font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
+            li{font-family:Arial,Helvetica,sans-serif; font-size:x-small;text-align:left ;}
+            .vatext{font-family:Arial,Helvetica,sans-serif; font-size:x-small;text-align:left ;}
+            .vaTextBold{font-family:Arial,Helvetica,sans-serif; font-size:x-small;font-weight:bold; color:#666666;}
             '''
     remove_tags = [
-                    dict(name='div', attrs={'class':'inside-copy'}),
-                    {'class':['tagListLabel','piped-taglist-string',]}
+                   {'class':['tagListLabel','piped-taglist-string',]}
                   ]
 
-    html2lrf_options = ['--ignore-tables']
+    conversion_options = { 'linearize_tables' : True }
 
     preprocess_regexps = [
         (re.compile(r'<BODY.*?<!--Article Goes Here-->', re.IGNORECASE | re.DOTALL), lambda match : '<BODY>'),

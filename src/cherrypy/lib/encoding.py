@@ -241,7 +241,7 @@ def gzip(compress_level=9, mime_types=['text/html', 'text/plain']):
         # to the client.
         return
     
-    ct = response.headers.get('Content-Type').split(';')[0]
+    ct = response.headers.get('Content-Type', '').split(';')[0]
     for coding in acceptable:
         if coding.value == 'identity' and coding.qvalue != 0:
             return

@@ -126,6 +126,10 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
                     OptionRecommendation.HIGH))
                 temp_files.append(d.cover_file)
 
+            for x in list(lrecs):
+                if x[0] == 'debug_pipeline':
+                    lrecs.remove(x)
+
             desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
 
             args = [in_file, out_file.name, lrecs]

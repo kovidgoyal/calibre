@@ -39,7 +39,7 @@ class Checker(object):
             finally:
                 warnings.formatwarning = oldformatwarning
     
-    def formatwarning(self, message, category, filename, lineno):
+    def formatwarning(self, message, category, filename, lineno, line=None):
         """Function to format a warning."""
         return "CherryPy Checker:\n%s\n\n" % message
     
@@ -58,7 +58,7 @@ class Checker(object):
                             "specific sections. You must explicitly pass "
                             "application config via "
                             "cherrypy.tree.mount(..., config=app_config)")
-                    warnings.warn(msg[:5])
+                warnings.warn(msg)
                 return
     
     def check_static_paths(self):
