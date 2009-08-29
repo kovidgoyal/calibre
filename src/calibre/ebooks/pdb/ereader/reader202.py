@@ -93,7 +93,7 @@ class Reader202(FormatReader):
             pml += self.get_text_page(i)
 
         html = u'<html><head><title>%s</title></head><body>%s</body></html>' % \
-            (self.mi.title, pml_to_html(pml))
+            (self.mi.title.decode('utf-8', 'replace'), pml_to_html(pml))
 
         with CurrentDir(output_dir):
             with open('index.html', 'wb') as index:

@@ -105,7 +105,7 @@ class Reader132(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        html = u'<html><head><title>%s</title></head><body>' % self.mi.title
+        html = u'<html><head><title>%s</title></head><body>' % self.mi.title.decode('utf-8', 'replace')
 
         pml = u''
         for i in range(1, self.header_record.num_text_pages + 1):
