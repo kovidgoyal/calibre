@@ -1703,9 +1703,13 @@ books_series_link      feeds
             ndb = DBThread(dest, None)
             ndb.connect()
             conn = ndb.conn
+            conn.execute('create table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
+            conn.commit()
             conn.executescript(sql)
             conn.commit()
             conn.execute('pragma user_version=%d'%user_version)
+            conn.commit()
+            conn.execute('drop table temp_sequence')
             conn.commit()
             conn.close()
         except:
