@@ -13,7 +13,7 @@ class PluginWidget(Widget, Ui_Form):
     HELP = _('Options specific to')+' PDB '+_('input')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, 'txt_input',
+        Widget.__init__(self, parent, 'pdb_input',
             ['single_line_paras'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
