@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
-This module provides a thin ctypes based wrapper around libusb. 
+This module provides a thin ctypes based wrapper around libusb.
 """
 
 from ctypes import cdll, POINTER, byref, pointer, Structure as _Structure, \
@@ -24,8 +24,10 @@ try:
         _libusb = load_library(_libusb_name, cdll)
     except OSError:
         _libusb = cdll.LoadLibrary('libusb-0.1.so.4')
+    has_library = True
 except:
     _libusb = None
+    has_library = False
 
 class DeviceDescriptor(Structure):
     _fields_ = [\
@@ -81,7 +83,7 @@ class Interface(Structure):
                 ('num_altsetting', c_int)\
                ]
 
-class ConfigDescriptor(Structure):    
+class ConfigDescriptor(Structure):
     _fields_ = [\
                 ('Length', c_ubyte), \
                 ('DescriptorType', c_ubyte), \
@@ -95,27 +97,27 @@ class ConfigDescriptor(Structure):
                 ('extra', POINTER(c_ubyte)), \
                 ('extralen', c_int) \
                ]
-    
+
     def __str__(self):
         ans = ""
         for field in self._fields_:
             ans += field[0] + ": " + str(eval('self.'+field[0])) + '\n'
         return ans.strip()
-        
-        
-                
+
+
+
 class Error(Exception):
     pass
 
 class Device(Structure):
-    
+
     def open(self):
         """ Open device for use. Return a DeviceHandle. """
         handle = _libusb.usb_open(byref(self))
         if not handle:
             raise Error("Cannot open device")
-        return handle.contents    
-    
+        return handle.contents
+
     @dynamic_property
     def configurations(self):
         doc = """ List of device configurations. See L{ConfigDescriptor} """
@@ -130,9 +132,9 @@ class Bus(Structure):
     @dynamic_property
     def device_list(self):
         doc = \
-        """ 
-        Flat list of devices on this bus. 
-        Note: children are not explored 
+        """
+        Flat list of devices on this bus.
+        Note: children are not explored
         TODO: Check if exploring children is neccessary (e.g. with an external hub)
         """
         def fget(self):
@@ -145,7 +147,7 @@ class Bus(Structure):
             while ndev:
                 dev = ndev.contents
                 ans.append(dev)
-                ndev = dev.next                
+                ndev = dev.next
             return ans
         return property(doc=doc, fget=fget)
 
@@ -159,14 +161,14 @@ class DeviceHandle(Structure):
                 ('altsetting', c_int), \
                 ('impl_info', c_void_p)
                ]
-    
+
     def close(self):
         """ Close this DeviceHandle """
         _libusb.usb_close(byref(self))
 
     def set_configuration(self, config):
         """
-        Set device configuration. This has to be called on windows before 
+        Set device configuration. This has to be called on windows before
         trying to claim an interface.
         @param config: A L{ConfigDescriptor} or a integer (the ConfigurationValue)
         """
@@ -178,14 +180,14 @@ class DeviceHandle(Structure):
         if ret < 0:
             raise Error('Failed to set device configuration to: ' + str(num) + \
                         '. Error code: ' + str(ret))
-        
+
     def claim_interface(self, num):
-        """ 
-        Claim interface C{num} on device. 
-        Must be called before doing anything witht the device. 
+        """
+        Claim interface C{num} on device.
+        Must be called before doing anything witht the device.
         """
         ret = _libusb.usb_claim_interface(byref(self), num)
-            
+
         if -ret == ENOMEM:
             raise Error("Insufficient memory to claim interface")
         elif -ret == EBUSY:
@@ -193,7 +195,7 @@ class DeviceHandle(Structure):
         elif ret < 0:
             raise Error('Unknown error occurred while trying to claim USB'\
                         ' interface: ' + str(ret))
-            
+
     def control_msg(self, rtype, request, bytes, value=0, index=0, timeout=100):
         """
         Perform a control request to the default control pipe on the device.
@@ -210,7 +212,7 @@ class DeviceHandle(Structure):
         try:
             size = len(bytes)
         except TypeError:
-            size = bytes            
+            size = bytes
             ArrayType = c_byte * size
             _libusb.usb_control_msg.argtypes = [POINTER(DeviceHandle), c_int, \
                                                c_int, c_int, c_int, \
@@ -234,7 +236,7 @@ class DeviceHandle(Structure):
             return _libusb.usb_control_msg(byref(self), rtype, request, \
                                               value, index, byref(arr), \
                                               size, timeout)
-            
+
     def bulk_read(self, endpoint, size, timeout=100):
         """
         Read C{size} bytes via a bulk transfer from the device.
@@ -254,7 +256,7 @@ class DeviceHandle(Structure):
         if rsize < size:
             arr = arr[:rsize]
         return arr
-        
+
     def bulk_write(self, endpoint, bytes, timeout=100):
         """
         Send C{bytes} to device via a bulk transfer.
@@ -266,13 +268,13 @@ class DeviceHandle(Structure):
                                          POINTER(ArrayType), c_int, c_int
                                          ]
         _libusb.usb_bulk_write(byref(self), endpoint, byref(arr), size, timeout)
-            
+
     def release_interface(self, num):
         ret = _libusb.usb_release_interface(pointer(self), num)
         if ret < 0:
             raise Error('Unknown error occurred while trying to release USB'\
                         ' interface: ' + str(ret))
-            
+
     def reset(self):
         ret = _libusb.usb_reset(pointer(self))
         if ret < 0:
@@ -300,7 +302,7 @@ Device._fields_ = [ \
                 ('devnum', c_ubyte), \
                 ('num_children', c_ubyte), \
                 ('children', POINTER(POINTER(Device)))
-               ] 
+               ]
 
 if _libusb is not None:
     _libusb.usb_get_busses.restype = POINTER(Bus)
@@ -337,7 +339,7 @@ def busses():
         ans.append(bus)
         nbus = bus.next
     return ans
-        
+
 
 def get_device_by_id(idVendor, idProduct):
     """ Return a L{Device} by vendor and prduct ids """
@@ -348,7 +350,7 @@ def get_device_by_id(idVendor, idProduct):
             if dev.device_descriptor.idVendor == idVendor and \
                dev.device_descriptor.idProduct == idProduct:
                 return dev
-            
+
 def has_library():
     return _libusb is not None
 

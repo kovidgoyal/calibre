@@ -8,6 +8,7 @@ manner.
 import sys, re, os
 
 from calibre import iswindows, isosx, plugins
+from calibre.devices import libusb
 
 osx_scanner = win_scanner = linux_scanner = None
 
@@ -22,11 +23,12 @@ elif isosx:
     except:
         raise RuntimeError('Failed to load the usbobserver plugin: %s'%plugins['usbobserver'][1])
 
+
 _usb_re = re.compile(r'Vendor\s*=\s*([0-9a-fA-F]+)\s+ProdID\s*=\s*([0-9a-fA-F]+)\s+Rev\s*=\s*([0-9a-fA-f.]+)')
 _DEVICES = '/proc/bus/usb/devices'
 
 
-def linux_scanner():
+def _linux_scanner():
     raw = open(_DEVICES).read()
     devices = []
     device = None
@@ -45,6 +47,11 @@ def linux_scanner():
     if device:
         devices.append(device)
     return devices
+
+if libusb.has_library:
+    linux_scanner = libusb.get_devices
+else:
+    linux_scanner = _linux_scanner
 
 class DeviceScanner(object):
 

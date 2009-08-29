@@ -1421,14 +1421,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             for row in rows:
                 row = row.row()
 
-                formats = self.library_view.model().db.formats(row).upper()
-                formats = formats.split(',')
+                formats = self.library_view.model().db.formats(row)
                 title   = self.library_view.model().db.title(row)
-
                 if not formats:
                     error_dialog(self, _('Cannot view'),
                         _('%s has no available formats.')%(title,), show=True)
                     continue
+
+                formats = formats.upper().split(',')
+
 
                 in_prefs = False
                 for format in prefs['input_format_order']:
