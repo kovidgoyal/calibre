@@ -9,6 +9,7 @@ from calibre.devices.usbms.driver import USBMS
 class ANDROID(USBMS):
 
     name           = 'Android driver'
+    gui_name       = 'Android phone'
     description    = _('Communicate with Android phones.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']

@@ -15,6 +15,7 @@ from calibre.devices.usbms.driver import USBMS
 class BEBOOK(USBMS):
 
     name           = 'BeBook driver'
+    gui_name       = 'BeBook'
     description    = _('Communicate with the BeBook eBook reader.')
     author         = 'Tijmen Ruizendaal'
     supported_platforms = ['windows', 'osx', 'linux']
@@ -90,6 +91,7 @@ class BEBOOK(USBMS):
 
 class BEBOOK_MINI(BEBOOK):
     name           = 'BeBook Mini driver'
+    gui_name       = 'BeBook Mini'
     description    = _('Communicate with the BeBook Mini eBook reader.')
 
 
