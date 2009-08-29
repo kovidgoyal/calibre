@@ -92,8 +92,12 @@ class Reader202(FormatReader):
             self.log.debug('Extracting text page %i' % i)
             pml += self.get_text_page(i)
 
+        title = self.mi.title
+        if not isinstance(title, unicode):
+            title = title.decode('utf-8', 'replace')
+
         html = u'<html><head><title>%s</title></head><body>%s</body></html>' % \
-            (self.mi.title, pml_to_html(pml))
+            (title, pml_to_html(pml))
 
         with CurrentDir(output_dir):
             with open('index.html', 'wb') as index:

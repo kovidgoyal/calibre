@@ -50,7 +50,7 @@ class Reader132(FormatReader):
     def __init__(self, header, stream, log, options):
         self.log = log
         self.encoding = options.input_encoding
-        
+
         self.log.debug('132 byte header version found.')
 
         self.sections = []
@@ -105,7 +105,10 @@ class Reader132(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        html = u'<html><head><title>%s</title></head><body>' % self.mi.title
+        title = self.mi.title
+        if not isinstance(title, unicode):
+            title = title.decode('utf-8', 'replace')
+        html = u'<html><head><title>%s</title></head><body>' % title
 
         pml = u''
         for i in range(1, self.header_record.num_text_pages + 1):
