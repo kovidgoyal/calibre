@@ -487,7 +487,10 @@ def installer_name(ext):
         ans = ans.replace('i686', 'x86_64')
     return ans
 
-def _build_linux():
+class build_linux64(OptionlessCommand):
+    description = 'Build linux 64bit installer'
+
+    def run(self):
         installer = installer_name('tar.bz2')
         locals = {}
         exec open('installer/linux/freeze.py') in locals
@@ -495,12 +498,6 @@ def _build_linux():
         if not os.path.exists(installer):
             raise Exception('Failed to build installer '+installer)
         return os.path.basename(installer)
-
-class build_linux64(OptionlessCommand):
-    description = 'Build linux 64bit installer'
-
-    def run(self):
-        return _build_linux()
 
 class VMInstaller(OptionlessCommand):
 
@@ -518,7 +515,7 @@ class VMInstaller(OptionlessCommand):
         rsync -avz --exclude src/calibre/plugins \
                --exclude calibre/src/calibre.egg-info --exclude docs \
                --exclude .bzr --exclude .build --exclude build --exclude dist \
-               --exclude "*.pyc" --exclude "*.pyo" \
+               --exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" \
                rsync://%(host)s/work/%(project)s . && \
         cd %(project)s && \
         %%s && \
@@ -550,7 +547,7 @@ class VMInstaller(OptionlessCommand):
 
 
     def run_vm(self):
-        self.__p = Popen(self.VM)
+        self.__p = Popen([self.VM])
 
     def start_vm(self, ssh_host, build_script, sleep=75):
         self.run_vm()
@@ -576,28 +573,21 @@ class KVMInstaller(VMInstaller):
 
 
 
-class build_linux32(KVMInstaller):
+class build_linux32(VMInstaller):
 
     description = 'Build linux 32bit installer'
-    VM = '/vmware/bin/linux_build'
-
-    def run_vm(self):
-        self.__p = Popen('/vmware/bin/linux_build')
+    VM = '/vmware/bin/gentoo32_build'
 
     def run(self):
-        if is64bit:
-            installer = installer_name('tar.bz2').replace('x86_64', 'i686')
-            self.start_vm('linux_build', ('python setup.py build_ext',
-                'python', 'setup.py build_linux32'))
-            check_call(('scp', 'linux_build:build/calibre/dist/*.tar.bz2', 'dist'))
-            if not os.path.exists(installer):
-                raise Exception('Failed to build installer '+installer)
-            if not self.dont_shutdown:
-                Popen(('ssh', 'linux_build', 'sudo', '/sbin/poweroff'))
-            return os.path.basename(installer)
-        else:
-            return _build_linux()
-
+        installer = installer_name('tar.bz2').replace('x86_64', 'i686')
+        self.start_vm('gentoo32_build', ('sudo python setup.py develop && sudo chown -R kovid:users *',
+            'python', 'installer/linux/freeze.py'))
+        check_call(('scp', 'gentoo32_build:build/calibre/dist/*.dmg', 'dist'))
+        if not os.path.exists(installer):
+            raise Exception('Failed to build installer '+installer)
+        if not self.dont_shutdown:
+            Popen(('ssh', 'gentoo32_build', 'sudo', '/sbin/poweroff'))
+        return os.path.basename(installer)
 
 class build_windows(VMInstaller):
     description = 'Build windows installer'
@@ -641,7 +631,6 @@ class build_osx(VMInstaller):
     def run(self):
         installer = installer_name('dmg')
         python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
-        self.start_vmware()
         self.start_vm('tiger_build', ('sudo %s setup.py develop'%python, python,
                               'installer/osx/freeze.py'))
         check_call(('scp', 'tiger_build:build/calibre/dist/*.dmg', 'dist'))

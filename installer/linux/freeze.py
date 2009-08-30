@@ -52,7 +52,7 @@ def freeze():
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libgthread-2.0.so.0',
                        '/usr/lib/gcc/***-pc-linux-gnu/4.4.1/libstdc++.so.6'.replace('***',
-                           arch).replace('i686', 'i486'),
+                           arch),
                        '/usr/lib/libpng12.so.0',
                        '/usr/lib/libexslt.so.0',
                        '/usr/lib/libMagickWand.so',

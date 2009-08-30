@@ -97,6 +97,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         format_args['author_sort'] = mi.author_sort
     if mi.tags:
         format_args['tags'] = mi.format_tags()
+        if format_args['tags'].startswith('/'):
+            format_args['tags'] = format_args['tags'][1:]
     if mi.series:
         format_args['series'] = mi.series
         if mi.series_index is not None:
