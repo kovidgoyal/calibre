@@ -75,13 +75,13 @@ class PMLMLizer(object):
         self.log = log
         self.image_hrefs = {}
         self.link_hrefs = {}
-        
+
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to PML markup...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.pmlmlize_spine()
-        
+
     def pmlmlize_spine(self):
         self.image_hrefs = {}
         self.link_hrefs = {}
@@ -139,15 +139,15 @@ class PMLMLizer(object):
         # Remove excess spaces at beginning and end of lines
         text = re.sub('(?m)^[ ]+', '', text)
         text = re.sub('(?m)[ ]+$', '', text)
-    
+
         # Remove excessive newlines
         text = re.sub('%s{1,1}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
         text = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
         text = re.sub('[ ]{2,}', ' ', text)
-        
+
         # Remove excessive \p tags
         text = re.sub(r'\\p\s*\\p', '', text)
-        
+
         # Remove anchors that do not have links
         anchors = set(re.findall(r'(?<=\\Q=").+?(?=")', text))
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
@@ -157,7 +157,7 @@ class PMLMLizer(object):
         for entity in set(re.findall('&.+?;', text)):
             mo = re.search('(%s)' % entity[1:-1], text)
             text = text.replace(entity, entity_to_unicode(mo))
-        
+
         return text
 
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
@@ -167,7 +167,7 @@ class PMLMLizer(object):
 
         text = u''
         style = stylizer.style(elem)
-        
+
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
             return u''
@@ -180,7 +180,7 @@ class PMLMLizer(object):
             if 'block' not in tag_stack:
                 tag_count += 1
                 tag_stack.append('block')
-        
+
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
         if tag in IMAGE_TAGS:
@@ -192,15 +192,15 @@ class PMLMLizer(object):
             text += '\\w'
             width = elem.get('width')
             if width:
-                text += '="%s%"' % width
+                text += '="%s%%"' % width
             else:
                 text += '="50%"'
-        
+
         # Process style information that needs holds a single tag
         # Commented out because every page in an OEB book starts with this style
         #if style['page-break-before'] == 'always':
         #    text += '\\p'
-        
+
         pml_tag = TAG_MAP.get(tag, None)
         if pml_tag and pml_tag not in tag_stack:
             tag_count += 1
@@ -240,23 +240,23 @@ class PMLMLizer(object):
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
             text += self.elem_text(elem, tag_stack)
-            
+
         for item in elem:
             text += self.dump_text(item, stylizer, page, tag_stack)
-        
+
         close_tag_list = []
         for i in range(0, tag_count):
             close_tag_list.insert(0, tag_stack.pop())
         text += self.close_tags(close_tag_list)
         if tag in SEPARATE_TAGS:
             text += os.linesep + os.linesep
-        
+
         if 'block' not in tag_stack:
             text += os.linesep + os.linesep
 
         #if style['page-break-after'] == 'always':
         #    text += '\\p'
-        
+
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             text += self.elem_tail(elem, tag_stack)
 
