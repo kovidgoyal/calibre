@@ -7,6 +7,7 @@ Read content from txt file.
 import os
 import re
 
+from calibre import prepare_string_for_xml
 from calibre.ebooks.markdown import markdown
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
@@ -14,12 +15,28 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>%s</body></html>'
+HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
 def convert_basic(txt, title=''):
     lines = []
+    # Strip whitespace from the beginning and end of the line. Also replace
+    # all line breaks with \n.
     for line in txt.splitlines():
-        lines.append('<p>%s</p>' % line)
+        lines.append(line.strip())
+    txt = '\n'.join(lines)
+
+    # Remove blank lines from the beginning and end of the document.
+    txt = re.sub('^\s+(?=.)', '', txt)
+    txt = re.sub('(?<=.)\s+$', '', txt)
+    # Remove excessive line breaks.
+    txt = re.sub('\n{3,}', '\n\n', txt)
+
+    lines = []
+    # Split into paragraphs based on having a blank line between text.
+    for line in txt.split('\n\n'):
+        if line.strip():
+            lines.append('<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
+
     return HTML_TEMPLATE % (title, '\n'.join(lines))
 
 def convert_markdown(txt, title=''):
