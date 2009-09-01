@@ -3,7 +3,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Profile to download CNN
 '''
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CNN(BasicNewsRecipe):
@@ -11,28 +10,53 @@ class CNN(BasicNewsRecipe):
     title = 'CNN'
     description = 'Global news'
     timefmt  = ' [%d %b %Y]'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal and Sujata Raman'
     language = _('English')
     no_stylesheets = True
     use_embedded_content   = False
     oldest_article        = 15
 
-    preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in [
-        (r'<head>.*?<title', lambda match : '<head><title'),
-        (r'</title>.*?</head>', lambda match : '</title></head>'),
-        (r'<body.*?<\!\-\-Article.*?>', lambda match : '<body>'),
-        (r'<\!\-\-Article End\-\->.*?</body>', lambda match : '</body>'),
-        (r'(</h\d>)<ul>.*?</ul>', lambda match : match.group(1)), # drop story highlights
-        (r'<h2>(.*?)</h2><h1>(.*?)</h1>', lambda match : '<h1>' + match.group(1) + '</h1><h2>' + match.group(2) + '</h2>'), # sports uses h2 for main title and h1 for subtitle (???) switch these around
-        (r'<span class="cnnEmbeddedMosLnk">.*?</span>', lambda match : ''), # drop 'watch more' links
-        (r'(<div class="cnnstorybody">).*?(<p)', lambda match : match.group(1) + match.group(2)), # drop sports photos
-        (r'</?table.*?>|</?tr.*?>|</?td.*?>', lambda match : ''), # drop table formatting
-        (r'<div class="cnnendofstorycontent".*?>.*?</div>', lambda match : ''), # drop extra business links
-        (r'<a href="#TOP">.*?</a>', lambda match : '') # drop business 'to top' link
-        ] ]
+    extra_css = '''
+                h1{font-family :Arial,Helvetica,sans-serif; font-size:large}
+                h2{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
+                .cnnTxtCmpnt{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
+                .cnnTMcontent{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;color:#575757}
+                .storytext{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
+                .storybyline{font-family :Arial,Helvetica,sans-serif; font-size:xx-small; color:#575757}
+                .credit{font-family :Arial,Helvetica,sans-serif; font-size:xx-small; color:#575757}
+                .storyBrandingBanner{font-family :Arial,Helvetica,sans-serif; font-size:xx-small; color:#575757}
+                .storytimestamp{font-family :Arial,Helvetica,sans-serif; font-size:xx-small; color:#575757}
+                .timestamp{font-family :Arial,Helvetica,sans-serif; font-size:xx-small; color:#575757}
+                .subhead p{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;}
+                .cnnStoryContent{font-family :Arial,Helvetica,sans-serif; font-size:xx-small}
+                .cnnContentContainer{font-family :Arial,Helvetica,sans-serif; font-size:xx-small}
+                .col1{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666;}
+                .col3{color:#333333; font-family :Arial,Helvetica,sans-serif; font-size:x-small;font-weight:bold;}
+                .cnnInlineT1Caption{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;font-weight:bold;}
+                .cnnInlineT1Credit{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;color:#333333;}
+                .col10{color:#5A637E}
+                .cnnTimeStamp{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;color:#333333;}
+                .galleryhedDek{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;color:#575757;}
+                .galleryWidgetHeader{font-family :Arial,Helvetica,sans-serif; font-size:xx-small;color:#004276;}
+                .article-content{font-family :Arial,Helvetica,sans-serif; font-size:xx-small}
+                .cnnRecapStory{font-family :Arial,Helvetica,sans-serif; font-size:xx-small}
+                '''
+    keep_only_tags = [
+                        dict(name='div', attrs={'class':["cnnWCBoxContent","cnnContent","cnnMainBodySecs"]}),
+                         dict(name='div', attrs={'id':["contentBody","content"]}),
+                         dict(name='td', attrs={'id':["cnnRecapStory"]}),]
+    remove_tags =   [
+                        dict(name='div', attrs={'class':["storyLink","article-tools clearfix","widget video related-video vList","cnnFooterBox","scrollArrows","boxHeading","cnnInlineMailbag","mainCol_lastBlock","cnn_bookmarks","cnnFooterBox","cnnEndOfStory","cnnInlineSL","cnnStoryHighlights","cnnFooterClick","cnnSnapShotHeader","cnnStoryToolsFooter","cnnWsnr","cnnUGCBox","cnnTopNewsModule","cnnStoryElementBox","cnnStoryPhotoBoxNavigation"]}),
+                        dict(name='span', attrs={'class':["cnnEmbeddedMosLnk"]}),
+                        dict(name='div', attrs={'id':["cnnIncldHlder","articleCommentsContainer","featuredContent","superstarsWidget","shareMenuContainer","rssMenuContainer","storyBrandingBanner","cnnRightCol","siteFeatures","quigo628","rightColumn","clickIncludeBox","cnnHeaderRightCol","cnnSCFontLabel","cnnSnapShotBottomRight","cnnSCFontButtons","rightColumn"]}),
+                        dict(name='p', attrs={'class':["cnnTopics"]}),
+                        dict(name='td', attrs={'class':["cnnRightRail"]}),
+                        dict(name='table', attrs={'class':["cnnTMbox"]}),
+                        dict(name='ul', attrs={'id':["cnnTopNav","cnnBotNav","cnnSBNav"]}),
+                        ]
 
-    def print_version(self, url):
-        return 'http://www.printthis.clickability.com/pt/printThis?clickMap=printThis&fb=Y&url=' + url
+   # def print_version(self, url):
+   #     return 'http://www.printthis.clickability.com/pt/printThis?clickMap=printThis&fb=Y&url=' + url
 
     feeds =  [
              ('Top News', 'http://rss.cnn.com/rss/cnn_topstories.rss'),
