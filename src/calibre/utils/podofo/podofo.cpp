@@ -144,7 +144,6 @@ podofo_PDFDoc_version_getter(podofo_PDFDoc *self, void *closure) {
  
 static PyObject *
 podofo_PDFDoc_extract_first_page(podofo_PDFDoc *self, PyObject *args, PyObject *kwargs) {
-    int i, num_pages;
     try {
         while (self->doc->GetPageCount() > 1) self->doc->GetPagesTree()->DeletePage(1);
     } catch(const PdfError & err) {

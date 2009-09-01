@@ -54,54 +54,7 @@ os.environ['QT_PLUGIN_PATH']    = qt_plugins
 args = [path, loader_path] + sys.argv[1:]
 os.execv(python, args)
     '''
-    CHECK_SYMLINKS_PRESCRIPT = \
-r'''
-def _check_symlinks_prescript():
-    import os, tempfile, traceback, sys
-    from Authorization import Authorization, kAuthorizationFlagDestroyRights
 
-    AUTHTOOL="""#!%(sp)s
-import os
-scripts = %(sp)s
-links = %(sp)s
-os.setuid(0)
-for s, l in zip(scripts, links):
-    if os.path.lexists(l):
-        os.remove(l)
-    print 'Creating link:', l, '->', s
-    omask = os.umask(022)
-    os.symlink(s, l)
-    os.umask(omask)
-"""
-
-    dest_path = %(dest_path)s
-    resources_path = os.environ['RESOURCEPATH']
-    scripts = %(scripts)s
-    links   = [os.path.join(dest_path, i) for i in scripts]
-    scripts = [os.path.join(resources_path, 'loaders', i) for i in scripts]
-
-    bad = False
-    for s, l in zip(scripts, links):
-        if os.path.exists(l) and os.path.exists(os.path.realpath(l)):
-            continue
-        bad = True
-        break
-    if bad:
-        auth = Authorization(destroyflags=(kAuthorizationFlagDestroyRights,))
-        fd, name = tempfile.mkstemp('.py')
-        os.write(fd, AUTHTOOL %(pp)s (sys.executable, repr(scripts), repr(links)))
-        os.close(fd)
-        os.chmod(name, 0700)
-        try:
-            pipe = auth.executeWithPrivileges(sys.executable, name)
-            sys.stdout.write(pipe.read())
-            pipe.close()
-        except:
-            traceback.print_exc()
-        finally:
-            os.unlink(name)
-_check_symlinks_prescript()
-'''
     def get_modulefinder(self):
         if self.debug_modulegraph:
             debug = 4
@@ -286,15 +239,12 @@ _check_symlinks_prescript()
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]
-        cs = BuildAPP.CHECK_SYMLINKS_PRESCRIPT % dict(dest_path=repr('/usr/bin'),
-                                                      scripts=repr(sf),
-                                                      sp='%s', pp='%')
         launcher_path = os.path.join(resource_dir, '__boot__.py')
         f = open(launcher_path, 'r')
         src = f.read()
         f.close()
         src = src.replace('import Image', 'from PIL import Image')
-        src = re.sub('(_run\s*\(.*?.py.*?\))', cs+'%s'%(
+        src = re.sub('(_run\s*\(.*?.py.*?\))', '%s'%(
 '''
 sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), 'Frameworks')
 ''') + r'\n\1', src)

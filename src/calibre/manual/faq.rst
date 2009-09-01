@@ -107,6 +107,11 @@ Now you should be able to access your books on your iPhone by opening Stanza and
 
 Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.  
 
+I get the error message "Failed to start content server: Port 8080 not free on '0.0.0.0'"?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The most likely cause of this is your antivirus program. Try temporarily disabling it and see if it does the trick.
+
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -216,7 +221,7 @@ Your antivirus program is wrong. |app| is a completely open source product. You 
 
 How do I use purchased EPUB books with |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your SONY Reader. First, you must authorize your reader on a windows machine with Adobe DIgital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. Sometimes, the EPUB file itself is corrupted, in which case you should notify the e-book vendor.
+Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your SONY Reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. Sometimes, the EPUB file itself is corrupted, in which case you should notify the e-book vendor.
 
 
 I want some feature added to |app|. What can I do?

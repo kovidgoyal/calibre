@@ -23,13 +23,24 @@ elif find_executable('qmake'):
     QMAKE = find_executable('qmake')
 QMAKE = os.environ.get('QMAKE', QMAKE)
 WINDOWS_PYTHON = ['C:/Python26/libs']
-OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
+OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
+if not os.path.exists(OSX_SDK):
+    OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
+
+leopard_build = '10.5' in OSX_SDK
 
 def replace_suffix(path, new_suffix):
     return os.path.splitext(path)[0] + new_suffix
 
 class Extension(_Extension):
-    pass
+
+    def __init__(self, *args, **kwargs):
+        if leopard_build:
+            prev = kwargs.get('extra_compile_args', [])
+            prev.extend(['-arch', 'ppc64', '-arch', 'x86_64'])
+            kwargs['extra_compile_args'] = prev
+        _Extension.__init__(self, *args, **kwargs)
+
 
 if iswindows:
     from distutils import msvc9compiler
@@ -37,7 +48,6 @@ if iswindows:
     msvc.initialize()
     nmake = msvc.find_exe('nmake.exe')
     rc = msvc.find_exe('rc.exe')
-
 
 class PyQtExtension(Extension):
 
@@ -66,6 +76,7 @@ class build_ext(_build_ext):
         cwd = os.getcwd()
         sources = map(os.path.abspath, ext.sources)
         os.chdir(bdir)
+        archs = 'x86_64 ppc64' if leopard_build else 'x86 ppc'
         try:
             headers = set([f for f in sources if f.endswith('.h')])
             sources = set(sources) - headers
@@ -76,10 +87,13 @@ TEMPLATE = lib
 HEADERS  = %s
 SOURCES  = %s
 VERSION  = 1.0.0
-CONFIG   += x86 ppc
-'''%(name, ' '.join(headers), ' '.join(sources))
+CONFIG   += %s
+'''%(name, ' '.join(headers), ' '.join(sources), archs)
             open(name+'.pro', 'wb').write(pro)
             self.spawn([QMAKE, '-o', 'Makefile.qt', name+'.pro'])
+            if leopard_build:
+                raw = open('Makefile.qt', 'rb').read()
+                open('Makefile.qt', 'wb').write(raw.replace('ppc64', 'x86_64'))
             self.make('Makefile.qt')
             pat = 'release\\*.obj' if iswindows else '*.o'
             return map(os.path.abspath, glob.glob(pat))
@@ -116,6 +130,13 @@ CONFIG   += x86 ppc
         makefile.generate()
         cwd = os.getcwd()
         os.chdir(bdir)
+        if leopard_build:
+            mf = 'Makefile.pyqt'
+            raw = open(mf, 'rb').read()
+            raw = raw.replace('ppc64 x86_64', 'x86_64')
+            for x in ('ppc64', 'ppc', 'i386'):
+                raw = raw.replace(x, 'x86_64')
+            open(mf, 'wb').write(raw)
         try:
             self.make('Makefile.pyqt')
         finally:

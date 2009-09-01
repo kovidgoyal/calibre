@@ -26,7 +26,7 @@
 
 #include <IOKit/usb/IOUSBLib.h>
 #include <IOKit/IOCFPlugIn.h>
-
+#include <mach/mach.h>
 
 static PyObject *
 usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
@@ -67,7 +67,7 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
       return NULL;
   }
 
-  while (usbDevice = IOIteratorNext(iter)) {
+  while ((usbDevice = IOIteratorNext(iter))) {
     plugInInterface = NULL; dev = NULL;
     //Create an intermediate plugin
     kr = IOCreatePlugInInterfaceForService(usbDevice, kIOUSBDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugInInterface, &score);
