@@ -13,8 +13,8 @@ import struct
 
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.pdb.formatreader import FormatReader
-from calibre.ebooks.txt.processor import opf_writer
-from calibre.ebooks.txt.processor import txt_to_markdown
+from calibre.ebooks.txt.processor import convert_basic, separate_paragraphs, \
+    opf_writer
 
 class HeaderRecord(object):
     '''
@@ -62,7 +62,9 @@ class Reader(FormatReader):
             txt += self.decompress_text(i)
 
         self.log.info('Converting text to OEB...')
-        html = txt_to_markdown(txt, single_line_paras=self.single_line_paras)
+        if self.single_line_paras:
+            txt = separate_paragraphs(txt)
+        html = convert_basic(txt)
         with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
 

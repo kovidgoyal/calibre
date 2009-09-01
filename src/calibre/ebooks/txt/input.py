@@ -7,7 +7,8 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.ebooks.txt.processor import txt_to_markdown
+from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
+    separate_paragraphs
 
 class TXTInput(InputFormatPlugin):
 
@@ -21,6 +22,8 @@ class TXTInput(InputFormatPlugin):
             help=_('Normally calibre treats blank lines as paragraph markers. '
                 'With this option it will assume that every line represents '
                 'a paragraph instead.')),
+        OptionRecommendation(name='markdown', recommended_value=False,
+            help=_('Run the text input though the markdown processor.')),
     ])
 
     def convert(self, stream, options, file_ext, log,
@@ -31,12 +34,18 @@ class TXTInput(InputFormatPlugin):
         log.debug('Reading text from file...')
         txt = stream.read().decode(ienc, 'replace')
 
-        log.debug('Running text though markdown conversion...')
-        try:
-            html = txt_to_markdown(txt, single_line_paras=options.single_line_paras)
-        except RuntimeError:
-            raise ValueError('This txt file has malformed markup, it cannot be'
-                'converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
+        if options.single_line_paras:
+            txt = separate_paragraphs(txt)
+
+        if options.markdown:
+            log.debug('Running text though markdown conversion...')
+            try:
+                html = convert_markdown(txt)
+            except RuntimeError:
+                raise ValueError('This txt file has malformed markup, it cannot be'
+                    'converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
+        else:
+            html = convert_basic(txt)
 
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
