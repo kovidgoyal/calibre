@@ -223,16 +223,7 @@ class HTMLPreProcessor(object):
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
-            end_rules = []
-            if getattr(self.extra_opts, 'unwrap_factor', None):
-                length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
-                if length:
-                    end_rules.append(
-                        # Un wrap using punctuation
-                        (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
-                    )
-
-            rules = self.PDFTOHTML + end_rules
+            rules = self.PDFTOHTML
         else:
             rules = []
 
@@ -246,7 +237,16 @@ class HTMLPreProcessor(object):
                 (re.compile(getattr(self.extra_opts, 'footer_regex')), lambda match : '')
             )
 
-        for rule in self.PREPROCESS + pre_rules + rules:
+            end_rules = []
+            if getattr(self.extra_opts, 'unwrap_factor', None):
+                length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
+                if length:
+                    end_rules.append(
+                        # Un wrap using punctuation
+                        (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
+                    )
+
+        for rule in self.PREPROCESS + pre_rules + rules + end_rules:
             html = rule[0].sub(rule[1], html)
 
         # Handle broken XHTML w/ SVG (ugh)
