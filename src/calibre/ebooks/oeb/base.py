@@ -934,7 +934,7 @@ class Manifest(object):
 
             self.oeb.log.debug('Converting', self.href, '...')
 
-            from calibre.ebooks.txt.processor import txt_to_markdown
+            from calibre.ebooks.txt.processor import convert_markdown
 
             title = self.oeb.metadata.title
             if title:
@@ -942,7 +942,7 @@ class Manifest(object):
             else:
                 title = _('Unknown')
 
-            return self._parse_xhtml(txt_to_markdown(data, title))
+            return self._parse_xhtml(convert_markdown(data, title))
 
 
         def _parse_css(self, data):
