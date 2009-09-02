@@ -41,6 +41,7 @@ class TXTMLizer(object):
         self.log.info('Converting XHTML to TXT...')
         self.oeb_book = oeb_book
         self.opts = opts
+        
         return self.mlize_spine()
 
     def mlize_spine(self):
@@ -92,11 +93,17 @@ class TXTMLizer(object):
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)
-        text = re.sub('\n{3,}', '\n\n', text)
+        if self.opts.flush_paras:
+            text = re.sub('\n{2,}', '\n', text)
+        else:
+            text = re.sub('\n{3,}', '\n\n', text)
 
         # Replace spaces at the beginning and end of lines
         text = re.sub('(?imu)^[ ]+', '', text)
         text = re.sub('(?imu)[ ]+$', '', text)
+
+        if self.opts.indent_paras:
+            text = re.sub('(?imu)^(?=.)', '\t', text)
 
         return text
 
@@ -137,8 +144,8 @@ class TXTMLizer(object):
         # Are we in a paragraph block?
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             in_block = True
-            if not end.endswith('\n\n') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-                text.append('\n\n')
+            if not end.endswith(u'\n\n') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+                text.append(u'\n\n')
 
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
@@ -151,7 +158,7 @@ class TXTMLizer(object):
             text += self.dump_text(item, stylizer, en)
 
         if in_block:
-            text.append('\n\n')
+            text.append(u'\n\n')
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
             text.append(elem.tail)
