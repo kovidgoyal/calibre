@@ -26,6 +26,7 @@ ENV = dict(
         PYTHONIOENCODING='utf-8:replace',
         PYTHONPATH='@executable_path/../Resources/Python/site-packages',
         PYTHONHOME='@executable_path/../Resources/Python',
+        PYTHONOPTIMIZE='2',
         QT_PLUGIN_PATH='@executable_path'
         )
 
@@ -85,6 +86,7 @@ class Py2App(object):
         self.contents_dir = join(self.build_dir, 'Contents')
         self.resources_dir = join(self.contents_dir, 'Resources')
         self.frameworks_dir = join(self.contents_dir, 'Frameworks')
+        self.version_info = '.'.join(map(str, sys.version_info[:2]))
         self.to_strip = []
         self.warnings = []
 
@@ -141,6 +143,9 @@ class Py2App(object):
         launcher = launcher.replace('{}##ENV##', repr(ENV))
         os.mkdir(join(self.resources_dir, 'loaders'))
         for basename, module in zip(all_names, all_modules):
+            py_file = join('src', *module.split('.'))+'.py'
+            shutil.copy2(py_file, join(self.resources_dir, 'Python',
+            'site-packages', *module.split('.'))+'.py')
             raw = launcher.replace("''##MODULE##", repr(module))
             path = join(self.resources_dir, 'loaders', basename)
             open(path, 'wb').write(raw)
@@ -174,13 +179,10 @@ class Py2App(object):
         raw = subprocess.Popen(['otool', '-L', path_to_lib],
                 stdout=subprocess.PIPE).stdout.read()
         for line in raw.splitlines():
-            if 'compatibility' not in line:
+            if 'compatibility' not in line or line.strip().endswith(':'):
                 continue
             idx = line.find('(')
             path = line[:idx].strip()
-            bname = os.path.basename(path).partition('.')[0]
-            if bname in path_to_lib:
-                continue
             yield path
 
     @flush
@@ -213,6 +215,7 @@ class Py2App(object):
 
     @flush
     def add_python_framework(self):
+        print '\nAdding Python framework'
         src = join(SW, 'python', 'Python.framework')
         x = join(self.frameworks_dir, 'Python.framework')
         curr = os.path.realpath(join(src, 'Versions', 'Current'))
@@ -223,6 +226,10 @@ class Py2App(object):
         shutil.copy2(join(curr, 'Python'), currd)
         self.set_id(join(currd, 'Python'),
             self.FID+'/Python.framework/Versions/%s/Python'%basename(curr))
+        python = '%s/python/Python.framework/Versions/%s/Resources/Python.app/Contents/MacOS/Python'\
+                % (SW, self.version_info)
+        shutil.copy2(python, join(self.contents_dir, 'MacOS'))
+        self.fix_dependencies_in_lib(join(self.contents_dir, 'MacOS', 'Python'))
 
     @flush
     def add_qt_frameworks(self):
@@ -264,7 +271,7 @@ class Py2App(object):
         os.mkdir(dest)
         for f in glob.glob('src/calibre/plugins/*.so'):
             shutil.copy2(f, dest)
-        self.fix_dependencies_in_lib(join(dest, basename(f)))
+            self.fix_dependencies_in_lib(join(dest, basename(f)))
 
 
     @flush
@@ -279,7 +286,7 @@ class Py2App(object):
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
                 LSMinimumSystemVersion='10.5.2',
-                PyRuntimeLocations=[self.FID+'/Python.framework/Versions/Current/Python'],
+                PyRuntimeLocations=[self.FID+'/Python.framework/Versions/%s/Python'%self.version_info],
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
                 NSHumanReadableCopyright='Copyright 2008, Kovid Goyal',
@@ -369,7 +376,9 @@ class Py2App(object):
     def add_misc_libraries(self):
         for x in ('usb', 'unrar'):
             print '\nAdding', x
-            shutil.copy2(join(SW, 'lib', 'lib%s.dylib'%x), self.frameworks_dir)
+            x = 'lib%s.dylib'%x
+            shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
+            self.set_id(join(self.frameworks_dir, x), self.FID+'/'+x)
 
     @flush
     def add_site_packages(self):
@@ -436,6 +445,11 @@ class Py2App(object):
         dest = join(dest, basename(x))
         shutil.copytree(x, dest, symlinks=True, ignore=ignore)
         self.postprocess_package(x, dest)
+        for x in os.walk(dest):
+            for f in x[-1]:
+                if f.endswith('.so'):
+                    f = join(x[0], f)
+                    self.fix_dependencies_in_lib(f)
 
     @flush
     def filter_package(self, name):
@@ -450,20 +464,22 @@ class Py2App(object):
     def add_stdlib(self):
         print '\nAdding python stdlib'
         src = join(SW, 'python/Python.framework/Versions/Current/lib/python')
-        src += '.'.join(map(str, sys.version_info[:2]))
+        src += self.version_info
         dest = join(self.resources_dir, 'Python', 'lib', 'python')
-        dest += '.'.join(map(str, sys.version_info[:2]))
+        dest += self.version_info
+        os.makedirs(dest)
         for x in os.listdir(src):
             if x in ('site-packages', 'config', 'test', 'lib2to3', 'lib-tk',
             'lib-old', 'idlelib', 'plat-mac', 'plat-darwin', 'site.py'):
                 continue
+            x = join(src, x)
             if os.path.isdir(x):
-                self.add_package_dir(join(src, x), dest)
-            elif os.path.splitext(x) in ('.so', '.py'):
-                shutil.copy2(join(src, x), dest)
-                dest = join(dest, basename(x))
-                if dest.endswith('.so'):
-                    self.fix_dependencies_in_lib(dest)
+                self.add_package_dir(x, dest)
+            elif os.path.splitext(x)[1] in ('.so', '.py'):
+                shutil.copy2(x, dest)
+                dest2 = join(dest, basename(x))
+                if dest2.endswith('.so'):
+                    self.fix_dependencies_in_lib(dest2)
         self.remove_bytecode(join(self.resources_dir, 'Python', 'lib'))
 
     @flush
@@ -509,8 +525,10 @@ class Py2App(object):
     @flush
     def copy_launcher_and_site(self):
         base = os.path.dirname(__file__)
-        for x in ('launcher', 'site'):
-            shutil.copy2(join(base, x+'.py'), self.resources_dir)
+        shutil.copy2(join(base, 'launcher.py'), self.resources_dir)
+        shutil.copy2(join(base, 'site.py'), join(self.resources_dir, 'Python',
+            'lib', 'python'+self.version_info))
+
 
     @flush
     def makedmg(self, d, volname,

@@ -864,9 +864,10 @@ static int py2app_main(int argc, char * const *argv, char * const *envp) {
     if (!getApplicationName()) return report_error(ERR_NONAME);
     pyLocations = (CFArrayRef)getKey("PyRuntimeLocations");
     if (!pyLocations) return report_error(ERR_PYRUNTIMELOCATIONS);
+    printf("1111111\n;");
     pyLocation = findPyLocation(pyLocations);
     if (!pyLocation) return report_error(ERR_NOPYTHONRUNTIME);
-
+    printf("2222222\n");
     setExecutablePath();
     setResourcePath();
     /* check for ':' in path, not compatible with Python due to Py_GetPath */
@@ -895,7 +896,7 @@ static int py2app_main(int argc, char * const *argv, char * const *envp) {
     xCFStringGetCString(pyLocation, buf, sizeof(buf), kCFStringEncodingUTF8);
     py_dylib = dlopen(buf, PYMACAPP_DYLD_FLAGS);
     if (py_dylib == NULL) return report_linkEdit_error();
-
+    printf("3333333\n");
 #define LOOKUP_SYMBOL(NAME) \
     tmpSymbol = dlsym(py_dylib, # NAME)
 #define LOOKUP_DEFINEADDRESS(NAME, ADDRESS) \
