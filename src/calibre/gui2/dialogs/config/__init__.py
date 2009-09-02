@@ -10,7 +10,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
                         QProgressDialog
 
-from calibre.constants import islinux, iswindows
+from calibre.constants import islinux, iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
@@ -450,6 +450,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.remove_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='remove'))
         self.connect(self.button_plugin_browse, SIGNAL('clicked()'), self.find_plugin)
         self.connect(self.button_plugin_add, SIGNAL('clicked()'), self.add_plugin)
+        self.connect(self.button_osx_symlinks, SIGNAL('clicked()'),
+                self.create_symlinks)
+        self.button_osx_symlinks.setVisible(isosx)
         self.separate_cover_flow.setChecked(config['separate_cover_flow'])
         self.setup_email_page()
         self.category_view.setCurrentIndex(self.category_view.model().index(0))
@@ -457,6 +460,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.sync_news, SIGNAL('toggled(bool)'),
                 self.delete_news.setEnabled)
         self.setup_conversion_options()
+
+    def create_symlinks(self):
+        from calibre.utils.osx_symlinks import create_symlinks
+        loc, paths = create_symlinks()
+        info_dialog(self, _('Command line tools installed'),
+                _('Command line tools installed in')+' '+loc,
+                det_msg=paths, show=True)
 
     def setup_conversion_options(self):
         self.conversion_options = ConfigTabs(self)

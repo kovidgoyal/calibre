@@ -73,8 +73,13 @@ isosx     = 'darwin' in sys.platform
 isfrozen  = getattr(sys, 'frozen', False)
 
 if isosx:
-    _lib = os.path.join(getattr(sys, 'frameworks_dir'), 'ImageMagick', 'libMagickWand.dylib') \
-           if isfrozen else util.find_library('Wand')
+    if isfrozen:
+        fd = getattr(sys, 'frameworks_dir')
+        _lib = os.path.join(fd, 'libMagickWand.2.dylib')
+        if not os.path.exists(_lib):
+            _lib = os.path.join(fd, 'ImageMagick', 'libMagickWand.dylib')
+    else:
+        _lib = util.find_library('Wand')
 elif iswindows:
     _lib = os.path.join(os.path.dirname(sys.executable), 'CORE_RL_wand_.dll') \
            if isfrozen else 'CORE_RL_wand_'

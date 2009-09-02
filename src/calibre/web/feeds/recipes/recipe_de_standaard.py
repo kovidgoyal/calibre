@@ -9,25 +9,21 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class DeStandaard(BasicNewsRecipe):
     title                 = u'De Standaard'
     __author__            = u'Darko Miletic'
-    language = _('Dutch')
+    language              = _('Dutch')
     description           = u'News from Belgium'    
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-
-    keep_only_tags    = [dict(name='div' , attrs={'id':'_parts_midContainer_div'})]
-    remove_tags_after  = dict(name='h3', attrs={'title':'Binnenland'})
-    remove_tags = [
-                     dict(name='h3'  , attrs={'title':'Binnenland'   })
-                    ,dict(name='p'   , attrs={'class':'by'           })
-                    ,dict(name='div' , attrs={'class':'articlesright'})
-                    ,dict(name='a'   , attrs={'class':'help'         })
-                    ,dict(name='a'   , attrs={'class':'archive'      })
-                    ,dict(name='a'   , attrs={'class':'print'        })
-                    ,dict(name='a'   , attrs={'class':'email'        })
-                  ]
+    encoding              = 'utf-8'
+	
+    keep_only_tags    = [dict(name='div' , attrs={'id':['intro','continued']})]
     
-    feeds          = [  
-                       (u'De Standaard Online', u'http://feeds.feedburner.com/dso-front')
-                     ]
+    feeds          = [(u'De Standaard Online', u'http://feeds.feedburner.com/dso-front')]
+
+					 
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+ 
+    def print_version(self, url):
+        return url.replace('/Detail.aspx?','/PrintArtikel.aspx?')

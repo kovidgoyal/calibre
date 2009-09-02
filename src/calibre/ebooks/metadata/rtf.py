@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
 Edit metadata in RTF files.
 """
-import re, cStringIO, sys
+import re, cStringIO, codecs
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
@@ -13,7 +13,7 @@ comment_pat  = re.compile(r'\{\\info.*?\{\\subject(.*?)(?<!\\)\}', re.DOTALL)
 category_pat = re.compile(r'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
 
 def get_document_info(stream):
-    """ 
+    """
     Extract the \info block from an RTF file.
     Return the info block as a string and the position in the file at which it
     starts.
@@ -23,7 +23,7 @@ def get_document_info(stream):
     stream.seek(0)
     found, block = False, ""
     while not found:
-        prefix = block[-6:] 
+        prefix = block[-6:]
         block = prefix + stream.read(block_size)
         if len(block) == len(prefix):
             break
@@ -52,6 +52,32 @@ def get_document_info(stream):
             break
     return data.getvalue(), pos
 
+def detect_codepage(stream):
+    pat = re.compile(r'\\ansicpg(\d+)')
+    match = pat.search(stream.read(512))
+    if match is not None:
+        num = match.group(1)
+        if num == '0':
+            num = '1250'
+        codec = 'cp'+num
+        try:
+            codecs.lookup(codec)
+            return codec
+        except:
+            pass
+
+def decode(raw, codec):
+    if codec is not None:
+        def codepage(match):
+            return chr(int(match.group(1), 16))
+        raw = re.sub(r"\\'([a-fA-F0-9]{2})", codepage, raw)
+        raw = raw.decode(codec)
+
+    def uni(match):
+        return unichr(int(match.group(1)))
+    raw = re.sub(r'\\u([0-9]{4}).', uni, raw)
+    return raw
+
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
     title, author, comment, category = None, None, None, None
@@ -61,26 +87,30 @@ def get_metadata(stream):
     block = get_document_info(stream)[0]
     if not block:
         return MetaInformation(None, None)
-    
+
+    stream.seek(0)
+    cpg = detect_codepage(stream)
+    stream.seek(0)
+
     title_match = title_pat.search(block)
     if title_match:
-        title = title_match.group(1).strip()
+        title = decode(title_match.group(1).strip(), cpg)
     author_match = author_pat.search(block)
     if author_match:
-        author = author_match.group(1).strip()
+        author = decode(author_match.group(1).strip(), cpg)
     comment_match = comment_pat.search(block)
     if comment_match:
-        comment = comment_match.group(1).strip()
+        comment = decode(comment_match.group(1).strip(), cpg)
     category_match = category_pat.search(block)
     if category_match:
-        category = category_match.group(1).strip()
+        category = decode(category_match.group(1).strip(), cpg)
     mi = MetaInformation(title, author)
     if author:
         mi.authors = string_to_authors(author)
     mi.comments = comment
     mi.category = category
     return mi
-    
+
 
 def create_metadata(stream, options):
     md = r'{\info'
@@ -121,12 +151,12 @@ def set_metadata(stream, options):
         create_metadata(stream, options)
     else:
         olen = len(src)
-         
+
         base_pat = r'\{\\name(.*?)(?<!\\)\}'
         title = options.title
         if title != None:
             title = title.encode('ascii', 'replace')
-            pat = re.compile(base_pat.replace('name', 'title'), re.DOTALL)        
+            pat = re.compile(base_pat.replace('name', 'title'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\title ' + title + r'}', src)
             else:
@@ -143,7 +173,7 @@ def set_metadata(stream, options):
         if author != None:
             author =  ', '.join(author)
             author = author.encode('ascii', 'ignore')
-            pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)        
+            pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\author ' + author + r'}', src)
             else:
@@ -151,7 +181,7 @@ def set_metadata(stream, options):
         category = options.category
         if category != None:
             category = category.encode('ascii', 'replace')
-            pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)        
+            pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\category ' + category + r'}', src)
             else:
@@ -162,4 +192,4 @@ def set_metadata(stream, options):
         stream.truncate()
         stream.write(src)
         stream.write(after)
-    
+

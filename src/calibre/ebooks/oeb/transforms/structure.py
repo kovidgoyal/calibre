@@ -48,8 +48,10 @@ class DetectStructure(object):
 
         if opts.toc_filter is not None:
             regexp = re.compile(opts.toc_filter)
-            for node in self.oeb.toc.iter():
+            for node in list(self.oeb.toc.iter()):
                 if not node.title or regexp.search(node.title) is not None:
+                    self.log('Filtering', node.title if node.title else\
+                            'empty node', 'from TOC')
                     self.oeb.toc.remove(node)
 
         if opts.page_breaks_before is not None:
@@ -104,6 +106,7 @@ class DetectStructure(object):
             counter += 1
 
     def create_toc_from_links(self):
+        num = 0
         for item in self.oeb.spine:
             for a in XPath('//h:a[@href]')(item.data):
                 href = a.get('href')
@@ -118,8 +121,13 @@ class DetectStructure(object):
                                 a.xpath('descendant::text()')])
                         text = text[:100].strip()
                         if not self.oeb.toc.has_text(text):
+                            num += 1
                             self.oeb.toc.add(text, href,
                                 play_order=self.oeb.toc.next_play_order())
+                            if self.opts.max_toc_links > 0 and \
+                                    num >= self.opts.max_toc_links:
+                                self.log('Maximum TOC links reached, stopping.')
+                                return
 
 
 

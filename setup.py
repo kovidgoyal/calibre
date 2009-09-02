@@ -71,7 +71,9 @@ if __name__ == '__main__':
                         tag_release, upload_demo, build_linux, build_windows, \
                         build_osx, upload_installers, upload_user_manual, \
                         upload_to_pypi, stage3, stage2, stage1, upload, \
-                        upload_rss, betas, build_linux32, build_linux64
+                        upload_rss, betas, build_linux32, build_linux64, \
+                        build_osx64
+    resources.SCRIPTS = list(basenames['console']+basenames['gui'])
 
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')
@@ -147,14 +149,19 @@ if __name__ == '__main__':
             r'C:\cygwin\home\kovid\fontconfig\lib' if iswindows else \
             '/Users/kovid/fontconfig/lib'
 
-
+    fc_inc = os.environ.get('FC_INC_DIR', fc_inc)
+    fc_lib = os.environ.get('FC_LIB_DIR', fc_lib)
+    if not os.path.exists(os.path.join(fc_inc, 'fontconfig.h')):
+        print 'ERROR: fontconfig not found on your system.',
+        print 'Use the FC_INC_DIR and FC_LIB_DIR environment variables.'
+        raise SystemExit(1)
     ext_modules = optional + [
 
                    Extension('calibre.plugins.fontconfig',
                        sources = ['src/calibre/utils/fonts/fontconfig.c'],
-                       include_dirs = [os.environ.get('FC_INC_DIR', fc_inc)],
+                       include_dirs = [fc_inc],
                        libraries=['fontconfig'],
-                       library_dirs=[os.environ.get('FC_LIB_DIR', fc_lib)]),
+                       library_dirs=[fc_lib]),
 
                    Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
@@ -262,6 +269,7 @@ if __name__ == '__main__':
                       'build_linux64' : build_linux64,
                       'build_windows' : build_windows,
                       'build_osx'     : build_osx,
+                      'build_osx64'   : build_osx64,
                       'upload_installers': upload_installers,
                       'upload_user_manual': upload_user_manual,
                       'upload_to_pypi': upload_to_pypi,

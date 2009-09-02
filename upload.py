@@ -167,7 +167,7 @@ class resources(OptionlessCommand):
                 translations_found = True
                 break
         if not translations_found:
-            print 'WARNING: Could not find Qt transations'
+            print 'WARNING: Could not find Qt translations'
         return data
 
     def get_static_resources(self):
@@ -216,7 +216,8 @@ class resources(OptionlessCommand):
         static, smax = self.get_static_resources()
         recipes, rmax = self.get_recipes()
         hyphenate, hmax = self.get_hyphenate()
-        amax = max(rmax, smax, hmax, os.stat(__file__).st_mtime)
+        lmax = os.stat(os.path.join('src', 'calibre', 'linux.py')).st_mtime
+        amax = max(rmax, smax, hmax, lmax, os.stat(__file__).st_mtime)
         if newer([dest], RESOURCES.values()) or os.stat(dest).st_mtime < amax:
             print 'Compiling resources...'
             with open(dest, 'wb') as f:
@@ -226,6 +227,7 @@ class resources(OptionlessCommand):
                 f.write('server_resources = %s\n\n'%repr(static))
                 f.write('recipes = %s\n\n'%repr(recipes))
                 f.write('hyphenate = %s\n\n'%repr(hyphenate))
+                f.write('scripts = %r\n\n'%self.SCRIPTS)
                 f.write('build_time = "%s"\n\n'%time.strftime('%d %m %Y %H%M%S'))
         else:
             print 'Resources are up to date'
@@ -504,6 +506,8 @@ class VMInstaller(OptionlessCommand):
     user_options = [('dont-shutdown', 'd', 'Dont shutdown VM after build')]
     boolean_options = ['dont-shutdown']
     EXTRA_SLEEP = 5
+    BUILD_CMD = 'ssh -t %s bash build-calibre'
+    INIT_CMD = ''
 
     def initialize_options(self):
         self.dont_shutdown = False
@@ -511,6 +515,7 @@ class VMInstaller(OptionlessCommand):
     BUILD_SCRIPT = textwrap.dedent('''\
         #!/bin/bash
         export CALIBRE_BUILDBOT=1
+        %%s
         cd ~/build && \
         rsync -avz --exclude src/calibre/plugins \
                --exclude calibre/src/calibre.egg-info --exclude docs \
@@ -519,12 +524,13 @@ class VMInstaller(OptionlessCommand):
                rsync://%(host)s/work/%(project)s . && \
         cd %(project)s && \
         %%s && \
-        rm -rf build/* dist/* && \
+        rm -rf build/* dist/* src/calibre/plugins/* && \
         %%s %%s
         '''%dict(host=HOST, project=__appname__))
 
     def get_build_script(self, subs):
-        return self.BUILD_SCRIPT%subs
+        subs = [self.INIT_CMD]+list(subs)
+        return self.BUILD_SCRIPT%tuple(subs)
 
     def vmware_started(self):
         return 'started' in subprocess.Popen('/etc/init.d/vmware status', shell=True, stdout=subprocess.PIPE).stdout.read()
@@ -562,16 +568,7 @@ class VMInstaller(OptionlessCommand):
         time.sleep(self.EXTRA_SLEEP)
         print 'Trying to SSH into VM'
         check_call(('scp', t.name, ssh_host+':build-calibre'))
-        check_call('ssh -t %s bash build-calibre'%ssh_host, shell=True)
-
-class KVMInstaller(VMInstaller):
-
-    def run_vm(self):
-        self.stop_vmware()
-        check_call('sudo modprobe kvm-intel', shell=True)
-        self.__p = Popen(self.VM)
-
-
+        check_call(self.BUILD_CMD%ssh_host, shell=True)
 
 class build_linux32(VMInstaller):
 
@@ -582,7 +579,7 @@ class build_linux32(VMInstaller):
         installer = installer_name('tar.bz2').replace('x86_64', 'i686')
         self.start_vm('gentoo32_build', ('sudo python setup.py develop && sudo chown -R kovid:users *',
             'python', 'installer/linux/freeze.py'))
-        check_call(('scp', 'gentoo32_build:build/calibre/dist/*.dmg', 'dist'))
+        check_call(('scp', 'gentoo32_build:build/calibre/dist/*.bz2', 'dist'))
         if not os.path.exists(installer):
             raise Exception('Failed to build installer '+installer)
         if not self.dont_shutdown:
@@ -624,21 +621,43 @@ class build_windows(VMInstaller):
 class build_osx(VMInstaller):
     description = 'Build OS X app bundle'
     VM = '/vmware/bin/tiger_build'
+    FREEZE_SCRIPT = 'installer/osx/freeze.py'
+    VM_NAME = 'tiger_build'
+    PYTHON = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
+    DEVELOP = 'sudo %s setup.py develop'
 
     def get_build_script(self, subs):
-        return (self.BUILD_SCRIPT%subs).replace('rm ', 'sudo rm ')
+        return VMInstaller.get_build_script(self, subs).replace('rm ', 'sudo rm ')
+
+    def installer_name(self):
+        return installer_name('dmg')
 
     def run(self):
-        installer = installer_name('dmg')
-        python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
-        self.start_vm('tiger_build', ('sudo %s setup.py develop'%python, python,
-                              'installer/osx/freeze.py'))
-        check_call(('scp', 'tiger_build:build/calibre/dist/*.dmg', 'dist'))
+        installer = self.installer_name()
+        python = self.PYTHON
+        self.start_vm(self.VM_NAME, (self.DEVELOP%python, python,
+                          self.FREEZE_SCRIPT))
+        check_call(('scp', self.VM_NAME+':build/calibre/dist/*.dmg', 'dist'))
         if not os.path.exists(installer):
             raise Exception('Failed to build installer '+installer)
         if not self.dont_shutdown:
-            Popen(('ssh', 'tiger_build', 'sudo', '/sbin/shutdown', '-h', 'now'))
+            Popen(('ssh', self.VM_NAME, 'sudo', '/sbin/shutdown', '-h', 'now'))
         return os.path.basename(installer)
+
+class build_osx64(build_osx):
+
+    description = 'Build OS X 64-bit app bundle'
+    VM = '/vmware/bin/leopard_build'
+    FREEZE_SCRIPT = 'installer/osx/py2app/main.py'
+    VM_NAME = 'leopard_build'
+    PYTHON = '/sw/bin/python -OO'
+    DEVELOP = '%s setup.py develop'
+    BUILD_CMD = 'ssh -t %s bash --login build-calibre'
+    INIT_CMD = 'source ~/.profile'
+
+    def installer_name(self):
+        return installer_name('dmg').replace('.dmg', '-x86_64.dmg')
+
 
 class upload_installers(OptionlessCommand):
     description = 'Upload any installers present in dist/'

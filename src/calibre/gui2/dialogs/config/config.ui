@@ -677,28 +677,27 @@
        <widget class="QWidget" name="page_7">
         <layout class="QVBoxLayout" name="verticalLayout_9">
          <item>
-          <widget class="AddSave" name="add_save">
-          </widget>
+          <widget class="AddSave" name="add_save"/>
          </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page_2">
-        <layout class="QVBoxLayout">
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
          <item>
-          <layout class="QHBoxLayout">
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>154</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_12">
            <item>
             <widget class="QToolButton" name="compact_button">
              <property name="toolTip">
@@ -710,19 +709,26 @@
             </widget>
            </item>
            <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+            <widget class="QPushButton" name="button_osx_symlinks">
+             <property name="text">
+              <string>&amp;Install command line tools</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
           </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>153</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
