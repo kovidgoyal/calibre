@@ -52,7 +52,7 @@ class TXTMLizer(object):
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
-            output.append(self.dump_text(etree.fromstring(content), stylizer))
+            output += self.dump_text(etree.fromstring(content), stylizer)
         output = self.cleanup_text(u''.join(output))
 
         return output
@@ -106,17 +106,6 @@ class TXTMLizer(object):
             text = re.sub('(?imu)^(?=.)', '\t', text)
 
         return text
-
-    def get_text(self, elem, stylizer):
-        '''
-        @elem: The element in the etree that we are working on.
-        @stylizer: The style information attached to the element.
-        @end: The last two characters of the text from the previous element.
-              This is used to determine if a blank line is needed when starting
-              a new block element.
-        '''
-
-        return u''.join(self.dump_text(elem, stylizer))
 
     def dump_text(self, elem, stylizer, end=''):
         '''
