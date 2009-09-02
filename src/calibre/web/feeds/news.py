@@ -922,6 +922,8 @@ class BasicNewsRecipe(Recipe):
                     desc = a.text_summary
                     if not desc:
                         desc = None
+                    else:
+                        desc = self.description_limiter(desc)
                     entries.append('%sindex.html'%adir)
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
