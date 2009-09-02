@@ -89,9 +89,6 @@ class Py2App(object):
         self.add_libpng()
         self.add_fontconfig()
         self.add_imagemagick()
-        self.add_plugins()
-        self.add_qt_plugins()
-        self.add_ipython()
         self.add_misc_libraries()
 
         self.add_site_packages()
@@ -107,6 +104,7 @@ class Py2App(object):
         return self.makedmg(self.builddir, APPNAME+'-'+VERSION+'-x86_64')
 
     def strip_files(self):
+        print '\nStripping files...'
         strip_files(self.to_strip)
 
     def create_exe(self):
@@ -150,7 +148,7 @@ class Py2App(object):
             path_to_lib])
 
     def fix_dependencies_in_lib(self, path_to_lib):
-        print '\nFixing dependecies in', path_to_lib
+        print '\nFixing dependencies in', path_to_lib
         self.to_strip.append(path_to_lib)
         old_mode = flipwritable(path_to_lib)
         for dep, bname in self.get_local_dependencies(path_to_lib):
@@ -266,7 +264,7 @@ class Py2App(object):
         for x in ('fontconfig.1', 'freetype.6', 'expat.1'):
             src = os.path.join(SW, 'lib', 'lib'+x+'.dylib')
             self.install_dylib(src)
-        dst = os.path.join(self.resource_dir, 'fonts')
+        dst = os.path.join(self.resources_dir, 'fonts')
         if os.path.exists(dst):
             shutil.rmtree(dst)
         src = os.path.join(SW, 'etc', 'fonts')
@@ -296,6 +294,11 @@ class Py2App(object):
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(idir, dest, True)
+        for x in os.walk(dest):
+            for f in x[-1]:
+                if f.endswith('.so'):
+                    f = join(x[0], f)
+                    self.fix_dependencies_in_lib(f)
 
     def add_misc_libraries(self):
         for x in ('usb', 'unrar'):
@@ -323,7 +326,7 @@ class Py2App(object):
                         print "WARNING:", x, 'is neither a directory nor a zipfile'
                         continue
                     tdir = tempfile.mkdtemp()
-                    zf.extract_all(tdir)
+                    zf.extractall(tdir)
                     x = tdir
                 self.add_modules_from_dir(x)
                 self.add_packages_from_dir(x)
@@ -371,9 +374,9 @@ class Py2App(object):
     def add_stdlib(self):
         print '\nAdding python stdlib'
         src = join(SW, '/python/Python.framework/Versions/Current/lib/python')
-        src += '.'.join(sys.version_info[:2])
+        src += '.'.join(map(str, sys.version_info[:2]))
         dest = join(self.resources_dir, 'Python', 'lib', 'python')
-        dest += '.'.join(sys.version_info[:2])
+        dest += '.'.join(map(str, sys.version_info[:2]))
         for x in os.listdir(src):
             if x in ('site-packages', 'config', 'test', 'lib2to3', 'lib-tk',
             'lib-old', 'idlelib', 'plat-mac', 'plat-darwin', 'site.py'):
