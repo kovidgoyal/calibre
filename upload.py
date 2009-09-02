@@ -523,8 +523,9 @@ class VMInstaller(OptionlessCommand):
                --exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" \
                rsync://%(host)s/work/%(project)s . && \
         cd %(project)s && \
+        rm -rf src/calibre/plugins/* && \
         %%s && \
-        rm -rf build/* dist/* src/calibre/plugins/* && \
+        rm -rf build/* dist/* && \
         %%s %%s
         '''%dict(host=HOST, project=__appname__))
 

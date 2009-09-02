@@ -339,7 +339,7 @@ def main():
             dev.touch(args[0])
         else:
             parser.print_help()
-            if dev.handle: dev.close()
+            if getattr(dev, 'handle', False): dev.close()
             return 1
     except DeviceLocked:
         print >> sys.stderr, "The device is locked. Use the --unlock option"

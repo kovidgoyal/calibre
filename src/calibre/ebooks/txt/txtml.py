@@ -41,7 +41,7 @@ class TXTMLizer(object):
         self.log.info('Converting XHTML to TXT...')
         self.oeb_book = oeb_book
         self.opts = opts
-        
+
         return self.mlize_spine()
 
     def mlize_spine(self):
@@ -52,7 +52,7 @@ class TXTMLizer(object):
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
-            output.append(self.get_text(etree.fromstring(content), stylizer))
+            output += self.dump_text(etree.fromstring(content), stylizer))
         output = self.cleanup_text(u''.join(output))
 
         return output
@@ -107,17 +107,6 @@ class TXTMLizer(object):
 
         return text
 
-    def get_text(self, elem, stylizer):
-        '''
-        @elem: The element in the etree that we are working on.
-        @stylizer: The style information attached to the element.
-        @end: The last two characters of the text from the previous element.
-              This is used to determine if a blank line is needed when starting
-              a new block element.
-        '''
-        
-        return u''.join(self.dump_text(elem, stylizer))
-
     def dump_text(self, elem, stylizer, end=''):
         '''
         @elem: The element in the etree that we are working on.
@@ -147,7 +136,7 @@ class TXTMLizer(object):
             if not end.endswith(u'\n\n') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
                 text.append(u'\n\n')
 
-        # Proccess tags that contain text.
+        # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
             text.append(elem.text)
 

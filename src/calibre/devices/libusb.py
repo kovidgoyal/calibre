@@ -305,22 +305,25 @@ Device._fields_ = [ \
                ]
 
 if _libusb is not None:
-    _libusb.usb_get_busses.restype = POINTER(Bus)
-    _libusb.usb_open.restype = POINTER(DeviceHandle)
-    _libusb.usb_open.argtypes = [POINTER(Device)]
-    _libusb.usb_close.argtypes = [POINTER(DeviceHandle)]
-    _libusb.usb_claim_interface.argtypes = [POINTER(DeviceHandle), c_int]
-    _libusb.usb_claim_interface.restype = c_int
-    _libusb.usb_release_interface.argtypes = [POINTER(DeviceHandle), c_int]
-    _libusb.usb_release_interface.restype = c_int
-    _libusb.usb_reset.argtypes = [POINTER(DeviceHandle)]
-    _libusb.usb_reset.restype = c_int
-    _libusb.usb_control_msg.restype = c_int
-    _libusb.usb_bulk_read.restype = c_int
-    _libusb.usb_bulk_write.restype = c_int
-    _libusb.usb_set_configuration.argtypes = [POINTER(DeviceHandle), c_int]
-    _libusb.usb_set_configuration.restype = c_int
-    _libusb.usb_init()
+    try:
+        _libusb.usb_get_busses.restype = POINTER(Bus)
+        _libusb.usb_open.restype = POINTER(DeviceHandle)
+        _libusb.usb_open.argtypes = [POINTER(Device)]
+        _libusb.usb_close.argtypes = [POINTER(DeviceHandle)]
+        _libusb.usb_claim_interface.argtypes = [POINTER(DeviceHandle), c_int]
+        _libusb.usb_claim_interface.restype = c_int
+        _libusb.usb_release_interface.argtypes = [POINTER(DeviceHandle), c_int]
+        _libusb.usb_release_interface.restype = c_int
+        _libusb.usb_reset.argtypes = [POINTER(DeviceHandle)]
+        _libusb.usb_reset.restype = c_int
+        _libusb.usb_control_msg.restype = c_int
+        _libusb.usb_bulk_read.restype = c_int
+        _libusb.usb_bulk_write.restype = c_int
+        _libusb.usb_set_configuration.argtypes = [POINTER(DeviceHandle), c_int]
+        _libusb.usb_set_configuration.restype = c_int
+        _libusb.usb_init()
+    except:
+        _libusb = None
 
 
 

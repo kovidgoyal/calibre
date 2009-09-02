@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -39,13 +38,19 @@ def _run():
     import os, sys, site
     sys.frozen = 'macosx_app'
     base = os.environ['RESOURCEPATH']
-    sys.frameworks_dir = os.path.join(os.path.dirname(base, 'Frameworks'))
+    sys.frameworks_dir = os.path.join(os.path.dirname(base), 'Frameworks')
     sys.new_app_bundle = True
     site.addsitedir(base)
     site.addsitedir(os.path.join(base, 'Python', 'site-packages'))
     exe = os.environ.get('CALIBRE_LAUNCH_MODULE', 'calibre.gui2.main')
     exe = os.path.join(base, 'Python', 'site-packages', *exe.split('.'))
+    exe += '.py'
     sys.argv[0] = __file__ = exe
+    argv = os.environ.get('CALIBRE_LAUNCH_ARGV', None)
+    if argv is not None:
+        import cPickle
+        argv = cPickle.loads(argv)
+        sys.argv[1:] = argv
     execfile(exe, globals(), globals())
 
 _run()
