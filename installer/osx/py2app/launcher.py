@@ -40,6 +40,7 @@ def _run():
     sys.frozen = 'macosx_app'
     base = os.environ['RESOURCEPATH']
     sys.frameworks_dir = os.path.join(os.path.dirname(base, 'Frameworks'))
+    sys.new_app_bundle = True
     site.addsitedir(base)
     site.addsitedir(os.path.join(base, 'Python', 'site-packages'))
     exe = os.environ.get('CALIBRE_LAUNCH_MODULE', 'calibre.gui2.main')

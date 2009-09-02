@@ -26,6 +26,7 @@ ENV = dict(
         PYTHONIOENCODING='utf-8:replace',
         PYTHONPATH='@executable_path/../Resources/Python/site-packages',
         PYTHONHOME='@executable_path/../Resources/Python',
+        QT_PLUGIN_PATH='@executable_path'
         )
 
 SW = os.environ.get('SW')
@@ -100,20 +101,34 @@ class Py2App(object):
         self.copy_launcher_and_site()
         self.create_exe()
         self.strip_files()
+        self.create_launchers()
 
-        return self.makedmg(self.builddir, APPNAME+'-'+VERSION+'-x86_64')
+        return self.makedmg(self.build_dir, APPNAME+'-'+VERSION+'-x86_64')
+
+    def create_launchers(self):
+        launcher = join(os.path.dirname(__file__), 'launcher.py')
+        launcher = open(launcher, 'rb').read()
+        launcher = launcher.replace('{}##ENV##', repr(ENV))
+        os.mkdir(join(self.resources_dir, 'loaders'))
+        for module, basename in zip(main_modules, basenames):
+            raw = launcher.replace("''##MODULE##", repr(module))
+            path = join(self.resources_dir, 'loaders', basename)
+            open(path, 'wb').write(raw)
+            os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
+                     |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
+
 
     def strip_files(self):
         print '\nStripping files...'
         strip_files(self.to_strip)
 
     def create_exe(self):
-        gcc = os.environ.get('GCC', 'gcc')
+        gcc = os.environ.get('CC', 'gcc')
         base = os.path.dirname(__file__)
         out = join(self.contents_dir, 'MacOS', 'calibre')
-        subprocess.check_call([gcc, '-Wall', '-arch x86_64', join(base,
+        subprocess.check_call([gcc, '-Wall', '-arch', 'x86_64', join(base,
             'main.c'), '-o', out])
-        self.to_strip(out)
+        self.to_strip.append(out)
 
     def set_id(self, path_to_lib, new_id):
         old_mode = flipwritable(path_to_lib)
@@ -373,7 +388,7 @@ class Py2App(object):
 
     def add_stdlib(self):
         print '\nAdding python stdlib'
-        src = join(SW, '/python/Python.framework/Versions/Current/lib/python')
+        src = join(SW, 'python/Python.framework/Versions/Current/lib/python')
         src += '.'.join(map(str, sys.version_info[:2]))
         dest = join(self.resources_dir, 'Python', 'lib', 'python')
         dest += '.'.join(map(str, sys.version_info[:2]))
@@ -437,6 +452,8 @@ class Py2App(object):
                 internet_enable=True,
                 format='UDBZ'):
         ''' Copy a directory d into a dmg named volname '''
+        if not os.path.exists(destdir):
+            os.makedirs(destdir)
         dmg = os.path.join(destdir, volname+'.dmg')
         if os.path.exists(dmg):
             os.unlink(dmg)
