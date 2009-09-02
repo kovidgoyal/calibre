@@ -106,6 +106,7 @@ class DetectStructure(object):
             counter += 1
 
     def create_toc_from_links(self):
+        num = 0
         for item in self.oeb.spine:
             for a in XPath('//h:a[@href]')(item.data):
                 href = a.get('href')
@@ -120,8 +121,13 @@ class DetectStructure(object):
                                 a.xpath('descendant::text()')])
                         text = text[:100].strip()
                         if not self.oeb.toc.has_text(text):
+                            num += 1
                             self.oeb.toc.add(text, href,
                                 play_order=self.oeb.toc.next_play_order())
+                            if self.opts.max_toc_links > 0 and \
+                                    num >= self.opts.max_toc_links:
+                                self.log('Maximum TOC links reached, stopping.')
+                                return
 
 
 
