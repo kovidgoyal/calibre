@@ -51,6 +51,7 @@ class TXTInput(InputFormatPlugin):
         html_input = plugin_for_input_format('html')
         for opt in html_input.options:
             setattr(options, opt.option.name, opt.recommended_value)
+        options.input_encoding = 'utf-8'
         base = os.getcwdu()
         if hasattr(stream, 'name'):
             base = os.path.dirname(stream.name)
