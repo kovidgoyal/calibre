@@ -33,6 +33,12 @@ class TXTOutput(OutputFormatPlugin):
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Add Table of Contents to beginning of the book.')),
+        OptionRecommendation(name='flush_paras',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not add a blank line between paragraphs.')),
+        OptionRecommendation(name='indent_paras',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Add a tab at the beginning of each paragraph.')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
