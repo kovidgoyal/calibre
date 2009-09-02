@@ -262,7 +262,7 @@ class Device(DeviceConfig, DevicePlugin):
                     return True
             return False
 
-        time.sleep(6)
+        time.sleep(8)
         drives = {}
         wmi = __import__('wmi', globals(), locals(), [], -1)
         c = wmi.WMI(find_classes=False)
