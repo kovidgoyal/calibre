@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into plain text
 '''
 
-import os, re
+import os
+import re
 
 from lxml import etree
 
@@ -43,15 +44,15 @@ class TXTMLizer(object):
         return self.mlize_spine()
 
     def mlize_spine(self):
-        output = u''
-        output += self.get_toc()
+        output = [u'']
+        output.append(self.get_toc())
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to TXT...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
-            output += self.dump_text(etree.fromstring(content), stylizer)
-        output = self.cleanup_text(output)
+            output.append(self.get_text(etree.fromstring(content), stylizer))
+        output = self.cleanup_text(u''.join(output))
 
         return output
 
@@ -64,13 +65,13 @@ class TXTMLizer(object):
         return text
 
     def get_toc(self):
-        toc = u''
+        toc = [u'']
         if getattr(self.opts, 'inline_toc', None):
             self.log.debug('Generating table of contents...')
-            toc += u'%s\n\n' % _(u'Table of Contents:')
+            toc.append(u'%s\n\n' % _(u'Table of Contents:'))
             for item in self.oeb_book.toc:
-                toc += u'* %s\n\n' % item.title
-        return toc
+                toc.append(u'* %s\n\n' % item.title)
+        return ''.join(toc)
 
     def cleanup_text(self, text):
         self.log.debug('\tClean up text...')
@@ -99,6 +100,17 @@ class TXTMLizer(object):
 
         return text
 
+    def get_text(self, elem, stylizer):
+        '''
+        @elem: The element in the etree that we are working on.
+        @stylizer: The style information attached to the element.
+        @end: The last two characters of the text from the previous element.
+              This is used to determine if a blank line is needed when starting
+              a new block element.
+        '''
+        
+        return u''.join(self.dump_text(elem, stylizer))
+
     def dump_text(self, elem, stylizer, end=''):
         '''
         @elem: The element in the etree that we are working on.
@@ -110,14 +122,14 @@ class TXTMLizer(object):
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
-            return u''
+            return ['']
 
-        text = u''
+        text = ['']
         style = stylizer.style(elem)
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
-            return u''
+            return ['']
 
         tag = barename(elem.tag)
         in_block = False
@@ -125,20 +137,23 @@ class TXTMLizer(object):
         # Are we in a paragraph block?
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             in_block = True
-            if not end.endswith(os.linesep + os.linesep) and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-                text += os.linesep + os.linesep
+            if not end.endswith('\n\n') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+                text.append('\n\n')
 
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            text += elem.text
+            text.append(elem.text)
 
         for item in elem:
-            text += self.dump_text(item, stylizer, text[-2:])
+            en = u''
+            if len(text) >= 2:
+                en = text[-1][-2:]
+            text += self.dump_text(item, stylizer, en)
 
         if in_block:
-            text += os.linesep + os.linesep
+            text.append('\n\n')
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
-            text += elem.tail
+            text.append(elem.tail)
 
         return text
