@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into FB2 markup
 '''
 
-import os
 import cStringIO
 from base64 import b64encode
 
@@ -52,18 +51,18 @@ STYLES = [
 ]
 
 class FB2MLizer(object):
-    
+
     def __init__(self, log):
         self.log = log
         self.image_hrefs = {}
         self.link_hrefs = {}
-        
+
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to FB2 markup...')
         self.oeb_book = oeb_book
         self.opts = opts
         return self.fb2mlize_spine()
-        
+
     def fb2mlize_spine(self):
         self.image_hrefs = {}
         self.link_hrefs = {}
@@ -82,7 +81,7 @@ class FB2MLizer(object):
         author_middle = u''
         author_last = u''
         author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
-        
+
         if len(author_parts) == 1:
             author_last = author_parts[0]
         elif len(author_parts) == 2:
@@ -139,7 +138,7 @@ class FB2MLizer(object):
 
     def fb2_body_footer(self):
         return u'\n</section>\n</body>'
-        
+
     def fb2_footer(self):
         return u'</FictionBook>'
 
@@ -184,14 +183,14 @@ class FB2MLizer(object):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return [u'']
-            
+
         fb2_text = [u'']
         style = stylizer.style(elem)
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
             return [u'']
-        
+
         tag = barename(elem.tag)
         tag_count = 0
 
@@ -242,7 +241,7 @@ class FB2MLizer(object):
 
         if hasattr(elem, 'text') and elem.text != None:
             fb2_text.append(prepare_string_for_xml(elem.text))
-        
+
         for item in elem:
             fb2_text += self.dump_text(item, stylizer, page, tag_stack)
 

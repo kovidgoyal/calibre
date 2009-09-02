@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into RB compatible markup.
 '''
 
-import os
 import re
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.ebooks.rb import unique_name
 
 TAGS = [
     'b',
@@ -123,7 +123,7 @@ class RBMLizer(object):
         aid = self.link_hrefs[aid]
         return u'<A NAME="%s"></A>' % aid
 
-    def clean_text(self, text):        
+    def clean_text(self, text):
         # Remove anchors that do not have links
         anchors = set(re.findall(r'(?<=<A NAME=").+?(?="></A>)', text))
         links = set(re.findall(r'(?<=<A HREF="#).+?(?=">)', text))
@@ -146,7 +146,7 @@ class RBMLizer(object):
 
         tag = barename(elem.tag)
         tag_count = 0
-        
+
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
         if tag in IMAGE_TAGS:
