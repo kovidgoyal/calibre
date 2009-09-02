@@ -52,7 +52,7 @@ class TXTMLizer(object):
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
             content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
             content = self.remove_newlines(content)
-            output += self.dump_text(etree.fromstring(content), stylizer))
+            output += self.dump_text(etree.fromstring(content), stylizer)
         output = self.cleanup_text(u''.join(output))
 
         return output
