@@ -141,8 +141,9 @@ class MOBIOutput(OutputFormatPlugin):
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
             # GR diagnostics
-            #self.dump_toc(toc)
-            #self.dump_manifest()
+            if self.opts.verbose > 3:
+                self.dump_toc(toc)
+                self.dump_manifest()
 
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
