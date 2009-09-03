@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.convert.txt_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
-from calibre.ebooks.txt.writer import TxtNewlines
+from calibre.ebooks.txt.newlines import TxtNewlines
 from calibre.gui2.widgets import BasicComboModel
 
 newline_model = None
