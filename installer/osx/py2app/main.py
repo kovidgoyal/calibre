@@ -272,6 +272,9 @@ class Py2App(object):
         for f in glob.glob('src/calibre/plugins/*.so'):
             shutil.copy2(f, dest)
             self.fix_dependencies_in_lib(join(dest, basename(f)))
+            if 'podofo' in f:
+                self.change_dep('libpodofo.0.6.99.dylib',
+                self.FID+'/'+'libpodofo.0.6.99.dylib', join(dest, basename(f)))
 
 
     @flush
@@ -374,7 +377,7 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
-        for x in ('usb', 'unrar'):
+        for x in ('usb', 'unrar', 'readline.6.0'):
             print '\nAdding', x
             x = 'lib%s.dylib'%x
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
