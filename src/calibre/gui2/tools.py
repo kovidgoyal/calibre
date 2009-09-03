@@ -12,7 +12,7 @@ import cPickle
 from PyQt4.Qt import QDialog
 
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.gui2 import warning_dialog
+from calibre.gui2 import warning_dialog, question_dialog
 from calibre.gui2.convert.single import NoSupportedInputFormats
 from calibre.gui2.convert.single import Config as SingleConfig
 from calibre.gui2.convert.bulk import BulkConfig
@@ -42,6 +42,9 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                 result = d.exec_()
 
             if result == QDialog.Accepted:
+                if not convert_existing(parent, db, [book_id], d.output_format):
+                    continue
+
                 mi = db.get_metadata(book_id, True)
                 in_file = db.format_abspath(book_id, d.input_format, True)
 
@@ -100,6 +103,7 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
     output_format = d.output_format
     recs = cPickle.loads(d.recommendations)
 
+    book_ids = convert_existing(parent, db, book_ids, output_format)
     for i, book_id in enumerate(book_ids):
         temp_files = []
 
@@ -186,4 +190,15 @@ def fetch_scheduled_recipe(recipe, script):
 
     return 'gui_convert', args, _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
 
+def convert_existing(parent, db, book_ids, output_format):
+    already_converted_ids = []
+    already_converted_titles = []
+    for book_id in book_ids:
+        if db.has_format(book_id, output_format, index_is_id=True):
+            already_converted_ids.append(book_id)
+            already_converted_titles.append(db.get_metadata(book_id, True).title)
 
+    if not question_dialog(parent, _('Convert existing'), _('The following books have already been converted to %s format. Do you wish to reconvert them?' % output_format), '\n'.join(already_converted_titles)):
+        book_ids = [x for x in book_ids if x not in already_converted_ids]
+
+    return book_ids
