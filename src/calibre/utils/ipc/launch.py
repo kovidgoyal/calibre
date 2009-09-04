@@ -16,7 +16,7 @@ if iswindows:
     import win32process
     _windows_null_file = open(os.devnull, 'wb')
 
-isnewosx = isosx and getattr(sys, 'new_app_bundle')
+isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
 
 class Worker(object):
     '''

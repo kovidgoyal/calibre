@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create an OSX installer '''
 
 import sys, re, os, shutil, subprocess, stat, glob, zipfile, plistlib
+sys.path = sys.path[1:]
 l = {}
 exec open('setup.py').read() in l
 VERSION = l['VERSION']
@@ -210,7 +211,6 @@ os.execv(python, args)
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
 
 
-        self.add_plugins()
         print 'Adding fontconfig'
         for f in glob.glob(os.path.expanduser('~/fontconfig-bundled/*')):
             dest = os.path.join(frameworks_dir, os.path.basename(f))
@@ -221,6 +221,8 @@ os.execv(python, args)
         if os.path.exists(dst):
             shutil.rmtree(dst)
         shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
+
+        self.add_plugins()
 
         print
         print 'Adding IPython'
