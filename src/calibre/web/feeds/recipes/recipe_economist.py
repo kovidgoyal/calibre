@@ -61,8 +61,8 @@ class Economist(BasicNewsRecipe):
                 continue
             a = tag.find('a', href=True)
             if a is not None:
-                url=a['href'].replace('displaystory', 'PrinterFriendly')
-                if url.startswith('/'):
+                url=a['href'].replace('displaystory', 'PrinterFriendly').strip()
+                if url.startswith('/') or url.startswith('PrinterF'):
                     url = 'http://www.economist.com' + url
                 try:
                    subtitle = tag.previousSibling.contents[0].contents[0]
