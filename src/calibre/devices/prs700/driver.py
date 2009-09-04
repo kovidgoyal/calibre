@@ -21,9 +21,9 @@ class PRS700(PRS505):
 
     BCD          = [0x31a]
 
-    WINDOWS_MAIN_MEM = re.compile('PRS-[67]00')
-    WINDOWS_CARD_A_MEM = re.compile(r'PRS-[67]00/\S+:MS')
-    WINDOWS_CARD_B_MEM = re.compile(r'PRS-[67]00/\S+:SD')
+    WINDOWS_MAIN_MEM = re.compile('PRS-((700/)|(600&))')
+    WINDOWS_CARD_A_MEM = re.compile(r'PRS-((700/\S+:)|(600_))MS')
+    WINDOWS_CARD_B_MEM = re.compile(r'PRS-((700/\S+:)|(600_))SD')
 
     OSX_MAIN_MEM   = re.compile(r'Sony PRS-((700/[^:]+)|(600)) Media')
     OSX_CARD_A_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|(600 ))MS Media')
