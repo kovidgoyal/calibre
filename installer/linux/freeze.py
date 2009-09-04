@@ -62,6 +62,7 @@ def freeze():
                        '/usr/lib/libphonon.so.4',
                        '/usr/lib/libssl.so.0.9.8',
                        '/usr/lib/libcrypto.so.0.9.8',
+                       '/lib/libreadline.so.6',
                        ]
 
     binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
