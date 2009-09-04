@@ -63,6 +63,8 @@ def shorten_components_to(length, components):
             if not r:
                 r = x.strip()[0] if x.strip() else 'x'
         ans.append(r)
+    if len(os.sep.join(ans)) > length:
+        return shorten_components_to(length, ans)
     return ans
 
 def find_executable_in_path(name, path=None):
