@@ -84,16 +84,18 @@ if __name__ == '__main__':
                             'calibre_postinstall = calibre.linux:post_install')
     optional = []
     def qmake_query(arg=''):
-        return subprocess.Popen([QMAKE, '-query', arg],
-            stdout=subprocess.PIPE).stdout.read()
+        cmd = [QMAKE, '-query']
+        if arg:
+            cmd += [arg]
+        return subprocess.Popen(cmd, stdout=subprocess.PIPE).stdout.read()
     qt_inc = qt_lib = None
     qt_inc = qmake_query('QT_INSTALL_HEADERS').splitlines()[0]
     qt_inc = qt_inc if qt_inc not in ('', '**Unknown**') and os.path.isdir(qt_inc) else None
     qt_lib = qmake_query('QT_INSTALL_LIBS').splitlines()[0]
     qt_lib = qt_lib if qt_lib not in ('', '**Unknown**') and os.path.isdir(qt_lib) else None
     if qt_lib is None or qt_inc is None:
-        print 'WARNING: Could not find QT librariers and headers.',
-        print 'Is qmake in your PATH?'
+        print '\n\nWARNING: Could not find QT librariers and headers.',
+        print 'Is qmake in your PATH?\n\n'
 
 
     if iswindows:
@@ -126,9 +128,9 @@ if __name__ == '__main__':
                             poppler_lib), qt_lib],
                         include_dirs=[poppler_inc, qt_inc]))
     else:
-        print 'WARNING: Poppler not found on your system. Various PDF related',
+        print '\n\nWARNING: Poppler not found on your system. Various PDF related',
         print 'functionality will not work. Use the POPPLER_INC_DIR and',
-        print 'POPPLER_LIB_DIR environment variables.'
+        print 'POPPLER_LIB_DIR environment variables.\n\n'
 
     podofo_inc = '/usr/include/podofo' if islinux else \
     'C:\\podofo\\include\\podofo' if iswindows else \
@@ -143,9 +145,9 @@ if __name__ == '__main__':
                         library_dirs=[os.environ.get('PODOFO_LIB_DIR', podofo_lib)],
                         include_dirs=[podofo_inc]))
     else:
-        print 'WARNING: PoDoFo not found on your system. Various PDF related',
+        print '\n\nWARNING: PoDoFo not found on your system. Various PDF related',
         print 'functionality will not work. Use the PODOFO_INC_DIR and',
-        print 'PODOFO_LIB_DIR environment variables.'
+        print 'PODOFO_LIB_DIR environment variables.\n\n'
 
     fc_inc = '/usr/include/fontconfig' if islinux else \
             r'C:\cygwin\home\kovid\fontconfig\include\fontconfig' if iswindows else \
@@ -157,8 +159,8 @@ if __name__ == '__main__':
     fc_inc = os.environ.get('FC_INC_DIR', fc_inc)
     fc_lib = os.environ.get('FC_LIB_DIR', fc_lib)
     if not os.path.exists(os.path.join(fc_inc, 'fontconfig.h')):
-        print 'ERROR: fontconfig not found on your system.',
-        print 'Use the FC_INC_DIR and FC_LIB_DIR environment variables.'
+        print '\n\nERROR: fontconfig not found on your system.',
+        print 'Use the FC_INC_DIR and FC_LIB_DIR environment variables.\n\n'
         raise SystemExit(1)
     ext_modules = optional + [
 
