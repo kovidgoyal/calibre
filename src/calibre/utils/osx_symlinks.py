@@ -14,8 +14,10 @@ scripts = %s
 links = %s
 os.setuid(0)
 for s, l in zip(scripts, links):
-    if os.path.lexists(l):
+    try:
         os.remove(l)
+    except:
+        pass
     print 'Creating link:', l, '->', s
     omask = os.umask(022)
     os.symlink(s, l)
@@ -49,7 +51,7 @@ def create_symlinks_old():
 def do_it(scripts, links):
     import os, tempfile, traceback
     from Authorization import Authorization, kAuthorizationFlagDestroyRights
-
+    r1, r2 = DEST_PATH, links
     bad = False
     for s, l in zip(scripts, links):
         if os.path.exists(l) and os.path.exists(os.path.realpath(l)):
@@ -72,7 +74,7 @@ def do_it(scripts, links):
             sys.stdout.write(pipe.read())
             pipe.close()
         except:
-            traceback.print_exc()
+            r1, r2 = None, traceback.format_exc()
         finally:
             os.unlink(name)
             if pp:
@@ -80,5 +82,5 @@ def do_it(scripts, links):
             if ph:
                 os.environ['PYTHONHOME'] = ph
 
-    return DEST_PATH, links
+    return r1, r2
 

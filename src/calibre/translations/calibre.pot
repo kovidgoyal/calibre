@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.10\n"
-"POT-Creation-Date: 2009-09-04 08:37+MDT\n"
-"PO-Revision-Date: 2009-09-04 08:37+MDT\n"
+"POT-Creation-Date: 2009-09-04 11:19+MDT\n"
+"PO-Revision-Date: 2009-09-04 11:19+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -392,8 +392,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:76
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:76
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:78
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:129
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:131
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:130
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:132
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:101
 msgid "Transferring books to device..."
@@ -441,10 +441,10 @@ msgid "Communicate with the Sony PRS-500 eBook reader."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:150
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:95
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:98
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:109
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:93
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:96
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:99
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:110
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:49
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:52
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:55
@@ -463,14 +463,14 @@ msgstr ""
 msgid "Kovid Goyal and John Schember"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:162
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:169
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:163
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:170
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:119
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:134
 msgid "Removing books from device..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:197
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:149
 msgid "Sending metadata to device..."
 msgstr ""
@@ -920,7 +920,7 @@ msgstr ""
 msgid "Running transforms on ebook..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:822
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:821
 msgid "Creating"
 msgstr ""
 
@@ -1810,7 +1810,7 @@ msgid "This RTF file has a feature calibre does not support. Convert it to HTML 
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:26
-msgid "Run the text input though the markdown processor."
+msgid "Run the text input through the markdown pre-processor. To learn more about markdown see"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
@@ -3120,121 +3120,126 @@ msgstr ""
 msgid "new email address"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:467
-msgid "Command line tools installed"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:468
-msgid "Command line tools installed in"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:469
-msgid "If you move calibre.app, you have to re-install the command line tools."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:520
-msgid "No valid plugin path"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:521
-msgid "%s is not a valid plugin path"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:524
-msgid "Choose plugin"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:536
-msgid "Plugin cannot be disabled"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:537
-msgid "The plugin: %s cannot be disabled"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:546
-msgid "Plugin not customizable"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:547
-msgid "Plugin: %s does not need customization"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:571
-msgid "Customize %s"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:581
-msgid "Cannot remove builtin plugin"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:582
-msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:615
-msgid "Error log:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:622
-msgid "Access log:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:647
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:574
-msgid "Failed to start content server"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:671
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:471
-msgid "Select location for books"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:688
-msgid "Invalid size"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:689
-msgid "The size %s is invalid. must be of the form widthxheight"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:733
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:738
-msgid "Invalid database location"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:734
-msgid "Invalid database location "
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:735
-msgid "<br>Must be a directory."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:739
-msgid "Invalid database location.<br>Cannot write to "
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:777
-msgid "Checking database integrity"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:796
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:801
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1005
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:52
 msgid "Error"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:797
-msgid "Failed to check database integrity"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:469
+msgid "Failed to install command line tools."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:472
+msgid "Command line tools installed"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:473
+msgid "Command line tools installed in"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:474
+msgid "If you move calibre.app, you have to re-install the command line tools."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
+msgid "No valid plugin path"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:526
+msgid "%s is not a valid plugin path"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:529
+msgid "Choose plugin"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:541
+msgid "Plugin cannot be disabled"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:542
+msgid "The plugin: %s cannot be disabled"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:551
+msgid "Plugin not customizable"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:552
+msgid "Plugin: %s does not need customization"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:576
+msgid "Customize %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:586
+msgid "Cannot remove builtin plugin"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:587
+msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:620
+msgid "Error log:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:627
+msgid "Access log:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:652
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:574
+msgid "Failed to start content server"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:676
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:471
+msgid "Select location for books"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:693
+msgid "Invalid size"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:694
+msgid "The size %s is invalid. must be of the form widthxheight"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:738
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:743
+msgid "Invalid database location"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:739
+msgid "Invalid database location "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:740
+msgid "<br>Must be a directory."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:744
+msgid "Invalid database location.<br>Cannot write to "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:782
+msgid "Checking database integrity"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:802
+msgid "Failed to check database integrity"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:807
 msgid "Some inconsistencies found"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:803
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:808
 msgid "The following books had formats listed in the database that are not actually available. The entries for the formats have been removed. You should check them manually. This can happen if you manipulate the files in the library folder directly."
 msgstr ""
 
