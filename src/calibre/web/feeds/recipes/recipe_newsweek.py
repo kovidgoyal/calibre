@@ -89,6 +89,17 @@ class Newsweek(BasicNewsRecipe):
             return cmp(tx, ty)
         return sorted(ans, cmp=fcmp)
 
+    def ensure_html(self, soup):
+        root = soup.find(name=True)
+        if root.name == 'html': return soup
+        nsoup = BeautifulSoup('<html><head></head><body/></html>')
+        nroot = nsoup.find(name='body')
+        for x in soup.contents:
+            if getattr(x, 'name', False):
+                x.extract()
+                nroot.insert(len(nroot), x)
+        return nsoup
+
     def postprocess_html(self, soup, first_fetch):
         if not first_fetch:
             h1 = soup.find(id='headline')
@@ -99,7 +110,7 @@ class Newsweek(BasicNewsRecipe):
                 div.extract()
         divs = list(soup.findAll('div', 'pagination'))
         if not divs:
-            return soup
+            return self.ensure_html(soup)
         for div in divs[1:]: div.extract()
         all_a = divs[0].findAll('a', href=True)
         divs[0]['style']="display:none"
@@ -109,7 +120,7 @@ class Newsweek(BasicNewsRecipe):
         for a in soup.findAll('a', href=test):
             if a not in all_a:
                 del a['href']
-        return soup
+        return self.ensure_html(soup)
 
     def get_current_issue(self):
         soup = self.index_to_soup('http://www.newsweek.com')
@@ -132,7 +143,7 @@ class Newsweek(BasicNewsRecipe):
     def postprocess_book(self, oeb, opts, log) :
 
         def extractByline(href) :
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))            
+            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
             byline = soup.find(True,attrs={'class':'authorInfo'})
             byline = self.tag_to_string(byline) if byline is not None else ''
             issueDate = soup.find(True,attrs={'class':'issueDate'})
@@ -142,7 +153,7 @@ class Newsweek(BasicNewsRecipe):
                 return byline + ' | ' + issueDate
             else :
                 return byline + issueDate
-            
+
         def extractDescription(href) :
             soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
             description = soup.find(True,attrs={'name':'description'})
@@ -156,8 +167,8 @@ class Newsweek(BasicNewsRecipe):
                 description = soup.find(True, attrs={'class':'story'})
                 firstPara = soup.find('p')
                 description = self.tag_to_string(firstPara)
-            return description    
-        
+            return description
+
         for section in oeb.toc :
             for article in section :
                 if article.author is None :
