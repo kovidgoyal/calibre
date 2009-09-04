@@ -73,7 +73,12 @@ if __name__ == '__main__':
                         upload_to_pypi, stage3, stage2, stage1, upload, \
                         upload_rss, betas, build_linux32, build_linux64, \
                         build_osx64
-    resources.SCRIPTS = list(basenames['console']+basenames['gui'])
+    resources.SCRIPTS = {}
+    for x in ('console', 'gui'):
+        for name in basenames[x]:
+            resources.SCRIPTS[name] = x
+
+    list(basenames['console']+basenames['gui'])
 
     entry_points['console_scripts'].append(
                             'calibre_postinstall = calibre.linux:post_install')

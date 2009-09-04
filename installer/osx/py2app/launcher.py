@@ -35,22 +35,24 @@ _recipes_pil_prescript(['Hdf5StubImagePlugin', 'FitsStubImagePlugin', 'SunImageP
 
 def _run():
     global __file__
-    import os, sys, site
-    sys.frozen = 'macosx_app'
+    import os, sys
     base = os.environ['RESOURCEPATH']
+
+    sys.frozen = 'macosx_app'
     sys.frameworks_dir = os.path.join(os.path.dirname(base), 'Frameworks')
     sys.new_app_bundle = True
-    site.addsitedir(base)
-    site.addsitedir(os.path.join(base, 'Python', 'site-packages'))
+    sys.site_packages = os.path.join(base, 'Python', 'site-packages')
+    sys.binaries_path = os.path.join(os.path.dirname(base), 'MacOS')
+    sys.console_binaries_path = os.path.join(os.path.dirname(base),
+        'console.app', 'Contents', 'MacOS')
+
     exe = os.environ.get('CALIBRE_LAUNCH_MODULE', 'calibre.gui2.main')
     exe = os.path.join(base, 'Python', 'site-packages', *exe.split('.'))
     exe += '.py'
     sys.argv[0] = __file__ = exe
-    argv = os.environ.get('CALIBRE_LAUNCH_ARGV', None)
-    if argv is not None:
-        import cPickle
-        argv = cPickle.loads(argv)
-        sys.argv[1:] = argv
+    for arg in list(sys.argv[1:]):
+        if arg.startswith('-psn'):
+            sys.argv.remove(arg)
     execfile(exe, globals(), globals())
 
 _run()

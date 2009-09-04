@@ -20,17 +20,50 @@ main_functions = l['main_functions']
 main_modules = l['main_modules']
 LICENSE = open('LICENSE', 'rb').read()
 ENV = dict(
-        FC_CONFIG_DIR='@executable_path/../Resources/fonts',
-        MAGICK_HOME='@executable_path/../Frameworks/ImageMagick',
-        PYTHONDONTWRITEBYTECODE='1',
-        PYTHONIOENCODING='utf-8:replace',
         PYTHONPATH='@executable_path/../Resources/Python/site-packages',
         PYTHONHOME='@executable_path/../Resources/Python',
+        FC_CONFIG_DIR='@executable_path/../Resources/fonts',
+        MAGICK_HOME='@executable_path/../Frameworks/ImageMagick',
+        QT_PLUGIN_PATH='@executable_path/../MacOS',
+        PYTHONDONTWRITEBYTECODE='1',
+        PYTHONIOENCODING='utf-8:replace',
         PYTHONOPTIMIZE='2',
-        QT_PLUGIN_PATH='@executable_path'
         )
 
-SW = os.environ.get('SW')
+SW = os.environ.get('SW', '/sw')
+
+def compile_launchers(contents_dir, xprograms):
+    gcc = os.environ.get('CC', 'gcc')
+    base = os.path.dirname(__file__)
+    src = open(join(base, 'launcher.c'), 'rb').read()
+    env, env_vals = [], []
+    for key, val in ENV.items():
+        env.append('"%s"'% key)
+        env_vals.append('"%s"'% val)
+    env = ', '.join(env)+', '
+    env_vals = ', '.join(env_vals)+', '
+    src = src.replace('/*ENV_VARS*/', env)
+    src = src.replace('/*ENV_VAR_VALS*/', env_vals)
+    programs = []
+    for program, module in xprograms.items():
+        print '\tCompiling', program
+        out = join(contents_dir, 'MacOS', program)
+        programs.append(out)
+        psrc = src.replace('**PROGRAM**', program)
+        psrc = psrc.replace('**MODULE**', module)
+        fsrc = '/tmp/%s.c'%program
+        with open(fsrc, 'wb') as f:
+            f.write(psrc)
+        cmd = [gcc, '-Wall', '-arch', 'x86_64',
+            '-I%s/python/Python.framework/Headers'%SW,
+            fsrc, '-o', out, '-F%s/python'%SW,
+            '-framework', 'Python', '-framework', 'CoreFoundation',
+            '-headerpad_max_install_names']
+        print ' '.join(cmd)
+        sys.stdout.flush()
+        subprocess.check_call(cmd)
+    return programs
+
 
 def flipwritable(fn, mode=None):
     """
@@ -42,6 +75,15 @@ def flipwritable(fn, mode=None):
     old_mode = os.stat(fn).st_mode
     os.chmod(fn, stat.S_IWRITE | old_mode)
     return old_mode
+
+def thin(path):
+    try:
+        subprocess.check_call(['lipo', path, '-verify_arch', 'ppc64'])
+        print '\tThinning', path
+    except:
+        return
+    else:
+        subprocess.check_call(['lipo', path, '-thin', 'x86_64', '-output', path])
 
 STRIPCMD = ['/usr/bin/strip', '-x', '-S', '-']
 def strip_files(files, argv_max=(256 * 1024)):
@@ -120,8 +162,8 @@ class Py2App(object):
 
         self.copy_launcher_and_site()
         self.create_exe()
+        self.thin_to_x86_64()
         self.strip_files()
-        self.create_launchers()
 
         ret = self.makedmg(self.build_dir, APPNAME+'-'+VERSION+'-x86_64')
         sys.stdout.flush()
@@ -134,23 +176,17 @@ class Py2App(object):
         return ret
 
     @flush
-    def create_launchers(self):
-        print '\nCreating launchers'
-        all_names   = basenames['console'] + basenames['gui']
-        all_modules   = main_modules['console'] + main_modules['gui']
-        launcher = join(os.path.dirname(__file__), 'loader.py')
-        launcher = open(launcher, 'rb').read()
-        launcher = launcher.replace('{}##ENV##', repr(ENV))
-        os.mkdir(join(self.resources_dir, 'loaders'))
-        for basename, module in zip(all_names, all_modules):
-            py_file = join('src', *module.split('.'))+'.py'
-            shutil.copy2(py_file, join(self.resources_dir, 'Python',
-            'site-packages', *module.split('.'))+'.py')
-            raw = launcher.replace("''##MODULE##", repr(module))
-            path = join(self.resources_dir, 'loaders', basename)
-            open(path, 'wb').write(raw)
-            os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
-                     |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
+    def thin_to_x86_64(self):
+        print '\nThinning to x86_64'
+        for y in (self.frameworks_dir, join(self.resources_dir, 'Python')):
+            for x in os.walk(y):
+                for f in x[-1]:
+                    f = join(x[0], f)
+                    if not os.path.isfile(f): continue
+                    for t in ('.so', '.dylib', '/Python'):
+                        if f.endswith(t):
+                            thin(f)
+                            break
 
     @flush
     def strip_files(self):
@@ -159,13 +195,19 @@ class Py2App(object):
 
     @flush
     def create_exe(self):
-        print '\nCreating executable'
-        gcc = os.environ.get('CC', 'gcc')
-        base = os.path.dirname(__file__)
-        out = join(self.contents_dir, 'MacOS', 'calibre')
-        subprocess.check_call([gcc, '-Wall', '-arch', 'x86_64', join(base,
-            'main.c'), '-o', out])
-        self.to_strip.append(out)
+        print '\nCreating launchers'
+        programs = {}
+        for program, module in zip(basenames['console'],
+                main_modules['console'])+zip(basenames['gui'],
+                main_modules['gui']):
+            programs[program] = module
+        programs = compile_launchers(self.contents_dir, programs)
+        for out in programs:
+            self.fix_dependencies_in_lib(out)
+        for module in main_modules['console'] + main_modules['gui']:
+            base = join(*module.split('.'))+'.py'
+            shutil.copy2(join('src', base),
+                    join(self.resources_dir, 'Python', 'site-packages', base))
 
     @flush
     def set_id(self, path_to_lib, new_id):
@@ -226,10 +268,6 @@ class Py2App(object):
         shutil.copy2(join(curr, 'Python'), currd)
         self.set_id(join(currd, 'Python'),
             self.FID+'/Python.framework/Versions/%s/Python'%basename(curr))
-        python = '%s/python/Python.framework/Versions/%s/Resources/Python.app/Contents/MacOS/Python'\
-                % (SW, self.version_info)
-        shutil.copy2(python, join(self.contents_dir, 'MacOS'))
-        self.fix_dependencies_in_lib(join(self.contents_dir, 'MacOS', 'Python'))
 
     @flush
     def add_qt_frameworks(self):
@@ -279,6 +317,9 @@ class Py2App(object):
 
     @flush
     def create_plist(self):
+        env = dict(**ENV)
+        env['CALIBRE_LAUNCHED_FROM_BUNDLE']='1';
+
         pl = dict(
                 CFBundleDevelopmentRegion='English',
                 CFBundleDisplayName=APPNAME,
@@ -289,7 +330,6 @@ class Py2App(object):
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
                 LSMinimumSystemVersion='10.5.2',
-                PyRuntimeLocations=[self.FID+'/Python.framework/Versions/%s/Python'%self.version_info],
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
                 NSHumanReadableCopyright='Copyright 2008, Kovid Goyal',
@@ -297,7 +337,7 @@ class Py2App(object):
                 'application. Visit http://calibre.kovidgoyal.net for details.'),
                 CFBundleIconFile='library.icns',
                 LSMultipleInstancesProhibited=True,
-                LSEnvironment=ENV
+                LSEnvironment=env
         )
         plistlib.writePlist(pl, join(self.contents_dir, 'Info.plist'))
 
@@ -554,9 +594,16 @@ class Py2App(object):
         print '\nInstaller size: %.2fMB\n'%size
         return dmg
 
+def test_exe():
+    build_dir = abspath(join('build', APPNAME+'.app'))
+    py2app = Py2App(build_dir)
+    py2app.create_exe()
+    return 0
 
 
 def main():
+    if 'test_exe' in sys.argv:
+        return test_exe()
     build_dir = abspath(join('build', APPNAME+'.app'))
     if os.path.exists(build_dir):
         shutil.rmtree(build_dir)
