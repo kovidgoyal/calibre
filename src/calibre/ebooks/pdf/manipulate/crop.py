@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, James Beal <james_@catbus.co.uk>, ' \
@@ -10,7 +9,9 @@ __docformat__ = 'restructuredtext en'
 Crop a pdf file
 '''
 
-import sys, re
+import sys
+import re
+from decimal import Decimal
 from optparse import OptionGroup, Option
 
 from calibre.ebooks.metadata.meta import metadata_from_formats
@@ -108,11 +109,11 @@ def crop_pdf(pdf_path, opts, metadata=None):
             mo = bounding_regex.search(blines.next())
             if mo == None:
                 raise Exception('Error in bounding file %s' % opts.bounding)
-            page.mediaBox.upperRight = (float(mo.group('top_x')), float(mo.group('top_y')))
-            page.mediaBox.lowerLeft  = (float(mo.group('bottom_x')), float(mo.group('bottom_y')))
+            page.mediaBox.upperRight = (float(mo.group('top_x')), Decimal(mo.group('top_y')))
+            page.mediaBox.lowerLeft  = (float(mo.group('bottom_x')), Decimal(mo.group('bottom_y')))
         else:
-            page.mediaBox.upperRight = (page.bleedBox.getUpperRight_x() - float(opts.top_right_x), page.bleedBox.getUpperRight_y() - float(opts.top_right_y))
-            page.mediaBox.lowerLeft  = (page.bleedBox.getLowerLeft_x() + float(opts.bottom_left_x), page.bleedBox.getLowerLeft_y() + float(opts.bottom_left_y))
+            page.mediaBox.upperRight = (page.bleedBox.getUpperRight_x() - Decimal(opts.top_right_x), page.bleedBox.getUpperRight_y() - Decimal(opts.top_right_y))
+            page.mediaBox.lowerLeft  = (page.bleedBox.getLowerLeft_x() + Decimal(opts.bottom_left_x), page.bleedBox.getLowerLeft_y() + Decimal(opts.bottom_left_y))
         output_pdf.addPage(page)
 
     with open(opts.output, 'wb') as output_file:
