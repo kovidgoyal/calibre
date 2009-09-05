@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QDialog, QWidget, SIGNAL, Qt, QDialogButtonBox, QVBoxLayout
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
-from calibre.gui2.convert.xpath_edit_ui import Ui_Form as Ui_Edit
+from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
 
 
 class WizardWidget(QWidget, Ui_Form):
