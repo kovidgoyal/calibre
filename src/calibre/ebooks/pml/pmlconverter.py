@@ -34,7 +34,7 @@ PML_HTML_RULES = [
     (re.compile(r'\\B(?P<text>.*?)\\B', re.DOTALL), lambda match: '<b>%s</b>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\Sp(?P<text>.*?)\\Sp', re.DOTALL), lambda match: '<sup>%s</sup>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\Sb(?P<text>.*?)\\Sb', re.DOTALL), lambda match: '<sub>%s</sub>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\k(?P<text>.*?)\\k', re.DOTALL), lambda match: '<span style="font-size: 50%%">%s</span>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\k(?P<text>.*?)\\k', re.DOTALL), lambda match: '<span style="font-size: 50%%">%s</span>' % match.group('text').upper() if match.group('text') else ''),
     (re.compile(r'\\a(?P<num>\d\d\d)'), lambda match: '&#%s;' % match.group('num')),
     (re.compile(r'\\U(?P<num>\d\d\d\d)'), lambda match: '%s' % my_unichr(int(match.group('num'), 16))),
     (re.compile(r'\\m="(?P<name>.+?)"'), lambda match: '<img src="images/%s" />' % image_name(match.group('name')).strip('\x00')),
@@ -45,11 +45,11 @@ PML_HTML_RULES = [
     (re.compile(r'\\Sd="(?P<target>.+?)"(?P<text>.*?)\\Sd'), lambda match: '<a href="#sidebar-%s">%s</a>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
     # Just italicize index items as that is how the eReader software renders them.
     (re.compile(r'\\I(?P<text>.*?)\\I', re.DOTALL), lambda match: '<i>%s</i>' % match.group('text') if match.group('text') else ''),
-    
+
     # Sidebar and Footnotes
     (re.compile(r'<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', re.DOTALL), lambda match: '<div id="sidebar-%s">%s</div>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
     (re.compile(r'<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', re.DOTALL), lambda match: '<div id="footnote-%s">%s</div>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
-    
+
     # eReader files are one paragraph per line.
     # This forces the lines to wrap properly.
     (re.compile('^(?P<text>.+)$', re.MULTILINE), lambda match: '<p>%s</p>' % match.group('text')),
@@ -57,7 +57,7 @@ PML_HTML_RULES = [
     (re.compile('<p>[ ]*</p>'), lambda match: ''),
     # Ensure empty lines carry over.
     (re.compile('(\r\n|\n|\r){3}'), lambda match: '<br />'),
-    
+
     # Remove unmatched plm codes.
     (re.compile(r'(?<=[^\\])\\[pxcriouvtblBk]'), lambda match: ''),
     (re.compile(r'(?<=[^\\])\\X[0-4]'), lambda match: ''),
@@ -65,7 +65,7 @@ PML_HTML_RULES = [
     (re.compile(r'(?<=[^\\])\\Sb'), lambda match: ''),
     # Remove invalid single item pml codes.
     (re.compile(r'(?<=[^\\])\\.'), lambda match: ''),
-    
+
     # Replace \\ with \.
     (re.compile(r'\\\\'), lambda match: '\\'),
 ]
@@ -79,5 +79,5 @@ def pml_to_html(pml):
 
 def footnote_sidebar_to_html(id, pml):
     html = '<div id="sidebar-%s"><dt>%s</dt></div><dd>%s</dd>' % (id, id, pml_to_html(pml))
-    return html 
+    return html
 
