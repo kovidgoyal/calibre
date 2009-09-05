@@ -296,9 +296,9 @@ class get_translations(translations):
                 yield line
 
     def run(self):
-        if len(list(self.modified_translations)) == 0:
+        if len(list(self.modified_translations())) == 0:
             subprocess.check_call(['bzr', 'merge', self.BRANCH])
-        if len(list(self.modified_translations)) == 0:
+        if len(list(self.modified_translations())) == 0:
             print 'No updated translations available'
         else:
             subprocess.check_call(['bzr', 'commit', '-m',
@@ -315,17 +315,32 @@ class get_translations(translations):
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
                 #'-t', 'xmltags',
                 #'-t', 'brackets',
-                '-t', 'emails',
+                #'-t', 'emails',
                 #'-t', 'doublequoting',
                 #'-t', 'filepaths',
                 '-t', 'numbers',
                 '-t', 'options',
-                '-t', 'urls',
+                #'-t', 'urls',
                 '-t', 'printf')
         subprocess.check_call(pofilter)
-        #for err in os.listdir(errors):
-        #    subprocess.check_call(['gvim', os.path.join(errors, err)])
-        #subprocess.check_call(['pomerge', '-t', cls.PATH,
+        errfiles = glob.glob(errors+os.sep+'*.po')
+        subprocess.check_call(['gvim', '-p', '--']+errfiles)
+        for f in errfiles:
+            with open(f, 'r+b') as f:
+                raw = f.read()
+                raw = re.sub(r'# \(pofilter\).*', '', raw)
+                f.seek(0)
+                f.truncate()
+                f.write(raw)
+
+        subprocess.check_call(['pomerge', '-t', cls.PATH, '-i', errors, '-o',
+            cls.PATH])
+        if len(list(cls.modified_translations())) > 0:
+            subprocess.call(['bzr', 'diff', cls.PATH])
+            yes = raw_input('Merge corrections? [y/n]: ').strip()
+            if yes in ['', 'y']:
+                subprocess.check_call(['bzr', 'commit', '-m',
+                    'IGN:Translation corrections', cls.PATH])
 
 class gui(OptionlessCommand):
     description='''Compile all GUI forms and images'''

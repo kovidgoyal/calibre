@@ -1588,7 +1588,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 d = error_dialog(self, _('Conversion Error'),
                     _('<p>Could not convert: %s<p>It is a '
                       '<a href="%s">DRM</a>ed book. You must first remove the '
-                      'DRM using 3rd party tools.')%\
+                      'DRM using third party tools.')%\
                         (job.description.split(':')[-1],
                             'http://wiki.mobileread.com/wiki/DRM'))
                 d.setModal(False)
