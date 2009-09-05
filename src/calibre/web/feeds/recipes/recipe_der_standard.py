@@ -19,7 +19,8 @@ class DerStandardRecipe(BasicNewsRecipe):
     lang = 'de-AT'
     no_stylesheets = True
     encoding = 'utf-8'
-    language = _('German')
+    language = 'de'
+
     recursions = 0
     oldest_article = 1
     max_articles_per_feed = 100

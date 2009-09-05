@@ -18,7 +18,8 @@ class Axxon_news(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = False
     use_embedded_content  = False
-    language              = _('Spanish')
+    language = 'es'
+
     lang                  = 'es-AR'
 
     conversion_options = {

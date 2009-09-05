@@ -22,7 +22,8 @@ class ElPeriodico_cat(BasicNewsRecipe):
     use_embedded_content  = False
     delay                 = 1
     encoding              = 'cp1252'
-    language              = _('Catalan')
+    language = 'ca'
+
 
     html2lrf_options = [
                           '--comment'  , description

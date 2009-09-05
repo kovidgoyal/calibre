@@ -15,7 +15,8 @@ class elektrolese(BasicNewsRecipe):
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
     timefmt = ' [%a %d %b %Y]'
-    language = _('German')
+    language = 'de'
+
     oldest_article = 14
     max_articles_per_feed = 50
     no_stylesheets = True

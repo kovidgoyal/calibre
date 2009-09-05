@@ -21,7 +21,8 @@ class Uncrate(BasicNewsRecipe):
     publisher              = 'Zombie corp.'
     category               = 'news, gadgets, clothes, cars, DVDs'
     lang                   = 'en-US'
-    language               = _('English')
+    language = 'en'
+
     
     html2lrf_options = [
                           '--comment', description

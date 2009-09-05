@@ -19,7 +19,8 @@ class SeattleTimes(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
-    language              = _('English')
+    language = 'en'
+
 
     html2lrf_options = [
                           '--comment'  , description

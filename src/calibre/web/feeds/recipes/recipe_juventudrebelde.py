@@ -20,7 +20,8 @@ class Juventudrebelde(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
-    language              = _('Spanish')
+    language = 'es'
+
     cover_url             = strftime('http://www.juventudrebelde.cu/UserFiles/File/impreso/iportada-%Y-%m-%d.jpg')
     remove_javascript     = True
     

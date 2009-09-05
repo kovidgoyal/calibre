@@ -24,7 +24,8 @@ class Vreme(BasicNewsRecipe):
     LOGIN                = 'http://www.vreme.com/account/login.php?url=%2F'
     use_embedded_content = False
     encoding             = 'utf-8'
-    language             = _('Serbian')
+    language = 'sr'
+
     lang                 = 'sr-Latn-RS'
     direction            = 'ltr'    
     extra_css            = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} .heading1{font-family: sans1, sans-serif; font-size: x-large; font-weight: bold} .heading2{font-family: sans1, sans-serif; font-size: large; font-weight: bold} .toc-heading{font-family: sans1, sans-serif; font-size: small} .column-heading2{font-family: sans1, sans-serif; font-size: large} .column-heading1{font-family: sans1, sans-serif; font-size: x-large} .column-normal{font-family: sans1, sans-serif; font-size: medium} .large{font-family: sans1, sans-serif; font-size: large} ' 

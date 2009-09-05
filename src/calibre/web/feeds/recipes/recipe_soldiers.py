@@ -23,7 +23,8 @@ class Soldiers(BasicNewsRecipe):
     encoding               = 'utf-8'
     publisher              = 'U.S. Army'
     category               = 'news, politics, war, weapons'    
-    language               = _('English')
+    language = 'en'
+
     INDEX                  = 'http://www.army.mil/soldiers/'
 
     html2lrf_options = [

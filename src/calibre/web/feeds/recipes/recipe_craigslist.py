@@ -12,7 +12,8 @@ class CraigsList(BasicNewsRecipe):
      title          = u'craigslist - Best Of'
      oldest_article = 365
      max_articles_per_feed = 100
-     language = _('English')
+     language = 'en'
+
      __author__ = 'kiodane'
 
      feeds          = [(u'Best of craigslist',

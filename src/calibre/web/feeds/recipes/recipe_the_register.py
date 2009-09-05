@@ -3,7 +3,8 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class TheRegister(BasicNewsRecipe):
     title          = u'The Register'
     __author__     = 'vgrama'
-    language       = _('English')
+    language = 'en'
+
     oldest_article = 1
     max_articles_per_feed = 100
     use_embedded_content = False

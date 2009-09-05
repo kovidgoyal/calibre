@@ -17,7 +17,8 @@ class Spiegel_ger(BasicNewsRecipe):
     category              = 'SPIEGEL ONLINE, DER SPIEGEL, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'    
     oldest_article        = 7
     max_articles_per_feed = 100
-    language              = _('German')
+    language = 'de'
+
     lang                  = 'de-DE'
     no_stylesheets        = True
     use_embedded_content  = False

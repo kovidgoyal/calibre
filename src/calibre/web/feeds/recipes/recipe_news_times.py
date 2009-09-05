@@ -4,7 +4,8 @@ class NewsTimes(BasicNewsRecipe):
     title                 = 'Newstimes'
     __author__            = 'Darko Miletic'
     description           = 'news from USA'
-    language              = _('English')
+    language = 'en'
+
     oldest_article        = 1
     max_articles_per_feed = 100
     no_stylesheets        = True

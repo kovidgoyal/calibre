@@ -20,7 +20,8 @@ class Exiled(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     remove_javascript     = True
-    language              = _('English')
+    language = 'en'
+
     cover_url             = 'http://exiledonline.com/wp-content/themes/exiledonline_theme/images/header-sm.gif'
 
     html2lrf_options = [

@@ -11,7 +11,8 @@ class CNN(BasicNewsRecipe):
     description = 'Global news'
     timefmt  = ' [%d %b %Y]'
     __author__ = 'Kovid Goyal and Sujata Raman'
-    language = _('English')
+    language = 'en'
+
     no_stylesheets = True
     use_embedded_content   = False
     oldest_article        = 15

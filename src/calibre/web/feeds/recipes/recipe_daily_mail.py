@@ -3,7 +3,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TheDailyMail(BasicNewsRecipe):
     title          = u'The Daily Mail'
     oldest_article = 2
-    language = _('English')
+    language = 'en'
+
     author = 'RufusA'
     simultaneous_downloads= 1
     max_articles_per_feed = 50

@@ -19,7 +19,8 @@ class Twitchfilm(BasicNewsRecipe):
     encoding              = 'utf-8'
     publisher             = 'Twitch'
     category              = 'twitch, twitchfilm, movie news, movie reviews, cult cinema, independent cinema, anime, foreign cinema, geek talk'
-    language              = _('English')
+    language = 'en'
+
     lang                  = 'en-US'
 
     conversion_options = {

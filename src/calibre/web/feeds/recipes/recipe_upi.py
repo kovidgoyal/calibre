@@ -12,7 +12,8 @@ class UnitedPressInternational(BasicNewsRecipe):
     title = 'United Press International'
     max_articles_per_feed = 15
     html2lrf_options = ['--override-css= "H1 {font-family: Arial; font-weight: bold; color: #000000; size: 10pt;}"']
-    language = _('English')
+    language = 'en'
+
 
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
                           [

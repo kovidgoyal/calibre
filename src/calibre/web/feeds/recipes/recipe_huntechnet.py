@@ -12,7 +12,8 @@ class HunTechNet(BasicNewsRecipe):
      title          = u'TechNet'
      oldest_article = 3
      description = u'Az ut\xf3bbi 3 nap TechNet h\xedrei'
-     language = _('Hungarian')
+     language = 'hu'
+
      lang = 'hu'
      encoding = 'utf-8'
      __author__ = 'Devilinside'

@@ -12,7 +12,8 @@ class AlJazeera(BasicNewsRecipe):
     title                  = 'Al Jazeera in English'
     __author__             = 'Darko Miletic'
     description            = 'News from Middle East'
-    language               = _('English')
+    language = 'en'
+
     publisher              = 'Al Jazeera'
     category               = 'news, politics, middle east'
     simultaneous_downloads = 1

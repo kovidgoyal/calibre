@@ -12,7 +12,8 @@ class SecurityWatch(BasicNewsRecipe):
     filter_regexps = [r'feedads\.googleadservices\.com']
     filter_regexps = [r'ad\.doubleclick']
     filter_regexps = [r'advert']
-    language = _('English')
+    language = 'en'
+
     extra_css = 'div {text-align:left}'
     
     remove_tags = [dict(id='topBannerContainer'),

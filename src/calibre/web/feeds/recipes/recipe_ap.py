@@ -8,7 +8,8 @@ class AssociatedPress(BasicNewsRecipe):
     description = 'Global news'
     __author__ = 'Kovid Goyal'
     use_embedded_content   = False
-    language = _('English')
+    language = 'en'
+
     max_articles_per_feed = 15
     html2lrf_options = ['--force-page-break-before-tag="chapter"']
     

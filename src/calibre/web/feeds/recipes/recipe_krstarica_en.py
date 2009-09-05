@@ -20,7 +20,8 @@ class Krstarica_en(BasicNewsRecipe):
     use_embedded_content  = False
     remove_javascript     = True
     encoding              = 'utf-8'
-    language              = _('English')
+    language = 'en'
+
     
     html2lrf_options = [
                           '--comment', description

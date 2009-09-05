@@ -21,7 +21,8 @@ class Nzz(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     lang                  = 'de-CH'
-    language              = _('German')
+    language = 'de'
+
 
     html2lrf_options = [
                           '--comment', description

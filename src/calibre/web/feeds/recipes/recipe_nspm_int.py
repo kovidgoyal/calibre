@@ -14,7 +14,8 @@ class Nspm_int(BasicNewsRecipe):
     description           = 'Magazine dedicated to political theory and sociological research'        
     oldest_article        = 20
     max_articles_per_feed = 100
-    language = _('English')
+    language = 'en'
+
     no_stylesheets        = True
     use_embedded_content  = False
     INDEX                 = 'http://www.nspm.rs/?alphabet=l'

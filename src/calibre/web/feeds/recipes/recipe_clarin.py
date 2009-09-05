@@ -23,7 +23,8 @@ class Clarin(BasicNewsRecipe):
     cover_url             = strftime('http://www.clarin.com/diario/%Y/%m/%d/portada.jpg')
     remove_javascript     = True
     encoding              = 'cp1252'
-    language              = _('Spanish')
+    language = 'es'
+
     lang                  = 'es-AR'
     direction             = 'ltr'
     extra_css             = ' .Txt{ font-family: sans-serif } .Volan{ font-family: sans-serif; font-size: x-small} .Pie{ font-family: sans-serif; font-size: x-small} .Copete{font-family: sans-serif; font-size: large} .Hora{font-family: sans-serif; font-size: large} .Autor{font-family: sans-serif; font-size: small} '

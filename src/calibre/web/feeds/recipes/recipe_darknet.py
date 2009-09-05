@@ -13,7 +13,8 @@ class darknet(BasicNewsRecipe):
     title = 'darknet'
     description = 'Ethical hacking and security news'
     __author__ = 'Oliver Niesner'
-    language = _('English')
+    language = 'en'
+
     use_embedded_content   = False
     timefmt = ' [%b %d %Y]'
     max_articles_per_feed = 40

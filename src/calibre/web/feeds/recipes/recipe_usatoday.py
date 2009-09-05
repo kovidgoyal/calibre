@@ -15,7 +15,8 @@ class USAToday(BasicNewsRecipe):
     timefmt  = ' [%d %b %Y]'
     __author__ = 'Kovid Goyal and Sujata Raman'
     max_articles_per_feed = 20
-    language = _('English')
+    language = 'en'
+
 
     no_stylesheets = True
     extra_css = '''

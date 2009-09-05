@@ -14,7 +14,8 @@ class hnaDe(BasicNewsRecipe):
     description = 'local news from Hessen/Germany'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
-    language = _('German')
+    language = 'de'
+
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 40

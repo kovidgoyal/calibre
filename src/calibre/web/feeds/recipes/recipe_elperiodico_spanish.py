@@ -22,7 +22,8 @@ class ElPeriodico_esp(BasicNewsRecipe):
     use_embedded_content  = False
     delay                 = 1
     encoding              = 'cp1252'
-    language              = _('Spanish')
+    language = 'es'
+
 
     html2lrf_options = [
                           '--comment'  , description

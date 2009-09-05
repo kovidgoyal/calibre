@@ -17,7 +17,8 @@ class LinuxDevices(BasicNewsRecipe):
     timefmt = ' [%a %d %b %Y]'
     max_articles_per_feed = 50
     no_stylesheets = True
-    language = _('English')
+    language = 'en'
+
     remove_javascript = True
     conversion_options = { 'linearize_tables' : True}
     encoding = 'latin1'

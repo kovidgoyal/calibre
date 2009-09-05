@@ -14,7 +14,8 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-    language = _('Dutch')
+    language = 'nl'
+
     keep_only_tags = [dict(name='div', attrs={'id':'leftColumnArticle'}) ]
     remove_tags    = [
         dict(name='div',attrs={'class':'article_tools'}),

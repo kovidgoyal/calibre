@@ -20,7 +20,8 @@ class WikiNews(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf-8'
     remove_javascript     = True
-    language              = _('English')
+    language = 'en'
+
     
     html2lrf_options = [
                           '--comment', description

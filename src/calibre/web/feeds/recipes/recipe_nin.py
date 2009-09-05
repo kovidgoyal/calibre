@@ -27,7 +27,8 @@ class Nin(BasicNewsRecipe):
     LOGIN                  = PREFIX + '/?logout=true'
     FEED                   = PREFIX + '/misc/rss.php?feed=RSS2.0'
     use_embedded_content   = False
-    language               = _('Serbian')
+    language = 'sr'
+
     lang                   = 'sr-Latn-RS'
     direction              = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold}'

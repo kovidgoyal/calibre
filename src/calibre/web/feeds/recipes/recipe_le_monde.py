@@ -16,7 +16,8 @@ class LeMonde(BasicNewsRecipe):
     __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
     description = 'Global news in french'
     oldest_article = 3
-    language = _('French')
+    language = 'fr'
+
     max_articles_per_feed = 30
     no_stylesheets = True
     cover_url='http://abonnes.lemonde.fr/titresdumonde/'+date.today().strftime("%y%m%d")+'/1.jpg'

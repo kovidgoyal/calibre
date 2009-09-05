@@ -16,7 +16,8 @@ class Borba(BasicNewsRecipe):
     description           = 'Dnevne novine Borba Online'
     publisher             = 'IP Novine Borba'
     category              = 'news, politics, Serbia'    
-    language              = _('Serbian')
+    language = 'sr'
+
     lang                  = _('sr-Latn-RS')
     oldest_article        = 2
     max_articles_per_feed = 100

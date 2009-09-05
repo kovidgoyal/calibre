@@ -12,7 +12,8 @@ class BBC(BasicNewsRecipe):
     title          = u'The BBC'
     __author__     = 'Kovid Goyal ans Sujata Raman'
     description    = 'Global news and current affairs from the British Broadcasting Corporation'
-    language = _('English')
+    language = 'en'
+
     no_stylesheets = True
     remove_tags    = [dict(name='div', attrs={'class':'footer'}),
                       {'id' : ['popstory','blq-footer']},

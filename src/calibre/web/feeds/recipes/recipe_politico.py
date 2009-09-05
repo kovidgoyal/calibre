@@ -20,7 +20,8 @@ class Politico(BasicNewsRecipe):
     no_stylesheets        = True
     remove_javascript     = True
     encoding              = 'cp1252'
-    language              = _('English')
+    language = 'en'
+
     
     html2lrf_options = [
                           '--comment', description

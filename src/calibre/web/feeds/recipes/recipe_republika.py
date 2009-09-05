@@ -16,7 +16,8 @@ class Republika(BasicNewsRecipe):
     description           = 'Glasilo gradjanskog samooslobadjanja. Protiv stihije straha, mrznje i nasilja'
     publisher             = ' Zadruga Res Publica'
     category              = 'news, politics, Serbia'    
-    language              = _('Serbian')
+    language = 'sr'
+
     lang                  = 'sr-Latn-RS'
     oldest_article        = 2
     max_articles_per_feed = 100

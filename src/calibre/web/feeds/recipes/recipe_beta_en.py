@@ -19,7 +19,8 @@ class Danas(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = False
     use_embedded_content  = True
-    language              = _('English')
+    language = 'en'
+
     lang                  = 'en'
     
     conversion_options = {

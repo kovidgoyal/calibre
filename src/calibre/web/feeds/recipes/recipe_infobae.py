@@ -18,7 +18,8 @@ class Infobae(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    language              = _('Spanish')
+    language = 'es'
+
     encoding              = 'cp1252'
     cover_url             = 'http://www.infobae.com/imgs/header/header.gif'
     remove_javascript     = True

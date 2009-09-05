@@ -16,7 +16,8 @@ class TheAge(BasicNewsRecipe):
     title = 'The Age'
     description = 'Business News, World News and Breaking News in Melbourne, Australia'
     __author__ = 'Matthew Briggs'
-    language = _('English')
+    language = 'en'
+
     
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()

@@ -21,7 +21,8 @@ class Carta(BasicNewsRecipe):
     remove_javascript = True
     #html2epub_options = 'linearize_tables = True\nbase_font_size2=14'
     encoding = 'utf-8'
-    language = _('German')
+    language = 'de'
+
 
 
     remove_tags_after = [dict(name='p', attrs={'class':'tags-blog'})]

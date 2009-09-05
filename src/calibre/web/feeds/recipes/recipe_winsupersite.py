@@ -7,7 +7,8 @@ class Winsupersite(BasicNewsRecipe):
     description           = u'Paul Thurrott SuperSite for Windows'
     publisher             = 'Paul Thurrott'
     __author__            = 'Hypernova'
-    language              = _('English')
+    language = 'en'
+
     oldest_article = 30
     max_articles_per_feed = 100
     no_stylesheets        = True

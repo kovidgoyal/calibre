@@ -14,7 +14,8 @@ class CriticaDigital(BasicNewsRecipe):
     description           = 'Noticias de Argentina'
     oldest_article        = 2
     max_articles_per_feed = 100
-    language = _('Spanish')
+    language = 'es'
+
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'

@@ -18,7 +18,8 @@ class Tomshardware(BasicNewsRecipe):
     category            = 'news, IT, hardware, USA'        
     no_stylesheets      = True
     needs_subscription  = True
-    language            = _('English')    
+    language = 'en'
+    
     INDEX               = 'http://www.tomshardware.com'
     LOGIN               = INDEX + '/membres/'
     remove_javascript   = True

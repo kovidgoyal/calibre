@@ -12,7 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class GlobeAndMail(BasicNewsRecipe):
     title = u'Globe and Mail'
-    language = _('English')
+    language = 'en'
+
     __author__ = 'Kovid Goyal'
     oldest_article = 2
     max_articles_per_feed = 10

@@ -48,8 +48,9 @@ class BasicNewsRecipe(Recipe):
     #: The author of this recipe
     __author__             = __appname__
 
-    #: The language that the news is in
-    language               = _('Unknown')
+    #: The language that the news is in. Must be an ISO-639 code either
+    #: two or three characters long
+    language               = 'und'
 
     #: Maximum number of articles to download from each feed. This is primarily
     #: useful for feeds that don't have article dates. For most feeds, you should

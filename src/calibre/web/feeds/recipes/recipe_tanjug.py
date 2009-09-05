@@ -20,7 +20,8 @@ class Tanjug(BasicNewsRecipe):
     use_embedded_content  = True
     encoding              = 'utf-8'
     lang                  = 'sr-Latn-RS'
-    language              = _('Serbian')
+    language = 'sr'
+
     direction             = 'ltr'             
     extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
     

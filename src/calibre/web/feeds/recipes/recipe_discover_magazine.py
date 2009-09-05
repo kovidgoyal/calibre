@@ -14,7 +14,8 @@ class DiscoverMagazine(BasicNewsRecipe):
     description = u'Science, Technology and the Future' 
     __author__ = 'Mike Diaz' 
     oldest_article = 33
-    language = _('English') 
+    language = 'en'
+ 
     max_articles_per_feed = 20 
     feeds = [
              (u'Technology', u'http://discovermagazine.com/topics/technology/rss.xml'), 

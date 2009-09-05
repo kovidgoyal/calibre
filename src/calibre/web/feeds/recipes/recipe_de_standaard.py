@@ -9,7 +9,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class DeStandaard(BasicNewsRecipe):
     title                 = u'De Standaard'
     __author__            = u'Darko Miletic'
-    language              = _('Dutch')
+    language = 'nl'
+
     description           = u'News from Belgium'    
     oldest_article        = 7
     max_articles_per_feed = 100

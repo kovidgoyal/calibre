@@ -3,7 +3,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1234144423(BasicNewsRecipe):
     title          = u'Indianapolis Star'
     oldest_article = 5
-    language       = _('English')
+    language = 'en'
+
     __author__     = 'Owen Kelly'
     max_articles_per_feed = 100
 

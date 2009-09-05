@@ -7,7 +7,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheHindu(BasicNewsRecipe):
     title                 = u'The Hindu'
-    language              = _('English')
+    language = 'en'
+
     oldest_article        = 7
     __author__            = _('Kovid Goyal')
     max_articles_per_feed = 100

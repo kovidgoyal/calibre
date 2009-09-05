@@ -5,7 +5,8 @@ class CommonDreams(BasicNewsRecipe):
     title          = u'Common Dreams'
     description    = u'Progressive news and views'
     __author__     = u'XanthanGum'
-    language = _('English')
+    language = 'en'
+
     oldest_article = 7
     max_articles_per_feed = 100
     

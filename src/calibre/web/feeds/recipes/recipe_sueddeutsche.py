@@ -17,7 +17,8 @@ class Sueddeutsche(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 50
     no_stylesheets = True
-    language = _('German')
+    language = 'de'
+
     encoding = 'iso-8859-15'
     remove_javascript = True
 

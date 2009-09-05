@@ -16,7 +16,8 @@ class rga_onliner(BasicNewsRecipe):
     category              = 'Nachrichten, RGA'
     oldest_article        = 3
     max_articles_per_feed = 100
-    language              = _('German')
+    language = 'de'
+
     lang                  = 'de-DE'
     no_stylesheets        = True
     use_embedded_content  = False

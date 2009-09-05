@@ -13,7 +13,8 @@ class DeMorganBe(BasicNewsRecipe):
     __author__            = u'Darko Miletic'
     description           = u'News from Belgium'    
     oldest_article        = 7
-    language              = _('Dutch')
+    language = 'nl'
+
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

@@ -7,7 +7,8 @@ class Shacknews(BasicNewsRecipe):
     title          = u'Shacknews'
     oldest_article = 7
     max_articles_per_feed = 100
-    language = _('English')
+    language = 'en'
+
     no_stylesheets = True
     remove_tags = [dict(name='div', attrs={'class': ['nuggets', 'comments']}), 
 	        dict(name='p', attrs={'class': 'videoembed'})]

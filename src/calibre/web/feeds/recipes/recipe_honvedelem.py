@@ -13,7 +13,8 @@ class HunMilNews(BasicNewsRecipe):
     title          = u'Honvedelem.hu'
     oldest_article = 3
     description = u'Katonah\xedrek'
-    language = _('Hungarian')
+    language = 'hu'
+
     lang = 'hu'
     encoding = 'windows-1250'
     category = 'news, military'

@@ -13,7 +13,8 @@ class TNXM(BasicNewsRecipe):
     __author__     = 'Wasabi'
     description    = 'Vietnam news and current affairs from TNXM - the finest Vietnamese bulletin board.'
     no_stylesheets = True
-    language = _('Vietnamese')
+    language = 'vi'
+
     encoding = 'utf-8'
     recursions = 0
 

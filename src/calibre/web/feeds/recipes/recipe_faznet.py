@@ -13,7 +13,8 @@ class FazNet(BasicNewsRecipe):
     publisher             = 'FAZ Electronic Media GmbH'
     category              = 'news, politics, Germany'
     use_embedded_content  = False
-    language              = _('German') 
+    language = 'de'
+ 
     max_articles_per_feed = 30 
     no_stylesheets        = True
     encoding              = 'utf-8'

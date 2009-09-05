@@ -12,7 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class DailyTelegraph(BasicNewsRecipe):
     title          = u'Daily Telegraph'
     __author__     = u'AprilHare'
-    language = _('English')
+    language = 'en'
+
     description    = u'News from down under'
     oldest_article = 2
     max_articles_per_feed = 10

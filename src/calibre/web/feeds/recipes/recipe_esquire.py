@@ -22,7 +22,8 @@ class Esquire(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'cp1250'
     use_embedded_content  = False
-    language              = _('English')
+    language = 'en'
+
     lang                  = 'en-US'
     cover_url             = strftime('http://www.esquire.com/cm/esquire/cover-images/%Y_') + strftime('%m').strip('0') + '.jpg'
 

@@ -20,7 +20,8 @@ class ElUniversal(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     remove_javascript     = True
-    language              = _('Spanish')
+    language = 'es'
+
     
     html2lrf_options = [
                           '--comment', description

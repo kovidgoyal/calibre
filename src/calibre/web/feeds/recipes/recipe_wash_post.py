@@ -9,7 +9,8 @@ class WashingtonPost(BasicNewsRecipe):
     __author__ = 'Kovid Goyal and Sujata Raman'
     use_embedded_content   = False
     max_articles_per_feed = 20
-    language = _('English')
+    language = 'en'
+
 
     remove_javascript = True
     no_stylesheets = True

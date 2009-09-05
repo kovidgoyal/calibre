@@ -19,7 +19,8 @@ class StraitsTimes(BasicNewsRecipe):
     encoding               = 'cp1252'
     publisher              = 'Singapore Press Holdings Ltd.'
     category               = 'news, politics, singapore, asia'    
-    language               = _('English')    
+    language = 'en'
+    
 
     html2lrf_options = [
                           '--comment', description

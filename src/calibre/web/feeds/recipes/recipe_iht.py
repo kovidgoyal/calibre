@@ -12,7 +12,8 @@ from calibre.ptempfile import PersistentTemporaryFile
 class InternationalHeraldTribune(BasicNewsRecipe):
     title          = u'The International Herald Tribune'
     __author__     = 'Derry FitzGerald'
-    language       = _('English')
+    language = 'en'
+
     oldest_article = 1
     max_articles_per_feed = 10
     no_stylesheets = True

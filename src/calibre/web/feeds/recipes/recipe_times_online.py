@@ -22,7 +22,8 @@ class Timesonline(BasicNewsRecipe):
     simultaneous_downloads = 1
     encoding               = 'cp1252'
     lang                   = 'en-UK'
-    language               = _('English')
+    language = 'en'
+
 
     html2lrf_options = [
                           '--comment', description

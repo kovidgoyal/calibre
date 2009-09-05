@@ -14,7 +14,8 @@ class Thenation(BasicNewsRecipe):
     oldest_article        = 120
     max_articles_per_feed = 100
     no_stylesheets        = True
-    language = _('English')
+    language = 'en'
+
     use_embedded_content  = False
     simultaneous_downloads = 1
     delay                  = 1

@@ -59,4 +59,5 @@ class Estadao(BasicNewsRecipe):
             del item['style']
         return soup
 
-    language = _('Portuguese')
+    language = 'pt'
+

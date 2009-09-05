@@ -12,7 +12,8 @@ class ScienceDaily(BasicNewsRecipe):
     __author__            = u'Darko Miletic'
     description           = u"Breaking science news and articles on global warming, extrasolar planets, stem cells, bird flu, autism, nanotechnology, dinosaurs, evolution -- the latest discoveries in astronomy, anthropology, biology, chemistry, climate &amp; environment, computers, engineering, health &amp; medicine, math, physics, psychology, technology, and more -- from the world's leading universities and research organizations."
     oldest_article        = 7
-    language = _('English')
+    language = 'en'
+
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

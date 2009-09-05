@@ -20,7 +20,8 @@ class ClimateProgress(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = True
     encoding              = 'utf-8'
-    language              = _("English")
+    language = 'en'
+
     lang                  = 'en-US'
     direction             = 'ltr'
     

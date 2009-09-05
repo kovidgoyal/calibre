@@ -19,7 +19,8 @@ class Corriere_it(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     remove_javascript     = True
-    language              = _('Italian')
+    language = 'it'
+
 
     html2lrf_options = [
                           '--comment', description

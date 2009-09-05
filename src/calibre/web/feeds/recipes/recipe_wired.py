@@ -11,7 +11,8 @@ class Wired(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     description = 'Technology news'
     timefmt  = ' [%Y%b%d  %H%M]'
-    language = _('English')
+    language = 'en'
+
     no_stylesheets = True
 
     remove_tags_before = dict(name='div', id='content')

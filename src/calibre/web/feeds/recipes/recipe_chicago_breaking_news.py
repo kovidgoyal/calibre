@@ -19,7 +19,8 @@ class ChicagoBreakingNews(BasicNewsRecipe):
     publisher             = 'Chicago Breaking News'
     category              = 'news, politics, USA, Chicago'
     encoding              = 'utf8'
-    language              = _('English')
+    language = 'en'
+
     
     html2lrf_options = [
                           '--comment', description

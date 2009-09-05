@@ -14,7 +14,8 @@ class Themarketticker(BasicNewsRecipe):
     description           = 'Commentary On The Capital Markets'    
     oldest_article        = 7
     max_articles_per_feed = 100
-    language = _('English')
+    language = 'en'
+
     no_stylesheets        = True
     use_embedded_content  = True
     html2lrf_options = [  '--comment'       , description

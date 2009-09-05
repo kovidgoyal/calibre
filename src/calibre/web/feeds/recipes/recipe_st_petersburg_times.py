@@ -20,7 +20,8 @@ class PetersburgTimes(BasicNewsRecipe):
     remove_javascript     = True
     encoding              = 'cp1251'
     use_embedded_content  = False
-    language              = _('English')
+    language = 'en'
+
     
     html2lrf_options = [
                           '--comment', description

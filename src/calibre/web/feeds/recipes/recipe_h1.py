@@ -12,7 +12,8 @@ class H168(BasicNewsRecipe):
      title          = u'168\xf3ra'
      oldest_article = 4
      max_articles_per_feed = 50
-     language = _('Hungarian')
+     language = 'hu'
+
      __author__ = 'Ezmegaz'
 
      feeds          = [(u'Itthon',

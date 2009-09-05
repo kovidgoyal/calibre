@@ -19,7 +19,8 @@ class DeGentenaarOnline(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    language              = _('Dutch')
+    language = 'nl'
+
     lang                  = 'nl-BE'
     direction             = 'ltr'
 

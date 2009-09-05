@@ -22,7 +22,8 @@ class Nspm(BasicNewsRecipe):
     use_embedded_content  = False
     INDEX                 = 'http://www.nspm.rs/?alphabet=l'
     encoding              = 'utf-8'
-    language              = _('Serbian')
+    language = 'sr'
+
     lang                  = 'sr-Latn-RS'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     
