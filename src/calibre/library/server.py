@@ -114,6 +114,24 @@ class LibraryServer(object):
     </entry>
     '''))
 
+    STANZA_TAG_ENTRY=MarkupTemplate(textwrap.dedent('''\
+    <entry xmlns:py="http://genshi.edgewall.org/">
+        <title>${tags}</title>
+        <id>urn:calibre:${record[FM['id']]}</id>
+        <updated>${timestamp}</updated>
+        <link type="application/atom+xml" href="/stanza/?tagid=${record[FM['id']]}" />
+    </entry>
+    '''))
+
+    STANZA_SERIES_ENTRY=MarkupTemplate(textwrap.dedent('''\
+    <entry xmlns:py="http://genshi.edgewall.org/">
+        <title>${series}</title>
+        <id>urn:calibre:${record[FM['id']]}</id>
+        <updated>${timestamp}</updated>
+        <link type="application/atom+xml" href="/stanza/?seriesid=${record[FM['id']]}" />
+    </entry>
+    '''))
+
     STANZA = MarkupTemplate(textwrap.dedent('''\
     <?xml version="1.0" encoding="utf-8"?>
     <feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
@@ -165,6 +183,18 @@ class LibraryServer(object):
         <id>urn:uuid:3c6d4940-8c24-11de-a4d7-0002a5d5c51b</id>
         <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
         <link type="application/atom+xml" href="/stanza/?sortby=bynewest" />
+      </entry>
+      <entry>
+        <title>By Tag</title>
+        <id>urn:uuid:824921e8-db8a-4e61-7d38-f1ce41502853</id>
+        <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+        <link type="application/atom+xml" href="/stanza/?sortby=bytag" />
+      </entry>
+      <entry>
+        <title>By Series</title>
+        <id>urn:uuid:512a5e50-a88f-f6b8-82aa-8f129c719f61</id>
+        <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+        <link type="application/atom+xml" href="/stanza/?sortby=byseries" />
       </entry>
     </feed>
     '''))
@@ -339,30 +369,46 @@ class LibraryServer(object):
 
 
     @expose
-    def stanza(self, search=None, sortby=None, authorid=None):
+    def stanza(self, search=None, sortby=None, authorid=None, tagid=None, seriesid=None):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
         updated = self.db.last_modified()
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'text/xml'
-        if not sortby and not search and not authorid:
+        if not sortby and not search and not authorid and not tagid and not seriesid:
             return self.STANZA_MAIN.generate(subtitle='', data=books, FM=FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
         if authorid:
             authorid=int(authorid)
             au = self.db.authors(authorid, index_is_id=True)
             ids = self.db.data.get_matches('authors', au)
+        elif tagid:
+            tagid=int(tagid)
+            ta = self.db.tags(tagid, index_is_id=True)
+            ids = self.db.data.get_matches('tags', ta)
+        elif seriesid:
+            seriesid=int(seriesid)
+            se = self.db.series(seriesid, index_is_id=True)
+            ids = self.db.data.get_matches('series', se)
         else:
             ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         record_list = list(iter(self.db))
         if sortby == "byauthor":
             record_list.sort(lambda x, y: cmp(x[FIELD_MAP['author_sort']], y[FIELD_MAP['author_sort']]))
-        elif sortby == "bytitle" or authorid:
+        elif sortby == "bytag":
+            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['tags']], y[FIELD_MAP['tags']]))
+        elif sortby == "byseries":
+            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['series']], y[FIELD_MAP['series']]))
+        elif sortby == "bytitle" or authorid or tagid:
             record_list.sort(lambda x, y: cmp(title_sort(x[FIELD_MAP['title']]),
                 title_sort(y[FIELD_MAP['title']])))
+        elif seriesid:
+            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['series_index']], y[FIELD_MAP['series_index']]))
         else:
             record_list = reversed(record_list)
         author_list=[]
+        tag_list=[]
+        series_list=[]
         for record in record_list:
             if record[0] not in ids: continue
             r = record[FIELD_MAP['formats']]
@@ -401,6 +447,30 @@ class LibraryServer(object):
                                                 fmt=fmt,
                                                 timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5]),
                                                 ).render('xml').decode('utf8'))
+                elif sortby == "bytag":
+                    if tags and tags not in tag_list:
+                        tag_list.append(tags)
+                        books.append(self.STANZA_TAG_ENTRY.generate(
+                                                tags=tags,
+                                                record=record, FM=FIELD_MAP,
+                                                port=self.opts.port,
+                                                extra=''.join(extra),
+                                                mimetype=mimetype,
+                                                fmt=fmt,
+                                                timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5]),
+                                                ).render('xml').decode('utf8'))
+                elif sortby == "byseries":
+                    if series and series not in series_list:
+                        series_list.append(series)
+                        books.append(self.STANZA_SERIES_ENTRY.generate(
+                                                series=series,
+                                                record=record, FM=FIELD_MAP,
+                                                port=self.opts.port,
+                                                extra=''.join(extra),
+                                                mimetype=mimetype,
+                                                fmt=fmt,
+                                                timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5]),
+                                                ).render('xml').decode('utf8'))
                 else:
                     books.append(self.STANZA_ENTRY.generate(
                                                 authors=authors,
@@ -414,6 +484,7 @@ class LibraryServer(object):
 
         return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
+
 
     @expose
     def library(self, start='0', num='50', sort=None, search=None,
@@ -465,7 +536,8 @@ class LibraryServer(object):
             cherrypy.request.headers.get('Stanza-Device-Name', 919) != 919 or \
             cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919 or \
             ua.startswith('Stanza')
-        return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None)) if want_opds else self.static('index.html')
+        return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None),
+                           tagid=kwargs.get('tagid',None), seriesid=kwargs.get('seriesid',None)) if want_opds else self.static('index.html')
 
 
     @expose

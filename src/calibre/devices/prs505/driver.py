@@ -38,7 +38,7 @@ class PRS505(CLI, Device):
     WINDOWS_CARD_A_MEM = re.compile(r'PRS-505/\S+:MS')
     WINDOWS_CARD_B_MEM = re.compile(r'PRS-505/\S+:SD')
 
-    OSX_MAIN_MEM   = re.compile(r'Sony PRS-(505|300)/[^:]+ Media')
+    OSX_MAIN_MEM   = re.compile(r'Sony PRS-(((505|300)/[^:]+)|(300)) Media')
     OSX_CARD_A_MEM = re.compile(r'Sony PRS-505/[^:]+:MS Media')
     OSX_CARD_B_MEM = re.compile(r'Sony PRS-505/[^:]+:SD Media')
 
@@ -55,6 +55,7 @@ class PRS505(CLI, Device):
     EBOOK_DIR_MAIN = 'database/media/books'
 
     def open(self):
+        self.report_progress = lambda x, y: x
         Device.open(self)
 
         def write_cache(prefix):

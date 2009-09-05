@@ -127,6 +127,7 @@ class Stylizer(object):
             if elem.tag == XHTML('style') and elem.text \
                and elem.get('type', CSS_MIME) in OEB_STYLES:
                 text = XHTML_CSS_NAMESPACE + elem.text
+                text = oeb.css_preprocessor(text)
                 stylesheet = parser.parseString(text, href=cssname)
                 stylesheet.namespaces['h'] = XHTML_NS
                 stylesheets.append(stylesheet)

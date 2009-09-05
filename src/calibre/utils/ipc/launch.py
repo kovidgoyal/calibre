@@ -16,6 +16,8 @@ if iswindows:
     import win32process
     _windows_null_file = open(os.devnull, 'wb')
 
+isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
+
 class Worker(object):
     '''
     Platform independent object for launching child processes. All processes
@@ -45,6 +47,9 @@ class Worker(object):
             return os.path.join(os.path.dirname(sys.executable),
                    'calibre-parallel.exe' if isfrozen else \
                            'Scripts\\calibre-parallel.exe')
+        if isnewosx:
+            return os.path.join(sys.console_binaries_path, 'calibre-parallel')
+
         if isosx:
             if not isfrozen: return 'calibre-parallel'
             contents = os.path.join(self.osx_contents_dir,
@@ -56,6 +61,9 @@ class Worker(object):
 
     @property
     def gui_executable(self):
+        if isnewosx:
+           return os.path.join(sys.binaries_path, 'calibre-parallel')
+
         if isfrozen and isosx:
             return os.path.join(self.osx_contents_dir,
                     'MacOS', self.osx_interpreter)
@@ -98,7 +106,7 @@ class Worker(object):
     def __init__(self, env, gui=False):
         self._env = {}
         self.gui = gui
-        if isosx and isfrozen:
+        if isosx and isfrozen and not isnewosx:
             contents = os.path.join(self.osx_contents_dir, 'console.app', 'Contents')
             resources = os.path.join(contents, 'Resources')
             fd = os.path.join(contents, 'Frameworks')
@@ -133,7 +141,7 @@ class Worker(object):
         if priority is None:
             priority = prefs['worker_process_priority']
         cmd = [exe]
-        if isosx:
+        if isosx and not isnewosx:
             cmd += ['-c', self.osx_prefix + 'from calibre.utils.ipc.worker import main; main()']
         args = {
                 'env' : env,
@@ -155,7 +163,7 @@ class Worker(object):
             ret = self._file.name
 
         if iswindows and 'stdin' not in args:
-            # On windows when usingthepythonw interpreter,
+            # On windows when using the pythonw interpreter,
             # stdout, stderr and stdin may not be valid
             args['stdin'] = subprocess.PIPE
             args['stdout'] = _windows_null_file

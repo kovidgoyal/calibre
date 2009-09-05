@@ -122,20 +122,48 @@ class TagsModel(QStandardItemModel):
                 self._data[category], self.cmap[r], self.bold_font, self.icon_map))
         #self.reset()
 
+    def reset_all_states(self):
+        changed_indices = []
+        for category in self._data.values():
+            Category = self.find_category(category)
+            for tag in category:
+                if tag.state != 0:
+                    tag.state = 0
+                    if Category is not None:
+                        Tag = self.find_tag(tag, Category)
+                        if Tag is not None:
+                            changed_indices.append(Tag.index())
+        for idx in changed_indices:
+            if idx.isValid():
+                self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
+                        idx, idx)
+
     def clear_state(self):
         for category in self._data.values():
             for tag in category:
                 tag.state = 0
-        self.refresh()
+        self.reset_all_states()
+
+    def find_category(self, name):
+        root = self.invisibleRootItem()
+        for i in range(root.rowCount()):
+            child = root.child(i)
+            if getattr(child, 'category', None) == name:
+                return child
+
+    def find_tag(self, tag, category):
+        for i in range(category.rowCount()):
+            child = category.child(i)
+            if getattr(child, 'tag', None) == tag:
+                return child
+
 
     def reinit(self, *args, **kwargs):
         if self.ignore_next_search == 0:
-            for category in self._data.values():
-                for tag in category:
-                    tag.state = 0
-            self.reset()
+            self.reset_all_states()
         else:
             self.ignore_next_search -= 1
+
 
     def toggle(self, index):
         if index.parent().isValid():

@@ -699,10 +699,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <item>
-            <widget class="QToolButton" name="compact_button">
-             <property name="toolTip">
-              <string>Free unused diskspace from the database</string>
-             </property>
+            <widget class="QPushButton" name="compact_button">
              <property name="text">
               <string>&amp;Check database integrity</string>
              </property>

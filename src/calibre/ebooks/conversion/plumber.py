@@ -814,7 +814,6 @@ OptionRecommendation(name='language',
             out_dir = os.path.join(self.opts.debug_pipeline, 'processed')
             self.dump_oeb(self.oeb, out_dir)
             self.log('Processed HTML written to:', out_dir)
-            return
 
         self.log.info('Creating %s...'%self.output_plugin.name)
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)

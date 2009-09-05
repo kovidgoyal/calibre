@@ -61,7 +61,9 @@ class Economist(BasicNewsRecipe):
                 continue
             a = tag.find('a', href=True)
             if a is not None:
-                url=a['href'].replace('displaystory', 'PrinterFriendly')
+                url=a['href'].replace('displaystory', 'PrinterFriendly').strip()
+                if url.startswith('Printer'):
+                    url = '/'+url
                 if url.startswith('/'):
                     url = 'http://www.economist.com' + url
                 try:

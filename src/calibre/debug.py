@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Embedded console for debugging.
 '''
 
-import sys, os, re
+import sys, os, re, shutil
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows, isosx
 from calibre.libunzip import update
@@ -45,6 +45,9 @@ def update_zipfile(zipfile, mod, path):
     name = mod.replace('.', '/') + os.path.splitext(path)[-1]
     update(zipfile, [pat], [path], [name])
 
+def update_site_packages(sp, mod, path):
+    dest = os.path.join(sp, *mod.split('.'))+'.py'
+    shutil.copy2(path, dest)
 
 def update_module(mod, path):
     if not hasattr(sys, 'frozen'):
@@ -52,6 +55,8 @@ def update_module(mod, path):
     zp = None
     if iswindows:
         zp = os.path.join(os.path.dirname(sys.executable), 'library.zip')
+    elif getattr(sys, 'new_app_bundle', False):
+        update_site_packages(sys.site_packages, mod, path)
     elif isosx:
         zp = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')),
                             'Resources', 'lib',

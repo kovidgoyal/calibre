@@ -23,7 +23,8 @@ class TXTInput(InputFormatPlugin):
                 'With this option it will assume that every line represents '
                 'a paragraph instead.')),
         OptionRecommendation(name='markdown', recommended_value=False,
-            help=_('Run the text input though the markdown processor.')),
+            help=_('Run the text input through the markdown pre-processor. To '
+                'learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
     ])
 
     def convert(self, stream, options, file_ext, log,

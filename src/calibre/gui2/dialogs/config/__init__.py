@@ -464,9 +464,16 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def create_symlinks(self):
         from calibre.utils.osx_symlinks import create_symlinks
         loc, paths = create_symlinks()
-        info_dialog(self, _('Command line tools installed'),
-                _('Command line tools installed in')+' '+loc,
-                det_msg=paths, show=True)
+        if loc is None:
+            error_dialog(self, _('Error'),
+                    _('Failed to install command line tools.'),
+                    det_msg=paths, show=True)
+        else:
+            info_dialog(self, _('Command line tools installed'),
+            '<p>'+_('Command line tools installed in')+' '+loc+
+            '<br>'+ _('If you move calibre.app, you have to re-install '
+                    'the command line tools.'),
+                det_msg='\n'.join(paths), show=True)
 
     def setup_conversion_options(self):
         self.conversion_options = ConfigTabs(self)
