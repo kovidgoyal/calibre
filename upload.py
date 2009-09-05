@@ -286,27 +286,46 @@ class get_translations(translations):
     description = 'Get updated translations from Launchpad'
     BRANCH = 'lp:~kovid/calibre/translations'
 
-    def run(self):
-        cwd = os.getcwd()
-        subprocess.check_call(['bzr', 'merge', self.BRANCH])
+    @classmethod
+    def modified_translations(cls):
+        raw = subprocess.Popen(['bzr', 'status'],
+                stdout=subprocess.PIPE).stdout.read().strip()
+        for line in raw.splitlines():
+            line = line.strip()
+            if line.startswith(cls.PATH) and line.endswith('.po'):
+                yield line
 
-    def check_for_errors(self):
-        errors = os.path.join(self.PATH, '.errors')
+    def run(self):
+        if len(list(self.modified_translations)) == 0:
+            subprocess.check_call(['bzr', 'merge', self.BRANCH])
+        if len(list(self.modified_translations)) == 0:
+            print 'No updated translations available'
+        else:
+            subprocess.check_call(['bzr', 'commit', '-m',
+                'IGN:Updated translations', self.PATH])
+        self.check_for_errors()
+
+    @classmethod
+    def check_for_errors(cls):
+        errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
         if os.path.exists(errors):
             shutil.rmtree(errors)
-        pofilter = ('pofilter', '-i', '.', '-o', errors,
-                    '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
-                    #'-t', 'xmltags',
-                    '-t', 'printf')
+        os.mkdir(errors)
+        pofilter = ('pofilter', '-i', cls.PATH, '-o', errors,
+                '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
+                #'-t', 'xmltags',
+                #'-t', 'brackets',
+                '-t', 'emails',
+                #'-t', 'doublequoting',
+                #'-t', 'filepaths',
+                '-t', 'numbers',
+                '-t', 'options',
+                '-t', 'urls',
+                '-t', 'printf')
         subprocess.check_call(pofilter)
-        errs = os.listdir(errors)
-        if errs:
-            print 'WARNING: Translation errors detected'
-            print 'See http://translate.sourceforge.net/wiki/toolkit/using_pofilter'
-            print 'Error files:\n'
-            for e in errs:
-                print os.path.join(errors, e)
-
+        #for err in os.listdir(errors):
+        #    subprocess.check_call(['gvim', os.path.join(errors, err)])
+        #subprocess.check_call(['pomerge', '-t', cls.PATH,
 
 class gui(OptionlessCommand):
     description='''Compile all GUI forms and images'''

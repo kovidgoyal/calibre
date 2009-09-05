@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.11\n"
-"POT-Creation-Date: 2009-09-04 15:35+MDT\n"
-"PO-Revision-Date: 2009-09-04 15:35+MDT\n"
+"POT-Creation-Date: 2009-09-05 11:07+MDT\n"
+"PO-Revision-Date: 2009-09-05 11:07+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -118,6 +118,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:874
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1000
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:211
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:268
 #: /home/kovid/work/calibre/src/calibre/library/database.py:917
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:652
@@ -5188,11 +5189,11 @@ msgstr ""
 msgid "Fetch news from "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:202
 msgid "Convert existing"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:203
 msgid "The following books have already been converted to %s format. Do you wish to reconvert them?"
 msgstr ""
 
@@ -5390,10 +5391,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:210
 msgid "Position in book"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:211
-msgid "/Unknown"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:216

@@ -208,7 +208,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos = DoubleSpinBox()
         self.pos.setDecimals(1)
         self.pos.setToolTip(_('Position in book'))
-        self.pos.setSuffix(_('/Unknown')+'     ')
+        self.pos.setSuffix('/'+_('Unknown')+'     ')
         self.pos.setMinimum(1.)
         self.tool_bar2.insertWidget(self.action_find_next, self.pos)
         self.reference = HelpfulLineEdit()
