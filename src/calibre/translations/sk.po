@@ -172,7 +172,7 @@ msgid ""
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
 "Kódovanie znakov pre vstupné HTML súbory. Bežne používané kódovania sú napr. "
-"cp1252, iso-8859-1 alebo utf-8."
+"cp1252, latin1, iso-8859-1 alebo utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:56
 msgid "Extract cover from comic files"

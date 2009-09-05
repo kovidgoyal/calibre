@@ -3016,15 +3016,15 @@ msgstr "控制内容目录的创建/转换"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
-msgstr "一级目录（XPath 表达式）："
+msgstr "&一级目录（XPath 表达式）："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &2 TOC (XPath expression):"
-msgstr "二级目录（XPath 表达式）："
+msgstr "&二级目录（XPath 表达式）："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &3 TOC (XPath expression):"
-msgstr "三级目录（XPath 表达式）："
+msgstr "&三级目录（XPath 表达式）："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
 msgid "Do not add &detected chapters to the Table of Contents"
@@ -5197,7 +5197,7 @@ msgstr ""
 "                <li>拔下阅读器。等待重新生成数据库（如，等待它可以正常使用）。再次插入。则它可以和 %(app)s "
 "协作。如果不行，尝试下一个步骤。</li>\n"
 "                <li>退出 %(app)s。 找到阅读器主存储器中 media.xml "
-"文件。删除。拔下阅读器。等待它重新生成该文件。重新连接它之后开启 %(app)。</li>\n"
+"文件。删除。拔下阅读器。等待它重新生成该文件。重新连接它之后开启 %(app)s。</li>\n"
 "                </ol>\n"
 "                "
 
@@ -5990,7 +5990,7 @@ msgstr "正在加载流..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:489
 msgid "Laying out %s"
-msgstr "正在排布流..."
+msgstr "正在排布流 %s..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:518
 msgid "Manage Bookmarks"

@@ -2390,7 +2390,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:87
 msgid "&Disable comic processing"
-msgstr "%Desativar processamento de gibis"
+msgstr "&Desativar processamento de gibis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -3917,7 +3917,7 @@ msgstr "Instalar novo plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:555
 msgid "Plugin &file:"
-msgstr "%Arquivo de plugin:"
+msgstr "&Arquivo de plugin:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:557
 msgid "&Add"

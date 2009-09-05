@@ -338,7 +338,7 @@ msgstr "لا يجد ملحق صالح "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:229
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "فشل استهلال الملحق s% مع اقتفاء الأثر:"
+msgstr "فشل استهلال الملحق %s مع اقتفاء الأثر:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:359
 msgid ""
