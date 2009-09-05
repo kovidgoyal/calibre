@@ -281,6 +281,32 @@ class translations(OptionlessCommand):
         if os.path.exists(path):
             os.remove(path)
 
+class get_translations(translations):
+
+    description = 'Get updated translations from Launchpad'
+    BRANCH = 'lp:~kovid/calibre/translations'
+
+    def run(self):
+        cwd = os.getcwd()
+        subprocess.check_call(['bzr', 'merge', self.BRANCH])
+
+    def check_for_errors(self):
+        errors = os.path.join(self.PATH, '.errors')
+        if os.path.exists(errors):
+            shutil.rmtree(errors)
+        pofilter = ('pofilter', '-i', '.', '-o', errors,
+                    '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
+                    #'-t', 'xmltags',
+                    '-t', 'printf')
+        subprocess.check_call(pofilter)
+        errs = os.listdir(errors)
+        if errs:
+            print 'WARNING: Translation errors detected'
+            print 'See http://translate.sourceforge.net/wiki/toolkit/using_pofilter'
+            print 'Error files:\n'
+            for e in errs:
+                print os.path.join(errors, e)
+
 
 class gui(OptionlessCommand):
     description='''Compile all GUI forms and images'''
