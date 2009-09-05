@@ -7175,8 +7175,8 @@ msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
 msgstr ""
-"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, "
-"%Y.Default is: %b, %Y"
+"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, %"
+"Y.Default is: %b, %Y"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
 msgid "Convert paths to lowercase."
