@@ -318,13 +318,13 @@ class get_translations(translations):
                 #'-t', 'emails',
                 #'-t', 'doublequoting',
                 #'-t', 'filepaths',
-                '-t', 'numbers',
+                #'-t', 'numbers',
                 '-t', 'options',
                 #'-t', 'urls',
                 '-t', 'printf')
         subprocess.check_call(pofilter)
         errfiles = glob.glob(errors+os.sep+'*.po')
-        subprocess.check_call(['gvim', '-p', '--']+errfiles)
+        subprocess.check_call(['gvim', '-f', '-p', '--']+errfiles)
         for f in errfiles:
             with open(f, 'r+b') as f:
                 raw = f.read()

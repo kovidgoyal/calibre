@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.11\n"
-"POT-Creation-Date: 2009-09-05 11:07+MDT\n"
-"PO-Revision-Date: 2009-09-05 11:07+MDT\n"
+"POT-Creation-Date: 2009-09-05 12:20+MDT\n"
+"PO-Revision-Date: 2009-09-05 12:20+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -4884,7 +4884,7 @@ msgid "Conversion Error"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1589
-msgid "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must first remove the DRM using 3rd party tools."
+msgid "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must first remove the DRM using third party tools."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1607
