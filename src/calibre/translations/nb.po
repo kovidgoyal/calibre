@@ -6927,8 +6927,8 @@ msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
 msgstr ""
-"De følgende bøkene ble ikke lagt til, da de allerede finnes i databasen (se -"
-"-duplikatvalg)"
+"De følgende bøkene ble ikke lagt til, da de allerede finnes i databasen (se "
+"--duplikatvalg)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:323
 msgid ""
@@ -7876,9 +7876,9 @@ msgstr ""
 "Enhver lenke som samsvarer med dette regulære uttrykket vil bli ignorert. "
 "Dette valget kan bli spesifisert flere ganger, hvilket vil si så lenge en "
 "lenke samsvarer med et regulært uttrykk, så vil det bli ignorert. Som "
-"standard, ingen lenker ignoreres. Dersom begge --filter-regulære uttrykk og -"
-"-treff-regulære uttrykk er spesifisert, så vil --filter-regulære uttrykk bli "
-"lagt til først."
+"standard, ingen lenker ignoreres. Dersom begge --filter-regulære uttrykk og "
+"--treff-regulære uttrykk er spesifisert, så vil --filter-regulære uttrykk "
+"bli lagt til først."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:474
 msgid "Do not download CSS stylesheets."

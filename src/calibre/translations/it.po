@@ -5387,9 +5387,8 @@ msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using 3rd party tools."
 msgstr ""
-"<p>Impossibile convertire %s<p>È un libro protetto da <a "
-"href=\"%s\">DRM</a>. È necessario rimuovere prima il DRM usando programmi di "
-"terze parti."
+"<p>Impossibile convertire %s<p>È un libro protetto da <a href=\"%s\">DRM</a>. "
+"È necessario rimuovere prima il DRM usando programmi di terze parti."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1607
 msgid "<b>Failed</b>"

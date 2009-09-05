@@ -1072,8 +1072,8 @@ msgid ""
 "paragraphs (<p> or <div> tags)."
 msgstr ""
 "Eliminar el espacio entre párrafos. También establece sangrado en la primera "
-"línea de cada párrafo de 1,5em. La eliminación del espacio no funciona si el "
-"fichero de origen no define párrafos (etiquetas <p> o <div>)."
+"línea de cada párrafo de 1,5em. La eliminación del espacio no funciona si "
+"el fichero de origen no define párrafos (etiquetas <p> o <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:315
 msgid ""
@@ -5795,8 +5795,8 @@ msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using 3rd party tools."
 msgstr ""
-"<p>No se pudo convertir: %s<p>Es un libro con <a href=\"%s\">DRM</a>. "
-"Primero debe eliminar el DRM usando herramientas de terceros."
+"<p>No se pudo convertir: %s<p>Es un libro con <a href=\"%s\">DRM</a>. Primero "
+"debe eliminar el DRM usando herramientas de terceros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1607
 msgid "<b>Failed</b>"
