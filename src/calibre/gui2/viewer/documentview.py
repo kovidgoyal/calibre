@@ -541,11 +541,6 @@ class DocumentView(QWebView):
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
 
-    def wheel_event(self, down=True):
-        QWebView.wheelEvent(self,
-            QWheelEvent(QPoint(100, 100), (-120 if down else 120),
-                        Qt.NoButton, Qt.NoModifier))
-
     def next_page(self):
         delta_y = self.document.window_height - 25
         if self.document.at_bottom:
@@ -654,9 +649,9 @@ class DocumentView(QWebView):
             else:
                 self.scroll_to(1)
         elif key in [Qt.Key_J]:
-            self.wheel_event()
+            self.scroll_by(y=15)
         elif key in [Qt.Key_K]:
-            self.wheel_event(down=False)
+            self.scroll_by(y=-15)
         elif key in [Qt.Key_H]:
             self.scroll_by(x=-15)
         elif key in [Qt.Key_L]:
