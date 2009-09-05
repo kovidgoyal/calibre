@@ -72,7 +72,7 @@ if __name__ == '__main__':
                         build_osx, upload_installers, upload_user_manual, \
                         upload_to_pypi, stage3, stage2, stage1, upload, \
                         upload_rss, betas, build_linux32, build_linux64, \
-                        build_osx64
+                        build_osx64, get_translations
     resources.SCRIPTS = {}
     for x in ('console', 'gui'):
         for name in basenames[x]:
@@ -265,6 +265,7 @@ if __name__ == '__main__':
                       'manual'        : manual,
                       'resources'     : resources,
                       'translations'  : translations,
+                      'get_translations': get_translations,
                       'gui'           : gui,
                       'clean'         : clean,
                       'sdist'         : sdist,

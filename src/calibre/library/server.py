@@ -309,7 +309,7 @@ class LibraryServer(object):
     def get_format(self, id, format):
         format = format.upper()
         fmt = self.db.format(id, format, index_is_id=True, as_file=True,
-                mode='r+b')
+                mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
         if format == 'EPUB':
