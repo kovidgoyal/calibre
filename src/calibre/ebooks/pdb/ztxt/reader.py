@@ -12,8 +12,8 @@ import os, struct, zlib
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ztxt import zTXTError
-from calibre.ebooks.txt.processor import convert_basic, separate_paragraphs, \
-    opf_writer
+from calibre.ebooks.txt.processor import convert_basic, opf_writer, \
+    separate_paragraphs_single_line
 
 SUPPORTED_VERSION = (1, 40)
 
@@ -40,6 +40,7 @@ class Reader(FormatReader):
         self.log = log
         self.encoding = options.input_encoding
         self.single_line_paras = options.single_line_paras
+        self.print_formatted_paras = options.print_formatted_paras
     
         self.sections = []
         for i in range(header.num_sections):
@@ -79,7 +80,9 @@ class Reader(FormatReader):
 
         self.log.info('Converting text to OEB...')
         if self.single_line_paras:
-            txt = separate_paragraphs(txt)
+            txt = separate_paragraphs_single_line(txt)
+        if self.print_formatted_paras:
+            txt = separate_paragraphs_print_formatted(txt)
         html = convert_basic(txt)
         with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
