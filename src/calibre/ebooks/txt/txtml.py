@@ -105,6 +105,40 @@ class TXTMLizer(object):
         if self.opts.indent_paras:
             text = re.sub('(?imu)^(?=.)', '\t', text)
 
+        if self.opts.max_line_length:
+            max_length = self.opts.max_line_length
+            if self.opts.max_line_length < 25 and not self.opts.force_max_line_length:
+                max_length = 25
+            short_lines = []
+            lines = text.splitlines()
+            for line in lines:
+                while len(line) > max_length:
+                    space = line.rfind(' ', 0, max_length)
+                    if space != -1:
+                        # Space was found.
+                        short_lines.append(line[:space])
+                        line = line[space + 1:]
+                    else:
+                        # Space was not found.
+                        if self.opts.force_max_line_length:
+                            # Force breaking at max_lenght.
+                            short_lines.append(line[:max_length])
+                            line = line[max_length:]
+                        else:
+                            # Look for the first space after max_length.
+                            space = line.find(' ', max_length, len(line))
+                            if space != -1:
+                                # Space was found.
+                                short_lines.append(line[:space])
+                                line = line[space + 1:]
+                            else:
+                                # No space was found cannot break line.
+                                short_lines.append(line)
+                                line = ''
+                # Add the text that was less than max_lengh to the list
+                short_lines.append(line)
+            text = '\n'.join(short_lines)
+
         return text
 
     def dump_text(self, elem, stylizer, end=''):

@@ -14,7 +14,7 @@ import struct
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.txt.processor import convert_basic, opf_writer, \
-    separate_paragraphs_single_line
+    separate_paragraphs_single_line, separate_paragraphs_print_formatted
 
 class HeaderRecord(object):
     '''
