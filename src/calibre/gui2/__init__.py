@@ -10,9 +10,8 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import islinux, iswindows, isosx
-from calibre.startup import get_lang
 from calibre.utils.config import Config, ConfigProxy, dynamic
-import calibre.resources as resources
+from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
 
@@ -541,12 +540,9 @@ class Application(QApplication):
         global gui_thread
         gui_thread = QThread.currentThread()
         self.translator = QTranslator(self)
-        lang = get_lang()
-        if lang:
-            data = getattr(resources, 'qt_'+lang, None)
-            if data:
-                self.translator.loadFromData(data)
-                self.installTranslator(self.translator)
+        if set_qt_translator(self.translator):
+            print 1111111
+            self.installTranslator(self.translator)
 
 def is_ok_to_use_qt():
     global gui_thread

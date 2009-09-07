@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ArsTechnica2(BasicNewsRecipe):
     title                 = u'Ars Technica'
-    language              = _('English')
+    language              = 'en'
     __author__            = 'Darko Miletic and Sujata Raman'
     description           = 'The art of technology'
     publisher             = 'Ars Technica'

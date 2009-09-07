@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys, os, re, cStringIO
-from gettext import GNUTranslations
+import locale, sys, os
 
 # Default translation is NOOP
 import __builtin__
@@ -18,8 +17,6 @@ __builtin__.__dict__['_'] = lambda s: s
 __builtin__.__dict__['__'] = lambda s: s
 
 from calibre.constants import iswindows, preferred_encoding, plugins
-from calibre.utils.config import prefs
-from calibre.translations.msgfmt import make
 
 _run_once = False
 if not _run_once:
@@ -33,45 +30,9 @@ if not _run_once:
 
     ################################################################################
     # Setup translations
+    from calibre.utils.localization import set_translators
 
-    def get_lang():
-        lang = prefs['language']
-        if lang is not None:
-            return lang
-        lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
-                                       'LC_MESSAGES', 'LANG'])[0]
-        if lang is None and os.environ.has_key('LANG'): # Needed for OS X
-            try:
-                lang = os.environ['LANG']
-            except:
-                pass
-        if lang:
-            match = re.match('[a-z]{2,3}', lang)
-            if match:
-                lang = match.group()
-        return lang
-
-    def set_translator():
-        # To test different translations invoke as
-        # LC_ALL=de_DE.utf8 program
-        try:
-            from calibre.translations.compiled import translations
-        except:
-            return
-        lang = get_lang()
-        if lang:
-            buf = None
-            if os.access(lang+'.po', os.R_OK):
-                buf = cStringIO.StringIO()
-                make(lang+'.po', buf)
-                buf = cStringIO.StringIO(buf.getvalue())
-            elif translations.has_key(lang):
-                buf = cStringIO.StringIO(translations[lang])
-            if buf is not None:
-                t = GNUTranslations(buf)
-                t.install(unicode=True)
-
-    set_translator()
+    set_translators()
 
     ################################################################################
     # Initialize locale

@@ -11,6 +11,7 @@ from distutils import sysconfig
 
 from setup import Command, __appname__
 from setup.pygettext import main as pygettext
+from setup.build_environment import pyqt
 
 class POT(Command):
 
@@ -77,6 +78,17 @@ class Translations(POT):
             else:
                 self.warn('No ISO 639 translations for locale:', locale)
 
+        base = os.path.join(pyqt.qt_data_dir, 'translations')
+        qt_translations = glob.glob(os.path.join(base, 'qt_*.qm'))
+        if not qt_translations:
+            raise Exception('Could not find qt translations')
+        for f in qt_translations:
+            locale = self.s(self.b(f))[0][3:]
+            dest = self.j(self.DEST, locale, 'LC_MESSAGES', 'qt.qm')
+            if self.e(self.d(dest)) and self.newer(dest, f):
+                self.info('\tCopying Qt translation for locale:', locale)
+                shutil.copy2(f, dest)
+
         self.write_stats()
 
     @property
@@ -113,7 +125,8 @@ class Translations(POT):
         for f in self.po_files():
             l, d = self.mo_file(f)
             i = self.j(self.d(d), 'iso639.mo')
-            for x in (i, d):
+            j = self.j(self.d(d), 'qt.qm')
+            for x in (i, j, d):
                 if os.path.exists(x):
                     os.remove(x)
 

@@ -19,6 +19,7 @@ from calibre.gui2.search_box import SearchBox2
 from calibre.web.feeds.recipes import recipes, recipe_modules, compile_recipe
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
+from calibre.utils.localization import get_language
 from calibre.gui2 import NONE, error_dialog, config as gconf
 from calibre.utils.config import DynamicConfig
 from calibre.ptempfile import PersistentTemporaryFile
@@ -32,7 +33,7 @@ class Recipe(object):
         self.id                 = id
         self.title              = getattr(recipe_class, 'title', None)
         self.description        = getattr(recipe_class, 'description', None)
-        self.language           = getattr(recipe_class, 'language', _('Unknown'))
+        self.language           = getattr(recipe_class, 'language', 'und')
         self.last_downloaded    = datetime.fromordinal(1)
         self.downloading        = False
         self.builtin            = builtin
@@ -121,7 +122,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
 
         self.category_map = {}
         for r in self.recipes:
-            category = getattr(r, 'language', _('Unknown'))
+            category = get_language(getattr(r, 'language', 'und'))
             if not r.builtin:
                 category = _('Custom')
             if r.schedule is not None:
