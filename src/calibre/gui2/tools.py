@@ -18,6 +18,8 @@ from calibre.gui2.convert.single import Config as SingleConfig
 from calibre.gui2.convert.bulk import BulkConfig
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
+from calibre.ebooks.conversion.config import GuiRecommendations, \
+    load_defaults, load_specifics, save_specifics
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
     changed = False
@@ -56,7 +58,6 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                 desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
 
                 recs = cPickle.loads(d.recommendations)
-                args = [in_file, out_file.name, recs]
                 if d.opf_file is not None:
                     recs.append(('read_metadata_from_opf', d.opf_file.name,
                         OptionRecommendation.HIGH))
@@ -65,6 +66,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                     recs.append(('cover', d.cover_file.name,
                         OptionRecommendation.HIGH))
                     temp_files.append(d.cover_file)
+                args = [in_file, out_file.name, recs]
                 temp_files.append(out_file)
                 jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
 
@@ -101,7 +103,7 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
         return jobs, changed, bad
 
     output_format = d.output_format
-    recs = cPickle.loads(d.recommendations)
+    user_recs = cPickle.loads(d.recommendations)
 
     book_ids = convert_existing(parent, db, book_ids, output_format)
     for i, book_id in enumerate(book_ids):
@@ -119,7 +121,17 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
             out_file.close()
             temp_files = []
 
-            lrecs = list(recs)
+            combined_recs = GuiRecommendations()
+            default_recs = load_defaults('%s_input' % d.input_format)
+            specific_recs = load_specifics(db, book_id)
+            for key in default_recs:
+                combined_recs[key] = default_recs[key]
+            for key in specific_recs:
+                combined_recs[key] = specific_recs[key]
+            for item in user_recs:
+                combined_recs[item[0]] = item[1]
+            save_specifics(db, book_id, combined_recs)
+            lrecs = list(combined_recs.to_recommendations())
 
             if d.opf_file is not None:
                 lrecs.append(('read_metadata_from_opf', d.opf_file.name,
