@@ -13,7 +13,8 @@ class PHDComics(BasicNewsRecipe):
     title          = u'PHD Comics'
     oldest_article = 14
     max_articles_per_feed = 100
-    language = _('English')
+    language = 'en'
+
     __author__ = 'Rafardeon'
 
     feeds          = [(u'PHD Comics', u'http://www.phdcomics.com/gradfeed.php')]

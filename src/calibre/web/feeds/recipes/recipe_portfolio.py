@@ -13,7 +13,8 @@ class Portfolio(BasicNewsRecipe):
     title                = 'Portfolio'
     __author__           = 'JTravers'
     description          = 'Conde Nast Portfolio: For the businessman.'
-    language = _('English')
+    language = 'en'
+
     use_embedded_content = True
     timefmt              = ' [%a, %b %d, %Y]'
     html2lrf_options     = ['--ignore-tables']

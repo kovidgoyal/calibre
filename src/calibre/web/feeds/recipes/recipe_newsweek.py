@@ -27,7 +27,8 @@ class Newsweek(BasicNewsRecipe):
                         .photoCaption{color:#0A0A09;font-family:Arial,Helvetica,sans-serif;font-size:xx-small;font-weight:bold;}'''
 
     encoding       = 'utf-8'
-    language = _('English')
+    language = 'en'
+
     remove_tags = [
             {'class':['fwArticle noHr','fwArticle','subinfo','hdlBulletItem','head-content','navbar','link', 'ad', 'sponsorLinksArticle', 'mm-content',
                 'inline-social-links-wrapper', 'email-article',

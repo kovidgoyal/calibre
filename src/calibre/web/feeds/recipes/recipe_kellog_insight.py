@@ -16,7 +16,8 @@ class KellogInsight(BasicNewsRecipe):
     description    = 'Articles from the Kellog School of Management'
     no_stylesheets = True
     encoding       = 'utf-8'
-    language       = _('English')
+    language = 'en'
+
     oldest_article = 60
     remove_tags_before = {'name':'h1'}
     remove_tags_after = {'class':'col-two-text'}

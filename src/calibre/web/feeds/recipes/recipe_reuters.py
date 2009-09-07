@@ -9,7 +9,8 @@ class Reuters(BasicNewsRecipe):
     description = 'Global news'
     __author__ = 'Kovid Goyal'
     use_embedded_content   = False
-    language = _('English')
+    language = 'en'
+
     max_articles_per_feed = 10
 
     

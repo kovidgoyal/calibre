@@ -22,7 +22,8 @@ class Vijesti(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'cp1250'
     use_embedded_content  = False
-    language              = _('Montenegrin')
+    language = 'sr'
+
     lang                  ='sr-Latn-Me'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     

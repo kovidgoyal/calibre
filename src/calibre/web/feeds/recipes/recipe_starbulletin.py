@@ -16,7 +16,8 @@ class Starbulletin(BasicNewsRecipe):
     category              = 'news, Honolulu, Hawaii'
     oldest_article        = 2
     max_articles_per_feed = 100
-    language              = _('English')
+    language = 'en'
+
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf8'

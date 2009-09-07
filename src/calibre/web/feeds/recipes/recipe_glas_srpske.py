@@ -24,7 +24,8 @@ class GlasSrpske(BasicNewsRecipe):
     use_embedded_content  = False
     cover_url             = 'http://www.glassrpske.com/var/slike/glassrpske-logo.png'
     lang                  = 'sr-BA'
-    language              = _('Serbian')
+    language = 'sr'
+
     INDEX                 = 'http://www.glassrpske.com'
 
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'

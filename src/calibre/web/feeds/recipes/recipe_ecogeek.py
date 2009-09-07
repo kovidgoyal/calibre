@@ -13,7 +13,8 @@ class EcoGeek(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'EcoGeek - Technology for the Environment Blog Feed'    
     publisher             = 'EcoGeek'
-    language              = _('English')
+    language = 'en'
+
     category              = 'news, ecology, blog'
     oldest_article        = 7
     max_articles_per_feed = 100

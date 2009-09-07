@@ -17,7 +17,8 @@ class TheOnion(BasicNewsRecipe):
     max_articles_per_feed = 100
     publisher             = u'Onion, Inc.'
     category              = u'humor, news, USA'    
-    language              = _('English')
+    language = 'en'
+
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'

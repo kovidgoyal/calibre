@@ -22,7 +22,8 @@ class PressOnline(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = True
-    language              = _('Serbian')
+    language = 'sr'
+
     lang                  = 'sr-Latn-RS'
     direction             = 'ltr'
 

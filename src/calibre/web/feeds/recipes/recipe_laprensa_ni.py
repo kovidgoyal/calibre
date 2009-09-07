@@ -22,7 +22,8 @@ class LaPrensa_ni(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     remove_javascript     = True
-    language              = _('Spanish')
+    language = 'es'
+
     months_es             = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
     current_month         = months_es[datetime.date.today().month - 1]
     current_index         = time.strftime("http://www.laprensa.com.ni/archivo/%Y/" + current_month + "/%d/noticias/")

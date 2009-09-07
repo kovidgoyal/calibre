@@ -3,7 +3,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaRepublica(BasicNewsRecipe):
     title          = u'la Repubblica'
     oldest_article = 1
-    language = _('Italian')
+    language = 'it'
+
     author = 'Darko Miletic'
     max_articles_per_feed = 100
     remove_javascript = True

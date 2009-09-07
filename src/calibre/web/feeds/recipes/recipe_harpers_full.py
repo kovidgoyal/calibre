@@ -23,7 +23,8 @@ class Harpers_full(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     delay                  = 1
-    language               = _('English')
+    language = 'en'
+
     needs_subscription = True
     INDEX = strftime('http://www.harpers.org/archive/%Y/%m')
     LOGIN = 'http://www.harpers.org'

@@ -14,7 +14,8 @@ class Edgesingapore(BasicNewsRecipe):
     description           = 'Financial news from Singapore'
     publisher             = 'The Edge Singapore'
     category              = 'news, finances, singapore'
-    language              = _('English')
+    language = 'en'
+
     lang                  = 'en'
     oldest_article        = 15
     max_articles_per_feed = 100

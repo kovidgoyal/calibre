@@ -26,7 +26,8 @@ class PeriodicalNameHere(BasicNewsRecipe):
     feeds                   = None
     no_stylesheets          = True
     encoding                = None
-    language                = _('English')        
+    language = 'en'
+        
 
     
     

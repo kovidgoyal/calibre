@@ -12,7 +12,8 @@ class NewScientist(BasicNewsRecipe):
     title                 = 'New Scientist - Online News'
     __author__            = 'Darko Miletic'
     description           = 'Science news and science articles from New Scientist.'
-    language              = _('English')
+    language = 'en'
+
     publisher             = 'New Scientist'
     category              = 'science news, science articles, science jobs, drugs, cancer, depression, computer software, sex'    
     delay                 = 3    

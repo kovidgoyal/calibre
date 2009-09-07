@@ -20,7 +20,8 @@ class Diagonales(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    language              = _('Spanish')
+    language = 'es'
+
     lang                  = 'es-AR'
     direction             = 'ltr'
     INDEX                 = 'http://www.elargentino.com/medios/122/Diagonales.html'

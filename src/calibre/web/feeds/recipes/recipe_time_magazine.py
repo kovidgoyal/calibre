@@ -15,7 +15,8 @@ class Time(BasicNewsRecipe):
     description           = 'Weekly magazine'
     encoding = 'utf-8'
     no_stylesheets        = True
-    language = _('English')
+    language = 'en'
+
     extra_css      = '''.headline {font-size: large;}
     .fact { padding-top: 10pt  }
     h1 {font-family:Arial,Sans-serif}

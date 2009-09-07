@@ -11,7 +11,8 @@ class Slashdot(BasicNewsRecipe):
              title          = u'Slashdot.org'
              oldest_article = 7
              max_articles_per_feed = 100
-             language = _('English')
+             language = 'en'
+
              __author__ = 'floweros edited by Huan T'
              no_stylesheets = True
 #             keep_only_tags = [

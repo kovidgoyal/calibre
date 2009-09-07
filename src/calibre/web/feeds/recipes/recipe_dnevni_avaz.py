@@ -25,7 +25,8 @@ class DnevniAvaz(BasicNewsRecipe):
     remove_javascript     = True
     cover_url             = 'http://www.dnevniavaz.ba/img/logo.gif'
     lang                  = 'bs-BA'
-    language              = _('Bosnian')
+    language = 'bs'
+
     direction             = 'ltr'
 
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'

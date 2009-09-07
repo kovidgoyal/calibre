@@ -21,7 +21,8 @@ class LaTribuna(BasicNewsRecipe):
     no_stylesheets        = True
     remove_javascript     = True
     encoding              = 'utf-8'
-    language              = _('Spanish')
+    language = 'es'
+
     lang                  = 'es-HN'
     direction             = 'ltr'
     

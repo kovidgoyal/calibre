@@ -23,7 +23,8 @@ class VecernjiList(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
-    language              = _('Croatian')
+    language = 'hr'
+
     lang                 = 'hr-HR'
     direction            = 'ltr'    
 

@@ -16,7 +16,8 @@ class KellogFaculty(BasicNewsRecipe):
     description    = 'Blogs of the Kellog School of Management Faculty'
     no_stylesheets = True
     encoding       = 'utf-8'
-    language       = _('English')
+    language = 'en'
+
     remove_tags_before = {'name':'h2'}
     remove_tags_after = {'class':'col-two-text'}
 

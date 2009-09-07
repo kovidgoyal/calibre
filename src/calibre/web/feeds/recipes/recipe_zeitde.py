@@ -12,7 +12,8 @@ class ZeitDe(BasicNewsRecipe):
 
     title = 'Die Zeit Nachrichten'
     description = 'Die Zeit - Online Nachrichten'
-    language = _('German')
+    language = 'de'
+
     __author__ = 'Kovid Goyal and Martin Pitt'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'

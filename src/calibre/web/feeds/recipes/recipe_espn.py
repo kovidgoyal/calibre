@@ -14,7 +14,8 @@ class ESPN(BasicNewsRecipe):
     title       = 'ESPN'
     description = 'Sports news'
     __author__  = 'Kovid Goyal'
-    language = _('English')
+    language = 'en'
+
 
     needs_subscription = True
     remove_tags = [dict(name='font', attrs={'class':'footer'}), dict(name='hr', noshade='noshade')]

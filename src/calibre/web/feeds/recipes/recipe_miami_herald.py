@@ -16,7 +16,8 @@ class TheMiamiHerald(BasicNewsRecipe):
     max_articles_per_feed = 100
     publisher             = u'The Miami Herald'
     category              = u'miami herald, weather, dolphins, news, miami news, local news, miamiherald, miami newspaper, miamiherald.com, miami, the miami herald, broward, miami-dade'    
-    language              = _('English')    
+    language = 'en'
+    
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'

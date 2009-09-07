@@ -22,7 +22,8 @@ class NOAA(BasicNewsRecipe):
     simultaneous_downloads = 1
     encoding               = 'utf-8'
     lang                   = 'en-US'
-    language               = _('English')
+    language = 'en'
+
 
 
     remove_tags        = [dict(name=['embed','object'])]

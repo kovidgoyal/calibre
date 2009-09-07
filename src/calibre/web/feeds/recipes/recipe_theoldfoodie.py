@@ -18,7 +18,8 @@ class TheOldFoodie(BasicNewsRecipe):
     use_embedded_content  = True
     no_stylesheets        = True
     encoding              = 'utf-8'
-    language              = _('English')
+    language = 'en'
+
 
     conversion_options = {
                              'comments'    : description

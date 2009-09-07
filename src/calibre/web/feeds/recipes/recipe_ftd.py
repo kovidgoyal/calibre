@@ -15,7 +15,8 @@ class FTheiseDe(BasicNewsRecipe):
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
-    language = _('German')
+    language = 'de'
+
     max_articles_per_feed = 40
     no_stylesheets = True
     

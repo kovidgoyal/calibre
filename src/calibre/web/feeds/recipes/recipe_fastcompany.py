@@ -22,7 +22,8 @@ class FastCompany(BasicNewsRecipe):
     simultaneous_downloads = 1
     encoding               = 'utf-8'
     lang                   = 'en'
-    language               = _('English')
+    language = 'en'
+
 
     html2lrf_options = [
                           '--comment', description

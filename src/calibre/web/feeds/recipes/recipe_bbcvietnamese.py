@@ -13,7 +13,8 @@ class BBCVietnamese(BasicNewsRecipe):
     __author__     = 'Huan Komrade T'
     description    = 'Vietnam news and current affairs from the British Broadcasting Corporation'
     no_stylesheets = True
-    language = _('Vietnamese')
+    language = 'vi'
+
     encoding = 'utf-8'
     recursions = 0
 

@@ -14,7 +14,8 @@ class Inteligencer(BasicNewsRecipe):
     oldest_article        = 7
     max_articles_per_feed = 100
     encoding              = 'utf-8'
-    language              = _('English')
+    language = 'en'
+
     no_stylesheets        = True
     use_embedded_content  = False
     lang                  = 'en-CA'

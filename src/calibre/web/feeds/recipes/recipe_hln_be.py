@@ -19,7 +19,8 @@ class HLN_be(BasicNewsRecipe):
     use_embedded_content  = False
     no_stylesheets        = True
     encoding              = 'utf-8'
-    language              = _('Dutch')
+    language = 'nl'
+
     
     conversion_options = {  
                              'comments'    : description

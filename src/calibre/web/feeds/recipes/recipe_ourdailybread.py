@@ -13,7 +13,8 @@ class OurDailyBread(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Religion'
     oldest_article        = 15
-    language              = _('English')
+    language = 'en'
+
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

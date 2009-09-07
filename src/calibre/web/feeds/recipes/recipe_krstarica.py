@@ -20,7 +20,8 @@ class Krstarica(BasicNewsRecipe):
     use_embedded_content  = False
     remove_javascript     = True
     encoding              = 'utf-8'
-    language              = _('Serbian')
+    language = 'sr'
+
     extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
     
     html2lrf_options = [

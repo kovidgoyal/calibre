@@ -22,7 +22,8 @@ class MonitorCG(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
-    language              = _('Montenegrin')
+    language = 'sr'
+
     lang                  ='sr-Latn-Me'
     INDEX                 = 'http://www.monitorcg.com'
     

@@ -13,7 +13,8 @@ class heiseDe(BasicNewsRecipe):
     title = 'heise'
     description = 'Computernews from Germany'
     __author__ = 'Oliver Niesner'
-    language = _('German')
+    language = 'de'
+
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 40

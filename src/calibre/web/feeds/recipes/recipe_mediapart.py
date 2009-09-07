@@ -16,7 +16,8 @@ class Mediapart(BasicNewsRecipe):
     __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
     description = 'Global news in french from online newspapers'
     oldest_article = 7
-    language = _('French')
+    language = 'fr'
+
     max_articles_per_feed = 50
     no_stylesheets = True
 

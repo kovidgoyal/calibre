@@ -15,7 +15,8 @@ class StackOverflowBlog(BasicNewsRecipe):
     category              = 'blog, programming'
     publisher             = 'StackOverflow team'
     oldest_article        = 30
-    language = _('English')
+    language = 'en'
+
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = True

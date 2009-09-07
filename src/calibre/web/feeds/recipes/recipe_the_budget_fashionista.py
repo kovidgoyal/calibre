@@ -20,7 +20,8 @@ class TheBudgetFashionista(BasicNewsRecipe):
     publisher              = 'TBF GROUP, LLC.'
     category               = 'news, fashion, comsetics, women'
     lang                   = 'en-US'
-    language               = _('English')
+    language = 'en'
+
 
     conversion_options = {
           'comment'          : description

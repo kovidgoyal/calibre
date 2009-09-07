@@ -21,7 +21,8 @@ class Novosti(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    language              = _('Serbian')
+    language = 'sr'
+
     lang                  = 'sr-Latn-RS'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
     

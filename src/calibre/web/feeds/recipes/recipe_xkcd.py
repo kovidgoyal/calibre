@@ -12,7 +12,8 @@ class XkcdCom(BasicNewsRecipe):
     title = 'xkcd'
     description = 'A webcomic of romance and math humor.'
     __author__ = 'Martin Pitt'
-    language = _('English')
+    language = 'en'
+
     use_embedded_content   = False
     oldest_article = 60
     keep_only_tags = [dict(id='middleContent')]

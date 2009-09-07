@@ -12,7 +12,8 @@ class H3(BasicNewsRecipe):
      title          = u'H\xedrszerz\u0151'
      oldest_article = 5
      max_articles_per_feed = 50
-     language = _('Hungarian')
+     language = 'hu'
+
      __author__ = 'Ezmegaz'
 
 

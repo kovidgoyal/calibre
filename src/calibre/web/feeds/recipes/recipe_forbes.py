@@ -7,7 +7,8 @@ class Forbes(BasicNewsRecipe):
     __author__     = 'Darko Miletic'
     oldest_article = 30
     max_articles_per_feed = 100
-    language = _('English')
+    language = 'en'
+
     no_stylesheets = True
     html2lrf_options = ['--base-font-size', '10']     
 

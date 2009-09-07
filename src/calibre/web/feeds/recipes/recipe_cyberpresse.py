@@ -6,7 +6,8 @@ class Cyberpresse(BasicNewsRecipe):
     title          = u'Cyberpresse'
     __author__     = 'balok'
     description    = 'Canadian news in French'
-    language = _('French')
+    language = 'fr'
+
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True

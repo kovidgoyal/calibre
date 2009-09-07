@@ -20,7 +20,8 @@ class ElArgentino(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     cover_url             = 'http://www.elargentino.com/TemplateWeb/MediosFooter/tapa_elargentino.png'
-    language              = _('Spanish')
+    language = 'es'
+
 
     html2lrf_options = [
                           '--comment', description

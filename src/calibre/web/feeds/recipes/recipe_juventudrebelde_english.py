@@ -41,4 +41,5 @@ class Juventudrebelde_english(BasicNewsRecipe):
             del item['style']
         return soup
             
-    language = _('English')    
+    language = 'en'
+    

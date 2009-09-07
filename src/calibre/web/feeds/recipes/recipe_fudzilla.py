@@ -12,7 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Fudzilla(BasicNewsRecipe):
     title                 = u'Fudzilla'
     __author__            = 'Darko Miletic'
-    language = _('English')
+    language = 'en'
+
     description           = 'Tech news'    
     oldest_article        = 7
     max_articles_per_feed = 100

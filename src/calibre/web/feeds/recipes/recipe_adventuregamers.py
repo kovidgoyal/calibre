@@ -10,12 +10,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdventureGamers(BasicNewsRecipe):
     title                 = u'Adventure Gamers'
-    language              = _('English')
+    language = 'en'
+
     __author__            = 'Darko Miletic'
     description           = 'Adventure games portal'    
     publisher             = 'Adventure Gamers'
     category              = 'news, games, adventure, technology'    
-    language              = _('English')
+    language = 'en'
+
     oldest_article        = 10
     delay                 = 10
     max_articles_per_feed = 100

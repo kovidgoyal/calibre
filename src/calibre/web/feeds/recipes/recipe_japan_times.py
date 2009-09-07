@@ -12,7 +12,8 @@ class JapanTimes(BasicNewsRecipe):
     title                 = u'The Japan Times'
     __author__            = 'Darko Miletic'
     description           = 'News from Japan'
-    language = _('English')    
+    language = 'en'
+    
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

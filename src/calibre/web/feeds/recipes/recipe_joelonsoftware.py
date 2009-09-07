@@ -12,7 +12,8 @@ class Joelonsoftware(BasicNewsRecipe):
     title       = 'Joel on Software'
     __author__  = 'Darko Miletic'
     description = 'Painless Software Management'
-    language = _('English')
+    language = 'en'
+
     no_stylesheets = True
     use_embedded_content  = True
     oldest_article = 60

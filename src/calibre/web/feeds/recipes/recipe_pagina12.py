@@ -22,7 +22,8 @@ class Pagina12(BasicNewsRecipe):
     cover_url             = strftime('http://www.pagina12.com.ar/fotos/%Y%m%d/diario/tapagn.jpg')
     remove_javascript     = True
     use_embedded_content  = False
-    language              = _('Spanish')
+    language = 'es'
+
 
 
     html2lrf_options = [

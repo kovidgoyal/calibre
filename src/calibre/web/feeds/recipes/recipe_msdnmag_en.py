@@ -20,7 +20,8 @@ class MSDNMagazine_en(BasicNewsRecipe):
     encoding              = 'utf-8'
     remove_javascript     = True
     current_issue         = 'http://msdn.microsoft.com/en-us/magazine/default.aspx'
-    language              = _('English')
+    language = 'en'
+
     
     html2lrf_options = [
                           '--comment', description

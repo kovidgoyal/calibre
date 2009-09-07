@@ -10,7 +10,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdventureGamers(BasicNewsRecipe):
     title                 = 'Monde durable'
-    language              = _('French')
+    language = 'fr'
+
     __author__            = 'Darko Miletic'
     description           = 'science news'    
     publisher             = 'Monde durable'

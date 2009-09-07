@@ -12,7 +12,8 @@ class Liberation(BasicNewsRecipe):
     title                 = u'Liberation'
     __author__            = 'Darko Miletic'
     description           = 'News from France'
-    language = _('French')
+    language = 'fr'
+
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

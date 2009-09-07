@@ -4,7 +4,8 @@ class WozDie(BasicNewsRecipe):
      title          = u'WOZ Die Wochenzeitung'
      oldest_article = 7
      max_articles_per_feed = 100
-     language       = _('German')
+     language = 'de'
+
      no_stylesheets = True
      remove_tags    = [dict(name='p', attrs={'class':'arrow_top'})]
      remove_tags    = [dict(name='p', attrs={'class':'bottom_right'})]

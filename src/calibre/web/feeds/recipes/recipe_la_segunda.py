@@ -21,7 +21,8 @@ class LaSegunda(BasicNewsRecipe):
     encoding              = 'cp1252'
     cover_url             = 'http://www.lasegunda.com/imagenes/logotipo_lasegunda_Oli.gif'
     remove_javascript     = True
-    language              = _('Spanish')    
+    language = 'es'
+    
     
     html2lrf_options = [
                           '--comment', description

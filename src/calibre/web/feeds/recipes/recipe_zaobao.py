@@ -14,7 +14,8 @@ class ZAOBAO(BasicNewsRecipe):
     description    = 'News from zaobao.com'
     no_stylesheets = True
     recursions     = 1
-    language = _('Chinese')
+    language = 'zh'
+
     encoding     = 'gbk'
 #    multithreaded_fetch = True
 

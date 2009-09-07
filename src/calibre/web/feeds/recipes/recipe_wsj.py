@@ -13,7 +13,8 @@ class WallStreetJournal(BasicNewsRecipe):
         __author__ = 'Kovid Goyal and Sujata Raman'
         description = 'News and current affairs.'
         needs_subscription = True
-        language = _('English')
+        language = 'en'
+
         max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]'
         no_stylesheets = True

@@ -11,7 +11,8 @@ from calibre.ebooks.BeautifulSoup import Tag
 class Harpers(BasicNewsRecipe):
     title                 = u"Harper's Magazine"
     __author__            = u'Darko Miletic'
-    language              = _('English')
+    language = 'en'
+
     description           = u"Harper's Magazine: Founded June 1850."
     publisher             = "Harper's Magazine "
     category              = 'news, politics, USA'

@@ -19,7 +19,8 @@ class B92(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1250'
-    language              = _('Serbian')
+    language = 'sr'
+
     lang                  = 'sr-Latn-RS'
     extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
     

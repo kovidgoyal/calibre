@@ -13,7 +13,8 @@ class MoneyNews(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Financial news worldwide'
     publisher             = 'moneynews.com'
-    language              = _('English')
+    language = 'en'
+
     category              = 'news, finances, USA, business'
     oldest_article        = 2
     max_articles_per_feed = 100

@@ -10,7 +10,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class IrishTimes(BasicNewsRecipe):
     title          = u'The Irish Times'
     __author__     = 'Derry FitzGerald and Ray Kinsella'
-    language = _('English')
+    language = 'en'
+
     no_stylesheets = True
     simultaneous_downloads= 1
 	

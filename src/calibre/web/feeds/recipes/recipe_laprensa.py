@@ -57,4 +57,5 @@ class LaPrensa(BasicNewsRecipe):
             del item['style']        
         return soup
     
-    language = _('Spanish')
+    language = 'es'
+

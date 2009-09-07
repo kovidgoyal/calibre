@@ -13,7 +13,8 @@ class LinuxMagazine(BasicNewsRecipe):
     title                 = u'Linux Magazine'
     __author__            = 'Darko Miletic'
     description           = 'Linux news'  
-    language = _('English')  
+    language = 'en'
+  
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

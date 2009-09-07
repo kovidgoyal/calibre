@@ -12,7 +12,8 @@ class Azstarnet(BasicNewsRecipe):
     title                 = 'Arizona  Daily Star'
     __author__            = 'Darko Miletic'
     description           = 'news from Arizona'
-    language              = _('English')
+    language = 'en'
+
     publisher             = 'azstarnet.com'
     category              = 'news, politics, Arizona, USA'
     delay                 = 1

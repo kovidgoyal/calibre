@@ -21,7 +21,8 @@ class InquirerNet(BasicNewsRecipe):
     publisher              = 'inquirer.net'
     category               = 'news, politics, philipines'
     lang                   = 'en'
-    language               = _('English')
+    language = 'en'
+
     extra_css              = ' .fontheadline{font-size: x-large} .fontsubheadline{font-size: large} .fontkick{font-size: medium}'
 
     html2lrf_options = [

@@ -14,7 +14,8 @@ class ChicagoTribune(BasicNewsRecipe):
     title       = 'Chicago Tribune'
     __author__  = 'Kovid Goyal and Sujata Raman'
     description = 'Politics, local and business news from Chicago'
-    language    = _('English')
+    language = 'en'
+
     use_embedded_content    = False
     no_stylesheets        = True
     remove_javascript = True

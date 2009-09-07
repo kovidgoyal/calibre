@@ -15,7 +15,8 @@ class Barrons(BasicNewsRecipe):
         title = 'Barron\'s'
         max_articles_per_feed = 50
         needs_subscription    = True
-        language = _('English')
+        language = 'en'
+
         __author__ = 'Kovid Goyal'
         description = 'Weekly publication for investors from the publisher of the Wall Street Journal'
         timefmt  = ' [%a, %b %d, %Y]'

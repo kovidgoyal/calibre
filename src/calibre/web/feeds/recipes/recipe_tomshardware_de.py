@@ -17,7 +17,8 @@ class cdnet(BasicNewsRecipe):
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 50
     no_stylesheets = True
-    language = _('German')
+    language = 'de'
+
     encoding = 'utf-8'
 
 

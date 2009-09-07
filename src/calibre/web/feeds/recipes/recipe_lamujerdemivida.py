@@ -19,7 +19,8 @@ class LaMujerDeMiVida(BasicNewsRecipe):
     encoding              = 'cp1252'
     publisher             = 'La Mujer de mi Vida'
     category              = 'literatura, critica, arte, ensayos'    
-    language              = _('Spanish')
+    language = 'es'
+
     INDEX                 = 'http://www.lamujerdemivida.com.ar/'
     html2lrf_options = [
                           '--comment', description

@@ -8,7 +8,8 @@ class Physicstoday(BasicNewsRecipe):
     description           = u'Physics Today magazine'
     publisher             = 'American Institute of Physics'
     category              = 'Physics'
-    language              = _('English')
+    language = 'en'
+
     cover_url = strftime('http://ptonline.aip.org/journals/doc/PHTOAD-home/jrnls/images/medcover%m_%Y.jpg')
     oldest_article = 30
     max_articles_per_feed = 100

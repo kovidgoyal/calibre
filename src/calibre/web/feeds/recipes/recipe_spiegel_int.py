@@ -14,7 +14,8 @@ class Spiegel_int(BasicNewsRecipe):
     description           = "News and POV from Europe's largest newsmagazine"
     oldest_article        = 7
     max_articles_per_feed = 100
-    language              = _('English')
+    language = 'en'
+
     no_stylesheets        = True
     use_embedded_content  = False
     publisher             = 'SPIEGEL ONLINE GmbH'
