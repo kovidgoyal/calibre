@@ -55,30 +55,30 @@ class GUI(Command):
     def build_forms(self):
         from PyQt4.uic import compileUi
         forms = self.find_forms()
+        pat = re.compile(r'''(['"]):/images/([^'"]+)\1''')
+        def sub(match):
+            ans = 'I(%s%s%s)'%(match.group(1), match.group(2), match.group(1))
+            return ans
+
         for form in forms:
             compiled_form = self.form_to_compiled_form(form)
             if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
-                print 'Compiling form', form
+                self.info('\tCompiling form', form)
                 buf = cStringIO.StringIO()
                 compileUi(form, buf)
                 dat = buf.getvalue()
                 dat = dat.replace('__appname__', __appname__)
-                dat = dat.replace('import images_rc', 'from calibre.gui2 import images_rc')
+                dat = dat.replace('import images_rc', '')
                 dat = dat.replace('from library import', 'from calibre.gui2.library import')
                 dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
                 dat = dat.replace('from convert.xpath_wizard import',
                     'from calibre.gui2.convert.xpath_wizard import')
                 dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
                 dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
-
-                # Workaround bug in Qt 4.4 on Windows
-                if form.endswith('dialogs%sconfig.ui'%os.sep) or form.endswith('dialogs%slrf_single.ui'%os.sep):
-                    print 'Implementing Workaround for buggy pyuic in form', form
-                    dat = re.sub(r'= QtGui\.QTextEdit\(self\..*?\)', '= QtGui.QTextEdit()', dat)
-                    dat = re.sub(r'= QtGui\.QListWidget\(self\..*?\)', '= QtGui.QListWidget()', dat)
+                dat = pat.sub(sub, dat)
 
                 if form.endswith('viewer%smain.ui'%os.sep):
-                    print 'Promoting WebView'
+                    self.inf('\t\tPromoting WebView')
                     dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
                     dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
 

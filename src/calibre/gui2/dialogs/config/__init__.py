@@ -61,7 +61,7 @@ class ConfigTabs(QTabWidget):
                 input_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
                 pw = input_widget.PluginWidget
-                pw.ICON = ':/images/forward.svg'
+                pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
             except ImportError:
                 continue
@@ -72,7 +72,7 @@ class ConfigTabs(QTabWidget):
                 output_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
                 pw = output_widget.PluginWidget
-                pw.ICON = ':/images/forward.svg'
+                pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
             except ImportError:
                 continue
@@ -95,7 +95,7 @@ class PluginModel(QAbstractItemModel):
 
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
-        self.icon = QVariant(QIcon(':/images/plugins.svg'))
+        self.icon = QVariant(QIcon(I('plugins.svg')))
         p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
         self.disabled_icon = QVariant(QIcon(p))
         self._p = p
@@ -197,10 +197,10 @@ class CategoryModel(QStringListModel):
                             _('Email\nDelivery'), _('Add/Save'),
                             _('Advanced'), _('Content\nServer'), _('Plugins')])
         self.icons = list(map(QVariant, map(QIcon,
-            [':/images/dialog_information.svg', ':/images/lookfeel.svg',
-                ':/images/convert.svg',
-                ':/images/mail.svg', ':/images/save.svg', ':/images/view.svg',
-             ':/images/network-server.svg', ':/images/plugins.svg'])))
+            [I('dialog_information.svg'), I('lookfeel.svg'),
+                I('convert.svg'),
+                I('mail.svg'), I('save.svg'), I('view.svg'),
+             I('network-server.svg'), I('plugins.svg')])))
 
     def data(self, index, role):
         if role == Qt.DecorationRole:

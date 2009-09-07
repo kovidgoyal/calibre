@@ -194,21 +194,12 @@ class EPUBOutput(OutputFormatPlugin):
         if self.opts.no_default_epub_cover:
             return None
         self.log('Generating default cover')
-        try:
-            from calibre.gui2 import images_rc, is_ok_to_use_qt # Needed for access to logo
-            from PyQt4.Qt import QFile, QIODevice
-        except:
-            return None
         from calibre.ebooks.metadata import authors_to_string
-        images_rc
         m = self.oeb.metadata
         title = unicode(m.title[0])
         a = [unicode(x) for x in m.creator if x.role == 'aut']
         author = authors_to_string(a)
-        if not is_ok_to_use_qt(): return
-        f = QFile(':/library')
-        f.open(QIODevice.ReadOnly)
-        img_data = str(f.readAll())
+        img_data = open(I('library.png'), 'rb').read()
         id, href = self.oeb.manifest.generate('calibre-logo',
                 'calibre-logo.png')
         self.oeb.manifest.add(id, href, 'image/png', data=img_data)

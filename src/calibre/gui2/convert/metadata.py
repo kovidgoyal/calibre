@@ -21,7 +21,7 @@ from calibre.gui2.convert import Widget
 class MetadataWidget(Widget, Ui_Form):
 
     TITLE = _('Metadata')
-    ICON  = ':/images/dialog_information.svg'
+    ICON  = I('dialog_information.svg')
     HELP  = _('Set the metadata. The output file will contain as much of this '
             'metadata as possible.')
 

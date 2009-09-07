@@ -22,7 +22,22 @@ def check_version_info():
 
 def option_parser():
     parser = optparse.OptionParser()
+    parser.add_option('-c', '--clean', default=False, action='store_true',
+            help=('Instead of running the command delete all files generated '
+                'by the command'))
+    parser.add_option('--clean-backups', default=False, action='store_true',
+            help='Delete all backup files from the source tree')
+    parser.add_option('--clean-all', default=False, action='store_true',
+            help='Delete all machine generated files from the source tree')
     return parser
+
+def clean_backups():
+    for root, _, files in os.walk('.'):
+        for name in files:
+            for t in ('.pyc', '.pyo', '~', '.swp', '.swo'):
+                if name.endswith(t):
+                    os.remove(os.path.join(root, name))
+
 
 def main(args=sys.argv):
     if len(args) == 1 or args[1] in ('-h', '--help'):
@@ -46,6 +61,21 @@ def main(args=sys.argv):
             command.description)
 
     opts, args = parser.parse_args(args)
+
+    if opts.clean_backups:
+        clean_backups()
+
+    if opts.clean:
+        prints('Cleaning', args[1])
+        command.clean()
+        return 0
+
+    if opts.clean_all():
+        for cmd in commands.__all__:
+            prints('Cleaning', cmd)
+            getattr(commands, cmd).clean()
+        return 0
+
     command.run_all(opts)
 
     warnings = get_warnings()

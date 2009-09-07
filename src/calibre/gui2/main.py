@@ -96,7 +96,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     'The main GUI'
 
     def set_default_thumbnail(self, height):
-        r = QSvgRenderer(':/images/book.svg')
+        r = QSvgRenderer(I('book.svg'))
         pixmap = QPixmap(height, height)
         pixmap.fill(QColor(255,255,255))
         p = QPainter(pixmap)
@@ -146,7 +146,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.device_connected = False
         self.viewers = collections.deque()
         self.content_server = None
-        self.system_tray_icon = QSystemTrayIcon(QIcon(':/images/library.png'), self)
+        self.system_tray_icon = QSystemTrayIcon(QIcon(I('library.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         if not config['systray_icon']:
             self.system_tray_icon.hide()
@@ -154,9 +154,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.system_tray_icon.show()
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
-                QIcon(':/images/page.svg'), _('&Restore'))
+                QIcon(I('page.svg')), _('&Restore'))
         self.donate_action  = self.system_tray_menu.addAction(
-                QIcon(':/images/donate.svg'), _('&Donate to support calibre'))
+                QIcon(I('donate.svg')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
         if not config['show_donate_button']:
             self.donate_button.setVisible(False)
@@ -1714,7 +1714,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
-            d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+            d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
                 return False
@@ -1826,7 +1826,7 @@ def init_qt(args):
     QCoreApplication.setApplicationName(APP_UID)
     app = Application(args)
     actions = tuple(Main.create_application_menubar())
-    app.setWindowIcon(QIcon(':/images/library.png'))
+    app.setWindowIcon(QIcon(I('library.png')))
     return app, opts, args, actions
 
 def run_gui(opts, args, actions, listener, app):

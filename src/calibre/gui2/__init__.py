@@ -169,7 +169,7 @@ def warning_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setEscapeButton(QMessageBox.Ok)
-    d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
     if show:
         return d.exec_()
     return d
@@ -177,7 +177,7 @@ def warning_dialog(parent, title, msg, det_msg='', show=False):
 def error_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_error.svg')))
     d.setEscapeButton(QMessageBox.Ok)
     if show:
         return d.exec_()
@@ -186,14 +186,14 @@ def error_dialog(parent, title, msg, det_msg='', show=False):
 def question_dialog(parent, title, msg, det_msg=''):
     d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_information.svg')))
     d.setEscapeButton(QMessageBox.No)
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_information.svg')))
     if show:
         return d.exec_()
     return d
@@ -321,7 +321,7 @@ class FileIconProvider(QFileIconProvider):
         QFileIconProvider.__init__(self)
         self.icons = {}
         for key in self.__class__.ICONS.keys():
-            self.icons[key] = ':/images/mimetypes/'+self.__class__.ICONS[key]+'.svg'
+            self.icons[key] = I('mimetypes/')+self.__class__.ICONS[key]+'.svg'
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
 

@@ -67,7 +67,7 @@ class ProgressIndicator(QWidget):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         self.setGeometry(0, 0, 300, 500)
-        self.movie = QMovie(':/images/jobs-animated.mng')
+        self.movie = QMovie(I('jobs-animated.mng'))
         self.ml = QLabel(self)
         self.ml.setMovie(self.movie)
         self.movie.start()
@@ -283,7 +283,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_full_screen.setCheckable(True)
 
         self.print_menu = QMenu()
-        self.print_menu.addAction(QIcon(':/images/print-preview.svg'), _('Print Preview'))
+        self.print_menu.addAction(QIcon(I('print-preview.svg')), _('Print Preview'))
         self.action_print.setMenu(self.print_menu)
         self.tool_bar.widgetForAction(self.action_print).setPopupMode(QToolButton.MenuButtonPopup)
         self.connect(self.action_print, SIGNAL("triggered(bool)"), partial(self.print_book, preview=False))
@@ -668,7 +668,7 @@ def main(args=sys.argv):
     pid = os.fork() if False and islinux else -1
     if pid <= 0:
         app = Application(args)
-        app.setWindowIcon(QIcon(':/images/viewer.svg'))
+        app.setWindowIcon(QIcon(I('viewer.svg')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)
         main = EbookViewer(args[1] if len(args) > 1 else None,

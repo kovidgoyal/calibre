@@ -17,7 +17,7 @@ from calibre.ebooks.conversion.config import load_defaults, \
 class Widget(QWidget):
 
     TITLE = _('Unknown')
-    ICON  = ':/images/config.svg'
+    ICON  = I('config.svg')
     HELP  = ''
 
     def __init__(self, parent, name, options):

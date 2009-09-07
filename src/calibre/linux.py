@@ -428,7 +428,6 @@ def render_svg(image, dest):
 def setup_desktop_integration(fatal_errors):
     try:
         from PyQt4.QtCore import QFile
-        from calibre.gui2 import images_rc # Load images
         from tempfile import mkdtemp
 
         print 'Setting up desktop integration...'
@@ -438,12 +437,12 @@ def setup_desktop_integration(fatal_errors):
         cwd = os.getcwdu()
         try:
             os.chdir(tdir)
-            render_svg(QFile(':/images/mimetypes/lrf.svg'), os.path.join(tdir, 'calibre-lrf.png'))
+            render_svg(QFile(I('mimetypes/lrf.svg')), os.path.join(tdir, 'calibre-lrf.png'))
             check_call('xdg-icon-resource install --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
             check_call('xdg-icon-resource install --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
-            QFile(':library').copy(os.path.join(tdir, 'calibre-gui.png'))
+            QFile(I('library.png')).copy(os.path.join(tdir, 'calibre-gui.png'))
             check_call('xdg-icon-resource install --size 128 calibre-gui.png calibre-gui', shell=True)
-            render_svg(QFile(':/images/viewer.svg'), os.path.join(tdir, 'calibre-viewer.png'))
+            render_svg(QFile(I('viewer.svg')), os.path.join(tdir, 'calibre-viewer.png'))
             check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
 
             f = open('calibre-lrfviewer.desktop', 'wb')

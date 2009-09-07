@@ -44,6 +44,19 @@ def get_lang():
 def messages_path(lang):
     return P('localization/locales/%s/LC_MESSAGES'%lang)
 
+def get_lc_messages_path(lang):
+    hlang = None
+    if lang in available_translations():
+        hlang = lang
+    else:
+        xlang = lang.split('_')[0]
+        if xlang in available_translations():
+            hlang = xlang
+    if hlang is not None:
+        return messages_path(hlang)
+    return None
+
+
 def set_translators():
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
@@ -57,20 +70,12 @@ def set_translators():
             make(lang+'.po', buf)
             buf = cStringIO.StringIO(buf.getvalue())
 
-        hlang = None
-        if lang in available_translations():
-            hlang = lang
-        else:
-            xlang = lang.split('_')[0]
-            if xlang in available_translations():
-                hlang = xlang
-        if hlang is not None:
+        mpath = get_lc_messages_path(lang)
+        if mpath is not None:
             if buf is None:
-                buf = open(os.path.join(messages_path(hlang),
-                    'messages.mo'), 'rb')
-            if hlang == 'nds':
-                hlang = 'de'
-            isof = os.path.join(messages_path(hlang), 'iso639.mo')
+                buf = open(os.path.join(mpath, 'messages.mo'), 'rb')
+            mpath = mpath.replace(os.sep+'nds'+os.sep, os.sep+'de'+os.sep)
+            isof = os.path.join(mpath, 'iso639.mo')
             if os.path.exists(isof):
                 iso639 = open(isof, 'rb')
 
@@ -115,8 +120,9 @@ def set_qt_translator(translator):
     if lang is not None:
         if lang == 'nds':
             lang = 'de'
-        for x in (lang, lang.split('_')[0]):
-            p = os.path.join(messages_path(x), 'qt.qm')
+        mpath = get_lc_messages_path(lang)
+        if mpath is not None:
+            p = os.path.join(mpath, 'qt.qm')
             if os.path.exists(p):
                 return translator.load(p)
     return False

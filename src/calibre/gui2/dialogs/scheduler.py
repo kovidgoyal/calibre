@@ -98,8 +98,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
     def __init__(self, db, *args):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self)
-        self.default_icon = QIcon(':/images/news.svg')
-        self.custom_icon = QIcon(':/images/user_profile.svg')
+        self.default_icon = QIcon(I('news.svg'))
+        self.custom_icon = QIcon(I('user_profile.svg'))
         self.recipes = copy.deepcopy(builtin_recipes)
         for x in db.get_recipes():
             recipe = compile_recipe(x[1])
@@ -215,7 +215,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 return recipe
             elif role == Qt.DecorationRole:
                 icon = self.default_icon
-                icon_path = (':/images/news/%s.png'%recipe.id).replace('recipe_', '')
+                icon_path = (I('news/%s.png')%recipe.id).replace('recipe_', '')
                 if not recipe.builtin:
                     icon = self.custom_icon
                 elif QFile().exists(icon_path):
@@ -420,11 +420,11 @@ class Scheduler(QObject):
         self.oldest_check()
 
         self.news_menu = QMenu()
-        self.news_icon = QIcon(':/images/news.svg')
-        self.scheduler_action = QAction(QIcon(':/images/scheduler.svg'), _('Schedule news download'), self)
+        self.news_icon = QIcon(I('news.svg'))
+        self.scheduler_action = QAction(QIcon(I('scheduler.svg')), _('Schedule news download'), self)
         self.news_menu.addAction(self.scheduler_action)
         self.connect(self.scheduler_action, SIGNAL('triggered(bool)'), self.show_dialog)
-        self.cac = QAction(QIcon(':/images/user_profile.svg'), _('Add a custom news source'), self)
+        self.cac = QAction(QIcon(I('user_profile.svg')), _('Add a custom news source'), self)
         self.connect(self.cac, SIGNAL('triggered(bool)'), self.customize_feeds)
         self.news_menu.addAction(self.cac)
 

@@ -13,5 +13,8 @@ def get_path(path):
     path = path.replace(os.sep, '/')
     return os.path.join(sys.resources_location, *path.split('/'))
 
-__builtin__.__dict__['P'] = get_path
+def get_image_path(path):
+    return get_path('images/'+path)
 
+__builtin__.__dict__['P'] = get_path
+__builtin__.__dict__['I'] = get_image_path
