@@ -532,6 +532,7 @@ class ResizableDialog(QDialog):
 
 gui_thread = None
 
+
 class Application(QApplication):
 
     def __init__(self, args):
@@ -539,10 +540,9 @@ class Application(QApplication):
         QApplication.__init__(self, qargs)
         global gui_thread
         gui_thread = QThread.currentThread()
-        self.translator = QTranslator(self)
-        if set_qt_translator(self.translator):
-            print 1111111
-            self.installTranslator(self.translator)
+        self._translator = QTranslator(self)
+        if set_qt_translator(self._translator):
+            self.installTranslator(self._translator)
 
 def is_ok_to_use_qt():
     global gui_thread

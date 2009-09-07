@@ -1821,12 +1821,12 @@ def init_qt(args):
     opts, args = parser.parse_args(args)
     if opts.with_library is not None and os.path.isdir(opts.with_library):
         prefs.set('library_path', os.path.abspath(opts.with_library))
-        print 'Using library at', prefs['library_path']
+        prints('Using library at', prefs['library_path'])
+    QCoreApplication.setOrganizationName(ORG_NAME)
+    QCoreApplication.setApplicationName(APP_UID)
     app = Application(args)
     actions = tuple(Main.create_application_menubar())
     app.setWindowIcon(QIcon(':/library'))
-    QCoreApplication.setOrganizationName(ORG_NAME)
-    QCoreApplication.setApplicationName(APP_UID)
     return app, opts, args, actions
 
 def run_gui(opts, args, actions, listener, app):

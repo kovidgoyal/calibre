@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, textwrap
+import sys, os, textwrap, subprocess
 
 from setup import Command, islinux, basenames, modules, functions
 
@@ -33,7 +33,7 @@ class Develop(Command):
     description = 'Setup a development environment'
     MODE = 0755
 
-    sub_commands = ['build']
+    sub_commands = ['build', 'translations']
 
     def add_options(self, parser):
         parser.set_usage(textwrap.dedent('''\
@@ -64,7 +64,11 @@ class Develop(Command):
         self.regain_privileges()
         self.find_locations(opts)
         self.write_templates(opts)
+        self.run_postinstall()
         self.success()
+
+    def run_postinstall(self):
+        subprocess.check_call(['calibre_postinstall'])
 
     def success(self):
         self.info('\nDevelopment environment successfully setup')

@@ -76,7 +76,8 @@ class Translations(POT):
                     self.info('\tCopying ISO 639 translations')
                     shutil.copy2(iso639, dest)
             else:
-                self.warn('No ISO 639 translations for locale:', locale)
+                self.warn('No ISO 639 translations for locale:', locale,
+                '\nDo you have pycountry installed?')
 
         base = os.path.join(pyqt.qt_data_dir, 'translations')
         qt_translations = glob.glob(os.path.join(base, 'qt_*.qm'))

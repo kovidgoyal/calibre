@@ -115,6 +115,6 @@ def set_qt_translator(translator):
         for x in (lang, lang.split('_')[0]):
             p = os.path.join(messages_path(x), 'qt.qm')
             if os.path.exists(p):
-                return translator.loadFromData(open(p, 'rb').read())
+                return translator.load(p)
     return False
 
