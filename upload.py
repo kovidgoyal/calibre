@@ -6,10 +6,14 @@ __docformat__ = 'restructuredtext en'
 import shutil, os, glob, re, cStringIO, sys, tempfile, time, textwrap, socket, \
        struct, subprocess, platform
 from datetime import datetime
-from setuptools.command.build_py import build_py as _build_py, convert_path
+from stat import ST_MODE
+from distutils.command.build_py import build_py as _build_py, convert_path
+from distutils.command.install_scripts import install_scripts as _install_scripts
+from distutils.command.install import install as _install
 from distutils.core import Command
 from subprocess import check_call, call, Popen
 from distutils.command.build import build as _build
+from distutils import log
 
 raw = open(os.path.join('src', 'calibre', 'constants.py'), 'rb').read()
 __version__ = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', raw).group(1)
@@ -25,6 +29,9 @@ TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 
 is64bit = platform.architecture()[0] == '64bit'
+iswindows = re.search('win(32|64)', sys.platform)
+isosx = 'darwin' in sys.platform
+islinux = not isosx and not iswindows
 
 def get_ip_address(ifname):
     import fcntl
@@ -66,6 +73,59 @@ class OptionlessCommand(Command):
         for cmd_name in self.get_sub_commands():
             self.run_command(cmd_name)
 
+def setup_mount_helper(tdir):
+    def warn():
+        print 'WARNING: Failed to compile mount helper. Auto mounting of',
+        print 'devices will not work'
+
+    if os.geteuid() != 0:
+        return warn()
+    import stat
+    src = os.path.join('src', 'calibre', 'devices', 'linux_mount_helper.c')
+    dest = os.path.join(tdir, 'calibre-mount-helper')
+    log.info('Installing mount helper to '+ tdir)
+    p = subprocess.Popen(['gcc', '-Wall', src, '-o', dest])
+    ret = p.wait()
+    if ret != 0:
+        return warn()
+    os.chown(dest, 0, 0)
+    os.chmod(dest,
+       stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
+    return dest
+
+
+class develop(_install_scripts):
+
+    def run(self):
+        if not iswindows and os.geteuid() != 0:
+            raise Exception('Must be root to run this command.')
+        if not self.skip_build:
+            self.run_command('build_ext')
+            self.run_command('build_scripts')
+
+        for script in os.listdir(self.build_dir):
+            script = os.path.join(self.build_dir, script)
+            raw = open(script, 'rb').read()
+            raw = re.sub(r'"""##DEVELOP_HOOK##([^#]+)##END_DEVELOP_HOOK##"""',
+                    r'\1', raw)
+            raw = raw.replace('#!python', '#!'+sys.executable)
+            f = os.path.join(self.install_dir, os.path.basename(script))
+            open(f, 'wb').write(raw)
+            mode = ((os.stat(f)[ST_MODE]) | 0555) & 07777
+            log.info('changing mode of %s to %o'%(f, mode))
+            os.chmod(f, mode)
+
+        if islinux:
+            setup_mount_helper(self.install_dir)
+            subprocess.check_call('calibre_postinstall')
+
+class install(_install):
+
+    def run(self):
+        _install.run(self)
+        if islinux:
+            setup_mount_helper(self.install_dir)
+            subprocess.check_call('calibre_postinstall')
 
 class sdist(OptionlessCommand):
 
@@ -76,39 +136,6 @@ class sdist(OptionlessCommand):
         check_call(('bzr export '+name).split())
         self.distribution.dist_files.append(('sdist', '', name))
         print 'Source distribution created in', os.path.abspath(name)
-
-class pot(OptionlessCommand):
-    description = '''Create the .pot template for all translatable strings'''
-
-    PATH = os.path.join('src', __appname__, 'translations')
-
-    def source_files(self):
-        ans = []
-        for root, _, files in os.walk(os.path.dirname(self.PATH)):
-            for name in files:
-                if name.endswith('.py'):
-                    ans.append(os.path.abspath(os.path.join(root, name)))
-        return ans
-
-
-    def run(self):
-        sys.path.insert(0, os.path.abspath(self.PATH))
-        try:
-            pygettext = __import__('pygettext', fromlist=['main']).main
-            files = self.source_files()
-            buf = cStringIO.StringIO()
-            print 'Creating translations template'
-            tempdir = tempfile.mkdtemp()
-            pygettext(buf, ['-k', '__', '-p', tempdir]+files)
-            src = buf.getvalue()
-            pot = os.path.join(self.PATH, __appname__+'.pot')
-            f = open(pot, 'wb')
-            f.write(src)
-            f.close()
-            print 'Translations template:', os.path.abspath(pot)
-            return pot
-        finally:
-            sys.path.remove(os.path.abspath(self.PATH))
 
 class manual(OptionlessCommand):
 
@@ -249,99 +276,6 @@ class resources(OptionlessCommand):
             if os.path.exists(path):
                 os.remove(path)
 
-class translations(OptionlessCommand):
-    description='''Compile the translations'''
-    PATH = os.path.join('src', __appname__, 'translations')
-    DEST = os.path.join(PATH, 'compiled.py')
-
-    def run(self):
-        sys.path.insert(0, os.path.abspath(self.PATH))
-        try:
-            files = glob.glob(os.path.join(self.PATH, '*.po'))
-            if newer([self.DEST], files):
-                msgfmt = __import__('msgfmt', fromlist=['main']).main
-                translations = {}
-                print 'Compiling translations...'
-                for po in files:
-                    lang = os.path.basename(po).partition('.')[0]
-                    buf = cStringIO.StringIO()
-                    print 'Compiling', lang
-                    msgfmt(buf, [po])
-                    translations[lang] = buf.getvalue()
-                open(self.DEST, 'wb').write('translations = '+repr(translations))
-            else:
-                print 'Translations up to date'
-        finally:
-            sys.path.remove(os.path.abspath(self.PATH))
-
-
-    @classmethod
-    def clean(cls):
-        path = cls.DEST
-        if os.path.exists(path):
-            os.remove(path)
-
-class get_translations(translations):
-
-    description = 'Get updated translations from Launchpad'
-    BRANCH = 'lp:~kovid/calibre/translations'
-
-    @classmethod
-    def modified_translations(cls):
-        raw = subprocess.Popen(['bzr', 'status'],
-                stdout=subprocess.PIPE).stdout.read().strip()
-        for line in raw.splitlines():
-            line = line.strip()
-            if line.startswith(cls.PATH) and line.endswith('.po'):
-                yield line
-
-    def run(self):
-        if len(list(self.modified_translations())) == 0:
-            subprocess.check_call(['bzr', 'merge', self.BRANCH])
-        if len(list(self.modified_translations())) == 0:
-            print 'No updated translations available'
-        else:
-            subprocess.check_call(['bzr', 'commit', '-m',
-                'IGN:Updated translations', self.PATH])
-        self.check_for_errors()
-
-    @classmethod
-    def check_for_errors(cls):
-        errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
-        if os.path.exists(errors):
-            shutil.rmtree(errors)
-        os.mkdir(errors)
-        pofilter = ('pofilter', '-i', cls.PATH, '-o', errors,
-                '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
-                #'-t', 'xmltags',
-                #'-t', 'brackets',
-                #'-t', 'emails',
-                #'-t', 'doublequoting',
-                #'-t', 'filepaths',
-                #'-t', 'numbers',
-                '-t', 'options',
-                #'-t', 'urls',
-                '-t', 'printf')
-        subprocess.check_call(pofilter)
-        errfiles = glob.glob(errors+os.sep+'*.po')
-        subprocess.check_call(['gvim', '-f', '-p', '--']+errfiles)
-        for f in errfiles:
-            with open(f, 'r+b') as f:
-                raw = f.read()
-                raw = re.sub(r'# \(pofilter\).*', '', raw)
-                f.seek(0)
-                f.truncate()
-                f.write(raw)
-
-        subprocess.check_call(['pomerge', '-t', cls.PATH, '-i', errors, '-o',
-            cls.PATH])
-        if len(list(cls.modified_translations())) > 0:
-            subprocess.call(['bzr', 'diff', cls.PATH])
-            yes = raw_input('Merge corrections? [y/n]: ').strip()
-            if yes in ['', 'y']:
-                subprocess.check_call(['bzr', 'commit', '-m',
-                    'IGN:Translation corrections', cls.PATH])
-
 class gui(OptionlessCommand):
     description='''Compile all GUI forms and images'''
     PATH  = os.path.join('src', __appname__, 'gui2')
@@ -438,29 +372,6 @@ class gui(OptionlessCommand):
         for x in (cls.IMAGES_DEST, cls.QRC):
             if os.path.exists(x):
                 os.remove(x)
-
-class clean(OptionlessCommand):
-
-    description='''Delete all computer generated files in the source tree'''
-
-    def run(self):
-        print 'Cleaning...'
-        manual.clean()
-        gui.clean()
-        translations.clean()
-        resources.clean()
-
-        for f in glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
-            os.remove(f)
-        for root, _, files in os.walk('.'):
-            for name in files:
-                for t in ('.pyc', '.pyo', '~'):
-                    if name.endswith(t):
-                        os.remove(os.path.join(root, name))
-                        break
-
-        for dir in ('build', 'dist', os.path.join('src', 'calibre.egg-info')):
-            shutil.rmtree(dir, ignore_errors=True)
 
 class build_py(_build_py):
 

@@ -8,15 +8,13 @@ __docformat__ = 'restructuredtext en'
 
 import subprocess, os, sys, time
 
-from calibre.constants import iswindows, isosx, isfrozen
+from calibre.constants import iswindows, isosx, isfrozen, isnewosx
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile
 
 if iswindows:
     import win32process
     _windows_null_file = open(os.devnull, 'wb')
-
-isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
 
 class Worker(object):
     '''

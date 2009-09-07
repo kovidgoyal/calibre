@@ -13,6 +13,7 @@ src/calibre/manual/cli/
 build
 dist
 docs
+resources
 nbproject/
 src/calibre/gui2/pictureflow/Makefile.Debug
 src/calibre/gui2/pictureflow/Makefile.Release

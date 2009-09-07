@@ -26,6 +26,12 @@ if not _run_once:
     _run_once = True
 
     ################################################################################
+    # Setup resources
+    import calibre.utils.resources as resources
+    resources
+
+
+    ################################################################################
     # Setup translations
 
     def get_lang():

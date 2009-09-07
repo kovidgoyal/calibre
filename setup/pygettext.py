@@ -164,8 +164,7 @@ DEFAULTKEYWORDS = ', '.join(default_keywords)
 
 EMPTYSTRING = ''
 
-from calibre.constants import __appname__
-from calibre.constants import __version__ as version
+from setup import __appname__, __version__ as version
 
 # The normal pot-file header. msgmerge and Emacs's po-mode work better if it's
 # there.
@@ -638,7 +637,7 @@ def main(outfile, args=sys.argv[1:]):
                 fp.close()
 
     # write the output
-    eater.write(outfile)    
+    eater.write(outfile)
 
 if __name__ == '__main__':
     main(sys.stdout)

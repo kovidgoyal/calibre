@@ -1,0 +1,34 @@
+calibre supports installation from source only on Linux. On Windows and OS X use the provided installers and usethe facilities provided by calibre-debug to hack on the calibre source. 
+
+On Linux, there are two kinds of installation from source possible. Note that both kinds require lots of dependencies as well as a full development environment (compilers, headers files, etc.) 
+
+All installation related functions are accessed by the command::
+
+    python setup.py
+
+Install
+==========
+
+The first type of install will actually "install" calibre to your computer by putting its files into the system in the following locations:
+
+  - Binaries (actually python wrapper scripts) in <prefix>/bin
+  - Python and C modules in <prefix>/lib/calibre
+  - Resources like icons, etc. in <prefix>/share/calibre
+
+This type of install can be run by the command::
+
+    sudo python setup.py install
+
+<prefix> is normally the installation prefix of python, usually /usr. It can be controlled by the --prefix 
+option.
+
+Develop
+=============
+
+This type of install is designed to let you run calibre from your home directory, making it easy to hack on it. It will only install binaries into /usr/bin, but all the actual code and resource files will be read from the calibre source tree in your home drectory (or wherever you choose to put it).
+
+This type of install can be run with the command::
+
+    sudo python setup.py develop
+
+
