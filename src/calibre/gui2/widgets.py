@@ -159,7 +159,7 @@ class LocationModel(QAbstractListModel):
 
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
-        self.icons = [QVariant(QIcon(':/library')),
+        self.icons = [QVariant(QIcon(':/images/library.png')),
                       QVariant(QIcon(':/images/reader.svg')),
                       QVariant(QIcon(':/images/sd.svg')),
                       QVariant(QIcon(':/images/sd.svg'))]

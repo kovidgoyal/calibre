@@ -146,7 +146,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.device_connected = False
         self.viewers = collections.deque()
         self.content_server = None
-        self.system_tray_icon = QSystemTrayIcon(QIcon(':/library'), self)
+        self.system_tray_icon = QSystemTrayIcon(QIcon(':/images/library.png'), self)
         self.system_tray_icon.setToolTip('calibre')
         if not config['systray_icon']:
             self.system_tray_icon.hide()
@@ -1826,7 +1826,7 @@ def init_qt(args):
     QCoreApplication.setApplicationName(APP_UID)
     app = Application(args)
     actions = tuple(Main.create_application_menubar())
-    app.setWindowIcon(QIcon(':/library'))
+    app.setWindowIcon(QIcon(':/images/library.png'))
     return app, opts, args, actions
 
 def run_gui(opts, args, actions, listener, app):
