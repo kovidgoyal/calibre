@@ -30,21 +30,18 @@ sys.exit({func!s}())
 
 class Develop(Command):
 
-    description = 'Setup a development environment'
+    description = textwrap.dedent('''\
+            Setup a development environment for calibre.
+            This allows you to run calibre directly from the source tree.
+            Binaries will be installed in <prefix>/bin where <prefix> is
+            the prefix of your python installation. This can be controlled
+            via the --prefix option.
+            ''')
     MODE = 0755
 
     sub_commands = ['build', 'translations']
 
     def add_options(self, parser):
-        parser.set_usage(textwrap.dedent('''\
-                ***
-
-                Setup a development environment for calibre.
-                This allows you to run calibre directly from the source tree.
-                Binaries will be installed in <prefix>/bin where <prefix> is
-                the prefix of your python installation. This can be controlled
-                via the --prefix option.
-                '''))
         parser.add_option('--prefix',
             help='Binaries will be installed in <prefix>/bin')
 

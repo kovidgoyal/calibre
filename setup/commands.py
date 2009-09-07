@@ -11,7 +11,7 @@ __all__ = [
         'build',
         'gui',
         'develop',
-        'clean'
+        'clean', 'clean_backups',
         ]
 
 import os, shutil
@@ -31,6 +31,22 @@ develop = Develop()
 
 from setup.gui import GUI
 gui = GUI()
+
+class CleanBackups(Command):
+
+    description='Delete all backup files in the calibre source tree'
+
+    def clean(self):
+        return self.run(None)
+
+    def run(self, opts=None):
+        for root, _, files in os.walk(self.d(self.SRC)):
+            for name in files:
+                for t in ('.pyc', '.pyo', '~', '.swp', '.swo'):
+                    if name.endswith(t):
+                        os.remove(os.path.join(root, name))
+
+clean_backups = CleanBackups()
 
 class Clean(Command):
 
@@ -55,13 +71,6 @@ class Clean(Command):
             cmd.clean()
 
     def clean(self):
-        for root, _, files in os.walk(self.d(self.SRC)):
-            for name in files:
-                for t in ('.pyc', '.pyo', '~', '.swp', '.swo'):
-                    if name.endswith(t):
-                        os.remove(os.path.join(root, name))
-                        break
-
         for dir in ('dist', os.path.join('src', 'calibre.egg-info')):
             shutil.rmtree(dir, ignore_errors=True)
 

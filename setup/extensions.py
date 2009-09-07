@@ -157,9 +157,7 @@ if iswindows:
 
 class Build(Command):
 
-    def add_options(self, parser):
-        parser.set_usage(parser.usage + textwrap.dedent('''
-
+    description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
         This command will compile them. You can influence the compile
         process by several environment variables, listed below:
@@ -179,9 +177,11 @@ class Build(Command):
            PODOFO_LIB_DIR - podofo library files
 
            QMAKE          - Path to qmake
-           VS90COMNTOOLS  - Location of Microsoft Visual Studio 9 Tools
+           VS90COMNTOOLS  - Location of Microsoft Visual Studio 9 Tools (windows only)
 
-        '''))
+        ''')
+
+    def add_options(self, parser):
         choices = [e.name for e in extensions]+['all']
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
