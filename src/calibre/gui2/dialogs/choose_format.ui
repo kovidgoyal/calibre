@@ -13,7 +13,7 @@
    <string>Choose Format</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/mimetypes/unknown.svg</iconset>
+   <iconset resource="../../../../resources/images.qrc" >:/images/mimetypes/unknown.svg</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <item>
@@ -46,7 +46,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../../../../resources/images.qrc" />
  </resources>
  <connections>
   <connection>

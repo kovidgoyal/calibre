@@ -14,7 +14,7 @@
    <string>Welcome to calibre</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/wizard.svg</normaloff>:/images/wizard.svg</iconset>
   </property>
   <property name="title">
@@ -69,7 +69,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

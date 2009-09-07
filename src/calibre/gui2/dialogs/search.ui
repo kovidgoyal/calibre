@@ -13,7 +13,7 @@
    <string>Advanced Search</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
+   <iconset resource="../../../../resources/images.qrc" >
     <normaloff>:/images/search.svg</normaloff>:/images/search.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3" >
@@ -132,7 +132,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../../../../resources/images.qrc" />
  </resources>
  <connections>
   <connection>

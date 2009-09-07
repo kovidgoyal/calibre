@@ -14,7 +14,7 @@
    <string>Active Jobs</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/jobs.svg</normaloff>:/images/jobs.svg</iconset>
   </property>
   <layout class="QVBoxLayout">
@@ -67,7 +67,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

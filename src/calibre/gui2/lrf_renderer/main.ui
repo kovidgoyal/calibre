@@ -19,7 +19,7 @@
    <string>LRF Viewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
+   <iconset resource="../../../../resources/images.qrc" >
     <normaloff>:/images/viewer.svg</normaloff>:/images/viewer.svg</iconset>
   </property>
   <widget class="QWidget" name="central_widget" >
@@ -173,7 +173,7 @@
   </widget>
   <action name="action_next_page" >
    <property name="icon" >
-    <iconset resource="../images.qrc" >
+    <iconset resource="../../../../resources/images.qrc" >
      <normaloff>:/images/next.svg</normaloff>:/images/next.svg</iconset>
    </property>
    <property name="text" >
@@ -182,7 +182,7 @@
   </action>
   <action name="action_previous_page" >
    <property name="icon" >
-    <iconset resource="../images.qrc" >
+    <iconset resource="../../../../resources/images.qrc" >
      <normaloff>:/images/previous.svg</normaloff>:/images/previous.svg</iconset>
    </property>
    <property name="text" >
@@ -191,7 +191,7 @@
   </action>
   <action name="action_back" >
    <property name="icon" >
-    <iconset resource="../images.qrc" >
+    <iconset resource="../../../../resources/images.qrc" >
      <normaloff>:/images/back.svg</normaloff>:/images/back.svg</iconset>
    </property>
    <property name="text" >
@@ -200,7 +200,7 @@
   </action>
   <action name="action_forward" >
    <property name="icon" >
-    <iconset resource="../images.qrc" >
+    <iconset resource="../../../../resources/images.qrc" >
      <normaloff>:/images/forward.svg</normaloff>:/images/forward.svg</iconset>
    </property>
    <property name="text" >
@@ -214,7 +214,7 @@
   </action>
   <action name="action_open_ebook" >
    <property name="icon" >
-    <iconset resource="../images.qrc" >
+    <iconset resource="../../../../resources/images.qrc" >
      <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
    </property>
    <property name="text" >
@@ -223,7 +223,7 @@
   </action>
   <action name="action_configure" >
    <property name="icon" >
-    <iconset resource="../images.qrc" >
+    <iconset resource="../../../../resources/images.qrc" >
      <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
    </property>
    <property name="text" >
@@ -239,7 +239,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../../../../resources/images.qrc" />
  </resources>
  <connections/>
 </ui>

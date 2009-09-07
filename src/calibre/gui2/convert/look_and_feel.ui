@@ -153,8 +153,8 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc"/>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

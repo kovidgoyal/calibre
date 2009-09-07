@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 __all__ = [
         'pot', 'translations', 'get_translations', 'iso639',
         'build',
+        'gui',
         'develop',
         'clean'
         ]
@@ -27,6 +28,9 @@ build = Build()
 
 from setup.install import Develop
 develop = Develop()
+
+from setup.gui import GUI
+gui = GUI()
 
 class Clean(Command):
 

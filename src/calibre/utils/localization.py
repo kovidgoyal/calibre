@@ -68,8 +68,11 @@ def set_translators():
             if buf is None:
                 buf = open(os.path.join(messages_path(hlang),
                     'messages.mo'), 'rb')
-            iso639 = open(os.path.join(messages_path(hlang),
-                    'iso639.mo'), 'rb')
+            if hlang == 'nds':
+                hlang = 'de'
+            isof = os.path.join(messages_path(hlang), 'iso639.mo')
+            if os.path.exists(isof):
+                iso639 = open(isof, 'rb')
 
         if buf is not None:
             t = GNUTranslations(buf)

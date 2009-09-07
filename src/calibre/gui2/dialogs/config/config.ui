@@ -15,7 +15,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../images.qrc">
+   <iconset resource="../../../../../resources/images.qrc">
     <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
   <layout class="QGridLayout">
@@ -115,7 +115,7 @@
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="../../images.qrc">
+                <iconset resource="../../../../../resources/images.qrc">
                  <normaloff>:/images/mimetypes/dir.svg</normaloff>:/images/mimetypes/dir.svg</iconset>
                </property>
               </widget>
@@ -245,7 +245,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../../images.qrc">
+                   <iconset resource="../../../../../resources/images.qrc">
                     <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                   </property>
                  </widget>
@@ -269,7 +269,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../../images.qrc">
+                   <iconset resource="../../../../../resources/images.qrc">
                     <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                   </property>
                  </widget>
@@ -326,7 +326,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../../images.qrc">
+                   <iconset resource="../../../../../resources/images.qrc">
                     <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                   </property>
                  </widget>
@@ -353,7 +353,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../../images.qrc">
+                   <iconset resource="../../../../../resources/images.qrc">
                     <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
                   </property>
                  </widget>
@@ -530,7 +530,7 @@
                      <string>...</string>
                     </property>
                     <property name="icon">
-                     <iconset resource="../../images.qrc">
+                     <iconset resource="../../../../../resources/images.qrc">
                       <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                     </property>
                    </widget>
@@ -554,7 +554,7 @@
                      <string>...</string>
                     </property>
                     <property name="icon">
-                     <iconset resource="../../images.qrc">
+                     <iconset resource="../../../../../resources/images.qrc">
                       <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                     </property>
                    </widget>
@@ -614,7 +614,7 @@
                 <string>&amp;Add email</string>
                </property>
                <property name="icon">
-                <iconset resource="../../images.qrc">
+                <iconset resource="../../../../../resources/images.qrc">
                  <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                </property>
                <property name="iconSize">
@@ -641,7 +641,7 @@
                 <string>&amp;Remove email</string>
                </property>
                <property name="icon">
-                <iconset resource="../../images.qrc">
+                <iconset resource="../../../../../resources/images.qrc">
                  <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
                </property>
                <property name="iconSize">
@@ -996,7 +996,7 @@
                  <string>...</string>
                 </property>
                 <property name="icon">
-                 <iconset resource="../../images.qrc">
+                 <iconset resource="../../../../../resources/images.qrc">
                   <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
                 </property>
                </widget>
@@ -1063,7 +1063,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../images.qrc"/>
+  <include location="../../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -43,7 +43,7 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset resource="../images.qrc">
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/wizard.svg</normaloff>:/images/wizard.svg</iconset>
      </property>
      <property name="iconSize">
@@ -57,7 +57,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>
