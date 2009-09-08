@@ -17,9 +17,8 @@ class cdnet(BasicNewsRecipe):
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 50
     no_stylesheets = True
-    language = 'de'
-
     encoding = 'utf-8'
+    language = 'de'
 
 
     remove_tags = [dict(id='outside-advert'),
@@ -39,8 +38,14 @@ class cdnet(BasicNewsRecipe):
 		   dict(id='bookmarkTools'),
 		   dict(id='printTools'),
 		   dict(id='header-nextNews'),
+		   dict(id='commentsBox'),
+		   dict(id='showComments'),
+		   dict(id='footer'),
 		   dict(id=''),
 		   dict(name='div', attrs={'class':'pyjama'}),
+		   dict(name='div', attrs={'class':'basicCentral'}),
+		   dict(name='li', attrs={'class':'simplePagination-previous'}),
+		   dict(name='form', attrs={'id':'commentForm'}),
 		   dict(name='href', attrs={'class':'comment'}),
 		   dict(name='div', attrs={'class':'greyBoxR clearfix'}),
 		   dict(name='div', attrs={'class':'greyBoxL clearfix'}),

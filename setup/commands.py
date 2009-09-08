@@ -11,6 +11,7 @@ __all__ = [
         'build',
         'gui',
         'develop',
+        'resources',
         'check',
         ]
 
@@ -32,6 +33,9 @@ gui = GUI()
 
 from setup.check import Check
 check = Check()
+
+from setup.resources import Resources
+resources = Resources()
 
 commands = {}
 for x in __all__:
