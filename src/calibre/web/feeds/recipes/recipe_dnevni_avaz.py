@@ -9,7 +9,7 @@ dnevniavaz.ba
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class DnevniAvaz(BasicNewsRecipe):
     title                 = 'Dnevni Avaz'
@@ -38,7 +38,7 @@ class DnevniAvaz(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-  
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags = [dict(name='div', attrs={'id':['fullarticle-title','fullarticle-leading','fullarticle-date','fullarticle-text','articleauthor']})]
@@ -55,7 +55,7 @@ class DnevniAvaz(BasicNewsRecipe):
         if headtag:
            headtag.name = newtagname
         return
-        
+
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang

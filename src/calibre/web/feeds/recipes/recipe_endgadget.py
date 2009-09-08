@@ -6,7 +6,6 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 engadget.com
 '''
 
-import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Engadget(BasicNewsRecipe):
@@ -14,7 +13,7 @@ class Engadget(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Tech news'
     language = 'en'
-    
+
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

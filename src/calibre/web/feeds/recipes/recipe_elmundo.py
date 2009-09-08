@@ -21,14 +21,14 @@ class ElMundo(BasicNewsRecipe):
     encoding              = 'iso8859_15'
     cover_url             = 'http://estaticos02.cache.el-mundo.net/papel/imagenes/v2.0/logoverde.gif'
     remove_javascript     = True
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
 
     keep_only_tags = [
@@ -38,11 +38,11 @@ class ElMundo(BasicNewsRecipe):
     remove_tags = [
                      dict(name='div', attrs={'class':['herramientas','publicidad_google']})
                     ,dict(name='div', attrs={'id':'modulo_multimedia' })
-                    ,dict(name='ul', attrs={'class':'herramientas' })                                         
+                    ,dict(name='ul', attrs={'class':'herramientas' })
                     ,dict(name=['object','link'])
                   ]
-                            
-    feeds = [ 
+
+    feeds = [
               (u'Portada'         , u'http://rss.elmundo.es/rss/descarga.htm?data2=4' )
              ,(u'Espana'          , u'http://rss.elmundo.es/rss/descarga.htm?data2=8' )
              ,(u'Internacional'   , u'http://rss.elmundo.es/rss/descarga.htm?data2=9' )
@@ -58,4 +58,3 @@ class ElMundo(BasicNewsRecipe):
         return soup
 
     language = 'es'
-

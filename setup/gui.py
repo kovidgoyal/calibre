@@ -78,9 +78,10 @@ class GUI(Command):
                 dat = pat.sub(sub, dat)
 
                 if form.endswith('viewer%smain.ui'%os.sep):
-                    self.inf('\t\tPromoting WebView')
+                    self.info('\t\tPromoting WebView')
                     dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
                     dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
+                    dat += '\nQtWebKit'
 
                 open(compiled_form, 'wb').write(dat)
 

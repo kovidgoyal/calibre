@@ -6,7 +6,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
 import sys, os, optparse
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -70,7 +69,7 @@ def main(args=sys.argv):
         command.clean()
         return 0
 
-    if opts.clean_all():
+    if opts.clean_all:
         for cmd in commands.__all__:
             prints('Cleaning', cmd)
             getattr(commands, cmd).clean()

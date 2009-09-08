@@ -7,14 +7,14 @@ timesonline.co.uk
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Timesonline(BasicNewsRecipe):
     title                  = 'The Times Online'
     __author__             = 'Darko Miletic'
-    description            = 'UK news' 
+    description            = 'UK news'
     publisher              = 'timesonline.co.uk'
-    category               = 'news, politics, UK'        
+    category               = 'news, politics, UK'
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
@@ -30,9 +30,9 @@ class Timesonline(BasicNewsRecipe):
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-    
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     remove_tags        = [dict(name=['embed','object'])]
     remove_tags_after  = dict(name='div', attrs={'class':'bg-666'})
 
@@ -63,4 +63,4 @@ class Timesonline(BasicNewsRecipe):
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         return self.adeify_images(soup)
-        
+

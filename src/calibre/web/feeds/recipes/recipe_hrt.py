@@ -9,7 +9,7 @@ www.hrt.hr
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class HRT(BasicNewsRecipe):
     title                 = 'HRT: Vesti'
@@ -24,7 +24,7 @@ class HRT(BasicNewsRecipe):
 
     lang                  = 'hr-HR'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -33,15 +33,15 @@ class HRT(BasicNewsRecipe):
                         , 'pretty_print'     : True
                         }
 
-    
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags     = [dict(name='div', attrs={'class':'bigVijest'})]
-        
+
     remove_tags = [dict(name=['object','link','embed'])]
 
     remove_tags_after  = dict(name='div', attrs={'class':'nsAuthor'})
-    
+
     feeds = [
                (u'Vijesti'             , u'http://www.hrt.hr/?id=316&type=100&rss=vijesti'     )
               ,(u'Sport'               , u'http://www.hrt.hr/?id=316&type=100&rss=sport'       )
@@ -63,5 +63,5 @@ class HRT(BasicNewsRecipe):
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         for item in soup.findAll(style=True):
-            del item['style']        
+            del item['style']
         return self.adeify_images(soup)

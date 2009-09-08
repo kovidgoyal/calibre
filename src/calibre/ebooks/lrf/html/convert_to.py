@@ -10,13 +10,13 @@ from calibre.ebooks.lrf.lrfparser import LRFDocument
 from calibre.ebooks.metadata.opf import OPFCreator
 
 from calibre.ebooks.lrf.objects import PageAttr, BlockAttr, TextAttr
-
+from calibre.ebooks.lrf.pylrs.pylrs import TextStyle
 
 class BlockStyle(object):
-    
+
     def __init__(self, ba):
         self.ba = ba
-        
+
     def __str__(self):
         ans = '.'+str(self.ba.id)+' {\n'
         if hasattr(self.ba, 'sidemargin'):
@@ -37,10 +37,10 @@ class BlockStyle(object):
                 ans += '\tbackground-color: %s;\n'%(self.ba.bgcolor.to_html())
         #TODO: Fixed size blocks
         return ans + '}\n'
-        
+
 
 class LRFConverter(object):
-    
+
     def __init__(self, document, opts, logger):
         self.lrf = document
         self.opts = opts
@@ -48,15 +48,15 @@ class LRFConverter(object):
         self.logger = logger
         logger.info('Parsing LRF...')
         self.lrf.parse()
-        
+
         self.create_metadata()
         self.create_styles()
-        
+
     def create_metadata(self):
         self.logger.info('Reading metadata...')
         mi = get_metadata(self.lrf)
         self.opf = OPFCreator(self.output_dir, mi)
-        
+
     def create_page_styles(self):
         self.page_css = ''
         for obj in self.lrf.objects.values():
@@ -65,21 +65,21 @@ class LRFConverter(object):
                 self.page_css = selector + ' {\n'
                 # TODO: Headers and footers
                 self.page_css += '}\n'
-                
-        
+
+
     def create_block_styles(self):
         self.block_css = ''
         for obj in self.lrf.objects.values():
             if isinstance(obj, BlockAttr):
                 self.block_css += str(BlockStyle(obj))
-                
+
     def create_text_styles(self):
         self.text_css = ''
         for obj in self.lrf.objects.values():
             if isinstance(obj, TextAttr):
                 self.text_css += str(TextStyle(obj))
         print self.text_css
-    
+
     def create_styles(self):
         self.logger.info('Creating CSS stylesheet...')
         self.create_page_styles()
@@ -104,9 +104,9 @@ def process_file(lrfpath, opts, logger=None):
             raise ConversionError(opts.out + ' is not a directory')
     if not os.path.exists(opts.out):
         os.makedirs(opts.out)
-        
+
     document = LRFDocument(open(lrfpath, 'rb'))
-    conv = LRFConverter(document, opts, logger)    
+    conv = LRFConverter(document, opts, logger)
 
 
 def main(args=sys.argv):
@@ -116,7 +116,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     process_file(args[1], opts)
-    
+
     return 0
 
 

@@ -9,14 +9,14 @@ nacional.hr
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class NacionalCro(BasicNewsRecipe):
     title                 = 'Nacional - Hr'
     __author__            = 'Darko Miletic'
     description           = "news from Croatia"
     publisher             = 'Nacional.hr'
-    category              = 'news, politics, Croatia'    
+    category              = 'news, politics, Croatia'
     oldest_article        = 2
     max_articles_per_feed = 100
     delay                 = 4
@@ -26,10 +26,10 @@ class NacionalCro(BasicNewsRecipe):
     language = 'hr'
 
     lang                 = 'hr-HR'
-    direction            = 'ltr'    
+    direction            = 'ltr'
 
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -37,11 +37,11 @@ class NacionalCro(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-        
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     remove_tags = [dict(name=['object','link','embed'])]
-    
+
     feeds = [(u'Najnovije Vijesti', u'http://www.nacional.hr/rss')]
 
     def preprocess_html(self, soup):
@@ -58,4 +58,4 @@ class NacionalCro(BasicNewsRecipe):
     def print_version(self, url):
         rest, sep, disc = url.rpartition('/')
         return rest.replace('/clanak/','/clanak/print/')
-        
+

@@ -57,13 +57,13 @@ recipe_modules = ['recipe_' + r for r in (
            'monitor', 'republika', 'beta', 'beta_en', 'glasjavnosti',
            'esquire', 'livemint', 'thedgesingapore', 'darknet', 'rga',
            'intelligencer', 'theoldfoodie', 'hln_be', 'honvedelem',
+           'the_new_republic',
           )]
 
 
 import re, imp, inspect, time, os
 from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.path import path
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import __appname__, english_sort
 
@@ -102,8 +102,8 @@ def compile_recipe(src):
     '''
     global _tdir, _crep
     if _tdir is None or not os.path.exists(_tdir):
-        _tdir = path(PersistentTemporaryDirectory('_recipes'))
-    temp = _tdir/('recipe%d.py'%_crep)
+        _tdir = PersistentTemporaryDirectory('_recipes')
+    temp = os.path.join(_tdir, 'recipe%d.py'%_crep)
     _crep += 1
     if not isinstance(src, unicode):
         match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
@@ -118,8 +118,9 @@ def compile_recipe(src):
     src = src.replace('from libprs500', 'from calibre').encode('utf-8')
     f.write(src)
     f.close()
-    module = imp.find_module(temp.namebase, [temp.dirname()])
-    module = imp.load_module(temp.namebase, *module)
+    module = imp.find_module(os.path.splitext(os.path.basename(temp))[0],
+        [os.path.dirname(temp)])
+    module = imp.load_module(os.path.splitext(os.path.basename(temp))[0], *module)
     classes = inspect.getmembers(module,
             lambda x : inspect.isclass(x) and \
                 issubclass(x, (BasicNewsRecipe,)) and \
@@ -148,6 +149,7 @@ _titles.sort(cmp=english_sort)
 titles = _titles
 
 def migrate_automatic_profile_to_automatic_recipe(profile):
+    BeautifulSoup
     oprofile = profile
     profile = compile_recipe(profile)
     if 'BasicUserProfile' not in profile.__name__:
@@ -164,4 +166,5 @@ class BasicUserRecipe%d(AutomaticNewsRecipe):
 
 '''%(int(time.time()), repr(profile.title), profile.oldest_article,
     profile.max_articles_per_feed, profile.summary_length, repr(profile.feeds))
+
 

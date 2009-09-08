@@ -7,7 +7,7 @@ www.uncrate.com
 '''
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Uncrate(BasicNewsRecipe):
     title                  = 'Uncrate'
@@ -23,26 +23,26 @@ class Uncrate(BasicNewsRecipe):
     lang                   = 'en-US'
     language = 'en'
 
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     keep_only_tags = [dict(name='div', attrs={'class':'lefttext'})]
     remove_tags_after = dict(name='div', attrs={'class':'serif'})
     remove_tags = [dict(name=['object','link','script','iframe','form'])]
-    
+
     feeds = [(u'Articles', u'http://feeds.feedburner.com/uncrate')]
 
     def preprocess_html(self, soup):
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
         soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)          
+        soup.head.insert(1,mcharset)
         for item in soup.findAll(style=True):
             del item['style']
         return self.adeify_images(soup)

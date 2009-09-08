@@ -9,7 +9,7 @@ glassrpske.com
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class GlasSrpske(BasicNewsRecipe):
     title                 = 'Glas Srpske'
@@ -29,7 +29,7 @@ class GlasSrpske(BasicNewsRecipe):
     INDEX                 = 'http://www.glassrpske.com'
 
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -37,14 +37,14 @@ class GlasSrpske(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-     
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    
+
     keep_only_tags = [dict(name='div', attrs={'class':'gl_cv paragraf'})]
 
     remove_tags = [dict(name=['object','link','base'])]
-    
-    feeds = [ 
+
+    feeds = [
                (u'Novosti'   , u'http://www.glassrpske.com/vijest/2/novosti/lat/'   )
               ,(u'Drustvo'   , u'http://www.glassrpske.com/vijest/3/drustvo/lat/'   )
               ,(u'Biznis'    , u'http://www.glassrpske.com/vijest/4/ekonomija/lat/' )
@@ -59,7 +59,7 @@ class GlasSrpske(BasicNewsRecipe):
               ,(u'Muzika'    , u'http://www.glassrpske.com/vijest/19/muzika/lat/'   )
               ,(u'Sport'     , u'http://www.glassrpske.com/vijest/13/sport/lat/'    )
               ,(u'Kolumne'   , u'http://www.glassrpske.com/vijest/16/kolumne/lat/'  )
-              ,(u'Plus'      , u'http://www.glassrpske.com/vijest/7/plus/lat/'      )              
+              ,(u'Plus'      , u'http://www.glassrpske.com/vijest/7/plus/lat/'      )
             ]
 
     def preprocess_html(self, soup):
@@ -67,8 +67,8 @@ class GlasSrpske(BasicNewsRecipe):
         soup.html['lang']     = self.lang
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
         soup.head.insert(0,mlang)
-        return soup        
-        
+        return soup
+
     def parse_index(self):
         totalfeeds = []
         lfeeds = self.get_feeds()
@@ -93,5 +93,5 @@ class GlasSrpske(BasicNewsRecipe):
                                     })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
-        
-        
+
+

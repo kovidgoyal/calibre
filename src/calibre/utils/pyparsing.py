@@ -85,7 +85,7 @@ __all__ = [
 'htmlComment', 'javaStyleComment', 'keepOriginalText', 'line', 'lineEnd', 'lineStart', 'lineno',
 'makeHTMLTags', 'makeXMLTags', 'matchOnlyAtCol', 'matchPreviousExpr', 'matchPreviousLiteral',
 'nestedExpr', 'nullDebugAction', 'nums', 'oneOf', 'opAssoc', 'operatorPrecedence', 'printables',
-'punc8bit', 'pythonStyleComment', 'quotedString', 'removeQuotes', 'replaceHTMLEntity', 
+'punc8bit', 'pythonStyleComment', 'quotedString', 'removeQuotes', 'replaceHTMLEntity',
 'replaceWith', 'restOfLine', 'sglQuotedString', 'srange', 'stringEnd',
 'stringStart', 'traceParseAction', 'unicodeString', 'upcaseTokens', 'withAttribute',
 'indentedBlock', 'originalTextFor',
@@ -425,7 +425,7 @@ class ParseResults(object):
                 self[k] = v
                 if isinstance(v[0],ParseResults):
                     v[0].__parent = wkref(self)
-            
+
         self.__toklist += other.__toklist
         self.__accumNames.update( other.__accumNames )
         del other
@@ -3231,12 +3231,12 @@ def originalTextFor(expr, asString=True):
        restore the parsed fields of an HTML start tag into the raw tag text itself, or to
        revert separate tokens with intervening whitespace back to the original matching
        input text. Simpler to use than the parse action keepOriginalText, and does not
-       require the inspect module to chase up the call stack.  By default, returns a 
-       string containing the original parsed text.  
-       
-       If the optional asString argument is passed as False, then the return value is a 
-       ParseResults containing any results names that were originally matched, and a 
-       single token containing the original matched text from the input string.  So if 
+       require the inspect module to chase up the call stack.  By default, returns a
+       string containing the original parsed text.
+
+       If the optional asString argument is passed as False, then the return value is a
+       ParseResults containing any results names that were originally matched, and a
+       single token containing the original matched text from the input string.  So if
        the expression passed to originalTextFor contains expressions with defined
        results names, you must set asString to False if you want to preserve those
        results name values."""
@@ -3252,7 +3252,7 @@ def originalTextFor(expr, asString=True):
             del t["_original_end"]
     matchExpr.setParseAction(extractText)
     return matchExpr
-    
+
 # convenience constants for positional expressions
 empty       = Empty().setName("empty")
 lineStart   = LineStart().setName("lineStart")
@@ -3532,7 +3532,7 @@ def nestedExpr(opener="(", closer=")", content=None, ignoreExpr=quotedString):
                                 ).setParseAction(lambda t:t[0].strip()))
             else:
                 if ignoreExpr is not None:
-                    content = (Combine(OneOrMore(~ignoreExpr + 
+                    content = (Combine(OneOrMore(~ignoreExpr +
                                     ~Literal(opener) + ~Literal(closer) +
                                     CharsNotIn(ParserElement.DEFAULT_WHITE_CHARS,exact=1))
                                 ).setParseAction(lambda t:t[0].strip()))

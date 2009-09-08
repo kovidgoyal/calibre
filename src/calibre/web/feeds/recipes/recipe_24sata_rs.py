@@ -9,7 +9,7 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Ser24Sata(BasicNewsRecipe):
     title                 = '24 Sata - Sr'
@@ -42,7 +42,7 @@ class Ser24Sata(BasicNewsRecipe):
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang
-        
+
         attribs = [  'style','font','valign'
                     ,'colspan','width','height'
                     ,'rowspan','summary','align'
@@ -53,8 +53,8 @@ class Ser24Sata(BasicNewsRecipe):
             item.name = 'div'
             for attrib in attribs:
                 if item.has_key(attrib):
-                   del item[attrib]                        
-        
+                   del item[attrib]
+
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
         soup.head.insert(0,mlang)

@@ -1,5 +1,5 @@
 *_ui.py
-moc_*.cpp
+.check-cache.pickle
 src/calibre/plugins
 resources/images.qrc
 src/calibre/manual/.build/

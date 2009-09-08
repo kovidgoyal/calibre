@@ -1,14 +1,14 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, os
-from calibre import iswindows
+import os
 from calibre.ptempfile import PersistentTemporaryFile
 
 try:
     from PIL import ImageFont
+    ImageFont
 except ImportError:
     import ImageFont
-    
+
 '''
 Default fonts used in the PRS500
 '''
@@ -48,11 +48,11 @@ def get_font_path(name):
     # then, try calibre shipped ones
     try:
         try:
-            font_mod = __import__('calibre.ebooks.lrf.fonts.prs500', {}, {}, 
+            font_mod = __import__('calibre.ebooks.lrf.fonts.prs500', {}, {},
                                   [fname], -1)
             getattr(font_mod, fname)
         except (ImportError, AttributeError):
-            font_mod = __import__('calibre.ebooks.lrf.fonts.liberation', {}, {}, 
+            font_mod = __import__('calibre.ebooks.lrf.fonts.liberation', {}, {},
                                   [LIBERATION_FONT_MAP[name]], -1)
         p = PersistentTemporaryFile('.ttf', 'font_')
         p.write(getattr(font_mod, fname).font_data)
@@ -61,7 +61,7 @@ def get_font_path(name):
         return p.name
     except ImportError:
         pass
-    
+
     # finally, try system default ones
     if SYSTEM_FONT_MAP.has_key(name) and os.access(SYSTEM_FONT_MAP[name], os.R_OK):
         return SYSTEM_FONT_MAP[name]
@@ -71,7 +71,7 @@ def get_font_path(name):
 
 def get_font(name, size, encoding='unic'):
     '''
-    Get an ImageFont object by name. 
+    Get an ImageFont object by name.
     @param size: Font height in pixels. To convert from pts:
                  sz in pixels = (dpi/72) * size in pts
     @param encoding: Font encoding to use. E.g. 'unic', 'symbol', 'ADOB', 'ADBE', 'aprm'

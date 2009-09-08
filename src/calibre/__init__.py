@@ -21,6 +21,11 @@ from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               filesystem_encoding
 import mechanize
 
+if False:
+    winutil, winutilerror, __appname__, islinux, __version__
+    fcntl, win32event, isfrozen, __author__, terminal_controller
+    winerror, win32api
+
 mimetypes.add_type('application/epub+zip',                '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml',                '.lrs')
 mimetypes.add_type('application/xhtml+xml',               '.xhtml')

@@ -8,14 +8,13 @@ nspm.rs
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Nspm(BasicNewsRecipe):
     title                 = 'Nova srpska politicka misao'
     __author__            = 'Darko Miletic'
-    description           = 'Casopis za politicku teoriju i drustvena istrazivanja'    
+    description           = 'Casopis za politicku teoriju i drustvena istrazivanja'
     publisher             = 'NSPM'
-    category              = 'news, politics, Serbia'    
+    category              = 'news, politics, Serbia'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -26,7 +25,7 @@ class Nspm(BasicNewsRecipe):
 
     lang                  = 'sr-Latn-RS'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -40,7 +39,7 @@ class Nspm(BasicNewsRecipe):
                             dict(name=['link','object','embed'])
                            ,dict(name='td', attrs={'class':'buttonheading'})
                          ]
-    
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.open(self.INDEX)
@@ -64,5 +63,5 @@ class Nspm(BasicNewsRecipe):
             item.name = 'div'
             for attrib in attribs:
                 if item.has_key(attrib):
-                   del item[attrib]                        
+                   del item[attrib]
         return self.adeify_images(soup)

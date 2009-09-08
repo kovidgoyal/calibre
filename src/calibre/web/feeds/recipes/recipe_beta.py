@@ -7,14 +7,14 @@ beta.rs
 '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Danas(BasicNewsRecipe):
     title                 = 'BETA'
     __author__            = 'Darko Miletic'
     description           = 'Novinska Agencija'
     publisher             = 'Beta'
-    category              = 'news, politics, Serbia'    
+    category              = 'news, politics, Serbia'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = False
@@ -22,9 +22,9 @@ class Danas(BasicNewsRecipe):
     language = 'sr'
 
     lang                  = 'sr-Latn-RS'
-    direction             = 'ltr'    
+    direction             = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -32,11 +32,11 @@ class Danas(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
- 
+
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
-    feeds          = [ 
+    feeds          = [
                         (u'Vesti dana', u'http://www.beta.rs/rssvd.asp')
                        ,(u'Ekonomija' , u'http://www.beta.rs/rssek.asp')
                        ,(u'Sport'     , u'http://www.beta.rs/rsssp.asp')

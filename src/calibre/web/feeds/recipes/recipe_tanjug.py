@@ -7,7 +7,7 @@ tanjug.rs
 '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Tanjug(BasicNewsRecipe):
     title                 = 'Tanjug'
@@ -22,9 +22,9 @@ class Tanjug(BasicNewsRecipe):
     lang                  = 'sr-Latn-RS'
     language = 'sr'
 
-    direction             = 'ltr'             
+    direction             = 'ltr'
     extra_css             = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -32,9 +32,9 @@ class Tanjug(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-    
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    
+
     feeds          = [(u'Vesti', u'http://www.tanjug.rs/StaticPages/RssTanjug.aspx')]
 
     def preprocess_html(self, soup):

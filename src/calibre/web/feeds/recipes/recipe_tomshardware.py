@@ -7,31 +7,30 @@ tomshardware.com/us
 '''
 
 import urllib
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class Tomshardware(BasicNewsRecipe):    
+class Tomshardware(BasicNewsRecipe):
     title               = "Tom's Hardware US"
     __author__          = 'Darko Miletic'
     description         = 'Hardware reviews and News'
     publisher           = "Tom's Hardware"
-    category            = 'news, IT, hardware, USA'        
+    category            = 'news, IT, hardware, USA'
     no_stylesheets      = True
     needs_subscription  = True
     language = 'en'
-    
+
     INDEX               = 'http://www.tomshardware.com'
     LOGIN               = INDEX + '/membres/'
     remove_javascript   = True
     use_embedded_content= False
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -49,7 +48,7 @@ class Tomshardware(BasicNewsRecipe):
                      dict(name='div' , attrs={'id':'header' })
                     ,dict(name='object')
                   ]
-    
+
     feeds = [
               (u'Latest Articles', u'http://www.tomshardware.com/feeds/atom/tom-s-hardware-us,18-2.xml'          )
              ,(u'Latest News'    , u'http://www.tomshardware.com/feeds/atom/tom-s-hardware-us,18-1.xml')
@@ -62,7 +61,7 @@ class Tomshardware(BasicNewsRecipe):
         rind = 'http://www.tomshardware.com/news_print.php?p1='
         if tsep:
            rind = 'http://www.tomshardware.com/review_print.php?p1='
-        return rind + article_id        
+        return rind + article_id
 
     def cleanup_image_tags(self,soup):
         for item in soup.findAll('img'):

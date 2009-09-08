@@ -7,14 +7,14 @@ spiegel.de
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Spiegel_ger(BasicNewsRecipe):
     title                 = 'Spiegel Online - German'
     __author__            = 'Darko Miletic'
     description           = "Immer die neueste Meldung auf dem Schirm, sekundenaktuell und uebersichtlich: Mit dem RSS-Angebot von SPIEGEL ONLINE entgeht Ihnen keine wichtige Meldung mehr, selbst wenn Sie keinen Internet-Browser geoeffnet haben. Sie koennen unsere Nachrichten-Feeds ganz einfach abonnieren - unkompliziert, kostenlos und nach Ihren persoenlichen Themen-Vorlieben."
     publisher             = 'SPIEGEL ONLINE Gmbh'
-    category              = 'SPIEGEL ONLINE, DER SPIEGEL, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'    
+    category              = 'SPIEGEL ONLINE, DER SPIEGEL, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'
     oldest_article        = 7
     max_articles_per_feed = 100
     language = 'de'
@@ -23,19 +23,19 @@ class Spiegel_ger(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                        
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     keep_only_tags = [dict(name='div', attrs={'id':'spMainContent'})]
 
     remove_tags = [dict(name=['object','link','base'])]
-    
+
     remove_tags_after = dict(name='div', attrs={'id':'spArticleBody'})
 
     feeds          = [(u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/index.rss')]

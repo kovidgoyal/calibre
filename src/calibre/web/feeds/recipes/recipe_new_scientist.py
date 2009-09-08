@@ -15,23 +15,23 @@ class NewScientist(BasicNewsRecipe):
     language = 'en'
 
     publisher             = 'New Scientist'
-    category              = 'science news, science articles, science jobs, drugs, cancer, depression, computer software, sex'    
-    delay                 = 3    
+    category              = 'science news, science articles, science jobs, drugs, cancer, depression, computer software, sex'
+    delay                 = 3
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     remove_javascript     = True
     encoding              = 'utf-8'
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-    
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     keep_only_tags = [dict(name='div', attrs={'id':['pgtop','maincol']})]
 
     remove_tags = [
@@ -42,7 +42,7 @@ class NewScientist(BasicNewsRecipe):
 
     feeds          = [
                         (u'Latest Headlines'        , u'http://feeds.newscientist.com/science-news'              )
-                       ,(u'Magazine'                , u'http://www.newscientist.com/feed/magazine'               )                      
+                       ,(u'Magazine'                , u'http://www.newscientist.com/feed/magazine'               )
                        ,(u'Health'                  , u'http://www.newscientist.com/feed/view?id=2&type=channel' )
                        ,(u'Life'                    , u'http://www.newscientist.com/feed/view?id=3&type=channel' )
                        ,(u'Space'                   , u'http://www.newscientist.com/feed/view?id=6&type=channel' )
@@ -67,4 +67,4 @@ class NewScientist(BasicNewsRecipe):
     def print_version(self, url):
         rawurl, sep, params = url.partition('?')
         return rawurl + '?full=true&print=true'
-                     
+

@@ -15,7 +15,10 @@ def available_translations():
     global _available_translations
     if _available_translations is None:
         stats = P('localization/stats.pickle')
-        stats = cPickle.load(open(stats, 'rb'))
+        if os.path.exists(stats):
+            stats = cPickle.load(open(stats, 'rb'))
+        else:
+            stats = {}
         _available_translations = [x for x in stats if stats[x] > 0.1]
     return _available_translations
 

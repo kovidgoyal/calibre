@@ -6,7 +6,7 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 twitchfilm.net/site/
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Twitchfilm(BasicNewsRecipe):
     title                 = 'Twitch Films'

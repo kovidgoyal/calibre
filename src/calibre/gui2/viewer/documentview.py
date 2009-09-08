@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, math, re
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, \
+                     QByteArray, QColor, QPoint, QImage, QRegion, \
                      QFont, QObject, QApplication, pyqtSignature
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 

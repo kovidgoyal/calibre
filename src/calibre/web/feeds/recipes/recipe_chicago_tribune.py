@@ -3,11 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
-from urlparse import urlparse, urlunparse
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
-from threading import RLock
 
 class ChicagoTribune(BasicNewsRecipe):
 

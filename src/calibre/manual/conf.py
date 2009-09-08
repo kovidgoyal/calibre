@@ -18,7 +18,7 @@ sys.path.append(os.path.abspath('../../../'))
 sys.path.append(os.path.abspath('.'))
 from calibre import __appname__, __version__
 import custom
-
+custom
 # General configuration
 # ---------------------
 

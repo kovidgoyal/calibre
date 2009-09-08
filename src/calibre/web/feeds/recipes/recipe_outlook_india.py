@@ -3,8 +3,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
-from calibre import strftime
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class OutlookIndia(BasicNewsRecipe):
