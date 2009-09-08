@@ -51,14 +51,13 @@ class MOBIOutput(OutputFormatPlugin):
         found = 'masthead' in self.oeb.guide
         if not found:
             self.oeb.log.debug('No masthead found, generating default one...')
-            from calibre.resources import server_resources
             try:
                 from PIL import Image as PILImage
                 PILImage
             except ImportError:
                 import Image as PILImage
 
-            raw = StringIO(server_resources['calibre_banner.png'])
+            raw = open(P('content_server/calibre_banner.png'), 'rb')
             im = PILImage.open(raw)
             of = StringIO()
             im.save(of, 'GIF')

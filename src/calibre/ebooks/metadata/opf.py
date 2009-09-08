@@ -503,8 +503,8 @@ class OPFCreator(MetaInformation):
         self.guide.set_basedir(self.base_path)
 
     def render(self, opf_stream, ncx_stream=None, ncx_manifest_entry=None):
-        from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
+        opf_template = open(P('templates/opf.xml'), 'rb').read()
         template = MarkupTemplate(opf_template)
         if self.manifest:
             self.manifest.set_basedir(self.base_path)

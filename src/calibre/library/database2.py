@@ -453,7 +453,7 @@ class LibraryDatabase2(LibraryDatabase):
                     loc=FIELD_MAP['comments' if prop == 'comment' else prop]))
 
     def initialize_database(self):
-        from calibre.resources import metadata_sqlite
+        metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
         self.conn.executescript(metadata_sqlite)
         self.user_version = 1
 

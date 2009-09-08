@@ -25,16 +25,12 @@ from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
 from calibre import fit_image, guess_type, prepare_string_for_xml, \
         strftime as _strftime
-from calibre.resources import jquery, server_resources, build_time
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
 from calibre.utils.mdns import publish as publish_zeroconf, \
                                stop_server as stop_zeroconf
 from calibre.ebooks.metadata import fmt_sidx, title_sort
-
-build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
-server_resources['jquery.js'] = jquery
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     if not hasattr(dt, 'timetuple'):
@@ -208,6 +204,9 @@ class LibraryServer(object):
         self.opts = opts
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
+        path = P('content_server')
+        self.build_time = datetime.fromtimestamp(os.stat(path).st_mtime)
+        self.default_cover =  open(P('content_server/default_cover.jpg'), 'rb').read()
 
         cherrypy.config.update({
                                 'log.screen'             : opts.develop,
@@ -280,10 +279,11 @@ class LibraryServer(object):
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=False)
         if cover is None:
-            cover = server_resources['default_cover.jpg']
+            cover = self.default_cover
         cherrypy.response.headers['Content-Type'] = 'image/jpeg'
         path = getattr(cover, 'name', False)
-        updated = datetime.utcfromtimestamp(os.stat(path).st_mtime) if path and os.access(path, os.R_OK) else build_time
+        updated = datetime.utcfromtimestamp(os.stat(path).st_mtime) if path and \
+            os.access(path, os.R_OK) else self.build_time
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         try:
             f = cStringIO.StringIO(cover)
@@ -571,17 +571,14 @@ class LibraryServer(object):
                      'html' : 'text/html',
                      ''      : 'application/octet-stream',
                      }[name.rpartition('.')[-1].lower()]
-        cherrypy.response.headers['Last-Modified'] = self.last_modified(build_time)
-        if self.opts.develop and not getattr(sys, 'frozen', False) and \
-            name in ('gui.js', 'gui.css', 'index.html'):
-            path = os.path.join(os.path.dirname(__file__), 'static', name)
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(self.build_time)
+        path = P('content_server/'+name)
+        if not os.path.exists(path):
+            raise cherrypy.HTTPError(404, '%s not found'%name)
+        if self.opts.develop:
             lm = datetime.fromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(lm)
-            return open(path, 'rb').read()
-        else:
-            if server_resources.has_key(name):
-                return server_resources[name]
-            raise cherrypy.HTTPError(404, '%s not found'%name)
+        return open(path, 'rb').read()
 
 def start_threaded_server(db, opts):
     server = LibraryServer(db, opts, embedded=True)

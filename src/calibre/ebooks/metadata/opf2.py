@@ -930,8 +930,8 @@ class OPFCreator(MetaInformation):
 
     def render(self, opf_stream=sys.stdout, ncx_stream=None,
                ncx_manifest_entry=None, encoding=None):
-        from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
+        opf_template = open(P('templates/opf.xml'), 'rb').read()
         if encoding is None:
             encoding = 'utf-8'
         template = MarkupTemplate(opf_template)
