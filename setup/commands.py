@@ -10,9 +10,11 @@ __all__ = [
         'pot', 'translations', 'get_translations', 'iso639',
         'build',
         'gui',
-        'develop',
+        'develop', 'install',
         'resources',
         'check',
+        'sdist',
+        'manual',
         ]
 
 
@@ -25,8 +27,10 @@ iso639 = ISO639()
 from setup.extensions import Build
 build = Build()
 
-from setup.install import Develop
+from setup.install import Develop, Install, Sdist
 develop = Develop()
+install = Install()
+sdist = Sdist()
 
 from setup.gui import GUI
 gui = GUI()
@@ -36,6 +40,9 @@ check = Check()
 
 from setup.resources import Resources
 resources = Resources()
+
+from setup.publish import Manual
+manual = Manual()
 
 commands = {}
 for x in __all__:

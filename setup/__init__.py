@@ -134,13 +134,19 @@ class Command(object):
     def pre_sub_commands(self, opts):
         pass
 
+    def running(self, cmd):
+        from setup.commands import command_names
+        self.info('\n*')
+        self.info('* Running', command_names[cmd])
+        self.info('*\n')
+
     def run_all(self, opts):
         self.pre_sub_commands(opts)
         for cmd in self.sub_commands:
-            self.info('Running', cmd.__class__.__name__)
+            self.running(cmd)
             cmd.run(opts)
 
-        self.info('Running', self.__class__.__name__)
+        self.running(self)
         self.run(opts)
 
     def add_all_options(self, parser):

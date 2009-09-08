@@ -9,12 +9,15 @@ __docformat__ = 'restructuredtext en'
 
 import __builtin__, sys, os
 
-def get_path(path):
+def get_path(path, data=False):
     path = path.replace(os.sep, '/')
-    return os.path.join(sys.resources_location, *path.split('/'))
+    path = os.path.join(sys.resources_location, *path.split('/'))
+    if data:
+        return open(path, 'rb').read()
+    return path
 
-def get_image_path(path):
-    return get_path('images/'+path)
+def get_image_path(path, data=False):
+    return get_path('images/'+path, data=data)
 
 __builtin__.__dict__['P'] = get_path
 __builtin__.__dict__['I'] = get_image_path

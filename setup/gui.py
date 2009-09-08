@@ -38,8 +38,8 @@ class GUI(Command):
         try:
             os.chdir(self.RESOURCES)
             sources, files = [], []
-            for root, _, files in os.walk('images'):
-                for name in files:
+            for root, _, files2 in os.walk('images'):
+                for name in files2:
                     sources.append(os.path.join(root, name))
             if self.newer(self.QRC, sources):
                 self.info('Creating images.qrc')
