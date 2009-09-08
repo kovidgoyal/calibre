@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import collections, itertools
+import collections, itertools, glob
 
 from PyQt4.QtCore import Qt, QByteArray, SIGNAL
 from PyQt4.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
@@ -410,30 +410,9 @@ class Document(QGraphicsScene):
                 font_map[font] = [str(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
 
         if load_substitutions:
-            from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_BoldItalic.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Italic
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Italic.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Bold
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Bold.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSans_BoldItalic
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_BoldItalic.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Regular
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Regular.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Italic
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Italic.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Regular
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Regular.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Italic
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Italic.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Bold
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Bold.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Bold
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Bold.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_BoldItalic
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_BoldItalic.font_data))
-            from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Regular
-            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Regular.font_data))
+            base = P('fonts/liberation/*.ttf')
+            for f in glob.glob(base):
+                QFontDatabase.addApplicationFont(f)
 
         self.font_loader = FontLoader(font_map, self.dpi)
 

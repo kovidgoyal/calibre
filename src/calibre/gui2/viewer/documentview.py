@@ -5,10 +5,10 @@ __docformat__ = 'restructuredtext en'
 
 '''
 '''
-import os, math, re
+import os, math, re, glob
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QByteArray, QColor, QPoint, QImage, QRegion, \
+                     QColor, QPoint, QImage, QRegion, \
                      QFont, QObject, QApplication, pyqtSignature
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
@@ -20,32 +20,9 @@ from calibre.constants import iswindows
 from calibre import prints
 
 def load_builtin_fonts():
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_BoldItalic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Italic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Italic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Bold
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Bold.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_BoldItalic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_BoldItalic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Regular
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Regular.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Italic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Italic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Regular
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Regular.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Italic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Italic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Bold
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Bold.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Bold
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Bold.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_BoldItalic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_BoldItalic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Regular
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Regular.font_data))
-    #for f in QFontDatabase().families():
-    #    print f
+    base = P('fonts/liberation/*.ttf')
+    for f in glob.glob(base):
+        QFontDatabase.addApplicationFont(f)
     return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
 
 def config(defaults=None):
