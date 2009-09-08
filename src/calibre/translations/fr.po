@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-05 19:27+0000\n"
-"PO-Revision-Date: 2009-09-05 14:30+0000\n"
+"PO-Revision-Date: 2009-09-07 22:25+0000\n"
 "Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-07 09:47+0000\n"
+"X-Launchpad-Export-Date: 2009-09-08 09:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -537,13 +537,15 @@ msgstr "Impossible de monter le disque %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:518
 msgid "Could not find mount helper: %s."
-msgstr ""
+msgstr "Impossible de trouver l'assistant de montage: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:530
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
 msgstr ""
+"Impossible de détecter le disque dur %s. Votre noyau doit probablement "
+"exporter une version obsolète de SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:538
 msgid "Unable to mount main memory (Error code: %d)"
@@ -1242,6 +1244,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Normalement, si le fichier d'entrée n'a pas de couverture et que vous n'en "
+"avez pas spécifié une, une couverture par défaut est générée avec le titre, "
+"les auteurs, etc. Cette option désactive la génération de cette couverture."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:122
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:111
@@ -2358,7 +2363,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:41
 msgid "Add a tab at the beginning of each paragraph."
-msgstr ""
+msgstr "Ajouter une tabulation au début de chaque paragraphe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:505
@@ -2491,7 +2496,7 @@ msgstr "Ajouté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:257
 msgid "Adding failed"
-msgstr ""
+msgstr "L'ajout a échoué"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:258
 msgid ""
@@ -2534,7 +2539,7 @@ msgstr "Options spécifiques pour le format de sortie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
-msgstr ""
+msgstr "Entrée Bande Dessinée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:16
@@ -2670,6 +2675,11 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
+"Choisir un répertoire dans lequel mettre la sortie de débogage. Si vous "
+"spécifié un répertoire, calibre placera beaucoup de débogage dedans. Ceci "
+"sera utile pour comprendre le processus de conversion et pour calculer les "
+"valeurs correctes pour les paramètres de conversion comme les Tables des "
+"Matières ou la Détection des Chapitres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:49
@@ -3723,20 +3733,22 @@ msgstr "Erreur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:469
 msgid "Failed to install command line tools."
-msgstr ""
+msgstr "L'installation des outils en ligne de commande a échouée."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:472
 msgid "Command line tools installed"
-msgstr ""
+msgstr "Outils en ligne de commande installés."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:473
 msgid "Command line tools installed in"
-msgstr ""
+msgstr "Outils en ligne de commande installés dans"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:474
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
+"Si vous déplacez calibre.app, vous devez réinstaller les outils en ligne de "
+"commande."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
 msgid "No valid plugin path"
@@ -3845,11 +3857,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save.py:68
 msgid "Invalid template"
-msgstr ""
+msgstr "Modèle invalide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save.py:69
 msgid "The template %s is invalid:"
-msgstr ""
+msgstr "Le modèle %s est invalide:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:100
 msgid "TabWidget"
@@ -3882,6 +3894,8 @@ msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Save to Disk button:"
 msgstr ""
+"Ici vous pouvez contrôler comment calibre va sauvegarder vos livres quand "
+"vous cliquez sur le bouton Sauvegarder sur le disque:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:106
 msgid "Save &cover separately"
@@ -3897,7 +3911,7 @@ msgstr "Sauvegarder les métadonnées dans le fichier &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:109
 msgid "Convert non-English characters to &English equivalents"
-msgstr ""
+msgstr "Convertir les caractères non-Anglais vers des équivalents Anglais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:110
 msgid "Format &dates as:"
@@ -4290,7 +4304,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:78
 msgid "Fetch metadata"
-msgstr "Récupération des métadonnées"
+msgstr "Récupérer des métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:79
 msgid ""
@@ -4311,7 +4325,7 @@ msgstr "Clef d'&accès"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:81
 msgid "Fetch"
-msgstr "Récupère"
+msgstr "Récupérer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:82
 msgid "Matches"
@@ -6489,6 +6503,10 @@ msgid ""
 "your calibre book collection directly on the device. To do this you have to "
 "turn on the content server."
 msgstr ""
+"Si vous utilisez l'application ebook WordPlayer sur votre téléphone Android, "
+"vous pouvez accéder à votre collection de livres calibre directement sur "
+"votre appareil. Pour pouvoir le faire, vous devez démarrer le serveur de "
+"contenu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:293
 msgid ""
@@ -7221,6 +7239,8 @@ msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available books are saved."
 msgstr ""
+"Liste de formats séparée par des virgules à sauvegarder pour chaque livre. "
+"Par défaut, tous les livres disponibles sont sauvegardés."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:61
 msgid ""
@@ -7229,6 +7249,10 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
+"Le modèle pour contrôler le nom de fichier et la structure du répertoire "
+"pour les fichiers sauvegardés. Par défaut : \"%s\"  sauvegardera les livres "
+"dans un répertoire par-auteur avec les noms de fichiers contenant le titre "
+"et l'auteur. Les contrôles disponibles sont : {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:66
 msgid ""
