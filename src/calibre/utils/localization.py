@@ -104,8 +104,11 @@ def get_language(lang):
     global _iso639
     if lang in _extra_lang_codes:
         return _extra_lang_codes[lang]
+    ip = P('localization/iso639.pickle')
+    if not os.path.exists(ip):
+        return lang
     if _iso639 is None:
-        _iso639 = cPickle.load(open(P('localization/iso639.pickle'), 'rb'))
+        _iso639 = cPickle.load(open(ip, 'rb'))
     ans = lang
     lang = lang.split('_')[0].lower()
     if len(lang) == 2:
