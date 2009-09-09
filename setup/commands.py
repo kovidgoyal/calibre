@@ -14,7 +14,11 @@ __all__ = [
         'resources',
         'check',
         'sdist',
-        'manual',
+        'manual', 'tag_release', 'upload_rss',
+        'upload_user_manual', 'upload_installers', 'upload_demo',
+        'linux32', 'linux64', 'linux', 'linux_freeze',
+        'osx32_freeze', 'osx32', 'osx',
+        'win32_freeze', 'win32', 'win',
         ]
 
 
@@ -41,8 +45,35 @@ check = Check()
 from setup.resources import Resources
 resources = Resources()
 
-from setup.publish import Manual
+from setup.publish import Manual, TagRelease, UploadRss
 manual = Manual()
+tag_release = TagRelease()
+upload_rss = UploadRss()
+
+from setup.upload import UploadUserManual, UploadInstallers, UploadDemo
+upload_user_manual = UploadUserManual()
+upload_installers = UploadInstallers()
+upload_demo = UploadDemo()
+
+from setup.installer.linux import Linux, Linux32, Linux64
+linux = Linux()
+linux32 = Linux32()
+linux64 = Linux64()
+from setup.installer.linux.freeze import LinuxFreeze
+linux_freeze = LinuxFreeze()
+
+from setup.installer.osx import OSX, OSX32
+osx = OSX()
+osx32 = OSX32()
+from setup.installer.osx.freeze import OSX32_Freeze
+osx32_freeze = OSX32_Freeze()
+
+from setup.installer.windows import Win, Win32
+win = Win()
+win32 = Win32()
+from setup.installer.windows.freeze import Win32Freeze
+win32_freeze = Win32Freeze()
+
 
 commands = {}
 for x in __all__:

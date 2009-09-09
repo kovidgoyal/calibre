@@ -201,6 +201,8 @@ class Build(Command):
                 else:
                     raise Exception(ext.error)
             dest = self.dest(ext)
+            if not os.path.exists(self.d(dest)):
+                os.makedirs(self.d(dest))
             self.info('\n####### Building extension', ext.name, '#'*7)
             self.build(ext, dest)
 

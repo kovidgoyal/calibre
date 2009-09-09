@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 '''
 import sys, time, subprocess, os, re
-from calibre import __appname__, __version__
+from setup import SRC, __appname__, __version__
 
 INSTALLJAMMER = '/usr/local/installjammer/installjammer'
 
@@ -23,8 +23,8 @@ cmdline = [
     '-DPackageSummary', '%s: E-book library management'%__appname__,
     '-DVersion', __version__,
     '-DInstallVersion', sv + '.0',
-    '-DLicense', open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'LICENSE')).read().replace('\n', '\r\n'),
-    '--output-dir', os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'dist'),
+    '-DLicense', open(os.path.join(os.path.dirname(SRC), 'LICENSE'), 'rb').read().replace('\n', '\r\n'),
+    '--output-dir', os.path.join(os.path.dirname(SRC), 'dist'),
     '--platform', 'Windows',
     '--verbose'
 ]

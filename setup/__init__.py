@@ -6,12 +6,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os
+import sys, re, os, platform
 
+is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
 isosx = 'darwin' in sys.platform
 islinux = not isosx and not iswindows
 SRC = os.path.abspath('src')
+sys.path.insert(0, SRC)
+sys.resources_location = os.path.join(os.path.dirname(SRC), 'resources')
+sys.extensions_location = os.path.join(SRC, 'calibre', 'plugins')
 
 __version__ = __appname__ = modules = functions = basenames = scripts = None
 
@@ -196,4 +200,18 @@ class Command(object):
         print '_'*50
         warnings.append((args, kwargs))
         sys.stdout.flush()
+
+def installer_name(ext, is64bit=False):
+    if ext == 'exe':
+        return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
+    if ext == 'dmg':
+        if is64bit:
+            return 'dist/%s-%s-x86_64.%s'%(__appname__, __version__, ext)
+        return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
+
+    ans = 'dist/%s-%s-i686.%s'%(__appname__, __version__, ext)
+    if is64bit:
+        ans = ans.replace('i686', 'x86_64')
+    return ans
+
 

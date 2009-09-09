@@ -62,9 +62,30 @@ class Develop(Command):
         self.regain_privileges()
         self.find_locations(opts)
         self.write_templates(opts)
+        self.setup_mount_helper()
         self.install_files(opts)
         self.run_postinstall()
         self.success()
+
+    def setup_mount_helper(self):
+        def warn():
+            self.warn('Failed to compile mount helper. Auto mounting of',
+                'devices will not work')
+
+        if os.geteuid() != 0:
+            return warn()
+        import stat
+        src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
+        dest = os.path.join(self.bindir, 'calibre-mount-helper')
+        self.info('Installing mount helper to '+ dest)
+        p = subprocess.Popen(['gcc', '-Wall', src, '-o', dest])
+        ret = p.wait()
+        if ret != 0:
+            return warn()
+        os.chown(dest, 0, 0)
+        os.chmod(dest,
+        stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
+        return dest
 
     def install_files(self, opts):
         pass
@@ -76,9 +97,13 @@ class Develop(Command):
         self.info('\nDevelopment environment successfully setup')
 
     def find_locations(self, opts):
+        self.prefix = opts.prefix
+        if self.prefix is None:
+            self.prefix = sys.prefix
         self.path = self.SRC
         self.resources = self.j(self.d(self.SRC), 'resources')
         self.extensions = self.j(self.SRC, 'calibre', 'plugins')
+        self.bindir = self.j(self.prefix, 'bin')
 
     def write_templates(self, opts):
         for typ in ('console', 'gui'):
@@ -93,10 +118,7 @@ class Develop(Command):
                 module=mod, func=func,
                 path=self.path, resources=self.resources,
                 extensions=self.extensions)
-        prefix = opts.prefix
-        if prefix is None:
-            prefix = sys.prefix
-        path = self.j(prefix, 'bin', name)
+        path = self.j(self.bindir, name)
         self.info('Installing binary:', path)
         open(path, 'wb').write(script)
         os.chmod(path, self.MODE)
@@ -129,6 +151,8 @@ class Install(Develop):
             opts.bindir = self.j(opts.prefix, 'bin')
         if opts.sharedir is None:
             opts.sharedir = self.j(opts.prefix, 'share', 'calibre')
+        self.prefix = opts.prefix
+        self.bindir = opts.bindir
         self.path = opts.libdir
         self.resources = opts.sharedir
         self.extensions = self.j(self.path, 'calibre', 'plugins')

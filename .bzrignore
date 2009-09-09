@@ -11,7 +11,7 @@ resources/localization
 resources/images.qrc
 resources/recipes.pickle
 resources/scripts.pickle
-installer/windows/calibre/build.log
+setup/installer/windows/calibre/build.log
 src/calibre/translations/.errors
 src/cssutils/.svn/
 src/cssutils/_todo/

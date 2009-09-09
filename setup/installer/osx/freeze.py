@@ -4,20 +4,28 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create an OSX installer '''
 
 import sys, re, os, shutil, subprocess, stat, glob, zipfile, plistlib
-sys.path = sys.path[1:]
-l = {}
-exec open('setup.py').read() in l
-VERSION = l['VERSION']
-APPNAME = l['APPNAME']
-scripts = l['scripts']
-basenames = l['basenames']
-main_functions = l['main_functions']
-main_modules = l['main_modules']
+from setup import __version__ as VERSION, __appname__ as APPNAME, SRC, Command, \
+        scripts, basenames, functions as main_functions, modules as main_modules
 from setuptools import setup
-from py2app.build_app import py2app
-from modulegraph.find_modules import find_modules
+
+try:
+    from py2app.build_app import py2app
+    from modulegraph.find_modules import find_modules
+    py2app
+except ImportError:
+    py2app = object
 
 PYTHON = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
+
+info = warn = None
+
+class OSX32_Freeze(Command):
+
+    def run(self, opts):
+        global info, warn
+        info, warn = self.info, self.warn
+        main()
+
 
 class BuildAPP(py2app):
     QT_PREFIX = '/Volumes/sw/qt'
@@ -30,6 +38,8 @@ name = os.path.basename(path)
 base_dir = os.path.dirname(os.path.dirname(dirpath))
 resources_dir = os.path.join(base_dir, 'Resources')
 frameworks_dir = os.path.join(base_dir, 'Frameworks')
+extensions_dir = os.path.join(frameworks_dir, 'plugins')
+r_dir = os.path.join(resources_dir, 'resources')
 base_name = os.path.splitext(name)[0]
 python = os.path.join(base_dir, 'MacOS', 'python')
 qt_plugins = os.path.join(os.path.realpath(base_dir), 'MacOS')
@@ -42,6 +52,8 @@ print >>loader, 'if', repr(dirpath), 'in sys.path: sys.path.remove(', repr(dirpa
 print >>loader, 'sys.path.append(', repr(site_packages), ')'
 print >>loader, 'sys.frozen = "macosx_app"'
 print >>loader, 'sys.frameworks_dir =', repr(frameworks_dir)
+print >>loader, 'sys.extensions_location =', repr(extensions_dir)
+print >>loader, 'sys.resources_location =', repr(r_dir)
 print >>loader, 'import os'
 print >>loader, 'from %(module)s import %(function)s'
 print >>loader, '%(function)s()'
@@ -74,6 +86,8 @@ os.execv(python, args)
                 internet_enable=True,
                 format='UDBZ'):
         ''' Copy a directory d into a dmg named volname '''
+        if not os.path.exists(destdir):
+            os.makedirs(destdir)
         dmg = os.path.join(destdir, volname+'.dmg')
         if os.path.exists(dmg):
             os.unlink(dmg)
@@ -99,13 +113,13 @@ os.execv(python, args)
     @classmethod
     def fix_qt_dependencies(cls, path, deps):
         fp = '@executable_path/../Frameworks/'
-        print 'Fixing qt dependencies for:', os.path.basename(path)
+        info('Fixing qt dependencies for:', os.path.basename(path))
         for dep in deps:
             match = re.search(r'(Qt\w+?)\.framework', dep)
             if not match:
                 match = re.search(r'(phonon)\.framework', dep)
                 if not match:
-                    print dep
+                    warn(dep)
                     raise Exception('Unknown Qt dependency')
             module = match.group(1)
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
@@ -184,12 +198,18 @@ os.execv(python, args)
         all_names   = basenames['console'] + basenames['gui']
         all_modules   = main_modules['console'] + main_modules['gui']
         all_functions = main_functions['console'] + main_functions['gui']
-        print
-        print 'Adding PoDoFo'
+
+        info('\nAdding resources')
+        dest = os.path.join(resource_dir, 'resources')
+        if os.path.exists(dest):
+            shutil.rmtree(dest)
+        shutil.copytree(os.path.join(os.path.dirname(SRC), 'resources'), dest)
+
+        info('\nAdding PoDoFo')
         pdf = glob.glob(os.path.expanduser('/Volumes/sw/podofo/libpodofo*.dylib'))[0]
         shutil.copyfile(pdf, os.path.join(frameworks_dir, os.path.basename(pdf)))
-        print
-        print 'Adding poppler'
+
+        info('\nAdding poppler')
         for x in ('pdftohtml', 'libpoppler.4.dylib', 'libpoppler-qt4.3.dylib'):
             tgt = os.path.join(frameworks_dir, x)
             os.link(os.path.join(os.path.expanduser('~/poppler'), x), tgt)
@@ -202,7 +222,7 @@ os.execv(python, args)
             os.mkdir(loader_path)
         for name, module, function in zip(all_names, all_modules, all_functions):
             path = os.path.join(loader_path, name)
-            print 'Creating loader:', path
+            info('Creating loader:', path)
             f = open(path, 'w')
             f.write(BuildAPP.LOADER_TEMPLATE % dict(module=module,
                                                         function=function))
@@ -211,7 +231,7 @@ os.execv(python, args)
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
 
 
-        print 'Adding fontconfig'
+        info('Adding fontconfig')
         for f in glob.glob(os.path.expanduser('~/fontconfig-bundled/*')):
             dest = os.path.join(frameworks_dir, os.path.basename(f))
             if os.path.exists(dest):
@@ -224,22 +244,22 @@ os.execv(python, args)
 
         self.add_plugins()
 
-        print
-        print 'Adding IPython'
+
+        info('Adding IPython')
         dst = os.path.join(resource_dir, 'lib', 'python2.6', 'IPython')
         if os.path.exists(dst): shutil.rmtree(dst)
         shutil.copytree(os.path.expanduser('~/build/ipython/IPython'), dst)
 
-        print
-        print 'Adding ImageMagick'
+
+        info('Adding ImageMagick')
         dest = os.path.join(frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(os.path.expanduser('~/ImageMagick'), dest, True)
         shutil.copyfile('/usr/local/lib/libpng12.0.dylib', os.path.join(dest, 'lib', 'libpng12.0.dylib'))
 
-        print
-        print 'Installing prescipt'
+
+        info('Installing prescipt')
         sf = [os.path.basename(s) for s in all_names]
         launcher_path = os.path.join(resource_dir, '__boot__.py')
         f = open(launcher_path, 'r')
@@ -249,19 +269,21 @@ os.execv(python, args)
         src = re.sub('(_run\s*\(.*?.py.*?\))', '%s'%(
 '''
 sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), 'Frameworks')
+sys.resources_location = os.path.join(os.environ['RESOURCEPATH'], 'resources')
+sys.extensions_location = os.path.join(sys.frameworks_dir, 'plugins')
 ''') + r'\n\1', src)
         f = open(launcher_path, 'w')
         print >>f, 'import sys, os'
         f.write(src)
         f.close()
-        print
-        print 'Adding main scripts to site-packages'
+
+        info('\nAdding main scripts to site-packages')
         f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python'+sys.version[:3], 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
         for script in scripts['gui']+scripts['console']:
             f.write(script, script.partition('/')[-1])
         f.close()
-        print
-        print 'Creating console.app'
+
+        info('\nCreating console.app')
         contents_dir = os.path.dirname(resource_dir)
         cc_dir = os.path.join(contents_dir, 'console.app', 'Contents')
         os.makedirs(cc_dir)
@@ -275,12 +297,11 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
             else:
                 os.symlink(os.path.join('../..', x),
                            os.path.join(cc_dir, x))
-        print
-        print 'Building disk image'
+
+        info('\nBuilding disk image')
         BuildAPP.makedmg(os.path.join(self.dist_dir, APPNAME+'.app'), APPNAME+'-'+VERSION)
 
 def main():
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     sys.argv[1:2] = ['py2app']
     d = os.path.dirname
     icon = os.path.abspath('icons/library.icns')
@@ -302,8 +323,9 @@ def main():
                                        'mechanize', 'ClientForm', 'usbobserver',
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'calibre.gui2.convert.*',
+                                       'PyQt4.QtNetwork',
                                        'keyword', 'codeop', 'pydoc', 'readline',
-                                       'BeautifulSoup', 'calibre.ebooks.lrf.fonts.prs500.*',
+                                       'BeautifulSoup',
                                        'dateutil', 'email.iterators',
                                        'email.generator', 'sqlite3.dump',
                                        'calibre.ebooks.metadata.amazon',
@@ -330,5 +352,3 @@ def main():
         )
     return 0
 
-if __name__ == '__main__':
-    sys.exit(main())

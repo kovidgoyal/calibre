@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, socket, struct
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
@@ -98,4 +98,21 @@ podofo_error = None if os.path.exists(os.path.join(podofo_inc, 'podofo.h')) else
     ' functionality will not work. Use the PODOFO_INC_DIR and',
     ' PODOFO_LIB_DIR environment variables.')
 
+def get_ip_address(ifname):
+    import fcntl
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
+try:
+    HOST=get_ip_address('eth0')
+except:
+    try:
+        HOST=get_ip_address('wlan0')
+    except:
+        HOST='unknown'
+
+PROJECT=os.path.basename(os.path.abspath('.'))
