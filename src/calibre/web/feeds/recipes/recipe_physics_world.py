@@ -18,11 +18,11 @@ class PhysicsWorld(BasicNewsRecipe):
     preprocess_regexps = [
    (re.compile(r'<div id="shareThis">.*</body>', re.DOTALL|re.IGNORECASE),
     lambda match: '</body>'),
-]    
+]
     feeds          = [
                           (u'Headlines News', u'http://feeds.feedburner.com/PhysicsWorldNews')
                       ]
-    
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
@@ -32,5 +32,5 @@ class PhysicsWorld(BasicNewsRecipe):
             br['password'] = self.password
             br.submit()
         return br
-        
-        
+
+

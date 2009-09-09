@@ -28,7 +28,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="../images.qrc">:/images/book.svg</pixmap>
+           <pixmap resource="../../../../resources/images.qrc">:/images/book.svg</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -92,7 +92,7 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../images.qrc">
+             <iconset resource="../../../../resources/images.qrc">
               <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
             </property>
            </widget>
@@ -343,9 +343,9 @@
   <tabstop>opt_prefer_metadata_cover</tabstop>
  </tabstops>
  <resources>
-  <include location="../images.qrc"/>
-  <include location="../images.qrc"/>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

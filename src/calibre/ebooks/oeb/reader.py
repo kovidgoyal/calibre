@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
                                     OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
-from calibre.startup import get_lang
+from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 

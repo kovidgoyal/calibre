@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import time, os
+import time, os, cPickle
 
 from PyQt4.QtCore import SIGNAL, QUrl
 from PyQt4.QtGui import QDesktopServices
@@ -185,8 +185,9 @@ class %(classname)s(%(base_class)s):
 
     def add_builtin_recipe(self):
         from calibre.web.feeds.recipes import recipes, recipe_modules, english_sort
-        from calibre.resources import recipes as rdat
         from PyQt4.Qt import QInputDialog
+
+        rdat = cPickle.load(open(P('recipes.pickle'), 'rb'))
 
         class Recipe(object):
             def __init__(self, title, id, recipes):

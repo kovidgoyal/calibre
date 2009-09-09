@@ -17,7 +17,7 @@
 #
 # Contributor(s):
 #
-import zipfile, sys, re
+import zipfile, re
 import xml.sax.saxutils
 from cStringIO import StringIO
 
@@ -46,7 +46,7 @@ fields = {
 }
 
 def normalize(str):
-    """ 
+    """
     The normalize-space function returns the argument string with whitespace
     normalized by stripping leading and trailing whitespace and replacing
     sequences of whitespace characters by a single space.
@@ -125,7 +125,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
         else:
             texttag = self._tag
         self.seenfields[texttag] = self.data()
-    
+
         if field in self.deletefields:
             self.output.dowrite = True
         else:
@@ -140,7 +140,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
 
     def data(self):
         return normalize(''.join(self._data))
-        
+
 def get_metadata(stream):
     zin = zipfile.ZipFile(stream, 'r')
     odfs = odfmetaparser()
@@ -161,6 +161,6 @@ def get_metadata(stream):
         mi.language = data['language']
     if data.get('keywords', ''):
         mi.tags = data['keywords'].split(',')
-    
+
     return mi
 

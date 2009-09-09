@@ -1,5 +1,4 @@
 import sys
-from calibre.ebooks import rtf2xml
 class ParseOptions:
     """
         Requires:

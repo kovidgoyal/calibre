@@ -16,7 +16,6 @@ from PyQt4.Qt import QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel, \
 from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
-from calibre.resources import server_resources
 from calibre.constants import filesystem_encoding
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
@@ -528,12 +527,12 @@ class Wizard(QWizard):
         QWizard.__init__(self, parent)
         self.setWindowTitle(__appname__+' '+_('welcome wizard'))
         p  = QPixmap()
-        p.loadFromData(server_resources['calibre.png'])
+        p.loadFromData(open(P('content_server/calibre.png'), 'rb').read())
         self.setPixmap(self.LogoPixmap, p.scaledToHeight(80,
             Qt.SmoothTransformation))
         self.setPixmap(self.WatermarkPixmap,
-            QPixmap(':/images/welcome_wizard.svg'))
-        self.setPixmap(self.BackgroundPixmap, QPixmap(':/images/wizard.svg'))
+            QPixmap(I('welcome_wizard.svg')))
+        self.setPixmap(self.BackgroundPixmap, QPixmap(I('wizard.svg')))
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
         self.finish_page = FinishPage()

@@ -7,14 +7,14 @@ economictimes.indiatimes.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class TheEconomicTimes(BasicNewsRecipe):
     title                  = 'The Economic Times India'
     __author__             = 'Darko Miletic'
-    description            = 'Financial news from India' 
+    description            = 'Financial news from India'
     publisher              = 'economictimes.indiatimes.com'
-    category               = 'news, finances, politics, India'        
+    category               = 'news, finances, politics, India'
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
@@ -31,9 +31,9 @@ class TheEconomicTimes(BasicNewsRecipe):
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
-    
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
+
     feeds          = [(u'All articles', u'http://economictimes.indiatimes.com/rssfeedsdefault.cms')]
 
     def print_version(self, url):
@@ -45,7 +45,7 @@ class TheEconomicTimes(BasicNewsRecipe):
         if (rurl.find('/quickieslist/') > 0) or (rurl.find('/quickiearticleshow/') > 0):
            return None
         return rurl
-        
+
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang
@@ -54,4 +54,4 @@ class TheEconomicTimes(BasicNewsRecipe):
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         return self.adeify_images(soup)
-        
+

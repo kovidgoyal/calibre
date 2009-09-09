@@ -24,10 +24,10 @@ class JobManager(QAbstractTableModel):
 
     def __init__(self):
         QAbstractTableModel.__init__(self)
-        self.wait_icon     = QVariant(QIcon(':/images/jobs.svg'))
-        self.running_icon  = QVariant(QIcon(':/images/exec.svg'))
-        self.error_icon    = QVariant(QIcon(':/images/dialog_error.svg'))
-        self.done_icon     = QVariant(QIcon(':/images/ok.svg'))
+        self.wait_icon     = QVariant(QIcon(I('jobs.svg')))
+        self.running_icon  = QVariant(QIcon(I('exec.svg')))
+        self.error_icon    = QVariant(QIcon(I('dialog_error.svg')))
+        self.done_icon     = QVariant(QIcon(I('ok.svg')))
 
         self.jobs          = []
         self.add_job       = Dispatcher(self._add_job)

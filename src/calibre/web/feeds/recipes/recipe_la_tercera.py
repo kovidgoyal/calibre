@@ -20,18 +20,18 @@ class LaTercera(BasicNewsRecipe):
     encoding              = 'cp1252'
     remove_javascript     = True
     use_embedded_content  = False
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                        
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     keep_only_tags = [dict(name='div', attrs={'class':['span-16 articulo border','span-16 border','span-16']}) ]
 
-    remove_tags = [  
+    remove_tags = [
                      dict(name='script')
                     ,dict(name='ul')
                     ,dict(name='div', attrs={'id':['boxComentarios','shim','enviarAmigo']})
@@ -40,8 +40,8 @@ class LaTercera(BasicNewsRecipe):
                     ,dict(name='p', attrs={'id':['mensajeError','mensajeEnviandoNoticia','mensajeExito']})
                   ]
 
-    
-    feeds = [ 
+
+    feeds = [
                (u'Noticias de ultima hora', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&ul=1')
               ,(u'Pais', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=654')
               ,(u'Mundo', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=678')
@@ -56,10 +56,9 @@ class LaTercera(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-    
+
     language = 'es'
-

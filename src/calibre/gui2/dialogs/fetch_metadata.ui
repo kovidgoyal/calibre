@@ -16,7 +16,7 @@
    <string>Fetch metadata</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
+   <iconset resource="../../../../resources/images.qrc" >
     <normaloff>:/images/metadata.svg</normaloff>:/images/metadata.svg</iconset>
   </property>
   <layout class="QVBoxLayout" >
@@ -118,7 +118,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../../../../resources/images.qrc" />
  </resources>
  <connections>
   <connection>

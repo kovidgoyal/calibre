@@ -40,4 +40,4 @@ class TelepolisArtikel(BasicNewsRecipe):
 		p = re.compile(r'\d{5}', re.DOTALL|re.IGNORECASE)
 		m = p.search(url)
 		return "http://www.heise.de/bin/tp/issue/r4/dl-artikel2.cgi?artikelnr="+ m.group() +"&mode=print"
-	
+

@@ -61,7 +61,7 @@ class ConfigTabs(QTabWidget):
                 input_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
                 pw = input_widget.PluginWidget
-                pw.ICON = ':/images/forward.svg'
+                pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
             except ImportError:
                 continue
@@ -72,7 +72,7 @@ class ConfigTabs(QTabWidget):
                 output_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
                 pw = output_widget.PluginWidget
-                pw.ICON = ':/images/forward.svg'
+                pw.ICON = I('forward.svg')
                 self.widgets.append(widget_factory(pw))
             except ImportError:
                 continue
@@ -95,7 +95,7 @@ class PluginModel(QAbstractItemModel):
 
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
-        self.icon = QVariant(QIcon(':/images/plugins.svg'))
+        self.icon = QVariant(QIcon(I('plugins.svg')))
         p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
         self.disabled_icon = QVariant(QIcon(p))
         self._p = p
@@ -197,10 +197,10 @@ class CategoryModel(QStringListModel):
                             _('Email\nDelivery'), _('Add/Save'),
                             _('Advanced'), _('Content\nServer'), _('Plugins')])
         self.icons = list(map(QVariant, map(QIcon,
-            [':/images/dialog_information.svg', ':/images/lookfeel.svg',
-                ':/images/convert.svg',
-                ':/images/mail.svg', ':/images/save.svg', ':/images/view.svg',
-             ':/images/network-server.svg', ':/images/plugins.svg'])))
+            [I('dialog_information.svg'), I('lookfeel.svg'),
+                I('convert.svg'),
+                I('mail.svg'), I('save.svg'), I('view.svg'),
+             I('network-server.svg'), I('plugins.svg')])))
 
     def data(self, index, role):
         if role == Qt.DecorationRole:
@@ -390,19 +390,16 @@ class ConfigDialog(QDialog, Ui_Dialog):
 
         self.cover_browse.setValue(config['cover_flow_queue_length'])
         self.systray_notifications.setChecked(not config['disable_tray_notification'])
-        from calibre.translations.compiled import translations
-        from calibre.translations import language_codes
-        from calibre.startup import get_lang
+        from calibre.utils.localization import available_translations, \
+            get_language, get_lang
         lang = get_lang()
-        if lang is not None and language_codes.has_key(lang):
-            self.language.addItem(language_codes[lang], QVariant(lang))
-        else:
+        if lang is None or lang not in available_translations():
             lang = 'en'
-            self.language.addItem('English', QVariant('en'))
-        items = [(l, language_codes[l]) for l in translations.keys() \
+        self.language.addItem(get_language(lang), QVariant(lang))
+        items = [(l, get_language(l)) for l in available_translations() \
                  if l != lang]
         if lang != 'en':
-            items.append(('en', 'English'))
+            items.append(('en', get_language('en')))
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))

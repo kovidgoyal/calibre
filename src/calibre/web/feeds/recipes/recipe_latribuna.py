@@ -7,7 +7,7 @@ www.latribuna.hn
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class LaTribuna(BasicNewsRecipe):
     title                 = 'La Tribuna - Honduras'
@@ -25,14 +25,14 @@ class LaTribuna(BasicNewsRecipe):
 
     lang                  = 'es-HN'
     direction             = 'ltr'
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\npretty_print=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\npretty_print=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
 
     remove_tags = [dict(name=['form','object','embed'])]
 
@@ -45,7 +45,7 @@ class LaTribuna(BasicNewsRecipe):
 
     def print_version(self, url):
         return url + '&print=1'
-        
+
     def preprocess_html(self, soup):
         soup.html['lang'] = self.lang
         soup.html['dir' ] = self.direction

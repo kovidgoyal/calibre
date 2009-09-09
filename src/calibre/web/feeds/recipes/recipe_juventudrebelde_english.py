@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Juventudrebelde_english(BasicNewsRecipe):
     title                 = 'Juventud Rebelde in english'
     __author__            = 'Darko Miletic'
-    description           = 'The newspaper of Cuban Youth'    
+    description           = 'The newspaper of Cuban Youth'
     publisher             = 'Juventud Rebelde'
     category              = 'news, politics, Cuba'
     oldest_article        = 2
@@ -20,15 +20,15 @@ class Juventudrebelde_english(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'iso-8859-1'
     remove_javascript     = True
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     keep_only_tags = [dict(name='div', attrs={'class':'read'})]
 
@@ -36,10 +36,9 @@ class Juventudrebelde_english(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-CU"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-            
+
     language = 'en'
-    

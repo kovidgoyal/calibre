@@ -8,14 +8,14 @@ nin.co.rs
 
 import re, urllib
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
-class Nin(BasicNewsRecipe):    
+class Nin(BasicNewsRecipe):
     title                  = 'NIN online'
     __author__             = 'Darko Miletic'
     description            = 'Nedeljne informativne novine'
     publisher              = 'NIN D.O.O.'
-    category               = 'news, politics, Serbia'    
+    category               = 'news, politics, Serbia'
     no_stylesheets         = True
     oldest_article         = 15
     simultaneous_downloads = 1
@@ -32,7 +32,7 @@ class Nin(BasicNewsRecipe):
     lang                   = 'sr-Latn-RS'
     direction              = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -40,9 +40,9 @@ class Nin(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-                          
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.open(self.INDEX)
@@ -50,7 +50,7 @@ class Nin(BasicNewsRecipe):
             data = urllib.urlencode({ 'login_name':self.username
                                      ,'login_password':self.password
                                      ,'imageField.x':'32'
-                                     ,'imageField.y':'15'                                 
+                                     ,'imageField.y':'15'
                                    })
             br.open(self.LOGIN,data)
         return br
@@ -58,7 +58,7 @@ class Nin(BasicNewsRecipe):
     keep_only_tags    =[dict(name='td', attrs={'width':'520'})]
     remove_tags_after =dict(name='html')
     feeds             =[(u'NIN', FEED)]
-    
+
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
@@ -73,7 +73,7 @@ class Nin(BasicNewsRecipe):
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
         soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)        
+        soup.head.insert(1,mcharset)
         attribs = [  'style','font','valign'
                     ,'colspan','width','height'
                     ,'rowspan','summary','align'
@@ -84,9 +84,9 @@ class Nin(BasicNewsRecipe):
             item.name = 'div'
             for attrib in attribs:
                 if item.has_key(attrib):
-                   del item[attrib]            
+                   del item[attrib]
         return soup
 
     def get_article_url(self, article):
-        raw = article.get('link',  None)         
+        raw = article.get('link',  None)
         return raw.replace('.co.yu','.co.rs')

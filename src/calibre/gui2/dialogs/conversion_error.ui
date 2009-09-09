@@ -13,8 +13,8 @@
    <string>ERROR</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >
-    <normaloff>:/library</normaloff>:/library</iconset>
+   <iconset resource="../../../../resources/images.qrc" >
+    <normaloff>:/images/library.png</normaloff>:/images/library.png</iconset>
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" >
@@ -23,7 +23,7 @@
       <string/>
      </property>
      <property name="pixmap" >
-      <pixmap resource="../images.qrc" >:/images/dialog_error.svg</pixmap>
+      <pixmap resource="../../../../resources/images.qrc" >:/images/dialog_error.svg</pixmap>
      </property>
     </widget>
    </item>
@@ -53,7 +53,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../../../../resources/images.qrc" />
  </resources>
  <connections>
   <connection>

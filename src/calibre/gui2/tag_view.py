@@ -84,13 +84,13 @@ class TagsModel(QStandardItemModel):
     row_map    = ['author', 'series', 'format', 'publisher', 'news', 'tag']
 
     def __init__(self, db):
-        self.cmap = tuple(map(QIcon, [':/images/user_profile.svg',
-                ':/images/series.svg', ':/images/book.svg', ':/images/publisher.png',
-                ':/images/news.svg', ':/images/tags.svg']))
+        self.cmap = tuple(map(QIcon, [I('user_profile.svg'),
+                I('series.svg'), I('book.svg'), I('publisher.png'),
+                I('news.svg'), I('tags.svg')]))
         p = QPixmap(30, 30)
         p.fill(Qt.transparent)
-        self.icon_map = [QIcon(p), QIcon(':/images/plus.svg'),
-                QIcon(':/images/minus.svg')]
+        self.icon_map = [QIcon(p), QIcon(I('plus.svg')),
+                QIcon(I('minus.svg'))]
         QStandardItemModel.__init__(self)
         self.db = db
         self.ignore_next_search = 0

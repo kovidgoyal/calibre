@@ -16,7 +16,6 @@
 #                                                                       #
 #########################################################################
 import sys, os, codecs
-from calibre.ebooks import rtf2xml
 class Output:
     """
     Output file

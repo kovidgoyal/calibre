@@ -69,7 +69,7 @@ class BulkConfig(Config):
             output_widget = __import__('calibre.gui2.convert.'+name,
                         fromlist=[1])
             pw = output_widget.PluginWidget
-            pw.ICON = ':/images/back.svg'
+            pw.ICON = I('back.svg')
             pw.HELP = _('Options specific to the output format.')
             output_widget = widget_factory(pw)
         except ImportError:

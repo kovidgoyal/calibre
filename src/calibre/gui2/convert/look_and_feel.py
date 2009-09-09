@@ -13,7 +13,7 @@ from calibre.gui2.convert import Widget
 class LookAndFeelWidget(Widget, Ui_Form):
 
     TITLE = _('Look & Feel')
-    ICON  = ':/images/lookfeel.svg'
+    ICON  = I('lookfeel.svg')
     HELP  = _('Control the look and feel of the output')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):

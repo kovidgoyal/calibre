@@ -24,8 +24,8 @@ from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
-from calibre.resources import html_css
 
+html_css = open(P('templates/html.css'), 'rb').read()
 XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
 HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
 HTML_CSS_STYLESHEET.namespaces['h'] = XHTML_NS

@@ -14,7 +14,7 @@
    <string>Ebook Viewer</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/viewer.svg</normaloff>:/images/viewer.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -104,7 +104,7 @@
   </widget>
   <action name="action_back">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/back.svg</normaloff>:/images/back.svg</iconset>
    </property>
    <property name="text">
@@ -113,7 +113,7 @@
   </action>
   <action name="action_forward">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/forward.svg</normaloff>:/images/forward.svg</iconset>
    </property>
    <property name="text">
@@ -122,7 +122,7 @@
   </action>
   <action name="action_next_page">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/next.svg</normaloff>:/images/next.svg</iconset>
    </property>
    <property name="text">
@@ -131,7 +131,7 @@
   </action>
   <action name="action_previous_page">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/previous.svg</normaloff>:/images/previous.svg</iconset>
    </property>
    <property name="text">
@@ -140,7 +140,7 @@
   </action>
   <action name="action_font_size_larger">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/font_size_larger.svg</normaloff>:/images/font_size_larger.svg</iconset>
    </property>
    <property name="text">
@@ -149,7 +149,7 @@
   </action>
   <action name="action_font_size_smaller">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/font_size_smaller.svg</normaloff>:/images/font_size_smaller.svg</iconset>
    </property>
    <property name="text">
@@ -158,7 +158,7 @@
   </action>
   <action name="action_table_of_contents">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
    </property>
    <property name="text">
@@ -167,7 +167,7 @@
   </action>
   <action name="action_metadata">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/dialog_information.svg</normaloff>:/images/dialog_information.svg</iconset>
    </property>
    <property name="text">
@@ -176,7 +176,7 @@
   </action>
   <action name="action_open_ebook">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
    </property>
    <property name="text">
@@ -185,7 +185,7 @@
   </action>
   <action name="action_find_next">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
    </property>
    <property name="text">
@@ -194,7 +194,7 @@
   </action>
   <action name="action_copy">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/convert.svg</normaloff>:/images/convert.svg</iconset>
    </property>
    <property name="text">
@@ -203,7 +203,7 @@
   </action>
   <action name="action_preferences">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
    </property>
    <property name="text">
@@ -212,7 +212,7 @@
   </action>
   <action name="action_reference_mode">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/lookfeel.svg</normaloff>:/images/lookfeel.svg</iconset>
    </property>
    <property name="text">
@@ -221,7 +221,7 @@
   </action>
   <action name="action_bookmark">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/bookmarks.svg</normaloff>:/images/bookmarks.svg</iconset>
    </property>
    <property name="text">
@@ -230,7 +230,7 @@
   </action>
   <action name="action_full_screen">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/page.svg</normaloff>:/images/page.svg</iconset>
    </property>
    <property name="text">
@@ -239,7 +239,7 @@
   </action>
   <action name="action_print">
    <property name="icon">
-    <iconset resource="../images.qrc">
+    <iconset resource="../../../../resources/images.qrc">
      <normaloff>:/images/print.svg</normaloff>:/images/print.svg</iconset>
    </property>
    <property name="text">
@@ -255,7 +255,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

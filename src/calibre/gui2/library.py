@@ -172,7 +172,7 @@ class BooksModel(QAbstractTableModel):
         self.column_map = config['column_map']
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate']
-        self.default_image = QImage(':/images/book.svg')
+        self.default_image = QImage(I('book.svg'))
         self.sorted_on = ('timestamp', Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
         self.read_config()

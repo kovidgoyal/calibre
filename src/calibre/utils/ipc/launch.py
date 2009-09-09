@@ -8,15 +8,13 @@ __docformat__ = 'restructuredtext en'
 
 import subprocess, os, sys, time
 
-from calibre.constants import iswindows, isosx, isfrozen
+from calibre.constants import iswindows, isosx, isfrozen, isnewosx
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile
 
 if iswindows:
     import win32process
     _windows_null_file = open(os.devnull, 'wb')
-
-isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
 
 class Worker(object):
     '''
@@ -111,8 +109,10 @@ class Worker(object):
             resources = os.path.join(contents, 'Resources')
             fd = os.path.join(contents, 'Frameworks')
             sp = os.path.join(resources, 'lib', 'python'+sys.version[:3], 'site-packages.zip')
-            self.osx_prefix = 'import sys; sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
+            self.osx_prefix = 'import sys, os; sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
             self.osx_prefix += 'sys.path.insert(0, %s); '%repr(sp)
+            self.osx_prefix += 'sys.extensions_location = os.path.join(sys.frameworks_dir, "plugins");'
+            self.osx_prefix += 'sys.resources_location = os.path.join(os.path.dirname(sys.frameworks_dir), "Resources", "resources"); '
 
             self._env['PYTHONHOME']  = resources
             self._env['MAGICK_HOME'] = os.path.join(fd, 'ImageMagick')

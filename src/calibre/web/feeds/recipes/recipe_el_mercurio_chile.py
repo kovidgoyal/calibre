@@ -13,7 +13,7 @@ class ElMercurio(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'El sitio de noticias online de Chile'
     publisher             = 'El Mercurio'
-    category              = 'news, politics, Chile'        
+    category              = 'news, politics, Chile'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -22,26 +22,26 @@ class ElMercurio(BasicNewsRecipe):
     cover_url             = 'http://www.emol.com/especiales/logo_emol/logo_emol.gif'
     remove_javascript     = True
     use_embedded_content  = False
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                        
-    keep_only_tags = [  
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
+    keep_only_tags = [
                         dict(name='div', attrs={'class':'despliegue-txt_750px'})
                        ,dict(name='div', attrs={'id':'div_cuerpo_participa'})
                      ]
 
-    remove_tags = [  
+    remove_tags = [
                      dict(name='div', attrs={'class':'contenedor_despliegue-col-left300'})
                     ,dict(name='div', attrs={'id':['div_centro_dn_opc','div_cabezera','div_secciones','div_contenidos','div_pie','nav']})
                     ]
-                        
-    feeds = [  
+
+    feeds = [
                (u'Noticias de ultima hora', u'http://www.emol.com/rss20/rss.asp?canal=0')
               ,(u'Nacional', u'http://www.emol.com/rss20/rss.asp?canal=1')
               ,(u'Mundo', u'http://www.emol.com/rss20/rss.asp?canal=2')
@@ -53,10 +53,9 @@ class ElMercurio(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-        
+
     language = 'es'
-

@@ -22,16 +22,16 @@ class PetersburgTimes(BasicNewsRecipe):
     use_embedded_content  = False
     language = 'en'
 
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
-     
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
+
     remove_tags = [dict(name=['object','link','embed'])]
 
     feeds = [(u'Headlines', u'http://sptimes.ru/headlines.php' )]
@@ -40,10 +40,10 @@ class PetersburgTimes(BasicNewsRecipe):
         return self.adeify_images(soup)
 
     def get_article_url(self, article):
-        raw = article.get('guid',  None)         
+        raw = article.get('guid',  None)
         return raw
 
     def print_version(self, url):
         start_url, question, article_id = url.rpartition('/')
         return u'http://www.sptimes.ru/index.php?action_id=100&story_id=' + article_id
-        
+

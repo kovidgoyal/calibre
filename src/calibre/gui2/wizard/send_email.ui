@@ -202,7 +202,7 @@
         <string>Use Gmail</string>
        </property>
        <property name="icon">
-        <iconset resource="../images.qrc">
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/gmail_logo.png</normaloff>:/images/gmail_logo.png</iconset>
        </property>
        <property name="iconSize">
@@ -228,7 +228,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

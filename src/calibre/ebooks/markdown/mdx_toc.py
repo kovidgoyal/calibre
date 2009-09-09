@@ -8,8 +8,6 @@ My markdown extensions for adding:
     Table of Contents (aka toc)
 """
 
-import os
-import sys
 import re
 import markdown
 
@@ -18,7 +16,7 @@ DEFAULT_TITLE = None
 def extract_alphanumeric(in_str=None):
     """take alpha-numeric (7bit ascii) and return as a string
     """
-    # I'm sure this is really inefficient and 
+    # I'm sure this is really inefficient and
     # could be done with a lambda/map()
     #x.strip().title().replace(' ', "")
     out_str=[]
@@ -42,7 +40,7 @@ class TocExtension (markdown.Extension):
     toc is returned in a div tag with class='toc'
     toc is either:
         appended to end of document
-      OR 
+      OR
         replaces first string occurence of "///Table of Contents Goes Here///"
     """
 
@@ -75,7 +73,7 @@ class TocExtension (markdown.Extension):
         """
            Creates Table Of Contents based on headers.
 
-           @returns: toc as a single as a dom element 
+           @returns: toc as a single as a dom element
                      in a <div> tag with class='toc'
         """
 
@@ -85,9 +83,9 @@ class TocExtension (markdown.Extension):
             if element.type=='element':
                 if headers_compiled_re.match(element.nodeName):
                     return True
-        
+
         headers_doc_list = doc.find(findHeadersFn)
-        
+
         # Insert anchor tags into dom
         generated_anchor_id=0
         headers_list=[]
@@ -99,19 +97,19 @@ class TocExtension (markdown.Extension):
                 if heading_type == self.auto_toc_heading_type:
                     min_header_size_found=min(min_header_size_found,
                                               heading_type)
-                
+
                 html_anchor_name= (extract_alphanumeric(heading_title)
                                    +'__MD_autoTOC_%d' % (generated_anchor_id))
-                
+
                 # insert anchor tag inside header tags
                 html_anchor = doc.createElement("a")
                 html_anchor.setAttribute('name', html_anchor_name)
                 element.appendChild(html_anchor)
-                
+
                 headers_list.append( (heading_type, heading_title,
                                       html_anchor_name) )
                 generated_anchor_id = generated_anchor_id + 1
-        
+
         # create dom for toc
         if headers_list != []:
             # Create list
@@ -125,9 +123,9 @@ class TocExtension (markdown.Extension):
                     toc_doc_link.appendChild(toc_doc_text)
                     toc_doc_entry.appendChild(toc_doc_link)
                     toc_doc_list.appendChild(toc_doc_entry)
-                    
-            
-            # Put list into div            
+
+
+            # Put list into div
             div = doc.createElement("div")
             div.setAttribute('class', 'toc')
             if self.TOC_TITLE:
@@ -149,7 +147,7 @@ class TocPostprocessor (markdown.Postprocessor):
 
     def run(self, doc):
         tocPlaceholder = self.toc.findTocPlaceholder(doc)
-        
+
         tocDiv = self.toc.createTocDiv(doc)
         if tocDiv:
             if tocPlaceholder :

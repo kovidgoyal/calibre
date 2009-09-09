@@ -13,20 +13,20 @@ class Lanacion(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Noticias de Argentina y el resto del mundo'
     publisher             = 'La Nacion'
-    category              = 'news, politics, Argentina'    
+    category              = 'news, politics, Argentina'
     oldest_article        = 2
     max_articles_per_feed = 100
     use_embedded_content  = False
     remove_javascript     = True
     no_stylesheets        = True
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     keep_only_tags = [dict(name='div', attrs={'class':'nota floatFix'})]
     remove_tags = [
@@ -35,7 +35,7 @@ class Lanacion(BasicNewsRecipe):
                     ,dict(name='div' , attrs={'class':'cajaHerramientas noprint'        })
                   ]
 
-    feeds          = [  
+    feeds          = [
                          (u'Ultimas noticias'     , u'http://www.lanacion.com.ar/herramientas/rss/index.asp?origen=2'         )
                         ,(u'Diario de hoy'        , u'http://www.lanacion.com.ar/herramientas/rss/index.asp?origen=1'         )
                         ,(u'Politica'             , u'http://www.lanacion.com.ar/herramientas/rss/index.asp?categoria_id=30'  )
@@ -52,10 +52,9 @@ class Lanacion(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
 
     language = 'es'
-

@@ -16,9 +16,10 @@ import sys, os
 # If your extensions are in another directory, add it here.
 sys.path.append(os.path.abspath('../../../'))
 sys.path.append(os.path.abspath('.'))
-from calibre import __appname__, __version__
+__appname__ = os.environ.get('__appname__', 'calibre')
+__version__ = os.environ.get('__version__', '0.0.0')
 import custom
-
+custom
 # General configuration
 # ---------------------
 

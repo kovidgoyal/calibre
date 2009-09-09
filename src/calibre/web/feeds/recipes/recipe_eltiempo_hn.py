@@ -7,7 +7,7 @@ www.tiempo.hn
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class ElTiempoHn(BasicNewsRecipe):
     title                 = 'El Tiempo - Honduras'
@@ -25,15 +25,15 @@ class ElTiempoHn(BasicNewsRecipe):
 
     lang                  = 'es-HN'
     direction             = 'ltr'
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True\npretty_print=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} img {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em}"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True\npretty_print=True\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} img {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em}"'
 
     remove_tags = [dict(name=['form','object','embed','base'])]
 

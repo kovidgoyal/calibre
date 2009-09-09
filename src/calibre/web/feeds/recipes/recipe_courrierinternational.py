@@ -7,7 +7,6 @@ Courrier International
 '''
 
 import re
-from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CourrierInternational(BasicNewsRecipe):
@@ -21,12 +20,12 @@ class CourrierInternational(BasicNewsRecipe):
     no_stylesheets = True
 
     html2lrf_options = ['--base-font-size', '10']
-    
+
     feeds =  [
         # Some articles requiring subscription fails on download.
         ('A la Une', 'http://www.courrierinternational.com/rss/rss_a_la_une.xml'),
     ]
-             
+
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
         [
             #Handle Depeches
@@ -35,8 +34,8 @@ class CourrierInternational(BasicNewsRecipe):
             (r'.*<td [^>]*>(Courrier international.*?)							<td width="10"><img src="/img/espaceur.gif"></td>.*', lambda match : '<html><body><table><tr><td>'+match.group(1)+'</body></html>'),
         ]
     ]
-    
-    
+
+
     def print_version(self, url):
         return re.sub('/[a-zA-Z]+\.asp','/imprimer.asp' ,url)
 

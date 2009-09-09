@@ -40,7 +40,7 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../images.qrc">
+             <iconset resource="../../../../resources/images.qrc">
               <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
             </property>
            </widget>
@@ -64,7 +64,7 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../images.qrc">
+             <iconset resource="../../../../resources/images.qrc">
               <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
             </property>
            </widget>
@@ -93,7 +93,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

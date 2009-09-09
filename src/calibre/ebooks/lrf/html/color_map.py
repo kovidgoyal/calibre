@@ -94,7 +94,7 @@ NAME_MAP = {
              u'springgreen': u'#00FF7F',
              u'violet': u'#EE82EE',
              u'yellowgreen': u'#9ACD32'
-            } 
+            }
 
 hex_pat = re.compile('#(\d{2})(\d{2})(\d{2})')
 rgb_pat = re.compile('rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)', re.IGNORECASE)
@@ -109,5 +109,5 @@ def lrs_color(html_color):
     if hcol in NAME_MAP:
         return NAME_MAP[hcol].replace('#', '0x00')
     return '0x00000000'
-    
-    
+
+

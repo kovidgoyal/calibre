@@ -15,7 +15,7 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, shutil
+import os, shutil
 
 class Copy:
     """Copy each changed file to a directory for debugging purposes"""
@@ -66,6 +66,6 @@ class Copy:
         """
         write_file = os.path.join(Copy.__dir,new_file)
         shutil.copyfile(file, write_file)
-    
+
     def rename(self, source, dest):
         shutil.copyfile(source, dest)

@@ -13,8 +13,6 @@ from functools import partial
 from contextlib import nested, closing
 from datetime import datetime
 
-from PyQt4.Qt import QApplication, QFile, QIODevice
-
 
 from calibre import browser, __appname__, iswindows, \
                     strftime, __version__, preferred_encoding
@@ -812,17 +810,11 @@ class BasicNewsRecipe(Recipe):
         from calibre.gui2 import is_ok_to_use_qt
         if not is_ok_to_use_qt():
             return False
-        from calibre.gui2 import images_rc # Needed for access to logo
-        images_rc
-        if QApplication.instance() is None: QApplication([])
-        f = QFile(':/library')
-        f.open(QIODevice.ReadOnly)
-        img_data = str(f.readAll())
+        img_data = open(I('library.png'), 'rb').read()
         tdir = PersistentTemporaryDirectory('_default_cover')
         img = os.path.join(tdir, 'logo.png')
         with open(img, 'wb') as g:
             g.write(img_data)
-        f.close()
         img = os.path.basename(img)
         html= u'''\
         <html>

@@ -46,6 +46,7 @@ def get_metadata(stream):
         _('Unknown'))))[0]
     for x in XPath('//fb2:book-title')(root):
         title = tostring(x)
+        break
     comments = ''
     for x in XPath('//fb2:annotation')(root):
         comments += tostring(x)
