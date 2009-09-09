@@ -13,8 +13,8 @@ import re
 
 class PRS700(PRS505):
 
-    name           = 'PRS-700 Device Interface'
-    description    = _('Communicate with the Sony PRS-700 eBook reader.')
+    name           = 'PRS-600/700 Device Interface'
+    description    = _('Communicate with the Sony PRS-600/700 eBook reader.')
     author         = _('Kovid Goyal and John Schember')
     gui_name       = 'SONY Touch edition'
     supported_platforms = ['windows', 'osx', 'linux']

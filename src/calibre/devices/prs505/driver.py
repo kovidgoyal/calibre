@@ -21,16 +21,16 @@ from calibre import __appname__
 
 class PRS505(CLI, Device):
 
-    name           = 'PRS-505 Device Interface'
+    name           = 'PRS-300/505 Device Interface'
     gui_name       = 'SONY Pocket Edition'
-    description    = _('Communicate with the Sony PRS-505 eBook reader.')
+    description    = _('Communicate with the Sony PRS-300/505 eBook reader.')
     author         = _('Kovid Goyal and John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
 
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
-    PRODUCT_ID   = [0x031e]   #: Product Id for the PRS-505
+    PRODUCT_ID   = [0x031e]   #: Product Id for the PRS 300 and 505
     BCD          = [0x229, 0x1000]
 
     VENDOR_NAME        = 'SONY'
