@@ -36,6 +36,17 @@ class TXTOutput(OutputFormatPlugin):
         OptionRecommendation(name='flush_paras',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not add a blank line between paragraphs.')),
+        OptionRecommendation(name='max_line_length',
+            recommended_value=0, level=OptionRecommendation.LOW,
+            help=_('The maximum number of characters per line. This splits on '
+            'the first space before the specified value. If no space is found '
+            'the line will be broken at the space after and will exceed the '
+            'specified value. Also, there is a minimum of 25 characters. '
+            'Use 0 to disable line splitting.')),
+        OptionRecommendation(name='force_max_line_length',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Force splitting on the max-line-length value when no space '
+            'is present. Also allows max-line-length to be below the minimum')),
         OptionRecommendation(name='indent_paras',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Add a tab at the beginning of each paragraph.')),

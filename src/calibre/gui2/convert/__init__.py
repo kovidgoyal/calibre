@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
+
 from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
     QCheckBox, QComboBox, Qt, QIcon, SIGNAL
 
@@ -135,6 +137,7 @@ class Widget(QWidget):
                 pass
 
     def setup_help(self, help_provider):
+        w = textwrap.TextWrapper(80)
         for name in self._options:
             g = getattr(self, 'opt_'+name, None)
             if g is None:
@@ -142,8 +145,10 @@ class Widget(QWidget):
             help = help_provider(name)
             if not help: continue
             g._help = help
-            g.setToolTip(help.replace('<', '&lt;').replace('>', '&gt;'))
-            g.setWhatsThis(help.replace('<', '&lt;').replace('>', '&gt;'))
+            g.setToolTip('\n'.join(w.wrap(help.replace('<', '&lt;').replace('>',
+                '&gt;'))))
+            g.setWhatsThis('\n'.join(w.wrap(help.replace('<', '&lt;').replace('>',
+                '&gt;'))))
             g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
 
 
