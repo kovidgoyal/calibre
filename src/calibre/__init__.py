@@ -21,6 +21,11 @@ from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               filesystem_encoding
 import mechanize
 
+if False:
+    winutil, winutilerror, __appname__, islinux, __version__
+    fcntl, win32event, isfrozen, __author__, terminal_controller
+    winerror, win32api
+
 mimetypes.add_type('application/epub+zip',                '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml',                '.lrs')
 mimetypes.add_type('application/xhtml+xml',               '.xhtml')
@@ -398,16 +403,15 @@ def prepare_string_for_xml(raw, attribute=False):
     return raw
 
 if isosx:
+    import glob, shutil
     fdir = os.path.expanduser('~/.fonts')
     try:
         if not os.path.exists(fdir):
             os.makedirs(fdir)
         if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
-            from calibre.ebooks.lrf.fonts.liberation import __all__ as fonts
-            for font in fonts:
-                l = {}
-                exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data' in l
-                open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
+            base = P('fonts/liberation/*.ttf')
+            for f in glob.glob(base):
+                shutil.copy2(f, fdir)
     except:
         import traceback
         traceback.print_exc()

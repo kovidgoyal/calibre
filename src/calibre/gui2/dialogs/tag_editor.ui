@@ -14,7 +14,7 @@
    <string>Tag Editor</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
   </property>
   <layout class="QGridLayout">
@@ -58,7 +58,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="../images.qrc">
+          <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
          </property>
         </widget>
@@ -104,7 +104,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../images.qrc">
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/forward.svg</normaloff>:/images/forward.svg</iconset>
        </property>
       </widget>
@@ -189,7 +189,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../images.qrc">
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
        </property>
       </widget>
@@ -250,7 +250,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../images.qrc">
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
        </property>
       </widget>
@@ -290,7 +290,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

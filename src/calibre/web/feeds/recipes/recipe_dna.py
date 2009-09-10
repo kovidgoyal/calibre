@@ -9,7 +9,7 @@ class DNAIndia(BasicNewsRecipe):
     title       = 'DNA India'
     description = 'Mumbai news, India news, World news, breaking news'
     __author__  = 'Kovid Goyal'
-    language = 'en'
+    language = 'en_IN'
 
     encoding    = 'cp1252'
 

@@ -20,18 +20,18 @@ class LaCuarta(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     remove_javascript     = True
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                        
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     keep_only_tags = [dict(name='div', attrs={'class':'articulo desplegado'}) ]
 
-    remove_tags = [  
+    remove_tags = [
                      dict(name='ul')
                     ,dict(name='div', attrs={'id':['toolbox','articleImageDisplayer','enviarAmigo']})
                     ,dict(name='div', attrs={'class':['par ad-1','par ad-2']})
@@ -42,13 +42,12 @@ class LaCuarta(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-    
+
     feeds = [(u'Noticias', u'http://lacuarta.cl/app/rss?sc=TEFDVUFSVEE=')]
 
-    
+
     language = 'es'
-

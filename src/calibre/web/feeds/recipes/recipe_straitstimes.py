@@ -18,9 +18,9 @@ class StraitsTimes(BasicNewsRecipe):
     use_embedded_content   = False
     encoding               = 'cp1252'
     publisher              = 'Singapore Press Holdings Ltd.'
-    category               = 'news, politics, singapore, asia'    
+    category               = 'news, politics, singapore, asia'
     language = 'en'
-    
+
 
     html2lrf_options = [
                           '--comment', description
@@ -28,16 +28,16 @@ class StraitsTimes(BasicNewsRecipe):
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
 
     remove_tags = [
                      dict(name=['object','link'])
                     ,dict(name='table', attrs={'width':'980'})
                     ,dict(name='td'   , attrs={'class':'padlrt10'})
                   ]
-                            
-    feeds = [ 
+
+    feeds = [
                (u'Singapore'       , u'http://www.straitstimes.com/STI/STIFILES/rss/break_singapore.xml' )
               ,(u'SE Asia'         , u'http://www.straitstimes.com/STI/STIFILES/rss/break_sea.xml'       )
               ,(u'Money'           , u'http://www.straitstimes.com/STI/STIFILES/rss/break_money.xml'     )
@@ -49,9 +49,9 @@ class StraitsTimes(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
-            del item['style']        
+            del item['style']
         return soup
 
     def print_version(self, url):
         return url.replace('http://www.straitstimes.com','http://www.straitstimes.com/print')
-        
+

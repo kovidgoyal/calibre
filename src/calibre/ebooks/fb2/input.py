@@ -38,7 +38,6 @@ class FB2Input(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from calibre.resources import fb2_xsl
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.oeb.base import XLINK_NS
@@ -49,7 +48,7 @@ class FB2Input(InputFormatPlugin):
         doc = etree.parse(stream, parser)
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
-        ss = fb2_xsl
+        ss = open(P('templates/fb2.xsl'), 'rb').read()
         if options.no_inline_fb2_toc:
             log('Disabling generation of inline FB2 TOC')
             ss = re.compile(r'<!-- BUILD TOC -->.*<!-- END BUILD TOC -->',

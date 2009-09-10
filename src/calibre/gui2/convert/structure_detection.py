@@ -15,7 +15,7 @@ from calibre.gui2 import error_dialog
 class StructureDetectionWidget(Widget, Ui_Form):
 
     TITLE = _('Structure\nDetection')
-    ICON  = ':/images/chapters.svg'
+    ICON  = I('chapters.svg')
     HELP  = _('Fine tune the detection of chapter headings and '
             'other document structure.')
 

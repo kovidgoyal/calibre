@@ -9,14 +9,14 @@ pressonline.rs
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class PressOnline(BasicNewsRecipe):
     title                 = 'Press Online'
     __author__            = 'Darko Miletic'
     description           = 'Press Online portal dnevnih novina Press.Najnovije vesti iz Srbije i sveta,Sport,Dzet Set,Politika,Hronika,Komenteri,Zabava,Slike,Video,Horoskop,Nagradne igre,Kvizovi,Igrice'
     publisher             = 'Press Publishing group'
-    category              = 'news, politics, Serbia'    
+    category              = 'news, politics, Serbia'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -28,7 +28,7 @@ class PressOnline(BasicNewsRecipe):
     direction             = 'ltr'
 
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -36,10 +36,10 @@ class PressOnline(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-     
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
-    feeds = [ 
+    feeds = [
                (u'Vesti Dana'      , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=37')
               ,(u'Politika'        , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=29')
               ,(u'U Fokusu'        , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=33')
@@ -56,7 +56,7 @@ class PressOnline(BasicNewsRecipe):
               ,(u'Lola'            , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=70')
               ,(u'Duplerica'       , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=72')
               ,(u'Presspedia'      , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=80')
-              ,(u'Kolumne'         , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=57')              
+              ,(u'Kolumne'         , u'http://www.pressonline.rs/page/stories/sr.html?view=rss&sectionId=57')
             ]
 
     def preprocess_html(self, soup):

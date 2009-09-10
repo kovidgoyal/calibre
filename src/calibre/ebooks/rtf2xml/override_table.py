@@ -15,8 +15,6 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys,os
-from calibre.ebooks import rtf2xml
 class OverrideTable:
     """
     Parse a line of text to make the override table. Return a string

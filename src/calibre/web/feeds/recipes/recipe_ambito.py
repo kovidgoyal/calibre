@@ -21,20 +21,20 @@ class Ambito(BasicNewsRecipe):
     cover_url             = 'http://www.ambito.com/img/logo_.jpg'
     remove_javascript     = True
     use_embedded_content  = False
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     keep_only_tags    = [dict(name='div', attrs={'align':'justify'})]
 
     remove_tags       = [dict(name=['object','link'])]
 
-    feeds = [ 
+    feeds = [
               (u'Principales Noticias', u'http://www.ambito.com/rss/noticiasp.asp'                         )
              ,(u'Economia'            , u'http://www.ambito.com/rss/noticias.asp?S=Econom%EDa'             )
              ,(u'Politica'            , u'http://www.ambito.com/rss/noticias.asp?S=Pol%EDtica'             )
@@ -53,10 +53,9 @@ class Ambito(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-        
+
     language = 'es'
-

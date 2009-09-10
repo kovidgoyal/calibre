@@ -24,8 +24,8 @@
    <string>__appname__</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="images.qrc">
-    <normaloff>:/library</normaloff>:/library</iconset>
+   <iconset resource="../../../resources/images.qrc">
+    <normaloff>:/images/library.png</normaloff>:/images/library.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -104,7 +104,7 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="images.qrc">
+         <iconset resource="../../../resources/images.qrc">
           <normaloff>:/images/donate.svg</normaloff>:/images/donate.svg</iconset>
         </property>
         <property name="iconSize">
@@ -166,7 +166,7 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="images.qrc">
+         <iconset resource="../../../resources/images.qrc">
           <normaloff>:/images/search.svg</normaloff>:/images/search.svg</iconset>
         </property>
         <property name="shortcut">
@@ -209,7 +209,7 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="images.qrc">
+         <iconset resource="../../../resources/images.qrc">
           <normaloff>:/images/clear_left.svg</normaloff>:/images/clear_left.svg</iconset>
         </property>
        </widget>
@@ -484,7 +484,7 @@
   </widget>
   <action name="action_add">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/add_book.svg</normaloff>:/images/add_book.svg</iconset>
    </property>
    <property name="text">
@@ -499,7 +499,7 @@
   </action>
   <action name="action_del">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
    </property>
    <property name="text">
@@ -514,7 +514,7 @@
   </action>
   <action name="action_edit">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
    </property>
    <property name="text">
@@ -532,7 +532,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/sync.svg</normaloff>:/images/sync.svg</iconset>
    </property>
    <property name="text">
@@ -541,7 +541,7 @@
   </action>
   <action name="action_save">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/save.svg</normaloff>:/images/save.svg</iconset>
    </property>
    <property name="text">
@@ -553,7 +553,7 @@
   </action>
   <action name="action_news">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/news.svg</normaloff>:/images/news.svg</iconset>
    </property>
    <property name="text">
@@ -565,7 +565,7 @@
   </action>
   <action name="action_convert">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/convert.svg</normaloff>:/images/convert.svg</iconset>
    </property>
    <property name="text">
@@ -577,7 +577,7 @@
   </action>
   <action name="action_view">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/view.svg</normaloff>:/images/view.svg</iconset>
    </property>
    <property name="text">
@@ -589,7 +589,7 @@
   </action>
   <action name="action_open_containing_folder">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
    </property>
    <property name="text">
@@ -598,7 +598,7 @@
   </action>
   <action name="action_show_book_details">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/dialog_information.svg</normaloff>:/images/dialog_information.svg</iconset>
    </property>
    <property name="text">
@@ -607,7 +607,7 @@
   </action>
   <action name="action_books_by_same_author">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/user_profile.svg</normaloff>:/images/user_profile.svg</iconset>
    </property>
    <property name="text">
@@ -616,7 +616,7 @@
   </action>
   <action name="action_books_in_this_series">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/books_in_series.svg</normaloff>:/images/books_in_series.svg</iconset>
    </property>
    <property name="text">
@@ -625,7 +625,7 @@
   </action>
   <action name="action_books_by_this_publisher">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/publisher.png</normaloff>:/images/publisher.png</iconset>
    </property>
    <property name="text">
@@ -634,7 +634,7 @@
   </action>
   <action name="action_books_with_the_same_tags">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/tags.svg</normaloff>:/images/tags.svg</iconset>
    </property>
    <property name="text">
@@ -643,7 +643,7 @@
   </action>
   <action name="action_preferences">
    <property name="icon">
-    <iconset resource="images.qrc">
+    <iconset resource="../../../resources/images.qrc">
      <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
    </property>
    <property name="text">
@@ -685,7 +685,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="images.qrc"/>
+  <include location="../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

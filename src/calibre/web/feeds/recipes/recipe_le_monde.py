@@ -22,9 +22,6 @@ class LeMonde(BasicNewsRecipe):
     no_stylesheets = True
     cover_url='http://abonnes.lemonde.fr/titresdumonde/'+date.today().strftime("%y%m%d")+'/1.jpg'
 
-
-    html2lrf_options = ['--base-font-size', '10']
-    
     feeds =  [
              ('A la Une', 'http://www.lemonde.fr/rss/une.xml'),
              ('International', 'http://www.lemonde.fr/rss/sequence/0,2-3210,1-0,0.xml'),
@@ -43,13 +40,13 @@ class LeMonde(BasicNewsRecipe):
              ('Examens', 'http://www.lemonde.fr/rss/sequence/0,2-3404,1-0,0.xml'),
              ('Opinions', 'http://www.lemonde.fr/rss/sequence/0,2-3232,1-0,0.xml')
              ]
-             
+
     remove_tags    = [dict(name='img', attrs={'src':'http://medias.lemonde.fr/mmpub/img/lgo/lemondefr_pet.gif'}),
                                     dict(name='div', attrs={'id':'xiti-logo-noscript'}),
                                     dict(name='br', attrs={}),
                                     dict(name='iframe', attrs={}),
     ]
-    
+
     extra_css      = '.ar-tit {font-size: x-large;} \n .dt {font-size: x-small;}'
 
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
@@ -61,7 +58,7 @@ class LeMonde(BasicNewsRecipe):
             (r'(<div class=desc><b>.*</b></div>).*</body>', lambda match : match.group(1)),
         ]
     ]
-                       
+
     article_match_regexps = [ (re.compile(i)) for i in
         [
             (r'http://www\.lemonde\.fr/\S+/article/.*'),
@@ -70,7 +67,7 @@ class LeMonde(BasicNewsRecipe):
             (r'http://\S+\.blog\.lemonde\.fr/.*'),
         ]
     ]
-    
+
     def print_version(self, url):
         return re.sub('http://www\.lemonde\.fr/.*_([0-9]+)_[0-9]+\.html.*','http://www.lemonde.fr/web/imprimer_element/0,40-0,50-\\1,0.html' ,url)
 

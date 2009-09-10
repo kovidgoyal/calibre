@@ -3,8 +3,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
-from zipfile import ZipFile 
-from cStringIO import StringIO 
+from zipfile import ZipFile
+from cStringIO import StringIO
 
 
 def get_metadata(stream):
@@ -20,5 +20,5 @@ def get_metadata(stream):
                 stream = StringIO(zf.read(f))
                 return get_metadata(stream, stream_type)
     raise ValueError('No ebook found in ZIP archive')
-            
-    
+
+

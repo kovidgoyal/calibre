@@ -1,0 +1,42 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class The_New_Republic(BasicNewsRecipe):
+    title = 'The New Republic'
+    __author__ = 'cix3'
+    language = 'en'
+    description = 'Intelligent, stimulating and rigorous examination of American politics, foreign policy and culture'
+    timefmt = ' [%b %d, %Y]'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    remove_tags = [
+            dict(name='div', attrs={'class':['print-logo', 'print-site_name', 'img-left', 'print-source_url']}),
+            dict(name='hr', attrs={'class':'print-hr'}), dict(name='img')
+            ]
+
+    feeds = [
+        ('Politics', 'http://www.tnr.com/rss/articles/Politics'),
+        ('Books and Arts', 'http://www.tnr.com/rss/articles/Books-and-Arts'),
+        ('Economy', 'http://www.tnr.com/rss/articles/Economy'),
+        ('Environment and Energy', 'http://www.tnr.com/rss/articles/Environment-%2526-Energy'),
+        ('Health Care', 'http://www.tnr.com/rss/articles/Health-Care'),
+        ('Urban Policy', 'http://www.tnr.com/rss/articles/Urban-Policy'),
+        ('World', 'http://www.tnr.com/rss/articles/World'),
+        ('Film', 'http://www.tnr.com/rss/articles/Film'),
+        ('Books', 'http://www.tnr.com/rss/articles/books'),
+        ('The Plank', 'http://www.tnr.com/rss/blogs/The-Plank'),
+        ('The Treatment', 'http://www.tnr.com/rss/blogs/The-Treatment'),
+        ('The Spine', 'http://www.tnr.com/rss/blogs/The-Spine'),
+        ('The Stash', 'http://www.tnr.com/rss/blogs/The-Stash'),
+        ('The Vine', 'http://www.tnr.com/rss/blogs/The-Vine'),
+        ('The Avenue', 'http://www.tnr.com/rss/blogs/The-Avenue'),
+        ('William Galston', 'http://www.tnr.com/rss/blogs/William-Galston'),
+        ('Simon Johnson', 'http://www.tnr.com/rss/blogs/Simon-Johnson'),
+        ('Ed Kilgore', 'http://www.tnr.com/rss/blogs/Ed-Kilgore'),
+        ('Damon Linker', 'http://www.tnr.com/rss/blogs/Damon-Linker'),
+        ('John McWhorter', 'http://www.tnr.com/rss/blogs/John-McWhorter')
+            ]
+
+    def print_version(self, url):
+        return url.replace('http://www.tnr.com/', 'http://www.tnr.com/print/')

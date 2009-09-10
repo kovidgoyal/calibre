@@ -6,8 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 calibre recipe for slate.com
 '''
 
-import string, re, sys
-from calibre import strftime
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Comment, Tag
 
@@ -27,40 +26,40 @@ class PeriodicalNameHere(BasicNewsRecipe):
     no_stylesheets          = True
     encoding                = None
     language = 'en'
-        
 
-    
-    
+
+
+
     # Method variables for customizing feed parsing
     summary_length          = 250
     use_embedded_content    = None
 
     # Method variables for pre/post processing of HTML
-    preprocess_regexps = [ (re.compile(r'<p><em>Disclosure: <strong>Slate</strong> is owned by the Washington Post.*</p>', 
+    preprocess_regexps = [ (re.compile(r'<p><em>Disclosure: <strong>Slate</strong> is owned by the Washington Post.*</p>',
                                         re.DOTALL|re.IGNORECASE),
                                         lambda match: ''),
-                           (re.compile(r'<p><strong><em>Join the discussion about this story on.*</p>', 
+                           (re.compile(r'<p><strong><em>Join the discussion about this story on.*</p>',
                                         re.DOTALL|re.IGNORECASE),
                                         lambda match: '')   ]
 
-    match_regexps           = []        
-    
+    match_regexps           = []
+
     # The second entry is for 'Big Money', which comes from a different site, uses different markup
     keep_only_tags          = [dict(attrs={   'id':['article_top', 'article_body']}),
                                dict(attrs={   'id':['content']})  ]
-                               
+
     # The second entry is for 'Big Money', which comes from a different site, uses different markup
     remove_tags             = [dict(attrs={   'id':['toolbox','recommend_tab','insider_ad_wrapper',
                                                     'article_bottom_tools_cntr','fray_article_discussion',
                                                     'fray_article_links','bottom_sponsored_links','author_bio',
                                                     'bizbox_links_bottom','ris_links_wrapper','BOXXLE']}),
                                dict(attrs={    'id':['content-top','service-links-bottom','hed']})   ]
-                               
+
     excludedDescriptionKeywords =   ['Slate V','Twitter feed','podcast']
     excludedTitleKeywords =         ['Gabfest','Slate V','on Twitter']
     excludedAuthorKeywords =        []
     excludedContentKeywords =       ['http://twitter.com/Slate']
-            
+
     extra_css = '.headline      {text-align:left;}\n\
                  .byline        {font-family:   monospace; \
                                  text-align:    left;\
@@ -73,11 +72,11 @@ class PeriodicalNameHere(BasicNewsRecipe):
                  .credit        {text-align:    right;\
                                  font-size:     smaller;}\n\
                  .article_body  {text-align:    left;}\n'
-    
+
     # Local variables to extend class
     baseURL = 'http://slate.com'
     section_dates = []
-    
+
     # class extension methods
     def tag_to_strings(self, tag):
         if not tag:
@@ -94,20 +93,20 @@ class PeriodicalNameHere(BasicNewsRecipe):
                     strings.append(res)
         return strings
 
-    
+
     def extract_sections(self):
         soup = self.index_to_soup( self.baseURL )
         soup_top_stories = soup.find(True, attrs={'class':'tap2_topic entry-content'})
         soup = soup.find(True, attrs={'id':'toc_links_container'})
 
         todays_section = soup.find(True, attrs={'class':'todaydateline'})
-        self.section_dates.append(self.tag_to_string(todays_section,use_alt=False)) 
-        self.section_dates.append(self.tag_to_string(todays_section,use_alt=False)) 
-        
+        self.section_dates.append(self.tag_to_string(todays_section,use_alt=False))
+        self.section_dates.append(self.tag_to_string(todays_section,use_alt=False))
+
         older_section_dates = soup.findAll(True, attrs={'class':'maindateline'})
         for older_section in older_section_dates :
             self.section_dates.append(self.tag_to_string(older_section,use_alt=False))
-            
+
         if soup_top_stories:
             headline_stories = soup_top_stories.find('ul')
         else:
@@ -122,18 +121,18 @@ class PeriodicalNameHere(BasicNewsRecipe):
             sections.append(section)
         return sections
 
-            
+
     def extract_section_articles(self, sections_html) :
         #       Find the containers with section content
         soup = self.index_to_soup(str(sections_html))
         sections = soup.findAll('ul')
-        
+
         articles = {}
         key = None
         ans = []
-        
+
         for (i,section) in enumerate(sections) :
-            
+
             # Get the section name
             if section.has_key('id') :
                 key = self.section_dates[i]
@@ -141,10 +140,10 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 ans.append(key)
             else :
                 continue
-            
+
             # Get the section article_list
             article_list = section.findAll('li')
-            
+
             # Extract the article attributes
             for article in article_list :
                 bylines = self.tag_to_strings(article)
@@ -155,10 +154,10 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 author = None
                 description = None
                 pubdate = None
-                
+
                 if len(bylines) == 2 and self.tag_to_string(article).find("Today's Papers") > 0 :
                     description = "A summary of what's in the major U.S. newspapers."
-                
+
                 if len(bylines) == 3 :
                     author = bylines[2].strip()
                     author = re.sub('[\r][\n][\t][\t\t]','', author)
@@ -202,17 +201,17 @@ class PeriodicalNameHere(BasicNewsRecipe):
                         if self.verbose : self.log("  >>> skipping %s (author keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
                         continue
 
-                skip_this_article = False    
+                skip_this_article = False
                 # Check to make sure we're not adding a duplicate
                 for article in articles[key] :
                     if article['url'] == url :
                         skip_this_article = True
                         break
-                        
+
                 if skip_this_article :
                     continue
 
-                # Build the dictionary entry for this article   
+                # Build the dictionary entry for this article
                 feed = key
                 if not articles.has_key(feed) :
                     articles[feed] = []
@@ -223,12 +222,12 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 if article['description'] is not None :
                     if article['description'].find('newspapers') > 0 :
                         articles[feed].insert(0,articles[feed].pop(i))
-                                        
+
 
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
-        ans = self.remove_duplicates(ans)        
+        ans = self.remove_duplicates(ans)
         return ans
-    
+
     def flatten_document(self, ans):
         flat_articles = []
         for (i,section) in enumerate(ans) :
@@ -237,9 +236,9 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 #self.log("moving %s to flat_articles[]" % article['title'])
                 flat_articles.append(article)
         flat_section = ['All Articles', flat_articles]
-        flat_ans = [flat_section]            
+        flat_ans = [flat_section]
         return flat_ans
-        
+
     def remove_duplicates(self, ans):
         # Return a stripped ans
         for (i,section) in enumerate(ans) :
@@ -261,9 +260,9 @@ class PeriodicalNameHere(BasicNewsRecipe):
     def parse_index(self) :
         sections = self.extract_sections()
         section_list = self.extract_section_articles(sections)
-        section_list = self.flatten_document(section_list)        
+        section_list = self.flatten_document(section_list)
         return section_list
-    
+
     def get_browser(self) :
         return BasicNewsRecipe.get_browser()
 
@@ -296,7 +295,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
             found_excluded = excluded.search(str(soup))
             if found_excluded :
                 print "no allowed content found, removing article"
-                raise StringError
+                raise Exception('String error')
 
         # Articles from www.thebigmoney.com use different tagging for byline, dateline and body
         head = soup.find('head')
@@ -304,25 +303,25 @@ class PeriodicalNameHere(BasicNewsRecipe):
             byline = soup.find('div',attrs={'id':'byline'})
             if byline is not None:
                 byline['class'] = byline['id']
-    
+
             dateline = soup.find('div',attrs={'id':'dateline'})
             if dateline is not None:
                 dateline['class'] = dateline['id']
-                
+
             body = soup.find('div',attrs={'id':'content'})
             if body is not None:
                 body['class'] = 'article_body'
-                
+
             # Synthesize a department kicker
             h3Tag = Tag(soup,'h3')
             emTag = Tag(soup,'em')
             emTag.insert(0,NavigableString("the big money: Today's business press"))
             h3Tag.insert(0,emTag)
             soup.body.insert(0,h3Tag)
-            
-        # Strip anchors from HTML                            
+
+        # Strip anchors from HTML
         return self.stripAnchors(soup)
-        
+
     def postprocess_html(self, soup, first_fetch) :
 
         # Fix up dept_kicker as <h3><em>
@@ -353,14 +352,14 @@ class PeriodicalNameHere(BasicNewsRecipe):
             headline.replaceWith(h2tag)
 
         # Fix up the concatenated byline and dateline
-        byline = soup.find(True,attrs={'class':'byline'})            
+        byline = soup.find(True,attrs={'class':'byline'})
         if byline is not None :
             bylineTag = Tag(soup,'div')
             bylineTag['class'] = 'byline'
             #bylineTag['height'] = '0em'
             bylineTag.insert(0,self.tag_to_string(byline))
             byline.replaceWith(bylineTag)
-            
+
         dateline = soup.find(True, attrs={'class':'dateline'})
         if dateline is not None :
             datelineTag = Tag(soup, 'div')
@@ -377,7 +376,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 hrTag = Tag(soup, 'hr')
                 emTag.insert(1, hrTag)
                 caption.replaceWith(emTag)
-                
+
         # Fix photos
         for photo in soup.findAll('span',attrs={'class':'imagewrapper'}):
             if photo.a is not None and photo.a.img is not None:
@@ -385,34 +384,34 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 divTag['class'] ='imagewrapper'
                 divTag.insert(0,photo.a.img)
                 photo.replaceWith(divTag)
-        
+
         return soup
-        
+
     def postprocess_book(self, oeb, opts, log) :
 
         def extract_byline(href) :
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))            
-            byline = soup.find(True,attrs={'class':'byline'})            
-            if byline is not None:            
+            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
+            byline = soup.find(True,attrs={'class':'byline'})
+            if byline is not None:
                 return self.tag_to_string(byline,use_alt=False)
             else :
-                return None    
-        
+                return None
+
         def extract_description(href) :
             soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
             paragraphs = soup.findAll('p')
             for p in paragraphs :
                 if self.tag_to_string(p,use_alt=False).startswith('By ') or \
                    self.tag_to_string(p,use_alt=False).startswith('Posted '):
-                    continue                
+                    continue
                 comment = p.find(text=lambda text:isinstance(text, Comment))
                 if comment is not None:
                     continue
                 else:
                     return self.tag_to_string(p,use_alt=False)[:self.summary_length] + '...'
-                    
+
             return None
-                                 
+
         # Method entry point here
         # Single section toc looks different than multi-section tocs
         if oeb.toc.depth() == 2 :
@@ -428,4 +427,4 @@ class PeriodicalNameHere(BasicNewsRecipe):
                         article.author = extract_byline(article.href)
                     if article.description is None :
                         article.description = extract_description(article.href)
-        
+

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Read metadata from LRX files
 '''
 
-import sys, struct
+import struct
 from zlib import decompress
 from lxml import etree
 
@@ -33,7 +33,7 @@ def short_be(buf):
 def get_metadata(f):
     read = lambda at, amount: _read(f, at, amount)
     f.seek(0)
-    buf = f.read(12) 
+    buf = f.read(12)
     if buf[4:] == 'ftypLRX2':
         offset = 0
         while True:
@@ -74,9 +74,9 @@ def get_metadata(f):
         mi.tags = [x.text for x in  bi.findall('Category')]
         mi.language = root.find('DocInfo').find('Language').text
         return mi
-        
+
     elif buf[4:8] == 'LRX':
         raise ValueError('Librie LRX format not supported')
     else:
         raise ValueError('Not a LRX file')
-    
+

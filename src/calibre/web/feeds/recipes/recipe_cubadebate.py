@@ -7,7 +7,6 @@ newyorker.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class CubaDebate(BasicNewsRecipe):
     title                 = 'CubaDebate'
@@ -23,15 +22,15 @@ class CubaDebate(BasicNewsRecipe):
     category              = 'news, politics, Cuba'
     encoding              = 'utf-8'
     extra_css             = ' #BlogTitle{font-size: x-large; font-weight: bold} '
-    
-    conversion_options = {  
+
+    conversion_options = {
                              'comments'    : description
                             ,'tags'        : category
                             ,'language'    : 'es'
                             ,'publisher'   : publisher
                             ,'pretty_print': True
                          }
-                         
+
     keep_only_tags = [dict(name='div', attrs={'id':'Outline'})]
     remove_tags_after = dict(name='div',attrs={'id':'BlogContent'})
     remove_tags = [dict(name='link')]

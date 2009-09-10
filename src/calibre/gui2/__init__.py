@@ -10,9 +10,8 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import islinux, iswindows, isosx
-from calibre.startup import get_lang
 from calibre.utils.config import Config, ConfigProxy, dynamic
-import calibre.resources as resources
+from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
 
@@ -170,7 +169,7 @@ def warning_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
     d.setEscapeButton(QMessageBox.Ok)
-    d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
     if show:
         return d.exec_()
     return d
@@ -178,7 +177,7 @@ def warning_dialog(parent, title, msg, det_msg='', show=False):
 def error_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_error.svg')))
     d.setEscapeButton(QMessageBox.Ok)
     if show:
         return d.exec_()
@@ -187,14 +186,14 @@ def error_dialog(parent, title, msg, det_msg='', show=False):
 def question_dialog(parent, title, msg, det_msg=''):
     d = MessageBox(QMessageBox.Question, title, msg, QMessageBox.Yes|QMessageBox.No,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_information.svg')))
     d.setEscapeButton(QMessageBox.No)
     return d.exec_() == QMessageBox.Yes
 
 def info_dialog(parent, title, msg, det_msg='', show=False):
     d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
                     parent, det_msg)
-    d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    d.setIconPixmap(QPixmap(I('dialog_information.svg')))
     if show:
         return d.exec_()
     return d
@@ -322,7 +321,7 @@ class FileIconProvider(QFileIconProvider):
         QFileIconProvider.__init__(self)
         self.icons = {}
         for key in self.__class__.ICONS.keys():
-            self.icons[key] = ':/images/mimetypes/'+self.__class__.ICONS[key]+'.svg'
+            self.icons[key] = I('mimetypes/')+self.__class__.ICONS[key]+'.svg'
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
 
@@ -533,6 +532,7 @@ class ResizableDialog(QDialog):
 
 gui_thread = None
 
+
 class Application(QApplication):
 
     def __init__(self, args):
@@ -540,13 +540,9 @@ class Application(QApplication):
         QApplication.__init__(self, qargs)
         global gui_thread
         gui_thread = QThread.currentThread()
-        self.translator = QTranslator(self)
-        lang = get_lang()
-        if lang:
-            data = getattr(resources, 'qt_'+lang, None)
-            if data:
-                self.translator.loadFromData(data)
-                self.installTranslator(self.translator)
+        self._translator = QTranslator(self)
+        if set_qt_translator(self._translator):
+            self.installTranslator(self._translator)
 
 def is_ok_to_use_qt():
     global gui_thread

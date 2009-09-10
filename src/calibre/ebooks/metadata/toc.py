@@ -207,8 +207,8 @@ class TOC(list):
                 self.add_item(href, fragment, txt)
 
     def render(self, stream, uid):
-        from calibre.resources import ncx_template
         from calibre.utils.genshi.template import MarkupTemplate
+        ncx_template = open(P('templates/ncx.xml'), 'rb').read()
         doctype = ('ncx', "-//NISO//DTD ncx 2005-1//EN", "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd")
         template = MarkupTemplate(ncx_template)
         raw = template.generate(uid=uid, toc=self, __appname__=__appname__)

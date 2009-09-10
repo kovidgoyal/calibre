@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os
+import sys, os, cPickle
 
 AUTHTOOL="""#!/usr/bin/python
 import os
@@ -29,8 +29,11 @@ DEST_PATH = '/usr/bin'
 def create_symlinks():
     return create_symlinks_new() if getattr(sys, 'new_app_bundle', False) else create_symlinks_old()
 
+def get_scripts():
+    return cPickle.load(open(P('scripts.pickle'), 'rb'))
+
 def create_symlinks_new():
-    from calibre.resources import scripts
+    scripts = get_scripts()
 
     links   = [os.path.join(DEST_PATH, i) for i in scripts]
     scripts = [os.path.join(
@@ -40,7 +43,7 @@ def create_symlinks_new():
 
 
 def create_symlinks_old():
-    from calibre.resources import scripts
+    scripts = get_scripts()
 
     resources_path = os.environ['RESOURCEPATH']
     links   = [os.path.join(DEST_PATH, i) for i in scripts]

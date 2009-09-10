@@ -301,11 +301,11 @@ class DeviceMenu(QMenu):
                 formats, auto, default = opts.accounts[account]
                 dest = 'mail:'+account+';'+formats
                 if default:
-                    default_account = (dest, False, False, ':/images/mail.svg',
+                    default_account = (dest, False, False, I('mail.svg'),
                             _('Email to')+' '+account)
-                action1 = DeviceAction(dest, False, False, ':/images/mail.svg',
+                action1 = DeviceAction(dest, False, False, I('mail.svg'),
                         _('Email to')+' '+account, self)
-                action2 = DeviceAction(dest, True, False, ':/images/mail.svg',
+                action2 = DeviceAction(dest, True, False, I('mail.svg'),
                         _('Email to')+' '+account, self)
                 map(self.email_to_menu.addAction, (action1, action2))
                 map(self._memory.append, (action1, action2))
@@ -316,25 +316,25 @@ class DeviceMenu(QMenu):
                             self.action_triggered)
 
         _actions = [
-                ('main:', False, False,  ':/images/reader.svg',
+                ('main:', False, False,  I('reader.svg'),
                     _('Send to main memory')),
-                ('carda:0', False, False, ':/images/sd.svg',
+                ('carda:0', False, False, I('sd.svg'),
                     _('Send to storage card A')),
-                ('cardb:0', False, False, ':/images/sd.svg',
+                ('cardb:0', False, False, I('sd.svg'),
                     _('Send to storage card B')),
                 '-----',
-                ('main:', True, False,   ':/images/reader.svg',
+                ('main:', True, False,   I('reader.svg'),
                     _('Send to main memory')),
-                ('carda:0', True, False,  ':/images/sd.svg',
+                ('carda:0', True, False,  I('sd.svg'),
                     _('Send to storage card A')),
-                ('cardb:0', True, False,  ':/images/sd.svg',
+                ('cardb:0', True, False,  I('sd.svg'),
                     _('Send to storage card B')),
                 '-----',
-                ('main:', False, True,  ':/images/reader.svg',
+                ('main:', False, True,  I('reader.svg'),
                     _('Send specific format to main memory')),
-                ('carda:0', False, True, ':/images/sd.svg',
+                ('carda:0', False, True, I('sd.svg'),
                     _('Send specific format to storage card A')),
-                ('cardb:0', False, True, ':/images/sd.svg',
+                ('cardb:0', False, True, I('sd.svg'),
                     _('Send specific format to storage card B')),
 
                 ]

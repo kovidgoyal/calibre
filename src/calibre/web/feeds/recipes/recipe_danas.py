@@ -7,14 +7,14 @@ danas.rs
 '''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Danas(BasicNewsRecipe):
     title                 = 'Danas'
     __author__            = 'Darko Miletic'
     description           = 'Vesti'
     publisher             = 'Danas d.o.o.'
-    category              = 'news, politics, Serbia'    
+    category              = 'news, politics, Serbia'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = False
@@ -22,9 +22,9 @@ class Danas(BasicNewsRecipe):
     language = 'sr'
 
     lang                  = 'sr-Latn-RS'
-    direction             = 'ltr'    
+    direction             = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -32,7 +32,7 @@ class Danas(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
- 
+
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -58,5 +58,5 @@ class Danas(BasicNewsRecipe):
             item.name = 'div'
             for attrib in attribs:
                 if item.has_key(attrib):
-                   del item[attrib]                        
+                   del item[attrib]
         return soup

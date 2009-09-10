@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from IMP files'''
 
-import sys, os
+import sys
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
@@ -17,7 +17,7 @@ def get_metadata(stream):
         if stream.read(10) not in MAGIC:
             print >>sys.stderr, u'Couldn\'t read IMP header from file'
             return mi
-        
+
         def cString(skip=0):
             result = ''
             while 1:
@@ -30,7 +30,7 @@ def get_metadata(stream):
 
         stream.read(38) # skip past some uninteresting headers
         _, category, title, author = cString(), cString(), cString(1), cString(2)
-        
+
         if title:
             mi.title = title
         if author:

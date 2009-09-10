@@ -3,8 +3,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
-from calibre import strftime
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class OutlookIndia(BasicNewsRecipe):
@@ -14,7 +12,7 @@ class OutlookIndia(BasicNewsRecipe):
     description    = 'Weekly news and current affairs in India'
     no_stylesheets = True
     encoding       = 'utf-8'
-    language = 'en'
+    language = 'en_IN'
 
     recursions = 1
     extra_css = '''

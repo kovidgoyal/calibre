@@ -9,14 +9,14 @@ vijesti.me
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Vijesti(BasicNewsRecipe):
     title                 = 'Vijesti'
     __author__            = 'Darko Miletic'
     description           = 'News from Montenegro'
     publisher             = 'Daily Press Vijesti'
-    category              = 'news, politics, Montenegro'    
+    category              = 'news, politics, Montenegro'
     oldest_article        = 2
     max_articles_per_feed = 150
     no_stylesheets        = True
@@ -26,7 +26,7 @@ class Vijesti(BasicNewsRecipe):
 
     lang                  ='sr-Latn-Me'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -34,7 +34,7 @@ class Vijesti(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-     
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags = [dict(name='div', attrs={'id':'mainnews'})]
@@ -53,6 +53,6 @@ class Vijesti(BasicNewsRecipe):
         return self.adeify_images(soup)
 
     def get_article_url(self, article):
-        raw = article.get('link',  None)         
+        raw = article.get('link',  None)
         return raw.replace('.cg.yu','.me')
-        
+

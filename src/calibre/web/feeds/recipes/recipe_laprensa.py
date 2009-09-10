@@ -14,7 +14,7 @@ class LaPrensa(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Informacion Libre las 24 horas'
     publisher             = 'La Prensa'
-    category              = 'news, politics, Argentina'    
+    category              = 'news, politics, Argentina'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -22,16 +22,16 @@ class LaPrensa(BasicNewsRecipe):
     encoding              = 'cp1252'
     cover_url             = 'http://www.laprensa.com.ar/imgs/logo.gif'
     remove_javascript     = True
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                            
-    feeds = [ 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
+    feeds = [
               (u'Politica'    , u'http://www.laprensa.com.ar/Rss.aspx?Rss=4' )
              ,(u'Economia'    , u'http://www.laprensa.com.ar/Rss.aspx?Rss=5' )
              ,(u'Opinion'     , u'http://www.laprensa.com.ar/Rss.aspx?Rss=6' )
@@ -46,16 +46,15 @@ class LaPrensa(BasicNewsRecipe):
 
     def get_article_url(self, article):
         raw = article.get('link',  None).encode('utf8')
-        final = urllib.quote(raw,':/') 
+        final = urllib.quote(raw,':/')
         return final
 
     def preprocess_html(self, soup):
         del soup.body['onload']
         mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
-            del item['style']        
+            del item['style']
         return soup
-    
+
     language = 'es'
-

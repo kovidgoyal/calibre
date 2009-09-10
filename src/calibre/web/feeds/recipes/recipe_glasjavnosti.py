@@ -13,7 +13,7 @@ class GlasJavnosti(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Glas javnosti - Mi ne ulepsavamo stvarnost'
     publisher             = 'Glas Javnosti'
-    category              = 'news, politics, Serbia'    
+    category              = 'news, politics, Serbia'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = False
@@ -21,9 +21,9 @@ class GlasJavnosti(BasicNewsRecipe):
     language = 'sr'
 
     lang                  = 'sr-Latn-RS'
-    direction             = 'ltr'    
+    direction             = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -31,7 +31,7 @@ class GlasJavnosti(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
- 
+
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -45,7 +45,7 @@ class GlasJavnosti(BasicNewsRecipe):
                     ,dict(name='div',attrs={'id':'block-block-12'})
                   ]
 
-    feeds          = [ 
+    feeds          = [
                         (u'Politika', u'http://www.glas-javnosti.rs/aktuelni-clanci/2')
                        ,(u'Tema', u'http://www.glas-javnosti.rs/aktuelni-clanci/48')
                        ,(u'Drustvo', u'http://www.glas-javnosti.rs/aktuelni-clanci/17')
@@ -76,4 +76,4 @@ class GlasJavnosti(BasicNewsRecipe):
                      ]
 
     remove_attributes = ['style','width','height','font','border','align']
-    
+

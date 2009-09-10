@@ -61,7 +61,7 @@
           <string>&amp;Previous</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >
+          <iconset resource="../../../../resources/images.qrc" >
            <normaloff>:/images/previous.svg</normaloff>:/images/previous.svg</iconset>
          </property>
         </widget>
@@ -72,7 +72,7 @@
           <string>&amp;Next</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >
+          <iconset resource="../../../../resources/images.qrc" >
            <normaloff>:/images/next.svg</normaloff>:/images/next.svg</iconset>
          </property>
         </widget>
@@ -84,7 +84,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images.qrc" />
+  <include location="../../../../resources/images.qrc" />
  </resources>
  <connections/>
 </ui>

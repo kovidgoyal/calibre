@@ -14,7 +14,7 @@
    <string>Edit Meta information</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -153,7 +153,7 @@
            <string>Open Tag Editor</string>
           </property>
           <property name="icon">
-           <iconset resource="../images.qrc">
+           <iconset resource="../../../../resources/images.qrc">
             <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
           </property>
          </widget>
@@ -278,7 +278,7 @@
   <tabstop>button_box</tabstop>
  </tabstops>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

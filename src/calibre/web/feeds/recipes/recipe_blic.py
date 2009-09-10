@@ -8,12 +8,11 @@ blic.rs
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Blic(BasicNewsRecipe):
     title                 = 'Blic'
     __author__            = 'Darko Miletic'
-    description           = 'Blic.co.yu online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'    
+    description           = 'Blic.co.yu online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'
     publisher             = 'RINGIER d.o.o.'
     category              = 'news, politics, Serbia'
     delay                 = 1
@@ -26,14 +25,14 @@ class Blic(BasicNewsRecipe):
 
     lang                  = 'sr-Latn-RS'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} '
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
                         , 'publisher'        : publisher
                         , 'language'         : lang
                         }
-        
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags     = [dict(name='div', attrs={'class':'single_news'})]
@@ -41,7 +40,7 @@ class Blic(BasicNewsRecipe):
     feeds              = [(u'Vesti', u'http://www.blic.rs/rssall.php')]
 
     remove_tags        = [dict(name=['object','link'])]
-    
+
     def print_version(self, url):
         rest_url = url.partition('?')[2]
         return u'http://www.blic.rs/_print.php?' + rest_url
@@ -57,10 +56,10 @@ class Blic(BasicNewsRecipe):
             item.name = 'div'
             for attrib in attribs:
                 if item.has_key(attrib):
-                   del item[attrib]                        
+                   del item[attrib]
         return self.adeify_images(soup)
 
     def get_article_url(self, article):
-        raw = article.get('link',  None)         
+        raw = article.get('link',  None)
         return raw.replace('.co.yu','.rs')
-        
+

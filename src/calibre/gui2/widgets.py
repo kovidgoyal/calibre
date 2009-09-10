@@ -27,7 +27,7 @@ class ProgressIndicator(QWidget):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         self.setGeometry(0, 0, 300, 350)
-        self.movie = QMovie(':/images/jobs-animated.mng')
+        self.movie = QMovie(I('jobs-animated.mng'))
         self.ml = QLabel(self)
         self.ml.setMovie(self.movie)
         self.movie.start()
@@ -159,10 +159,10 @@ class LocationModel(QAbstractListModel):
 
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
-        self.icons = [QVariant(QIcon(':/library')),
-                      QVariant(QIcon(':/images/reader.svg')),
-                      QVariant(QIcon(':/images/sd.svg')),
-                      QVariant(QIcon(':/images/sd.svg'))]
+        self.icons = [QVariant(QIcon(I('library.png'))),
+                      QVariant(QIcon(I('reader.svg'))),
+                      QVariant(QIcon(I('sd.svg'))),
+                      QVariant(QIcon(I('sd.svg')))]
         self.text = [_('Library\n%d\nbooks'),
                      _('Reader\n%s\navailable'),
                      _('Card A\n%s\navailable'),
@@ -313,7 +313,7 @@ class EjectButton(QAbstractButton):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setClipRect(event.rect())
-        image = QPixmap(':/images/eject').scaledToHeight(event.rect().height(),
+        image = QPixmap(I('eject')).scaledToHeight(event.rect().height(),
             Qt.SmoothTransformation)
 
         if not self.mouse_over:

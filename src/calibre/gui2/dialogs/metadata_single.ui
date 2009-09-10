@@ -20,7 +20,7 @@
    <string>Edit Meta Information</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -102,7 +102,7 @@
                     <string>...</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="../images.qrc">
+                    <iconset resource="../../../../resources/images.qrc">
                      <normaloff>:/images/swap.svg</normaloff>:/images/swap.svg</iconset>
                    </property>
                    <property name="iconSize">
@@ -157,7 +157,7 @@
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../images.qrc">
+                      <iconset resource="../../../../resources/images.qrc">
                        <normaloff>:/images/auto_author_sort.svg</normaloff>:/images/auto_author_sort.svg</iconset>
                      </property>
                     </widget>
@@ -240,7 +240,7 @@
                       <string>Open Tag Editor</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../images.qrc">
+                      <iconset resource="../../../../resources/images.qrc">
                        <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
                      </property>
                     </widget>
@@ -302,7 +302,7 @@
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../images.qrc">
+                      <iconset resource="../../../../resources/images.qrc">
                        <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
                      </property>
                     </widget>
@@ -446,7 +446,7 @@
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../images.qrc">
+                      <iconset resource="../../../../resources/images.qrc">
                        <normaloff>:/images/add_book.svg</normaloff>:/images/add_book.svg</iconset>
                      </property>
                      <property name="iconSize">
@@ -466,7 +466,7 @@
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../images.qrc">
+                      <iconset resource="../../../../resources/images.qrc">
                        <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
                      </property>
                      <property name="iconSize">
@@ -486,7 +486,7 @@
                       <string>...</string>
                      </property>
                      <property name="icon">
-                      <iconset resource="../images.qrc">
+                      <iconset resource="../../../../resources/images.qrc">
                        <normaloff>:/images/book.svg</normaloff>:/images/book.svg</iconset>
                      </property>
                      <property name="iconSize">
@@ -506,7 +506,7 @@
                       <string/>
                      </property>
                      <property name="icon">
-                      <iconset resource="../images.qrc">
+                      <iconset resource="../../../../resources/images.qrc">
                        <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
                      </property>
                      <property name="iconSize">
@@ -547,7 +547,7 @@
                     <string/>
                    </property>
                    <property name="pixmap">
-                    <pixmap resource="../images.qrc">:/images/book.svg</pixmap>
+                    <pixmap resource="../../../../resources/images.qrc">:/images/book.svg</pixmap>
                    </property>
                    <property name="scaledContents">
                     <bool>true</bool>
@@ -599,7 +599,7 @@
                         <string>...</string>
                        </property>
                        <property name="icon">
-                        <iconset resource="../images.qrc">
+                        <iconset resource="../../../../resources/images.qrc">
                          <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
                        </property>
                       </widget>
@@ -613,7 +613,7 @@
                         <string>...</string>
                        </property>
                        <property name="icon">
-                        <iconset resource="../images.qrc">
+                        <iconset resource="../../../../resources/images.qrc">
                          <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
                        </property>
                       </widget>
@@ -709,7 +709,7 @@
   <tabstop>button_box</tabstop>
  </tabstops>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

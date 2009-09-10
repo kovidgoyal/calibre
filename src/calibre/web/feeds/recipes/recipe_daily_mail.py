@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TheDailyMail(BasicNewsRecipe):
     title          = u'The Daily Mail'
     oldest_article = 2
-    language = 'en'
+    language = 'en_GB'
 
     author = 'RufusA'
     simultaneous_downloads= 1
@@ -15,7 +15,7 @@ class TheDailyMail(BasicNewsRecipe):
     remove_tags_after  = dict(name='h3', attrs={'class':'social-links-title'})
     remove_tags_before  = dict(name='div', attrs={'id':'content'})
     no_stylesheets = True
-    
+
     feeds          = [
 	(u'Home', u'http://www.dailymail.co.uk/home/index.rss'),
 	(u'News', u'http://www.dailymail.co.uk/news/index.rss'),

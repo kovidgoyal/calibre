@@ -14,7 +14,7 @@ class BookInfoDisplay(QWidget):
         WIDTH = 81
         HEIGHT = 108
 
-        def __init__(self, coverpath=':/images/book.svg'):
+        def __init__(self, coverpath=I('book.svg')):
             QLabel.__init__(self)
             self.default_pixmap = QPixmap(coverpath).scaled(self.__class__.WIDTH,
                                                             self.__class__.HEIGHT,
@@ -141,7 +141,7 @@ class CoverFlowButton(QToolButton):
     def __init__(self, parent=None):
         QToolButton.__init__(self, parent)
         self.setIconSize(QSize(80, 80))
-        self.setIcon(QIcon(':/images/cover_flow.svg'))
+        self.setIcon(QIcon(I('cover_flow.svg')))
         self.setCheckable(True)
         self.setChecked(False)
         self.setAutoRaise(True)
@@ -163,7 +163,7 @@ class TagViewButton(QToolButton):
     def __init__(self, parent=None):
         QToolButton.__init__(self, parent)
         self.setIconSize(QSize(80, 80))
-        self.setIcon(QIcon(':/images/tags.svg'))
+        self.setIcon(QIcon(I('tags.svg')))
         self.setToolTip(_('Click to browse books by tags'))
         self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
         self.setCursor(Qt.PointingHandCursor)
@@ -177,7 +177,7 @@ class StatusBar(QStatusBar):
     def __init__(self, jobs_dialog, systray=None):
         QStatusBar.__init__(self)
         self.systray = systray
-        self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'), jobs_dialog)
+        self.movie_button = MovieButton(QMovie(I('jobs-animated.mng')), jobs_dialog)
         self.cover_flow_button = CoverFlowButton()
         self.tag_view_button = TagViewButton()
         self.addPermanentWidget(self.cover_flow_button)

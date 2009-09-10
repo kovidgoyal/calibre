@@ -31,23 +31,23 @@ class HeaderRecord(object):
         self.size, = struct.unpack('>L', raw[4:8])
         self.record_size, = struct.unpack('>H', raw[8:10])
         self.flags, = struct.unpack('>B', raw[18:19])
-        
-    
+
+
 class Reader(FormatReader):
-    
+
     def __init__(self, header, stream, log, options):
         self.stream = stream
         self.log = log
         self.encoding = options.input_encoding
         self.single_line_paras = options.single_line_paras
         self.print_formatted_paras = options.print_formatted_paras
-    
+
         self.sections = []
         for i in range(header.num_sections):
             self.sections.append(header.section_data(i))
 
         self.header_record = HeaderRecord(self.section_data(0))
-        
+
         vmajor = (self.header_record.version & 0x0000FF00) >> 8
         vminor = self.header_record.version & 0x000000FF
         if vmajor < 1 or (vmajor == 1 and vminor < 40):
@@ -72,7 +72,7 @@ class Reader(FormatReader):
 
     def extract_content(self, output_dir):
         txt = ''
-        
+
         self.log.info('Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
             self.log.debug('\tDecompressing text section %i' % i)
@@ -86,12 +86,12 @@ class Reader(FormatReader):
         html = convert_basic(txt)
         with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
-                        
+
         from calibre.ebooks.metadata.meta import get_metadata
         mi = get_metadata(self.stream, 'pdb')
         manifest = [('index.html', None)]
         spine = ['index.html']
         opf_writer(output_dir, 'metadata.opf', manifest, spine, mi)
-        
+
         return os.path.join(output_dir, 'metadata.opf')
 

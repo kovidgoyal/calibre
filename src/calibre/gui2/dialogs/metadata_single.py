@@ -85,7 +85,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     COVER_FETCH_TIMEOUT = 240 # seconds
 
     def do_reset_cover(self, *args):
-        pix = QPixmap(':/images/book.svg')
+        pix = QPixmap(I('book.svg'))
         self.cover.setPixmap(pix)
         self.cover_changed = True
         self.cover_data = None

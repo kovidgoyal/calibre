@@ -96,7 +96,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     'The main GUI'
 
     def set_default_thumbnail(self, height):
-        r = QSvgRenderer(':/images/book.svg')
+        r = QSvgRenderer(I('book.svg'))
         pixmap = QPixmap(height, height)
         pixmap.fill(QColor(255,255,255))
         p = QPainter(pixmap)
@@ -146,7 +146,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.device_connected = False
         self.viewers = collections.deque()
         self.content_server = None
-        self.system_tray_icon = QSystemTrayIcon(QIcon(':/library'), self)
+        self.system_tray_icon = QSystemTrayIcon(QIcon(I('library.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         if not config['systray_icon']:
             self.system_tray_icon.hide()
@@ -154,9 +154,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.system_tray_icon.show()
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
-                QIcon(':/images/page.svg'), _('&Restore'))
+                QIcon(I('page.svg')), _('&Restore'))
         self.donate_action  = self.system_tray_menu.addAction(
-                QIcon(':/images/donate.svg'), _('&Donate to support calibre'))
+                QIcon(I('donate.svg')), _('&Donate to support calibre'))
         self.donate_button.setDefaultAction(self.donate_action)
         if not config['show_donate_button']:
             self.donate_button.setVisible(False)
@@ -1714,7 +1714,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
-            d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+            d.setIconPixmap(QPixmap(I('dialog_warning.svg')))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
                 return False
@@ -1821,12 +1821,12 @@ def init_qt(args):
     opts, args = parser.parse_args(args)
     if opts.with_library is not None and os.path.isdir(opts.with_library):
         prefs.set('library_path', os.path.abspath(opts.with_library))
-        print 'Using library at', prefs['library_path']
-    app = Application(args)
-    actions = tuple(Main.create_application_menubar())
-    app.setWindowIcon(QIcon(':/library'))
+        prints('Using library at', prefs['library_path'])
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)
+    app = Application(args)
+    actions = tuple(Main.create_application_menubar())
+    app.setWindowIcon(QIcon(I('library.png')))
     return app, opts, args, actions
 
 def run_gui(opts, args, actions, listener, app):

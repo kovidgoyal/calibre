@@ -8,11 +8,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
-from itertools import count, chain
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS
+import re
+from itertools import count
+from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ebooks.oeb.base import OEBBook
-from lxml import etree, html
 from lxml.etree import XPath
 
 NSMAP = {'h': XHTML_NS, 'html': XHTML_NS, 'xhtml': XHTML_NS}
@@ -55,5 +54,5 @@ def add_page_map(opfpath, opts):
                 id = elem.attrib['id'] = idgen.next()
             href = '#'.join((item.href, id))
             oeb.pages.add(name, href)
-    writer = DirWriter(version='2.0', page_map=True)
+    writer = None#DirWriter(version='2.0', page_map=True)
     writer.dump(oeb, opfpath)

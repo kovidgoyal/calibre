@@ -41,6 +41,7 @@ from xml.sax.saxutils import escape
 from datetime import date
 try:
     from elementtree.ElementTree import (Element, SubElement)
+    Element, SubElement
 except ImportError:
     from xml.etree.ElementTree import (Element, SubElement)
 

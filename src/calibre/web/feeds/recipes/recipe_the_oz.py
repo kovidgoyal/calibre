@@ -13,27 +13,27 @@ class DailyTelegraph(BasicNewsRecipe):
     title          = u'The Australian'
     __author__     = u'Matthew Briggs'
     description    = u'National broadsheet newspaper from down under - colloquially known as The Oz'
-    language = 'en'
+    language = 'en_AU'
 
     oldest_article = 2
     max_articles_per_feed = 10
     remove_javascript      = True
     no_stylesheets         = True
     encoding               = 'utf8'
-    
+
     html2lrf_options = [
                           '--comment'       , description
                         , '--category'      , 'news, Australia'
                         , '--publisher'     , title
                         ]
-    
+
     keep_only_tags = [
                         dict(name='h1', attrs={'class':'section-heading'})
                        ,dict(name='div', attrs={'id':'article'})
                      ]
-                     
+
     remove_tags = [dict(name=['object','link'])]
-    
+
     feeds          = [
                      (u'News', u'http://feeds.news.com.au/public/rss/2.0/aus_news_807.xml'),
                      (u'World News', u'http://feeds.news.com.au/public/rss/2.0/aus_world_808.xml'),

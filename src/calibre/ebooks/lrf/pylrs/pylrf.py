@@ -1,8 +1,8 @@
+#!/usr/bin/env python
 """
     pylrf.py -- very low level interface to create lrf files.  See pylrs for
     higher level interface that can use this module to render books to lrf.
 """
-
 import struct
 import zlib
 import StringIO
@@ -50,7 +50,7 @@ PYLRF_VERSION = "1.0"
 #
 #   Not based on any official documentation, so many assumptions had to be made.
 #
-#   Can be used to create lrf files that can lock up an eBook reader. 
+#   Can be used to create lrf files that can lock up an eBook reader.
 #   This is your only warning.
 #
 #   Unsupported objects: Canvas, Window, PopUpWindow, Sound, Import,
@@ -65,7 +65,7 @@ PYLRF_VERSION = "1.0"
 #
 #   Tested on Python 2.4 and 2.5, Windows XP and Sony PRS-500.
 #
-#   Commented even less than pylrs, but not very useful when called directly, 
+#   Commented even less than pylrs, but not very useful when called directly,
 #   anyway.
 #
 
@@ -81,7 +81,7 @@ def writeWord(f, word):
     if int(word) < 0:
         raise LrfError('Cannot encode a number < 0 in a word: '+str(word))
     f.write(struct.pack("<H", int(word)))
-    
+
 
 def writeSignedWord(f, sword):
     f.write(struct.pack("<h", int(float(sword))))
@@ -115,7 +115,7 @@ def writeColor(f, color):
 def writeLineWidth(f, width):
     writeWord(f, int(width))
 
-def writeUnicode(f, string, encoding):    
+def writeUnicode(f, string, encoding):
     if isinstance(string, str):
         string = string.decode(encoding)
     string = string.encode("utf-16-le")
@@ -125,7 +125,7 @@ def writeUnicode(f, string, encoding):
     writeWord(f, length)
     writeString(f, string)
 
-def writeRaw(f, string, encoding):   
+def writeRaw(f, string, encoding):
     if isinstance(string, str):
         string = string.decode(encoding)
 
@@ -156,7 +156,7 @@ def writeRuledLine(f, lineInfo):
     writeWord(f, LINE_TYPE_ENCODING[lineType])
     writeWord(f, lineWidth)
     writeColor(f, lineColor)
-    
+
 
 LRF_SIGNATURE = "L\x00R\x00F\x00\x00\x00"
 
@@ -169,10 +169,10 @@ IMAGE_TYPE_ENCODING = dict(GIF=0x14, PNG=0x12, BMP=0x13, JPEG=0x11, JPG=0x11)
 
 OBJECT_TYPE_ENCODING = dict(
         PageTree        = 0x01,
-        Page            = 0x02, 
+        Page            = 0x02,
         Header          = 0x03,
         Footer          = 0x04,
-        PageAtr         = 0x05, PageStyle=0x05, 
+        PageAtr         = 0x05, PageStyle=0x05,
         Block           = 0x06,
         BlockAtr        = 0x07, BlockStyle=0x07,
         MiniPage        = 0x08,
@@ -206,7 +206,7 @@ TAG_INFO = dict(
         rawtext         = (0, writeRaw),
         ObjectStart     = (0xF500, "<IH"),
         ObjectEnd       = (0xF501,),
-        # InfoLink (0xF502) 
+        # InfoLink (0xF502)
         Link            = (0xF503, "<I"),
         StreamSize      = (0xF504, writeDWord),
         StreamData      = (0xF505, writeString),
@@ -325,8 +325,8 @@ TAG_INFO = dict(
         Box             = (0xF5C6, LINE_TYPE_ENCODING, writeWord),
         BoxEnd          = (0xF5C7,),
         Space           = (0xF5CA, writeSignedWord),
-        textstring      = (0xF5CC, writeUnicode), 
-        Plot            = (0xF5D1, "<HHII"),        
+        textstring      = (0xF5CC, writeUnicode),
+        Plot            = (0xF5D1, "<HHII"),
         CR              = (0xF5D2,),
         RegisterFont    = (0xF5D8, writeDWord),
         setwaitprop     = (0xF5DA, {'replay':1, 'noreplay':2}, writeWord),
@@ -462,7 +462,7 @@ class LrfTagStream(LrfStreamBase):
         stream = StringIO.StringIO()
         if optimizeTags:
             tagListOptimizer(self.tags)
-            
+
         for tag in self.tags:
             tag.write(stream, encoding)
 
@@ -485,7 +485,7 @@ class LrfObject(object):
     def __init__(self, name, objId):
         if objId <= 0:
             raise LrfError, "invalid objId for " + name
-        
+
         self.name = name
         self.objId = objId
         self.tags = []
@@ -497,7 +497,7 @@ class LrfObject(object):
 
     def __str__(self):
         return 'LRFObject: ' + self.name + ", " + str(self.objId)
-    
+
     def appendLrfTag(self, tag):
         self.tags.append(tag)
 
@@ -544,8 +544,8 @@ class LrfObject(object):
         if "empdotscode" in composites or "empdotsfontname" in composites or \
                 "refempdotsfont" in composites:
             dotscode = composites.get("empdotscode", "0x002E")
-            dotsfontname = composites.get("empdotsfontname", 
-                    "Dutch801 Rm BT Roman") 
+            dotsfontname = composites.get("empdotsfontname",
+                    "Dutch801 Rm BT Roman")
             refdotsfont = composites.get("refempdotsfont", 0)
             self.append(LrfTag("empdots", (refdotsfont, dotsfontname,
                 dotscode)))
@@ -554,7 +554,7 @@ class LrfObject(object):
     def write(self, lrf, encoding=None):
         #print "Writing object", self.name
         LrfTag("ObjectStart", (self.objId, self.type)).write(lrf)
-        
+
         for tag in self.tags:
             tag.write(lrf, encoding)
 
@@ -583,7 +583,7 @@ class LrfToc(LrfObject):
         nEntries = len(toc)
 
         writeDWord(stream, nEntries)
-        
+
         lastOffset = 0
         writeDWord(stream, lastOffset)
         for i in range(nEntries - 1):
@@ -607,14 +607,14 @@ class LrfToc(LrfObject):
         stream.close()
         return streamData
 
-        
+
 
 
 
 class LrfWriter(object):
     def __init__(self, sourceEncoding):
         self.sourceEncoding = sourceEncoding
- 
+
         # The following flags are just to have a place to remember these
         # values.  The flags must still be passed to the appropriate classes
         # in order to have them work.
@@ -644,15 +644,15 @@ class LrfWriter(object):
 
     def getSourceEncoding(self):
         return self.sourceEncoding
-    
- 
+
+
     def toUnicode(self, string):
         if type(string) is str:
             string = string.decode(self.sourceEncoding)
-            
+
         return string
-    
-    
+
+
     def getDocInfoXml(self):
         return self.docInfoXml
 
@@ -668,15 +668,15 @@ class LrfWriter(object):
     def setRootObject(self, obj):
         if self.rootObjId != 0:
             raise LrfError, "root object already set"
-        
+
         self.rootObjId = obj.objId
         self.rootObj = obj
- 
-        
+
+
     def registerFontId(self, id):
         if self.rootObj is None:
             raise LrfError, "can't register font -- no root object"
-        
+
         self.rootObj.append(LrfTag("RegisterFont", id))
 
 
@@ -700,7 +700,7 @@ class LrfWriter(object):
             raise LrfError, "unknown image type: " + encoding
 
         self.thumbnailEncoding = encoding
-        
+
 
     def append(self, obj):
         self.objects.append(obj)
@@ -721,7 +721,7 @@ class LrfWriter(object):
         self.writeObjectTable(lrf)
 
 
-    def writeHeader(self, lrf):       
+    def writeHeader(self, lrf):
         writeString(lrf, LRF_SIGNATURE)
         writeWord(lrf, LRF_VERSION)
         writeWord(lrf, XOR_KEY)

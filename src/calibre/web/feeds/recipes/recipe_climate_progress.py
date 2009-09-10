@@ -7,7 +7,7 @@ climateprogress.org
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class ClimateProgress(BasicNewsRecipe):
     title                 = 'Climate Progress'
@@ -24,17 +24,26 @@ class ClimateProgress(BasicNewsRecipe):
 
     lang                  = 'en-US'
     direction             = 'ltr'
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
+    extra_css = '''
+                h2{color:#003366;font-size: large ;font-family:Arial,Helvetica,sans-serif; font-weight:bold;}
+                h3{color:#003366;font-size: small ;font-family:Arial,Helvetica,sans-serif; font-weight:bold;}
+                h4{color:#003366;font-size: x-small ;font-family:Arial,Helvetica,sans-serif; font-weight:bold;}
+                .date{color:#333333; font-size:xx-small; font-family:Arial,Helvetica,sans-serif; font-style:italic}
+                a{color:#339966;}
+                body{font-family:Georgia,Times New Roman,Times,serif; font-size:x-small;color:#333333;}
+                '''
 
     feeds = [(u'Posts', u'http://feeds.feedburner.com/climateprogress/lCrX')]
-    
+
     def preprocess_html(self, soup):
         soup.html['lang'] = self.lang
         soup.html['dir' ] = self.direction
@@ -43,4 +52,4 @@ class ClimateProgress(BasicNewsRecipe):
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         return self.adeify_images(soup)
-    
+

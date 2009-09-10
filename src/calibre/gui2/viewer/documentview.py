@@ -5,14 +5,15 @@ __docformat__ = 'restructuredtext en'
 
 '''
 '''
-import os, math, re
+import os, math, re, glob
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, \
+                     QColor, QPoint, QImage, QRegion, QVariant, \
                      QFont, QObject, QApplication, pyqtSignature
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
+from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.js import bookmarks, referencing, hyphenation
 from calibre.ptempfile import PersistentTemporaryFile
@@ -20,32 +21,9 @@ from calibre.constants import iswindows
 from calibre import prints
 
 def load_builtin_fonts():
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_BoldItalic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Italic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Italic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Bold
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Bold.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_BoldItalic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_BoldItalic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Regular
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Regular.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Italic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Italic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Regular
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Regular.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_Italic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Italic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Bold
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Bold.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationMono_Bold
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Bold.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSerif_BoldItalic
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_BoldItalic.font_data))
-    from calibre.ebooks.lrf.fonts.liberation import LiberationSans_Regular
-    QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Regular.font_data))
-    #for f in QFontDatabase().families():
-    #    print f
+    base = P('fonts/liberation/*.ttf')
+    for f in glob.glob(base):
+        QFontDatabase.addApplicationFont(f)
     return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
 
 def config(defaults=None):
@@ -109,12 +87,19 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         self.max_view_width.setValue(opts.max_view_width)
-        from calibre.resources import hyphenate
-        for x in sorted(hyphenate['languages'].split(',')):
-            self.hyphenate_default_lang.addItem(x)
-        idx = self.hyphenate_default_lang.findText(opts.hyphenate_default_lang)
-        if idx == -1:
-            idx = self.hyphenate_default_lang.findText('en')
+        pats = [os.path.basename(x).split('.')[0] for x in
+            glob.glob(P('viewer/hyphenate/patterns/*.js'))]
+        names = list(map(get_language, pats))
+        pmap = {}
+        for i in range(len(pats)):
+            pmap[names[i]] = pats[i]
+        for x in sorted(names):
+            self.hyphenate_default_lang.addItem(x, QVariant(pmap[x]))
+        try:
+            idx = pats.index(opts.hyphenate_default_lang)
+        except ValueError:
+            idx = pats.index('en')
+        idx = self.hyphenate_default_lang.findText(names[idx])
         self.hyphenate_default_lang.setCurrentIndex(idx)
         self.hyphenate.setChecked(opts.hyphenate)
         self.hyphenate_default_lang.setEnabled(opts.hyphenate)
@@ -132,8 +117,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         c.set('max_view_width', int(self.max_view_width.value()))
         c.set('hyphenate', self.hyphenate.isChecked())
+        idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
-                self.hyphenate_default_lang.currentText())
+                str(self.hyphenate_default_lang.itemData(idx).toString()))
         return QDialog.accept(self, *args)
 
 
@@ -207,7 +193,10 @@ class Document(QWebPage):
 
     def load_javascript_libraries(self):
         self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
-        from calibre.resources import jquery, jquery_scrollTo, hyphenate
+        jquery = open(P('content_server/jquery.js'), 'rb').read()
+        jquery_scrollTo = open(P('viewer/jquery_scrollTo.js'), 'rb').read()
+        hyphenator = open(P('viewer/hyphenate/Hyphenator.js'),
+                'rb').read().decode('utf-8')
         self.javascript(jquery)
         self.javascript(jquery_scrollTo)
         self.javascript(bookmarks)
@@ -218,11 +207,14 @@ class Document(QWebPage):
         if not lang:
             lang = default_lang
         lang = lang.lower()[:2]
-        if lang not in hyphenate['languages']:
+        self.javascript(hyphenator)
+        p = P('viewer/hyphenate/patterns/%s.js'%lang)
+        if not os.path.exists(p):
             lang = default_lang
+            p = P('viewer/hyphenate/patterns/%s.js'%lang)
+        self.javascript(open(p, 'rb').read().decode('utf-8'))
         self.loaded_lang = lang
-        self.javascript(hyphenate['Hyphenator.js'].decode('utf-8'))
-        self.javascript(hyphenate[lang+'.js'].decode('utf-8'))
+
 
     @pyqtSignature("")
     def animated_scroll_done(self):

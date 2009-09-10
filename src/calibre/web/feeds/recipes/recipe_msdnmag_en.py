@@ -12,7 +12,7 @@ class MSDNMagazine_en(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'The Microsoft Journal for Developers'
     publisher             = 'Microsoft Press'
-    category              = 'news, IT, Microsoft, programming, windows'        
+    category              = 'news, IT, Microsoft, programming, windows'
     oldest_article        = 31
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -22,15 +22,15 @@ class MSDNMagazine_en(BasicNewsRecipe):
     current_issue         = 'http://msdn.microsoft.com/en-us/magazine/default.aspx'
     language = 'en'
 
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                            
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     feeds = [(u'Articles', u'http://msdn.microsoft.com/en-us/magazine/rss/default.aspx?z=z&iss=1')]
 
     keep_only_tags = [dict(name='div', attrs={'class':'topic'})]
@@ -39,7 +39,7 @@ class MSDNMagazine_en(BasicNewsRecipe):
                      dict(name=['object','link','base','table'])
                     ,dict(name='div', attrs={'class':'MTPS_CollapsibleRegion'})
                   ]
-    
+
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.current_issue)
@@ -50,7 +50,7 @@ class MSDNMagazine_en(BasicNewsRecipe):
               cover_url = imgt['src']
         return cover_url
 
-    
+
     def preprocess_html(self, soup):
         for item in soup.findAll('div',attrs={'class':['FeatureSmallHead','ColumnTypeSubTitle']}):
             item.name="h2"
@@ -59,4 +59,4 @@ class MSDNMagazine_en(BasicNewsRecipe):
         for item in soup.findAll('div',attrs={'class':'ArticleTypeTitle'}):
             item.name="h3"
         return soup
-    
+

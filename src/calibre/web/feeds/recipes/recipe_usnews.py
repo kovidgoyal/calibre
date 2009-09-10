@@ -26,16 +26,16 @@ class LaPrensa(BasicNewsRecipe):
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     keep_only_tags = [
                         dict(name='h1')
                        ,dict(name='div', attrs={'id':['dateline']})
                        ,dict(name='div', attrs={'class':['blogCredit','body']})
                      ]
-                     
-    feeds = [ 
+
+    feeds = [
               (u'Homepage'        , u'http://www.usnews.com/rss/usnews.rss'          )
              ,(u'Health'          , u'http://www.usnews.com/rss/health/index.rss'    )
              ,(u'Nation & World'  , u'http://www.usnews.com/rss/news/index.rss'      )
@@ -58,4 +58,4 @@ class LaPrensa(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-        
+

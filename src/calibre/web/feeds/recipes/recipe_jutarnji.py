@@ -8,14 +8,14 @@ jutarnji.hr
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Jutarnji(BasicNewsRecipe):
     title                 = 'Jutarnji'
     __author__            = 'Darko Miletic'
     description           = 'Hrvatski portal'
     publisher             = 'Jutarnji.hr'
-    category              = 'news, politics, Croatia'    
+    category              = 'news, politics, Croatia'
     oldest_article        = 2
     max_articles_per_feed = 100
     delay                 = 1
@@ -25,9 +25,9 @@ class Jutarnji(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1250'
     lang                  = 'hr-HR'
-    direction             = 'ltr'    
+    direction             = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{text-align: justify; font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .vijestnaslov{font-size: x-large; font-weight: bold}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -38,12 +38,12 @@ class Jutarnji(BasicNewsRecipe):
 
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    
-    remove_tags = [ 
+
+    remove_tags = [
                     dict(name=['embed','hr','link','object'])
                    ,dict(name='a', attrs={'class':'a11'})
                   ]
-    
+
     feeds = [
               (u'Naslovnica'      , u'http://www.jutarnji.hr/rss'           )
              ,(u'Sport'           , u'http://www.jutarnji.hr/sport/rss'     )
@@ -62,7 +62,7 @@ class Jutarnji(BasicNewsRecipe):
     def preprocess_html(self, soup):
         soup.html['lang'] = self.lang
         soup.html['dir' ] = self.direction
-        
+
         attribs = [  'style','font','valign'
                     ,'colspan','width','height'
                     ,'rowspan','summary','align'
@@ -73,11 +73,11 @@ class Jutarnji(BasicNewsRecipe):
             item.name = 'div'
             for attrib in attribs:
                 if item.has_key(attrib):
-                   del item[attrib]                        
-        
+                   del item[attrib]
+
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         return self.adeify_images(soup)
-        
+

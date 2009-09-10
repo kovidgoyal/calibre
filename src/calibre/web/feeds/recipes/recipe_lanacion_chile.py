@@ -22,17 +22,17 @@ class LaNacionChile(BasicNewsRecipe):
     encoding              = 'cp1252'
     cover_url             = 'http://www.lanacion.cl/prontus_noticias_v2/imag/site/logo.gif'
     remove_javascript     = True
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
-                        
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
     keep_only_tags = [dict(name='div', attrs={'class':'bloque'})]
-                        
+
     feeds = [(u'Noticias', u'http://www.lanacion.cl/rss.xml')]
 
     def print_version(self, url):
@@ -46,10 +46,9 @@ class LaNacionChile(BasicNewsRecipe):
         if item:
            item.extract()
         mtag = '<meta http-equiv="Content-Language" content="es-CL"/>'
-        soup.head.insert(0,mtag)    
+        soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
-            del item['style']           
+            del item['style']
         return soup
-    
+
     language = 'es'
-

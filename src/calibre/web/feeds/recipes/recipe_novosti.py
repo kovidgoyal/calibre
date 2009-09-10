@@ -8,14 +8,14 @@ novosti.rs
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Novosti(BasicNewsRecipe):
     title                 = 'Vecernje Novosti'
     __author__            = 'Darko Miletic'
     description           = 'Vesti'
     publisher             = 'Kompanija Novosti'
-    category              = 'news, politics, Serbia'        
+    category              = 'news, politics, Serbia'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -25,7 +25,7 @@ class Novosti(BasicNewsRecipe):
 
     lang                  = 'sr-Latn-RS'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -54,5 +54,5 @@ class Novosti(BasicNewsRecipe):
             item.name = 'div'
             for attrib in attribs:
                 if item.has_key(attrib):
-                   del item[attrib]                                    
+                   del item[attrib]
         return soup

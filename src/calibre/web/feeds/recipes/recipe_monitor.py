@@ -9,14 +9,14 @@ monitorcg.com
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import Tag
 
 class MonitorCG(BasicNewsRecipe):
     title                 = 'Monitor online'
     __author__            = 'Darko Miletic'
     description           = 'News from Montenegro'
     publisher             = 'MONITOR d.o.o. Podgorica'
-    category              = 'news, politics, Montenegro'    
+    category              = 'news, politics, Montenegro'
     oldest_article        = 15
     max_articles_per_feed = 150
     no_stylesheets        = True
@@ -26,9 +26,9 @@ class MonitorCG(BasicNewsRecipe):
 
     lang                  ='sr-Latn-Me'
     INDEX                 = 'http://www.monitorcg.com'
-    
+
     extra_css = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} '
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -36,16 +36,16 @@ class MonitorCG(BasicNewsRecipe):
                         , 'language'         : lang
                         , 'pretty_print'     : True
                         }
-     
+
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags = [dict(name='div', attrs={'id':'ja-current-content'})]
 
     remove_tags = [ dict(name=['object','link','embed'])
                   , dict(attrs={'class':['buttonheading','article-section']})]
-    
+
     remove_attributes = ['style','width','height','font','border','align']
-     
+
     def adeify_images2(cls, soup):
         for item in soup.findAll('img'):
             for attrib in ['height','width','border','align','style']:
@@ -58,7 +58,7 @@ class MonitorCG(BasicNewsRecipe):
             brtag  = Tag(soup,'br')
             oldParent.insert(myIndex+1,brtag)
         return soup
- 
+
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang
@@ -96,4 +96,4 @@ class MonitorCG(BasicNewsRecipe):
                 totalfeeds.append((feedtitle, articles))
         return totalfeeds
 
-        
+

@@ -11,12 +11,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TheScotsman(BasicNewsRecipe):
     title                 = u'The Scotsman'
     __author__            = 'Darko Miletic'
-    description           = 'News from Scotland'    
+    description           = 'News from Scotland'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    language = 'en'
+    language = 'en_GB'
 
     simultaneous_downloads = 1
 

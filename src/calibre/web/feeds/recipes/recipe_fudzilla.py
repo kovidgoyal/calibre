@@ -6,7 +6,6 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 fudzilla.com
 '''
 
-import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Fudzilla(BasicNewsRecipe):
@@ -14,7 +13,7 @@ class Fudzilla(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     language = 'en'
 
-    description           = 'Tech news'    
+    description           = 'Tech news'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

@@ -1,14 +1,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, os
-from calibre import iswindows
-from calibre.ptempfile import PersistentTemporaryFile
+import os
 
 try:
     from PIL import ImageFont
+    ImageFont
 except ImportError:
     import ImageFont
-    
+
 '''
 Default fonts used in the PRS500
 '''
@@ -22,56 +21,44 @@ FONT_MAP = {
             }
 
 LIBERATION_FONT_MAP = {
-            'Swis721 BT Roman'     : 'LiberationSans_Regular',
-            'Dutch801 Rm BT Roman' : 'LiberationSerif_Regular',
-            'Courier10 BT Roman'   : 'LiberationMono_Regular',
+            'Swis721 BT Roman'     : 'LiberationSans-Regular',
+            'Dutch801 Rm BT Roman' : 'LiberationSerif-Regular',
+            'Courier10 BT Roman'   : 'LiberationMono-Regular',
             }
-
-SYSTEM_FONT_MAP = {}
-for key, val in LIBERATION_FONT_MAP.items():
-    SYSTEM_FONT_MAP[key] = SYSTEM_FONT_PATH + val.replace('_', '-') + '.ttf'
 
 FONT_FILE_MAP = {}
 
+SYSTEM_FONT_MAP = {}
+for key, val in LIBERATION_FONT_MAP.items():
+    SYSTEM_FONT_MAP[key] = SYSTEM_FONT_PATH + val + '.ttf'
+
 def get_font_path(name):
-    if FONT_FILE_MAP.has_key(name) and os.access(FONT_FILE_MAP[name].name, os.R_OK):
-        return FONT_FILE_MAP[name].name
-
+    if FONT_FILE_MAP.has_key(name) and os.access(FONT_FILE_MAP[name], os.R_OK):
+        return FONT_FILE_MAP[name]
     # translate font into file name
-    fname = FONT_MAP[name]
+    for m, s in ((FONT_MAP, 'prs500'), (LIBERATION_FONT_MAP, 'liberation')):
+        fname = m[name]+'.ttf'
 
-    # first, check configuration in /etc/
-    etc_file = os.path.join(os.path.sep, 'etc', 'calibre', 'fonts', fname + '.ttf')
-    if os.access(etc_file, os.R_OK):
-        return etc_file
+        # first, check configuration in /etc/
+        etc_file = os.path.join(os.path.sep, 'etc', 'calibre', 'fonts', fname)
+        if os.access(etc_file, os.R_OK):
+            return etc_file
 
-    # then, try calibre shipped ones
-    try:
-        try:
-            font_mod = __import__('calibre.ebooks.lrf.fonts.prs500', {}, {}, 
-                                  [fname], -1)
-            getattr(font_mod, fname)
-        except (ImportError, AttributeError):
-            font_mod = __import__('calibre.ebooks.lrf.fonts.liberation', {}, {}, 
-                                  [LIBERATION_FONT_MAP[name]], -1)
-        p = PersistentTemporaryFile('.ttf', 'font_')
-        p.write(getattr(font_mod, fname).font_data)
-        p.close()
-        FONT_FILE_MAP[name] = p
-        return p.name
-    except ImportError:
-        pass
-    
+        # then, try calibre shipped ones
+        f = P('fonts/%s/%s'%(s,fname))
+        if os.path.exists(f):
+            return f
+
     # finally, try system default ones
     if SYSTEM_FONT_MAP.has_key(name) and os.access(SYSTEM_FONT_MAP[name], os.R_OK):
         return SYSTEM_FONT_MAP[name]
 
     # not found
-    raise SystemError, 'font %s (in file %s) not installed' % (name, fname)
+    raise SystemError('font %s (in file %s) not installed' % (name, fname))
 
 def get_font(name, size, encoding='unic'):
     '''
-    Get an ImageFont object by name. 
+    Get an ImageFont object by name.
     @param size: Font height in pixels. To convert from pts:
                  sz in pixels = (dpi/72) * size in pts
     @param encoding: Font encoding to use. E.g. 'unic', 'symbol', 'ADOB', 'ADBE', 'aprm'

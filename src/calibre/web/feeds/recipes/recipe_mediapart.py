@@ -7,7 +7,6 @@ Mediapart
 '''
 
 import re, string
-from datetime import date
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -22,11 +21,11 @@ class Mediapart(BasicNewsRecipe):
     no_stylesheets = True
 
     html2lrf_options = ['--base-font-size', '10']
-    
+
     feeds =  [
         ('Les articles', 'http://www.mediapart.fr/articles/feed'),
     ]
-             
+
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
         [
             (r'<div class="print-title">([^>]+)</div>', lambda match : '<h2>'+match.group(1)+'</h2>'),
@@ -35,13 +34,13 @@ class Mediapart(BasicNewsRecipe):
             (r'<p><a href="[^\.]+\.pdf">[^>]*</a></p>', lambda match : ''),
         ]
     ]
-    
+
     remove_tags    = [ dict(name='div', attrs={'class':'print-source_url'}),
                                   dict(name='div', attrs={'class':'print-links'}),
                                   dict(name='img', attrs={'src':'entete_article.png'}),
     ]
-    
-    
+
+
     def print_version(self, url):
         raw = self.browser.open(url).read()
         soup = BeautifulSoup(raw.decode('utf8', 'replace'))

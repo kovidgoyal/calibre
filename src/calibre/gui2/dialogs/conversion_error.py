@@ -5,7 +5,7 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2.dialogs.conversion_error_ui import Ui_ConversionErrorDialog
 
 class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
-    
+
     def __init__(self, window, title, html, show=False):
         QDialog.__init__(self, window)
         Ui_ConversionErrorDialog.__init__(self)
@@ -14,7 +14,7 @@ class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
         self.set_message(html)
         if show:
             self.show()
-        
+
     def set_message(self, html):
         self.text.setHtml('<html><body>%s</body></html'%(html,))
-    
+

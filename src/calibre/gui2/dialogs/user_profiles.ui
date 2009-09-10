@@ -14,7 +14,7 @@
    <string>Add custom news source</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images.qrc">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/user_profile.svg</normaloff>:/images/user_profile.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -82,7 +82,7 @@
                 <string>Add/Update &amp;recipe</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../../../resources/images.qrc">
                  <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                </property>
               </widget>
@@ -93,7 +93,7 @@
                 <string>&amp;Remove recipe</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../../../resources/images.qrc">
                  <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
                </property>
               </widget>
@@ -104,7 +104,7 @@
                 <string>&amp;Share recipe</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../../../resources/images.qrc">
                  <normaloff>:/images/forward.svg</normaloff>:/images/forward.svg</iconset>
                </property>
               </widget>
@@ -115,7 +115,7 @@
                 <string>Customize &amp;builtin recipe</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../../../resources/images.qrc">
                  <normaloff>:/images/news.svg</normaloff>:/images/news.svg</iconset>
                </property>
               </widget>
@@ -126,7 +126,7 @@
                 <string>&amp;Load recipe from file</string>
                </property>
                <property name="icon">
-                <iconset resource="../images.qrc">
+                <iconset resource="../../../../resources/images.qrc">
                  <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
                </property>
               </widget>
@@ -285,7 +285,7 @@ p, li { white-space: pre-wrap; }
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../images.qrc">
+                         <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                         </property>
                        </widget>
@@ -299,7 +299,7 @@ p, li { white-space: pre-wrap; }
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../images.qrc">
+                         <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
                         </property>
                        </widget>
@@ -310,7 +310,7 @@ p, li { white-space: pre-wrap; }
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../images.qrc">
+                         <iconset resource="../../../../resources/images.qrc">
                           <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                         </property>
                        </widget>
@@ -361,7 +361,7 @@ p, li { white-space: pre-wrap; }
                        <string>&amp;Add feed</string>
                       </property>
                       <property name="icon">
-                       <iconset resource="../images.qrc">
+                       <iconset resource="../../../../resources/images.qrc">
                         <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                       </property>
                      </widget>
@@ -455,7 +455,7 @@ p, li { white-space: pre-wrap; }
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

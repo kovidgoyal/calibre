@@ -17,6 +17,8 @@ from calibre.utils.logging import Log
 from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.pdf.verify import is_valid_pdf, is_encrypted
+from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata.meta import metadata_from_formats
 
 from pyPdf import PdfFileWriter, PdfFileReader
 
@@ -52,7 +54,7 @@ def add_options(parser):
     group = OptionGroup(parser, _('Encrypt Options:'), _('Options to control the transformation of pdf'))
     parser.add_option_group(group)
     add_option = group.add_option
-    
+
     for rec in OPTIONS:
         option_recommendation_to_cli_option(add_option, rec)
 
@@ -78,23 +80,23 @@ def main(args=sys.argv, name=''):
     log = Log()
     parser = option_parser(name)
     add_options(parser)
-    
+
     opts, args = parser.parse_args(args)
     args = args[1:]
-    
+
     if len(args) < 2:
         print 'Error: A PDF file and decryption password is required.\n'
         print_help(parser, log)
         return 1
-    
+
     if not is_valid_pdf(args[0]):
         print 'Error: Could not read file `%s`.' % args[0]
         return 1
-        
+
     if is_encrypted(args[0]):
         print 'Error: file `%s` is already encrypted.' % args[0]
         return 1
-    
+
     mi = metadata_from_formats([args[0]])
 
     encrypt(args[0], opts.output, args[1], mi)

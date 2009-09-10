@@ -22,7 +22,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import islinux
 from calibre import unicode_path
-from calibre.startup import get_lang
+from calibre.utils.localization import get_lang
 
 class Link(object):
     '''

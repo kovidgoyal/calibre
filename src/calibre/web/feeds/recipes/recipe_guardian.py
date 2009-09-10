@@ -13,7 +13,7 @@ class Guardian(BasicNewsRecipe):
 
     title = u'The Guardian'
     __author__ = 'Seabound and Sujata Raman'
-    language = 'en'
+    language = 'en_GB'
 
     oldest_article = 7
     max_articles_per_feed = 20
