@@ -33,6 +33,15 @@ class ClimateProgress(BasicNewsRecipe):
 
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
+    extra_css = '''
+                h2{color:#003366;font-size: large ;font-family:Arial,Helvetica,sans-serif; font-weight:bold;}
+                h3{color:#003366;font-size: small ;font-family:Arial,Helvetica,sans-serif; font-weight:bold;}
+                h4{color:#003366;font-size: x-small ;font-family:Arial,Helvetica,sans-serif; font-weight:bold;}
+                .date{color:#333333; font-size:xx-small; font-family:Arial,Helvetica,sans-serif; font-style:italic}
+                a{color:#339966;}
+                body{font-family:Georgia,Times New Roman,Times,serif; font-size:x-small;color:#333333;}
+                '''
+
     feeds = [(u'Posts', u'http://feeds.feedburner.com/climateprogress/lCrX')]
 
     def preprocess_html(self, soup):
