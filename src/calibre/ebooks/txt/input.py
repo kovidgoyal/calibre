@@ -8,7 +8,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
-    separate_paragraphs
+    separate_paragraphs_single_line, separate_paragraphs_print_formatted
 
 class TXTInput(InputFormatPlugin):
 
@@ -22,6 +22,12 @@ class TXTInput(InputFormatPlugin):
             help=_('Normally calibre treats blank lines as paragraph markers. '
                 'With this option it will assume that every line represents '
                 'a paragraph instead.')),
+        OptionRecommendation(name='print_formatted_paras', recommended_value=False,
+            help=_('Normally calibre treats blank lines as paragraph markers. '
+                'With this option it will assume that every line starting with '
+                'an indent (either a tab or 2+ spaces) represents a paragraph.'
+                'Paragraphs end when the next line that starts with an indent '
+                'is reached.')),
         OptionRecommendation(name='markdown', recommended_value=False,
             help=_('Run the text input through the markdown pre-processor. To '
                 'learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
@@ -35,8 +41,11 @@ class TXTInput(InputFormatPlugin):
         log.debug('Reading text from file...')
         txt = stream.read().decode(ienc, 'replace')
 
+        # Adjust paragraph formatting as requested
         if options.single_line_paras:
-            txt = separate_paragraphs(txt)
+            txt = separate_paragraphs_single_line(txt)
+        if options.print_formatted_paras:
+            txt = separate_paragraphs_print_formatted(txt)
 
         if options.markdown:
             log.debug('Running text though markdown conversion...')

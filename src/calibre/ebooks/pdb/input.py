@@ -22,6 +22,12 @@ class PDBInput(InputFormatPlugin):
             help=_('Normally calibre treats blank lines as paragraph markers. '
                 'With this option it will assume that every line represents '
                 'a paragraph instead.')),
+        OptionRecommendation(name='print_formatted_paras', recommended_value=False,
+            help=_('Normally calibre treats blank lines as paragraph markers. '
+                'With this option it will assume that every line starting with '
+                'an indent (either a tab or 2+ spaces) represents a paragraph.'
+                'Paragraphs end when the next line that starts with an indent '
+                'is reached.')),
     ])
 
     def convert(self, stream, options, file_ext, log,

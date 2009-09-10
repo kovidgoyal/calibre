@@ -45,10 +45,14 @@ def convert_markdown(txt, title=''):
         safe_mode=False,)
     return HTML_TEMPLATE % (title, md.convert(txt))
 
-def separate_paragraphs(txt):
+def separate_paragraphs_single_line(txt):
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
     txt = re.sub(u'(?<=.)\n(?=.)', u'\n\n', txt)
+    return txt
+
+def separate_paragraphs_print_formatted(txt):
+    txt = re.sub('(?miu)^(\t+|[ ]{2,})(?=.)', '\n\t', txt)
     return txt
 
 def opf_writer(path, opf_name, manifest, spine, mi):
