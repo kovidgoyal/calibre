@@ -386,7 +386,7 @@ def command_remove(args, dbpath):
         else:
             ids.append(int(y[0]))
 
-    do_remove(get_db(dbpath, opts), ids)
+    do_remove(get_db(dbpath, opts), set(ids))
 
     return 0
 
