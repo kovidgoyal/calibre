@@ -96,7 +96,10 @@ _extra_lang_codes = {
         'zh_CN' : _('Simplified Chinese'),
         'zh_HK' : _('Chinese (HK)'),
         'zh_TW' : _('Traditional Chinese'),
-        'en'    : _('English (US)'),
+        'en'    : _('English'),
+        'en_AU' : _('English (AU)'),
+        'en_CA' : _('English (CA)'),
+        'en_IN' : _('English (IND)'),
         'und'   : _('Unknown')
         }
 

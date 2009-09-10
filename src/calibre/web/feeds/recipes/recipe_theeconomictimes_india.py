@@ -22,7 +22,7 @@ class TheEconomicTimes(BasicNewsRecipe):
     simultaneous_downloads = 1
     encoding               = 'utf-8'
     lang                   = 'en-IN'
-    language = 'en'
+    language = 'en_IN'
 
 
     html2lrf_options = [

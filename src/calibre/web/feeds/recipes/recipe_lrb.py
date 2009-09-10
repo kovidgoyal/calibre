@@ -14,12 +14,12 @@ class LondonReviewOfBooks(BasicNewsRecipe):
     description           = u'Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'
     oldest_article        = 7
     max_articles_per_feed = 100
-    language = 'en'
+    language = 'en_GB'
 
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
-    
+
     remove_tags = [
                     dict(name='div' , attrs={'id'   :'otherarticles'})
                    ,dict(name='div' , attrs={'class':'pagetools'    })
@@ -28,13 +28,13 @@ class LondonReviewOfBooks(BasicNewsRecipe):
                    ,dict(name='div' , attrs={'class':'nocss'        })
                    ,dict(name='span', attrs={'class':'inlineright'  })
                   ]
-    
+
     feeds = [(u'London Review of Books', u'http://www.lrb.co.uk/lrbrss.xml')]
 
     def print_version(self, url):
         main, split, rest = url.rpartition('/')
         return main + '/print/' + rest
-    
+
     def postprocess_html(self, soup, first_fetch):
         for t in soup.findAll(['table', 'tr', 'td']):
             t.name = 'div'

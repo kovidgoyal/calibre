@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.11\n"
-"POT-Creation-Date: 2009-09-09 17:15+MDT\n"
-"PO-Revision-Date: 2009-09-09 17:15+MDT\n"
+"POT-Creation-Date: 2009-09-09 19:27+MDT\n"
+"PO-Revision-Date: 2009-09-09 19:27+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -128,7 +128,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1534
 #: /home/kovid/work/calibre/src/calibre/library/server.py:419
 #: /home/kovid/work/calibre/src/calibre/library/server.py:517
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -6254,7 +6254,19 @@ msgid "Traditional Chinese"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
-msgid "English (US)"
+msgid "English"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
+msgid "English (AU)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
+msgid "English (CA)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
+msgid "English (IND)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
@@ -6388,12 +6400,12 @@ msgid "sr-Latn-RS"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:84
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:81
 msgid "Skipping duplicated article: %s"
 msgstr ""
 
 #:
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:89
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:86
 msgid "Skipping filtered article: %s"
 msgstr ""
 

@@ -7,9 +7,9 @@ class GlasgowHerald(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 100
     no_stylesheets = True
-    language = 'en'
+    language = 'en_GB'
 
-    __author__     = 'McCande' 
+    __author__     = 'McCande'
 
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
     [

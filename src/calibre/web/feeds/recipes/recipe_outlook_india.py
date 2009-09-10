@@ -12,7 +12,7 @@ class OutlookIndia(BasicNewsRecipe):
     description    = 'Weekly news and current affairs in India'
     no_stylesheets = True
     encoding       = 'utf-8'
-    language = 'en'
+    language = 'en_IN'
 
     recursions = 1
     extra_css = '''
