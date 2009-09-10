@@ -34,11 +34,18 @@ class StructureDetectionWidget(Widget, Ui_Form):
         self.opt_chapter.set_msg(_('Detect chapters at (XPath expression):'))
         self.opt_page_breaks_before.set_msg(_('Insert page breaks before '
             '(XPath expression):'))
+        self.opt_header_regex.set_msg(_('Header regular expression:'))
+        self.opt_header_regex.set_book_id(book_id)
+        self.opt_header_regex.set_db(db)
+        self.opt_footer_regex.set_msg(_('Footer regular expression:'))
+        self.opt_footer_regex.set_book_id(book_id)
+        self.opt_footer_regex.set_db(db)
+
     def pre_commit_check(self):
         for x in ('header_regex', 'footer_regex'):
             x = getattr(self, 'opt_'+x)
             try:
-                pat = unicode(x.text())
+                pat = unicode(x.regex)
                 re.compile(pat)
             except Exception, err:
                 error_dialog(self, _('Invalid regular expression'),

@@ -77,6 +77,7 @@ class Widget(QWidget):
 
     def get_value(self, g):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
+        from calibre.gui2.convert.regex_builder import RegexEdit
         ret = self.get_value_handler(g)
         if ret != 'this is a dummy return value, xcswx1avcx4x':
             return ret
@@ -94,12 +95,15 @@ class Widget(QWidget):
             return bool(g.isChecked())
         elif isinstance(g, XPathEdit):
             return g.xpath if g.xpath else None
+        elif isinstance(g, RegexEdit):
+            return g.regex if g.regex else None
         else:
             raise Exception('Can\'t get value from %s'%type(g))
 
 
     def set_value(self, g, val):
         from calibre.gui2.convert.xpath_wizard import XPathEdit
+        from calibre.gui2.convert.regex_builder import RegexEdit
         if self.set_value_handler(g, val):
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
@@ -116,7 +120,7 @@ class Widget(QWidget):
             g.setCurrentIndex(idx)
         elif isinstance(g, QCheckBox):
             g.setCheckState(Qt.Checked if bool(val) else Qt.Unchecked)
-        elif isinstance(g, XPathEdit):
+        elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.setText(val if val else '')
         else:
             raise Exception('Can\'t set value %s in %s'%(repr(val),
