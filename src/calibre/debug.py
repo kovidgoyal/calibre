@@ -155,6 +155,9 @@ def debug_device_driver():
         print
         print "Don't forget to send the file /tmp/ioreg.txt as well"
 
+    if iswindows:
+        raw_input('Press Enter to continue...')
+
 
 def add_simple_plugin(path_to_plugin):
     import tempfile, zipfile, shutil
