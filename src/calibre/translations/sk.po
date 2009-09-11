@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-09-04 22:11+0000\n"
-"PO-Revision-Date: 2009-09-04 22:06+0000\n"
+"POT-Creation-Date: 2009-09-10 02:30+0000\n"
+"PO-Revision-Date: 2009-09-05 19:23+0000\n"
 "Last-Translator: Michael Gallo <michael.gallo@tiscali.it>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-05 09:45+0000\n"
+"X-Launchpad-Export-Date: 2009-09-11 09:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -29,8 +29,8 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:703
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:706
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:403
-#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:66
-#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:68
+#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:65
+#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:67
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:317
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:320
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1895
@@ -74,15 +74,15 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:86
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:105
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:106
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:33
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:28
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:82
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:83
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:75
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:76
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:61
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:62
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:73
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:74
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:63
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:65
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:66
@@ -96,11 +96,11 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:262
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:269
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:268
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:118
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:19
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:108
@@ -112,14 +112,13 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:387
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:35
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:874
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1000
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:211
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:268
 #: /home/kovid/work/calibre/src/calibre/library/database.py:917
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:652
@@ -131,12 +130,12 @@ msgstr "Nerobí vôbec nič"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1534
 #: /home/kovid/work/calibre/src/calibre/library/server.py:419
 #: /home/kovid/work/calibre/src/calibre/library/server.py:517
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
 #: /home/kovid/work/calibre/src/calibre/utils/poppler/__init__.py:28
 #: /home/kovid/work/calibre/src/calibre/utils/poppler/__init__.py:32
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:52
 msgid "Unknown"
 msgstr "Neurčené"
 
@@ -410,7 +409,7 @@ msgstr "Komunikácia s telefónmi Blackberry."
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:88
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:12
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:13
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
 
@@ -496,8 +495,8 @@ msgid "Getting list of books on device..."
 msgstr "Preberám zoznam kníh zo zariadenia..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
-msgid "Communicate with the Sony PRS-505 eBook reader."
-msgstr "Komunikácia so zariadením Sony PRS-505."
+msgid "Communicate with the Sony PRS-300/505 eBook reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
@@ -517,8 +516,8 @@ msgid "Sending metadata to device..."
 msgstr "Odosielam knihy do zariadenia..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:17
-msgid "Communicate with the Sony PRS-700 eBook reader."
-msgstr "Komunikácia so zariadením Sony PRS-700."
+msgid "Communicate with the Sony PRS-600/700 eBook reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:357
@@ -562,7 +561,7 @@ msgid "There is insufficient free space on the storage card"
 msgstr "Na pamäťovej karte nie je dostatok voľného miesta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:686
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:434
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:83
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1000
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1004
@@ -1735,7 +1734,7 @@ msgstr "Názov pre vygenerovaný obsah."
 msgid "Disable compression of the file contents."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:103
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:102
 msgid "All articles"
 msgstr ""
 
@@ -1880,6 +1879,15 @@ msgid ""
 "it will assume that every line represents a paragraph instead."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:26
+msgid ""
+"Normally calibre treats blank lines as paragraph markers. With this option "
+"it will assume that every line starting with an indent (either a tab or 2+ "
+"spaces) represents a paragraph.Paragraphs end when the next line that starts "
+"with an indent is reached."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
 msgstr ""
@@ -1921,8 +1929,8 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:34
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:32
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:34
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:34
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:33
@@ -1960,8 +1968,8 @@ msgid "Crop Options:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:62
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:52
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
@@ -1969,25 +1977,25 @@ msgstr ""
 msgid "Options to control the transformation of pdf"
 msgstr "Možnosti transformácie PDF"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:25
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""
 "[options] file.pdf password\n"
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:62
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:23
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:25
 msgid ""
 "[options] file.pdf password\n"
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:52
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
 msgstr ""
 
@@ -2115,7 +2123,7 @@ msgid ""
 "first and then try it."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:26
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
@@ -2135,116 +2143,130 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:54
 msgid "Do not add a blank line between paragraphs."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:41
+msgid ""
+"The maximum number of characters per line. This splits on the first space "
+"before the specified value. If no space is found the line will be broken at "
+"the space after and will exceed the specified value. Also, there is a "
+"minimum of 25 characters. Use 0 to disable line splitting."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:48
+msgid ""
+"Force splitting on the max-line-length value when no space is present. Also "
+"allows max-line-length to be below the minimum"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:52
 msgid "Add a tab at the beginning of each paragraph."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:28
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:505
 msgid "Frequently used directories"
 msgstr "Často používané adresáre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:30
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:29
 msgid "Send file to storage card instead of main memory by default"
 msgstr "Ukladať súbory na pamäťovú kartu, nie do hlavnej pamäte zariadenia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:31
 msgid "Confirm before deleting"
 msgstr "Vyžadovať potvrdenie pred zmazaním"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:34
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:33
 msgid "Toolbar icon size"
 msgstr "Veľkosť ikon panelu nástrojov"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:36
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:35
 msgid "Show button labels in the toolbar"
 msgstr "Zobrazovať nadpisy tlačidiel panelu nástrojov"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:37
 msgid "Main window geometry"
 msgstr "Usporiadanie hlavného okna"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:39
 msgid "Notify when a new version is available"
 msgstr "Upozorniť ak je k dispozícii nová verzia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:41
 msgid "Use Roman numerals for series number"
 msgstr "Číslovanie kníh v sérii Rímskymi číslicami"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:43
 msgid "Sort tags list by popularity"
 msgstr "Triediť zoznam tagov podľa popularity"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:46
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:45
 msgid "Number of covers to show in the cover browsing mode"
 msgstr "Počet obálok, ktoré sa majú zobraziť v režime prezerania obálok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Defaults for conversion to LRF"
 msgstr "Štandardné nastavenie prevodu do formátu LRF"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:49
 msgid "Options for the LRF ebook viewer"
 msgstr "Možnosti prehliadača elektronických kníh vo formáte LRF"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:53
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:52
 msgid "Formats that are viewed using the internal viewer"
 msgstr "Formáty zobrazené interným prehliadačom"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:54
 msgid "Columns to be displayed in the book list"
 msgstr "Počet stĺpcov v zozname kníh"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:55
 msgid "Automatically launch content server on application startup"
 msgstr "Automaticky spúšťať obsahový server pri štarte aplikácie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:56
 msgid "Oldest news kept in database"
 msgstr "Najstaršie správy ponechané v databáze"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:57
 msgid "Show system tray icon"
 msgstr "Zobraziť ikonu v systémovej lište"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:59
 msgid "Upload downloaded news to device"
 msgstr "Odoslať prevzaté správy do zariadenia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:61
 msgid "Delete books from library after uploading to device"
 msgstr "Zmazať knihy z knižnice po ich odoslaní do zariadenia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:63
 msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
 msgstr ""
 "Zobraziť galériu obálok v oddelenom okne namiesto hlavného okna calibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:66
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:65
 msgid "Disable notifications from the system tray icon"
 msgstr "Vypnúť upozornenia zobrazované ikonou v systémovej lište"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:67
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:398
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:397
 msgid "Copied"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:152
 msgid "Copy"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:152
 msgid "Copy to Clipboard"
 msgstr ""
 
@@ -2343,16 +2365,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:110
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:28
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:67
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:61
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:35
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_edit_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:51
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:35
@@ -2447,7 +2469,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_edit_ui.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:491
@@ -2525,7 +2547,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:29
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:43
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:53
 msgid "&Inline TOC"
 msgstr ""
 
@@ -2839,9 +2861,14 @@ msgstr ""
 msgid "PDB Input"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:29
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:36
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:39
 msgid "Treat each &line as a paragraph"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
+msgid "Assume print formatting"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:16
@@ -2880,6 +2907,39 @@ msgstr ""
 msgid "RB Output"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1383
+msgid "Choose the format to view"
+msgstr "Vyberte formát, ktorý sa má zobraziť"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:82
+msgid "Cannot build regex using the GUI builder without a book."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:82
+msgid "No formats available"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
+msgid "Open book"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
+msgid "~"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
+msgid "Regex Builder"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
+msgid "Preview"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
+msgid "Regex:"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:139
 msgid "Convert"
 msgstr ""
@@ -2892,7 +2952,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:48
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/warning_ui.py:52
 msgid "Dialog"
 msgstr "Dialog"
 
@@ -2923,55 +2982,55 @@ msgstr ""
 msgid "Insert page breaks before (XPath expression):"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
+msgid "Header regular expression:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:40
+msgid "Footer regular expression:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:72
 msgid "Invalid regular expression"
 msgstr "Neplatný regulárny výraz"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:73
 msgid "Invalid regular expression: %s"
 msgstr "Neplatný regulárny výraz: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:38
 msgid "Invalid XPath"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:51
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
 msgid "The XPath expression %s is invalid."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
 msgstr "&Značka kapitol:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:71
-msgid "&Footer regular expression:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:72
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:63
 msgid "&Preprocess input file to possibly improve structure detection"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:73
-msgid "&Header regular expression:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:74
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove F&ooter"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:65
 msgid "Remove H&eader"
 msgstr ""
 
@@ -3021,11 +3080,11 @@ msgstr ""
 msgid "TXT Input"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:40
 msgid "Process using markdown"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:41
 msgid ""
 "<p>Markdown is a simple markup language for text files, that allows for "
 "advanced formatting. To learn more visit <a "
@@ -3036,15 +3095,23 @@ msgstr ""
 msgid "TXT Output"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:52
 msgid "&Line ending style:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:55
 msgid "Add a tab at the beginning of each paragraph"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_edit_ui.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:56
+msgid "&Maximum line length:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:57
+msgid "Force maximum line lenght"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:41
@@ -3052,11 +3119,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:57
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:50
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/warning_ui.py:53
 msgid "TextLabel"
 msgstr "TextLabel"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_edit_ui.py:43
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:43
 msgid "Use a wizard to help construct the XPath expression"
 msgstr ""
 
@@ -3464,129 +3530,129 @@ msgstr ""
 msgid "new email address"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:468
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:801
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:798
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1005
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:52
 msgid "Error"
 msgstr "Chyba"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:469
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:466
 msgid "Failed to install command line tools."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:469
 msgid "Command line tools installed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:470
 msgid "Command line tools installed in"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:474
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:471
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:522
 msgid "No valid plugin path"
 msgstr "Chýba platná cesta k modulom"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:523
 msgid "%s is not a valid plugin path"
 msgstr "%s nie je platná cesta k modulom"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:526
 msgid "Choose plugin"
 msgstr "Zvoľte modul"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:538
 msgid "Plugin cannot be disabled"
 msgstr "Modul nie je možné deaktivovať"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:539
 msgid "The plugin: %s cannot be disabled"
 msgstr "Modul %s nie je možné deaktivovať"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:548
 msgid "Plugin not customizable"
 msgstr "Modul nie je upraviteľný"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:549
 msgid "Plugin: %s does not need customization"
 msgstr "Modul %s neumožňuje žiadne úpravy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:576
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:573
 msgid "Customize %s"
 msgstr "Upraviť %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:586
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:583
 msgid "Cannot remove builtin plugin"
 msgstr "Vstavaný modul nie je možné odstrániť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:587
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:584
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
 " nemôže byť odstránený. Je to vstavaý modul. Skúste ho miesto odstránenia "
 "deaktivovať."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:620
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:617
 msgid "Error log:"
 msgstr "Záznam o chybách:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:627
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:624
 msgid "Access log:"
 msgstr "Záznam o prístupe:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:652
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:649
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:574
 msgid "Failed to start content server"
 msgstr "Nepodarilo sa spustiť obsahový server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:676
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:471
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:673
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:470
 msgid "Select location for books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:693
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:690
 msgid "Invalid size"
 msgstr "Neplatná veľkosť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:694
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:691
 msgid "The size %s is invalid. must be of the form widthxheight"
 msgstr "Veľkosť %s je neplatná. Požadovaný formát je šírka x výška"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:738
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:743
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:735
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:740
 msgid "Invalid database location"
 msgstr "Neplatné umiestnenie databázy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:739
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:736
 msgid "Invalid database location "
 msgstr "Neplatné umiestnenie databázy "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:740
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:737
 msgid "<br>Must be a directory."
 msgstr "<br>Musí byť adresár."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:744
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:741
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Neplatné umiestnenie databázy.<br>Nemôžem zapisovať do "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:782
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:779
 msgid "Checking database integrity"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:802
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:799
 msgid "Failed to check database integrity"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:807
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:804
 msgid "Some inconsistencies found"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:808
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:805
 msgid ""
 "The following books had formats listed in the database that are not actually "
 "available. The entries for the formats have been removed. You should check "
@@ -4281,93 +4347,93 @@ msgstr "Operácia vyžaduje heslo"
 msgid "Aborting..."
 msgstr "Zastavujem..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:42
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:43
 msgid "You"
 msgstr "Vy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:126
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:145
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:146
 msgid "Custom"
 msgstr "Vlastné"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:137
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:143
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:230
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:231
 msgid "Scheduled"
 msgstr "Naplánované"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:284
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:285
 msgid "%d recipes"
 msgstr "%d receptov"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
 msgid "Monday"
 msgstr "Pondelok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
 msgid "Tuesday"
 msgstr "Utorok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
 msgid "Wednesday"
 msgstr "Streda"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
 msgid "day"
 msgstr "deň"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:287
 msgid "Friday"
 msgstr "Piatok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:287
 msgid "Saturday"
 msgstr "Sobota"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:287
 msgid "Sunday"
 msgstr "Nedeľa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:287
 msgid "Thursday"
 msgstr "Štvrtok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:323
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:324
 msgid "Must set account information"
 msgstr "Operácia vyžaduje prihlasovacie údaje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:324
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:325
 msgid "This recipe requires a username and password"
 msgstr "Tento recept vyžaduje prihlasovacie meno a heslo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:356
 msgid "Created by: "
 msgstr "Autor: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:393
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:394
 msgid "%d days, %d hours and %d minutes ago"
 msgstr "pred %d dňami, %d hodinami a %d minútami"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:395
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:396
 msgid "Last downloaded"
 msgstr "Posledne prevzatý"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:398
 msgid "Last downloaded: never"
 msgstr "Posledne prevzatý: nikdy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:423
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:424
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:165
 msgid "Schedule news download"
 msgstr "Naplánovať preberanie správ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:427
 msgid "Add a custom news source"
 msgstr "Pridať vlastný zdroj správ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:166
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:222
 msgid "Recipes"
 msgstr "Recepty"
 
@@ -4612,37 +4678,37 @@ msgstr "Tento zdroj bol už do receptu pridaný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:229
 msgid "Invalid input"
 msgstr "Neplatný vstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:172
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:230
 msgid "<p>Could not create recipe. Error:<br>%s"
 msgstr "<p>Nebolo možné vytvoriť recept. Chyba:<br>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:178
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:210
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:234
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:235
 msgid "Replace recipe?"
 msgstr "Nahradiť recept?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:179
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:211
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:236
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr "Recept s názvom %s už existuje. Chcete ho nahradiť?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:202
 msgid "Pick recipe"
 msgstr "Zvoľte recept"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:202
 msgid "Pick the recipe to customize"
 msgstr "Vyberte recept, ktorý si želáte upraviť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:222
 msgid "Choose a recipe file"
 msgstr "Vyberte súbor s receptom"
 
@@ -5130,7 +5196,7 @@ msgid "Bad database location"
 msgstr "Neplatné umiestnenie databázy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:428
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:478
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:477
 msgid "Calibre Library"
 msgstr ""
 
@@ -5340,10 +5406,6 @@ msgstr "Nie je označená žiadna kniha"
 msgid "Cannot view"
 msgstr "Nemôžem zobraziť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1383
-msgid "Choose the format to view"
-msgstr "Vyberte formát, ktorý sa má zobraziť"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1395
 msgid "Cannot open folder"
 msgstr "Nemožno otvoriť adresár"
@@ -5401,10 +5463,8 @@ msgstr "Chyba prevodu"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1589
 msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
-"first remove the DRM using 3rd party tools."
+"first remove the DRM using third party tools."
 msgstr ""
-"<p>Nepodarilo sa previesť: %s<p>Obsahuje <a href=\"%s\">ochranu proti "
-"kopírovaniu</a>. Ochranu musíte najprv nejakým externým nástrojom odstrániť."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1607
 msgid "<b>Failed</b>"
@@ -5707,41 +5767,41 @@ msgstr "Autori"
 msgid "Publishers"
 msgstr "Vydavatelia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:30
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:97
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:99
 msgid "Starting conversion of %d books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:56
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:149
 msgid "Convert book %d of %d (%s)"
 msgstr "Prevod knihy %d z %d (%s)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:82
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:154
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:166
 msgid "Could not convert some books"
 msgstr "Niektoré knihy sa nepodarilo previesť"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:83
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:167
 msgid ""
 "Could not convert %d of %d books, because no suitable source format was "
 "found."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:198
 msgid "You must set a username and password for %s"
 msgstr "Pre %s musíte zadať prístupové meno a heslo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:203
 msgid "Fetch news from "
 msgstr "Prevziať správy z "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:214
 msgid "Convert existing"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:215
 msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
@@ -5879,60 +5939,60 @@ msgstr ""
 msgid "&User stylesheet"
 msgstr "Vlastné &kaskádové štýly"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:30
 msgid "Options to customize the ebook viewer"
 msgstr "Možnosti úpravy prehliadača elektronických kníh"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:650
 msgid "Remember last used window size"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:88
 msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
 msgstr ""
 "Vlastné kaskádové štýly, ktorými je možné upraviť výzor všetkých kníh."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:41
 msgid "Maximum width of the viewer window, in pixels."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:42
 msgid "Hyphenate text"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:66
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:44
 msgid "Default language for hyphenation rules"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:46
 msgid "Font options"
 msgstr "Nastavenia písma"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
 msgid "The serif font family"
 msgstr "Pätkové písmo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:72
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 msgid "The sans-serif font family"
 msgstr "Bezpätkové písmo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:74
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "The monospaced font family"
 msgstr "Neproporcionálne písmo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:53
 msgid "The standard font size in px"
 msgstr "Veľkosť štandardného písma v obrazových bodoch"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:54
 msgid "The monospaced font size in px"
 msgstr "Veľkosť neproporcionálneho písma v obrazových bodoch"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "The standard font type"
 msgstr "Štandardný typ písma"
 
@@ -5947,10 +6007,6 @@ msgstr "Prejsť na..."
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:210
 msgid "Position in book"
 msgstr "Pozícia v knihe"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:211
-msgid "/Unknown"
-msgstr "/Neznámy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:216
 msgid "Go to a reference. To get reference numbers, use the reference mode."
@@ -6081,7 +6137,7 @@ msgstr "Prepnúť zobrazenie na celú obrazovku"
 msgid "Print"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:113
 msgid "Print eBook"
 msgstr ""
 
@@ -6155,57 +6211,57 @@ msgstr ""
 msgid "Title Case"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:37
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:150
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:151
 msgid "Default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:289
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:288
 msgid ""
 "If you use the WordPlayer e-book app on your Android phone, you can access "
 "your calibre book collection directly on the device. To do this you have to "
 "turn on the content server."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:293
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:292
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:295
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:294
 msgid ""
 "You have to add the URL http://myhostname:8080 as your calibre library in "
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
 "address of the computer calibre is running on."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:371
 msgid "Moving library..."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:387
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:388
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:389
 msgid "Failed to move library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:443
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:442
 msgid "Invalid database"
 msgstr "Neplatná alebo poškodená databáza"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:444
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:443
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:455
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:454
 msgid "Could not move library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:528
 msgid "welcome wizard"
 msgstr ""
 
@@ -6895,11 +6951,11 @@ msgstr ""
 msgid "Requested formats not available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:233
+#: /home/kovid/work/calibre/src/calibre/library/server.py:232
 msgid "Password to access your calibre library. Username is "
 msgstr "Prístupové heslo k vašej databáze calibre. Používateľské meno je "
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:598
+#: /home/kovid/work/calibre/src/calibre/library/server.py:595
 msgid ""
 "[options]\n"
 "\n"
@@ -6979,6 +7035,42 @@ msgstr "Dokončená"
 msgid "Working..."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:94
+msgid "Brazilian Portuguese"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
+msgid "English (UK)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
+msgid "Simplified Chinese"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
+msgid "Chinese (HK)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
+msgid "Traditional Chinese"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
+msgid "English"
+msgstr "Angličtina"
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
+msgid "English (AU)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
+msgid "English (CA)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
+msgid "English (IND)"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
 msgstr "URL musí mať protokol sftp"
@@ -7029,388 +7121,97 @@ msgstr "Prihlasovacie meno pre zdroje vyžadujúce prihlásenie."
 msgid "Password for sites that require a login to access content."
 msgstr "Prihlasovacie heslo pre zdroje vyžadujúce prihlásenie."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:42
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:40
 msgid "Unknown News Source"
 msgstr "Neznámy zdroj správ"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:589
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:588
 msgid "Download finished"
 msgstr "Preberanie ukončené"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:591
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:590
 msgid "Failed to download the following articles:"
 msgstr "Zlyhalo preberanie nasledovných článkov:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:597
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:596
 msgid "Failed to download parts of the following articles:"
 msgstr "Zlyhalo preberanie niektorých častí nasledovných článkov:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:599
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:598
 msgid " from "
 msgstr " od "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:601
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:600
 msgid "\tFailed links:"
 msgstr "\tNeplatné odkazy:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:682
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:681
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:703
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:702
 msgid "Fetching feeds..."
 msgstr "Preberám prúdy..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:707
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:706
 msgid "Got feeds from index page"
 msgstr "Získané prúdy z hlavnej stránky"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:713
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:712
 msgid "Trying to download cover..."
 msgstr "Preberám obálku..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:767
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:766
 msgid "Starting download [%d thread(s)]..."
 msgstr "Začína preberanie [počet vlákien: %d]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:783
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:782
 msgid "Feeds downloaded to %s"
 msgstr "Prúdy boli uložené do %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:793
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:792
 msgid "Could not download cover: %s"
 msgstr "Nepodarilo sa prevziať obálku: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:800
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:799
 msgid "Downloading cover from %s"
 msgstr "Preberám obálku z %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:932
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:925
 msgid "Untitled Article"
 msgstr "Článok bez názvu"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1003
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:996
 msgid "Article downloaded: %s"
 msgstr "Prebratý článok: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1007
 msgid "Article download failed: %s"
 msgstr "Zlyhalo preberanie článku: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1029
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:80
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:76
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1022
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:81
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:77
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_instapaper.py:59
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:59
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:63
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_monitor.py:78
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:83
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_republika.py:66
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:60
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:64
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_monitor.py:79
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:84
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_republika.py:67
 msgid "Fetching feed"
 msgstr "Preberám prúd"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevnik_cro.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hrt.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jutarnji.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nacional_cro.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vecernji_list.py:26
-msgid "Croatian"
-msgstr "Chorvátština"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_24sata_rs.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_b92.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_beta.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_blic.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_danas.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_e_novine.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glas_srpske.py:27
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glasjavnosti.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nin.py:30
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_novosti.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pescanik.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politika.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pressonline.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_republika.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_rts.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tanjug.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vreme.py:27
-msgid "Serbian"
-msgstr "Srbština"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_7dias.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ambito.py:61
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_axxon_news.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_buenosaireseconomico.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_clarin.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_criticadigital.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cubadebate.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diagonales.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_mercurio_chile.py:61
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_pais.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_el_universal.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elargentino.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elcronista.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elmundo.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elperiodico_spanish.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_eltiempo_hn.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_expansion_spanish.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_granma.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_infobae.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_cuarta.py:53
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_segunda.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_tercera.py:64
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lamujerdemivida.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lanacion_chile.py:54
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa.py:60
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_hn.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_laprensa_ni.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latribuna.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lavanguardia.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_marca.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miradasalsur.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_newsweek_argentina.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pagina12.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_veintitres.py:23
-msgid "Spanish"
-msgstr "Španielčina"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_accountancyage.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_adventuregamers.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_al_jazeera.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_amspec.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ap.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ars_technica.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_atlantic.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_azstarnet.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_barrons.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbc.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_beta_en.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_business_week.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_breaking_news.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chicago_tribune.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_chr_mon.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cincinnati_enquirer.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_climate_progress.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cnn.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_coding_horror.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_common_dreams.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_craigslist.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_mail.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_daily_telegraph.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_darknet.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_discover_magazine.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dna.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ecogeek.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_economist.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_endgadget.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_espn.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_esquire.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_exiled.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_fastcompany.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_financial_times.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_forbes.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_freakonomics.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_fudzilla.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_glasgow_herald.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_globe_and_mail.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_guardian.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_harpers_full.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hindu.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honoluluadvertiser.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_iht.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_indy_star.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_inquirer_net.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_intelligencer.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_irish_times.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_japan_times.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_joelonsoftware.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jpost.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_juventudrebelde_english.py:44
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_kellog_faculty.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_kellog_insight.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_krstarica_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_latimes.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linux_magazine.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_linuxdevices.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_livemint.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_lrb.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_miami_herald.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moneynews.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_moscow_times.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_msdnmag_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nasa.py:34
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_scientist.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_york_review_of_books_no_sub.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_new_yorker.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_news_times.py:7
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_newsweek.py:30
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_noaa.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nspm_int.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes_sub.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ourdailybread.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_outlook_india.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_phd_comics.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_today.py:11
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_physics_world.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_politico.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_portfolio.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_reuters.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_san_fran_chronicle.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_aas.py:13
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_science_news.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sciencedaily.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scientific_american.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_scott_hanselman.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_seattle_times.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_security_watch.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_shacknews.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slashdot.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_slate.py:29
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_smh.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_soldiers.py:26
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegel_int.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_st_petersburg_times.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_stackoverflow.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_starbulletin.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_straitstimes.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_telegraph_uk.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_teleread.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_age.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_budget_fashionista.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_nation.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_oz.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_register.py:6
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_the_scotsman.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_thedgesingapore.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theeconomictimes_india.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_themarketticker.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theoldfoodie.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_theonion.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_time_magazine.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_times_online.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_twitchfilms.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_uncrate.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_upi.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usatoday.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_usnews.py:21
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_utne.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wash_post.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wikinews_en.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_winsupersite.py:10
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wired.py:14
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_wsj.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_xkcd.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zdnet.py:16
-msgid "English"
-msgstr "Angličtina"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_bbcvietnamese.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tnxm.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vnexpress.py:16
-msgid "Vietnamese"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:20
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_borba.py:21
 msgid "sr-Latn-RS"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_carta.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_der_standard.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_diepresse.py:23
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elektrolese.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_faznet.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_ftd.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_heise.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hna.py:17
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nzz_ger.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_rga.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_spiegelde.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_sueddeutsche.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tomshardware_de.py:20
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_woz_die.py:7
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zeitde.py:15
-msgid "German"
-msgstr "Nemčina"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_corriere_della_sera_it.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_la_republica.py:6
-msgid "Italian"
-msgstr "Taliančina"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_courrierinternational.py:18
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_cyberpresse.py:9
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_liberation.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mediapart.py:19
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_mondedurable.py:13
-msgid "French"
-msgstr "Francúzština"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_de_standaard.py:12
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_degentenaar.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_demorgen_be.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_gva_be.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hln.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_hln_be.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_tijd.py:22
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_volksrant.py:17
-msgid "Dutch"
-msgstr "Holandština"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_dnevni_avaz.py:28
-msgid "Bosnian"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_elperiodico_catalan.py:25
-msgid "Catalan"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_estadao.py:62
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_jb_online.py:47
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_o_globo.py:69
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_publico.py:20
-msgid "Portuguese"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h1.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h2.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_h3.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_honvedelem.py:16
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_huntechnet.py:15
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_index_hu.py:8
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pcworld_hu.py:17
-msgid "Hungarian"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:83
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:81
 msgid "Skipping duplicated article: %s"
 msgstr "Preskakujem duplicitný článok: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:88
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_le_monde.py:86
 msgid "Skipping filtered article: %s"
 msgstr "Preskakujem odfiltrovaný článok: %s"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_monitor.py:25
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_pobjeda.py:24
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_vijesti.py:25
-msgid "Montenegrin"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_zaobao.py:17
-msgid "Chinese"
-msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:452
 msgid ""
@@ -8751,6 +8552,13 @@ msgstr ""
 #~ msgstr "Kniha %s bola pridaná do knižnice"
 
 #~ msgid ""
+#~ "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
+#~ "first remove the DRM using 3rd party tools."
+#~ msgstr ""
+#~ "<p>Nepodarilo sa previesť: %s<p>Obsahuje <a href=\"%s\">ochranu proti "
+#~ "kopírovaniu</a>. Ochranu musíte najprv nejakým externým nástrojom odstrániť."
+
+#~ msgid ""
 #~ "<p>An invalid database already exists at %s, delete it before trying to move "
 #~ "the existing database.<br>Error: %s"
 #~ msgstr ""
@@ -8916,8 +8724,26 @@ msgstr ""
 #~ msgid "Failed to download article: %s from %s\n"
 #~ msgstr "Zlyhalo preberanie článku: %s z %s\n"
 
+#~ msgid "Spanish"
+#~ msgstr "Španielčina"
+
 #~ msgid "Portugese"
 #~ msgstr "Portugalčina"
+
+#~ msgid "Croatian"
+#~ msgstr "Chorvátština"
+
+#~ msgid "Serbian"
+#~ msgstr "Srbština"
+
+#~ msgid "German"
+#~ msgstr "Nemčina"
+
+#~ msgid "French"
+#~ msgstr "Francúzština"
+
+#~ msgid "Dutch"
+#~ msgstr "Holandština"
 
 #~ msgid "&Use author sort to set author field in output"
 #~ msgstr "Meno autora pri &výstupe formátovať \"priezvisko, meno\""
@@ -9000,6 +8826,9 @@ msgstr ""
 #~ "Aby ste sa dozvedeli o použití XPath výrazov, navštívte <a "
 #~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
 #~ "tutorial</a>.</p>"
+
+#~ msgid "/Unknown"
+#~ msgstr "/Neznámy"
 
 #~ msgid "Be more verbose while processing."
 #~ msgstr "Použi viac hlášok pri spracovaní"
@@ -9110,3 +8939,12 @@ msgstr ""
 #~ "\n"
 #~ "K dispozícii sú nasledujúce zabudované recepty:\n"
 #~ "%s\n"
+
+#~ msgid "Italian"
+#~ msgstr "Taliančina"
+
+#~ msgid "Communicate with the Sony PRS-505 eBook reader."
+#~ msgstr "Komunikácia so zariadením Sony PRS-505."
+
+#~ msgid "Communicate with the Sony PRS-700 eBook reader."
+#~ msgstr "Komunikácia so zariadením Sony PRS-700."
