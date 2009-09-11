@@ -194,6 +194,14 @@ class Sdist(Command):
                 shutil.copytree(p, self.j(tdir, p))
             else:
                 shutil.copy2(p, d)
+        for x in os.walk(os.path.join(self.SRC, 'calibre')):
+            for f in x[-1]:
+                if not f.endswith('_ui.py'): continue
+                f = os.path.join(x[0], f)
+                f = os.path.relpath(f)
+                dest = os.path.join(tdir, self.d(f))
+                shutil.copy2(f, dest)
+
         self.info('\tCreating tarfile...')
         subprocess.check_call(' '.join(['tar', '-czf', self.a(self.DEST), '*']),
                 cwd=tdir, shell=True)
