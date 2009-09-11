@@ -10,7 +10,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
                         QProgressDialog
 
-from calibre.constants import islinux, iswindows, isosx
+from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
@@ -358,8 +358,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.timeout.setValue(prefs['network_timeout'])
         self.roman_numerals.setChecked(rn)
         self.new_version_notification.setChecked(config['new_version_notification'])
-        if not islinux:
-            self.dirs_box.setVisible(False)
 
         column_map = config['column_map']
         for col in column_map + [i for i in ALL_COLUMNS if i not in column_map]:

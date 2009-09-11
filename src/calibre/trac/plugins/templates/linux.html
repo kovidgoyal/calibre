@@ -108,8 +108,7 @@ sudo python -c "import urllib2; exec urllib2.urlopen('http://status.calibre-eboo
                                 <pre class="wiki">
 wget -O- http://calibre.kovidgoyal.net/downloads/${app}-${version}.tar.gz | tar xvz 
 cd calibre*
-python setup.py build_ext &amp;&amp; python setup.py build &amp;&amp; sudo python setup.py install
-sudo calibre_postinstall
+sudo python setup.py install
                                 </pre>
                                 Note that if your distribution does not have a
                                 correctly compiled libunrar.so, ${app} will not 

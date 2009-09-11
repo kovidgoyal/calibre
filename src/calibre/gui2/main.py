@@ -1546,12 +1546,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
+            self.status_bar.tag_view_button.setEnabled(True)
+            self.status_bar.cover_flow_button.setEnabled(True)
         else:
             self.action_edit.setEnabled(False)
             self.action_convert.setEnabled(False)
             self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
+            self.status_bar.tag_view_button.setEnabled(False)
+            self.status_bar.cover_flow_button.setEnabled(False)
 
 
     def device_job_exception(self, job):
