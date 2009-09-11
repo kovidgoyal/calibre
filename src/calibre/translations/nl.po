@@ -6673,7 +6673,7 @@ msgstr ""
 "Geef de metadata weer die is opgeslagen in de Calibre database voor het boek "
 "dat word geidentificeerd door id ut het OPF bestand metadata.opf. id is een "
 "id nummer uit het list commando. Je kunt een kort overzicht voor het OPF "
-"formaat krijgen door de -as-opf schakel te gebruiken met het show_metadata "
+"formaat krijgen door de --as-opf schakel te gebruiken met het show_metadata "
 "commando.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:507

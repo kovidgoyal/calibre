@@ -6992,7 +6992,7 @@ msgid ""
 "(see --duplicates option):"
 msgstr ""
 "A következő könyvek nem lettek hozzáadva az adatbázishoz, mert már léteznek "
-"(lásd még - duplikációk beállítása):"
+"(lásd még --duplicates beállítása):"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:323
 msgid ""
@@ -7297,8 +7297,7 @@ msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
 msgstr ""
-"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, %"
-"Y.Default is: %b, %Y"
+"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, %Y."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
 msgid "Convert paths to lowercase."
@@ -7589,7 +7588,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:455
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr "Az az alapmappa, ahová az URL mentve lesz. Alapértelmezett: %s"
+msgstr "Az az alapmappa, ahová az URL mentve lesz. Alapértelmezett: %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:458
 msgid ""

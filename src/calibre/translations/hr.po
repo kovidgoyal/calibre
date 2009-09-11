@@ -6135,7 +6135,7 @@ msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
 msgstr ""
-"Slijedeće knjige su već pretvorene u % format. Da li hoćete da ih ponovo "
+"Slijedeće knjige su već pretvorene u %s format. Da li hoćete da ih ponovo "
 "pretvorite?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
