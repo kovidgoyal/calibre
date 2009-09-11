@@ -1025,10 +1025,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._metadata_view_id = self.library_view.model().db.id(row.row())
             d = MetadataSingleDialog(self, row.row(),
                                     self.library_view.model().db,
-                                    accepted_callback=accepted)
+                                    accepted_callback=accepted,
+                                    cancel_all=rows.index(row) < len(rows)-1)
             self.connect(d, SIGNAL('view_format(PyQt_PyObject)'),
                     self.metadata_view_format)
             d.exec_()
+            if d.cancel_all:
+                break
         if rows:
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, previous)

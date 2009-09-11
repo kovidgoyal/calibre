@@ -252,9 +252,19 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if ext not in extensions:
                 self.db.remove_format(self.row, ext, notify=False)
 
-    def __init__(self, window, row, db, accepted_callback=None):
+    def do_cancel_all(self):
+        self.cancel_all = True
+        self.reject()
+
+    def __init__(self, window, row, db, accepted_callback=None, cancel_all=False):
         ResizableDialog.__init__(self, window)
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
+        self.cancel_all = False
+        if cancel_all:
+            self.__abort_button = self.button_box.addButton(self.button_box.Abort)
+            self.__abort_button.setToolTip(_('Abort the editing of all remaining books'))
+            self.connect(self.__abort_button, SIGNAL('clicked()'),
+                    self.do_cancel_all)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
         self.pi = ProgressIndicator(self)
