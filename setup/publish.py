@@ -155,7 +155,9 @@ else:
             bzr_path = os.path.expanduser('~/work/calibre')
             b = branch.Branch.open(bzr_path)
             lf = UploadRss.ChangelogFormatter()
+            self.info('\tGenerating bzr log...')
             log.show_log(b, lf)
             lf.rss.write_xml(open('/tmp/releases.xml', 'wb'))
-            #subprocess.check_call('scp /tmp/releases.xml divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads'.split())
+            self.info('\tUploading RSS to server...')
+            subprocess.check_call('scp /tmp/releases.xml divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads'.split())
 
