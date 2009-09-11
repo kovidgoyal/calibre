@@ -262,9 +262,9 @@ class HTMLInput(InputFormatPlugin):
                 )
         ),
 
-        OptionRecommendation(name='unwrap_factor', recommended_value=0.5,
+        OptionRecommendation(name='unwrap_factor', recommended_value=None,
             help=_('Average line length for line breaking if the HTML is from a '
-                'previous partial conversion of a PDF file.')),
+                'previous partial conversion of a PDF file. Default is %default.')),
 
     ])
 

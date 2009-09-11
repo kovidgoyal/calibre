@@ -98,9 +98,10 @@ STANZA_TEMPLATE='''\
 '''
 
 def send_message(msg=''):
+    prints('Notifying calibre of the change')
     from calibre.utils.ipc import RC
     import time
-    t = RC()
+    t = RC(print_error=False)
     t.start()
     time.sleep(3)
     if t.done:

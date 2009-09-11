@@ -16,10 +16,20 @@ ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
 
 class RC(Thread):
 
+    def __init__(self, print_error=True):
+        self.print_error = print_error
+        Thread.__init__(self)
+        self.conn = None
+
     def run(self):
         from multiprocessing.connection import Client
         self.done = False
-        self.conn = Client(ADDRESS)
-        self.done = True
+        try:
+            self.conn = Client(ADDRESS)
+            self.done = True
+        except:
+            if self.print_error:
+                import traceback
+                traceback.print_exc()
 
 
