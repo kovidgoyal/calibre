@@ -32,7 +32,7 @@ class Stage2(Command):
    sub_commands = ['linux', 'win', 'osx']
 
    def pre_sub_commands(self, opts):
-       for x in glob.glob(os.path.join(self.SRC, 'dist', '*')):
+       for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
            os.remove(x)
 
 
@@ -93,7 +93,7 @@ if os.environ.get('CALIBRE_BUILDBOT', None) == '1':
 else:
     class UploadRss(Command):
 
-        description = 'Generate and uplaod a RSS feed of calibre releases'
+        description = 'Generate and upload a RSS feed of calibre releases'
 
         from bzrlib import log as blog
 
