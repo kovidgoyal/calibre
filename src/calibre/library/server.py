@@ -101,30 +101,13 @@ class LibraryServer(object):
     </entry>
     '''))
 
-    STANZA_AUTHOR_ENTRY=MarkupTemplate(textwrap.dedent('''\
+    STANZA_SUBCATALOG_ENTRY=MarkupTemplate(textwrap.dedent('''\
     <entry xmlns:py="http://genshi.edgewall.org/">
-        <title>${authors}</title>
-        <id>urn:calibre:${record[FM['id']]}</id>
+        <title>${title}</title>
+        <id>urn:calibre:${id}</id>
         <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/atom+xml" href="/stanza/?authorid=${record[FM['id']]}" />
-    </entry>
-    '''))
-
-    STANZA_TAG_ENTRY=MarkupTemplate(textwrap.dedent('''\
-    <entry xmlns:py="http://genshi.edgewall.org/">
-        <title>${tags}</title>
-        <id>urn:calibre:${record[FM['id']]}</id>
-        <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/atom+xml" href="/stanza/?tagid=${record[FM['id']]}" />
-    </entry>
-    '''))
-
-    STANZA_SERIES_ENTRY=MarkupTemplate(textwrap.dedent('''\
-    <entry xmlns:py="http://genshi.edgewall.org/">
-        <title>${series}</title>
-        <id>urn:calibre:${record[FM['id']]}</id>
-        <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/atom+xml" href="/stanza/?seriesid=${record[FM['id']]}" />
+        <link type="application/atom+xml" href="/stanza/?${what}id=${id}" />
+        <content type="text">${count} books</content>
     </entry>
     '''))
 
@@ -372,9 +355,39 @@ class LibraryServer(object):
                  8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
         return lm.replace('month', month[updated.month])
 
+    def get_matches(self, location, query):
+        base = self.db.data.get_matches(location, query)
+        epub = self.db.data.get_matches('format', 'epub')
+        pdb = self.db.data.get_matches('format', 'pdb')
+        return base.intersection(epub.union(pdb))
+
+    def stanza_sortby_subcategory(self, updated, sortby, offset):
+        what = sortby[2:]
+        if sortby == 'byseries':
+            data = self.db.all_series()
+            data = [(x[0], x[1], len(self.get_matches('series', x[1]))) for x in data]
+        elif sortby == 'byauthor':
+            data = self.db.all_authors()
+            data = [(x[0], x[1], len(self.get_matches('authors', x[1]))) for x in data]
+        elif sortby == 'bytag':
+            data = self.db.all_tags2()
+            data = [(x[0], x[1], len(self.get_matches('tags', x[1]))) for x in data]
+        data = [x for x in data if x[2] > 0]
+        data.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        entries = [self.STANZA_SUBCATALOG_ENTRY.generate(title=title, id=id,
+            what=what, updated=updated, count=c).render('xml').decode('utf-8') for id,
+            title, c in data]
+        entries = entries[offset:]
+        return self.STANZA.generate(subtitle='', data=entries, FM=FIELD_MAP,
+                    updated=updated, id='urn:calibre:main').render('xml')
+
+    def stanza_main(self, updated):
+        return self.STANZA_MAIN.generate(subtitle='', data=[], FM=FIELD_MAP,
+                    updated=updated, id='urn:calibre:main').render('xml')
 
     @expose
-    def stanza(self, search=None, sortby=None, authorid=None, tagid=None, seriesid=None):
+    def stanza(self, search=None, sortby=None, authorid=None, tagid=None,
+            seriesid=None, offset=0):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
         updated = self.db.last_modified()
@@ -382,38 +395,34 @@ class LibraryServer(object):
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         # Main feed
         if not sortby and not search and not authorid and not tagid and not seriesid:
-            return self.STANZA_MAIN.generate(subtitle='', data=books, FM=FIELD_MAP,
-                    updated=updated, id='urn:calibre:main').render('xml')
-        # Sub-feed
+            return self.stanza_main(updated)
+        if sortby in ('byseries', 'byauthor', 'bytag'):
+            return self.stanza_sortby_subcategory(updated, sortby, offset)
+
+        # Get matching ids
         if authorid:
             authorid=int(authorid)
-            au = self.db.authors(authorid, index_is_id=True)
-            ids = self.db.data.get_matches('authors', au)
+            au = self.db.author_name(authorid)
+            ids = self.get_matches('authors', au)
         elif tagid:
             tagid=int(tagid)
-            ta = self.db.tags(tagid, index_is_id=True)
-            ids = self.db.data.get_matches('tags', ta)
+            ta = self.db.tag_name(tagid)
+            ids = self.get_matches('tags', ta)
         elif seriesid:
             seriesid=int(seriesid)
-            se = self.db.series(seriesid, index_is_id=True)
-            ids = self.db.data.get_matches('series', se)
+            se = self.db.series_name(seriesid)
+            ids = self.get_matches('series', se)
         else:
             ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         record_list = list(iter(self.db))
 
         # Sort the record list
-        if sortby == "byauthor":
-            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['author_sort']], y[FIELD_MAP['author_sort']]))
-        elif sortby == "bytag":
-            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['tags']], y[FIELD_MAP['tags']]))
-        elif sortby == "byseries":
-            record_list.sort(lambda x, y: cmp(x[FIELD_MAP['series']], y[FIELD_MAP['series']]))
-        elif sortby == "bytitle" or authorid or tagid:
+        if sortby == "bytitle" or authorid or tagid:
             record_list.sort(lambda x, y: cmp(title_sort(x[FIELD_MAP['title']]),
                 title_sort(y[FIELD_MAP['title']])))
         elif seriesid:
             record_list.sort(lambda x, y: cmp(x[FIELD_MAP['series_index']], y[FIELD_MAP['series_index']]))
-        else:
+        else: # Sort by date
             record_list = reversed(record_list)
 
 
@@ -460,33 +469,14 @@ class LibraryServer(object):
                     authors=authors,
                     tags=tags,
                     series=series,
-                    FM=FIELD_MAP
+                    FM=FIELD_MAP,
+                    extra='\n'.join(extra),
+                    mimetype=mimetype,
+                    fmt=fmt,
+                    timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5])
                     )
-            if sortby == "byauthor":
-                if authors and authors not in author_list:
-                    author_list.append(authors)
-                    books.append(self.STANZA_AUTHOR_ENTRY.generate(**data)\
-                                            .render('xml').decode('utf8'))
-
-            elif sortby == "bytag":
-                if tags and tags not in tag_list:
-                    tag_list.append(tags)
-                    books.append(self.STANZA_TAG_ENTRY.generate(**data)\
-                                            .render('xml').decode('utf8'))
-
-            elif sortby == "byseries":
-                if series and series not in series_list:
-                    series_list.append(series)
-                    books.append(self.STANZA_SERIES_ENTRY.generate(**data)\
-                                            .render('xml').decode('utf8'))
-
-            else: # An actual book list
-                data['extra'] = ''.join(extra)
-                data['mimetype'] = mimetype
-                data['fmt'] = fmt
-                data['timestamp'] = strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5])
-                books.append(self.STANZA_ENTRY.generate(**data)\
-                                            .render('xml').decode('utf8'))
+            books.append(self.STANZA_ENTRY.generate(**data)\
+                                        .render('xml').decode('utf8'))
 
         return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
