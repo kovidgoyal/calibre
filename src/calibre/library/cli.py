@@ -13,11 +13,6 @@ from urllib import quote
 
 from calibre import terminal_controller, preferred_encoding, prints
 from calibre.utils.config import OptionParser, prefs
-try:
-    from calibre.utils.single_qt_application import send_message
-    send_message
-except:
-    send_message = None
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
@@ -101,6 +96,19 @@ STANZA_TEMPLATE='''\
   </py:for>
 </feed>
 '''
+
+def send_message(msg=''):
+    from calibre.utils.ipc import RC
+    import time
+    t = RC()
+    t.start()
+    time.sleep(3)
+    if t.done:
+        t.conn.send('refreshdb:'+msg)
+        t.conn.close()
+
+
+
 
 def get_parser(usage):
     parser = OptionParser(usage)
@@ -314,8 +322,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                     print >>sys.stderr, '\t', title+':'
                     print >>sys.stderr, '\t\t ', path
 
-        if send_message is not None:
-            send_message('refreshdb:', 'calibre GUI')
+        send_message()
     finally:
         sys.stdout = orig
 
@@ -356,8 +363,7 @@ def do_remove(db, ids):
             for y in x:
                 db.delete_book(y)
 
-    if send_message is not None:
-        send_message('refreshdb:', 'calibre GUI')
+        send_message()
 
 def remove_option_parser():
     return get_parser(_(
@@ -484,8 +490,7 @@ def do_set_metadata(db, id, stream):
     mi = OPF(stream)
     db.set_metadata(id, mi)
     do_show_metadata(db, id, False)
-    if send_message is not None:
-        send_message('refreshdb:', 'calibre GUI')
+    send_message()
 
 def set_metadata_option_parser():
     return get_parser(_(

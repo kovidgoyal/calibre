@@ -20,6 +20,7 @@ from calibre.constants import __version__, __appname__, \
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
+from calibre.utils.ipc import ADDRESS, RC
 from calibre.utils.ipc.server import Server
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
@@ -49,9 +50,6 @@ from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
-
-ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
-    os.path.expanduser('~/.calibre-gui.socket')
 
 class SaveMenu(QMenu):
 
@@ -1881,14 +1879,6 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
     d.setInformativeText(base%(where, msg, what))
     d.exec_()
     raise SystemExit(1)
-
-class RC(Thread):
-
-    def run(self):
-        from multiprocessing.connection import Client
-        self.done = False
-        self.conn = Client(ADDRESS)
-        self.done = True
 
 def communicate(args):
     t = RC()
