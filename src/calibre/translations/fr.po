@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-10 02:30+0000\n"
-"PO-Revision-Date: 2009-09-07 22:25+0000\n"
+"PO-Revision-Date: 2009-09-10 13:05+0000\n"
 "Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-10 09:48+0000\n"
+"X-Launchpad-Export-Date: 2009-09-11 09:50+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -502,7 +502,7 @@ msgstr "Lit la liste des livres de l'appareil..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505 eBook reader."
-msgstr ""
+msgstr "Communique avec le lecteur d'ebook Sony PRS-300/505."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
@@ -523,7 +523,7 @@ msgstr "Envoie les métadonnées vers l'appareil..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:17
 msgid "Communicate with the Sony PRS-600/700 eBook reader."
-msgstr ""
+msgstr "Communique avec le lecteur d'ebook Sony PRS-600/700."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:357
@@ -737,6 +737,30 @@ msgid ""
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
+"fichier_entree fichier_sortie [options]\n"
+"\n"
+"Convertir un ebook d'un format vers un autre.\n"
+"\n"
+"fichier_entree correspond à l'entrée et fichier_sortie à la sortie. Les deux "
+"doivent être spécifiés comme deux premiers arguments de la commande.\n"
+"\n"
+"Le format de sortie de l'ebook est déduit de l'extension du fichier de "
+"sortie.  fichier_sortie peut aussi avoir le format spécial .EXT où EXT est "
+"l'extension du fichier de sortie. Dans ce cas, le nom du fichier de sortie "
+"est déduit du nom du fichier d'entrée. Notez que les noms de fichiers ne "
+"doivent pas commencer par un trait d'union. Finalement, si fichier_sortie "
+"n'a pas d'extension, il sera traité alors comme un répertoire et un \"open "
+"book\" (OEB) constitué de fichiers HTML sera écrit dans le répertoire. Ces "
+"fichiers sont des fichiers qui devront normalement être passés au plugin de "
+"sortie.\n"
+"\n"
+"Après avoir spécifié les fichiers d'entrée et de sortie, vous pouvez "
+"paramétrer la conversion en spécifiant diverses options.  Les options "
+"disponibles dépendent des types de fichiers en entrée et en sortie. Pour "
+"obtenir de l'aide, spécifier les fichiers d'entrée et de sortie et utiliser "
+"ensuite l'option -h.\n"
+"\n"
+"Pour la documentation complète du système de conversion, consulter\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
