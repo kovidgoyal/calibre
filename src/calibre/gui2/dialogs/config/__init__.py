@@ -354,14 +354,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.input_up, SIGNAL('clicked()'), self.up_input)
         self.connect(self.input_down, SIGNAL('clicked()'), self.down_input)
 
-        dirs = config['frequently_used_directories']
         rn = config['use_roman_numerals_for_series_number']
         self.timeout.setValue(prefs['network_timeout'])
         self.roman_numerals.setChecked(rn)
         self.new_version_notification.setChecked(config['new_version_notification'])
-        self.directory_list.addItems(dirs)
-        self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
-        self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
         if not islinux:
             self.dirs_box.setVisible(False)
 
@@ -676,15 +672,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         if dir:
             self.location.setText(dir)
 
-    def add_dir(self):
-        dir = choose_dir(self, 'Add freq dir dialog', 'select directory')
-        if dir:
-            self.directory_list.addItem(dir)
-
-    def remove_dir(self):
-        idx = self.directory_list.currentRow()
-        if idx >= 0:
-            self.directory_list.takeItem(idx)
 
     def accept(self):
         mcs = unicode(self.max_cover_size.text()).strip()
@@ -751,10 +738,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
             d.exec_()
         else:
             self.database_location = os.path.abspath(path)
-            self.directories = [
-              qstring_to_unicode(self.directory_list.item(i).text()) for i in \
-                    range(self.directory_list.count())]
-            config['frequently_used_directories'] =  self.directories
             QDialog.accept(self)
 
 class VacThread(QThread):

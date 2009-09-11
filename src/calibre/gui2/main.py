@@ -25,7 +25,7 @@ from calibre.utils.ipc.server import Server
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
-                           set_sidebar_directories, Dispatcher, \
+                           Dispatcher, \
                            Application, available_height, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
@@ -1486,8 +1486,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.save_menu.actions()[2].setText(
                 _('Save only %s format to disk')%
                 prefs['output_format'].upper())
-            if hasattr(d, 'directories'):
-                set_sidebar_directories(d.directories)
             self.library_view.model().read_config()
             self.create_device_menu()
 
@@ -1646,7 +1644,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         geometry = config['main_window_geometry']
         if geometry is not None:
             self.restoreGeometry(geometry)
-        set_sidebar_directories(None)
         self.tool_bar.setIconSize(config['toolbar_icon_size'])
         self.tool_bar.setToolButtonStyle(
                 Qt.ToolButtonTextUnderIcon if \
