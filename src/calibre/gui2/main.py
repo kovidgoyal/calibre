@@ -530,7 +530,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self._sync_menu.trigger_default)
 
     def add_spare_server(self, *args):
-        self.spare_servers.append(Server())
+        self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
 
     @property
     def spare_server(self):

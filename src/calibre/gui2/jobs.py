@@ -15,7 +15,7 @@ from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.gui2 import Dispatcher, error_dialog, NONE
+from calibre.gui2 import Dispatcher, error_dialog, NONE, config
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__
@@ -31,7 +31,7 @@ class JobManager(QAbstractTableModel):
 
         self.jobs          = []
         self.add_job       = Dispatcher(self._add_job)
-        self.server        = Server()
+        self.server        = Server(limit=int(config['worker_limit']/2.0))
         self.changed_queue = Queue()
 
         self.timer         = QTimer(self)

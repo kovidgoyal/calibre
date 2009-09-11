@@ -83,6 +83,8 @@ def _config():
         help='Search history for the LRF viewer')
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
+    c.add_opt('worker_limit', default=6,
+            help=_('Maximum number of waiting worker processes'))
 
     return ConfigProxy(c)
 

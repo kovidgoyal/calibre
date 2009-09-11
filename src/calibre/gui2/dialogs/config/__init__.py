@@ -457,6 +457,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.sync_news, SIGNAL('toggled(bool)'),
                 self.delete_news.setEnabled)
         self.setup_conversion_options()
+        self.opt_worker_limit.setValue(config['worker_limit'])
 
     def create_symlinks(self):
         from calibre.utils.osx_symlinks import create_symlinks
@@ -696,6 +697,12 @@ class ConfigDialog(QDialog, Ui_Dialog):
             return
         if not self.add_save.save_settings():
             return
+        wl = self.opt_worker_limit.value()
+        if wl%2 != 0:
+            wl += 1
+        config['worker_limit'] = wl
+
+
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())

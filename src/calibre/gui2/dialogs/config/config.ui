@@ -682,50 +682,43 @@
         </layout>
        </widget>
        <widget class="QWidget" name="page_2">
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <spacer>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>&amp;Maximum number of waiting worker processes (needs restart):</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>154</width>
-             <height>20</height>
-            </size>
+           <property name="buddy">
+            <cstring>opt_worker_limit</cstring>
            </property>
-          </spacer>
+          </widget>
          </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_12">
-           <item>
-            <widget class="QPushButton" name="compact_button">
-             <property name="text">
-              <string>&amp;Check database integrity</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="button_osx_symlinks">
-             <property name="text">
-              <string>&amp;Install command line tools</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="opt_worker_limit">
+           <property name="minimum">
+            <number>2</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="singleStep">
+            <number>2</number>
+           </property>
+          </widget>
          </item>
-         <item>
-          <spacer>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+         <item row="1" column="0" colspan="2">
+          <widget class="QPushButton" name="compact_button">
+           <property name="text">
+            <string>&amp;Check database integrity</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>153</width>
-             <height>20</height>
-            </size>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QPushButton" name="button_osx_symlinks">
+           <property name="text">
+            <string>&amp;Install command line tools</string>
            </property>
-          </spacer>
+          </widget>
          </item>
         </layout>
        </widget>

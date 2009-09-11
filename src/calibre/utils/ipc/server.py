@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, time, tempfile
+import sys, os, cPickle, time, tempfile
 from math import ceil
 from threading import Thread, RLock
 from Queue import Queue, Empty
@@ -83,14 +83,16 @@ class CriticalError(Exception):
 
 class Server(Thread):
 
-    def __init__(self, notify_on_job_done=lambda x: x, pool_size=None):
+    def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
+            limit=sys.maxint):
         Thread.__init__(self)
         self.daemon = True
         global _counter
         self.id = _counter+1
         _counter += 1
 
-        self.pool_size = cpu_count() if pool_size is None else pool_size
+        limit = min(limit, cpu_count())
+        self.pool_size = limit if pool_size is None else pool_size
         self.notify_on_job_done = notify_on_job_done
         self.auth_key = os.urandom(32)
         self.address = arbitrary_address('AF_PIPE' if iswindows else 'AF_UNIX')
