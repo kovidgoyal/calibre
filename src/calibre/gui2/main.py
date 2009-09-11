@@ -206,10 +206,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.latest_version = ' '
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
-        self.update_checker = CheckForUpdates()
-        QObject.connect(self.update_checker,
-                SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
-        self.update_checker.start()
+        if not opts.no_update_check:
+            self.update_checker = CheckForUpdates()
+            QObject.connect(self.update_checker,
+                    SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
+            self.update_checker.start()
         ####################### Status Bar #####################
         self.status_bar = StatusBar(self.jobs_dialog, self.system_tray_icon)
         self.setStatusBar(self.status_bar)
@@ -1815,6 +1816,8 @@ path_to_ebook to the database.
                       help=_('Start minimized to system tray.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help=_('Log debugging information to console'))
+    parser.add_option('--no-update-check', default=False, action='store_true',
+            help=_('Do not check for updates'))
     return parser
 
 def init_qt(args):
