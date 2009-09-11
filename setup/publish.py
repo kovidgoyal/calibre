@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, subprocess, re, time
+import sys, os, shutil, subprocess, re, time, glob
 from datetime import datetime
 
 from setup import Command, __appname__, __version__
@@ -30,6 +30,11 @@ class Stage2(Command):
 
    description = 'Stage 2 of the publish process'
    sub_commands = ['linux', 'win', 'osx']
+
+   def pre_sub_commands(self, opts):
+       for x in glob.glob(os.path.join(self.SRC, 'dist', '*')):
+           os.remove(x)
+
 
 class Stage3(Command):
 
