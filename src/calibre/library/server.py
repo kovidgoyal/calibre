@@ -118,6 +118,7 @@ class LibraryServer(object):
       <id>$id</id>
       <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
       <link rel="search" title="Search" type="application/atom+xml" href="/stanza/?search={searchTerms}"/>
+      ${Markup(next_link)}
       <author>
         <name>calibre</name>
         <uri>http://calibre.kovidgoyal.net</uri>
@@ -192,6 +193,7 @@ class LibraryServer(object):
         self.opts = opts
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
+        self.max_stanza_items = opts.max_opds_items
         path = P('content_server')
         self.build_time = datetime.fromtimestamp(os.stat(path).st_mtime)
         self.default_cover =  open(P('content_server/default_cover.jpg'), 'rb').read()
@@ -362,24 +364,35 @@ class LibraryServer(object):
         return base.intersection(epub.union(pdb))
 
     def stanza_sortby_subcategory(self, updated, sortby, offset):
-        what = sortby[2:]
+        what, subtitle = sortby[2:], ''
         if sortby == 'byseries':
             data = self.db.all_series()
             data = [(x[0], x[1], len(self.get_matches('series', x[1]))) for x in data]
+            subtitle = 'Books by series'
         elif sortby == 'byauthor':
             data = self.db.all_authors()
             data = [(x[0], x[1], len(self.get_matches('authors', x[1]))) for x in data]
+            subtitle = 'Books by author'
         elif sortby == 'bytag':
             data = self.db.all_tags2()
             data = [(x[0], x[1], len(self.get_matches('tags', x[1]))) for x in data]
+            subtitle = 'Books by tag'
         data = [x for x in data if x[2] > 0]
         data.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        next_offset = offset + self.max_stanza_items
+        rdata = data[offset:next_offset]
+        if next_offset >= len(data):
+            next_offset = -1
         entries = [self.STANZA_SUBCATALOG_ENTRY.generate(title=title, id=id,
             what=what, updated=updated, count=c).render('xml').decode('utf-8') for id,
-            title, c in data]
-        entries = entries[offset:]
-        return self.STANZA.generate(subtitle='', data=entries, FM=FIELD_MAP,
-                    updated=updated, id='urn:calibre:main').render('xml')
+            title, c in rdata]
+        next_link = ''
+        if next_offset > -1:
+            next_link = ('<link rel="next" title="Next" '
+            'type="application/atom+xml" href="/stanza/?sortby=%s&amp;offset=%d"/>\n'
+            ) % (sortby, next_offset)
+        return self.STANZA.generate(subtitle=subtitle, data=entries, FM=FIELD_MAP,
+                    updated=updated, id='urn:calibre:main', next_link=next_link).render('xml')
 
     def stanza_main(self, updated):
         return self.STANZA_MAIN.generate(subtitle='', data=[], FM=FIELD_MAP,
@@ -391,6 +404,7 @@ class LibraryServer(object):
         'Feeds to read calibre books on a ipod with stanza.'
         books = []
         updated = self.db.last_modified()
+        offset = int(offset)
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         # Main feed
@@ -426,15 +440,34 @@ class LibraryServer(object):
             record_list = reversed(record_list)
 
 
+        fmts = FIELD_MAP['formats']
+        pat = re.compile(r'EPUB|PDB', re.IGNORECASE)
+        record_list = [x for x in record_list if x[0] in ids and
+                pat.search(x[fmts] if x[fmts] else '') is not None]
+        next_offset = offset + self.max_stanza_items
+        nrecord_list = record_list[offset:next_offset]
+        if next_offset >= len(record_list):
+            next_offset = -1
+
+        next_link = ''
+        if next_offset > -1:
+            q = ['offset=%d'%next_offset]
+            for x in ('search', 'sortby', 'authorid', 'tagid', 'seriesid'):
+                val = locals()[x]
+                if val is not None:
+                    val = prepare_string_for_xml(unicode(val), True)
+                    q.append('%s=%s'%(x, val))
+            next_link = ('<link rel="next" title="Next" '
+            'type="application/atom+xml" href="/stanza/?%s"/>\n'
+            ) % '&amp;'.join(q)
+
         author_list=[]
         tag_list=[]
         series_list=[]
-        for record in record_list:
-            if record[0] not in ids: continue
+
+        for record in nrecord_list:
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
-            if not ('EPUB' in r or 'PDB' in r):
-                continue
 
             z = record[FIELD_MAP['authors']]
             if not z:
@@ -479,7 +512,7 @@ class LibraryServer(object):
                                         .render('xml').decode('utf8'))
 
         return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
-                    updated=updated, id='urn:calibre:main').render('xml')
+                next_link=next_link, updated=updated, id='urn:calibre:main').render('xml')
 
 
     @expose
@@ -533,7 +566,9 @@ class LibraryServer(object):
             cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919 or \
             ua.startswith('Stanza')
         return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None),
-                           tagid=kwargs.get('tagid',None), seriesid=kwargs.get('seriesid',None)) if want_opds else self.static('index.html')
+                           tagid=kwargs.get('tagid',None),
+                           seriesid=kwargs.get('seriesid',None),
+                           offset=kwargs.get('offset', 0)) if want_opds else self.static('index.html')
 
 
     @expose

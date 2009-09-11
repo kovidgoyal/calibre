@@ -134,7 +134,7 @@ class Install(Develop):
             The default <prefix> is the prefix of your python installation.
     ''')
 
-    sub_commands = ['build']
+    sub_commands = ['build', 'gui']
 
     def add_options(self, parser):
         parser.add_option('--prefix', help='Installation prefix')
