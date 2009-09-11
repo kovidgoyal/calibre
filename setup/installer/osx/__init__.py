@@ -25,3 +25,4 @@ class OSX32(VMInstaller):
     VM = '/vmware/bin/%s'%VM_NAME
     FREEZE_COMMAND = 'osx32_freeze'
     BUILD_PREFIX = VMInstaller.BUILD_PREFIX + ['source ~/.profile']
+    SHUTDOWN_CMD = ['sudo', 'halt']

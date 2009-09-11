@@ -271,6 +271,7 @@ class LibraryServer(object):
         if cover is None:
             cover = self.default_cover
         cherrypy.response.headers['Content-Type'] = 'image/jpeg'
+        cherrypy.response.timeout = 3600
         path = getattr(cover, 'name', False)
         updated = datetime.utcfromtimestamp(os.stat(path).st_mtime) if path and \
             os.access(path, os.R_OK) else self.build_time
@@ -316,6 +317,7 @@ class LibraryServer(object):
         if mt is None:
             mt = 'application/octet-stream'
         cherrypy.response.headers['Content-Type'] = mt
+        cherrypy.response.timeout = 3600
         path = getattr(fmt, 'name', None)
         if path and os.path.exists(path):
             updated = datetime.utcfromtimestamp(os.stat(path).st_mtime)

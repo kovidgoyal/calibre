@@ -26,6 +26,7 @@ class Win32(VMInstaller):
     VM_NAME = 'xp_build'
     VM = '/vmware/bin/%s'%VM_NAME
     FREEZE_COMMAND = 'win32_freeze'
+    SHUTDOWN_CMD = ['shutdown', '-s']
 
     def download_installer(self):
         installer = self.installer()
