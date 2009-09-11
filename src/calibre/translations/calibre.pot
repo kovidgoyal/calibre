@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.11\n"
-"POT-Creation-Date: 2009-09-10 21:29+MDT\n"
-"PO-Revision-Date: 2009-09-10 21:29+MDT\n"
+"POT-Creation-Date: 2009-09-11 07:42+MDT\n"
+"PO-Revision-Date: 2009-09-11 07:42+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -126,8 +126,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1426
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1428
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1537
-#: /home/kovid/work/calibre/src/calibre/library/server.py:419
-#: /home/kovid/work/calibre/src/calibre/library/server.py:517
+#: /home/kovid/work/calibre/src/calibre/library/server.py:441
+#: /home/kovid/work/calibre/src/calibre/library/server.py:513
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
@@ -1601,7 +1601,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:26
-msgid "Normally calibre treats blank lines as paragraph markers. With this option it will assume that every line starting with an indent (either a tab or 2+ spaces) represents a paragraph.Paragraphs end when the next line that starts with an indent is reached."
+msgid "Normally calibre treats blank lines as paragraph markers. With this option it will assume that every line starting with an indent (either a tab or 2+ spaces) represents a paragraph. Paragraphs end when the next line that starts with an indent is reached."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
@@ -6227,11 +6227,11 @@ msgstr ""
 msgid "Requested formats not available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:232
+#: /home/kovid/work/calibre/src/calibre/library/server.py:220
 msgid "Password to access your calibre library. Username is "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server.py:595
+#: /home/kovid/work/calibre/src/calibre/library/server.py:591
 msgid ""
 "[options]\n"
 "\n"
