@@ -119,6 +119,8 @@ class Develop(Command):
                 path=self.path, resources=self.resources,
                 extensions=self.extensions)
         path = self.j(self.bindir, name)
+        if not os.path.exists(self.bindir):
+            os.makedirs(self.bindir)
         self.info('Installing binary:', path)
         open(path, 'wb').write(script)
         os.chmod(path, self.MODE)
