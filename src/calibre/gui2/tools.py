@@ -156,8 +156,6 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
                 dtitle = repr(mi.title)
             desc = _('Convert book %d of %d (%s)') % (i + 1, total, dtitle)
 
-            desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
-
             args = [in_file, out_file.name, lrecs]
             temp_files.append(out_file)
             jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
@@ -178,6 +176,7 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
             'source format was found.') % (len(res), total),
             msg).exec_()
 
+    jobs.reverse()
     return jobs, changed, bad
 
 def fetch_scheduled_recipe(recipe, script):

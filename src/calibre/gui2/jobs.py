@@ -193,6 +193,12 @@ class JobManager(QAbstractTableModel):
                          _('Job has already run')).exec_()
         self.server.kill_job(job)
 
+    def kill_all_jobs(self):
+        for job in self.jobs:
+            if isinstance(job, DeviceJob) or job.duration is not None:
+                continue
+            self.server.kill_job(job)
+
     def terminate_all_jobs(self):
         self.server.killall()
 
@@ -230,6 +236,8 @@ class JobsDialog(QDialog, Ui_JobsDialog):
                         self.kill_job)
         self.connect(self.details_button, SIGNAL('clicked()'),
                         self.show_details)
+        self.connect(self.stop_all_jobs_button, SIGNAL('clicked()'),
+                self.kill_all_jobs)
         self.connect(self, SIGNAL('kill_job(int, PyQt_PyObject)'),
                         self.jobs_view.model().kill_job)
         self.pb_delegate = ProgressBarDelegate(self)
@@ -247,7 +255,8 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.jobs_view.show_details(index)
             return
 
-
+    def kill_all_jobs(self):
+        self.model.kill_all_jobs()
 
     def closeEvent(self, e):
         self.jobs_view.write_settings()

@@ -170,6 +170,7 @@ class Server(Thread):
             except Empty:
                 pass
 
+            # Get notifications from worker process
             for worker in self.workers:
                 while True:
                     try:
@@ -179,6 +180,7 @@ class Server(Thread):
                     except Empty:
                         break
 
+            # Remove finished jobs
             for worker in [w for w in self.workers if not w.is_alive]:
                 self.workers.remove(worker)
                 job = worker.job
@@ -191,19 +193,27 @@ class Server(Thread):
                 job.duration = time.time() - job.start_time
                 self.changed_jobs_queue.put(job)
 
+            # Start new workers
             if len(self.pool) + len(self.workers) < self.pool_size:
                 try:
                     self.pool.append(self.launch_worker())
                 except Exception:
                     pass
 
+            # Start waiting jobs
             if len(self.pool) > 0 and len(self.waiting_jobs) > 0:
                 job = self.waiting_jobs.pop()
-                worker = self.pool.pop()
                 job.start_time = time.time()
-                worker.start_job(job)
-                self.workers.append(worker)
-                job.log_path = worker.log_path
+                if job.kill_on_start:
+                    job.duration = 0.0
+                    job.returncode = 1
+                    job.killed = job.failed = True
+                    job.result = None
+                else:
+                    worker = self.pool.pop()
+                    worker.start_job(job)
+                    self.workers.append(worker)
+                    job.log_path = worker.log_path
                 self.changed_jobs_queue.put(job)
 
             while True:
@@ -217,11 +227,13 @@ class Server(Thread):
         self.kill_queue.put(job)
 
     def killall(self):
-        for job in self.workers:
-            self.kill_queue.put(job)
+        for worker in self.workers:
+            self.kill_queue.put(worker.job)
 
     def _kill_job(self, job):
-        if job.start_time is None: return
+        if job.start_time is None:
+            job.kill_on_start = True
+            return
         for worker in self.workers:
             if job is worker.job:
                 worker.kill()

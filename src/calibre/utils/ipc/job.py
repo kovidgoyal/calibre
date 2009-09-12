@@ -30,6 +30,7 @@ class BaseJob(object):
         self.done2         = None
         self.killed        = False
         self.failed        = False
+        self.kill_on_start = False
         self.start_time    = None
         self.result        = None
         self.duration      = None
