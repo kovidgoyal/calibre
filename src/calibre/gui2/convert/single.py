@@ -68,6 +68,36 @@ class GroupModel(QAbstractListModel):
             return QVariant(f)
         return NONE
 
+def get_preferred_input_format_for_book(db, book_id):
+    recs = load_specifics(db, book_id)
+    if recs:
+        return recs.get('gui_preferred_input_format',  None)
+
+def get_available_formats_for_book(db, book_id):
+    available_formats = db.formats(book_id, index_is_id=True)
+    if not available_formats:
+        available_formats = ''
+    return set([x.lower() for x in
+        available_formats.split(',')])
+
+def get_supported_input_formats_for_book(db, book_id):
+    available_formats = get_available_formats_for_book(db, book_id)
+    input_formats = set([x.lower() for x in supported_input_formats()])
+    input_formats = sorted(available_formats.intersection(input_formats))
+    if not input_formats:
+        raise NoSupportedInputFormats
+    return input_formats
+
+
+def get_input_format_for_book(db, book_id, pref):
+    if pref is None:
+        pref = get_preferred_input_format_for_book(db, book_id)
+    input_formats = get_supported_input_formats_for_book(db, book_id)
+    input_format = pref if pref in input_formats else \
+        sort_formats_by_preference(input_formats, prefs['input_format_order'])[0]
+    return input_format, input_formats
+
+
 class Config(ResizableDialog, Ui_Dialog):
     '''
     Configuration dialog for single book conversion. If accepted, has the
@@ -85,12 +115,6 @@ class Config(ResizableDialog, Ui_Dialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         ResizableDialog.__init__(self, parent)
-
-        if preferred_input_format is None and db is not None:
-            recs = load_specifics(db, book_id)
-            if recs:
-                preferred_input_format = recs.get('gui_preferred_input_format',
-                        None)
 
         self.setup_input_output_formats(db, book_id, preferred_input_format,
                 preferred_output_format)
@@ -194,22 +218,10 @@ class Config(ResizableDialog, Ui_Dialog):
             preferred_output_format):
         if preferred_output_format:
             preferred_output_format = preferred_output_format.lower()
-        available_formats = db.formats(book_id, index_is_id=True)
-        if not available_formats:
-            available_formats = ''
-        available_formats = set([x.lower() for x in
-            available_formats.split(',')])
-        input_formats = set([x.lower() for x in supported_input_formats()])
-        input_formats = \
-            sorted(available_formats.intersection(input_formats))
-        if not input_formats:
-            raise NoSupportedInputFormats
         output_formats = sorted(available_output_formats())
         output_formats.remove('oeb')
-        preferred_input_format = preferred_input_format if \
-            preferred_input_format in input_formats else \
-            sort_formats_by_preference(input_formats,
-                    prefs['input_format_order'])[0]
+        input_format, input_formats = get_input_format_for_book(db, book_id,
+                preferred_input_format)
         preferred_output_format = preferred_output_format if \
             preferred_output_format in output_formats else \
             sort_formats_by_preference(output_formats,
@@ -218,7 +230,7 @@ class Config(ResizableDialog, Ui_Dialog):
             input_formats])))
         self.output_formats.addItems(list(map(QString, [x.upper() for x in
             output_formats])))
-        self.input_formats.setCurrentIndex(input_formats.index(preferred_input_format))
+        self.input_formats.setCurrentIndex(input_formats.index(input_format))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
     def show_pane(self, index):
