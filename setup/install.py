@@ -91,7 +91,9 @@ class Develop(Command):
         pass
 
     def run_postinstall(self):
-        subprocess.check_call(['calibre_postinstall'])
+        env = dict(**os.environ)
+        env['DESTDIR'] = self.prefix
+        subprocess.check_call(['calibre_postinstall', '--use-destdir'], env=env)
 
     def success(self):
         self.info('\nDevelopment environment successfully setup')
