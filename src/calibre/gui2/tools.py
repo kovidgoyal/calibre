@@ -150,6 +150,12 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
                 if x[0] == 'debug_pipeline':
                     lrecs.remove(x)
 
+            try:
+                dtitle = unicode(mi.title)
+            except:
+                dtitle = repr(mi.title)
+            desc = _('Convert book %d of %d (%s)') % (i + 1, total, dtitle)
+
             desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
 
             args = [in_file, out_file.name, lrecs]
