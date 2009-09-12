@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-09-10 02:30+0000\n"
-"PO-Revision-Date: 2009-09-09 17:22+0000\n"
+"PO-Revision-Date: 2009-09-11 22:58+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-11 09:50+0000\n"
+"X-Launchpad-Export-Date: 2009-09-12 09:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -502,7 +502,7 @@ msgstr "Az eszközön lévő könyvek listájának összeállítása..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505 eBook reader."
-msgstr ""
+msgstr "Kapcsolódás Sony PRS-300/505 olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
@@ -523,7 +523,7 @@ msgstr "Metaadatok küldése az eszközre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:17
 msgid "Communicate with the Sony PRS-600/700 eBook reader."
-msgstr ""
+msgstr "Kapcsolódás Sony PRS-600/700 olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:357
@@ -2041,6 +2041,10 @@ msgid ""
 "spaces) represents a paragraph.Paragraphs end when the next line that starts "
 "with an indent is reached."
 msgstr ""
+"Alapesetben a calibre az üres sorokat bekezdés elválasztóként kezeli. Ezzel "
+"a beállítással a behúzást kezeli a bekezdés kezdeteként (legyen az "
+"tabulátoros, vagy több, mint 2 szóközzel behúzott). A bekezdés a következő "
+"behúzással kezdődő sorig tart."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -2367,7 +2371,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:54
 msgid "Do not add a blank line between paragraphs."
-msgstr "Ne legyen res sor a bekezfések között."
+msgstr "Ne legyen üres sor a bekezdések között."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:41
 msgid ""
@@ -2376,12 +2380,17 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
+"Az egy sorban lévő karakterek maximális száma. A darabolás a megadott érték "
+"utáni első szóköznél lesz. A legkisebb érték 25 karakter. Adjon meg 0-át a "
+"sordarabolás tiltásához."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:48
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
+"Mindenképpen darabolja fel a sorokat a maximális sorhossz értéknél, akkor is "
+"ha nincs szóköz. A minimálisnál kisebb érték is megadható"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:52
 msgid "Add a tab at the beginning of each paragraph."
@@ -2997,7 +3006,7 @@ msgstr "&Kiadó: "
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:354
 msgid "Ta&gs: "
-msgstr "Cimkék: "
+msgstr "Címkék: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:145
@@ -3101,7 +3110,7 @@ msgstr "Minden sort külön bekezdésként kezeljen"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
 msgid "Assume print formatting"
-msgstr ""
+msgstr "Nyomtatási formátum értelmezése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:16
 msgid "PDB Output"
@@ -3150,7 +3159,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:82
 msgid "No formats available"
-msgstr ""
+msgstr "Nincs elérhető formátum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
 msgid "Open book"
@@ -3166,7 +3175,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
 msgid "Preview"
-msgstr ""
+msgstr "Előnézet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
@@ -3218,11 +3227,11 @@ msgstr "Oldaltörés beszúrása a következő elé (XPath kifejezés):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
 msgid "Header regular expression:"
-msgstr ""
+msgstr "Fejléc reguláris kifejezés:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:40
 msgid "Footer regular expression:"
-msgstr ""
+msgstr "Lábléc reguláris kifejezés:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:72
@@ -3343,11 +3352,11 @@ msgstr "Legyen behúzás minden bekezdés elején"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:56
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "&Maximális sorhossz:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:57
 msgid "Force maximum line lenght"
-msgstr ""
+msgstr "Mindenképpen a maximális sorhossz hazsnálata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:62
@@ -6992,7 +7001,7 @@ msgid ""
 "(see --duplicates option):"
 msgstr ""
 "A következő könyvek nem lettek hozzáadva az adatbázishoz, mert már léteznek "
-"(lásd még - duplikációk beállítása):"
+"(lásd még --duplicates beállítása):"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:323
 msgid ""
@@ -7297,8 +7306,7 @@ msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
 msgstr ""
-"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, "
-"%Y.Default is: %b, %Y"
+"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, %Y"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
 msgid "Convert paths to lowercase."
@@ -7400,39 +7408,39 @@ msgstr "A művelet végrehajtása folyamatban..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:94
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "brazil portugál"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "English (UK)"
-msgstr ""
+msgstr "angol (brit)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
 msgid "Simplified Chinese"
-msgstr ""
+msgstr "Kínai (egyszerűsített)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Chinese (HK)"
-msgstr ""
+msgstr "Kínai (hongkongi)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "Kínai (hagyományos)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English"
-msgstr "Angol"
+msgstr "angol"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (AU)"
-msgstr ""
+msgstr "angol (ausztrál)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (CA)"
-msgstr ""
+msgstr "angol (kanadai)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (IND)"
-msgstr ""
+msgstr "angol (indiai)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
@@ -7589,7 +7597,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:455
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr "Az az alapmappa, ahová az URL mentve lesz. Alapértelmezett: %s"
+msgstr "Az az alapmappa, ahová az URL mentve lesz. Alapértelmezett: %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:458
 msgid ""

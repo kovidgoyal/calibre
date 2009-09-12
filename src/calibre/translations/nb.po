@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-09-10 02:30+0000\n"
-"PO-Revision-Date: 2009-09-06 07:20+0000\n"
+"PO-Revision-Date: 2009-09-12 09:35+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-11 09:51+0000\n"
+"X-Launchpad-Export-Date: 2009-09-12 09:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -505,7 +505,7 @@ msgstr "Motta liste over bøker på enheten..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505 eBook reader."
-msgstr ""
+msgstr "Kommuniser med Sony PRS-300/505 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
@@ -526,7 +526,7 @@ msgstr "Overfører metadata til enheten..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:17
 msgid "Communicate with the Sony PRS-600/700 eBook reader."
-msgstr ""
+msgstr "Kommuniser med Sony PRS-600/700 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:357
@@ -2062,6 +2062,10 @@ msgid ""
 "spaces) represents a paragraph.Paragraphs end when the next line that starts "
 "with an indent is reached."
 msgstr ""
+"Vanligvis behandler Calibre blanke linjer som avsnittmerker. Med dette "
+"valget oppfattes det som at hver linje som starter med et merke (enten en "
+"tabulator eller 2+ mellomrom) representerer et avsnitt. Avsnittet slutter "
+"der neste linje som starter med et avsnittmerke nåes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -2104,7 +2108,7 @@ msgstr ""
 "kommando kan være ett av følgende:\n"
 "[%%commands]\n"
 "\n"
-"Bruk %prog kommando ..hjelper til med å skaffe mer informasjon om en "
+"Bruk %prog kommando --help til med å skaffe mer informasjon om en "
 "spesifisert kommando\n"
 "\n"
 "Manipuler en PDF.\n"
@@ -2390,12 +2394,18 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
+"Det høyeste antallet tegn per linje. Dette deles ved første mellomrom før "
+"den spesifiserte verdien. Dersom ingen mellomrom blir funnet, vil linjen bli "
+"brutt ved mellomrommet og vil utvide den spesifiserte verdiene. Altså, det "
+"er et minimum på 25 tegn. Bruk 0 for å slå av deling."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:48
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
+"Tving deling på maks-linjelengdens verdi når ingen mellomrom er til stede. "
+"Tillater også maks-linjelengde å være under minimum."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:52
 msgid "Add a tab at the beginning of each paragraph."
@@ -3117,7 +3127,7 @@ msgstr "Behandle hver &linje som avsnitt"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
 msgid "Assume print formatting"
-msgstr ""
+msgstr "Forutsett utskriftsformatering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:16
 msgid "PDB Output"
@@ -3162,31 +3172,31 @@ msgstr "Velg format som skal vises"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:82
 msgid "Cannot build regex using the GUI builder without a book."
-msgstr ""
+msgstr "Kan ikke bygge regex med GUI bygger uten en bok."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:82
 msgid "No formats available"
-msgstr ""
+msgstr "Ingen formater tilgjengelig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
 msgid "Open book"
-msgstr ""
+msgstr "Åpen bok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
 msgid "~"
-msgstr ""
+msgstr "~"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
 msgid "Regex Builder"
-msgstr ""
+msgstr "Regex-bygger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
 msgid "Preview"
-msgstr ""
+msgstr "Forhåndsvisning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
-msgstr ""
+msgstr "Regex:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:139
 msgid "Convert"
@@ -3235,11 +3245,11 @@ msgstr "Sett inn sideskift før (XPath uttrykk):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
 msgid "Header regular expression:"
-msgstr ""
+msgstr "Topptekst - vanlig uttrykk:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:40
 msgid "Footer regular expression:"
-msgstr ""
+msgstr "Bunntekst - vanlig uttrykk:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:72
@@ -3359,11 +3369,11 @@ msgstr "Legg til en tabulatoravstand ved begynnelsen av hvert avsnitt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:56
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "&Maks linjelengde:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:57
 msgid "Force maximum line lenght"
-msgstr ""
+msgstr "Tving maks linjelengde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:62
@@ -6997,7 +7007,7 @@ msgid ""
 "(see --duplicates option):"
 msgstr ""
 "De følgende bøkene ble ikke lagt til, da de allerede finnes i databasen (se -"
-"-duplikatvalg)"
+"-duplicates)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:323
 msgid ""
@@ -7197,7 +7207,7 @@ msgstr ""
 "Kommando er en av:\n"
 "  %s\n"
 "\n"
-"For hjelp til en individuell kommando: %%prog kommando --hjelp\n"
+"For hjelp til en individuell kommando: %%prog kommando --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1560
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
@@ -7438,15 +7448,15 @@ msgstr "Arbeider …"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:94
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "Brasiliansk portugisisk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "English (UK)"
-msgstr ""
+msgstr "Engelsk (UK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
 msgid "Simplified Chinese"
-msgstr ""
+msgstr "Forenklet kinesisk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Chinese (HK)"
@@ -7690,9 +7700,9 @@ msgstr ""
 "Enhver lenke som samsvarer med dette regulære uttrykket vil bli ignorert. "
 "Dette valget kan bli spesifisert flere ganger, hvilket vil si så lenge en "
 "lenke samsvarer med et regulært uttrykk, så vil det bli ignorert. Som "
-"standard, ingen lenker ignoreres. Dersom begge --filter-regulære uttrykk og -"
-"-treff-regulære uttrykk er spesifisert, så vil --filter-regulære uttrykk bli "
-"lagt til først."
+"standard, ingen lenker ignoreres. Dersom begge --filter-regexp uttrykk og --"
+"match-regexp uttrykk er spesifisert, så vil --filter-regexp uttrykk bli lagt "
+"til først."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:474
 msgid "Do not download CSS stylesheets."

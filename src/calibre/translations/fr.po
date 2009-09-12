@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-10 02:30+0000\n"
-"PO-Revision-Date: 2009-09-10 13:05+0000\n"
+"PO-Revision-Date: 2009-09-11 22:24+0000\n"
 "Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-11 09:50+0000\n"
+"X-Launchpad-Export-Date: 2009-09-12 09:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -749,8 +749,8 @@ msgstr ""
 "l'extension du fichier de sortie. Dans ce cas, le nom du fichier de sortie "
 "est déduit du nom du fichier d'entrée. Notez que les noms de fichiers ne "
 "doivent pas commencer par un trait d'union. Finalement, si fichier_sortie "
-"n'a pas d'extension, il sera traité alors comme un répertoire et un \"open "
-"book\" (OEB) constitué de fichiers HTML sera écrit dans le répertoire. Ces "
+"n'a pas d'extension, il sera traité alors comme un répertoire et un \"livre "
+"libre\" (OEB) constitué de fichiers HTML sera écrit dans le répertoire. Ces "
 "fichiers sont des fichiers qui devront normalement être passés au plugin de "
 "sortie.\n"
 "\n"
@@ -2890,7 +2890,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:119
 msgid "Minimum para. &indent:"
-msgstr ""
+msgstr "&Indentation min. du para.:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Render &tables as images"
@@ -3179,30 +3179,32 @@ msgstr "Choisir le format à afficher"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:82
 msgid "Cannot build regex using the GUI builder without a book."
 msgstr ""
+"Impossible de créer l'expression régulière en utilisant le générateur sans "
+"avoir de livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:82
 msgid "No formats available"
-msgstr ""
+msgstr "Aucun format disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
 msgid "Open book"
-msgstr ""
+msgstr "Livre libre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
 msgid "~"
-msgstr ""
+msgstr "~"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
 msgid "Regex Builder"
-msgstr ""
+msgstr "Générateur d'expression régulière"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
 msgid "Preview"
-msgstr ""
+msgstr "Aperçu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
-msgstr ""
+msgstr "Expression régulière:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:139
 msgid "Convert"
@@ -3250,11 +3252,11 @@ msgstr "Insérer un saut de page avant (expression XPath):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
 msgid "Header regular expression:"
-msgstr ""
+msgstr "Expression régulière pour l'en-tête"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:40
 msgid "Footer regular expression:"
-msgstr ""
+msgstr "Expression régulière pour le pied de page:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:72
@@ -3300,7 +3302,7 @@ msgstr "Supprimer le Pied de page"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:65
 msgid "Remove H&eader"
-msgstr ""
+msgstr "Supprimer l'en-tête"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -3352,7 +3354,7 @@ msgstr "Entrée TXT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:40
 msgid "Process using markdown"
-msgstr ""
+msgstr "Traiter en utilisant 'markdown'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:41
 msgid ""
@@ -3360,6 +3362,9 @@ msgid ""
 "advanced formatting. To learn more visit <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 msgstr ""
+"<p>Markdown est un language simple de correction de fichiers texte, qui "
+"autorise un formatage avancée. Pour en apprendre plus visiter <a "
+"href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
@@ -3371,15 +3376,15 @@ msgstr "Style de fin de &ligne:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:55
 msgid "Add a tab at the beginning of each paragraph"
-msgstr ""
+msgstr "Ajouter une tabulation au début de chaque paragraphe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:56
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "Longueur &maximale de la ligne:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:57
 msgid "Force maximum line lenght"
-msgstr ""
+msgstr "Forcer la longueur de ligne maximale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:62
@@ -3398,7 +3403,7 @@ msgstr "Utiliser un assistant pour aider à construire l'expression XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:68
 msgid "Match HTML &tags with tag name:"
-msgstr ""
+msgstr "Faire correspondre les étiquettes HTML avec les noms d'étiquettes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:69
 msgid "*"
@@ -3470,6 +3475,15 @@ msgid ""
 "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
 "Tutorial</a>."
 msgstr ""
+"<p>Par exemple, pour faire correspondre toutes les étiquettes h2 qui ont "
+"class=\"chapter\", positionner l'étiquette à <i>h2</i>, l'attribut à "
+"<i>class</i> et la valeur à <i>chapter</i>.</p><p>Laisser à vide l'attribut "
+"fera une recherche sur tous les attributs et laisser la valeur vide une "
+"recherche sur toutes les valeurs. Positionner l'étiquette à  * fera une "
+"recherche sur toutes les étiquettes.</p><p>Pour en apprendre plus sur "
+"l'utilisation avancée du XPath voir le <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">Tutoriel "
+"XPath</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:39
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:129
@@ -3666,6 +3680,9 @@ msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr ""
+"Impossible d'envoyer les livres suivants vers l'appareil, car aucun format "
+"convenable n'a été trouvé. Convertissez avant le(s) livre(s) vers un format "
+"supporté par votre appareil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:862
 msgid "No space on device"
@@ -3944,6 +3961,10 @@ msgid ""
 "them manually. This can happen if you manipulate the files in the library "
 "folder directly."
 msgstr ""
+"Les livres suivants ont des formats listés dans la base qui ne sont pas "
+"disponible actuellement. Les entrées pour les formats ont été supprimés. "
+"Vous devrez les vérifier manuellement. Ceci peut arriver si vous avez "
+"manipulé les fichiers directement dans le répertoire de la librairie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save.py:68
 msgid "Invalid template"
@@ -4005,7 +4026,7 @@ msgstr "Convertir les caractères non-Anglais vers des équivalents Anglais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:110
 msgid "Format &dates as:"
-msgstr ""
+msgstr "Format de &dates comme:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:111
 msgid "File &formats to save:"
@@ -4023,6 +4044,12 @@ msgid ""
 "particular book does not have some metadata, the variable will be replaced "
 "by the empty string."
 msgstr ""
+"En ajustant le modèle ci-dessous, vous pouvez contrôler dans quels "
+"répertoires sont sauvegardés les fichiers et quels noms de fichiers sont "
+"donnés. Vous pouvez utiliser le caractère / pour indiquer des sous-"
+"répertoires. Les variables de métadonnés disponibles sont décrites ci-"
+"dessous. Si un livre n'a pas de métadonnées, la variable est remplacée par "
+"une chaine vide."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:114
 msgid "Available variables:"
@@ -4030,7 +4057,7 @@ msgstr "Variables disponibles:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:115
 msgid "Replace space with &underscores"
-msgstr ""
+msgstr "Remplacer les espaces par des &underscores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:116
 msgid "Change paths to &lowercase"
@@ -5174,6 +5201,27 @@ msgid ""
 "expression on a few sample filenames. The group names for the various "
 "metadata entries are documented in tooltips.</p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
+"pattern to use when trying to guess ebook metadata from filenames. </p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
+"href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
+"decoration: underline; color:#0000ee;\">la référence</span></a> pour la "
+"syntaxe des expressions régulières est disponible.</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Utiliser la fonctionnalité "
+"de <span style=\" font-weight:600;\">Test</span> ci-dessous pour tester "
+"l'expression régulière sur quelques exemples de noms de fichiers. Les noms "
+"de groupes pour les différentes entrées de métadonnées sont documentés dans "
+"les bulles d'aide.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:104
 msgid "Regular &expression"
@@ -5634,7 +5682,7 @@ msgstr "Impossible de lire les métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:890
 msgid "Failed to read metadata from the following"
-msgstr ""
+msgstr "Impossible de lire les métadonnées à partir de"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:909
 msgid ""
@@ -5938,6 +5986,9 @@ msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
+"<p>Recherche la liste des livres par titre, auteur, éditeur, étiquettes, "
+"commentaires, etc...<br><br>Les mots séparés par des espaces sont traités "
+"avec des AND"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:340
 msgid "Reset Quick Search"
@@ -6599,6 +6650,8 @@ msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
 msgstr ""
+"Rappelez-vous de laisser calibre fonctionner car le serveur ne fonctionne "
+"que lorsque calibre fonctionne."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:294
 msgid ""
@@ -6606,6 +6659,9 @@ msgid ""
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
 "address of the computer calibre is running on."
 msgstr ""
+"Vous devez ajouter l'URL http://nomhote:8080 comme librairie calibre dans "
+"WordPlayer. Ici nomhote doit être le nom d'hôte complet ou l'adresse IP du "
+"l'ordinateur où calibre est démarré."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:371
 msgid "Moving library..."
@@ -6710,6 +6766,12 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
+"<p>calibre peut envoyer automatiquement les livres par email vers votre "
+"Kindle. Pour cela, vous devez paramétrer l'acheminement des mails ci-"
+"dessous. La façon la plus facile de le faire est de créer un <a "
+"href=\"http://gmail.com\">compte gmail</a> gratuit et de cliquer sur le "
+"bouton Utiliser gmail ci-dessous. Vous aurez aussi à enregistrer votre "
+"adresse gmail dans votre compte Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:45
 msgid "&Kindle email:"
@@ -6758,6 +6820,8 @@ msgid ""
 "Dont forget to enter your gmail username and password. You can sign up for a "
 "free gmail account at http://gmail.com"
 msgstr ""
+"N'oublier pas de saisir votre nom d'utilisateur et mot de passe gmail. Vous "
+"pouvez créer un compte gmail gratuit à http://gmail.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:130
@@ -7199,7 +7263,7 @@ msgstr "Exporter les livres vers un seul répertoire"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:546
 msgid "Specifying this switch will turn this behavior off."
-msgstr ""
+msgstr "Spécifier cette bascule desactivera ce comportement."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:569
 msgid "You must specify some ids or the %s option"
@@ -7307,18 +7371,25 @@ msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
+"Normalement, calibre mettra à jour les métadonnées dans les fichiers "
+"sauvegardés à partir de ce qui est présent dans la librairie calibre. Cela "
+"fait que la sauvegarde sur disque est plus lente."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:52
 msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
 msgstr ""
+"Normalement, calibre écrira les métadonnées dans un fichier OPF séparé avec "
+"les fichiers ebook actuels."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:55
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
+"Normalement, calibre sauvegardera la couverture dans un fichier séparé avec "
+"le(s) fichier(s) ebook actuel(s)."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:58
 msgid ""
@@ -7347,6 +7418,11 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
+"Normalement, calibre convertira tous les caractères non anglais vers des "
+"équivalents anglais pour les noms de fichiers. AVERTISSEMENT: Si vous "
+"désactiver ceci, vous pourrez obtenir des erreurs lors de la sauvegarde, "
+"cela dépendra si le système de fichiers sur lequel vous sauvegardez supporte "
+"l'unicode."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:72
 msgid ""
@@ -7396,6 +7472,8 @@ msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
 msgstr ""
+"Chaque fois que vous passez des arguments comportant des espaces à %prog ,  "
+"entourer l'argument à l'aide de guillemets."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:551
 msgid "Path to the database in which books are stored"
@@ -7456,23 +7534,23 @@ msgstr "Traitement en cours..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:94
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "Portugais Brésilien"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "English (UK)"
-msgstr ""
+msgstr "Anglais (UK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
 msgid "Simplified Chinese"
-msgstr ""
+msgstr "Chinois Simplifié"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Chinese (HK)"
-msgstr ""
+msgstr "Chinois (HK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "Chinois Traditionnel"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English"
@@ -7480,15 +7558,15 @@ msgstr "Anglais"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (AU)"
-msgstr ""
+msgstr "Anglais (AU)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (CA)"
-msgstr ""
+msgstr "Anglais (CA)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (IND)"
-msgstr ""
+msgstr "Anglais (IND)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
@@ -7570,6 +7648,8 @@ msgstr "\tLiens qui ont échoués:"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:681
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr ""
+"Impossible de récupérer l'article. Le lancer avec -w pour en connaitre la "
+"raison"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:702
 msgid "Fetching feeds..."
