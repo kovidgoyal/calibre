@@ -238,7 +238,7 @@ class HTMLPreProcessor(object):
             )
 
         end_rules = []
-        if getattr(self.extra_opts, 'unwrap_factor', None):
+        if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
                 end_rules.append(
