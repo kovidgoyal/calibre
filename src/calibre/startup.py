@@ -23,6 +23,22 @@ if not _run_once:
     _run_once = True
 
     ################################################################################
+    # Platform specific modules
+    winutil = winutilerror = None
+    if iswindows:
+        winutil, winutilerror = plugins['winutil']
+        if not winutil:
+            raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
+        if len(sys.argv) > 1:
+            sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
+
+    ################################################################################
+    # Convert command line arguments to unicode
+    for i in range(1, len(sys.argv)):
+        if not isinstance(sys.argv[i], unicode):
+            sys.argv[i] = sys.argv[i].decode(preferred_encoding, 'replace')
+
+    ################################################################################
     # Setup resources
     import calibre.utils.resources as resources
     resources
@@ -89,18 +105,4 @@ if not _run_once:
     os.path.join = my_join
 
 
-    ################################################################################
-    # Platform specific modules
-    winutil = winutilerror = None
-    if iswindows:
-        winutil, winutilerror = plugins['winutil']
-        if not winutil:
-            raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
-        if len(sys.argv) > 1:
-            sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
 
-    ################################################################################
-    # Convert command line arguments to unicode
-    for i in range(1, len(sys.argv)):
-        if not isinstance(sys.argv[i], unicode):
-            sys.argv[i] = sys.argv[i].decode(preferred_encoding, 'replace')

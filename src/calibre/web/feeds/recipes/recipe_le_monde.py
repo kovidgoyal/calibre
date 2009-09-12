@@ -7,7 +7,7 @@ lemonde.fr
 '''
 
 import re
-from datetime import date
+#from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -20,7 +20,28 @@ class LeMonde(BasicNewsRecipe):
 
     max_articles_per_feed = 30
     no_stylesheets = True
-    cover_url='http://abonnes.lemonde.fr/titresdumonde/'+date.today().strftime("%y%m%d")+'/1.jpg'
+    remove_javascript = True
+
+
+    #cover_url='http://abonnes.lemonde.fr/titresdumonde/'+date.today().strftime("%y%m%d")+'/1.jpg'
+
+
+    extra_css = '''
+                    .dateline{color:#666666;font-family:verdana,sans-serif;font-size:xx-small;}
+                    .mainText{font-family:Georgia,serif;color:#222222;}
+                    .LM_articleText{font-family:Georgia,serif;}
+                    .mainContent{font-family:Georgia,serif;}
+                    .mainTitle{font-family:Georgia,serif;}
+                    .LM_content{font-family:Georgia,serif;}
+                    .content{font-family:Georgia,serif;}
+                    .LM_caption{font-family:Georgia,serif;font-size:xx-small;}
+                    .LM_imageSource{font-family:Arial,Helvetica,sans-serif;font-size:xx-small;color:#666666;}
+                    h1{font-family:Georgia,serif;font-size:medium;color:#000000;}
+                    .entry{font-family:Georgia,Times New Roman,Times,serif;}
+                    .mainTitle{font-family:Georgia,Times New Roman,Times,serif;}
+                    h2{font-family:Georgia,Times New Roman,Times,serif;font-size:large;}
+                    small{{font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
+                '''
 
     feeds =  [
              ('A la Une', 'http://www.lemonde.fr/rss/une.xml'),
@@ -40,14 +61,20 @@ class LeMonde(BasicNewsRecipe):
              ('Examens', 'http://www.lemonde.fr/rss/sequence/0,2-3404,1-0,0.xml'),
              ('Opinions', 'http://www.lemonde.fr/rss/sequence/0,2-3232,1-0,0.xml')
              ]
+    keep_only_tags = [dict(name='div', attrs={'id':["mainTitle","mainContent","LM_content","content"]}),
+                      dict(name='div', attrs={'class':["post"]})
+                      ]
 
     remove_tags    = [dict(name='img', attrs={'src':'http://medias.lemonde.fr/mmpub/img/lgo/lemondefr_pet.gif'}),
                                     dict(name='div', attrs={'id':'xiti-logo-noscript'}),
                                     dict(name='br', attrs={}),
                                     dict(name='iframe', attrs={}),
+                     dict(name='table', attrs={'id':["toolBox"]}),
+                      dict(name='table', attrs={'class':["bottomToolBox"]}),
+                      dict(name='div', attrs={'class':["pageNavigation","fenetreBoxesContainer","breakingNews","LM_toolsBottom","LM_comments","LM_tools","pave_meme_sujet_hidden","boxMemeSujet"]}),
+                      dict(name='div', attrs={'id':["miniUne","LM_sideBar"]}),
     ]
 
-    extra_css      = '.ar-tit {font-size: x-large;} \n .dt {font-size: x-small;}'
 
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
         [
@@ -68,8 +95,8 @@ class LeMonde(BasicNewsRecipe):
         ]
     ]
 
-    def print_version(self, url):
-        return re.sub('http://www\.lemonde\.fr/.*_([0-9]+)_[0-9]+\.html.*','http://www.lemonde.fr/web/imprimer_element/0,40-0,50-\\1,0.html' ,url)
+   # def print_version(self, url):
+   #     return re.sub('http://www\.lemonde\.fr/.*_([0-9]+)_[0-9]+\.html.*','http://www.lemonde.fr/web/imprimer_element/0,40-0,50-\\1,0.html' ,url)
 
     # Used to filter duplicated articles
     articles_list = []
@@ -94,3 +121,5 @@ class LeMonde(BasicNewsRecipe):
                     return True
             return False
         return False
+
+

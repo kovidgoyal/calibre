@@ -20,6 +20,8 @@ from collections import defaultdict
 if os.environ.has_key('CALIBRE_CONFIG_DIRECTORY'):
     config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
 elif iswindows:
+    if plugins['winutil'][0] is None:
+        raise Exception(plugins['winutil'][1])
     config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
     if not os.access(config_dir, os.W_OK|os.X_OK):
         config_dir = os.path.expanduser('~')
