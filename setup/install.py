@@ -43,7 +43,7 @@ class Develop(Command):
     sub_commands = ['build', 'resources', 'gui']
 
     def add_options(self, parser):
-        parser.add_option('--prefix',
+        parser.add_option('--prefix', '--root',
             help='Binaries will be installed in <prefix>/bin')
 
     def pre_sub_commands(self, opts):
@@ -137,7 +137,7 @@ class Install(Develop):
     sub_commands = ['build', 'gui']
 
     def add_options(self, parser):
-        parser.add_option('--prefix', help='Installation prefix')
+        parser.add_option('--prefix', '--root', help='Installation prefix')
         parser.add_option('--libdir', help='Where to put calibre library files')
         parser.add_option('--bindir', help='Where to install calibre binaries')
         parser.add_option('--sharedir', help='Where to install calibre data files')
