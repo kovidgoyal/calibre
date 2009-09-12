@@ -15,7 +15,7 @@ from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.gui2 import Dispatcher, error_dialog, NONE
+from calibre.gui2 import Dispatcher, error_dialog, NONE, config
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__
@@ -31,7 +31,7 @@ class JobManager(QAbstractTableModel):
 
         self.jobs          = []
         self.add_job       = Dispatcher(self._add_job)
-        self.server        = Server()
+        self.server        = Server(limit=int(config['worker_limit']/2.0))
         self.changed_queue = Queue()
 
         self.timer         = QTimer(self)
@@ -193,6 +193,12 @@ class JobManager(QAbstractTableModel):
                          _('Job has already run')).exec_()
         self.server.kill_job(job)
 
+    def kill_all_jobs(self):
+        for job in self.jobs:
+            if isinstance(job, DeviceJob) or job.duration is not None:
+                continue
+            self.server.kill_job(job)
+
     def terminate_all_jobs(self):
         self.server.killall()
 
@@ -230,6 +236,8 @@ class JobsDialog(QDialog, Ui_JobsDialog):
                         self.kill_job)
         self.connect(self.details_button, SIGNAL('clicked()'),
                         self.show_details)
+        self.connect(self.stop_all_jobs_button, SIGNAL('clicked()'),
+                self.kill_all_jobs)
         self.connect(self, SIGNAL('kill_job(int, PyQt_PyObject)'),
                         self.jobs_view.model().kill_job)
         self.pb_delegate = ProgressBarDelegate(self)
@@ -247,7 +255,8 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.jobs_view.show_details(index)
             return
 
-
+    def kill_all_jobs(self):
+        self.model.kill_all_jobs()
 
     def closeEvent(self, e):
         self.jobs_view.write_settings()

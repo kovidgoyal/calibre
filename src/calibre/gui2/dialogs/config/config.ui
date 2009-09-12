@@ -281,103 +281,6 @@
            </layout>
           </widget>
          </item>
-         <item>
-          <widget class="QGroupBox" name="dirs_box">
-           <property name="title">
-            <string>Frequently used directories</string>
-           </property>
-           <layout class="QGridLayout" name="_5">
-            <item row="0" column="0">
-             <layout class="QHBoxLayout" name="_6">
-              <item>
-               <widget class="QListWidget" name="directory_list">
-                <property name="alternatingRowColors">
-                 <bool>true</bool>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>22</width>
-                  <height>22</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="_7">
-                <item>
-                 <spacer>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="add_button">
-                  <property name="toolTip">
-                   <string>Add a directory to the frequently used directories list</string>
-                  </property>
-                  <property name="text">
-                   <string>...</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="../../../../../resources/images.qrc">
-                    <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="remove_button">
-                  <property name="toolTip">
-                   <string>Remove a directory from the frequently used directories list</string>
-                  </property>
-                  <property name="text">
-                   <string>...</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="../../../../../resources/images.qrc">
-                    <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page">
@@ -682,50 +585,43 @@
         </layout>
        </widget>
        <widget class="QWidget" name="page_2">
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <spacer>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>&amp;Maximum number of waiting worker processes (needs restart):</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>154</width>
-             <height>20</height>
-            </size>
+           <property name="buddy">
+            <cstring>opt_worker_limit</cstring>
            </property>
-          </spacer>
+          </widget>
          </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_12">
-           <item>
-            <widget class="QPushButton" name="compact_button">
-             <property name="text">
-              <string>&amp;Check database integrity</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="button_osx_symlinks">
-             <property name="text">
-              <string>&amp;Install command line tools</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="opt_worker_limit">
+           <property name="minimum">
+            <number>2</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="singleStep">
+            <number>2</number>
+           </property>
+          </widget>
          </item>
-         <item>
-          <spacer>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+         <item row="1" column="0" colspan="2">
+          <widget class="QPushButton" name="compact_button">
+           <property name="text">
+            <string>&amp;Check database integrity</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>153</width>
-             <height>20</height>
-            </size>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="2">
+          <widget class="QPushButton" name="button_osx_symlinks">
+           <property name="text">
+            <string>&amp;Install command line tools</string>
            </property>
-          </spacer>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -797,13 +693,6 @@
             </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QCheckBox" name="show_server_password">
-             <property name="text">
-              <string>&amp;Show password</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
             <widget class="QLineEdit" name="max_cover_size">
              <property name="toolTip">
               <string>The maximum size (widthxheight) for displayed covers. Larger covers are resized. </string>
@@ -813,13 +702,40 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>Max. &amp;cover size:</string>
              </property>
              <property name="buddy">
               <cstring>max_cover_size</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QCheckBox" name="show_server_password">
+             <property name="text">
+              <string>&amp;Show password</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>Max. &amp;OPDS items per query:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_max_opds_items</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QSpinBox" name="opt_max_opds_items">
+             <property name="minimum">
+              <number>10</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
              </property>
             </widget>
            </item>

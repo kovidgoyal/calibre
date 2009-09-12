@@ -36,6 +36,7 @@ class SearchBox2(QComboBox):
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
+        self.normal_background = 'rgb(255, 255, 255, 0%)'
         self.line_edit = SearchLineEdit(self)
         self.setLineEdit(self.line_edit)
         self.connect(self.line_edit, SIGNAL('key_pressed(PyQt_PyObject)'),
@@ -62,14 +63,18 @@ class SearchBox2(QComboBox):
 
     def normalize_state(self):
         self.setEditText('')
-        self.line_edit.setStyleSheet('QLineEdit { color: black; background-color: white; }')
+        self.line_edit.setStyleSheet(
+            'QLineEdit { color: black; background-color: %s; }' %
+            self.normal_background)
         self.help_state = False
 
     def clear_to_help(self):
         self.setEditText(self.help_text)
         self.line_edit.home(False)
         self.help_state = True
-        self.line_edit.setStyleSheet('QLineEdit { color: gray; background-color: white; }')
+        self.line_edit.setStyleSheet(
+                'QLineEdit { color: gray; background-color: %s; }' %
+                self.normal_background)
         self.emit(SIGNAL('cleared()'))
 
     def text(self):
@@ -84,7 +89,7 @@ class SearchBox2(QComboBox):
             return self.clear_to_help()
         col = 'rgba(0,255,0,20%)' if ok else 'rgb(255,0,0,20%)'
         if not self.colorize:
-            col = 'white'
+            col = self.normal_background
         self.line_edit.setStyleSheet('QLineEdit { color: black; background-color: %s; }' % col)
 
     def key_pressed(self, event):

@@ -18,6 +18,24 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
 
+def create_opf_file(db, book_id):
+    mi = db.get_metadata(book_id, index_is_id=True)
+    mi.application_id = uuid.uuid4()
+    opf = OPFCreator(os.getcwdu(), mi)
+    opf_file = PersistentTemporaryFile('.opf')
+    opf.render(opf_file)
+    opf_file.close()
+    return mi, opf_file
+
+def create_cover_file(db, book_id):
+    cover = db.cover(book_id, index_is_id=True)
+    cf = None
+    if cover:
+        cf = PersistentTemporaryFile('.jpeg')
+        cf.write(cover)
+        cf.close()
+    return cf
+
 class MetadataWidget(Widget, Ui_Form):
 
     TITLE = _('Metadata')
@@ -181,12 +199,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.cover_file = self.opf_file = None
         if self.db is not None:
             self.db.set_metadata(self.book_id, self.user_mi)
-            self.mi = self.db.get_metadata(self.book_id, index_is_id=True)
-            self.mi.application_id = uuid.uuid4()
-            opf = OPFCreator(os.getcwdu(), self.mi)
-            self.opf_file = PersistentTemporaryFile('.opf')
-            opf.render(self.opf_file)
-            self.opf_file.close()
+            self.mi, self.opf_file = create_opf_file(self.db, self.book_id)
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.book_id, self.cover_data)
             cover = self.db.cover(self.book_id, index_is_id=True)

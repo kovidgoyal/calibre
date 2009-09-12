@@ -1047,6 +1047,18 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM series')]
 
+    def series_name(self, series_id):
+        return self.conn.get('SELECT name FROM series WHERE id=%d'%series_id,
+                all=False)
+
+    def author_name(self, author_id):
+        return self.conn.get('SELECT name FROM authors WHERE id=%d'%author_id,
+                all=False)
+
+    def tag_name(self, tag_id):
+        return self.conn.get('SELECT name FROM tags WHERE id=%d'%tag_id,
+                all=False)
+
     def all_authors(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM authors')]
@@ -1057,6 +1069,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     def all_tags(self):
         return [i[0].strip() for i in self.conn.get('SELECT name FROM tags') if i[0].strip()]
+
+    def all_tags2(self):
+        return [ (i[0], i[1]) for i in \
+                self.conn.get('SELECT id, name FROM tags')]
+
 
     def conversion_options(self, id, format):
         data = self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)

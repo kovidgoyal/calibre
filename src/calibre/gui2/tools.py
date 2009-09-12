@@ -14,8 +14,10 @@ from PyQt4.Qt import QDialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
 from calibre.gui2.convert.single import NoSupportedInputFormats
-from calibre.gui2.convert.single import Config as SingleConfig
+from calibre.gui2.convert.single import Config as SingleConfig, \
+    get_input_format_for_book
 from calibre.gui2.convert.bulk import BulkConfig
+from calibre.gui2.convert.metadata import create_opf_file, create_cover_file
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
 from calibre.ebooks.conversion.config import GuiRecommendations, \
@@ -55,7 +57,11 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                 out_file.close()
                 temp_files = []
 
-                desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
+                try:
+                    dtitle = unicode(mi.title)
+                except:
+                    dtitle = repr(mi.title)
+                desc = _('Convert book %d of %d (%s)') % (i + 1, total, dtitle)
 
                 recs = cPickle.loads(d.recommendations)
                 if d.opf_file is not None:
@@ -108,13 +114,11 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
     book_ids = convert_existing(parent, db, book_ids, output_format)
     for i, book_id in enumerate(book_ids):
         temp_files = []
+        input_format = get_input_format_for_book(db, book_id, None)[0]
 
         try:
-            d = SingleConfig(parent, db, book_id, None, output_format)
-            d.accept()
-
-            mi = db.get_metadata(book_id, True)
-            in_file = db.format_abspath(book_id, d.input_format, True)
+            mi, opf_file = create_opf_file(db, book_id)
+            in_file = db.format_abspath(book_id, input_format, True)
 
             out_file = PersistentTemporaryFile('.' + output_format)
             out_file.write(output_format)
@@ -122,7 +126,7 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
             temp_files = []
 
             combined_recs = GuiRecommendations()
-            default_recs = load_defaults('%s_input' % d.input_format)
+            default_recs = load_defaults('%s_input' % input_format)
             specific_recs = load_specifics(db, book_id)
             for key in default_recs:
                 combined_recs[key] = default_recs[key]
@@ -133,24 +137,30 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
             save_specifics(db, book_id, combined_recs)
             lrecs = list(combined_recs.to_recommendations())
 
-            if d.opf_file is not None:
-                lrecs.append(('read_metadata_from_opf', d.opf_file.name,
+            cover_file = create_cover_file(db, book_id)
+
+            if opf_file is not None:
+                lrecs.append(('read_metadata_from_opf', opf_file.name,
                     OptionRecommendation.HIGH))
-                temp_files.append(d.opf_file)
-            if d.cover_file is not None:
-                lrecs.append(('cover', d.cover_file.name,
+                temp_files.append(opf_file)
+            if cover_file is not None:
+                lrecs.append(('cover', cover_file.name,
                     OptionRecommendation.HIGH))
-                temp_files.append(d.cover_file)
+                temp_files.append(cover_file)
 
             for x in list(lrecs):
                 if x[0] == 'debug_pipeline':
                     lrecs.remove(x)
 
-            desc = _('Convert book %d of %d (%s)') % (i + 1, total, repr(mi.title))
+            try:
+                dtitle = unicode(mi.title)
+            except:
+                dtitle = repr(mi.title)
+            desc = _('Convert book %d of %d (%s)') % (i + 1, total, dtitle)
 
             args = [in_file, out_file.name, lrecs]
             temp_files.append(out_file)
-            jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
+            jobs.append(('gui_convert', args, desc, output_format.upper(), book_id, temp_files))
 
             changed = True
         except NoSupportedInputFormats:
@@ -168,6 +178,7 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
             'source format was found.') % (len(res), total),
             msg).exec_()
 
+    jobs.reverse()
     return jobs, changed, bad
 
 def fetch_scheduled_recipe(recipe, script):

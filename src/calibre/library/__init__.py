@@ -22,4 +22,7 @@ def server_config(defaults=None):
               help='Development mode. Server automatically restarts on file changes and serves code files (html, css, js) from the file system instead of calibre\'s resource system.')
     c.add_opt('max_cover', ['--max-cover'], default='600x800',
               help=_('The maximum size for displayed covers. Default is %default.'))
+    c.add_opt('max_opds_items', ['--max-opds-items'], default=30,
+            help=_('The maximum number of matches to return per OPDS query. '
+            'This affects Stanza, WordPlayer, etc. integration.'))
     return c

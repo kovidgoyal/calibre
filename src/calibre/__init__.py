@@ -221,9 +221,13 @@ def get_proxies():
                     proxies['ftp'] =  server
             settings.Close()
         except Exception, e:
-            print('Unable to detect proxy settings: %s' % str(e))
+            prints('Unable to detect proxy settings: %s' % str(e))
+    for x in list(proxies):
+        if len(proxies[x]) < 5:
+            prints('Removing invalid', x, 'proxy:', proxies[x])
+            del proxies[x]
     if proxies:
-        print('Using proxies: %s' % proxies)
+        prints('Using proxies: %s' % proxies)
     return proxies
 
 

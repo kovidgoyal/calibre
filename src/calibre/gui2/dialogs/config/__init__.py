@@ -10,7 +10,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
                         QProgressDialog
 
-from calibre.constants import islinux, iswindows, isosx
+from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
@@ -354,16 +354,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.input_up, SIGNAL('clicked()'), self.up_input)
         self.connect(self.input_down, SIGNAL('clicked()'), self.down_input)
 
-        dirs = config['frequently_used_directories']
         rn = config['use_roman_numerals_for_series_number']
         self.timeout.setValue(prefs['network_timeout'])
         self.roman_numerals.setChecked(rn)
         self.new_version_notification.setChecked(config['new_version_notification'])
-        self.directory_list.addItems(dirs)
-        self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
-        self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
-        if not islinux:
-            self.dirs_box.setVisible(False)
 
         column_map = config['column_map']
         for col in column_map + [i for i in ALL_COLUMNS if i not in column_map]:
@@ -432,6 +426,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.port.setValue(opts.port)
         self.username.setText(opts.username)
         self.password.setText(opts.password if opts.password else '')
+        self.opt_max_opds_items.setValue(opts.max_opds_items)
         self.auto_launch.setChecked(config['autolaunch_server'])
         self.systray_icon.setChecked(config['systray_icon'])
         self.sync_news.setChecked(config['upload_news_to_device'])
@@ -457,6 +452,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.sync_news, SIGNAL('toggled(bool)'),
                 self.delete_news.setEnabled)
         self.setup_conversion_options()
+        self.opt_worker_limit.setValue(config['worker_limit'])
 
     def create_symlinks(self):
         from calibre.utils.osx_symlinks import create_symlinks
@@ -674,15 +670,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         if dir:
             self.location.setText(dir)
 
-    def add_dir(self):
-        dir = choose_dir(self, 'Add freq dir dialog', 'select directory')
-        if dir:
-            self.directory_list.addItem(dir)
-
-    def remove_dir(self):
-        idx = self.directory_list.currentRow()
-        if idx >= 0:
-            self.directory_list.takeItem(idx)
 
     def accept(self):
         mcs = unicode(self.max_cover_size.text()).strip()
@@ -696,6 +683,12 @@ class ConfigDialog(QDialog, Ui_Dialog):
             return
         if not self.add_save.save_settings():
             return
+        wl = self.opt_worker_limit.value()
+        if wl%2 != 0:
+            wl += 1
+        config['worker_limit'] = wl
+
+
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
@@ -722,6 +715,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         sc.set('password', unicode(self.password.text()).strip())
         sc.set('port', self.port.value())
         sc.set('max_cover', mcs)
+        sc.set('max_opds_items', self.opt_max_opds_items.value())
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
@@ -742,10 +736,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
             d.exec_()
         else:
             self.database_location = os.path.abspath(path)
-            self.directories = [
-              qstring_to_unicode(self.directory_list.item(i).text()) for i in \
-                    range(self.directory_list.count())]
-            config['frequently_used_directories'] =  self.directories
             QDialog.accept(self)
 
 class VacThread(QThread):

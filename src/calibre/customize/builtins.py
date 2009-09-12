@@ -367,6 +367,7 @@ from calibre.devices.prs500.driver import PRS500
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prs700.driver import PRS700
 from calibre.devices.android.driver import ANDROID
+from calibre.devices.eslick.driver import ESLICK
 
 plugins = [HTML2ZIP]
 plugins += [
@@ -416,7 +417,8 @@ plugins += [
     PRS700,
     ANDROID,
     CYBOOK_OPUS,
-    COOL_ER
+    COOL_ER,
+    ESLICK
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

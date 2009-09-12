@@ -921,9 +921,12 @@ class LibraryDatabase2(LibraryDatabase):
         '''
         Removes book from the result cache and the underlying database.
         '''
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True))
+        try:
+            path = os.path.join(self.library_path, self.path(id, index_is_id=True))
+        except:
+            path = None
         self.data.remove(id)
-        if os.path.exists(path):
+        if path and os.path.exists(path):
             try:
                 winshell.delete_file(path, no_confirm=True, silent=True)
             except:

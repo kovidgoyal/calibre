@@ -148,6 +148,11 @@ else:
                 path=MOBILEREAD+file, app=__appname__,
                 note=Markup(\
     '''
+    <p>If you are updating from a version of calibre older than 0.6.12 on
+    <b>Windows XP</b>, first uninstall calibre, then delete the C:\Program
+    Files\calibre folder (the location may be different if you previously
+    installed calibre elsewhere) and only then install the new version of
+    calibre.</p><p><br /></p>
     <p>If you are using the <b>SONY PRS-500</b> and %(appname)s does not detect your reader, read on:</p>
     <blockquote>
     <p>

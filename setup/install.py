@@ -43,7 +43,7 @@ class Develop(Command):
     sub_commands = ['build', 'resources', 'gui']
 
     def add_options(self, parser):
-        parser.add_option('--prefix',
+        parser.add_option('--prefix', '--root',
             help='Binaries will be installed in <prefix>/bin')
 
     def pre_sub_commands(self, opts):
@@ -91,7 +91,9 @@ class Develop(Command):
         pass
 
     def run_postinstall(self):
-        subprocess.check_call(['calibre_postinstall'])
+        env = dict(**os.environ)
+        env['DESTDIR'] = self.prefix
+        subprocess.check_call(['calibre_postinstall', '--use-destdir'], env=env)
 
     def success(self):
         self.info('\nDevelopment environment successfully setup')
@@ -119,6 +121,8 @@ class Develop(Command):
                 path=self.path, resources=self.resources,
                 extensions=self.extensions)
         path = self.j(self.bindir, name)
+        if not os.path.exists(self.bindir):
+            os.makedirs(self.bindir)
         self.info('Installing binary:', path)
         open(path, 'wb').write(script)
         os.chmod(path, self.MODE)
@@ -134,10 +138,10 @@ class Install(Develop):
             The default <prefix> is the prefix of your python installation.
     ''')
 
-    sub_commands = ['build']
+    sub_commands = ['build', 'gui']
 
     def add_options(self, parser):
-        parser.add_option('--prefix', help='Installation prefix')
+        parser.add_option('--prefix', '--root', help='Installation prefix')
         parser.add_option('--libdir', help='Where to put calibre library files')
         parser.add_option('--bindir', help='Where to install calibre binaries')
         parser.add_option('--sharedir', help='Where to install calibre data files')
@@ -194,6 +198,14 @@ class Sdist(Command):
                 shutil.copytree(p, self.j(tdir, p))
             else:
                 shutil.copy2(p, d)
+        for x in os.walk(os.path.join(self.SRC, 'calibre')):
+            for f in x[-1]:
+                if not f.endswith('_ui.py'): continue
+                f = os.path.join(x[0], f)
+                f = os.path.relpath(f)
+                dest = os.path.join(tdir, self.d(f))
+                shutil.copy2(f, dest)
+
         self.info('\tCreating tarfile...')
         subprocess.check_call(' '.join(['tar', '-czf', self.a(self.DEST), '*']),
                 cwd=tdir, shell=True)

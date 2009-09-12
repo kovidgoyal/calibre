@@ -20,7 +20,7 @@ class VMInstaller(Command):
     VM_NAME = None
     FREEZE_COMMAND = None
     FREEZE_TEMPLATE = 'python setup.py {freeze_command}'
-    SHUTDOWN_CMD = ['sudo', 'shutdown', '-h', 'now']
+    SHUTDOWN_CMD = ['sudo', 'poweroff']
     IS_64_BIT = False
 
     BUILD_CMD = 'ssh -t %s bash build-calibre'

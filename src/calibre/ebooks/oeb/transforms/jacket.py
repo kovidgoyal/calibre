@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 from xml.sax.saxutils import escape
+from itertools import repeat
 
 from lxml import etree
 
@@ -31,6 +32,7 @@ class Jacket(object):
                     <h1 class="calibre_rescale_180">%(title)s</h1>
                     <h2 class="calibre_rescale_140">%(jacket)s</h2>
                     <div class="calibre_rescale_100">%(series)s</div>
+                    <div class="calibre_rescale_100">%(rating)s</div>
                     <div class="calibre_rescale_100">%(tags)s</div>
                 </div>
                 <div style="margin-top:2em" class="calibre_rescale_100">
@@ -53,6 +55,23 @@ class Jacket(object):
                     self.oeb.manifest.remove(image)
                     img.getparent().remove(img)
                     return
+
+    def get_rating(self, rating):
+        ans = ''
+        if rating is None:
+            return
+        try:
+            num = float(rating)/2
+        except:
+            return ans
+        num = max(0, num)
+        num = min(num, 5)
+        if num < 1:
+            return ans
+        id, href = self.oeb.manifest.generate('star', 'star.png')
+        self.oeb.manifest.add(id, href, 'image/png', data=I('star.png', data=True))
+        ans = 'Rating: ' + ''.join(repeat('<img style="vertical-align:text-top" alt="star" src="%s" />'%href, num))
+        return ans
 
     def insert_metadata(self, mi):
         self.log('Inserting metadata into book...')
@@ -87,7 +106,7 @@ class Jacket(object):
         html = self.JACKET_TEMPLATE%dict(xmlns=XPNSMAP['h'],
                 title=escape(title), comments=escape(comments),
                 jacket=escape(_('Book Jacket')), series=series,
-                tags=tags)
+                tags=tags, rating=self.get_rating(mi.rating))
         id, href = self.oeb.manifest.generate('jacket', 'jacket.xhtml')
         root = etree.fromstring(html)
         item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)

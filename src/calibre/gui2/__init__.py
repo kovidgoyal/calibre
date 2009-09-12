@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
-                         QByteArray, QUrl, QTranslator, QCoreApplication, QThread
+                         QByteArray, QTranslator, QCoreApplication, QThread
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QApplication, QDialog, QPushButton
 
@@ -23,8 +23,6 @@ ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher',
 
 def _config():
     c = Config('gui', 'preferences for the calibre GUI')
-    c.add_opt('frequently_used_directories', default=[],
-              help=_('Frequently used directories'))
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
     c.add_opt('confirm_delete', default=False,
@@ -83,6 +81,8 @@ def _config():
         help='Search history for the LRF viewer')
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
+    c.add_opt('worker_limit', default=6,
+            help=_('Maximum number of waiting worker processes'))
 
     return ConfigProxy(c)
 
@@ -377,15 +377,8 @@ def file_icon_provider():
     global _file_icon_provider
     return _file_icon_provider
 
-_sidebar_directories = []
-def set_sidebar_directories(dirs):
-    global _sidebar_directories
-    if dirs is None:
-        dirs = config['frequently_used_directories']
-    _sidebar_directories = [QUrl.fromLocalFile(i) for i in dirs]
-
 class FileDialog(QObject):
-    def __init__(self, title='Choose Files',
+    def __init__(self, title=_('Choose Files'),
                        filters=[],
                        add_all_files_filter=True,
                        parent=None,
@@ -394,7 +387,6 @@ class FileDialog(QObject):
                        mode = QFileDialog.ExistingFiles,
                        ):
         QObject.__init__(self)
-        initialize_file_icon_provider()
         ftext = ''
         if filters:
             for filter in filters:
@@ -410,62 +402,41 @@ class FileDialog(QObject):
         self.selected_files = None
         self.fd = None
 
-        if islinux:
-            self.fd = QFileDialog(parent)
-            self.fd.setFileMode(mode)
-            self.fd.setIconProvider(_file_icon_provider)
-            self.fd.setModal(modal)
-            self.fd.setNameFilter(ftext)
-            self.fd.setWindowTitle(title)
-            state = dynamic[self.dialog_name]
-            if not state or not self.fd.restoreState(state):
-                self.fd.setDirectory(os.path.expanduser('~'))
-            osu = [i for i in self.fd.sidebarUrls()]
-            self.fd.setSidebarUrls(osu + _sidebar_directories)
-            QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
-            self.accepted = self.fd.exec_() == QFileDialog.Accepted
+        initial_dir = dynamic.get(self.dialog_name, os.path.expanduser('~'))
+        if not isinstance(initial_dir, basestring):
+            initial_dir = os.path.expanduser('~')
+        self.selected_files = []
+        if mode == QFileDialog.AnyFile:
+            f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
+            if f and os.path.exists(f):
+                self.selected_files.append(f)
+        elif mode == QFileDialog.ExistingFile:
+            f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
+            if f and os.path.exists(f):
+                self.selected_files.append(f)
+        elif mode == QFileDialog.ExistingFiles:
+            fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "")
+            for f in fs:
+                f = unicode(f)
+                if f and os.path.exists(f):
+                    self.selected_files.append(f)
         else:
-            dir = dynamic.get(self.dialog_name, os.path.expanduser('~'))
-            self.selected_files = []
-            if mode == QFileDialog.AnyFile:
-                f = qstring_to_unicode(
-                    QFileDialog.getSaveFileName(parent, title, dir, ftext, ""))
-                if os.path.exists(f):
-                    self.selected_files.append(f)
-            elif mode == QFileDialog.ExistingFile:
-                f = qstring_to_unicode(
-                    QFileDialog.getOpenFileName(parent, title, dir, ftext, ""))
-                if os.path.exists(f):
-                    self.selected_files.append(f)
-            elif mode == QFileDialog.ExistingFiles:
-                fs = QFileDialog.getOpenFileNames(parent, title, dir, ftext, "")
-                for f in fs:
-                    if os.path.exists(qstring_to_unicode(f)):
-                        self.selected_files.append(f)
-            else:
-                opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.DirectoryOnly else QFileDialog.Option()
-                f = qstring_to_unicode(
-                        QFileDialog.getExistingDirectory(parent, title, dir, opts))
-                if os.path.exists(f):
-                    self.selected_files.append(f)
-            if self.selected_files:
-                self.selected_files = [unicode(q) for q in self.selected_files]
-                saved_loc = self.selected_files[0]
-                if os.path.isfile(saved_loc):
-                    saved_loc = os.path.dirname(saved_loc)
-                dynamic[self.dialog_name] = saved_loc
-            self.accepted = bool(self.selected_files)
+            opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.DirectoryOnly else QFileDialog.Option()
+            f = unicode(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
+            if os.path.exists(f):
+                self.selected_files.append(f)
+        if self.selected_files:
+            self.selected_files = [unicode(q) for q in self.selected_files]
+            saved_loc = self.selected_files[0]
+            if os.path.isfile(saved_loc):
+                saved_loc = os.path.dirname(saved_loc)
+            dynamic[self.dialog_name] = saved_loc
+        self.accepted = bool(self.selected_files)
 
     def get_files(self):
-        if islinux and self.fd.result() != self.fd.Accepted:
-            return tuple()
         if self.selected_files is None:
             return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.fd.selectedFiles())
         return tuple(self.selected_files)
-
-    def save_dir(self):
-        if self.fd:
-            dynamic[self.dialog_name] =  self.fd.saveState()
 
 
 def choose_dir(window, name, title):

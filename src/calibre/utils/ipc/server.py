@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, time, tempfile
+import sys, os, cPickle, time, tempfile
 from math import ceil
 from threading import Thread, RLock
 from Queue import Queue, Empty
@@ -83,14 +83,16 @@ class CriticalError(Exception):
 
 class Server(Thread):
 
-    def __init__(self, notify_on_job_done=lambda x: x, pool_size=None):
+    def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
+            limit=sys.maxint):
         Thread.__init__(self)
         self.daemon = True
         global _counter
         self.id = _counter+1
         _counter += 1
 
-        self.pool_size = cpu_count() if pool_size is None else pool_size
+        limit = min(limit, cpu_count())
+        self.pool_size = limit if pool_size is None else pool_size
         self.notify_on_job_done = notify_on_job_done
         self.auth_key = os.urandom(32)
         self.address = arbitrary_address('AF_PIPE' if iswindows else 'AF_UNIX')
@@ -168,6 +170,7 @@ class Server(Thread):
             except Empty:
                 pass
 
+            # Get notifications from worker process
             for worker in self.workers:
                 while True:
                     try:
@@ -177,6 +180,7 @@ class Server(Thread):
                     except Empty:
                         break
 
+            # Remove finished jobs
             for worker in [w for w in self.workers if not w.is_alive]:
                 self.workers.remove(worker)
                 job = worker.job
@@ -189,19 +193,27 @@ class Server(Thread):
                 job.duration = time.time() - job.start_time
                 self.changed_jobs_queue.put(job)
 
+            # Start new workers
             if len(self.pool) + len(self.workers) < self.pool_size:
                 try:
                     self.pool.append(self.launch_worker())
                 except Exception:
                     pass
 
+            # Start waiting jobs
             if len(self.pool) > 0 and len(self.waiting_jobs) > 0:
                 job = self.waiting_jobs.pop()
-                worker = self.pool.pop()
                 job.start_time = time.time()
-                worker.start_job(job)
-                self.workers.append(worker)
-                job.log_path = worker.log_path
+                if job.kill_on_start:
+                    job.duration = 0.0
+                    job.returncode = 1
+                    job.killed = job.failed = True
+                    job.result = None
+                else:
+                    worker = self.pool.pop()
+                    worker.start_job(job)
+                    self.workers.append(worker)
+                    job.log_path = worker.log_path
                 self.changed_jobs_queue.put(job)
 
             while True:
@@ -215,11 +227,13 @@ class Server(Thread):
         self.kill_queue.put(job)
 
     def killall(self):
-        for job in self.workers:
-            self.kill_queue.put(job)
+        for worker in self.workers:
+            self.kill_queue.put(worker.job)
 
     def _kill_job(self, job):
-        if job.start_time is None: return
+        if job.start_time is None:
+            job.kill_on_start = True
+            return
         for worker in self.workers:
             if job is worker.job:
                 worker.kill()

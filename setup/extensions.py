@@ -186,8 +186,13 @@ class Build(Command):
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
                     ', '.join(choices)+'. Default:%default'))
+        parser.add_option('--no-compile', default=False, action='store_true',
+                help='Skip compiling all C/C++ extensions.')
 
     def run(self, opts):
+        if opts.no_compile:
+            self.info('--no-compile specified, skipping compilation')
+            return
         self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)

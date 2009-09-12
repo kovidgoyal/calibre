@@ -20,11 +20,12 @@ from calibre.constants import __version__, __appname__, \
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
+from calibre.utils.ipc import ADDRESS, RC
 from calibre.utils.ipc.server import Server
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
-                           set_sidebar_directories, Dispatcher, \
+                           Dispatcher, \
                            Application, available_height, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
@@ -49,9 +50,6 @@ from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.gui2.dialogs.confirm_delete import confirm
-
-ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
-    os.path.expanduser('~/.calibre-gui.socket')
 
 class SaveMenu(QMenu):
 
@@ -208,10 +206,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.latest_version = ' '
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
-        self.update_checker = CheckForUpdates()
-        QObject.connect(self.update_checker,
-                SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
-        self.update_checker.start()
+        if not opts.no_update_check:
+            self.update_checker = CheckForUpdates()
+            QObject.connect(self.update_checker,
+                    SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
+            self.update_checker.start()
         ####################### Status Bar #####################
         self.status_bar = StatusBar(self.jobs_dialog, self.system_tray_icon)
         self.setStatusBar(self.status_bar)
@@ -531,7 +530,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self._sync_menu.trigger_default)
 
     def add_spare_server(self, *args):
-        self.spare_servers.append(Server())
+        self.spare_servers.append(Server(limit=int(config['worker_limit']/2.0)))
 
     @property
     def spare_server(self):
@@ -1027,10 +1026,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self._metadata_view_id = self.library_view.model().db.id(row.row())
             d = MetadataSingleDialog(self, row.row(),
                                     self.library_view.model().db,
-                                    accepted_callback=accepted)
+                                    accepted_callback=accepted,
+                                    cancel_all=rows.index(row) < len(rows)-1)
             self.connect(d, SIGNAL('view_format(PyQt_PyObject)'),
                     self.metadata_view_format)
             d.exec_()
+            if d.cancel_all:
+                break
         if rows:
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, previous)
@@ -1484,8 +1486,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.save_menu.actions()[2].setText(
                 _('Save only %s format to disk')%
                 prefs['output_format'].upper())
-            if hasattr(d, 'directories'):
-                set_sidebar_directories(d.directories)
             self.library_view.model().read_config()
             self.create_device_menu()
 
@@ -1546,12 +1546,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.view_menu.actions()[1].setEnabled(True)
             self.action_open_containing_folder.setEnabled(True)
             self.action_sync.setEnabled(True)
+            self.status_bar.tag_view_button.setEnabled(True)
+            self.status_bar.cover_flow_button.setEnabled(True)
         else:
             self.action_edit.setEnabled(False)
             self.action_convert.setEnabled(False)
             self.view_menu.actions()[1].setEnabled(False)
             self.action_open_containing_folder.setEnabled(False)
             self.action_sync.setEnabled(False)
+            self.status_bar.tag_view_button.setEnabled(False)
+            self.status_bar.cover_flow_button.setEnabled(False)
 
 
     def device_job_exception(self, job):
@@ -1644,7 +1648,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         geometry = config['main_window_geometry']
         if geometry is not None:
             self.restoreGeometry(geometry)
-        set_sidebar_directories(None)
         self.tool_bar.setIconSize(config['toolbar_icon_size'])
         self.tool_bar.setToolButtonStyle(
                 Qt.ToolButtonTextUnderIcon if \
@@ -1814,6 +1817,8 @@ path_to_ebook to the database.
                       help=_('Start minimized to system tray.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help=_('Log debugging information to console'))
+    parser.add_option('--no-update-check', default=False, action='store_true',
+            help=_('Do not check for updates'))
     return parser
 
 def init_qt(args):
@@ -1881,14 +1886,6 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
     d.setInformativeText(base%(where, msg, what))
     d.exec_()
     raise SystemExit(1)
-
-class RC(Thread):
-
-    def run(self):
-        from multiprocessing.connection import Client
-        self.done = False
-        self.conn = Client(ADDRESS)
-        self.done = True
 
 def communicate(args):
     t = RC()

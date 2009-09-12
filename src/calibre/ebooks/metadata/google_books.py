@@ -153,7 +153,7 @@ class ResultList(list):
             d = date(entry)
             if d:
                 default = datetime.utcnow()
-                default = datetime(default.year, default.month, 1)
+                default = datetime(default.year, default.month, 15)
                 d = parser.parse(d[0].text, default=default)
             else:
                 d = None

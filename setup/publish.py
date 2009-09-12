@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, subprocess, re, time
+import sys, os, shutil, subprocess, re, time, glob
 from datetime import datetime
 
 from setup import Command, __appname__, __version__
@@ -30,6 +30,11 @@ class Stage2(Command):
 
    description = 'Stage 2 of the publish process'
    sub_commands = ['linux', 'win', 'osx']
+
+   def pre_sub_commands(self, opts):
+       for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
+           os.remove(x)
+
 
 class Stage3(Command):
 
@@ -88,7 +93,7 @@ if os.environ.get('CALIBRE_BUILDBOT', None) == '1':
 else:
     class UploadRss(Command):
 
-        description = 'Generate and uplaod a RSS feed of calibre releases'
+        description = 'Generate and upload a RSS feed of calibre releases'
 
         from bzrlib import log as blog
 
@@ -150,7 +155,9 @@ else:
             bzr_path = os.path.expanduser('~/work/calibre')
             b = branch.Branch.open(bzr_path)
             lf = UploadRss.ChangelogFormatter()
+            self.info('\tGenerating bzr log...')
             log.show_log(b, lf)
             lf.rss.write_xml(open('/tmp/releases.xml', 'wb'))
-            #subprocess.check_call('scp /tmp/releases.xml divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads'.split())
+            self.info('\tUploading RSS to server...')
+            subprocess.check_call('scp /tmp/releases.xml divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads'.split())
 
