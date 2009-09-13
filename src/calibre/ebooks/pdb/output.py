@@ -47,6 +47,11 @@ class PDBOutput(OutputFormatPlugin):
         if Writer is None:
             raise PDBError('No writer available for format %s.' % format)
 
+        setattr(opts, 'flush_paras', False)
+        setattr(opts, 'max_line_length', 0)
+        setattr(opts, 'force_max_line_length', False)
+        setattr(opts, 'indent_paras', False)
+
         writer = Writer(opts, log)
 
         out_stream.seek(0)
