@@ -191,6 +191,8 @@ def main(args=sys.argv):
         exec opts.command
     elif opts.exec_file:
         sys.argv = args[:1]
+        base = os.path.dirname(os.path.abspath(opts.exec_file))
+        sys.path.insert(0, base)
         execfile(opts.exec_file)
     elif opts.debug_device_driver:
         debug_device_driver()

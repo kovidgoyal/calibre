@@ -77,6 +77,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                 jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
+                d.break_cycles()
         except NoSupportedInputFormats:
             bad.append(book_id)
 

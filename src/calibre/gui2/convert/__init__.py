@@ -164,6 +164,9 @@ class Widget(QWidget):
     def post_get_value(self, g):
         pass
 
+    def break_cycles(self):
+        self.db = None
+
     def pre_commit_check(self):
         return True
 
