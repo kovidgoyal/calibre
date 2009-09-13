@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-09-10 02:30+0000\n"
-"PO-Revision-Date: 2009-09-12 09:35+0000\n"
+"PO-Revision-Date: 2009-09-12 17:30+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-12 09:43+0000\n"
+"X-Launchpad-Export-Date: 2009-09-13 09:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -804,7 +804,7 @@ msgstr "Valgmuligheter for hjelp med feilsøk av konverteringen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
-msgstr "List opp innebygde mottakskontoer"
+msgstr "List opp innebygde nyhetskilder"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:251
 msgid "Output saved to"
@@ -4672,7 +4672,7 @@ msgstr "Planlagt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:285
 msgid "%d recipes"
-msgstr "%d mottakskontoer"
+msgstr "%d nyhetskilder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:286
 msgid "Monday"
@@ -4712,7 +4712,7 @@ msgstr "Må legge inn kontoinformasjon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:325
 msgid "This recipe requires a username and password"
-msgstr "Denne mottakskontoen krever brukernavn og passord"
+msgstr "Denne nyhetskilden krever brukernavn og passord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:356
 msgid "Created by: "
@@ -4778,8 +4778,8 @@ msgid ""
 "Interval at which to download this recipe. A value of zero means that the "
 "recipe will be downloaded every hour."
 msgstr ""
-"Intervall for nedlasting av denne mottakskontoen. En verdi på null betyr at "
-"oppskriften vil bli lastet ned hver time."
+"Intervall for nedlasting fra denne nyhetskilden. En verdi på null betyr at "
+"nyhetene vil bli lastet ned hver time."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:184
@@ -4939,15 +4939,15 @@ msgstr "&Test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:62
 msgid "No recipe selected"
-msgstr "Ingen mottakskonto valgt"
+msgstr "Ingen nyhetskilde valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:68
 msgid "The attached file: %s is a recipe to download %s."
-msgstr "Den vedlagte filen: %s er en mottakskonto for nedlasting %s."
+msgstr "Den vedlagte filen: %s er en nyhetskilde for nedlasting %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:69
 msgid "Recipe for "
-msgstr "Mottakskonto for "
+msgstr "Nyhetskilde for "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:96
@@ -4982,7 +4982,7 @@ msgstr "Eksisterer allerede"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:121
 msgid "This feed has already been added to the recipe"
-msgstr "Denne matingen har allerede blit lagt til mottakskontoen"
+msgstr "Denne matingen har allerede blit lagt til nyhetskilden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:171
@@ -4994,33 +4994,33 @@ msgstr "Ugyldig inndata"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:230
 msgid "<p>Could not create recipe. Error:<br>%s"
-msgstr "<p>Kunne ikke lage mottakskonto. Feilmelding:<br>%s"
+msgstr "<p>Kunne ikke opprette nyhetskilde. Feilmelding:<br>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:235
 msgid "Replace recipe?"
-msgstr "Bytt mottakskonto?"
+msgstr "Bytt nyhetskilde?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:236
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr ""
-"En tilpasset mottakskonto kalt %s eksisterer allerede. Ønsker du å erstatte "
+"En tilpasset nyhetskilde kalt %s eksisterer allerede. Ønsker du å erstatte "
 "den?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:202
 msgid "Pick recipe"
-msgstr "Velg mottakskonto"
+msgstr "Velg nyhetskilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:202
 msgid "Pick the recipe to customize"
-msgstr "Velg mottakskonto for tilpassning"
+msgstr "Velg nyhetskilde for tilpassning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:222
 msgid "Choose a recipe file"
-msgstr "Velg en mottakskontofil"
+msgstr "Velg en nyhetskildefil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:248
 msgid "Add custom news source"
@@ -5032,23 +5032,23 @@ msgstr "Tilgjengelige brukermottakskonti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:250
 msgid "Add/Update &recipe"
-msgstr "Legg til/Oppdater &mottakskonto"
+msgstr "Legg til/Oppdater &nyhetskilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:251
 msgid "&Remove recipe"
-msgstr "&Fjern mottakskonto"
+msgstr "&Fjern nyhetskilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:252
 msgid "&Share recipe"
-msgstr "&Del mottakskonto"
+msgstr "&Del nyhetskilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:253
 msgid "Customize &builtin recipe"
-msgstr "Tilpass &innebygget mottakskonto"
+msgstr "Tilpass &innebygget nyhetskilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:254
 msgid "&Load recipe from file"
-msgstr "&Last mottakskonto fra fil"
+msgstr "&Last nyheter fra fil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:256
 msgid ""
@@ -5069,14 +5069,14 @@ msgstr ""
 "</style></head><body style=\" tegnsettfamilie:'DejaVu Sans'; "
 "tegnsettstørrelse:10pt;tegnsettvekt:400; font-style:normal;\">\n"
 "<p style=\" toppmarg:12px; bunnmarg:12px; venstremarg:0px; høyremarg:0px; -"
-"qt-block-indent:0; text-indent:0px;\">Lage en ny basismottakskonto ved å "
+"qt-block-indent:0; text-indent:0px;\">Lage en ny basis-nyhetskilde ved å "
 "legge RSS-mating til den. <br/>For de fleste matinger, må du benytte "
 "\"Avansert modus\" for å lage egeninnstillinger for "
 "henteprosessen.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:260
 msgid "Recipe &title:"
-msgstr "Mottakskonto &tittel"
+msgstr "Nyhetskilde &tittel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:261
 msgid "&Oldest article:"
@@ -5100,16 +5100,16 @@ msgstr "Mating i mottaksjontoen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:268
 msgid "Remove feed from recipe"
-msgstr "Fjern mating fra mottakskonto"
+msgstr "Fjern mating fra nyhetskilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:271
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:274
 msgid "Add feed to recipe"
-msgstr "Legg mating til mottakskonto"
+msgstr "Legg mating til nyhetskilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:272
 msgid "&Feed title:"
-msgstr "&Mottakskonto-tittel:"
+msgstr "&Nyhetskilde-tittel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
 msgid "Feed &URL:"
@@ -5129,7 +5129,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:277
 msgid "Recipe source code (python)"
-msgstr "Kildekode for mottakskonto (python)"
+msgstr "Kildekode for nyhetskilde (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:97
 msgid ""
@@ -7460,11 +7460,11 @@ msgstr "Forenklet kinesisk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Chinese (HK)"
-msgstr ""
+msgstr "Kinesisk (CH)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "Kinesisk (tradisjonell)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English"
@@ -7472,15 +7472,15 @@ msgstr "Engelsk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (AU)"
-msgstr ""
+msgstr "Engelsk (AU)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (CA)"
-msgstr ""
+msgstr "Engelsk (CA)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (IND)"
-msgstr ""
+msgstr "Engelsk (ND)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
@@ -7521,8 +7521,8 @@ msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
-"Til bruk for mottakskonto-utvikling. Tvinger maks_artikler_per_mating til 2 "
-"og laster ned ikke flere enn 2 matinger."
+"Til bruk for nyhetskildeutvikling. Tvinger maks_artikler_per_mating til 2 og "
+"laster ned ikke flere enn 2 matinger."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:35
 msgid "Username for sites that require a login to access content."
