@@ -126,6 +126,9 @@ class RegexEdit(QWidget, Ui_Edit):
     def set_db(self, db):
         self.db = db
 
+    def break_cycles(self):
+        self.db = None
+
     @property
     def text(self):
         return unicode(self.edit.text())

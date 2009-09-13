@@ -43,8 +43,8 @@ class StructureDetectionWidget(Widget, Ui_Form):
 
     def break_cycles(self):
         Widget.break_cycles(self)
-        self.opt_header_regex.db = None
-        self.opt_footer_regex.db = None
+        self.opt_header_regex.break_cycles()
+        self.opt_footer_regex.break_cycles()
 
     def pre_commit_check(self):
         for x in ('header_regex', 'footer_regex'):
