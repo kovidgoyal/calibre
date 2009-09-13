@@ -41,6 +41,11 @@ class StructureDetectionWidget(Widget, Ui_Form):
         self.opt_footer_regex.set_book_id(book_id)
         self.opt_footer_regex.set_db(db)
 
+    def break_cycles(self):
+        Widget.break_cycles(self)
+        self.opt_header_regex.break_cycles()
+        self.opt_footer_regex.break_cycles()
+
     def pre_commit_check(self):
         for x in ('header_regex', 'footer_regex'):
             x = getattr(self, 'opt_'+x)

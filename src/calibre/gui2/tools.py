@@ -9,7 +9,7 @@ Logic for setting up conversion jobs
 
 import cPickle
 
-from PyQt4.Qt import QDialog
+from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer, SIGNAL
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
@@ -77,6 +77,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                 jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
+                d.break_cycles()
         except NoSupportedInputFormats:
             bad.append(book_id)
 
@@ -94,7 +95,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
 
     return jobs, changed, bad
 
-def convert_bulk_ebook(parent, db, book_ids, out_format=None):
+def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     changed = False
     jobs = []
     bad = []
@@ -112,32 +113,55 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
     user_recs = cPickle.loads(d.recommendations)
 
     book_ids = convert_existing(parent, db, book_ids, output_format)
-    for i, book_id in enumerate(book_ids):
+    return QueueBulk(parent, book_ids, output_format, queue, db, user_recs, args)
+
+class QueueBulk(QProgressDialog):
+
+    def __init__(self, parent, book_ids, output_format, queue, db, user_recs, args):
+        QProgressDialog.__init__(self, '',
+                QString(), 0, len(book_ids), parent)
+        self.setWindowTitle(_('Queueing books for bulk conversion'))
+        self.book_ids, self.output_format, self.queue, self.db, self.args, self.user_recs = \
+                book_ids, output_format, queue, db, args, user_recs
+        self.parent = parent
+        self.i, self.bad, self.jobs, self.changed = 0, [], [], False
+        self.timer = QTimer(self)
+        self.connect(self.timer, SIGNAL('timeout()'), self.do_book)
+        self.timer.start()
+        self.exec_()
+
+    def do_book(self):
+        if self.i >= len(self.book_ids):
+            self.timer.stop()
+            return self.do_queue()
+        book_id = self.book_ids[self.i]
+        self.i += 1
+
         temp_files = []
-        input_format = get_input_format_for_book(db, book_id, None)[0]
 
         try:
-            mi, opf_file = create_opf_file(db, book_id)
-            in_file = db.format_abspath(book_id, input_format, True)
+            input_format = get_input_format_for_book(self.db, book_id, None)[0]
+            mi, opf_file = create_opf_file(self.db, book_id)
+            in_file = self.db.format_abspath(book_id, input_format, True)
 
-            out_file = PersistentTemporaryFile('.' + output_format)
-            out_file.write(output_format)
+            out_file = PersistentTemporaryFile('.' + self.output_format)
+            out_file.write(self.output_format)
             out_file.close()
             temp_files = []
 
             combined_recs = GuiRecommendations()
             default_recs = load_defaults('%s_input' % input_format)
-            specific_recs = load_specifics(db, book_id)
+            specific_recs = load_specifics(self.db, book_id)
             for key in default_recs:
                 combined_recs[key] = default_recs[key]
             for key in specific_recs:
                 combined_recs[key] = specific_recs[key]
-            for item in user_recs:
+            for item in self.user_recs:
                 combined_recs[item[0]] = item[1]
-            save_specifics(db, book_id, combined_recs)
+            save_specifics(self.db, book_id, combined_recs)
             lrecs = list(combined_recs.to_recommendations())
 
-            cover_file = create_cover_file(db, book_id)
+            cover_file = create_cover_file(self.db, book_id)
 
             if opf_file is not None:
                 lrecs.append(('read_metadata_from_opf', opf_file.name,
@@ -156,30 +180,34 @@ def convert_bulk_ebook(parent, db, book_ids, out_format=None):
                 dtitle = unicode(mi.title)
             except:
                 dtitle = repr(mi.title)
-            desc = _('Convert book %d of %d (%s)') % (i + 1, total, dtitle)
+            self.setLabelText(_('Queueing ')+dtitle)
+            desc = _('Convert book %d of %d (%s)') % (self.i, len(self.book_ids), dtitle)
 
             args = [in_file, out_file.name, lrecs]
             temp_files.append(out_file)
-            jobs.append(('gui_convert', args, desc, output_format.upper(), book_id, temp_files))
+            self.jobs.append(('gui_convert', args, desc, self.output_format.upper(), book_id, temp_files))
 
-            changed = True
+            self.changed = True
+            self.setValue(self.i)
         except NoSupportedInputFormats:
-            bad.append(book_id)
+            self.bad.append(book_id)
 
-    if bad != []:
-        res = []
-        for id in bad:
-            title = db.title(id, True)
-            res.append('%s'%title)
+    def do_queue(self):
+        self.hide()
+        if self.bad != []:
+            res = []
+            for id in self.bad:
+                title = self.db.title(id, True)
+                res.append('%s'%title)
 
-        msg = '%s' % '\n'.join(res)
-        warning_dialog(parent, _('Could not convert some books'),
-            _('Could not convert %d of %d books, because no suitable '
-            'source format was found.') % (len(res), total),
-            msg).exec_()
-
-    jobs.reverse()
-    return jobs, changed, bad
+            msg = '%s' % '\n'.join(res)
+            warning_dialog(self.parent, _('Could not convert some books'),
+                _('Could not convert %d of %d books, because no suitable '
+                'source format was found.') % (len(res), len(self.book_ids)),
+                msg).exec_()
+        self.parent = None
+        self.jobs.reverse()
+        self.queue(self.jobs, self.changed, self.bad, *self.args)
 
 def fetch_scheduled_recipe(recipe, script):
     from calibre.gui2.dialogs.scheduler import config

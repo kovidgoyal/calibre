@@ -87,10 +87,7 @@ class TagRelease(Command):
         subprocess.check_call(('bzr tag '+__version__).split())
         subprocess.check_call('bzr commit --unchanged -m'.split() + ['IGN:Tag release'])
 
-if os.environ.get('CALIBRE_BUILDBOT', None) == '1':
-    class UploadRss(Command):
-        pass
-else:
+try:
     class UploadRss(Command):
 
         description = 'Generate and upload a RSS feed of calibre releases'
@@ -160,4 +157,6 @@ else:
             lf.rss.write_xml(open('/tmp/releases.xml', 'wb'))
             self.info('\tUploading RSS to server...')
             subprocess.check_call('scp /tmp/releases.xml divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads'.split())
-
+except ImportError:
+    class UploadRss(Command):
+        description = 'You need bzr installed to use this command'

@@ -115,7 +115,6 @@ class Config(ResizableDialog, Ui_Dialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         ResizableDialog.__init__(self, parent)
-
         self.setup_input_output_formats(db, book_id, preferred_input_format,
                 preferred_output_format)
         self.db, self.book_id = db, book_id
@@ -248,7 +247,17 @@ class Config(ResizableDialog, Ui_Dialog):
         if self.db is not None:
             recs['gui_preferred_input_format'] = self.input_format
             save_specifics(self.db, self.book_id, recs)
+        self.break_cycles()
         ResizableDialog.accept(self)
+
+    def reject(self):
+        self.break_cycles()
+        ResizableDialog.reject(self)
+
+    def break_cycles(self):
+        for i in range(self.stack.count()):
+            w = self.stack.widget(i)
+            w.break_cycles()
 
     @property
     def recommendations(self):
