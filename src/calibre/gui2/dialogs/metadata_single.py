@@ -330,6 +330,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 if not ext:
                     ext = ''
                 size = self.db.sizeof_format(row, ext)
+                if size is None:
+                    continue
                 Format(self.formats, ext, size)
 
 
