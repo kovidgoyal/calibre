@@ -16,7 +16,7 @@ from setup.build_environment import fc_inc, fc_lib, qt_inc, qt_lib, \
         fc_error, poppler_libs, poppler_lib, poppler_inc, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
         leopard_build, QMAKE, msvc, MT, win_inc, win_lib
-
+MT
 isunix = islinux or isosx
 
 make = 'make' if isunix else NMAKE
@@ -262,11 +262,11 @@ class Build(Command):
             print ' '.join(cmd)
             subprocess.check_call(cmd)
             if iswindows:
-                manifest = dest+'.manifest'
-                cmd = [MT, '-manifest', manifest, '-outputresource:%s;2'%dest]
-                self.info(*cmd)
-                subprocess.check_call(cmd)
-                os.remove(manifest)
+                #manifest = dest+'.manifest'
+                #cmd = [MT, '-manifest', manifest, '-outputresource:%s;2'%dest]
+                #self.info(*cmd)
+                #subprocess.check_call(cmd)
+                #os.remove(manifest)
                 for x in ('.exp', '.lib'):
                     x = os.path.splitext(dest)[0]+x
                     if os.path.exists(x):

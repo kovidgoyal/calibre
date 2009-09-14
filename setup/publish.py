@@ -34,6 +34,10 @@ class Stage2(Command):
    def pre_sub_commands(self, opts):
        for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
            os.remove(x)
+       build = os.path.join(self.d(self.SRC), 'build')
+       if os.path.exists(build):
+           shutil.rmtree(build)
+
 
 
 class Stage3(Command):
