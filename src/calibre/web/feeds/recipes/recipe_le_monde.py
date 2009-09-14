@@ -7,13 +7,12 @@ lemonde.fr
 '''
 
 import re
-#from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LeMonde(BasicNewsRecipe):
     title          = 'LeMonde.fr'
-    __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
+    __author__ = 'Mathieu Godlewski and Sujata Raman'
     description = 'Global news in french'
     oldest_article = 3
     language = 'fr'
@@ -23,24 +22,27 @@ class LeMonde(BasicNewsRecipe):
     remove_javascript = True
 
 
-    #cover_url='http://abonnes.lemonde.fr/titresdumonde/'+date.today().strftime("%y%m%d")+'/1.jpg'
+   # cover_url='http://abonnes.lemonde.fr/titresdumonde/'+date.today().strftime("%y%m%d")+'/1.jpg'
 
 
     extra_css = '''
-                    .dateline{color:#666666;font-family:verdana,sans-serif;font-size:xx-small;}
+                    .dateline{color:#666666;font-family:verdana,sans-serif;font-size:x-small;}
+                    .author{font-family:verdana,sans-serif;font-size:x-small;color:#222222;}
+                    .articleImage{color:#666666;font-family:verdana,sans-serif;font-size:x-small;}
                     .mainText{font-family:Georgia,serif;color:#222222;}
-                    .LM_articleText{font-family:Georgia,serif;}
+                    .LM_articleText{font-family:Arial,Helvetica,sans-serif;}
+                    .LM_titleZone{font-family:Arial,Helvetica,sans-serif;}
                     .mainContent{font-family:Georgia,serif;}
-                    .mainTitle{font-family:Georgia,serif;}
                     .LM_content{font-family:Georgia,serif;}
+                    .LM_caption{font-family:Georgia,serif;font-size:-small;}
+                    .LM_imageSource{font-family:Arial,Helvetica,sans-serif;font-size:x-small;color:#666666;}
+                    h1{font-family:Arial,Helvetica,sans-serif;font-size:medium;color:#000000;}
+                    .post{font-family:Arial,Helvetica,sans-serif;}
+                    .mainTitle{font-family:Georgia,serif;}
                     .content{font-family:Georgia,serif;}
-                    .LM_caption{font-family:Georgia,serif;font-size:xx-small;}
-                    .LM_imageSource{font-family:Arial,Helvetica,sans-serif;font-size:xx-small;color:#666666;}
-                    h1{font-family:Georgia,serif;font-size:medium;color:#000000;}
-                    .entry{font-family:Georgia,Times New Roman,Times,serif;}
-                    .mainTitle{font-family:Georgia,Times New Roman,Times,serif;}
-                    h2{font-family:Georgia,Times New Roman,Times,serif;font-size:large;}
-                    small{{font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
+                    .entry{font-family:Georgia,serif;}
+                    h2{font-family:Arial,Helvetica,sans-serif;font-size:large;}
+                    small{font-family:Arial,Helvetica,sans-serif;  color:#ED1B23;}
                 '''
 
     feeds =  [
@@ -71,10 +73,9 @@ class LeMonde(BasicNewsRecipe):
                                     dict(name='iframe', attrs={}),
                      dict(name='table', attrs={'id':["toolBox"]}),
                       dict(name='table', attrs={'class':["bottomToolBox"]}),
-                      dict(name='div', attrs={'class':["pageNavigation","fenetreBoxesContainer","breakingNews","LM_toolsBottom","LM_comments","LM_tools","pave_meme_sujet_hidden","boxMemeSujet"]}),
+                      dict(name='div', attrs={'class':["pageNavigation","LM_pagination","fenetreBoxesContainer","breakingNews","LM_toolsBottom","LM_comments","LM_tools","pave_meme_sujet_hidden","boxMemeSujet"]}),
                       dict(name='div', attrs={'id':["miniUne","LM_sideBar"]}),
     ]
-
 
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
         [
@@ -101,6 +102,16 @@ class LeMonde(BasicNewsRecipe):
     # Used to filter duplicated articles
     articles_list = []
 
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup('http://www.lemonde.fr/web/monde_pdf/0,33-0,1-0,0.html')
+        link_item = soup.find('div',attrs={'class':'pg-gch'})
+
+        if link_item and link_item.img:
+           cover_url = link_item.img['src']
+
+        return cover_url
+
     def get_article_url(self, article):
         url=article.get('link',  None)
         url=url[0:url.find("#")]
@@ -109,8 +120,13 @@ class LeMonde(BasicNewsRecipe):
             return False
         if self.is_article_wanted(url):
             self.articles_list.append(url)
-            return url
+            if '/portfolio/' in url or '/video/' in url:
+              url = None
+        return url
         self.log_debug(_('Skipping filtered article: %s')%url)
+        url = article.get('guid', None)
+
+
         return False
 
 
@@ -122,4 +138,15 @@ class LeMonde(BasicNewsRecipe):
             return False
         return False
 
+    def preprocess_html(self, soup):
+
+          for item in soup.findAll(style=True):
+              del item['style']
+
+          for item in soup.findAll(face=True):
+              del item['face']
+          for tag in soup.findAll(name=['ul','li']):
+                tag.name = 'div'
+
+          return soup
 
