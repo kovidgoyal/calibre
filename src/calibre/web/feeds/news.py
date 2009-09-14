@@ -1019,6 +1019,8 @@ class BasicNewsRecipe(Recipe):
                 title, url = None, obj
             else:
                 title, url = obj
+            if url.startswith('feed://'):
+                url = 'http'+url[4:]
             self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
             try:
                 with closing(self.browser.open(url)) as f:
