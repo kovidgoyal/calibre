@@ -43,21 +43,26 @@ class Pict:
         self.__out_file = out_file
         # this is left over
         self.__no_ask = 1
+
     def __initiate_pict_dict(self):
         self.__pict_dict = {
         'ob<nu<open-brack'    :   self.__open_br_func,
         'cb<nu<clos-brack'    :   self.__close_br_func,
         'tx<nu<__________'    :   self.__text_func,
         }
+
     def __open_br_func(self, line):
         return "{\n"
+
     def __close_br_func(self, line):
         return "}\n"
+
     def __text_func(self, line):
         #tx<nu<__________<true text
         return line[17:]
+
     def __make_dir(self):
-        """ Make a dirctory to put the image data in"""
+        """ Make a directory to put the image data in"""
         base_name = os.path.basename(getattr(self.__orig_file, 'name',
             self.__orig_file))
         base_name = os.path.splitext(base_name)[0]
@@ -97,6 +102,7 @@ class Pict:
                         pass
                 if self.__run_level > 1:
                     sys.stderr.write('Files removed.\n')
+
     def __create_pict_file(self):
         """Create a file for all the pict data to be written to.
         """
@@ -104,6 +110,7 @@ class Pict:
         write_pic_obj = open(self.__pict_file, 'w')
         write_pic_obj.close()
         self.__write_pic_obj = open(self.__pict_file, 'a')
+
     def __in_pict_func(self, line):
         if self.__cb_count == self.__pict_br_count:
             self.__in_pict = 0
@@ -115,6 +122,7 @@ class Pict:
                 line = action(line)
                 self.__write_pic_obj.write(line)
             return 0
+
     def __default(self, line, write_obj):
         """Determine if each token marks the beginning of pict data.
         If it does, create a new file to write data to (if that file
@@ -142,6 +150,7 @@ class Pict:
             self.__write_pic_obj.write("{\\pict\n")
             return 0
         return 1
+
     def __print_rtf_header(self):
         """Print to pict file the necessary RTF data for the file to be
         recognized as an RTF file.
@@ -150,6 +159,7 @@ class Pict:
         self.__write_pic_obj.write("{\\fonttbl\\f0\\null;} \n")
         self.__write_pic_obj.write("{\\colortbl\\red255\\green255\\blue255;} \n")
         self.__write_pic_obj.write("\\pard \n")
+
     def process_pict(self):
         self.__make_dir()
         read_obj = open(self.__file)

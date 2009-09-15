@@ -19,17 +19,10 @@ class InlineClass(etree.XSLTExtension):
         self.colors = []
 
     def execute(self, context, self_node, input_node, output_parent):
-        classes = []
+        classes = ['none']
         for x in self.FMTS:
-            cls = x if input_node.get(x, None) == 'true' else 'no-'+x
-            classes.append(cls)
-        none = True
-        for x in self.FMTS:
-            if 'no-'+x not in classes:
-                none = False
-                break
-        if none:
-            classes = ['none']
+            if input_node.get(x, None) == 'true':
+                classes.append(x)
         fs = input_node.get('font-size', False)
         if fs:
             if fs not in self.font_sizes:
@@ -142,19 +135,14 @@ class RTFInput(InputFormatPlugin):
         }
 
         span.italics { font-style: italic }
-        span.no-italics { font-style: normal }
 
         span.bold { font-weight: bold }
-        span.no-bold { font-weight: normal }
 
         span.small-caps { font-variant: small-caps }
-        span.no-small-caps { font-variant: normal }
 
         span.underlined { text-decoration: underline }
-        span.no-underlined { text-decoration: none }
 
         span.strike-through { text-decoration: line-through }
-        span.no-strike-through { text-decoration: none }
 
         ''')
         css += '\n'+'\n'.join(font_size_classes)
