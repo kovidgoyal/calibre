@@ -92,6 +92,7 @@ class RTFInput(InputFormatPlugin):
 
     def extract_images(self, picts):
         self.log('Extracting images...')
+
         count = 0
         raw = open(picts, 'rb').read()
         starts = []
@@ -111,17 +112,35 @@ class RTFInput(InputFormatPlugin):
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
             data = enc.decode('hex')
-            ext = '.jpg'
-            if 'EMF' in data[:200]:
-                ext = '.wmf'
-            elif 'PNG' in data[:200]:
-                ext = '.png'
             count += 1
-            name = (('%4d'%count).replace(' ', '0'))+ext
+            name = (('%4d'%count).replace(' ', '0'))+'.wmf'
             open(name, 'wb').write(data)
             imap[count] = name
             #open(name+'.hex', 'wb').write(enc)
+        return self.convert_images(imap)
+
+    def convert_images(self, imap):
+        from calibre.utils.PythonMagickWand import ImageMagick
+        with ImageMagick():
+            for count, val in imap.items():
+                try:
+                    imap[count] = self.convert_image(val)
+                except:
+                    self.log.exception('Failed to convert', val)
         return imap
+
+    def convert_image(self, name):
+        import calibre.utils.PythonMagickWand as p
+        img = p.NewMagickWand()
+        if img < 0:
+            raise RuntimeError('Cannot create wand.')
+        if not p.MagickReadImage(img, name):
+            self.log.warn('Failed to read image:', name)
+        name = name.replace('.wmf', '.jpg')
+        p.MagickWriteImage(img, name)
+
+        return name
+
 
     def write_inline_css(self, ic):
         font_size_classes = ['span.fs%d { font-size: %spt }'%(i, x) for i, x in
