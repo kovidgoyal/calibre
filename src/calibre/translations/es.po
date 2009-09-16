@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-15 01:59+0000\n"
-"PO-Revision-Date: 2009-09-15 03:52+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-09-15 11:17+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-15 09:52+0000\n"
+"X-Launchpad-Export-Date: 2009-09-16 09:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -464,7 +464,7 @@ msgstr "Comunicar con el lector EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr ""
+msgstr "Comunicar con el lector ESlick"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1344,6 +1344,9 @@ msgid ""
 "Average line length for line breaking if the HTML is from a previous partial "
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
+"Longitud de línea promedio para la división de líneas si el HTML viene de "
+"una conversión parcial previa de un fichero PDF. El valor por defecto es "
+"%default, que desactiva esta opción."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2085,6 +2088,10 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
+"Normalmente calibre interpreta las líneas en blanco como marcas de párrafo. "
+"Con esta opción se interpreta que cada linea que comienza con sangría (una "
+"tabulación o dos o más espacios) empieza un párrafo. El párrafo termina "
+"cuando se encuentra otra línea que comienza con sangría."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -2536,7 +2543,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:85
 msgid "Maximum number of waiting worker processes"
-msgstr ""
+msgstr "Númera máximo de procesos en espera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:397
@@ -2553,7 +2560,7 @@ msgstr "Copiar al portapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:381
 msgid "Choose Files"
-msgstr ""
+msgstr "Escoger ficheros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:52
 msgid "Searching in"
@@ -4260,7 +4267,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
 msgid "&Maximum number of waiting worker processes (needs restart):"
-msgstr ""
+msgstr "&Número máximo de procesos en espera (necesita reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:509
 msgid "&Check database integrity"
@@ -4327,7 +4334,7 @@ msgstr "&Mostrar contraseña"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:519
 msgid "Max. &OPDS items per query:"
-msgstr ""
+msgstr "Número máximo de elementos &OPDS por consulta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:520
 msgid "&Start Server"
@@ -4501,7 +4508,7 @@ msgstr "Mostrar &detalles de la tarea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:47
 msgid "Stop &all jobs"
-msgstr ""
+msgstr "Detener &todas las tareas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:133
 msgid "Edit Meta information"
@@ -4602,7 +4609,7 @@ msgstr "La portada del formato %s no es válida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:265
 msgid "Abort the editing of all remaining books"
-msgstr ""
+msgstr "Abortar la edición de todos los libros restantes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:454
 msgid "Downloading cover..."
@@ -5973,7 +5980,7 @@ msgstr "Dirigir registro de depuración a la consola"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1749
 msgid "Do not check for updates"
-msgstr ""
+msgstr "No comprobar actualizaciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1797
 msgid "If you are sure it is not running"
@@ -6230,11 +6237,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:122
 msgid "Queueing books for bulk conversion"
-msgstr ""
+msgstr "Poniendo libros en cola para conversión en bloque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
 msgid "Queueing "
-msgstr ""
+msgstr "Poniendo en cola "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:236
 msgid "You must set a username and password for %s"
@@ -7034,6 +7041,8 @@ msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
 msgstr ""
+"El número máximo de correspondencias devueltas por cada consulta OPDS. Esto "
+"afecta a la integración con Stanza, WordPlayer, etc."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:117
 msgid ""
@@ -7593,7 +7602,7 @@ msgstr "Trabajando..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:94
 msgid "Brazilian Portuguese"
-msgstr "Portugués de Brasil"
+msgstr "Portugués (Brasil)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "English (UK)"

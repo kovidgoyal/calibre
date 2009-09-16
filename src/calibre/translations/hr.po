@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-09-15 01:59+0000\n"
-"PO-Revision-Date: 2009-09-15 03:13+0000\n"
+"PO-Revision-Date: 2009-09-16 03:20+0000\n"
 "Last-Translator: Miro Glavić <glavicmiro@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-15 09:52+0000\n"
+"X-Launchpad-Export-Date: 2009-09-16 09:51+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -2508,7 +2508,7 @@ msgstr "Kopiraj u međuspremnik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:381
 msgid "Choose Files"
-msgstr ""
+msgstr "Odaberi Daoteke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:52
 msgid "Searching in"
@@ -4428,7 +4428,7 @@ msgstr "Prikaži &detalje posla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:47
 msgid "Stop &all jobs"
-msgstr ""
+msgstr "Zaustavi &sve poslove"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:133
 msgid "Edit Meta information"

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-09-15 01:59+0000\n"
-"PO-Revision-Date: 2009-09-15 05:02+0000\n"
-"Last-Translator: chengwei.shi <physaris@163.com>\n"
+"PO-Revision-Date: 2009-09-15 19:06+0000\n"
+"Last-Translator: Thruth Wang <wanglihao@gmail.com>\n"
 "Language-Team: Simplified Chinese <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-15 09:53+0000\n"
+"X-Launchpad-Export-Date: 2009-09-16 09:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -486,7 +486,7 @@ msgstr "从设备中获取书籍列表..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505 eBook reader."
-msgstr "与Sony PRS-300/505阅读器通信。"
+msgstr "与 Sony PRS-300/505 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
@@ -507,7 +507,7 @@ msgstr "传输元数据到设备中..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:17
 msgid "Communicate with the Sony PRS-600/700 eBook reader."
-msgstr "与Sony PRS-600/700阅读器通信。"
+msgstr "与 Sony PRS-600/700 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:357
@@ -2969,7 +2969,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
-msgstr "正则表达式"
+msgstr "正则表达式："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:163
 msgid "Convert"
@@ -3142,11 +3142,11 @@ msgstr "段落之前加入标签页"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:56
 msgid "&Maximum line length:"
-msgstr "最大行长度"
+msgstr "最大行宽(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:57
 msgid "Force maximum line lenght"
-msgstr "强制最大行长度"
+msgstr "强制最大行宽"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:62
@@ -3157,7 +3157,7 @@ msgstr "强制最大行长度"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:50
 msgid "TextLabel"
-msgstr "文字标签"
+msgstr "文本标签"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:43
 msgid "Use a wizard to help construct the XPath expression"
@@ -7076,11 +7076,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Chinese (HK)"
-msgstr "中文(香港)"
+msgstr "中文（香港）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "繁体中文"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English"
@@ -7088,15 +7088,15 @@ msgstr "英语"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "English (AU)"
-msgstr "英语(澳大利亚)"
+msgstr "英语（澳大利亚）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (CA)"
-msgstr "英语(加拿大)"
+msgstr "英语（加拿大）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (IND)"
-msgstr "英语(印度)"
+msgstr "英语（印度）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
