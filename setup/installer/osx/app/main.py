@@ -10,6 +10,8 @@ import sys, os, shutil, plistlib, subprocess, glob, zipfile, tempfile, \
     py_compile, stat, operator
 abspath, join, basename = os.path.abspath, os.path.join, os.path.basename
 
+#TODO: WMF support in ImageMagick
+
 l = {}
 exec open('setup.py').read() in l
 VERSION = l['VERSION']
