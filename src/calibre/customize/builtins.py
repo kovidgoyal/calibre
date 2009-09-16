@@ -338,6 +338,7 @@ from calibre.ebooks.rb.input import RBInput
 from calibre.web.feeds.input import RecipeInput
 from calibre.ebooks.rtf.input import RTFInput
 from calibre.ebooks.txt.input import TXTInput
+from calibre.ebooks.lrf.input import LRFInput
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output
@@ -385,6 +386,7 @@ plugins += [
     RecipeInput,
     RTFInput,
     TXTInput,
+    LRFInput,
 ]
 plugins += [
     EPUBOutput,
