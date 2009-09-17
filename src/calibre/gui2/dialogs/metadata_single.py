@@ -207,6 +207,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.series.setEditText(mi.series)
             if mi.series_index is not None:
                 self.series_index.setValue(float(mi.series_index))
+        if mi.comments and mi.comments.strip():
+            self.comments.setText(mi.comments)
+
 
     def set_cover(self):
         mi, ext = self.get_selected_format_metadata()
