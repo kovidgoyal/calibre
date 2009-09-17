@@ -165,13 +165,16 @@ class BookHeader(object):
             if not isinstance(self.title, unicode):
                 self.title = self.title.decode(self.codec, 'replace')
             if self.exth_flag & 0x40:
-                self.exth = EXTHHeader(raw[16 + self.length:], self.codec, self.title)
-                self.exth.mi.uid = self.unique_id
                 try:
-                    self.exth.mi.language = mobi2iana(langid, sublangid)
+                    self.exth = EXTHHeader(raw[16 + self.length:], self.codec, self.title)
+                    self.exth.mi.uid = self.unique_id
+                    try:
+                        self.exth.mi.language = mobi2iana(langid, sublangid)
+                    except:
+                        self.log.exception('Unknown language code')
                 except:
-                    import traceback
-                    traceback.print_exc()
+                    self.log.exception('Invalid EXTH header')
+                    self.exth_flag = 0
 
 
 class MetadataHeader(BookHeader):
