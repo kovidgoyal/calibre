@@ -366,6 +366,21 @@ class LibraryServer(object):
         return base.intersection(epub.union(pdb))
 
     def stanza_sortby_subcategory(self, updated, sortby, offset):
+        pat = re.compile(r'\(.*\)')
+
+        def clean_author(x):
+            return pat.sub('', x).strip()
+
+        def author_cmp(x, y):
+            x = x if ',' in x else clean_author(x).rpartition(' ')[-1]
+            y = y if ',' in y else clean_author(y).rpartition(' ')[-1]
+            return cmp(x.lower(), y.lower())
+
+        def get_author(x):
+            pref, ___, suff = clean_author(x).rpartition(' ')
+            return suff + (', '+pref) if pref else suff
+
+
         what, subtitle = sortby[2:], ''
         if sortby == 'byseries':
             data = self.db.all_series()
@@ -379,13 +394,15 @@ class LibraryServer(object):
             data = self.db.all_tags2()
             data = [(x[0], x[1], len(self.get_matches('tags', x[1]))) for x in data]
             subtitle = 'Books by tag'
+        fcmp = author_cmp if sortby == 'byauthor' else cmp
         data = [x for x in data if x[2] > 0]
-        data.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        data.sort(cmp=lambda x, y: fcmp(x[1], y[1]))
         next_offset = offset + self.max_stanza_items
         rdata = data[offset:next_offset]
         if next_offset >= len(data):
             next_offset = -1
-        entries = [self.STANZA_SUBCATALOG_ENTRY.generate(title=title, id=id,
+        gt = get_author if sortby == 'byauthor' else lambda x: x
+        entries = [self.STANZA_SUBCATALOG_ENTRY.generate(title=gt(title), id=id,
             what=what, updated=updated, count=c).render('xml').decode('utf-8') for id,
             title, c in rdata]
         next_link = ''

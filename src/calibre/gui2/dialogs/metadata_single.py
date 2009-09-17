@@ -551,6 +551,25 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.sync_formats()
             title = unicode(self.title.text())
             self.db.set_title(self.id, title, notify=False)
+            au = unicode(self.authors.text())
+            if au:
+                self.db.set_authors(self.id, string_to_authors(au), notify=False)
+            aus = unicode(self.author_sort.text())
+            if aus:
+                self.db.set_author_sort(self.id, aus, notify=False)
+            self.db.set_isbn(self.id,
+                    re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())), notify=False)
+            self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
+            self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
+            self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','), notify=False)
+            self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()), notify=False)
+            self.db.set_series_index(self.id, self.series_index.value(), notify=False)
+            self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
+            d = self.pubdate.date()
+            self.db.set_pubdate(self.id, datetime(d.year(), d.month(), d.day()))
+
+            if self.cover_changed and self.cover_data is not None:
+                self.db.set_cover(self.id, self.cover_data)
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'
@@ -558,25 +577,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         _('Could not open %s. Is it being used by another'
                         ' program?')%fname, show=True)
             raise
-        au = unicode(self.authors.text())
-        if au:
-            self.db.set_authors(self.id, string_to_authors(au), notify=False)
-        aus = qstring_to_unicode(self.author_sort.text())
-        if aus:
-            self.db.set_author_sort(self.id, aus, notify=False)
-        self.db.set_isbn(self.id,
-                 re.sub(r'[^0-9a-zA-Z]', '', unicode(self.isbn.text())), notify=False)
-        self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
-        self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
-        self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','), notify=False)
-        self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()), notify=False)
-        self.db.set_series_index(self.id, self.series_index.value(), notify=False)
-        self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
-        d = self.pubdate.date()
-        self.db.set_pubdate(self.id, datetime(d.year(), d.month(), d.day()))
 
-        if self.cover_changed and self.cover_data is not None:
-            self.db.set_cover(self.id, self.cover_data)
         QDialog.accept(self)
         if callable(self.accepted_callback):
             self.accepted_callback(self.id)
