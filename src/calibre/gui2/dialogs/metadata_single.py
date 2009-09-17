@@ -550,6 +550,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if self.formats_changed:
                 self.sync_formats()
             title = unicode(self.title.text())
+            self.db.set_title(self.id, title, notify=False)
         except IOError, err:
             if err.errno == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'
@@ -557,7 +558,6 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         _('Could not open %s. Is it being used by another'
                         ' program?')%fname, show=True)
             raise
-        self.db.set_title(self.id, title, notify=False)
         au = unicode(self.authors.text())
         if au:
             self.db.set_authors(self.id, string_to_authors(au), notify=False)
