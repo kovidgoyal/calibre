@@ -166,6 +166,11 @@ class Install(Develop):
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(self.SRC, dest)
+        for x in ('calibre/manual', 'calibre/trac',
+            'calibre/ebooks/lrf/html/demo'):
+            x = self.j(dest, x)
+            if os.path.exists(dest):
+                shutil.rmtree(x)
         dest = self.resources
         if os.path.exists(dest):
             shutil.rmtree(dest)
