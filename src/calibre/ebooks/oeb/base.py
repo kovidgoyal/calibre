@@ -759,13 +759,15 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _parse_xml(self, data):
+            parser = etree.XMLParser(recover=True)
             try:
-                return etree.fromstring(data)
+                return etree.fromstring(data, parser=parser)
             except etree.XMLSyntaxError, err:
                 if getattr(err, 'code', 0) == 26 or str(err).startswith('Entity'):
                     data = xml_to_unicode(data, strip_encoding_pats=True,
                             resolve_entities=True)[0]
                     return etree.fromstring(data)
+                raise
 
         def _parse_xhtml(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')
