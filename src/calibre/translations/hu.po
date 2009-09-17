@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-09-15 01:59+0000\n"
-"PO-Revision-Date: 2009-09-15 03:01+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-09-16 11:48+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-16 09:50+0000\n"
+"X-Launchpad-Export-Date: 2009-09-17 09:55+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -456,7 +456,7 @@ msgstr "Kapcsolódás EB600 olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr ""
+msgstr "Kapcsolódás ESlick olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -2033,7 +2033,7 @@ msgid ""
 "Normally calibre treats blank lines as paragraph markers. With this option "
 "it will assume that every line represents a paragraph instead."
 msgstr ""
-"Alapesetben a calibre az üres sorokat tekinti bekezdéselválasztónak. Ezzel "
+"Alapesetben a calibre az üres sorokat tekinti bekezdés-elválasztónak. Ezzel "
 "az opcióval minden egyes sort külön bekezdésként kezel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:26
@@ -2044,6 +2044,10 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
+"Alapesetben a calibre az üres sorokat tekinti bekezdés-elválasztónak. Ezzel "
+"az opcióval minden egyes sort, ami behúzással (legyen az tabulátor, vagy "
+"kettőnél több szóköz) kezdődik, külön bekezdésként kezel. A bekezdés a "
+"következő behúzással kezdődő sorig tart."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -2370,7 +2374,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:54
 msgid "Do not add a blank line between paragraphs."
-msgstr "Ne legyen res sor a bekezfések között."
+msgstr "Ne legyen üres sor a bekezdések között."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:41
 msgid ""
@@ -2484,7 +2488,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:85
 msgid "Maximum number of waiting worker processes"
-msgstr ""
+msgstr "A sorban álló műveletek maximális száma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:397
@@ -2501,7 +2505,7 @@ msgstr "Másolás a vágólapra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:381
 msgid "Choose Files"
-msgstr ""
+msgstr "Válasszon a fájlok közül"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:52
 msgid "Searching in"
@@ -3167,7 +3171,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:98
 msgid "~"
-msgstr ""
+msgstr "~"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
 msgid "Regex Builder"
@@ -3179,7 +3183,7 @@ msgstr "Előnézet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
-msgstr ""
+msgstr "Reguláris kifejezés:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:163
 msgid "Convert"
@@ -4191,7 +4195,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
 msgid "&Maximum number of waiting worker processes (needs restart):"
-msgstr ""
+msgstr "A sorban álló &műveletek maximális száma (újraindítás szükséges):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:509
 msgid "&Check database integrity"
@@ -4428,7 +4432,7 @@ msgstr "Műveletek részleteinek megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:47
 msgid "Stop &all jobs"
-msgstr ""
+msgstr "Minden művelet leállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:133
 msgid "Edit Meta information"
@@ -5884,7 +5888,7 @@ msgstr "HIbakeresési információk megjelenítése a konzolon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1749
 msgid "Do not check for updates"
-msgstr ""
+msgstr "Ne ellenőrizze a frissítéseket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1797
 msgid "If you are sure it is not running"
@@ -7332,7 +7336,7 @@ msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
 msgstr ""
-"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, %Y"
+"A dátum formázása. %Y - év, %b - hónap, %d - nap. Alapértelmezett: %b, %Y."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
 msgid "Convert paths to lowercase."
