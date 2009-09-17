@@ -43,8 +43,9 @@ class Develop(Command):
     sub_commands = ['build', 'resources', 'gui']
 
     def add_options(self, parser):
-        parser.add_option('--prefix', '--root',
-            help='Binaries will be installed in <prefix>/bin')
+        parser.add_option('--prefix',
+                help='Binaries will be installed in <prefix>/bin')
+        self.root = ''
 
     def pre_sub_commands(self, opts):
         if not islinux:
@@ -76,7 +77,7 @@ class Develop(Command):
             return warn()
         import stat
         src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
-        dest = os.path.join(self.bindir, 'calibre-mount-helper')
+        dest = self.root + os.path.join(self.bindir, 'calibre-mount-helper')
         self.info('Installing mount helper to '+ dest)
         p = subprocess.Popen(['gcc', '-Wall', src, '-o', dest])
         ret = p.wait()
@@ -120,7 +121,7 @@ class Develop(Command):
                 module=mod, func=func,
                 path=self.path, resources=self.resources,
                 extensions=self.extensions)
-        path = self.j(self.bindir, name)
+        path = self.root + self.j(self.bindir, name)
         if not os.path.exists(self.bindir):
             os.makedirs(self.bindir)
         self.info('Installing binary:', path)
@@ -141,10 +142,13 @@ class Install(Develop):
     sub_commands = ['build', 'gui']
 
     def add_options(self, parser):
-        parser.add_option('--prefix', '--root', help='Installation prefix')
+        parser.add_option('--prefix', help='Installation prefix')
         parser.add_option('--libdir', help='Where to put calibre library files')
         parser.add_option('--bindir', help='Where to install calibre binaries')
         parser.add_option('--sharedir', help='Where to install calibre data files')
+        parser.add_option('--root', default='',
+                help='Use a different installation root (mainly for packaging)')
+        self.root = ''
 
     def find_locations(self, opts):
         if opts.prefix is None:
@@ -160,9 +164,10 @@ class Install(Develop):
         self.path = opts.libdir
         self.resources = opts.sharedir
         self.extensions = self.j(self.path, 'calibre', 'plugins')
+        self.root = opts.root
 
     def install_files(self, opts):
-        dest = self.path
+        dest = self.root + self.path
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(self.SRC, dest)
@@ -171,7 +176,7 @@ class Install(Develop):
             x = self.j(dest, x)
             if os.path.exists(dest):
                 shutil.rmtree(x)
-        dest = self.resources
+        dest = self.root + self.resources
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(self.RESOURCES, dest)
