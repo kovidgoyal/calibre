@@ -845,6 +845,7 @@ class Manifest(object):
             if not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
+
                 try:
                     data = etree.fromstring(data)
                 except:

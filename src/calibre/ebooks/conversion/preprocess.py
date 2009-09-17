@@ -14,7 +14,8 @@ XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 
-convert_entities = functools.partial(entity_to_unicode, exceptions=['quot', 'apos', 'lt', 'gt', 'amp'])
+convert_entities = functools.partial(entity_to_unicode, exceptions=['quot',
+    'apos', 'lt', 'gt', 'amp', '#60', '#62'])
 _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
 
