@@ -504,13 +504,23 @@ class MobiReader(object):
                 height = attrib.pop('height').strip()
                 if height and '<' not in height and '>' not in height and \
                     re.search(r'\d+', height):
-                    styles.append('margin-top: %s' % self.ensure_unit(height))
+                        if tag.tag in ('table', 'td', 'tr'):
+                            pass
+                        elif tag.tag == 'img':
+                            tag.set('height', height)
+                        else:
+                            styles.append('margin-top: %s' % self.ensure_unit(height))
             if attrib.has_key('width'):
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):
-                    styles.append('text-indent: %s' % self.ensure_unit(width))
-                    if width.startswith('-'):
-                        styles.append('margin-left: %s' % self.ensure_unit(width[1:]))
+                    if tag.tag in ('table', 'td', 'tr'):
+                        pass
+                    elif tag.tag == 'img':
+                        tag.set('width', width)
+                    else:
+                        styles.append('text-indent: %s' % self.ensure_unit(width))
+                        if width.startswith('-'):
+                            styles.append('margin-left: %s' % self.ensure_unit(width[1:]))
             if attrib.has_key('align'):
                 align = attrib.pop('align').strip()
                 if align:
