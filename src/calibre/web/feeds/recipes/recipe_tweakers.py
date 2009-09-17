@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import with_statement
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Tweakers(BasicNewsRecipe):
+     title          = u'Tweakers.net'
+     __author__     = 'Kovid Goyal'
+     language       = 'nl'
+     oldest_article = 4
+     max_articles_per_feed = 40
+
+     keep_only_tags = [dict(name='div', attrs={'class':'columnwrapper news'})]
+
+     remove_tags    = [dict(name='div', attrs={'class':'reacties'}),
+                        {'id' : ['utracker']},
+                        {'class' : ['sidebar']},
+                        {'class' : re.compile('nextPrevious')},
+                      ]
+     no_stylesheets=True
+
+     feeds          = [(u'Tweakers.net', u'http://tweakers.net/feeds/nieuws.xml')]
+
+     def preprocess_html(self, soup):
+        for a in soup.findAll('a', href=True, rel=True):
+            if a['rel'].startswith('imageview'):
+                a['src'] = a['href']
+                del a['href']
+                a.name = 'img'
+                for x in a.findAll(True):
+                    x.extract()
+        return soup
+
+     def postprocess_html(self, soup, first):
+        for base in soup.findAll('base'):
+            base.extract()
+        return soup
+
