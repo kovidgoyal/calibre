@@ -256,7 +256,13 @@ def setup_udev_rules(group_file, reload, fatal_errors):
     sys.stdout.flush()
     groups = open(group_file, 'rb').read()
     group = 'plugdev' if 'plugdev' in groups else 'usb'
-    udev = open_file('/etc/udev/rules.d/95-calibre.rules')
+    old_udev = '/etc/udev/rules.d/95-calibre.rules'
+    if os.path.exists(old_udev):
+        os.remove(old_udev)
+    if os.path.exists('/lib/udev/rules.d'):
+        udev = open_file('/lib/udev/rules.d/95-calibre.rules')
+    else:
+        udev = open_file(old_udev)
     manifest.append(udev.name)
     udev.write('''# Sony Reader PRS-500\n'''
                '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
