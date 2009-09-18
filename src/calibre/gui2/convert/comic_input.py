@@ -19,9 +19,11 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent, 'comic_input',
                 ['colors', 'dont_normalize', 'keep_aspect_ratio', 'right2left',
                     'despeckle', 'no_sort', 'no_process', 'landscape',
-                    'dont_sharpen', 'disable_trim', 'wide']
+                    'dont_sharpen', 'disable_trim', 'wide', 'output_format']
                 )
         self.db, self.book_id = db, book_id
+        for x in get_option('output_format').option.choices:
+            self.opt_output_format.addItem(x)
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_no_process.toggle()
         self.opt_no_process.toggle()
