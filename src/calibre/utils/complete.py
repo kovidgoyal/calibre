@@ -12,12 +12,47 @@ BASH completion for calibre commands that are too complex for simple
 completion.
 '''
 
-import sys, os, shlex, glob, re
-from functools import partial
+import sys, os, shlex, glob, re, cPickle
 
-from calibre import prints
+def prints(*args, **kwargs):
+    '''
+    Print unicode arguments safely by encoding them to preferred_encoding
+    Has the same signature as the print function from Python 3, except for the
+    additional keyword argument safe_encode, which if set to True will cause the
+    function to use repr when encoding fails.
+    '''
+    file = kwargs.get('file', sys.stdout)
+    sep  = kwargs.get('sep', ' ')
+    end  = kwargs.get('end', '\n')
+    enc = 'utf-8'
+    safe_encode = kwargs.get('safe_encode', False)
+    for i, arg in enumerate(args):
+        if isinstance(arg, unicode):
+            try:
+                arg = arg.encode(enc)
+            except UnicodeEncodeError:
+                if not safe_encode:
+                    raise
+                arg = repr(arg)
+        if not isinstance(arg, str):
+            try:
+                arg = str(arg)
+            except ValueError:
+                arg = unicode(arg)
+            if isinstance(arg, unicode):
+                try:
+                    arg = arg.encode(enc)
+                except UnicodeEncodeError:
+                    if not safe_encode:
+                        raise
+                    arg = repr(arg)
 
-debug = partial(prints, file=sys.stderr)
+        file.write(arg)
+        if i != len(args)-1:
+            file.write(sep)
+    file.write(end)
+
+
 
 def split(src):
     try:
@@ -47,10 +82,10 @@ def get_opts_from_parser(parser, prefix):
             if x.startswith(prefix):
                 yield x
     for o in parser.option_list:
-        for x in do_opt(o): yield x
+        for x in do_opt(o): yield x+' '
     for g in parser.option_groups:
         for o in g.option_list:
-            for x in do_opt(o): yield x
+            for x in do_opt(o): yield x+' '
 
 def send(ans):
     pat = re.compile('([^0-9a-zA-Z_./-])')
@@ -74,6 +109,8 @@ class EbookConvert(object):
         self.words = words
         self.prefix = prefix
         self.previous = words[-2 if prefix else -1]
+        self.cache = cPickle.load(open(os.path.join(sys.resources_location,
+            'ebook-convert-complete.pickle'), 'rb'))
         self.complete(wc)
 
     def complete(self, wc):
@@ -82,39 +119,40 @@ class EbookConvert(object):
         elif wc == 3:
             self.complete_output()
         else:
-            from calibre.ebooks.conversion.cli import create_option_parser
-            from calibre.utils.logging import Log
-            log = Log()
-            log.outputs = []
-            ans = []
-            if not self.prefix or self.prefix.startswith('-'):
-                try:
-                    parser, _ = create_option_parser(self.words[:3], log)
-                    ans += list(get_opts_from_parser(parser, self.prefix))
-                except:
-                    pass
+            q = list(self.words[1:3])
+            q = [os.path.splitext(x)[0 if x.startswith('.') else 1].partition('.')[-1].lower() for x in q]
+            if not q[1]:
+                q[1] = 'oeb'
+            q = tuple(q)
+            if q in self.cache:
+                ans = [x for x in self.cache[q] if x.startswith(self.prefix)]
+            else:
+                from calibre.ebooks.conversion.cli import create_option_parser
+                from calibre.utils.logging import Log
+                log = Log()
+                log.outputs = []
+                ans = []
+                if not self.prefix or self.prefix.startswith('-'):
+                    try:
+                        parser, _ = create_option_parser(self.words[:3], log)
+                        ans += list(get_opts_from_parser(parser, self.prefix))
+                    except:
+                        pass
             if self.previous.startswith('-'):
                 ans += list(files_and_dirs(self.prefix, None))
             send(ans)
 
     def complete_input(self):
-        from calibre.ebooks.conversion.plumber import supported_input_formats
-        ans = list(files_and_dirs(self.prefix, supported_input_formats()))
-        from calibre.web.feeds.recipes import recipes
-        ans += [t.title+'.recipe ' for t in recipes if
-                (t.title+'.recipe').startswith(self.prefix)]
+        ans = list(files_and_dirs(self.prefix, self.cache['input_fmts']))
+        ans += [t for t in self.cache['input_recipes'] if
+                t.startswith(self.prefix)]
         send(ans)
 
     def complete_output(self):
-        from calibre.customize.ui import available_output_formats
-        fmts = available_output_formats()
+        fmts = self.cache['output']
         ans = list(files_and_dirs(self.prefix, fmts))
         ans += ['.'+x+' ' for x in fmts if ('.'+x).startswith(self.prefix)]
         send(ans)
-
-
-
-
 
 
 def main(args=sys.argv):

@@ -11,6 +11,7 @@ resources/localization
 resources/images.qrc
 resources/recipes.pickle
 resources/scripts.pickle
+resources/ebook-convert-complete.pickle
 setup/installer/windows/calibre/build.log
 src/calibre/translations/.errors
 src/cssutils/.svn/

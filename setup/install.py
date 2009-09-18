@@ -11,7 +11,7 @@ import sys, os, textwrap, subprocess, shutil, tempfile, atexit
 from setup import Command, islinux, basenames, modules, functions, \
         __appname__, __version__
 
-TEMPLATE = '''\
+HEADER = '''\
 #!/usr/bin/env python
 
 """
@@ -20,6 +20,9 @@ Do not modify it unless you know what you are doing.
 """
 
 import sys
+'''
+
+TEMPLATE = HEADER+'''
 sys.path.insert(0, {path!r})
 
 sys.resources_location = {resources!r}
@@ -27,6 +30,18 @@ sys.extensions_location = {extensions!r}
 
 from {module} import {func!s}
 sys.exit({func!s}())
+'''
+
+COMPLETE_TEMPLATE = HEADER+'''
+import os
+sys.path.insert(0, {path!r})
+sys.path.insert(0, os.path.join({path!r}, 'calibre', 'utils'))
+import complete
+sys.path = sys.path[1:]
+
+sys.resources_location = {resources!r}
+sys.extensions_location = {extensions!r}
+sys.exit(complete.main())
 '''
 
 class Develop(Command):
@@ -117,7 +132,8 @@ class Develop(Command):
             self.write_template(opts, 'calibre_postinstall', 'calibre.linux', 'main')
 
     def write_template(self, opts, name, mod, func):
-        script = TEMPLATE.format(
+        template = COMPLETE_TEMPLATE if name == 'calibre-complete' else TEMPLATE
+        script = template.format(
                 module=mod, func=func,
                 path=self.path, resources=self.resources,
                 extensions=self.extensions)
