@@ -1081,6 +1081,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return cPickle.loads(str(data))
         return None
 
+    def delete_conversion_options(self, id, format):
+        self.conn.execute('DELETE FROM conversion_options WHERE book=? AND format=?',
+                (id, format.upper()))
+
 
     def add_format(self, index, ext, stream, index_is_id=False):
         '''

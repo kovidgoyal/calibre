@@ -23,6 +23,7 @@ from calibre.gui2.convert.debug import DebugWidget
 
 
 from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats
+from calibre.ebooks.conversion.config import delete_specifics
 from calibre.customize.ui import available_output_formats
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
@@ -115,9 +116,10 @@ class Config(ResizableDialog, Ui_Dialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         ResizableDialog.__init__(self, parent)
-        self.setup_input_output_formats(db, book_id, preferred_input_format,
-                preferred_output_format)
         self.db, self.book_id = db, book_id
+
+        self.setup_input_output_formats(self.db, self.book_id, preferred_input_format,
+                preferred_output_format)
         self.setup_pipeline()
 
         self.connect(self.input_formats, SIGNAL('currentIndexChanged(QString)'),
@@ -130,7 +132,13 @@ class Config(ResizableDialog, Ui_Dialog):
                 self.show_pane)
         self.connect(self.groups, SIGNAL('entered(QModelIndex)'),
                 self.show_group_help)
+        rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
+        self.connect(rb, SIGNAL('clicked()'), self.restore_defaults)
         self.groups.setMouseTracking(True)
+
+    def restore_defaults(self):
+        delete_specifics(self.db, self.book_id)
+        self.setup_pipeline()
 
     @property
     def input_format(self):
