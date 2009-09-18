@@ -55,6 +55,7 @@ p, dl, multicol {
 
 dd {
   display: block;
+  margin-left: 40px;
 }
 
 blockquote {
