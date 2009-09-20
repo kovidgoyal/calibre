@@ -24,7 +24,6 @@ class DerStandardRecipe(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 100
 
-
     extra_css = '''
                 .artikelBody{font-family:Arial,Helvetica,sans-serif;}
                 .artikelLeft{font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
@@ -59,13 +58,14 @@ class DerStandardRecipe(BasicNewsRecipe):
 
     filter_regexps = [r'/r[1-9]*']
 
-    #def print_version(self, url):
-    #    return url.replace('?id=', 'txt/?id=')
-
     def get_article_url(self, article):
         '''if the article links to a index page (ressort) or a picture gallery
            (ansichtssache), don't add it'''
         if ( article.link.count('ressort') > 0 or article.title.lower().count('ansichtssache') > 0 ):
+            return None
+        matchObj = re.search( re.compile(r'/r'+'[1-9]*',flags=0), article.link,flags=0)
+
+        if matchObj:
             return None
 
         return article.link
