@@ -19,7 +19,11 @@ class TxtNewlines(object):
         self.newline = self.NEWLINE_TYPES.get(newline_type.lower(), os.linesep)
 
 def specified_newlines(newline, text):
+    # Convert all newlines to \n
+    text = text.replace('\r\n', '\n')
+    text = text.replace('\r', '\n')
+
     if newline == '\n':
         return text
 
-    return text.replace(os.linesep, newline)
+    return text.replace('\n', newline)
