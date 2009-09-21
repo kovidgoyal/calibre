@@ -2,11 +2,40 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, glob, re
+import os, glob, re, textwrap
 
 from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin
+
+class InlineClass(etree.XSLTExtension):
+
+    FMTS = ('italics', 'bold', 'underlined', 'strike-through', 'small-caps')
+
+    def __init__(self, log):
+        etree.XSLTExtension.__init__(self)
+        self.log = log
+        self.font_sizes = []
+        self.colors = []
+
+    def execute(self, context, self_node, input_node, output_parent):
+        classes = ['none']
+        for x in self.FMTS:
+            if input_node.get(x, None) == 'true':
+                classes.append(x)
+        fs = input_node.get('font-size', False)
+        if fs:
+            if fs not in self.font_sizes:
+                self.font_sizes.append(fs)
+            classes.append('fs%d'%self.font_sizes.index(fs))
+        fc = input_node.get('font-color', False)
+        if fc:
+            if fc not in self.colors:
+                self.colors.append(fc)
+            classes.append('col%d'%self.colors.index(fc))
+
+        output_parent.text = ' '.join(classes)
+
 
 class RTFInput(InputFormatPlugin):
 
@@ -21,15 +50,15 @@ class RTFInput(InputFormatPlugin):
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
-            # Convert symbol fonts to unicode equivelents. Default
+            # Convert symbol fonts to unicode equivalents. Default
             # is 1
             convert_symbol = 1,
 
-            # Convert Zapf fonts to unicode equivelents. Default
+            # Convert Zapf fonts to unicode equivalents. Default
             # is 1.
             convert_zapf = 1,
 
-            # Convert Wingding fonts to unicode equivelents.
+            # Convert Wingding fonts to unicode equivalents.
             # Default is 1.
             convert_wingdings = 1,
 
@@ -63,6 +92,7 @@ class RTFInput(InputFormatPlugin):
 
     def extract_images(self, picts):
         self.log('Extracting images...')
+
         count = 0
         raw = open(picts, 'rb').read()
         starts = []
@@ -82,21 +112,66 @@ class RTFInput(InputFormatPlugin):
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
             data = enc.decode('hex')
-            ext = '.jpg'
-            if 'EMF' in data[:200]:
-                ext = '.wmf'
-            elif 'PNG' in data[:200]:
-                ext = '.png'
             count += 1
-            name = (('%4d'%count).replace(' ', '0'))+ext
+            name = (('%4d'%count).replace(' ', '0'))+'.wmf'
             open(name, 'wb').write(data)
             imap[count] = name
             #open(name+'.hex', 'wb').write(enc)
+        return self.convert_images(imap)
+
+    def convert_images(self, imap):
+        from calibre.utils.PythonMagickWand import ImageMagick
+        with ImageMagick():
+            for count, val in imap.items():
+                try:
+                    imap[count] = self.convert_image(val)
+                except:
+                    self.log.exception('Failed to convert', val)
         return imap
+
+    def convert_image(self, name):
+        import calibre.utils.PythonMagickWand as p
+        img = p.NewMagickWand()
+        if img < 0:
+            raise RuntimeError('Cannot create wand.')
+        if not p.MagickReadImage(img, name):
+            self.log.warn('Failed to read image:', name)
+        name = name.replace('.wmf', '.jpg')
+        p.MagickWriteImage(img, name)
+
+        return name
+
+
+    def write_inline_css(self, ic):
+        font_size_classes = ['span.fs%d { font-size: %spt }'%(i, x) for i, x in
+                enumerate(ic.font_sizes)]
+        color_classes = ['span.col%d { color: %s }'%(i, x) for i, x in
+                enumerate(ic.colors)]
+        css = textwrap.dedent('''
+        span.none {
+            text-decoration: none; font-weight: normal;
+            font-style: normal; font-variant: normal
+        }
+
+        span.italics { font-style: italic }
+
+        span.bold { font-weight: bold }
+
+        span.small-caps { font-variant: small-caps }
+
+        span.underlined { text-decoration: underline }
+
+        span.strike-through { text-decoration: line-through }
+
+        ''')
+        css += '\n'+'\n'.join(font_size_classes)
+        css += '\n' +'\n'.join(color_classes)
+        with open('styles.css', 'ab') as f:
+            f.write(css)
+
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from calibre.ebooks.rtf.xsl import xhtml
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
@@ -124,15 +199,18 @@ class RTFInput(InputFormatPlugin):
             if name is not None:
                 pict.set('num', name)
         self.log('Converting XML to HTML...')
-        styledoc = etree.fromstring(xhtml)
+        inline_class = InlineClass(self.log)
+        styledoc = etree.fromstring(P('templates/rtf.xsl', data=True))
 
-        transform = etree.XSLT(styledoc)
+        extensions = { ('calibre', 'inline-class') : inline_class }
+        transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)
         html = 'index.xhtml'
         with open(html, 'wb') as f:
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             f.write(res)
+        self.write_inline_css(inline_class)
         stream.seek(0)
         mi = get_metadata(stream, 'rtf')
         if not mi.title:

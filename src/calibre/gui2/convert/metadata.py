@@ -14,16 +14,16 @@ from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
 from calibre.ebooks.metadata import authors_to_string, string_to_authors, \
         MetaInformation
-from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
 
 def create_opf_file(db, book_id):
     mi = db.get_metadata(book_id, index_is_id=True)
     mi.application_id = uuid.uuid4()
-    opf = OPFCreator(os.getcwdu(), mi)
+    raw = metadata_to_opf(mi)
     opf_file = PersistentTemporaryFile('.opf')
-    opf.render(opf_file)
+    opf_file.write(raw)
     opf_file.close()
     return mi, opf_file
 

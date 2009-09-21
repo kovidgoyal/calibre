@@ -413,6 +413,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.library_path = os.path.abspath(library_path)
         self.row_factory = row_factory
         self.dbpath = os.path.join(library_path, 'metadata.db')
+        self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH',
+                self.dbpath)
         if isinstance(self.dbpath, unicode):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
         self.connect()

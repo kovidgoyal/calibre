@@ -21,6 +21,7 @@ DEPENDENCIES = [
             ('dnspython', '1.6.0', 'dnspython', 'dnspython', 'dnspython', 'dnspython'),
             ('poppler-qt4', '0.10.6', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4'),
             ('podofo', '0.7', 'podofo', 'podofo', 'podofo', 'podofo'),
+            ('libwmf', '0.2.8', 'libwmf', 'libwmf', 'libwmf', 'libwmf'),
             ]
 
 

@@ -34,6 +34,11 @@ class Extract(ODF2XHTML):
         with CurrentDir(odir):
             print 'Extracting ODT file...'
             html = self.odf2xhtml(stream)
+            # A blanket img specification like this causes problems
+            # with EPUB output as the contaiing element often has
+            # an absolute height and width set that is larger than
+            # the available screen real estate
+            html = html.replace('img { width: 100%; height: 100%; }', '')
             with open('index.xhtml', 'wb') as f:
                 f.write(html.encode('utf-8'))
             zf = ZipFile(stream, 'r')

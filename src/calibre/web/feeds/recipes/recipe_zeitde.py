@@ -19,10 +19,12 @@ class ZeitDe(BasicNewsRecipe):
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 40
     no_stylesheets = True
-    encoding = 'latin1'
+    encoding = 'utf8'
 
+    remove_tags = [{'class': 'adwrap'}]
+    keep_only_tags = [{'name': 'div', 'class': 'content'}]
 
-    feeds =  [ ('Kurznachrichten', 'http://newsfeed.zeit.de/news/index'),
+    feeds =  [ ('Kurznachrichten', 'http://newsfeed.zeit.de/index'),
                ('Politik', 'http://newsfeed.zeit.de/politik/index'),
                ('Wirtschaft', 'http://newsfeed.zeit.de/wirtschaft/index'),
                ('Meinung', 'http://newsfeed.zeit.de/meinung/index'),
@@ -32,5 +34,5 @@ class ZeitDe(BasicNewsRecipe):
              ]
 
     def print_version(self,url):
-        return url.replace('http://www.zeit.de/', 'http://images.zeit.de/text/').replace('?from=rss', '')
+        return url.replace('http://www.zeit.de/', 'http://mobil.zeit.de/')
 

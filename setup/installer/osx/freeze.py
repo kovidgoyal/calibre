@@ -188,6 +188,31 @@ os.execv(python, args)
         self.fix_python_dependencies(deps)
         self.fix_misc_dependencies(deps)
 
+    def fix_image_magick_deps(self, root):
+        modules = []
+        frameworks_dir = os.path.dirname(root)
+        for x in os.walk(root):
+            for f in x[-1]:
+                if f.endswith('.so'):
+                    modules.append(os.path.join(x[0], f))
+        deps = {}
+        for x in ('Core.1', 'Wand.1'):
+            modules.append(os.path.join(root, 'lib', 'libMagick%s.dylib'%x))
+            x = modules[-1]
+            deps[os.path.join('/Users/kovid/ImageMagick/lib',
+                os.path.basename(x))] = '@executable_path/../Frameworks/ImageMagick/lib/'+os.path.basename(x)
+            subprocess.check_call(['install_name_tool', '-id',
+            '@executable_path/../Frameworks/ImageMagick/lib/'+os.path.basename(x),
+            x])
+        for x in ('/usr/local/lib/libfreetype.6.dylib',
+                    '/Volumes/sw/lib/libwmflite-0.2.7.dylib'):
+            deps[x] = '@executable_path/../Frameworks/'+ os.path.basename(x)
+
+        for x in modules:
+            print 'Fixing deps in', x
+            for f, t in deps.items():
+                subprocess.check_call(['install_name_tool', '-change', f, t, x])
+
 
     def run(self):
         py2app.run(self)
@@ -252,11 +277,17 @@ os.execv(python, args)
 
 
         info('Adding ImageMagick')
+        libwmf = '/Volumes/sw/lib/libwmflite-0.2.7.dylib'
+        dest = os.path.join(frameworks_dir, os.path.basename(libwmf))
+        shutil.copy2(libwmf, frameworks_dir)
+        nid = '@executable_path/../Frameworks/'+os.path.basename(dest)
+        subprocess.check_call(['install_name_tool', '-id', nid, dest])
         dest = os.path.join(frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(os.path.expanduser('~/ImageMagick'), dest, True)
         shutil.copyfile('/usr/local/lib/libpng12.0.dylib', os.path.join(dest, 'lib', 'libpng12.0.dylib'))
+        self.fix_image_magick_deps(dest)
 
 
         info('Installing prescipt')

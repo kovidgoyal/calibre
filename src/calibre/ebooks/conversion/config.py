@@ -51,6 +51,9 @@ def load_specifics(db, book_id):
         r.from_string(raw)
     return r
 
+def delete_specifics(db, book_id):
+    db.delete_conversion_options(book_id, 'PIPE')
+
 class GuiRecommendations(dict):
 
     def __new__(cls, *args):

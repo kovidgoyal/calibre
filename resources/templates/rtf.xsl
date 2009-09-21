@@ -1,27 +1,10 @@
-#########################################################################
-#                                                                       #
-#                                                                       #
-#   copyright 2002 Paul Henry Tremblay                                  #
-#                                                                       #
-#   This program is distributed in the hope that it will be useful,     #
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of      #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
-#   General Public License for more details.                            #
-#                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
-#                                                                       #
-#########################################################################
-
-xhtml = '''\
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns:rtf="http://rtf2xml.sourceforge.net/"
+    xmlns:c="calibre"
+    extension-element-prefixes="c"
     exclude-result-prefixes="rtf"
 >
 
@@ -147,7 +130,7 @@ xhtml = '''\
                     <xsl:text>generator</xsl:text>
                 </xsl:attribute>
                 <xsl:attribute name="content">
-                    <xsl:text>http://rtf2xml.sourceforge.net/</xsl:text>
+                    <xsl:text>http://calibre-ebook.com</xsl:text>
                 </xsl:attribute>
             </xsl:element>
 
@@ -233,9 +216,7 @@ xhtml = '''\
             <xsl:text>span.italic-bold{font-style:italic;font-weight:bold}&#xA;</xsl:text>
             <xsl:text>span.italic-underline{font-style:italic;text-decoration:underline}&#xA;</xsl:text>
             <xsl:text>span.bold-underline{font-weight:bold;text-decoration:underline}&#xA;</xsl:text>
-            <xsl:for-each select="//rtf:inline">
-                <xsl:call-template name="parse-inline"/>
-            </xsl:for-each>
+            <xsl:text>&#xA;</xsl:text>
         </xsl:document>
     </xsl:template>
 
@@ -287,52 +268,6 @@ xhtml = '''\
         </xsl:if>
     </xsl:template>
 
-    <xsl:template name="parse-inline">
-        <xsl:variable name="num-attrs" select="count(@*)"/>
-        <xsl:choose>
-            <xsl:when test="$num-attrs = 1 and @italics"/>
-            <xsl:when test="$num-attrs = 1 and @bold"/>
-            <xsl:when test="$num-attrs = 1 and @underline"/>
-            <xsl:when test="$num-attrs = 2 and @italics and @bold"/>
-            <xsl:when test="$num-attrs = 2 and @italcs and @underline"/>
-            <xsl:when test="$num-attrs = 2 and @bold and @underline"/>
-            <xsl:otherwise>
-                <xsl:text>span.</xsl:text>
-                <xsl:value-of select="generate-id(.)"/>
-                <xsl:text>{</xsl:text>
-                <xsl:if test="@italics = 'true'">
-                    <xsl:text>font-style:italic;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@italics = 'false'">
-                    <xsl:text>font-style:normal;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@bold = 'true'">
-                    <xsl:text>font-weight:bold;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@bold = 'false'">
-                    <xsl:text>font-weight:normal;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@underline and @underline != 'false'">
-                    <xsl:text>text-decoration:underline;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@underline= 'false'">
-                    <xsl:text>text-decoration:none;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@strike-through = 'true'">
-                    <xsl:text>text-decoration:line-through;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@strike-through = 'false'">
-                    <xsl:text>text-decoration:none;</xsl:text>
-                </xsl:if>
-                <xsl:if test="@font-size">
-                    <xsl:text>font-size:</xsl:text>
-                        <xsl:value-of select="@font-size"/>
-                        <xsl:text>pt;</xsl:text>
-                </xsl:if>
-                <xsl:text>}</xsl:text>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
 
     <xsl:template match="rtf:inline">
         <xsl:variable name="num-attrs" select="count(@*)"/>
@@ -345,45 +280,7 @@ xhtml = '''\
             <xsl:otherwise>
                 <xsl:element name="span">
                     <xsl:attribute name="class">
-                        <xsl:choose>
-                            <xsl:when test="$num-attrs=1 and @italics='true'">
-                                <xsl:text>italic</xsl:text>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=1 and @italics='false'">
-                                <xsl:text>no-italic</xsl:text>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=1 and @bold='true'">
-                                <xsl:text>bold</xsl:text>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=1 and @bold='true'">
-                                <xsl:text>bold</xsl:text>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=1 and @bold='false'">
-                                <xsl:text>no-bold</xsl:text>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=1 and @underlined">
-                                <xsl:choose>
-                                    <xsl:when test="not(@underlined='false')">
-                                        <xsl:text>underline</xsl:text>
-                                    </xsl:when>
-                                    <xsl:otherwise>
-                                        <xsl:text>no-underline</xsl:text>
-                                    </xsl:otherwise>
-                                </xsl:choose>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=2 and @bold='true' and @italics='true'">
-                                <xsl:text>italic-bold</xsl:text>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=2 and @italics='true' and @underline and @underline != 'false'">
-                                <xsl:text>italic-underline</xsl:text>
-                            </xsl:when>
-                            <xsl:when test="$num-attrs=2 and @bold='true' and @underline and @underline != 'false'">
-                                <xsl:text>bold-underline</xsl:text>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="generate-id(.)"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
+                        <c:inline-class/>
                     </xsl:attribute>
                     <xsl:apply-templates/>
                 </xsl:element>
@@ -539,4 +436,3 @@ xhtml = '''\
     </xsl:template>
 
 </xsl:stylesheet>
-'''

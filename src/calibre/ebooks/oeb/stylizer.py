@@ -132,8 +132,8 @@ class Stylizer(object):
                 stylesheet.namespaces['h'] = XHTML_NS
                 stylesheets.append(stylesheet)
             elif elem.tag == XHTML('link') and elem.get('href') \
-                 and elem.get('rel', 'stylesheet') == 'stylesheet' \
-                 and elem.get('type', CSS_MIME) in OEB_STYLES:
+                 and elem.get('rel', 'stylesheet').lower() == 'stylesheet' \
+                 and elem.get('type', CSS_MIME).lower() in OEB_STYLES:
                 href = urlnormalize(elem.attrib['href'])
                 path = item.abshref(href)
                 sitem = oeb.manifest.hrefs.get(path, None)

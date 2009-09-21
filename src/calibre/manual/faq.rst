@@ -20,7 +20,7 @@ What formats does |app| support conversion to/from?
 |app| supports the conversion of many input formats to many output formats.
 It can convert every input format in the following list, to every output format.
 
-*Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TXT
+*Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TXT
 *Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PML, RB, PDF, TXT
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers

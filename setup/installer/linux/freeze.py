@@ -37,6 +37,7 @@ class LinuxFreeze(Command):
 
         binary_includes = [
                         '/usr/bin/pdftohtml',
+                        '/usr/lib/libwmflite-0.2.so.7',
                         '/tmp/calibre-mount-helper',
                         '/usr/lib/libunrar.so',
                         '/usr/lib/libsqlite3.so.0',
@@ -202,6 +203,15 @@ class LinuxFreeze(Command):
             for f in matches:
                 os.remove(f)
 
+        self.info('Adding ImageMagick...')
+        im = glob.glob('/usr/lib/ImageMagick-*')[0]
+        dest = os.path.join(FREEZE_DIR, 'ImageMagick')
+        shutil.copytree(im, dest)
+        for x in os.walk(dest):
+            for f in x[-1]:
+                if f.endswith('.a'):
+                    os.remove(os.path.join(x[0], f))
+
         self.info('Adding calibre plugins...')
         os.makedirs(os.path.join(FREEZE_DIR, 'plugins'))
         for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so')):
@@ -230,6 +240,9 @@ class LinuxFreeze(Command):
             base=`dirname $path`
             loader=$base/loader
             export LD_LIBRARY_PATH=$base:$LD_LIBRARY_PATH
+            export MAGICK_CONFIGURE_PATH=$base/ImageMagick/config
+            export MAGICK_CODER_MODULE_PATH=$base/ImageMagick/modules-Q16/coders
+            export MAGICK_CODER_FILTER_PATH=$base/ImageMagick/modules-Q16/filter
             $loader "$@"
             ''')%exe)
             os.chmod(path, 0755)

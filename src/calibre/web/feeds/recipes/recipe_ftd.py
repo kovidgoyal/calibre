@@ -8,32 +8,55 @@ Fetch FTD.
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class FTheiseDe(BasicNewsRecipe):
-    
+class FTDe(BasicNewsRecipe):
+
     title = 'FTD'
     description = 'Financial Times Deutschland'
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     language = 'de'
-
     max_articles_per_feed = 40
     no_stylesheets = True
-    
+
     remove_tags = [dict(id='navi_top'),
 		   dict(id='topbanner'),
 		   dict(id='seitenkopf'),
+		   dict(id='BoxA-0-0-0'),
 		   dict(id='footer'),
 		   dict(id='rating_open'),
 		   dict(id='ADS_Top'),
+		   dict(id='spinner'),
+		   dict(id='ftd-contentad'),
+		   dict(id='nava-50009007-1-0'),
+		   dict(id='navli-50009007-1-0'),
+		   dict(id='starRating'),
+		   dict(id='saveRating'),
+		   dict(id='yLayer'),
+		   dict(id='yTip'),
+		   dict(id='ftdCookieStorage'),
 		   dict(id='ADS_Middle1'),
 		   #dict(id='IDMS_ajax_chart_price_information_table'),
 		   dict(id='ivwimg'),
 		   dict(name='span', attrs={'class':'rsaquo'}),
 		   dict(name='p', attrs={'class':'zwischenhead'}),
+		   dict(name='ul', attrs={'class':'list'}),
+		   dict(name='ul', attrs={'class':'nav'}),
+		   dict(name='p', attrs={'class':'articleOptionHead'}),
+		   dict(name='p', attrs={'class':'articleOptionFoot'}),
 		   dict(name='div', attrs={'class':'chartBox'}),
+		   dict(name='div', attrs={'class':'ratingOpt starRatingContainer articleOptionFootFrame'}),
+		   dict(name='div', attrs={'class':'box boxArticleBasic boxComments boxTransparent'}),
+		   dict(name='div', attrs={'class':'box boxNavTabs '}),
 		   dict(name='span', attrs={'class':'vote_455857'}),
 		   dict(name='div', attrs={'class':'relatedhalb'}),
+		   dict(name='div', attrs={'class':'box boxListScrollOutline'}),
+		   dict(name='div', attrs={'class':'tagCloud'}),
+		   dict(name='div', attrs={'class':'box boxArticleBasic boxNavTabsOutline'}),
+		   dict(name='div', attrs={'class':'ftdHpNav'}),
+		   dict(name='div', attrs={'class':'ftdHead'}),
+		   dict(name='div', attrs={'class':'ftdTicker'}),
+		   dict(name='div', attrs={'class':'ftdBreadcrumb'}),
 		   dict(name='div', attrs={'class':'bpoll'}),
 		   dict(name='div', attrs={'class':'pollokknopf'}),
 		   dict(name='div', attrs={'class':'videohint'}),
@@ -43,9 +66,24 @@ class FTheiseDe(BasicNewsRecipe):
 		   dict(name='div', attrs={'class':'abspielen'}),
 		   dict(name='div', attrs={'class':'wertungoben'}),
 		   dict(name='div', attrs={'class':'artikelfuss'}),
+		   dict(name='a', attrs={'class':'rating'}),
+		   dict(name='div', attrs={'class':'articleOptionFootFrame'}),
 		   dict(name='div', attrs={'class':'artikelsplitfaq'})]
-    remove_tags_after = [dict(name='div', attrs={'class':'artikelfuss'})]
-    
-    feeds =  [ ('FTD', 'http://www.ftd.de/static/ticker/ftd-topnews.rdf') ] 
-    
+    remove_tags_after = [dict(name='a', attrs={'class':'more'})]
 
+    feeds =  [ ('Finanzen', 'http://www.ftd.de/rss2/finanzen/maerkte'),
+	       ('Meinungshungrige', 'http://www.ftd.de/rss2/meinungshungrige'),
+	       ('Unternehmen', 'http://www.ftd.de/rss2/unternehmen'),
+	       ('Politik', 'http://www.ftd.de/rss2/politik'),
+	       ('Karriere_Management', 'http://www.ftd.de/rss2/karriere-management'),
+	       ('IT_Medien', 'http://www.ftd.de/rss2/it-medien'),
+	       ('Wissen', 'http://www.ftd.de/rss2/wissen'),
+	       ('Sport', 'http://www.ftd.de/rss2/sport'),
+	       ('Auto', 'http://www.ftd.de/rss2/auto'),
+	       ('Lifestyle', 'http://www.ftd.de/rss2/lifestyle')
+
+	     ]
+
+
+    def print_version(self, url):
+        return url + '?mode=print'

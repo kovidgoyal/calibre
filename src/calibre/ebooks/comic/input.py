@@ -173,7 +173,7 @@ class PageProcessor(list):
                     p.MagickDespeckleImage(wand)
 
                 p.MagickQuantizeImage(wand, self.opts.colors, p.RGBColorspace, 0, 1, 0)
-                dest = '%d_%d.png'%(self.num, i)
+                dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
                 dest = os.path.join(self.dest, dest)
                 p.MagickWriteImage(wand, dest+'8')
                 os.rename(dest+'8', dest)
@@ -270,8 +270,10 @@ class ComicInput(InputFormatPlugin):
     is_image_collection = True
 
     options = set([
-        OptionRecommendation(name='colors', recommended_value=64,
-            help=_('Number of colors for grayscale image conversion. Default: %default')),
+        OptionRecommendation(name='colors', recommended_value=256,
+            help=_('Number of colors for grayscale image conversion. Default: '
+                '%default. Values of less than 256 may result in blurred text '
+                'on your device if you are creating your comics in EPUB format.')),
         OptionRecommendation(name='dont_normalize', recommended_value=False,
             help=_('Disable normalize (improve contrast) color range '
             'for pictures. Default: False')),
@@ -298,6 +300,10 @@ class ComicInput(InputFormatPlugin):
               help=_("Don't sort the files found in the comic "
               "alphabetically by name. Instead use the order they were "
               "added to the comic.")),
+        OptionRecommendation(name='output_format', choices=['png', 'jpg'],
+            recommended_value='png', help=_('The format that images in the created ebook '
+                'are converted to. You can experiment to see which format gives '
+                'you optimal size and look on your device.')),
         OptionRecommendation(name='no_process', recommended_value=False,
               help=_("Apply no processing to the image")),
         ])
@@ -365,7 +371,8 @@ class ComicInput(InputFormatPlugin):
                 '(run with --verbose to see why):')
                 for f in failures:
                     self.log.warning('\t', f)
-            thumbnail = os.path.join(tdir2, 'thumbnail.png')
+            thumbnail = os.path.join(tdir2,
+                    'thumbnail.'+self.opts.output_format.lower())
             if not os.access(thumbnail, os.R_OK):
                 thumbnail = None
         return new_pages

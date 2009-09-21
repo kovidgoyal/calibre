@@ -15,7 +15,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import  prints, patheq
-from calibre.constants import __version__, __appname__, \
+from calibre.constants import __version__, __appname__, isfrozen, islinux, \
                     iswindows, isosx, filesystem_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import PersistentTemporaryFile
@@ -1290,7 +1290,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.job_manager.launch_gui_app(viewer,
                         kwargs=dict(args=args))
             else:
+                paths = os.environ.get('LD_LIBRARY_PATH',
+                            '').split(os.pathsep)
+                paths = [x for x in paths if x]
+                if isfrozen and islinux and paths:
+                    npaths = [x for x in paths if x != sys.frozen_path]
+                    os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
                 QDesktopServices.openUrl(QUrl.fromLocalFile(name))#launch(name)
+                if isfrozen and islinux and paths:
+                    os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
                 time.sleep(2) # User feedback
         finally:
             self.unsetCursor()
