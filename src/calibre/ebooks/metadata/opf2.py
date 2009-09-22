@@ -666,7 +666,7 @@ class OPF(object):
                 for key in matches[0].attrib:
                     if key.endswith('file-as'):
                         matches[0].attrib.pop(key)
-                matches[0].set('file-as', unicode(val))
+                matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
 
         return property(fget=fget, fset=fset)
 
