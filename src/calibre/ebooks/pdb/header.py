@@ -30,7 +30,7 @@ class PdbHeaderReader(object):
 
     def name(self):
         self.stream.seek(0)
-        return self.stream.read(32).replace('\x00', '')
+        return re.sub('[^-A-Za-z0-9 ]+', '_', self.stream.read(32).replace('\x00', ''))
 
     def full_section_info(self, number):
         if number not in range(0, self.num_sections):
