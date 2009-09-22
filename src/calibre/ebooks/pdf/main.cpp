@@ -1,0 +1,150 @@
+#ifndef PDF2XML
+#define UNICODE
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+#endif
+
+#include "reflow.h"
+
+using namespace std;
+using namespace calibre_reflow;
+
+#ifndef PDF2XML
+
+extern "C" {
+
+    static PyObject *
+    pdfreflow_reflow(PyObject *self, PyObject *args) {
+        char *pdfdata;
+        Py_ssize_t size;
+
+        if (!PyArg_ParseTuple(args, "s#", &pdfdata, &size))
+            return NULL;
+
+        try {
+            Reflow reflow(pdfdata, static_cast<std::ifstream::pos_type>(size));
+            reflow.render();
+        } catch (std::exception &e) {
+            PyErr_SetString(PyExc_RuntimeError, e.what()); return NULL;
+        } catch (...) {
+            PyErr_SetString(PyExc_RuntimeError,
+                    "Unknown exception raised while rendering PDF"); return NULL;
+        }
+
+        Py_RETURN_NONE;
+    }
+
+    static PyObject *
+    pdfreflow_get_metadata(PyObject *self, PyObject *args) {
+        char *pdfdata;
+        Py_ssize_t size;
+        map<string,string> info;
+        PyObject *cover;
+        PyObject *ans = PyDict_New();
+
+        if (!ans) return PyErr_NoMemory();
+
+        if (!PyArg_ParseTuple(args, "s#O", &pdfdata, &size, &cover))
+            return NULL;
+
+        try {
+            Reflow reflow(pdfdata, static_cast<std::ifstream::pos_type>(size));
+            info = reflow.get_info();
+            if (PyObject_IsTrue(cover)) {
+                if (!reflow.is_locked()) {
+                    size_t size;
+                    char *data = reflow.render_first_page(&size);
+                    PyObject *d = PyString_FromStringAndSize(data, size);
+                    delete[] data;
+                    if (d == NULL) return PyErr_NoMemory();
+                    if (PyDict_SetItemString(ans, "cover", d) == -1) return NULL;
+                } else {
+                    if (PyDict_SetItemString(ans, "cover", Py_None) == -1) return NULL;
+                }
+            }
+        } catch (std::exception &e) {
+            PyErr_SetString(PyExc_RuntimeError, e.what()); return NULL;
+        } catch (...) {
+            PyErr_SetString(PyExc_RuntimeError,
+                    "Unknown exception raised while getting metadata from PDF"); return NULL;
+        }
+
+        for (map<string,string>::const_iterator it = info.begin() ; it != info.end(); it++ ) {
+            PyObject *key = PyUnicode_Decode((*it).first.c_str(), (*it).first.size(), "UTF-8", "replace");
+            if (!key) return NULL;
+            PyObject *val = PyUnicode_Decode((*it).second.c_str(), (*it).second.size(), "UTF-8", "replace");
+            if (!val) return NULL;
+            if (PyDict_SetItem(ans, key, val) == -1) return NULL;
+        }
+        return ans;
+    }
+
+
+    static 
+    PyMethodDef pdfreflow_methods[] = {
+        {"reflow", pdfreflow_reflow, METH_VARARGS,
+        "reflow(pdf_data)\n\n"
+                "Reflow the specified PDF."
+        },
+        {"get_metadata", pdfreflow_get_metadata, METH_VARARGS,
+        "get_metadata(pdf_data, cover)\n\n"
+                "Get metadata and (optionally) cover from the specified PDF."
+        },
+
+        {NULL, NULL, 0, NULL}
+    };
+
+
+    PyMODINIT_FUNC
+    initpdfreflow(void) 
+    {
+        PyObject* m;
+
+        m = Py_InitModule3("pdfreflow", pdfreflow_methods,
+                        "Reflow a PDF file");
+
+        if (m == NULL) return;
+
+    }
+}
+
+
+#else
+
+int main(int argc, char **argv) {
+    char *memblock;
+    ifstream::pos_type size;
+
+    if (argc != 2)  {
+        cerr << "Usage: " << argv[0] << " file.pdf" << endl;
+        return 1;
+    }
+
+    ifstream file (argv[1], ios::in|ios::binary|ios::ate);
+    if (file.is_open()) {
+        size = file.tellg();
+        memblock = new char[size];
+        file.seekg (0, ios::beg);
+        file.read (memblock, size);
+        file.close();
+    } else {
+        cerr << "Unable to read from: " << argv[1] << endl;
+        return 1;
+    }
+
+    try {
+        Reflow reflow(memblock, size);
+        reflow.render();
+        size_t sz = 0;
+        char *data = reflow.render_first_page(&sz);
+        ofstream file("cover.png", ios::binary);
+        file.write(data, sz);
+        file.close();
+    } catch(exception &e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
+
+    return 0;
+}
+#endif
