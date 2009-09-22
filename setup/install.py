@@ -192,6 +192,10 @@ class Install(Develop):
             x = self.j(dest, x)
             if os.path.exists(dest):
                 shutil.rmtree(x)
+        for x in os.walk(dest):
+            for f in x[-1]:
+                if os.path.splitext(f)[1] in ('.c', '.cpp', '.h'):
+                    os.remove(self.j(x[0], f))
         dest = self.root + self.resources
         if os.path.exists(dest):
             shutil.rmtree(dest)
@@ -239,6 +243,5 @@ class Sdist(Command):
     def clean(self):
         if os.path.exists(self.DEST):
             os.remove(self.DEST)
-
 
 

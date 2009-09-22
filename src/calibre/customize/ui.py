@@ -161,6 +161,7 @@ quick_metadata = QuickMetadata()
 
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
+
     ftype = ftype.lower().strip()
     if _metadata_readers.has_key(ftype):
         for plugin in _metadata_readers[ftype]:
@@ -168,6 +169,8 @@ def get_file_type_metadata(stream, ftype):
                 with plugin:
                     try:
                         plugin.quick = quick_metadata.quick
+                        if hasattr(stream, 'seek'):
+                            stream.seek(0)
                         mi = plugin.get_metadata(stream, ftype.lower().strip())
                         break
                     except:

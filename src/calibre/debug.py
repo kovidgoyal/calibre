@@ -10,6 +10,7 @@ import sys, os, re, shutil
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows, isosx
 from calibre.libunzip import update
+from calibre import prints
 
 def option_parser():
     parser = OptionParser(usage='''\
@@ -28,6 +29,8 @@ Run an embedded python interpreter.
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI',)
+    parser.add_option('--paths', default=False, action='store_true',
+            help='Output the paths necessary to setup the calibre environment')
     parser.add_option('--migrate', action='store_true', default=False,
                       help='Migrate old database. Needs two arguments. Path '
                            'to library1.db and path to new library folder.')
@@ -203,6 +206,10 @@ def main(args=sys.argv):
         migrate(args[1], args[2])
     elif opts.add_simple_plugin is not None:
         add_simple_plugin(opts.add_simple_plugin)
+    elif opts.paths:
+        prints('CALIBRE_RESOURCES_LOCATION='+sys.resources_location)
+        prints('CALIBRE_EXTENSIONS_LOCATION='+sys.extensions_location)
+        prints('CALIBRE_PYTHON_PATH='+os.pathsep.join(sys.path))
     else:
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed()

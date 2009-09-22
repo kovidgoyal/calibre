@@ -3,6 +3,52 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
 
+from functools import partial
+
+from calibre import plugins, prints
+from calibre.ebooks.metadata import MetaInformation, string_to_authors#, authors_to_string
+
+pdfreflow, pdfreflow_error = plugins['pdfreflow']
+
+def get_metadata(stream, cover=True):
+    if pdfreflow is None:
+        raise RuntimeError(pdfreflow_error)
+    info = pdfreflow.get_metadata(stream.read(), cover)
+    title = info.get('Title', None)
+    au = info.get('Author', None)
+    if au is None:
+        au = [_('Unknown')]
+    else:
+        au = string_to_authors(au)
+    mi = MetaInformation(title, au)
+
+    creator = info.get('Creator', None)
+    if creator:
+        mi.book_producer = creator
+
+    keywords = info.get('Keywords', None)
+    mi.tags = []
+    if keywords:
+        mi.tags = [x.strip() for x in keywords.split(',')]
+
+    subject = info.get('Subject', None)
+    if subject:
+        mi.tags.insert(0, subject)
+
+    if cover and 'cover' in info:
+        data = info['cover']
+        if data is None:
+            prints(title, 'is an encrypted document, cover extraction not allowed.')
+        else:
+            mi.cover_data = ('png', data)
+
+    return mi
+
+
+
+get_quick_metadata = partial(get_metadata, cover=False)
+
+'''
 import sys, os, cStringIO
 from threading import Thread
 
@@ -139,6 +185,6 @@ def get_cover(cover_path):
         MagickSetImageFormat(wand, 'JPEG')
         MagickWriteImage(wand, '%s.jpg' % cover_path)
     return open('%s.jpg' % cover_path, 'rb').read()
-
+'''
 
 
