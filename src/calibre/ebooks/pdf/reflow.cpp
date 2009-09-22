@@ -680,6 +680,16 @@ void XMLOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
             colorMap, interpolate, maskColors, inlineImg);
 }
 
+static char stream_pdf[15] = "stream.pdf";
+
+class MemInStream : public MemStream {
+    public:
+        MemInStream(char *buf, size_t st, size_t sz, Object *obj) :
+            MemStream(buf, st, sz, obj) {}
+        ~MemInStream() {}
+        GooString *getFileName() { return new GooString(stream_pdf); }
+};
+
 Reflow::Reflow(char *pdfdata, size_t sz) :
     pdfdata(pdfdata), current_font_size(-1), doc(NULL)
 {
@@ -690,7 +700,7 @@ Reflow::Reflow(char *pdfdata, size_t sz) :
         if (!globalParams)
             throw ReflowException("Failed to allocate Globalparams");
     }
-    MemStream *str = new MemStream(pdfdata, 0, sz, &obj);
+    MemInStream *str = new MemInStream(pdfdata, 0, sz, &obj);
     this->doc = new PDFDoc(str, NULL, NULL);
 
     if (!this->doc->isOk()) {
@@ -909,3 +919,56 @@ char* Reflow::render_first_page(size_t *data_size,
     }
     return buffer;
 }
+
+class MemOutStream : public OutStream {
+    private:
+        ostringstream out;
+
+    public:
+        MemOutStream() :OutStream() {}
+        ~MemOutStream() {}
+        void close() {}
+        int getPos() { return out.tellp(); }
+        void put(char c) { out.put(c); }
+        void printf (const char *format, ...) {
+            vector<char> buf;
+            size_t written = strlen(format)*5;
+            va_list ap;
+            do {
+                buf.reserve(written + 20);
+                va_start(ap, format);
+                written = vsnprintf(&buf[0], buf.capacity(), format, ap);
+                va_end(ap);
+            } while (written >= buf.capacity());
+            out.write(&buf[0], written);            
+        }
+};
+
+string Reflow::set_info(map<char *, char *> sinfo) {
+    XRef *xref = this->doc->getXRef();
+    if (!xref) throw ReflowException("No XRef table");
+    Object *trailer_dict = xref->getTrailerDict();
+    if (!trailer_dict || !trailer_dict->isDict()) throw ReflowException("No trailer dictionary");
+    Object tmp;
+    char INFO[5] = "Info";
+    Object *info = trailer_dict->dictLookup(INFO, &tmp);
+    if (!info) {
+        info = new Object();
+        info->initDict(xref);
+    }
+    if (!info->isDict()) throw ReflowException("Invalid info object");
+
+    for (map<char *, char *>::iterator it = sinfo.begin(); it != sinfo.end(); it++) {
+        Object *tmp = new Object();
+        tmp->initString(new GooString((*it).second));
+        info->dictSet((*it).first, tmp);
+    }
+
+    trailer_dict->dictSet(INFO, info);
+    char out[20] = "/t/out.pdf";
+    this->doc->saveAs(new GooString(out), writeForceRewrite);
+    string ans;
+    return ans;
+}
+
+

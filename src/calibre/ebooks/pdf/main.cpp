@@ -79,6 +79,50 @@ extern "C" {
         return ans;
     }
 
+    static PyObject *
+    pdfreflow_set_metadata(PyObject *self, PyObject *args) {
+        char *pdfdata;
+        Py_ssize_t size;
+        PyObject *info;
+
+        if (!PyArg_ParseTuple(args, "s#O", &pdfdata, &size, &info))
+            return NULL;
+
+        if (!PyDict_Check(info)) {
+            PyErr_SetString(PyExc_ValueError, "Info object must be a dictionary.");
+            return NULL;
+        }
+
+        char Title[10] = "Title", Author[10] = "Author", Keywords[10] = "Keywords";
+        char *keys[3] = { Title, Author, Keywords };
+        map<char *, char *> pinfo;
+        PyObject *val = NULL, *utf8 = NULL;
+
+        for (int i = 0; i < 3; i++) {
+            val = PyDict_GetItemString(info, keys[i]);
+            if (!val || !PyUnicode_Check(val)) continue;
+            utf8 = PyUnicode_AsUTF8String(val);
+            if (!utf8) continue;
+            pinfo[keys[i]] = PyString_AS_STRING(utf8);
+        }
+
+        PyObject *ans = NULL;
+        try {
+            Reflow reflow(pdfdata, static_cast<std::ifstream::pos_type>(size));
+            if (reflow.is_locked()) {
+                PyErr_SetString(PyExc_ValueError, "Setting metadata not possible in encrypeted PDFs");
+                return NULL;
+            }
+            string result = reflow.set_info(pinfo);
+            ans = PyString_FromStringAndSize(result.c_str(), result.size());
+        } catch (std::exception &e) {
+            PyErr_SetString(PyExc_RuntimeError, e.what()); return NULL;
+        } catch (...) {
+            PyErr_SetString(PyExc_RuntimeError,
+                    "Unknown exception raised while getting metadata from PDF"); return NULL;
+        }
+        return ans;
+    }
 
     static 
     PyMethodDef pdfreflow_methods[] = {
@@ -89,6 +133,10 @@ extern "C" {
         {"get_metadata", pdfreflow_get_metadata, METH_VARARGS,
         "get_metadata(pdf_data, cover)\n\n"
                 "Get metadata and (optionally) cover from the specified PDF."
+        },
+        {"set_metadata", pdfreflow_set_metadata, METH_VARARGS,
+        "get_metadata(info_dict)\n\n"
+                "Set metadata in the specified PDF. Currently broken."
         },
 
         {NULL, NULL, 0, NULL}

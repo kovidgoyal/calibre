@@ -5,8 +5,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from calibre import plugins, prints
-from calibre.ebooks.metadata import MetaInformation, string_to_authors#, authors_to_string
+from calibre import prints
+from calibre.constants import plugins
+from calibre.ebooks.metadata import MetaInformation, string_to_authors, authors_to_string
 
 pdfreflow, pdfreflow_error = plugins['pdfreflow']
 
@@ -44,64 +45,13 @@ def get_metadata(stream, cover=True):
 
     return mi
 
-
-
 get_quick_metadata = partial(get_metadata, cover=False)
 
-'''
-import sys, os, cStringIO
+import cStringIO
 from threading import Thread
 
-from calibre import StreamReadWrapper
-from calibre.ptempfile import TemporaryDirectory
-try:
-    from calibre.utils.PythonMagickWand import \
-        NewMagickWand, MagickReadImage, MagickSetImageFormat, \
-        MagickWriteImage, ImageMagick
-    _imagemagick_loaded = True
-except:
-    _imagemagick_loaded = False
-from calibre.ebooks.metadata import MetaInformation, string_to_authors, authors_to_string
 from calibre.utils.pdftk import set_metadata as pdftk_set_metadata
-from calibre.utils.podofo import get_metadata as podofo_get_metadata, \
-    set_metadata as podofo_set_metadata, Unavailable, get_metadata_quick
-from calibre.utils.poppler import get_metadata as get_metadata_poppler, NotAvailable
-
-def get_quick_metadata(stream):
-    try:
-       return get_metadata_poppler(stream, False)
-    except NotAvailable:
-        pass
-
-    return get_metadata_pypdf(stream)
-    raw = stream.read()
-    mi = get_metadata_quick(raw)
-    if mi.title == '_':
-        mi.title = getattr(stream, 'name', _('Unknown'))
-        mi.title = mi.title.rpartition('.')[0]
-    return mi
-
-
-def get_metadata(stream, extract_cover=True):
-    try:
-       return get_metadata_poppler(stream, extract_cover)
-    except NotAvailable:
-        pass
-    try:
-        with TemporaryDirectory('_pdfmeta') as tdir:
-            cpath = os.path.join(tdir, 'cover.pdf')
-            if not extract_cover:
-                cpath = None
-            mi = podofo_get_metadata(stream, cpath=cpath)
-            if mi.cover is not None:
-                cdata = get_cover(mi.cover)
-                mi.cover = None
-                if cdata is not None:
-                    mi.cover_data = ('jpg', cdata)
-    except Unavailable:
-        mi = get_metadata_pypdf(stream)
-    return mi
-
+from calibre.utils.podofo import set_metadata as podofo_set_metadata, Unavailable
 
 def set_metadata(stream, mi):
     stream.seek(0)
@@ -115,25 +65,6 @@ def set_metadata(stream, mi):
         pass
     set_metadata_pypdf(stream, mi)
 
-
-def get_metadata_pypdf(stream):
-    """ Return metadata as a L{MetaInfo} object """
-    from pyPdf import PdfFileReader
-    mi = MetaInformation(_('Unknown'), [_('Unknown')])
-    try:
-        with StreamReadWrapper(stream) as stream:
-            info = PdfFileReader(stream).getDocumentInfo()
-            if info.title:
-                mi.title = info.title
-            if info.author:
-                mi.author = info.author
-                mi.authors = string_to_authors(info.author)
-            if info.subject:
-                mi.category = info.subject
-    except Exception, err:
-        msg = u'Couldn\'t read metadata from pdf: %s with error %s'%(mi.title, unicode(err))
-        print >>sys.stderr, msg.encode('utf8')
-    return mi
 
 class MetadataWriter(Thread):
 
@@ -177,14 +108,5 @@ def set_metadata_pypdf(stream, mi):
     out_str.seek(0)
     stream.write(out_str.read())
     stream.seek(0)
-
-def get_cover(cover_path):
-    with ImageMagick():
-        wand = NewMagickWand()
-        MagickReadImage(wand, cover_path)
-        MagickSetImageFormat(wand, 'JPEG')
-        MagickWriteImage(wand, '%s.jpg' % cover_path)
-    return open('%s.jpg' % cover_path, 'rb').read()
-'''
 
 

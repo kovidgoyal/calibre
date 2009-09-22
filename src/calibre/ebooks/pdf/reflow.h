@@ -74,6 +74,9 @@ class Reflow {
 
         /* Dump the PDF outline as the file outline.xml in the current directory */
         void dump_outline();
+
+        /* Set the info dictionary. Currently broken. */
+        string set_info(map<char *, char *> info);
 };
 
 class XMLString {
