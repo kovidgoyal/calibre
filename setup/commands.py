@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = [
         'pot', 'translations', 'get_translations', 'iso639',
-        'build',
+        'build', 'build_pdf2xml',
         'gui',
         'develop', 'install',
         'resources',
@@ -30,8 +30,9 @@ translations = Translations()
 get_translations = GetTranslations()
 iso639 = ISO639()
 
-from setup.extensions import Build
+from setup.extensions import Build, BuildPDF2XML
 build = Build()
+build_pdf2xml = BuildPDF2XML()
 
 from setup.install import Develop, Install, Sdist
 develop = Develop()

@@ -12,10 +12,12 @@ from distutils import sysconfig
 from PyQt4.pyqtconfig import QtGuiModuleMakefile
 
 from setup import Command, islinux, isosx, SRC, iswindows
-from setup.build_environment import fc_inc, fc_lib, qt_inc, qt_lib, \
-        fc_error, poppler_libs, poppler_lib, poppler_inc, podofo_inc, \
+from setup.build_environment import fc_inc, fc_lib, \
+        fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
-        leopard_build, QMAKE, msvc, MT, win_inc, win_lib
+        leopard_build, QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, \
+        magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
+        magick_error, magick_libs
 MT
 isunix = islinux or isosx
 
@@ -42,6 +44,10 @@ class Extension(object):
         self.cflags = kwargs.get('cflags', [])
         self.ldflags = kwargs.get('ldflags', [])
         self.optional = kwargs.get('optional', False)
+
+reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
+reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
+reflow_error = poppler_error if poppler_error else magick_error
 
 extensions = [
     Extension('lzx',
@@ -76,15 +82,6 @@ extensions = [
     Extension('cPalmdoc',
         ['calibre/ebooks/compression/palmdoc.c']),
 
-    Extension('calibre_poppler',
-                ['calibre/utils/poppler/poppler.cpp'],
-                libraries=(['poppler', 'poppler-qt4']+poppler_libs),
-                lib_dirs=[os.environ.get('POPPLER_LIB_DIR',
-                    poppler_lib), qt_lib],
-                inc_dirs=[poppler_inc, qt_inc],
-                error=poppler_error,
-                optional=True),
-
     Extension('podofo',
                     ['calibre/utils/podofo/podofo.cpp'],
                     libraries=['podofo'],
@@ -97,9 +94,19 @@ extensions = [
                 inc_dirs = ['calibre/gui2/pictureflow'],
                 headers = ['calibre/gui2/pictureflow/pictureflow.h'],
                 sip_files = ['calibre/gui2/pictureflow/pictureflow.sip']
-                )
+                ),
 
+    Extension('pdfreflow',
+                reflow_sources,
+                headers=reflow_headers,
+                libraries=poppler_libs+magick_libs+png_libs,
+                lib_dirs=poppler_lib_dirs+magick_lib_dirs+png_lib_dirs,
+                inc_dirs=poppler_inc_dirs+magick_inc_dirs+png_inc_dirs,
+                error=reflow_error,
+                cflags=['-DPNG_SKIP_SETJMP_CHECK'] if islinux else []
+                )
     ]
+
 
 if iswindows:
     extensions.append(Extension('winutil',
@@ -346,10 +353,36 @@ class Build(Command):
 
 
 
+class BuildPDF2XML(Command):
 
+    description = 'Build command line pdf2xml utility'
 
+    def run(self, opts):
+        dest = os.path.expanduser('~/bin/pdf2xml')
+        odest = self.j(self.d(self.SRC), 'build', 'objects', 'pdf2xml')
+        if not os.path.exists(odest):
+            os.makedirs(odest)
 
+        objects = []
+        for src in reflow_sources:
+            if src.endswith('python.cpp'):
+                continue
+            obj = self.j(odest, self.b(src+'.o'))
+            if self.newer(obj, [src]+reflow_headers):
+                cmd = ['g++', '-pthread', '-pedantic', '-g', '-c', '-Wall', '-I/usr/include/poppler',
+                        '-I/usr/include/ImageMagick',
+                        '-DPDF2XML', '-o', obj, src]
+                self.info(*cmd)
+                subprocess.check_call(cmd)
+            objects.append(obj)
 
+        if self.newer(dest, objects):
+            cmd = ['g++', '-g', '-o', dest]+objects+['-lpoppler', '-lMagickWand',
+            '-lpng', '-lpthread']
+            self.info(*cmd)
+            subprocess.check_call(cmd)
+
+        self.info('Binary installed as', dest)
 
 
 

@@ -130,7 +130,7 @@ def metadata_from_filename(name, pat=None):
             au = match.group('author')
             aus = string_to_authors(au)
             mi.authors = aus
-        except IndexError:
+        except (IndexError, ValueError):
             pass
         try:
             mi.series = match.group('series')

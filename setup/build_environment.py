@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct
+import os, socket, struct, subprocess
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
@@ -42,6 +42,39 @@ elif find_executable('qmake'):
     QMAKE = find_executable('qmake')
 QMAKE = os.environ.get('QMAKE', QMAKE)
 
+PKGCONFIG = find_executable('pkg-config')
+PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
+
+def run_pkgconfig(name, envvar, default, flag, prefix):
+    ans = []
+    if envvar:
+        ans = os.environ.get(envvar, default)
+        ans = [x.strip() for x in ans.split(os.pathsep)]
+        ans = [x for x in ans if x and (prefix=='-l' or os.path.exists(x))]
+    if not ans:
+        try:
+            raw = subprocess.Popen([PKGCONFIG, flag, name],
+                stdout=subprocess.PIPE).stdout.read()
+            ans = [x.strip() for x in raw.split(prefix)]
+            ans = [x for x in ans if x and (prefix=='-l' or os.path.exists(x))]
+        except:
+            print 'Failed to run pkg-config:', PKGCONFIG, 'for:', name
+
+    return ans
+
+def pkgconfig_include_dirs(name, envvar, default):
+    return run_pkgconfig(name, envvar, default, '--cflags-only-I', '-I')
+
+def pkgconfig_lib_dirs(name, envvar, default):
+    return run_pkgconfig(name, envvar, default,'--libs-only-L', '-L')
+
+def pkgconfig_libs(name, envvar, default):
+    return run_pkgconfig(name, envvar, default,'--libs-only-l', '-l')
+
+def consolidate(envvar, default):
+    val = os.environ.get(envvar, default)
+    ans = [x.strip() for x in val.split(os.pathsep())]
+    return [x for x in ans if x and os.path.exists(x)]
 
 pyqt = pyqtconfig.Configuration()
 
@@ -50,28 +83,62 @@ qt_lib = pyqt.qt_lib_dir
 
 fc_inc = '/usr/include/fontconfig'
 fc_lib = '/usr/lib'
-poppler_inc = '/usr/include/poppler/qt4'
-poppler_lib = '/usr/lib'
-poppler_libs = []
 podofo_inc = '/usr/include/podofo'
 podofo_lib = '/usr/lib'
 
 if iswindows:
     fc_inc = r'C:\cygwin\home\kovid\fontconfig\include\fontconfig'
     fc_lib = r'C:\cygwin\home\kovid\fontconfig\lib'
-    poppler_inc = r'C:\cygwin\home\kovid\poppler\include\poppler\qt4'
-    poppler_lib = r'C:\cygwin\home\kovid\poppler\lib'
-    poppler_libs = ['QtCore4', 'QtGui4']
+    poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
+            r'C:\cygwin\home\kovid\poppler\include\poppler')
+    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+r'\qt4']
+    poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
+            r'C:\cygwin\home\kovid\poppler\lib')
+    popplerqt4_lib_dirs = poppler_lib_dirs
+    poppler_libs = ['poppler']
+    popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
     podofo_inc = 'C:\\podofo\\include\\podofo'
     podofo_lib = r'C:\podofo'
-
-if isosx:
+elif isosx:
     fc_inc = '/Users/kovid/fontconfig/include/fontconfig'
     fc_lib = '/Users/kovid/fontconfig/lib'
-    poppler_inc = '/Volumes/sw/build/poppler-0.10.7/qt4/src'
-    poppler_lib = '/Users/kovid/poppler/lib'
+    poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
+            '/Volumes/sw/build/poppler-0.10.7/poppler')
+    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
+    poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
+            '/Users/kovid/poppler/lib')
+    popplerqt4_lib_dirs = poppler_lib_dirs
+    poppler_libs     = popplerqt4_libs = ['poppler']
     podofo_inc = '/usr/local/include/podofo'
     podofo_lib = '/usr/local/lib'
+else:
+    # Include directories
+    poppler_inc_dirs = pkgconfig_include_dirs('poppler',
+        'POPPLER_INC_DIR', '/usr/include/poppler')
+    popplerqt4_inc_dirs = pkgconfig_include_dirs('poppler-qt4', '', '')
+    if not popplerqt4_inc_dirs:
+        popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
+    png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
+        '/usr/include')
+    magick_inc_dirs = pkgconfig_include_dirs('MagickWand', 'MAGICK_INC', '/usr/include/ImageMagick')
+
+    # Library directories
+    poppler_lib_dirs = popplerqt4_lib_dirs = pkgconfig_lib_dirs('poppler', 'POPPLER_LIB_DIR',
+        '/usr/lib')
+    png_lib_dirs = pkgconfig_lib_dirs('libpng', 'PNG_LIB_DIR', '/usr/lib')
+    magick_lib_dirs = pkgconfig_lib_dirs('MagickWand', 'MAGICK_LIB', '/usr/lib')
+
+    # Libraries
+    poppler_libs = pkgconfig_libs('poppler', '', '')
+    if not poppler_libs:
+        poppler_libs = ['poppler']
+    popplerqt4_libs = pkgconfig_libs('poppler-qt4', '', '')
+    if not popplerqt4_libs:
+        popplerqt4_libs = ['poppler-qt4', 'poppler']
+    magick_libs = pkgconfig_libs('MagickWand', '', '')
+    if not magick_libs:
+        magick_libs = ['MagickWand', 'MagickCore']
+    png_libs = ['png']
 
 
 fc_inc = os.environ.get('FC_INC_DIR', fc_inc)
@@ -82,14 +149,27 @@ fc_error = None if os.path.exists(os.path.join(fc_inc, 'fontconfig.h')) else \
             'variables.')
 
 
-poppler_inc = os.environ.get('POPPLER_INC_DIR', poppler_inc)
-poppler_lib = os.environ.get('POPPLER_LIB_DIR', poppler_lib)
-poppler_error = None if os.path.exists(os.path.join(poppler_inc,
-    'poppler-qt4.h'))  else \
+poppler_error = None
+if not poppler_inc_dirs or not os.path.exists(
+        os.path.join(poppler_inc_dirs[0], 'OutputDev.h')):
+    poppler_error = \
     ('Poppler not found on your system. Various PDF related',
     ' functionality will not work. Use the POPPLER_INC_DIR and',
     ' POPPLER_LIB_DIR environment variables.')
 
+popplerqt4_error = None
+if not popplerqt4_inc_dirs or not os.path.exists(
+        os.path.join(popplerqt4_inc_dirs[-1], 'poppler-qt4.h')):
+    popplerqt4_error = \
+            ('Poppler Qt4 bindings not found on your system.')
+
+magick_error = None
+if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],
+    'wand')):
+    magick_error = ('ImageMagick not found on your system. '
+            'Try setting the environment variables MAGICK_INC '
+            'and MAGICK_LIB to help calibre locate the inclue and libbrary '
+            'files.')
 
 podofo_lib = os.environ.get('PODOFO_LIB_DIR', podofo_lib)
 podofo_inc = os.environ.get('PODOFO_INC_DIR', podofo_inc)
@@ -116,3 +196,5 @@ except:
         HOST='unknown'
 
 PROJECT=os.path.basename(os.path.abspath('.'))
+
+

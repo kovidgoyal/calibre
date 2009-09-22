@@ -45,7 +45,7 @@ class FB2Input(InputFormatPlugin):
 
         log.debug('Parsing XML...')
         parser = etree.XMLParser(recover=True, no_network=True)
-        doc = etree.parse(stream, parser)
+        doc = etree.fromstring(stream.read())
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
         ss = open(P('templates/fb2.xsl'), 'rb').read()
