@@ -14,8 +14,7 @@ class NYTimes(BasicNewsRecipe):
 
     title       = 'New York Times Top Stories'
     __author__  = 'GRiker'
-    language = 'en'
-
+    language = _('English')
     description = 'Top Stories from the New York Times'
     
     # List of sections typically included in Top Stories.  Use a keyword from the
@@ -56,11 +55,14 @@ class NYTimes(BasicNewsRecipe):
 
     timefmt = ''
     needs_subscription = True
-    keep_only_tags          = [ dict(attrs={   'id':['article']})]
+    keep_only_tags          = [ dict(attrs={   'id':['article']}),
+                                dict(attrs={'class':['blog wrap']}) ]
+
     remove_tags             = [ dict(attrs={'class':['nextArticleLink clearfix', 'clearfix',
-                                                     'inlineVideo left brightcove']}),
+                                                     'inlineVideo left brightcove', 'entry-meta']}),
                                 dict(attrs={   'id':['toolsRight','inlineBox','sidebarArticles',
-                                                     'portfolioInline','articleInline','readerscomment']}) ]
+                                                     'portfolioInline','articleInline','readerscomment',
+                                                     'nytRating']}) ]
         
     encoding = 'cp1252'
     no_stylesheets = True
@@ -207,7 +209,7 @@ class NYTimes(BasicNewsRecipe):
                            (i.string.strip() > "") and      \
                            not isinstance(i,Comment):
                             contentString = i.strip().encode('utf-8')
-                            if contentString[0:3] == 'By ' :
+                            if contentString[0:3] == 'By ' and contentString[4].isupper() :
                                 bylines.append(contentString)
                             else :
                                 descriptions.append(contentString)
@@ -265,14 +267,31 @@ class NYTimes(BasicNewsRecipe):
         return soup
 
     def preprocess_html(self, soup):
-        refresh = soup.find('meta', {'http-equiv':'refresh'})
-        if refresh is None:
-            return self.strip_anchors(soup)
-
-        content = refresh.get('content').partition('=')[2]
-        raw = self.browser.open('http://www.nytimes.com'+content).read()
-        soup = BeautifulSoup(raw.decode('cp1252', 'replace'))
+#         refresh = soup.find('meta', {'http-equiv':'refresh'})
+#         if refresh is None:
+#             return self.strip_anchors(soup)
+# 
+#         content = refresh.get('content').partition('=')[2]
+#         raw = self.browser.open('http://www.nytimes.com'+content).read()
+#         soup = BeautifulSoup(raw.decode('cp1252', 'replace'))
         return self.strip_anchors(soup)
+        refresh = soup.find('meta', {'http-equiv':'refresh'})
+        if refresh is not None:
+            content = refresh.get('content').partition('=')[2]
+            raw = self.browser.open('http://www.nytimes.com'+content).read()
+            soup = BeautifulSoup(raw.decode('cp1252', 'replace'))
+        
+        soup = self.strip_anchors(soup)
+
+        # Test for empty content
+        body = soup.find('body')
+        tagCount = len(body.findAll(True))
+        if tagCount:
+#            print "%d tags in article" % tagCount
+            return soup
+        else:
+            print "no allowed content found, removing article"
+            raise StringError
 
     def postprocess_html(self,soup, True):
 
