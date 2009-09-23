@@ -10,6 +10,10 @@
 #include "images.h"
 #include "utils.h"
 
+#ifdef _WIN32
+inline double round(double x) { return (x-floor(x))>0.5 ? ceil(x) : floor(x); }
+#endif
+
 #define xoutRound(x) ( static_cast<int>(round(x)) )
 using namespace std;
 using namespace calibre_reflow;
@@ -286,4 +290,135 @@ void PNGWriter::write_splash_bitmap(SplashBitmap *bitmap) {
     }
     this->writePointers(row_pointers);
     delete[] row_pointers;
+}
+
+void calibre_png_mem_write(png_structp png_ptr, png_bytep data, png_size_t length) {
+    if (!png_ptr || length < 1) return;
+    vector<char> *buf = static_cast< vector<char>* >(png_ptr->io_ptr);
+    buf->reserve(buf->capacity() + length); 
+    do {
+        buf->push_back(static_cast<char>(*data));
+        data++; length--;
+    } while(length > 0);
+}
+
+void calibre_png_mem_flush(png_structp png_ptr) {}
+
+void PNGMemWriter::init(vector<char> *buf, int width, int height) {
+    /* initialize stuff */
+    this->png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!this->png_ptr) 
+        throw ReflowException("png_create_write_struct failed");
+
+    this->info_ptr = png_create_info_struct(png_ptr);
+    if (!this->info_ptr) 
+        throw ReflowException("png_create_info_struct failed");
+
+    if (setjmp(png_jmpbuf(this->png_ptr))) 
+        throw ReflowException("png_jmpbuf failed");
+
+    png_set_write_fn(this->png_ptr, static_cast<void *>(buf),
+            calibre_png_mem_write, calibre_png_mem_flush);
+    if (setjmp(png_jmpbuf(this->png_ptr))) 
+        throw ReflowException("png_set_write failed");
+
+
+    // Set up the type of PNG image and the compression level
+    png_set_compression_level(this->png_ptr, Z_BEST_COMPRESSION);
+
+    png_byte bit_depth = 8;
+    png_byte color_type = PNG_COLOR_TYPE_RGB;
+    png_byte interlace_type = PNG_INTERLACE_NONE;
+
+    png_set_IHDR(this->png_ptr, this->info_ptr, width, height,
+            bit_depth, color_type, interlace_type,
+            PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    png_write_info(png_ptr, info_ptr);
+    if (setjmp(png_jmpbuf(png_ptr))) 
+        throw ReflowException("error during writing png info bytes");
+
+}
+
+
+void calibre_jpeg_error_exit (j_common_ptr cinfo)
+{
+    /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+    calibre_jpeg_err_mgr *err = (calibre_jpeg_err_mgr *)(cinfo->err);
+
+    /* Always display the message. */
+    /* We could postpone this until after returning, if we chose. */
+    //(*cinfo->err->output_message) (cinfo);
+
+    /* Return control to the setjmp point */
+    longjmp(err->setjmp_buffer, 1);
+}
+
+
+JPEGWriter::JPEGWriter() {
+    this->cinfo.err = jpeg_std_error(&this->jerr.pub);
+    jpeg_create_compress(&this->cinfo);
+    this->jerr.pub.error_exit = calibre_jpeg_error_exit;
+    this->check();
+    this->outfile = NULL;
+}
+
+void JPEGWriter::init(int width, int height) {
+    cinfo.image_width = width; 
+    cinfo.image_height = height;
+    cinfo.input_components = 3;       /* # of color components per pixel */
+    cinfo.in_color_space = JCS_RGB;
+    jpeg_set_defaults(&this->cinfo);
+    this->check();
+    jpeg_start_compress(&this->cinfo, TRUE);
+    this->check();
+}
+
+void JPEGWriter::init_io(FILE *f) {
+    jpeg_stdio_dest(&this->cinfo, f);
+    this->check();
+    this->outfile = f;
+}
+
+void JPEGWriter::check() {
+    if (setjmp(jerr.setjmp_buffer)) this->raise();
+}
+
+void JPEGWriter::raise() {
+    char buffer[JMSG_LENGTH_MAX];
+
+    /* Create the message */
+    (*this->cinfo.err->format_message) ((jpeg_common_struct *)(&this->cinfo), buffer);
+    jpeg_destroy_compress(&this->cinfo);
+    throw ReflowException(buffer);
+}
+
+void JPEGWriter::write_image(JSAMPARRAY image_buffer, JDIMENSION num) {
+    size_t num_written = jpeg_write_scanlines(&this->cinfo, image_buffer, num);
+    this->check();
+    if (num_written != num) {
+        jpeg_destroy_compress(&this->cinfo);
+        throw ReflowException("Failed to write all JPEG scanlines.");
+    }
+}
+
+void JPEGWriter::write_splash_bitmap(SplashBitmap *bitmap) {
+    SplashColorPtr row = bitmap->getDataPtr();
+    int height = bitmap->getHeight();
+    int row_size = bitmap->getRowSize();
+    JSAMPARRAY row_pointers = new JSAMPLE*[height];
+
+    for (int y = 0; y < height; ++y) {
+        row_pointers[y] = row;
+        row += row_size;
+    }
+    this->write_image(row_pointers, height);
+    delete[] row_pointers;
+    jpeg_finish_compress(&this->cinfo);
+    this->check();
+    fclose(this->outfile);
+}
+
+JPEGWriter::~JPEGWriter() {
+    jpeg_destroy_compress(&this->cinfo);
 }

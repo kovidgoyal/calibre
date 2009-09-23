@@ -73,14 +73,17 @@ def pkgconfig_libs(name, envvar, default):
 
 def consolidate(envvar, default):
     val = os.environ.get(envvar, default)
-    ans = [x.strip() for x in val.split(os.pathsep())]
+    ans = [x.strip() for x in val.split(os.pathsep)]
     return [x for x in ans if x and os.path.exists(x)]
 
 pyqt = pyqtconfig.Configuration()
 
 qt_inc = pyqt.qt_inc_dir
 qt_lib = pyqt.qt_lib_dir
-
+ft_lib_dirs = []
+ft_libs = []
+jpg_libs = []
+jpg_lib_dirs = []
 fc_inc = '/usr/include/fontconfig'
 fc_lib = '/usr/lib'
 podofo_inc = '/usr/include/podofo'
@@ -90,13 +93,27 @@ if iswindows:
     fc_inc = r'C:\cygwin\home\kovid\fontconfig\include\fontconfig'
     fc_lib = r'C:\cygwin\home\kovid\fontconfig\lib'
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            r'C:\cygwin\home\kovid\poppler\include\poppler')
-    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+r'\qt4']
+            (r'C:\cygwin\home\kovid\poppler\poppler-source\poppler;'
+             r'C:\cygwin\home\kovid\poppler\poppler-source;'
+             r'C:\cygwin\home\kovid\poppler\poppler-build;'
+             r'C:\cygwin\home\kovid\poppler\poppler-build\poppler'))
+    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[1]+r'\qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
-            r'C:\cygwin\home\kovid\poppler\lib')
+            (r'C:\cygwin\home\kovid\poppler\poppler-build\qt4\src\Release;'
+                r'C:\cygwin\home\kovid\poppler\poppler-build\Release'))
     popplerqt4_lib_dirs = poppler_lib_dirs
-    poppler_libs = ['poppler']
+    poppler_libs = ['poppler', 'poppler-qt4']
     popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
+    png_inc_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\include']
+    png_lib_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\lib']
+    png_libs = [r'libpng']
+    jpg_lib_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\lib']
+    jpg_libs = ['jpeg']
+    magick_inc_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\include']
+    magick_lib_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\lib']
+    magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
+    ft_lib_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\lib']
+    ft_libs = ['freetype']
     podofo_inc = 'C:\\podofo\\include\\podofo'
     podofo_lib = r'C:\podofo'
 elif isosx:

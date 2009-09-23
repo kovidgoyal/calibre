@@ -5,6 +5,8 @@
 #include <GfxState.h>
 #include <splash/SplashBitmap.h>
 #include <png.h>
+#include <jpeglib.h>
+#include "utils.h"
 
 using namespace std;
 
@@ -27,9 +29,17 @@ namespace calibre_reflow {
             void write_splash_bitmap(SplashBitmap *bitmap);
             void close();
 
-        private:
+        protected:
             png_structp png_ptr;
             png_infop info_ptr;
+    };
+
+
+    class PNGMemWriter : public PNGWriter
+    {
+
+        public:
+            void init(vector<char> *buf, int width, int height);
     };
 
     class ImageInfo {
@@ -88,6 +98,32 @@ namespace calibre_reflow {
             string file_name(const XMLImage *img) const;
             vector<string*> str() const;
             void clear();
+    };
+
+    struct calibre_jpeg_err_mgr {
+        struct jpeg_error_mgr pub;    /* "public" fields */
+
+        jmp_buf setjmp_buffer;    /* for return to caller */
+    };
+
+    class JPEGWriter {
+        private:
+            FILE *outfile;
+            
+        protected:
+            struct jpeg_compress_struct cinfo;
+            struct calibre_jpeg_err_mgr jerr;
+
+            void raise();
+            void check();
+
+        public:
+            JPEGWriter();
+            ~JPEGWriter();
+            void init_io(FILE *f);
+            void init(int width, int height);
+            void write_image(JSAMPARRAY image_buffer, JDIMENSION number_of_scanlines);
+            void write_splash_bitmap(SplashBitmap *bitmap);
     };
 }
 

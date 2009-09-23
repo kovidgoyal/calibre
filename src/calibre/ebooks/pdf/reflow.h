@@ -68,8 +68,7 @@ class Reflow {
         bool is_locked() const { return !this->doc || this->doc->isEncrypted(); }
 
         /* Return the first page of the PDF, rendered as a PNG image */
-        char* render_first_page(size_t *data_size,
-            bool use_crop_box=true, double x_res=150.0,
+        vector<char>* render_first_page(bool use_crop_box=true, double x_res=150.0,
             double y_res = 150.0);
 
         /* Dump the PDF outline as the file outline.xml in the current directory */

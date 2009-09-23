@@ -3,7 +3,11 @@
  * License: GNU GPL v3
  */
 
+#ifdef _WIN32
+#include <poppler/Object.h>
+#else
 #include <Object.h>
+#endif
 #include <Outline.h>
 #include <PDFDocEncoding.h>
 #include <goo/GooList.h>
@@ -683,11 +687,14 @@ void XMLOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 static char stream_pdf[15] = "stream.pdf";
 
 class MemInStream : public MemStream {
+    private:
+        GooString stream_name;
+
     public:
         MemInStream(char *buf, size_t st, size_t sz, Object *obj) :
-            MemStream(buf, st, sz, obj) {}
+            MemStream(buf, st, sz, obj), stream_name(stream_pdf) {}
         ~MemInStream() {}
-        GooString *getFileName() { return new GooString(stream_pdf); }
+        GooString *getFileName() { return &this->stream_name; }
 };
 
 Reflow::Reflow(char *pdfdata, size_t sz) :
@@ -861,8 +868,7 @@ string Reflow::decode_info_string(Dict *info, const char *key) const {
     return oss.str();
 }
 
-char* Reflow::render_first_page(size_t *data_size,
-        bool use_crop_box, double x_res,
+vector<char>* Reflow::render_first_page(bool use_crop_box, double x_res,
         double y_res) {
     if (this->is_locked()) throw ReflowException("Document is locked.");
     char encoding[10] = "UTF-8";
@@ -900,24 +906,14 @@ char* Reflow::render_first_page(size_t *data_size,
     this->doc->displayPageSlice(out, pg, x_res, y_res, 0,
             !use_crop_box, false, false, x, y, pg_w, pg_h);
 
-    FILE * f = tmpfile();
-    if (!f) throw ReflowException(strerror(errno));
     SplashBitmap *bmp = out->getBitmap();
-    PNGWriter *writer = new PNGWriter();
-    writer->init(f, bmp->getWidth(), bmp->getHeight()); 
-    writer->write_splash_bitmap(bmp);
-    writer->close();
-    delete writer;
-
-
-    long size = ftell(f);
-    rewind(f);
-    char *buffer = new char[size];
-    *data_size = fread(buffer, 1, size, f);
-    if (*data_size != (size_t)size) {
-        throw ReflowException("I/O error reading from tmpfile");
-    }
-    return buffer;
+    PNGMemWriter writer;
+    vector<char> *buf = new vector<char>();
+    writer.init(buf, bmp->getWidth(), bmp->getHeight()); 
+    writer.write_splash_bitmap(bmp);
+    writer.close();
+    delete out;
+    return buf;
 }
 
 class MemOutStream : public OutStream {

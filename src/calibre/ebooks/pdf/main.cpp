@@ -52,12 +52,14 @@ extern "C" {
             info = reflow.get_info();
             if (PyObject_IsTrue(cover)) {
                 if (!reflow.is_locked()) {
-                    size_t size;
-                    char *data = reflow.render_first_page(&size);
-                    PyObject *d = PyString_FromStringAndSize(data, size);
-                    delete[] data;
-                    if (d == NULL) return PyErr_NoMemory();
-                    if (PyDict_SetItemString(ans, "cover", d) == -1) return NULL;
+                    vector<char> *data = reflow.render_first_page();
+                    if (data->size() > 0) {
+                        PyObject *d = PyBytes_FromStringAndSize(&((*data)[0]), data->size());
+                        delete data;
+                        if (d == NULL) return PyErr_NoMemory();
+                        if (PyDict_SetItemString(ans, "cover", d) == -1) return NULL;
+                        Py_XDECREF(d);
+                    }
                 } else {
                     if (PyDict_SetItemString(ans, "cover", Py_None) == -1) return NULL;
                 }
@@ -75,6 +77,7 @@ extern "C" {
             PyObject *val = PyUnicode_Decode((*it).second.c_str(), (*it).second.size(), "UTF-8", "replace");
             if (!val) return NULL;
             if (PyDict_SetItem(ans, key, val) == -1) return NULL;
+            Py_XDECREF(key); Py_XDECREF(val);
         }
         return ans;
     }
@@ -180,19 +183,21 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    int ret = 0;
     try {
         Reflow reflow(memblock, size);
         reflow.render();
-        size_t sz = 0;
-        char *data = reflow.render_first_page(&sz);
+        vector<char> *data = reflow.render_first_page();
         ofstream file("cover.png", ios::binary);
-        file.write(data, sz);
+        file.write(&((*data)[0]), data->size());
+        delete data;
         file.close();
     } catch(exception &e) {
         cerr << e.what() << endl;
-        return 1;
+        ret = 1;
     }
 
-    return 0;
+    delete[] memblock;
+    return ret;
 }
 #endif

@@ -31,11 +31,12 @@ static const char *FONT_MODS[7] = {
     NULL
 };
 
+#ifdef _WIN32
 #define ap_toupper(c) (toupper(((unsigned char)(c))))
 static inline
-char *strcasestr( char *h, char *n )
+const char *strcasestr(const char *h, const char *n )
 { /* h="haystack", n="needle" */
-    char *a=h, *e=n;
+    const char *a=h, *e=n;
 
     if( !h || !*h || !n || !*n ) { return 0; }
 
@@ -49,6 +50,7 @@ char *strcasestr( char *h, char *n )
     }
     return *e ? 0 : h;
 }
+#endif
 
 static string* family_name(const string *font_name) {
     if (!font_name) return NULL;
