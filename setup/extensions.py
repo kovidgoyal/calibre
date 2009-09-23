@@ -17,7 +17,7 @@ from setup.build_environment import fc_inc, fc_lib, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
         leopard_build, QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
-        magick_error, magick_libs
+        magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, jpg_lib_dirs
 MT
 isunix = islinux or isosx
 
@@ -49,7 +49,21 @@ reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
 reflow_error = poppler_error if poppler_error else magick_error
 
+pdfreflow_libs = []
+if iswindows:
+    pdfreflow_libs = ['advapi32', 'User32', 'Gdi32']
+
 extensions = [
+    Extension('pdfreflow',
+                reflow_sources,
+                headers=reflow_headers,
+                libraries=poppler_libs+magick_libs+png_libs+ft_libs+jpg_libs+pdfreflow_libs,
+                lib_dirs=poppler_lib_dirs+magick_lib_dirs+png_lib_dirs+ft_lib_dirs+jpg_lib_dirs,
+                inc_dirs=poppler_inc_dirs+magick_inc_dirs+png_inc_dirs,
+                error=reflow_error,
+                cflags=['-DPNG_SKIP_SETJMP_CHECK'] if islinux else []
+                ),
+
     Extension('lzx',
             ['calibre/utils/lzx/lzxmodule.c',
                     'calibre/utils/lzx/compressor.c',
@@ -96,15 +110,6 @@ extensions = [
                 sip_files = ['calibre/gui2/pictureflow/pictureflow.sip']
                 ),
 
-    Extension('pdfreflow',
-                reflow_sources,
-                headers=reflow_headers,
-                libraries=poppler_libs+magick_libs+png_libs,
-                lib_dirs=poppler_lib_dirs+magick_lib_dirs+png_lib_dirs,
-                inc_dirs=poppler_inc_dirs+magick_inc_dirs+png_inc_dirs,
-                error=reflow_error,
-                cflags=['-DPNG_SKIP_SETJMP_CHECK'] if islinux else []
-                )
     ]
 
 
@@ -266,7 +271,7 @@ class Build(Command):
                     ['/EXPORT:init'+ext.name] + objects + ['/OUT:'+dest]
             else:
                 cmd += objects + ['-o', dest] + ldflags + ext.ldflags + elib + xlib
-            print ' '.join(cmd)
+            self.info('\n\n', ' '.join(cmd), '\n\n')
             subprocess.check_call(cmd)
             if iswindows:
                 #manifest = dest+'.manifest'
@@ -369,7 +374,7 @@ class BuildPDF2XML(Command):
                 continue
             obj = self.j(odest, self.b(src+'.o'))
             if self.newer(obj, [src]+reflow_headers):
-                cmd = ['g++', '-pthread', '-pedantic', '-g', '-c', '-Wall', '-I/usr/include/poppler',
+                cmd = ['g++', '-pthread', '-pedantic', '-ggdb', '-c', '-Wall', '-I/usr/include/poppler',
                         '-I/usr/include/ImageMagick',
                         '-DPDF2XML', '-o', obj, src]
                 self.info(*cmd)

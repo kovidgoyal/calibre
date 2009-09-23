@@ -9,8 +9,8 @@ Freeze app into executable using py2exe.
 QT_DIR           = 'C:\\Qt\\4.5.2'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
-PDFTOHTML        = 'C:\\cygwin\\home\\kovid\\poppler-0.10.6\\rel\\pdftohtml.exe'
-POPPLER          = 'C:\\cygwin\\home\\kovid\\poppler'
+POPPLER          = 'C:\\cygwin\\home\\kovid\\poppler\\poppler-build'
+GNUWIN32         = r'C:\cygwin\home\kovid\gnuwin32'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 PDFTK            = 'C:\\pdftk.exe'
 PODOFO           = 'C:\\podofo'
@@ -189,10 +189,12 @@ class BuildEXE(bc):
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
         print '\tAdding poppler'
-        for x in ('bin\\pdftohtml.exe', 'bin\\poppler-qt4.dll',
-            'bin\\freetype.dll', 'bin\\jpeg62.dll'):
+        for x in (r'utils\Release\pdftohtml.exe',
+                r'qt4\src\Release\poppler-qt4.dll'):
             shutil.copyfile(os.path.join(POPPLER, x),
                     os.path.join(PY2EXE_DIR, os.path.basename(x)))
+        for x in ('jpeg62', 'zlib1', 'libpng12'):
+            shutil.copy2(os.path.join(GNUWIN32, 'bin', x+'.dll'), PY2EXE_DIR)
         print '\tAdding podofo'
         for f in glob.glob(os.path.join(PODOFO, '*.dll')):
             shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
