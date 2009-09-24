@@ -58,7 +58,7 @@ recipe_modules = ['recipe_' + r for r in (
            'esquire', 'livemint', 'thedgesingapore', 'darknet', 'rga',
            'intelligencer', 'theoldfoodie', 'hln_be', 'honvedelem',
            'the_new_republic', 'philly', 'salon', 'tweakers', 'smashing',
-           'thestar',
+           'thestar', 'business_standard',
           )]
 
 
