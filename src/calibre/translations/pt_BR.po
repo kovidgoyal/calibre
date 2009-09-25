@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-09-18 06:45+0000\n"
+"POT-Creation-Date: 2009-09-18 19:33+0000\n"
 "PO-Revision-Date: 2009-09-05 19:10+0000\n"
 "Last-Translator: matheusoveral <matheusoveral@ig.com.br>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-18 09:48+0000\n"
+"X-Launchpad-Export-Date: 2009-09-23 09:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -28,7 +28,7 @@ msgstr "Faz absolutamente nada"
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:199
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:703
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:706
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:403
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:410
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:65
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:67
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:318
@@ -634,24 +634,26 @@ msgstr ""
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:274
-msgid "Number of colors for grayscale image conversion. Default: %default"
+msgid ""
+"Number of colors for grayscale image conversion. Default: %default. Values "
+"of less than 256 may result in blurred text on your device if you are "
+"creating your comics in EPUB format."
 msgstr ""
-"Número de cores para conversão de imagens em tons de cinza. Padrão: %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:276
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:278
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:279
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr "Manter a proporção da imagem. O padrão é para preencher a tela."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
 msgid "Disable sharpening."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:285
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
@@ -659,29 +661,29 @@ msgstr ""
 "Desativar corte de páginas de quadrinhos. Para alguns quadrinhos, o corte "
 "pode remover conteúdo bem como bordas."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:286
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid "Don't split landscape images into two portrait images"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:290
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:291
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:293
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:295
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:297
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:298
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:300
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
@@ -689,12 +691,19 @@ msgstr ""
 "Não listar alfabeticamente por nome os arquivos encontrados no gibi. "
 "Utilizar a sequencia pela qual foram adicionados ao arquivo."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:302
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:304
+msgid ""
+"The format that images in the created ebook are converted to. You can "
+"experiment to see which format gives you optimal size and look on your "
+"device."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:308
 msgid "Apply no processing to the image"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:427
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:438
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:434
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:445
 msgid "Page"
 msgstr "Página"
 
@@ -2340,7 +2349,7 @@ msgstr ""
 msgid "input"
 msgstr "entrada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:28
@@ -2368,59 +2377,64 @@ msgstr "entrada"
 msgid "Form"
 msgstr "Formulário"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:94
 msgid "&Number of Colors:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:96
 msgid "Disable &normalize"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 msgid "Keep &aspect ratio"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
 msgid "Disable &Sharpening"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:104
 msgid "Disable &Trimming"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:103
 msgid "&Wide"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:99
 msgid "&Landscape"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:101
 msgid "&Right to left"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "Don't so&rt"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:86
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:102
 msgid "De&speckle"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:95
 msgid "&Disable comic processing"
 msgstr "&Desativar processamento de gibis"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:107
+msgid "&Output format:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -2937,10 +2951,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:106
 msgid "&Input format:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:107
-msgid "&Output format:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
@@ -7133,6 +7143,10 @@ msgstr ""
 
 #~ msgid "Communicate with the Sony PRS-700 eBook reader."
 #~ msgstr "Comunicar com o leitor de eBooks Sony PRS-700."
+
+#~ msgid "Number of colors for grayscale image conversion. Default: %default"
+#~ msgstr ""
+#~ "Número de cores para conversão de imagens em tons de cinza. Padrão: %default"
 
 #~ msgid "/Unknown"
 #~ msgstr "/Desconhecido"
