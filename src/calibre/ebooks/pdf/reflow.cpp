@@ -3,11 +3,6 @@
  * License: GNU GPL v3
  */
 
-#ifdef _WIN32
-#include <poppler/Object.h>
-#else
-#include <Object.h>
-#endif
 #include <Outline.h>
 #include <PDFDocEncoding.h>
 #include <goo/GooList.h>
@@ -25,6 +20,8 @@ static const char* info_keys[num_info_keys] = {
     "Title", "Subject", "Keywords", "Author", "Creator", "Producer",
     "CreationDate", "ModDate"
 };
+static char encoding[10] = "UTF-8";
+static char yes[10] = "yes";
 
 
 //------------------------------------------------------------------------
@@ -684,30 +681,16 @@ void XMLOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
             colorMap, interpolate, maskColors, inlineImg);
 }
 
-static char stream_pdf[15] = "stream.pdf";
-
-class MemInStream : public MemStream {
-    private:
-        GooString stream_name;
-
-    public:
-        MemInStream(char *buf, size_t st, size_t sz, Object *obj) :
-            MemStream(buf, st, sz, obj), stream_name(stream_pdf) {}
-        ~MemInStream() {}
-        GooString *getFileName() { return &this->stream_name; }
-};
-
 Reflow::Reflow(char *pdfdata, size_t sz) :
-    pdfdata(pdfdata), current_font_size(-1), doc(NULL)
+    pdfdata(pdfdata), current_font_size(-1), doc(NULL), obj()
 {
-    Object obj;
-    obj.initNull();
+    this->obj.initNull();
     if (globalParams == NULL) {
         globalParams = new GlobalParams();
         if (!globalParams)
             throw ReflowException("Failed to allocate Globalparams");
     }
-    MemInStream *str = new MemInStream(pdfdata, 0, sz, &obj);
+    MemStream *str = new MemStream(pdfdata, 0, sz, &this->obj);
     this->doc = new PDFDoc(str, NULL, NULL);
 
     if (!this->doc->isOk()) {
@@ -730,7 +713,6 @@ Reflow::render() {
     if (!this->doc->okToCopy()) 
         cout << "Warning, this document has the copy protection flag set, ignoring." << endl;
 
-    char encoding[10] = "UTF-8";
     globalParams->setTextEncoding(encoding);
 
     int first_page = 1;
@@ -808,7 +790,6 @@ map<string, string> Reflow::get_info() {
     Object info;
     map<string, string> ans;
     string val;
-    char encoding[10] = "UTF-8";
     globalParams->setTextEncoding(encoding);
 
     this->doc->getDocInfo(&info);
@@ -832,7 +813,7 @@ string Reflow::decode_info_string(Dict *info, const char *key) const {
     int i, n;
     ostringstream oss;
     char *tmp = new char[strlen(key)+1];
-    strcpy(tmp, key);
+    strncpy(tmp, key, strlen(key)+1);
     UnicodeMap *umap;
     if (!(umap = globalParams->getTextEncoding())) {
         throw ReflowException("Failed to allocate unicode map.");
@@ -871,8 +852,7 @@ string Reflow::decode_info_string(Dict *info, const char *key) const {
 vector<char>* Reflow::render_first_page(bool use_crop_box, double x_res,
         double y_res) {
     if (this->is_locked()) throw ReflowException("Document is locked.");
-    char encoding[10] = "UTF-8";
-    char yes[10] = "yes";
+    if (this->numpages() < 1) throw ReflowException("Document has no pages.");
     globalParams->setTextEncoding(encoding);
     globalParams->setEnableFreeType(yes);
     globalParams->setAntialias(yes);
@@ -882,37 +862,45 @@ vector<char>* Reflow::render_first_page(bool use_crop_box, double x_res,
     paper_color[0] = 255;
     paper_color[1] = 255;
     paper_color[2] = 255;
-    SplashOutputDev *out = new SplashOutputDev(splashModeRGB8, 4, false, paper_color);
+    SplashOutputDev *out = new SplashOutputDev(splashModeRGB8, 4, false, paper_color, true, true);
+    out->setVectorAntialias(true);
     if (!out) {
         throw ReflowException("Failed to allocate SplashOutputDev");
     }
-    out->startDoc(doc->getXRef());
+    try {
+        out->startDoc(doc->getXRef());
+        out->startPage(1, NULL);
 
-    double pg_w, pg_h;
-    int pg = 1;
+        double pg_w, pg_h;
+        int pg = 1;
 
-    if (use_crop_box) {
-        pg_w = this->doc->getPageCropWidth(pg);
-        pg_h = this->doc->getPageCropHeight(pg);
-    } else {
-        pg_w = this->doc->getPageMediaWidth(pg);
-        pg_h = this->doc->getPageMediaHeight(pg);
-    }
+        if (use_crop_box) {
+            pg_w = this->doc->getPageCropWidth(pg);
+            pg_h = this->doc->getPageCropHeight(pg);
+        } else {
+            pg_w = this->doc->getPageMediaWidth(pg);
+            pg_h = this->doc->getPageMediaHeight(pg);
+        }
 
-    pg_w *= x_res/72.;
-    pg_h *= x_res/72.;
+        pg_w *= x_res/72.;
+        pg_h *= x_res/72.;
 
-    int x=0, y=0;
-    this->doc->displayPageSlice(out, pg, x_res, y_res, 0,
-            !use_crop_box, false, false, x, y, pg_w, pg_h);
+        int x=0, y=0;
+        this->doc->displayPageSlice(out, pg, x_res, y_res, 0,
+                !use_crop_box, false, false, x, y, pg_w, pg_h);
+    } catch(...) { delete out; throw; }
 
-    SplashBitmap *bmp = out->getBitmap();
+    SplashBitmap *bmp = out->takeBitmap();
+    out->endPage();
+    delete out; out = NULL;
     PNGMemWriter writer;
     vector<char> *buf = new vector<char>();
-    writer.init(buf, bmp->getWidth(), bmp->getHeight()); 
-    writer.write_splash_bitmap(bmp);
-    writer.close();
-    delete out;
+    try {
+        writer.init(buf, bmp->getWidth(), bmp->getHeight()); 
+        writer.write_splash_bitmap(bmp);
+        writer.close();
+    } catch(...) { delete buf; delete bmp; throw; }
+    delete bmp;
     return buf;
 }
 
@@ -966,5 +954,4 @@ string Reflow::set_info(map<char *, char *> sinfo) {
     string ans;
     return ans;
 }
-
 

@@ -189,8 +189,7 @@ class BuildEXE(bc):
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
         print '\tAdding poppler'
-        for x in (r'utils\Release\pdftohtml.exe',
-                r'qt4\src\Release\poppler-qt4.dll'):
+        for x in (r'utils\Release\pdftohtml.exe',):
             shutil.copyfile(os.path.join(POPPLER, x),
                     os.path.join(PY2EXE_DIR, os.path.basename(x)))
         for x in ('jpeg62', 'zlib1', 'libpng12'):
@@ -281,7 +280,8 @@ def main(args=sys.argv):
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],
-                                  'dll_excludes' : ['mswsock.dll'],
+                                  'dll_excludes' : ['mswsock.dll', 'tcl85.dll',
+                                      'tk85.dll'],
                                  },
                     },
 

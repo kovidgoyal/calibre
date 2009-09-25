@@ -195,6 +195,11 @@ os.execv(python, args)
             for f in x[-1]:
                 if f.endswith('.so'):
                     modules.append(os.path.join(x[0], f))
+        for x in os.walk(os.path.join(frameworks_dir, 'plugins')):
+            for f in x[-1]:
+                if f.endswith('.so'):
+                    modules.append(os.path.join(x[0], f))
+
         deps = {}
         for x in ('Core.1', 'Wand.1'):
             modules.append(os.path.join(root, 'lib', 'libMagick%s.dylib'%x))
@@ -235,12 +240,21 @@ os.execv(python, args)
         shutil.copyfile(pdf, os.path.join(frameworks_dir, os.path.basename(pdf)))
 
         info('\nAdding poppler')
-        for x in ('pdftohtml', 'libpoppler.4.dylib', 'libpoppler-qt4.3.dylib'):
-            tgt = os.path.join(frameworks_dir, x)
-            os.link(os.path.join(os.path.expanduser('~/poppler'), x), tgt)
-            self.fix_qt_dependencies(tgt, self.qt_dependencies(tgt))
-
-
+        popps = []
+        for x in ('bin/pdftohtml', 'lib/libpoppler.5.dylib'):
+            dest = os.path.join(frameworks_dir, os.path.basename(x))
+            popps.append(dest)
+            shutil.copy2(os.path.join('/Volumes/sw', x), dest)
+        x ='libpng12.0.dylib'
+        shutil.copy2('/usr/local/lib/'+x, frameworks_dir)
+        subprocess.check_call(['install_name_tool', '-id',
+            '@executable_path/../Frameworks/'+x, os.path.join(frameworks_dir, x)])
+        self.fix_misc_dependencies(popps)
+        subprocess.check_call(['install_name_tool', '-change',
+        '/usr/local/lib/libfontconfig.1.dylib',
+        '@executable_path/../Frameworks/libfontconfig.1.dylib', popps[1]])
+        subprocess.check_call(['install_name_tool', '-id',
+        '@executable_path/../Frameworks/'+os.path.basename(popps[1]), popps[1]])
 
         loader_path = os.path.join(resource_dir, 'loaders')
         if not os.path.exists(loader_path):
@@ -286,6 +300,9 @@ os.execv(python, args)
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(os.path.expanduser('~/ImageMagick'), dest, True)
+        shutil.rmtree(os.path.join(dest, 'include'))
+        shutil.rmtree(os.path.join(dest, 'share', 'doc'))
+        shutil.rmtree(os.path.join(dest, 'share', 'man'))
         shutil.copyfile('/usr/local/lib/libpng12.0.dylib', os.path.join(dest, 'lib', 'libpng12.0.dylib'))
         self.fix_image_magick_deps(dest)
 

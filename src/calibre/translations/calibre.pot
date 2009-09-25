@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.13\n"
-"POT-Creation-Date: 2009-09-18 12:45+MDT\n"
-"PO-Revision-Date: 2009-09-18 12:45+MDT\n"
+"POT-Creation-Date: 2009-09-25 11:00+MDT\n"
+"PO-Revision-Date: 2009-09-25 11:00+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -51,8 +51,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:870
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:34
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:76
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/txt.py:14
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:44
@@ -132,8 +131,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
-#: /home/kovid/work/calibre/src/calibre/utils/poppler/__init__.py:28
-#: /home/kovid/work/calibre/src/calibre/utils/poppler/__init__.py:32
 msgid "Unknown"
 msgstr ""
 
@@ -313,11 +310,11 @@ msgstr ""
 msgid "No valid plugin found in "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:229
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:232
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:359
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:362
 msgid ""
 "    %prog options\n"
 "\n"
@@ -325,27 +322,27 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:365
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:368
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:367
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:370
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:369
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:372
 msgid "Customize plugin. Specify name of plugin and customization string separated by a comma."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:371
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:374
 msgid "List all installed plugins"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:373
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:376
 msgid "Enable the named plugin"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:375
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:378
 msgid "Disable the named plugin"
 msgstr ""
 
@@ -2038,7 +2035,7 @@ msgid "input"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:84
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:28
@@ -2133,7 +2130,7 @@ msgid "Debug the conversion process."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:47
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:51
 msgid "Choose debug folder"
 msgstr ""
 
@@ -2145,12 +2142,12 @@ msgstr ""
 msgid "Failed to create debug directory"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:46
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:50
 msgid "Choose a folder to put the debug output into. If you specify a folder, calibre will place a lot of debug output into it. This will be useful in understanding the conversion process and figuring out the correct values for conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:48
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:61
@@ -2180,6 +2177,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:335
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:341
 msgid "..."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:54
+msgid "The debug process outputs the intermediate HTML generated at various stages of the conversion process. This HTML can sometimes serve as a good starting point for hand editing a conversion."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
@@ -6342,6 +6343,7 @@ msgid "Traditional Chinese"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/recipe_nytimes.py:17
 msgid "English"
 msgstr ""
 

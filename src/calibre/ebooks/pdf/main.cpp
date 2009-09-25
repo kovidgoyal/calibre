@@ -47,29 +47,32 @@ extern "C" {
         if (!PyArg_ParseTuple(args, "s#O", &pdfdata, &size, &cover))
             return NULL;
 
+        Reflow *reflow = NULL;
         try {
-            Reflow reflow(pdfdata, static_cast<std::ifstream::pos_type>(size));
-            info = reflow.get_info();
+            reflow = new Reflow(pdfdata, size);
+            info = reflow->get_info();
             if (PyObject_IsTrue(cover)) {
-                if (!reflow.is_locked()) {
-                    vector<char> *data = reflow.render_first_page();
-                    if (data->size() > 0) {
+                if (!reflow->is_locked() && reflow->numpages() > 0) {
+                    vector<char> *data = reflow->render_first_page();
+                    if (data && data->size() > 0) {
                         PyObject *d = PyBytes_FromStringAndSize(&((*data)[0]), data->size());
                         delete data;
-                        if (d == NULL) return PyErr_NoMemory();
-                        if (PyDict_SetItemString(ans, "cover", d) == -1) return NULL;
+                        if (d == NULL) {delete reflow; return PyErr_NoMemory();}
+                        if (PyDict_SetItemString(ans, "cover", d) == -1) {delete reflow; return NULL;}
                         Py_XDECREF(d);
                     }
                 } else {
-                    if (PyDict_SetItemString(ans, "cover", Py_None) == -1) return NULL;
+                    if (PyDict_SetItemString(ans, "cover", Py_None) == -1) {delete reflow; return NULL;}
                 }
             }
         } catch (std::exception &e) {
-            PyErr_SetString(PyExc_RuntimeError, e.what()); return NULL;
+            PyErr_SetString(PyExc_RuntimeError, e.what()); delete reflow; return NULL;
         } catch (...) {
             PyErr_SetString(PyExc_RuntimeError,
-                    "Unknown exception raised while getting metadata from PDF"); return NULL;
+                    "Unknown exception raised while getting metadata from PDF"); delete reflow; return NULL;
         }
+        delete reflow; reflow = NULL;
+
 
         for (map<string,string>::const_iterator it = info.begin() ; it != info.end(); it++ ) {
             PyObject *key = PyUnicode_Decode((*it).first.c_str(), (*it).first.size(), "UTF-8", "replace");
