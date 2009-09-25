@@ -215,6 +215,7 @@ class Sdist(Command):
         if not self.e(self.d(self.DEST)):
             os.makedirs(self.d(self.DEST))
         tdir = tempfile.mkdtemp()
+        tdir = self.j(tdir, 'calibre')
         atexit.register(shutil.rmtree, tdir)
         self.info('\tRunning bzr export...')
         subprocess.check_call(['bzr', 'export', '--format', 'dir', tdir])
@@ -237,8 +238,8 @@ class Sdist(Command):
                 shutil.copy2(f, dest)
 
         self.info('\tCreating tarfile...')
-        subprocess.check_call(' '.join(['tar', '-czf', self.a(self.DEST), '*']),
-                cwd=tdir, shell=True)
+        subprocess.check_call(['tar', '-czf', self.a(self.DEST),
+            'calibre'], cwd=self.d(tdir))
 
     def clean(self):
         if os.path.exists(self.DEST):
