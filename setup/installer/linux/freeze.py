@@ -60,7 +60,7 @@ class LinuxFreeze(Command):
                             arch),
                         '/usr/lib/libpng12.so.0',
                         '/usr/lib/libexslt.so.0',
-                        '/usr/lib/libMagickWand.so',
+                        '/usr/lib/libMagickWand.so.2',
                         '/usr/lib/libMagickCore.so.2',
                         '/usr/lib/libgcrypt.so.11',
                         '/usr/lib/libgpg-error.so.0',
