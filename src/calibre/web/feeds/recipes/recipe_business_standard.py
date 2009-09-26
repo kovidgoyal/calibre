@@ -20,18 +20,18 @@ class BusinessStandard(BasicNewsRecipe):
     publisher              = 'Business Standard Limited'
     category               = 'news, business, money, india, world'
     language               = 'en_IN'
-    
-    conversion_options = {  
+
+    conversion_options = {
                              'comments'        : description
                             ,'tags'            : category
                             ,'language'        : language
                             ,'publisher'       : publisher
                             ,'linearize_tables': True
                          }
-    
+
     remove_attributes=['style']
     remove_tags = [dict(name=['object','link','script','iframe'])]
-    
+
     feeds = [
                (u'News Now'            , u'http://feeds.business-standard.com/News-Now.xml'              )
               ,(u'Banking & finance'   , u'http://feeds.business-standard.com/Banking-Finance-All.xml'   )

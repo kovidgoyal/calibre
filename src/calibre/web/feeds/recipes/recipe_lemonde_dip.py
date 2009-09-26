@@ -6,10 +6,9 @@ __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 mondediplo.com
 '''
 
-import re, urllib
+import urllib
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class LeMondeDiplomatiqueEn(BasicNewsRecipe):
     title                  = 'Le Monde diplomatique - English edition'
@@ -48,7 +47,7 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
 
     keep_only_tags    =[dict(name='div', attrs={'id':'contenu'})]
     remove_tags = [dict(name=['object','link','script','iframe','base'])]
-    
+
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.INDEX)
@@ -70,4 +69,4 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
                                  ,'description':description
                                 })
         return [(soup.head.title.string, articles)]
-        
+

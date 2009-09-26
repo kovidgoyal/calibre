@@ -7,7 +7,6 @@ www.smashingmagazine.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class SmashingMagazine(BasicNewsRecipe):
     title                 = 'Smashing Magazine'
@@ -21,13 +20,13 @@ class SmashingMagazine(BasicNewsRecipe):
     publisher             = 'Smashing Magazine'
     category              = 'news, web, IT, css, javascript, html'
     encoding              = 'utf-8'
-    
-    conversion_options = {  
+
+    conversion_options = {
                              'comments'    : description
                             ,'tags'        : category
                             ,'publisher'   : publisher
                          }
-                         
+
     keep_only_tags = [dict(name='div', attrs={'id':'leftcolumn'})]
     remove_tags_after = dict(name='ul',attrs={'class':'social'})
     remove_tags = [
@@ -47,5 +46,5 @@ class SmashingMagazine(BasicNewsRecipe):
         for item in soup.findAll('img'):
             oldParent = item.parent
             if oldParent.name == 'a':
-               oldParent.name = 'div'            
+               oldParent.name = 'div'
         return soup

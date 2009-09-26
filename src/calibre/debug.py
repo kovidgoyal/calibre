@@ -6,10 +6,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Embedded console for debugging.
 '''
 
-import sys, os, re, shutil
+import sys, os
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows, isosx
-from calibre.libunzip import update
 from calibre import prints
 
 def option_parser():
@@ -18,11 +17,6 @@ def option_parser():
 
 Run an embedded python interpreter.
 ''')
-    parser.add_option('-u', '--update-module', default=False,
-            action='store_true',
-            help='Update the specified module in the frozen library. '+
-    'Module specifications are of the form full.name.of.module path_to_module.py',
-    )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
@@ -41,39 +35,17 @@ Run an embedded python interpreter.
     parser.add_option('--pdfreflow', default=None,
             help='Path to PDF file to try and reflow. Output will be placed in '
             'current directory. ')
+    parser.add_option('-f', '--develop-from', default=None,
+            help=('Develop calibre from the specified path. '
+                'The path should point to the src sub-directory in the '
+                'calibre source tree.'))
 
     return parser
 
-def update_zipfile(zipfile, mod, path):
-    if 'win32' in sys.platform:
-        print 'WARNING: On Windows Vista using this option may cause windows to put library.zip into the Virtual Store (typically located in c:\Users\username\AppData\Local\VirtualStore). If it does this you must delete it from there after you\'re done debugging).'
-    pat = re.compile(mod.replace('.', '/')+r'\.py[co]*')
-    name = mod.replace('.', '/') + os.path.splitext(path)[-1]
-    update(zipfile, [pat], [path], [name])
-
-def update_site_packages(sp, mod, path):
-    dest = os.path.join(sp, *mod.split('.'))+'.py'
-    shutil.copy2(path, dest)
-
-def update_module(mod, path):
-    if not hasattr(sys, 'frozen'):
-        raise RuntimeError('Modules can only be updated in frozen installs.')
-    zp = None
-    if iswindows:
-        zp = os.path.join(os.path.dirname(sys.executable), 'library.zip')
-    elif getattr(sys, 'new_app_bundle', False):
-        update_site_packages(sys.site_packages, mod, path)
-    elif isosx:
-        zp = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')),
-                            'Resources', 'lib',
-                            'python'+'.'.join(map(str, sys.version_info[:2])),
-                            'site-packages.zip')
-    else:
-        zp = os.path.join(getattr(sys, 'frozen_path'), 'loader.zip')
-    if zp is not None:
-        update_zipfile(zp, mod, path)
-    else:
-        raise ValueError('Updating modules is not supported on this platform.')
+def develop_from(path):
+    from calibre.gui2 import build_forms
+    print 'Compiling .ui forms...'
+    build_forms(path)
 
 def migrate(old, new):
     from calibre.utils.config import prefs
@@ -189,9 +161,6 @@ def main(args=sys.argv):
     if opts.gui:
         from calibre.gui2.main import main
         main(['calibre'])
-    elif opts.update_module:
-        mod, path = args[1:3]
-        update_module(mod, os.path.expanduser(path))
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
@@ -218,6 +187,8 @@ def main(args=sys.argv):
         from calibre.utils.logging import default_log
         opts2, args = px().parse_args(['xxxx', '-vvvv', opts.pdfreflow])
         run(opts2, opts.pdfreflow, default_log)
+    elif opts.develop_from is not None:
+        develop_from(opts.develop_from)
     else:
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed()

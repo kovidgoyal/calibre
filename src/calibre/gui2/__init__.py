@@ -525,3 +525,53 @@ def is_ok_to_use_qt():
         gui_thread = QThread.currentThread()
     return gui_thread is QThread.currentThread()
 
+def find_forms(srcdir):
+    base = os.path.join(srcdir, 'calibre', 'gui2')
+    forms = []
+    for root, _, files in os.walk(base):
+        for name in files:
+            if name.endswith('.ui'):
+                forms.append(os.path.abspath(os.path.join(root, name)))
+
+    return forms
+
+def form_to_compiled_form(form):
+    return form.rpartition('.')[0]+'_ui.py'
+
+def build_forms(srcdir, info=None):
+    import re, cStringIO
+    from PyQt4.uic import compileUi
+    forms = find_forms(srcdir)
+    if info is None:
+        from calibre import prints
+        info = prints
+    pat = re.compile(r'''(['"]):/images/([^'"]+)\1''')
+    def sub(match):
+        ans = 'I(%s%s%s)'%(match.group(1), match.group(2), match.group(1))
+        return ans
+
+    for form in forms:
+        compiled_form = form_to_compiled_form(form)
+        if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
+            info('\tCompiling form', form)
+            buf = cStringIO.StringIO()
+            compileUi(form, buf)
+            dat = buf.getvalue()
+            dat = dat.replace('__appname__', 'calibre')
+            dat = dat.replace('import images_rc', '')
+            dat = dat.replace('from library import', 'from calibre.gui2.library import')
+            dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
+            dat = dat.replace('from convert.xpath_wizard import',
+                'from calibre.gui2.convert.xpath_wizard import')
+            dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
+            dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
+            dat = pat.sub(sub, dat)
+
+            if form.endswith('viewer%smain.ui'%os.sep):
+                info('\t\tPromoting WebView')
+                dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
+                dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
+                dat += '\nQtWebKit'
+
+            open(compiled_form, 'wb').write(dat)
+
