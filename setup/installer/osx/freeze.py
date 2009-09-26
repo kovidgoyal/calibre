@@ -55,7 +55,7 @@ print >>loader, 'sys.argv[0] =', repr(os.path.basename(path))
 print >>loader, 'if', repr(dirpath), 'in sys.path: sys.path.remove(', repr(dirpath), ')'
 print >>loader, 'sys.path.append(', repr(site_packages), ')'
 if do_devf:
-    print >>loader, 'sys.path.insert(0, %r)'%devf
+    print >>loader, 'sys.path.insert(0, '+repr(devf)+')'
 print >>loader, 'sys.frozen = "macosx_app"'
 print >>loader, 'sys.frameworks_dir =', repr(frameworks_dir)
 print >>loader, 'sys.extensions_location =', repr(extensions_dir)
@@ -390,7 +390,7 @@ def main():
                                        'calibre.ebooks.metadata.amazon',
                                        ],
                          'packages' : ['PIL', 'Authorization', 'lxml', 'dns'],
-                         'excludes' : ['IPython'],
+                         'excludes' : ['IPython', 'PyQt4.uic.port_v3.proxy_base'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
                                         ''' Visit http://calibre.kovidgoyal.net for details.''',
                                         'CFBundleIdentifier':'net.kovidgoyal.calibre',

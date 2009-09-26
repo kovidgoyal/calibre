@@ -63,25 +63,24 @@ this, make your changes, then run::
     bzr commit -m "Comment describing your changes"
     bzr send -o my-changes
 
-This will create a my-changes file in the current directory, simply attach that to a ticket on the |app| bug tracker at
-`http://calibre.kovidgoyal.net`_.
+This will create a my-changes file in the current directory, simply attach that to a ticket on the |app| `bug tracker <http://calibre.kovidgoyal.net>`_.
 
 If you plan to do a lot of development on |app|, then the best method is to create a 
 `Launchpad <http://launchpad.net>`_ account. Once you have the account, you can create your own
-branch in which you do |app| development. To do that go to `https://code.launchpad.net`_ and click
+branch in which you do |app| development. To do that go to `Launchpad code <https://code.launchpad.net>`_ and click
 "Register a branch" (choose a branch type of "Hosted"). Once the branch is setup you can associate it
 with the code you checked out in the previous step running the following command in any directory 
 in the |app| code you checked out::
 
     bzr push <URL of your launchpad branch>
 
-This will host your branch on launchpad. Now go to `http://code.launchpad.net/calibre`_ and register
+This will host your branch on launchpad. Now go to `calibre@Launchapd <http://code.launchpad.net/calibre>`_ and register
 your branch with the |app| project. Now whenever you commit changes to your branch with the command::
 
     bzr commit -m "Comment describing your change"
 
 I can merge it directly from you branch into the main |app| source tree. You should also subscribe to the |app|
-developers mailing list at `https://launchpad.net/~calibre-devs`_. Before making major changes, you should
+developers mailing list `calibre-devs <https://launchpad.net/~calibre-devs>`_. Before making major changes, you should
 discuss them on the mailing list to ensure that the changes will be accepted once you're done. 
 
 
@@ -134,7 +133,7 @@ calibre is the directory that contains the src and resources sub directories. Th
 This assumes that you have installed the |app| command line tools. This can be done via Preferences->Advanced in the |app| GUI. 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path to the src directory.
 So, following the example above, it would be ``/Users/kovid/work/calibre/src``. Apple 
-`documentation http://developer.apple.com/mac/library/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html#//apple_ref/doc/uid/20002093-BCIJIJBH`_
+`documentation <http://developer.apple.com/mac/library/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html#//apple_ref/doc/uid/20002093-BCIJIJBH>`_
 on how to set environment variables. 
 
 Once you have set the environment variable, open a new Terminal and check that it was correctly set by using
