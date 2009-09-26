@@ -147,6 +147,9 @@ class LinuxFreeze(Command):
         sys.frozen_path = DIR_NAME
         sys.extensions_location = os.path.join(DIR_NAME, 'plugins')
         sys.resources_location = os.path.join(DIR_NAME, 'resources')
+        dfv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        if dfv and os.path.exists(dfv):
+            sys.path.insert(0, dfv)
 
         executables = %(executables)s
 

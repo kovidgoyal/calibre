@@ -35,6 +35,7 @@ Sections
    xpath
    customize
    cli/cli-index
+   develop
    glossary
 
 

@@ -46,10 +46,16 @@ qt_plugins = os.path.join(os.path.realpath(base_dir), 'MacOS')
 loader_path = os.path.join(dirpath, base_name+'.py')
 loader = open(loader_path, 'w')
 site_packages = glob.glob(resources_dir+'/lib/python*/site-packages.zip')[0]
+devf = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+do_devf = devf and os.path.exists(devf)
+if do_devf:
+    devf = os.path.abspath(devf)
 print >>loader, 'import sys'
 print >>loader, 'sys.argv[0] =', repr(os.path.basename(path))
 print >>loader, 'if', repr(dirpath), 'in sys.path: sys.path.remove(', repr(dirpath), ')'
 print >>loader, 'sys.path.append(', repr(site_packages), ')'
+if do_devf:
+    print >>loader, 'sys.path.insert(0, %r)'%devf
 print >>loader, 'sys.frozen = "macosx_app"'
 print >>loader, 'sys.frameworks_dir =', repr(frameworks_dir)
 print >>loader, 'sys.extensions_location =', repr(extensions_dir)
@@ -319,6 +325,11 @@ os.execv(python, args)
 sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), 'Frameworks')
 sys.resources_location = os.path.join(os.environ['RESOURCEPATH'], 'resources')
 sys.extensions_location = os.path.join(sys.frameworks_dir, 'plugins')
+devf = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+do_devf = devf and os.path.exists(devf)
+if do_devf:
+    devf = os.path.abspath(devf)
+    sys.path.insert(0, devf)
 ''') + r'\n\1', src)
         f = open(launcher_path, 'w')
         print >>f, 'import sys, os'

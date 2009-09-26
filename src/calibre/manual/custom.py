@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 sys.extensions_location = '../plugins'
 sys.resources_location  = '../../../resources'
 
-from sphinx.builder import StandaloneHTMLBuilder
+from sphinx.builders.html import StandaloneHTMLBuilder
 from qthelp import QtHelpBuilder
 from epub import EPUBHelpBuilder
 from sphinx.util import rpartition
