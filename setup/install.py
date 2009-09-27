@@ -95,9 +95,19 @@ class Develop(Command):
         if self.staging_sharedir is None:
             self.staging_sharedir = opts.staging_sharedir = self.j(opts.staging_root, 'share')
 
+        self.staging_libdir = opts.staging_libdir = self.j(self.staging_libdir, 'calibre')
+        self.staging_sharedir = opts.staging_sharedir = self.j(self.staging_sharedir, 'calibre')
+
         if self.__class__.__name__ == 'Develop':
             self.libdir = self.SRC
             self.sharedir = self.RESOURCES
+        else:
+            self.libdir = self.j(self.libdir, 'calibre')
+            self.sharedir = self.j(self.sharedir, 'calibre')
+            self.info('INSTALL paths:')
+            self.info('\tLIB:', self.staging_libdir)
+            self.info('\tSHARE:', self.staging_sharedir)
+
 
     def pre_sub_commands(self, opts):
         if not islinux:
@@ -113,6 +123,7 @@ class Develop(Command):
             c
 
     def run(self, opts):
+        self.manifest = []
         self.opts = opts
         self.regain_privileges()
         self.consolidate_paths()
@@ -140,6 +151,7 @@ class Develop(Command):
         os.chown(dest, 0, 0)
         os.chmod(dest, stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|\
                 stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
+        self.manifest.append(dest)
         return dest
 
     def install_files(self):
@@ -148,7 +160,8 @@ class Develop(Command):
     def run_postinstall(self):
         if self.opts.postinstall:
             from calibre.linux import PostInstall
-            PostInstall(self.opts, info=self.info, warn=self.warn)
+            PostInstall(self.opts, info=self.info, warn=self.warn,
+                    manifest=self.manifest)
 
     def success(self):
         self.info('\nDevelopment environment successfully setup')
@@ -171,6 +184,7 @@ class Develop(Command):
         self.info('Installing binary:', path)
         open(path, 'wb').write(script)
         os.chmod(path, self.MODE)
+        self.manifest.append(path)
 
 
 class Install(Develop):
@@ -224,6 +238,7 @@ class Install(Develop):
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(self.RESOURCES, dest)
+        self.manifest.extend([self.staging_libdir, self.staging_sharedir])
 
     def success(self):
         self.info('\n\ncalibre successfully installed. You can start'

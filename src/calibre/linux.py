@@ -87,7 +87,7 @@ class PostInstall:
             'bin')
         if not self.opts.staging_sharedir:
             self.opts.staging_sharedir = os.path.join(self.opts.staging_root,
-            'etc')
+            'share', 'calibre')
         self.opts.staging_etc = '/etc' if self.opts.staging_root == '/usr' else \
                 os.path.join(self.opts.staging_root, 'etc')
 
@@ -143,16 +143,16 @@ class PostInstall:
             from calibre.utils.smtp import option_parser as smtp_op
             any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
                 'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt']
-            if os.path.exists(os.path.join(self.opts.staging_sharedir,
-                'bash-completion')):
-                f = os.path.join(self.opts.staging_sharedir,
-                    'bash-completion', 'calibre')
+            bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
+                'bash-completion')
+            if os.path.exists(bc):
+                f = os.path.join(bc, 'calibre')
             else:
-                f = os.path.join(self.opts.staging_etc,
-                        'bash_completion.d/calibre')
+                f = os.path.join(self.opts.staging_etc, 'bash_completion.d/calibre')
             if not os.path.exists(os.path.dirname(f)):
                 os.makedirs(os.path.dirname(f))
             self.manifest.append(f)
+            self.info('Installing bash completion to', f)
             with open(f, 'wb') as f:
                 f.write('# calibre Bash Shell Completion\n')
                 f.write(opts_and_exts('calibre', guiop, any_formats))
@@ -359,9 +359,9 @@ def option_parser():
     parser.add_option('--root', dest='staging_root', default='/usr',
             help='Prefix under which to install files')
     parser.add_option('--bindir', default=None, dest='staging_bindir',
-        help='Location where calibre launcher scripts were installed')
+        help='Location where calibre launcher scripts were installed. Typically /usr/bin')
     parser.add_option('--sharedir', default=None, dest='staging_sharedir',
-        help='Location where calibre resources were installed')
+        help='Location where calibre resources were installed, typically /usr/share/calibre')
 
     return parser
 
@@ -446,30 +446,6 @@ def opts_and_exts(name, op, exts):
 }
 complete -o filenames -F _'''%(opts,exts) + name + ' ' + name +"\n\n"
 
-
-def post_install():
-    parser = option_parser()
-    opts = parser.parse_args()[0]
-
-    global use_destdir
-    use_destdir = opts.destdir
-    manifest = []
-
-    try:
-        from PyQt4 import Qt
-        if Qt.PYQT_VERSION < int('0x40402', 16):
-            print 'WARNING: You need PyQt >= 4.4.2 for the GUI. You have', Qt.PYQT_VERSION_STR, '\nYou may experience crashes or other strange behavior.'
-    except ImportError:
-        print 'WARNING: You do not have PyQt4 installed. The GUI will not work.'
-
-    if opts.save_manifest_to:
-        open(opts.save_manifest_to, 'wb').write('\n'.join(manifest)+'\n')
-
-
-def binary_install():
-    manifest = os.path.join(getattr(sys, 'frozen_path'), 'manifest')
-    post_install()
-    return 0
 
 VIEWER = '''\
 [Desktop Entry]
