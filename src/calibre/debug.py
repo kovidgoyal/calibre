@@ -179,8 +179,8 @@ def main(args=sys.argv):
     elif opts.add_simple_plugin is not None:
         add_simple_plugin(opts.add_simple_plugin)
     elif opts.paths:
-        prints('CALIBRE_RESOURCES_LOCATION='+sys.resources_location)
-        prints('CALIBRE_EXTENSIONS_LOCATION='+sys.extensions_location)
+        prints('CALIBRE_RESOURCES_PATH='+sys.resources_location)
+        prints('CALIBRE_EXTENSIONS_PATH='+sys.extensions_location)
         prints('CALIBRE_PYTHON_PATH='+os.pathsep.join(sys.path))
     elif opts.pdfreflow:
         from calibre.ebooks.pdf.reflow import option_parser as px, run

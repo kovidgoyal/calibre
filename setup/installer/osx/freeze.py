@@ -21,6 +21,8 @@ info = warn = None
 
 class OSX32_Freeze(Command):
 
+    description = 'Freeze OSX calibre installation'
+
     def run(self, opts):
         global info, warn
         info, warn = self.info, self.warn

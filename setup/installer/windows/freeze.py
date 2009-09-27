@@ -52,6 +52,8 @@ info = warn = None
 
 class Win32Freeze(Command):
 
+    description = 'Freeze windows calibre installation'
+
     def run(self, opts):
         global info, warn
         info, warn = self.info, self.warn

@@ -27,6 +27,7 @@ int get_root() {
 int do_mount(char *dev, char *mp) {
     char options[1000];
     char marker[2000];
+    int errsv;
     if (exists(dev) == 0) {
         fprintf(stderr, "Specified device node does not exist\n");
         return EXIT_FAILURE;
@@ -55,19 +56,19 @@ int do_mount(char *dev, char *mp) {
         return EXIT_FAILURE;
     }
     execlp("mount", "mount", "-t", "vfat", "-o", options, dev, mp, NULL);
-    int errsv = errno;
+    errsv = errno;
     fprintf(stderr, "Failed to mount with error: %s\n", strerror(errsv));
     return EXIT_FAILURE;
 }
 
 int do_eject(char *dev, char*mp) {
     char marker[2000];
-    int status = EXIT_FAILURE, ret;
+    int status = EXIT_FAILURE, ret, pid, errsv, i, rmd;
     if (get_root() != 0) {
         fprintf(stderr, "Failed to elevate to root privileges\n");
         return EXIT_FAILURE;
     }
-    int pid = fork();
+    pid = fork();
     if (pid == -1) {
         fprintf(stderr, "Failed to fork\n");
         return EXIT_FAILURE;
@@ -78,11 +79,10 @@ int do_eject(char *dev, char*mp) {
             return EXIT_FAILURE;
         }
         execlp("eject", "eject", "-s", dev, NULL);
-        int errsv = errno;
+        errsv = errno;
         fprintf(stderr, "Failed to eject with error: %s\n", strerror(errsv));
         return EXIT_FAILURE;
     } else {
-        int i;
         for (i =0; i < 7; i++) {
             sleep(1);
             ret = waitpid(pid, &status, WNOHANG);
@@ -99,7 +99,7 @@ int do_eject(char *dev, char*mp) {
                     fprintf(stderr, "Failed to unlink marker: %s\n", strerror(errno));
                     return EXIT_FAILURE;
                 }
-                int rmd = rmdir(mp);
+                rmd = rmdir(mp);
                 if (rmd == -1) {
                     fprintf(stderr, "Failed to remove mount point: %s\n", strerror(errno));
                     return EXIT_FAILURE;

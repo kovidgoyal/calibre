@@ -24,6 +24,8 @@ def get_opts_from_parser(parser):
 
 class Resources(Command):
 
+    description = 'Compile various needed calibre resources'
+
     def get_recipes(self):
         sdir = os.path.join('src', 'calibre', 'web', 'feeds', 'recipes')
         resources= {}

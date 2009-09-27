@@ -175,6 +175,8 @@ if iswindows:
 
 class Build(Command):
 
+    short_description = 'Build calibre C/C++ extension modules'
+
     description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
         This command will compile them. You can influence the compile

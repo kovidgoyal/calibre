@@ -37,6 +37,8 @@ def check_for_python_errors(filename, builtins):
 
 class Check(Command):
 
+    description = 'Check for errors in the calibre source code'
+
     BUILTINS = ['_', '__', 'dynamic_property', 'I', 'P']
     CACHE = '.check-cache.pickle'
 

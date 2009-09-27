@@ -127,6 +127,8 @@ class UploadDemo(Command):
 
 class UploadToServer(Command):
 
+    description = 'Upload miscellaneous data to calibre server'
+
     def run(self, opts):
         check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS, shell=True)
         check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS, shell=True)
