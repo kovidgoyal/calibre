@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, shutil, cPickle, textwrap
+import sys, os, shutil, cPickle, textwrap, stat
 from subprocess import check_call
 
 from calibre import __version__, __appname__, prints
@@ -40,13 +40,14 @@ UNINSTALL = '''\
 #!{python}
 euid = {euid}
 
-import os
+import os, subprocess, shutil
 
 if os.geteuid() != euid:
     print 'WARNING: uninstaller must be run as', euid, 'to remove all files'
 
 for x in {manifest!r}:
     if not os.path.exists(x): continue
+    print 'Removing', x
     try:
         if os.path.isdir(x):
             shutil.rmtree(x)
@@ -55,6 +56,24 @@ for x in {manifest!r}:
     except Exception, e:
         print 'Failed to delete', x
         print '\t', e
+
+icr = {icon_resources!r}
+for context, name, size in icr:
+    cmd = ['xdg-icon-resource', 'uninstall', '--context', context, '--size', size, name]
+    if (context, name) != icr[-1]:
+        cmd.insert(2, '--noupdate')
+    ret = subprocess.call(cmd)
+    if ret != 0:
+        print 'WARNING: Failed to remove icon', name
+
+mr = {menu_resources!r}
+for f in mr:
+    cmd = ['xdg-desktop-menu', 'uninstall', f]
+    ret = subprocess.call(cmd)
+    if ret != 0:
+        print 'WARNING: Failed to remove menu item', f
+
+os.remove(os.path.abspath(__file__))
 '''
 
 class PostInstall:
@@ -113,6 +132,7 @@ class PostInstall:
         self.setup_udev_rules()
         self.install_man_pages()
         self.setup_desktop_integration()
+        self.create_uninstaller()
 
         from calibre.utils.config import config_dir
         if os.path.exists(config_dir):
@@ -128,6 +148,22 @@ class PostInstall:
             for args, kwargs in self.warnings:
                 self.info('*', *args, **kwargs)
                 print
+
+    def create_uninstaller(self):
+        dest = os.path.join(self.opts.staging_bindir, 'calibre-uninstall')
+        raw = UNINSTALL.format(python=os.path.abspath(sys.executable), euid=os.geteuid(),
+                manifest=self.manifest, icon_resources=self.icon_resources,
+                menu_resources=self.menu_resources)
+        try:
+            with open(dest, 'wb') as f:
+                f.write(raw)
+            os.chmod(dest, stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
+            if os.geteuid() == 0:
+                os.chown(dest, 0, 0)
+        except:
+            if self.opts.fatal_errors:
+                raise
+            self.task_failed('Creating uninstaller failed')
 
 
     def setup_completion(self):
@@ -311,15 +347,16 @@ class PostInstall:
                 os.chdir(tdir)
                 render_svg(QFile(I('mimetypes/lrf.svg')), os.path.join(tdir, 'calibre-lrf.png'))
                 check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-lrf'))
+                self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
                 check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-lrs'))
+                self.icon_resources.append(('mimetypes', 'application-lrs',
+                '128'))
                 QFile(I('library.png')).copy(os.path.join(tdir, 'calibre-gui.png'))
                 check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
-                self.icon_resources.append(('apps', 'calibre-gui'))
+                self.icon_resources.append(('apps', 'calibre-gui', '128'))
                 render_svg(QFile(I('viewer.svg')), os.path.join(tdir, 'calibre-viewer.png'))
                 check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-                self.icon_resources.append(('apps', 'calibre-viewer'))
+                self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
                 f = open('calibre-lrfviewer.desktop', 'wb')
                 f.write(VIEWER)

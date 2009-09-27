@@ -74,6 +74,11 @@ class Develop(Command):
         opts = self.opts
         if not opts.prefix:
             opts.prefix = sys.prefix
+        for x in ('prefix', 'libdir', 'bindir', 'sharedir', 'staging_root',
+                'staging_libdir', 'staging_bindir', 'staging_sharedir'):
+            o = getattr(opts, x, None)
+            if o:
+                setattr(opts, x, os.path.abspath(o))
         self.libdir = getattr(opts, 'libdir', None)
         if self.libdir is None:
             self.libdir = self.j(opts.prefix, 'lib')
@@ -226,6 +231,8 @@ class Install(Develop):
         dest = self.staging_libdir
         if os.path.exists(dest):
             shutil.rmtree(dest)
+        self.info('Installing code to', dest)
+        self.manifest.append(dest)
         for x in os.walk(self.SRC):
             reldir = os.path.relpath(x[0], self.SRC)
             destdir = os.path.join(dest, reldir)
@@ -237,8 +244,9 @@ class Install(Develop):
         dest = self.staging_sharedir
         if os.path.exists(dest):
             shutil.rmtree(dest)
+        self.info('Installing resources to', dest)
         shutil.copytree(self.RESOURCES, dest)
-        self.manifest.extend([self.staging_libdir, self.staging_sharedir])
+        self.manifest.append(dest)
 
     def success(self):
         self.info('\n\ncalibre successfully installed. You can start'
