@@ -26,10 +26,16 @@ BLOCK_TAGS = [
     'h5',
     'h6',
     'li',
+    'tr',
 ]
 
 BLOCK_STYLES = [
     'block',
+]
+
+SPACE_TAGS = [
+    'span',
+    'td',
 ]
 
 class TXTMLizer(object):
@@ -169,6 +175,10 @@ class TXTMLizer(object):
             in_block = True
             if not end.endswith(u'\n\n') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
                 text.append(u'\n\n')
+
+        if tag in SPACE_TAGS:
+            if not end.endswith('u ') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+                text.append(u' ')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
