@@ -19,8 +19,7 @@ class Danas(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = False
     use_embedded_content  = False
-    language = 'sr'
-
+    language              = 'sr'
     lang                  = 'sr-Latn-RS'
     direction             = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif}'
@@ -29,7 +28,7 @@ class Danas(BasicNewsRecipe):
                           'comment'          : description
                         , 'tags'             : category
                         , 'publisher'        : publisher
-                        , 'language'         : lang
+                        , 'language'         : language
                         , 'pretty_print'     : True
                         }
 
@@ -43,7 +42,10 @@ class Danas(BasicNewsRecipe):
                     ,dict(name=['object','link'])
                   ]
 
-    feeds          = [ (u'Vesti', u'http://www.danas.rs/rss/rss.asp')]
+    feeds          = [ 
+                        (u'Vesti'   , u'http://www.danas.rs/rss/rss.asp'            )
+                       ,(u'Periskop', u'http://www.danas.rs/rss/rss.asp?column_id=4')
+                     ]
 
     def preprocess_html(self, soup):
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])

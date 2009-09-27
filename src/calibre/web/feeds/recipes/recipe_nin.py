@@ -7,6 +7,7 @@ nin.co.rs
 '''
 
 import re, urllib
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
@@ -25,10 +26,8 @@ class Nin(BasicNewsRecipe):
     PREFIX                 = 'http://www.nin.co.rs'
     INDEX                  = PREFIX + '/?change_lang=ls'
     LOGIN                  = PREFIX + '/?logout=true'
-    FEED                   = PREFIX + '/misc/rss.php?feed=RSS2.0'
     use_embedded_content   = False
-    language = 'sr'
-
+    language               = 'sr'
     lang                   = 'sr-Latn-RS'
     direction              = 'ltr'
     extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: sans1, sans-serif} .artTitle{font-size: x-large; font-weight: bold} .columnhead{font-size: small; font-weight: bold}'
@@ -37,7 +36,7 @@ class Nin(BasicNewsRecipe):
                           'comment'          : description
                         , 'tags'             : category
                         , 'publisher'        : publisher
-                        , 'language'         : lang
+                        , 'language'         : language
                         , 'pretty_print'     : True
                         }
 
@@ -57,12 +56,11 @@ class Nin(BasicNewsRecipe):
 
     keep_only_tags    =[dict(name='td', attrs={'width':'520'})]
     remove_tags_after =dict(name='html')
-    feeds             =[(u'NIN', FEED)]
 
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
-        link_item = soup.find('img',attrs={'width':'100','height':'137','border':'0'})
+        link_item = soup.find('img',attrs={'width':'100','border':'0'})
         if link_item:
            cover_url = self.PREFIX + link_item['src']
         return cover_url
@@ -71,7 +69,7 @@ class Nin(BasicNewsRecipe):
         soup.html['lang'] = self.lang
         soup.html['dir' ] = self.direction
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         attribs = [  'style','font','valign'
@@ -87,6 +85,28 @@ class Nin(BasicNewsRecipe):
                    del item[attrib]
         return soup
 
-    def get_article_url(self, article):
-        raw = article.get('link',  None)
-        return raw.replace('.co.yu','.co.rs')
+    def parse_index(self):
+        articles = []
+        soup = self.index_to_soup(self.PREFIX)
+        for item in soup.findAll('a',attrs={'class':'lmeninavFont'}):
+            section  = self.tag_to_string(item)
+            feedlink = self.PREFIX + item['href']
+            feedpage = self.index_to_soup(feedlink)
+            self.report_progress(0, _('Fetching feed')+' %s...'%(section))            
+            inarts   = []
+            for art in feedpage.findAll('span',attrs={'class':'artTitle'}):
+                alink = art.parent
+                url   = self.PREFIX + alink['href']
+                title = self.tag_to_string(art)
+                sparent = alink.parent
+                alink.extract()
+                description = self.tag_to_string(sparent)
+                date = strftime(self.timefmt)
+                inarts.append({
+                                  'title'      :title
+                                 ,'date'       :date
+                                 ,'url'        :url
+                                 ,'description':description
+                                })
+            articles.append((section,inarts))
+        return articles
