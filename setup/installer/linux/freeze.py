@@ -83,8 +83,7 @@ class LinuxFreeze(Command):
         self.info('Freezing calibre located at', CALIBRESRC)
 
         entry_points = entry_points['console_scripts'] + entry_points['gui_scripts']
-        entry_points = ['calibre_postinstall=calibre.linux:binary_install',
-                        'calibre-parallel=calibre.parallel:main'] + entry_points
+        entry_points = ['calibre_postinstall=calibre.linux:main'] + entry_points
         executables = {}
         for ep in entry_points:
             executables[ep.split('=')[0].strip()] = (ep.split('=')[1].split(':')[0].strip(),
@@ -253,7 +252,6 @@ class LinuxFreeze(Command):
 
         exes = list(executables.keys())
         exes.remove('calibre_postinstall')
-        exes.remove('calibre-parallel')
         open(os.path.join(FREEZE_DIR, 'manifest'), 'wb').write('\n'.join(exes))
 
         self.info('Creating archive...')
