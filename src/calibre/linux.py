@@ -286,9 +286,13 @@ class PostInstall:
         self.info('Trying to setup udev rules...')
         try:
             group_file = os.path.join(self.opts.staging_etc, 'group')
+            if not os.path.exists(group_file):
+                group_file = '/etc/group'
             groups = open(group_file, 'rb').read()
             group = 'plugdev' if 'plugdev' in groups else 'usb'
             old_udev = '/etc/udev/rules.d/95-calibre.rules'
+            if not os.path.exists(old_udev):
+                old_udev = os.path.join(self.opts.staging_etc, 'udev/rules.d/95-calibre.rules')
             if os.path.exists(old_udev):
                 os.remove(old_udev)
             if self.opts.staging_root == '/usr':
