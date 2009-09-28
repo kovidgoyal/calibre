@@ -711,6 +711,14 @@ class Device(DeviceConfig, DevicePlugin):
         fname = sanitize(fname)
         extra_components.append(fname)
         extra_components = [str(x) for x in extra_components]
+        def remove_trailing_periods(x):
+            ans = x
+            while ans.endswith('.'):
+                ans = ans[:-1]
+            if not ans:
+                ans = 'x'
+            return ans
+        extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(250 - len(path), extra_components)
         filepath = os.path.join(path, *components)
         filedir = os.path.dirname(filepath)
