@@ -111,7 +111,7 @@ class Command(object):
         self.b = os.path.basename
         self.s = os.path.splitext
         self.e = os.path.exists
-        self.orig_euid = os.geteuid()
+        self.orig_euid = os.geteuid() if hasattr(os, 'geteuid') else None
         self.real_uid = os.environ.get('SUDO_UID', None)
         self.real_gid = os.environ.get('SUDO_GID', None)
         self.real_user = os.environ.get('SUDO_USER', None)

@@ -365,16 +365,14 @@ class ResultCache(SearchQueryParser):
         self._map_filtered = [id for id in self._map if id in matches]
 
 
-class Tag(unicode):
+class Tag(object):
 
-    def __new__(cls, *args):
-        obj = super(Tag, cls).__new__(cls, *args)
-        obj.count = 0
-        obj.state = 0
-        return obj
+    def __init__(self, name, id=None, count=0, state=0):
+        self.name = name
+        self.id = id
+        self.count = count
+        self.state = state
 
-    def as_string(self):
-        return u'[%d] %s'%(self.count, self)
 
 class LibraryDatabase2(LibraryDatabase):
     '''
@@ -987,15 +985,19 @@ class LibraryDatabase2(LibraryDatabase):
             tags = categories[category]
             if name != 'data':
                 for tag in tags:
-                    id = self.conn.get('SELECT id FROM %s WHERE %s=?'%(name, field), (tag,), all=False)
+                    id = self.conn.get('SELECT id FROM %s WHERE %s=?'%(name,
+                        field), (tag.name,), all=False)
                     tag.id = id
                 for tag in tags:
                     if tag.id is not None:
                         tag.count = self.conn.get('SELECT COUNT(id) FROM books_%s_link WHERE %s=?'%(name, category), (tag.id,), all=False)
             else:
                 for tag in tags:
-                    tag.count = self.conn.get('SELECT COUNT(format) FROM data WHERE format=?', (tag,), all=False)
-            tags.sort(reverse=sort_on_count, cmp=(lambda x,y:cmp(x.count,y.count)) if sort_on_count else cmp)
+                    tag.count = self.conn.get('SELECT COUNT(format) FROM data WHERE format=?',
+                            (tag.name,), all=False)
+            tags.sort(reverse=sort_on_count, cmp=(lambda
+                x,y:cmp(x.count,y.count)) if sort_on_count else (lambda
+                    x,y:cmp(x.name, y.name)))
         for x in (('authors', 'author'), ('tags', 'tag'), ('publishers', 'publisher'),
                   ('series', 'series')):
             get(*x)
@@ -1011,7 +1013,7 @@ class LibraryDatabase2(LibraryDatabase):
                 pass
             categories['news'] = list(map(Tag, newspapers))
             for tag in categories['news']:
-                tag.count = self.conn.get('SELECT COUNT(id) FROM books_tags_link WHERE tag IN (SELECT DISTINCT id FROM tags WHERE name=?)', (tag,), all=False)
+                tag.count = self.conn.get('SELECT COUNT(id) FROM books_tags_link WHERE tag IN (SELECT DISTINCT id FROM tags WHERE name=?)', (tag.name,), all=False)
 
         return categories
 
