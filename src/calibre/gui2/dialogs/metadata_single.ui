@@ -378,7 +378,7 @@
                  <item row="9" column="1" colspan="2">
                   <widget class="QDateEdit" name="date">
                    <property name="displayFormat">
-                    <string>MMM yyyy</string>
+                    <string>dd MMM yyyy</string>
                    </property>
                    <property name="calendarPopup">
                     <bool>true</bool>
