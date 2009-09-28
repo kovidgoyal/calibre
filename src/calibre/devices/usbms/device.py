@@ -564,13 +564,13 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 self.open_windows()
             except DeviceError:
-                time.sleep(3)
+                time.sleep(5)
                 self.open_windows()
         if isosx:
             try:
                 self.open_osx()
             except DeviceError:
-                time.sleep(3)
+                time.sleep(7)
                 self.open_osx()
 
     def eject_windows(self):

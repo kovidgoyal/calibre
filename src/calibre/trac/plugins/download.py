@@ -186,7 +186,7 @@ else:
             data = dict(version = version, name='osx',
                 installer_name='OS X universal dmg',
                 title='Download %s for OS X'%(__appname__),
-                compatibility='%s works on OS X Tiger and Leopard, but not Snow Leopard (It might work on Snow Leopard if run with Rosetta).'%(__appname__,),
+                compatibility='%s works on OS X Tiger, Leopard, and Snow Leopard.'%(__appname__,),
                 path=MOBILEREAD+file, app=__appname__,
                 note=Markup(\
     u'''
