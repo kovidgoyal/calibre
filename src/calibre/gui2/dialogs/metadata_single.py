@@ -280,6 +280,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
         self.pubdate.setMinimumDate(QDate(100,1,1))
+        self.date.setMinimumDate(QDate(100,1,1))
+
         self.connect(self.cover, SIGNAL('cover_changed(PyQt_PyObject)'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
@@ -325,6 +327,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         pubdate = db.pubdate(self.id, index_is_id=True)
         self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
             pubdate.day))
+        timestamp = db.timestamp(self.id, index_is_id=True)
+        self.date.setDate(QDate(timestamp.year, timestamp.month,
+            timestamp.day))
 
         exts = self.db.formats(row)
         if exts:
@@ -567,6 +572,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
             self.db.set_pubdate(self.id, datetime(d.year(), d.month(), d.day()))
+            d = self.date.date()
+            self.db.set_timestamp(self.id, datetime(d.year(), d.month(), d.day()))
 
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.id, self.cover_data)
