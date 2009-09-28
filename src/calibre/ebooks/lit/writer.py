@@ -152,7 +152,11 @@ class ReBinary(object):
     def write(self, *values):
         for value in values:
             if isinstance(value, (int, long)):
-                value = unichr(value)
+                try:
+                    value = unichr(value)
+                except OverflowError:
+                    self.logger.warn('Unicode overflow for integer:', value)
+                    value = u'?'
             self.buf.write(value.encode('utf-8'))
 
     def is_block(self, style):
