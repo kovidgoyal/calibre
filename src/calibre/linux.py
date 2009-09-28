@@ -294,7 +294,11 @@ class PostInstall:
             if not os.path.exists(old_udev):
                 old_udev = os.path.join(self.opts.staging_etc, 'udev/rules.d/95-calibre.rules')
             if os.path.exists(old_udev):
-                os.remove(old_udev)
+                try:
+                    os.remove(old_udev)
+                except:
+                    self.warn('Old udev rules found, please delete manually:',
+                            old_udev)
             if self.opts.staging_root == '/usr':
                 base = '/lib'
             else:
