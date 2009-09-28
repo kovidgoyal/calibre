@@ -176,7 +176,7 @@ class TextBlock(etree.XSLTExtension):
 
     def process_child(self, child):
         if child.tag == 'CR':
-            if self.parent == self.root:
+            if self.parent == self.root or self.parent.tag == 'p':
                 self.parent = self.root.makeelement('p')
                 self.root.append(self.parent)
                 self.add_text_to = (self.parent, 'text')
@@ -365,6 +365,8 @@ class LRFInput(InputFormatPlugin):
         d = LRFDocument(stream)
         d.parse()
         xml = d.to_xml(write_files=True)
+        if options.verbose > 2:
+            open('lrs.xml', 'wb').write(xml.encode('utf-8'))
         parser = etree.XMLParser(recover=True, no_network=True)
         doc = etree.fromstring(xml, parser=parser)
         char_button_map = {}
