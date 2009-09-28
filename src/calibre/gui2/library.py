@@ -717,7 +717,7 @@ class BooksView(TableView):
             self.setItemDelegateForColumn(cm.index('series'), self.series_delegate)
 
     def set_context_menu(self, edit_metadata, send_to_device, convert, view,
-                         save, open_folder, book_details, similar_menu=None):
+                         save, open_folder, book_details, delete, similar_menu=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = QMenu(self)
         if edit_metadata is not None:
@@ -730,6 +730,8 @@ class BooksView(TableView):
         self.context_menu.addAction(save)
         if open_folder is not None:
             self.context_menu.addAction(open_folder)
+        if delete is not None:
+            self.context_menu.addAction(delete)
         if book_details is not None:
             self.context_menu.addAction(book_details)
         if similar_menu is not None:
