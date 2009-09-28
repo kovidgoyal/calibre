@@ -648,7 +648,7 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
-"Antall farger for konvertering til grå-skalering.  Standard %standard. "
+"Antall farger for konvertering til grå-skalering.  Standard %default. "
 "Verdier på mindre enn 256 kan resultere i uskarp tekst i enheten din dersom "
 "du oppretter dine tegneserier til EPUB format."
 
@@ -1342,7 +1342,7 @@ msgid ""
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
 "Gjennomsnittlig linjelengde for linjebryting dersom HTML filen er fra en "
-"tidligere delvis konvertering fra en PDF fil. Standard er %standard som slår "
+"tidligere delvis konvertering fra en PDF fil. Standard er %default som slår "
 "av dette valget."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
