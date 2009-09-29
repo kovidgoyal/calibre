@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Salon_com(BasicNewsRecipe):
     title = 'Salon.com'
     __author__ = 'cix3'
@@ -23,19 +24,23 @@ class Salon_com(BasicNewsRecipe):
     remove_tags_before = dict(name='h2')
 
     feeds = [
-        ('All News & Politics', 'http://feeds.salon.com/salon/news'),
+        ('News & Politics', 'http://feeds.salon.com/salon/news'),
         ('War Room', 'http://feeds.salon.com/salon/war_room'),
-        ('All Arts & Entertainment', 'http://feeds.salon.com/salon/ent'),
+        ('Arts & Entertainment', 'http://feeds.salon.com/salon/ent'),
         ('I Like to Watch', 'http://feeds.salon.com/salon/iltw'),
+        ('Beyond Multiplex', 'http://feeds.salon.com/salon/btm'),
         ('Book Reviews', 'http://feeds.salon.com/salon/books'),
-        ('All Life stories', 'http://feeds.salon.com/salon/mwt'),
-        ('Broadsheet', 'http://feeds.salon.com/salon/broadsheet'),
+        ('All Life', 'http://feeds.salon.com/salon/mwt'),
         ('All Opinion', 'http://feeds.salon.com/salon/opinion'),
+        ('Glenn Greenwald', 'http://feeds.salon.com/salon/greenwald'),
+        ('Garrison Keillor', 'http://dir.salon.com/topics/garrison_keillor/index.rss'),
+        ('Joan Walsh', 'http://www.salon.com/rss/walsh.rss'),
         ('All Sports', 'http://feeds.salon.com/salon/sports'),
-        ('All Tech & Business', 'http://feeds.salon.com/salon/tech'),
-        ('Ask the Pilot', 'http://feeds.salon.com/salon/ask_the_pilot'),
-        ('How the World Works', 'http://feeds.salon.com/salon/htww')
+        ('Tech & Business', 'http://feeds.salon.com/salon/tech'),
+        ('How World Works', 'http://feeds.salon.com/salon/htww')
             ]
 
     def print_version(self, url):
         return url.replace('/index.html', '/print.html')
+
+
