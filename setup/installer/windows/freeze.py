@@ -194,8 +194,8 @@ class BuildEXE(bc):
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
         print '\tAdding poppler'
-        for x in (r'utils\Release\pdftohtml.exe',):
-            shutil.copyfile(os.path.join(POPPLER, x),
+        for x in (r'pdftohtml.exe', 'freetype.dll'):
+            shutil.copyfile(os.path.join(r'C:\cygwin\home\kovid\poppler-old\bin', x),
                     os.path.join(PY2EXE_DIR, os.path.basename(x)))
         for x in ('jpeg62', 'zlib1', 'libpng12'):
             shutil.copy2(os.path.join(GNUWIN32, 'bin', x+'.dll'), PY2EXE_DIR)
