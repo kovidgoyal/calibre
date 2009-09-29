@@ -176,7 +176,11 @@ class TagsModel(QAbstractItemModel):
         else:
             parent_item = parent.internalPointer()
 
-        child_item = parent_item.children[row]
+        try:
+            child_item = parent_item.children[row]
+        except IndexError:
+            return QModelIndex()
+
         ans = self.createIndex(row, column, child_item)
         return ans
 
