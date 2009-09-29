@@ -253,6 +253,10 @@ os.execv(python, args)
             dest = os.path.join(frameworks_dir, os.path.basename(x))
             popps.append(dest)
             shutil.copy2(os.path.join('/Volumes/sw', x), dest)
+        subprocess.check_call(['install_name_tool', '-change',
+            '/usr/local/lib/libfontconfig.1.dylib',
+            '@executable_path/../Frameworks/libfontconfig.1.dylib',
+            os.path.join(frameworks_dir, 'pdftohtml')])
         x ='libpng12.0.dylib'
         shutil.copy2('/usr/local/lib/'+x, frameworks_dir)
         subprocess.check_call(['install_name_tool', '-id',
