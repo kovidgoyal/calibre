@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cStringIO, re
+import os
 
 from setup import Command, __appname__
 
@@ -17,6 +17,8 @@ class GUI(Command):
 
     @classmethod
     def find_forms(cls):
+        from calibre.gui2 import find_forms
+        return find_forms(cls.SRC)
         forms = []
         for root, _, files in os.walk(cls.PATH):
             for name in files:
@@ -27,7 +29,8 @@ class GUI(Command):
 
     @classmethod
     def form_to_compiled_form(cls, form):
-        return form.rpartition('.')[0]+'_ui.py'
+        from calibre.gui2 import form_to_compiled_form
+        return form_to_compiled_form(form)
 
     def run(self, opts):
         self.build_forms()
@@ -53,38 +56,8 @@ class GUI(Command):
 
 
     def build_forms(self):
-        from PyQt4.uic import compileUi
-        forms = self.find_forms()
-        pat = re.compile(r'''(['"]):/images/([^'"]+)\1''')
-        def sub(match):
-            ans = 'I(%s%s%s)'%(match.group(1), match.group(2), match.group(1))
-            return ans
-
-        for form in forms:
-            compiled_form = self.form_to_compiled_form(form)
-            if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
-                self.info('\tCompiling form', form)
-                buf = cStringIO.StringIO()
-                compileUi(form, buf)
-                dat = buf.getvalue()
-                dat = dat.replace('__appname__', __appname__)
-                dat = dat.replace('import images_rc', '')
-                dat = dat.replace('from library import', 'from calibre.gui2.library import')
-                dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
-                dat = dat.replace('from convert.xpath_wizard import',
-                    'from calibre.gui2.convert.xpath_wizard import')
-                dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
-                dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
-                dat = pat.sub(sub, dat)
-
-                if form.endswith('viewer%smain.ui'%os.sep):
-                    self.info('\t\tPromoting WebView')
-                    dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                    dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
-                    dat += '\nQtWebKit'
-
-                open(compiled_form, 'wb').write(dat)
-
+        from calibre.gui2 import build_forms
+        build_forms(self.SRC, info=self.info)
 
     def clean(self):
         forms = self.find_forms()

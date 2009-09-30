@@ -12,6 +12,8 @@ from setup.installer import VMInstaller
 
 class OSX(Command):
 
+    description = 'Build OS X binary installers'
+
     sub_commands = ['osx32']
 
     def run(self, opts):
@@ -19,6 +21,8 @@ class OSX(Command):
 
 
 class OSX32(VMInstaller):
+
+    description = 'Build 32 bit OS X binary installer'
 
     INSTALLER_EXT = 'dmg'
     VM_NAME = 'tiger_build'

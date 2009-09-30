@@ -14,6 +14,8 @@ from setup.installer.windows import build_installer
 
 class Win(Command):
 
+    description = 'Build windows binary installers'
+
     sub_commands = ['win32']
 
     def run(self, opts):
@@ -21,6 +23,8 @@ class Win(Command):
 
 
 class Win32(VMInstaller):
+
+    description = 'Build 32bit windows binary installer'
 
     INSTALLER_EXT = 'exe'
     VM_NAME = 'xp_build'

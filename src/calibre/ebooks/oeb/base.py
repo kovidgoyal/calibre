@@ -912,23 +912,27 @@ class Manifest(object):
                 if key == 'lang' or key.endswith('}lang'):
                     body.attrib.pop(key)
 
+            def remove_elem(a):
+                p = a.getparent()
+                idx = p.index(a) -1
+                p.remove(a)
+                if a.tail:
+                    if idx <= 0:
+                        if p.text is None:
+                            p.text = ''
+                        p.text += a.tail
+                    else:
+                        if p[idx].tail is None:
+                            p[idx].tail = ''
+                        p[idx].tail += a.tail
+
             # Remove hyperlinks with no content as they cause rendering
             # artifacts in browser based renderers
-            for a in xpath(data, '//h:a[@href]'):
+            # Also remove empty <b> and <i> tags
+            for a in xpath(data, '//h:a[@href]|//h:i|//h:b'):
                 if a.get('id', None) is None and a.get('name', None) is None \
                         and len(a) == 0 and not a.text:
-                    p = a.getparent()
-                    idx = p.index(a) -1
-                    p.remove(a)
-                    if a.tail:
-                        if idx <= 0:
-                            if p.text is None:
-                                p.text = ''
-                            p.text += a.tail
-                        else:
-                            if p[idx].tail is None:
-                                p[idx].tail = ''
-                            p[idx].tail += a.tail
+                    remove_elem(a)
 
             return data
 

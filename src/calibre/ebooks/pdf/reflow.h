@@ -8,6 +8,14 @@
 #define CALIBRE_REFLOW
 #define UNICODE
 
+#ifdef _WIN32 
+#include <poppler/Object.h>
+#elif defined(_OSX)
+#include <poppler/Object.h>
+#else
+#include <Object.h>
+#endif
+
 #include <PDFDoc.h>
 #include <GlobalParams.h>
 #include <GfxState.h>
@@ -23,7 +31,6 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 #include <iomanip>
 #include <map>
 #include <errno.h>
@@ -49,6 +56,7 @@ class Reflow {
         char *pdfdata;
         double current_font_size;
         PDFDoc *doc;
+        Object obj;
 
         string decode_info_string(Dict *info, const char *key) const;
         void outline_level(ostringstream *oss, GooList *items,
@@ -76,6 +84,9 @@ class Reflow {
 
         /* Set the info dictionary. Currently broken. */
         string set_info(map<char *, char *> info);
+
+        /* Number of pages in the document */
+        int numpages() { return this->doc->getNumPages(); }
 };
 
 class XMLString {

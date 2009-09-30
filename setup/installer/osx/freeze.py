@@ -21,6 +21,8 @@ info = warn = None
 
 class OSX32_Freeze(Command):
 
+    description = 'Freeze OSX calibre installation'
+
     def run(self, opts):
         global info, warn
         info, warn = self.info, self.warn
@@ -46,10 +48,16 @@ qt_plugins = os.path.join(os.path.realpath(base_dir), 'MacOS')
 loader_path = os.path.join(dirpath, base_name+'.py')
 loader = open(loader_path, 'w')
 site_packages = glob.glob(resources_dir+'/lib/python*/site-packages.zip')[0]
+devf = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+do_devf = devf and os.path.exists(devf)
+if do_devf:
+    devf = os.path.abspath(devf)
 print >>loader, 'import sys'
 print >>loader, 'sys.argv[0] =', repr(os.path.basename(path))
 print >>loader, 'if', repr(dirpath), 'in sys.path: sys.path.remove(', repr(dirpath), ')'
 print >>loader, 'sys.path.append(', repr(site_packages), ')'
+if do_devf:
+    print >>loader, 'sys.path.insert(0, '+repr(devf)+')'
 print >>loader, 'sys.frozen = "macosx_app"'
 print >>loader, 'sys.frameworks_dir =', repr(frameworks_dir)
 print >>loader, 'sys.extensions_location =', repr(extensions_dir)
@@ -195,6 +203,11 @@ os.execv(python, args)
             for f in x[-1]:
                 if f.endswith('.so'):
                     modules.append(os.path.join(x[0], f))
+        for x in os.walk(os.path.join(frameworks_dir, 'plugins')):
+            for f in x[-1]:
+                if f.endswith('.so'):
+                    modules.append(os.path.join(x[0], f))
+
         deps = {}
         for x in ('Core.1', 'Wand.1'):
             modules.append(os.path.join(root, 'lib', 'libMagick%s.dylib'%x))
@@ -235,12 +248,25 @@ os.execv(python, args)
         shutil.copyfile(pdf, os.path.join(frameworks_dir, os.path.basename(pdf)))
 
         info('\nAdding poppler')
-        for x in ('pdftohtml', 'libpoppler.4.dylib', 'libpoppler-qt4.3.dylib'):
-            tgt = os.path.join(frameworks_dir, x)
-            os.link(os.path.join(os.path.expanduser('~/poppler'), x), tgt)
-            self.fix_qt_dependencies(tgt, self.qt_dependencies(tgt))
-
-
+        popps = []
+        for x in ('bin/pdftohtml', 'lib/libpoppler.5.dylib'):
+            dest = os.path.join(frameworks_dir, os.path.basename(x))
+            popps.append(dest)
+            shutil.copy2(os.path.join('/Volumes/sw', x), dest)
+        subprocess.check_call(['install_name_tool', '-change',
+            '/usr/local/lib/libfontconfig.1.dylib',
+            '@executable_path/../Frameworks/libfontconfig.1.dylib',
+            os.path.join(frameworks_dir, 'pdftohtml')])
+        x ='libpng12.0.dylib'
+        shutil.copy2('/usr/local/lib/'+x, frameworks_dir)
+        subprocess.check_call(['install_name_tool', '-id',
+            '@executable_path/../Frameworks/'+x, os.path.join(frameworks_dir, x)])
+        self.fix_misc_dependencies(popps)
+        subprocess.check_call(['install_name_tool', '-change',
+        '/usr/local/lib/libfontconfig.1.dylib',
+        '@executable_path/../Frameworks/libfontconfig.1.dylib', popps[1]])
+        subprocess.check_call(['install_name_tool', '-id',
+        '@executable_path/../Frameworks/'+os.path.basename(popps[1]), popps[1]])
 
         loader_path = os.path.join(resource_dir, 'loaders')
         if not os.path.exists(loader_path):
@@ -286,6 +312,9 @@ os.execv(python, args)
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(os.path.expanduser('~/ImageMagick'), dest, True)
+        shutil.rmtree(os.path.join(dest, 'include'))
+        shutil.rmtree(os.path.join(dest, 'share', 'doc'))
+        shutil.rmtree(os.path.join(dest, 'share', 'man'))
         shutil.copyfile('/usr/local/lib/libpng12.0.dylib', os.path.join(dest, 'lib', 'libpng12.0.dylib'))
         self.fix_image_magick_deps(dest)
 
@@ -302,6 +331,11 @@ os.execv(python, args)
 sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), 'Frameworks')
 sys.resources_location = os.path.join(os.environ['RESOURCEPATH'], 'resources')
 sys.extensions_location = os.path.join(sys.frameworks_dir, 'plugins')
+devf = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+do_devf = devf and os.path.exists(devf)
+if do_devf:
+    devf = os.path.abspath(devf)
+    sys.path.insert(0, devf)
 ''') + r'\n\1', src)
         f = open(launcher_path, 'w')
         print >>f, 'import sys, os'
@@ -362,7 +396,7 @@ def main():
                                        'calibre.ebooks.metadata.amazon',
                                        ],
                          'packages' : ['PIL', 'Authorization', 'lxml', 'dns'],
-                         'excludes' : ['IPython'],
+                         'excludes' : ['IPython', 'PyQt4.uic.port_v3.proxy_base'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
                                         ''' Visit http://calibre.kovidgoyal.net for details.''',
                                         'CFBundleIdentifier':'net.kovidgoyal.calibre',

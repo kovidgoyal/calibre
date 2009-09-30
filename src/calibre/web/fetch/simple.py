@@ -41,10 +41,16 @@ class closing(object):
 
 _browser_lock = RLock()
 
+bad_url_counter = 0
 def basename(url):
-    parts = urlparse.urlsplit(url)
-    path = url2pathname(parts.path)
-    res = os.path.basename(path)
+    try:
+        parts = urlparse.urlsplit(url)
+        path = url2pathname(parts.path)
+        res = os.path.basename(path)
+    except:
+        global bad_url_counter
+        bad_url_counter += 1
+        return 'bad_url_%d.html'%bad_url_counter
     if not os.path.splitext(res)[1]:
         return 'index.html'
     return res

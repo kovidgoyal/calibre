@@ -41,7 +41,14 @@ def clean_backups():
 def main(args=sys.argv):
     if len(args) == 1 or args[1] in ('-h', '--help'):
         print 'Usage: python', args[0], 'command', '[options]'
-        print '\nWhere command is one of:', ', '.join(commands.__all__)
+        print '\nWhere command is one of:'
+        print
+        for x in sorted(commands.__all__):
+            print '%-20s -'%x,
+            c = getattr(commands, x)
+            desc = getattr(c, 'short_description', c.description)
+            print desc
+
         print '\nTo get help on a particular command, run:'
         print '\tpython', args[0], 'command -h'
         return 1
@@ -83,7 +90,7 @@ def main(args=sys.argv):
         prints('There were', len(warnings), 'warning(s):')
         print
         for args, kwargs in warnings:
-            prints(*args, **kwargs)
+            prints('*', *args, **kwargs)
             print
 
     return 0

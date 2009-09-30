@@ -85,7 +85,7 @@ elif iswindows:
            if isfrozen else 'CORE_RL_wand_'
 else:
     if isfrozen:
-        _lib = os.path.join(sys.frozen_path, 'libMagickWand.so')
+        _lib = os.path.join(sys.frozen_path, 'libMagickWand.so.2')
     else:
         _lib = util.find_library('MagickWand')
         if _lib is None:

@@ -44,7 +44,7 @@
         <x>0</x>
         <y>0</y>
         <width>879</width>
-        <height>711</height>
+        <height>710</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -177,7 +177,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
+                 <item row="3" column="1" colspan="2">
                   <widget class="QSpinBox" name="rating">
                    <property name="toolTip">
                     <string>Rating of this book. 0-5 stars</string>
@@ -325,7 +325,7 @@
                  <item row="8" column="1" colspan="2">
                   <widget class="QLineEdit" name="isbn"/>
                  </item>
-                 <item row="9" column="0">
+                 <item row="10" column="0">
                   <widget class="QLabel" name="label_10">
                    <property name="text">
                     <string>Publishe&amp;d:</string>
@@ -338,14 +338,14 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
+                 <item row="4" column="1" colspan="2">
                   <widget class="EnComboBox" name="publisher">
                    <property name="editable">
                     <bool>true</bool>
                    </property>
                   </widget>
                  </item>
-                 <item row="7" column="1">
+                 <item row="7" column="1" colspan="2">
                   <widget class="QDoubleSpinBox" name="series_index">
                    <property name="enabled">
                     <bool>false</bool>
@@ -358,7 +358,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="9" column="1">
+                 <item row="10" column="1" colspan="2">
                   <widget class="QDateEdit" name="pubdate">
                    <property name="displayFormat">
                     <string>MMM yyyy</string>
@@ -372,6 +372,29 @@
                   <widget class="EnComboBox" name="authors">
                    <property name="editable">
                     <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1" colspan="2">
+                  <widget class="QDateEdit" name="date">
+                   <property name="displayFormat">
+                    <string>dd MMM yyyy</string>
+                   </property>
+                   <property name="calendarPopup">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="0">
+                  <widget class="QLabel" name="label_11">
+                   <property name="text">
+                    <string>&amp;Date:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy">
+                    <cstring>date</cstring>
                    </property>
                   </widget>
                  </item>
@@ -695,18 +718,21 @@
   <tabstop>remove_series_button</tabstop>
   <tabstop>series_index</tabstop>
   <tabstop>isbn</tabstop>
+  <tabstop>date</tabstop>
   <tabstop>pubdate</tabstop>
   <tabstop>comments</tabstop>
   <tabstop>fetch_metadata_button</tabstop>
-  <tabstop>formats</tabstop>
   <tabstop>add_format_button</tabstop>
   <tabstop>remove_format_button</tabstop>
   <tabstop>cover_path</tabstop>
   <tabstop>cover_button</tabstop>
   <tabstop>reset_cover</tabstop>
   <tabstop>fetch_cover_button</tabstop>
-  <tabstop>scrollArea</tabstop>
+  <tabstop>button_set_cover</tabstop>
+  <tabstop>formats</tabstop>
+  <tabstop>button_set_metadata</tabstop>
   <tabstop>button_box</tabstop>
+  <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>

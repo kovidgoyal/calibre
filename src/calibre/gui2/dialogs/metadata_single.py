@@ -10,7 +10,7 @@ import os
 import re
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
@@ -280,6 +280,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
         self.pubdate.setMinimumDate(QDate(100,1,1))
+        self.date.setMinimumDate(QDate(100,1,1))
+
         self.connect(self.cover, SIGNAL('cover_changed(PyQt_PyObject)'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
@@ -323,8 +325,14 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.comments.setPlainText(comments if comments else '')
         cover = self.db.cover(row)
         pubdate = db.pubdate(self.id, index_is_id=True)
+        self.local_timezone_offset = timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
+        pubdate = pubdate - self.local_timezone_offset
         self.pubdate.setDate(QDate(pubdate.year, pubdate.month,
             pubdate.day))
+        timestamp = db.timestamp(self.id, index_is_id=True)
+        timestamp = timestamp - self.local_timezone_offset
+        self.date.setDate(QDate(timestamp.year, timestamp.month,
+            timestamp.day))
 
         exts = self.db.formats(row)
         if exts:
@@ -518,6 +526,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                         if book.isbn: self.isbn.setText(book.isbn)
                         if book.pubdate:
                             d = book.pubdate
+                            d = d - self.local_timezone_offset
                             self.pubdate.setDate(QDate(d.year, d.month, d.day))
                         summ = book.comments
                         if summ:
@@ -566,7 +575,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_series_index(self.id, self.series_index.value(), notify=False)
             self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
             d = self.pubdate.date()
-            self.db.set_pubdate(self.id, datetime(d.year(), d.month(), d.day()))
+            d = datetime(d.year(), d.month(), d.day())
+            d = d + self.local_timezone_offset
+            self.db.set_pubdate(self.id, d)
+            d = self.date.date()
+            d = datetime(d.year(), d.month(), d.day())
+            d = d + self.local_timezone_offset
+            self.db.set_timestamp(self.id, d)
 
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.id, self.cover_data)

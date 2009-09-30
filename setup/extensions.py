@@ -16,7 +16,7 @@ from setup.build_environment import fc_inc, fc_lib, \
         fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
         leopard_build, QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, \
-        magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
+        magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, poppler_objs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, jpg_lib_dirs
 MT
 isunix = islinux or isosx
@@ -39,6 +39,7 @@ class Extension(object):
         self.sip_files = self.absolutize(kwargs.get('sip_files', []))
         self.inc_dirs = self.absolutize(kwargs.get('inc_dirs', []))
         self.lib_dirs = self.absolutize(kwargs.get('lib_dirs', []))
+        self.extra_objs = self.absolutize(kwargs.get('extra_objs', []))
         self.error = kwargs.get('error', None)
         self.libraries = kwargs.get('libraries', [])
         self.cflags = kwargs.get('cflags', [])
@@ -60,6 +61,7 @@ extensions = [
                 libraries=poppler_libs+magick_libs+png_libs+ft_libs+jpg_libs+pdfreflow_libs,
                 lib_dirs=poppler_lib_dirs+magick_lib_dirs+png_lib_dirs+ft_lib_dirs+jpg_lib_dirs,
                 inc_dirs=poppler_inc_dirs+magick_inc_dirs+png_inc_dirs,
+                extra_objs=poppler_objs,
                 error=reflow_error,
                 cflags=['-DPNG_SKIP_SETJMP_CHECK'] if islinux else []
                 ),
@@ -148,6 +150,7 @@ if isosx:
     x, p = ('x86_64', 'ppc64') if leopard_build else ('i386', 'ppc')
     archs = ['-arch', x, '-arch', p, '-isysroot',
                 OSX_SDK]
+    cflags.append('-D_OSX')
     cflags.extend(archs)
     ldflags.extend(archs)
     ldflags.extend('-bundle -undefined dynamic_lookup'.split())
@@ -159,6 +162,9 @@ if iswindows:
     cc = cxx = msvc.cc
     cflags = '/c /nologo /Ox /MD /W3 /EHsc /DNDEBUG'.split()
     ldflags = '/DLL /nologo /INCREMENTAL:NO'.split()
+    #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
+    #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
+
     for p in win_inc:
         cflags.append('-I'+p)
     for p in win_lib:
@@ -168,6 +174,8 @@ if iswindows:
 
 
 class Build(Command):
+
+    short_description = 'Build calibre C/C++ extension modules'
 
     description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
@@ -268,9 +276,9 @@ class Build(Command):
             cmd = [linker]
             if iswindows:
                 cmd += ldflags + ext.ldflags + elib + xlib + \
-                    ['/EXPORT:init'+ext.name] + objects + ['/OUT:'+dest]
+                    ['/EXPORT:init'+ext.name] + objects + ext.extra_objs + ['/OUT:'+dest]
             else:
-                cmd += objects + ['-o', dest] + ldflags + ext.ldflags + elib + xlib
+                cmd += objects + ext.extra_objs + ['-o', dest] + ldflags + ext.ldflags + elib + xlib
             self.info('\n\n', ' '.join(cmd), '\n\n')
             subprocess.check_call(cmd)
             if iswindows:

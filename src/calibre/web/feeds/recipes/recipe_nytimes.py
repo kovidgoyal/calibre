@@ -16,7 +16,7 @@ class NYTimes(BasicNewsRecipe):
     __author__  = 'GRiker'
     language = _('English')
     description = 'Top Stories from the New York Times'
-    
+
     # List of sections typically included in Top Stories.  Use a keyword from the
     # right column in the excludeSectionKeywords[] list to skip downloading that section
     sections = {
@@ -39,7 +39,7 @@ class NYTimes(BasicNewsRecipe):
                  'world'            :   'World'
                }
 
-    # By default, no sections are skipped.  
+    # By default, no sections are skipped.
     excludeSectionKeywords = []
 
     # Add section keywords from the right column above to skip that section
@@ -49,7 +49,7 @@ class NYTimes(BasicNewsRecipe):
     # excludeSectionKeywords = ['Arts','Dining','Editorials','Health','Magazine','Media','Region','Op-Ed','Politics','Science','Sports','Top Stories','Travel','U.S.','World']
     # Fetch only Top Stories
     # excludeSectionKeywords = ['Arts','Business','Dining','Editorials','Health','Magazine','Media','Region','Op-Ed','Politics','Science','Sports','Technology','Travel','U.S.','World']
-    
+
     # The maximum number of articles that will be downloaded
     max_articles_per_feed = 40
 
@@ -63,7 +63,7 @@ class NYTimes(BasicNewsRecipe):
                                 dict(attrs={   'id':['toolsRight','inlineBox','sidebarArticles',
                                                      'portfolioInline','articleInline','readerscomment',
                                                      'nytRating']}) ]
-        
+
     encoding = 'cp1252'
     no_stylesheets = True
     extra_css = '.headline      {text-align:    left;}\n    \
@@ -105,13 +105,13 @@ class NYTimes(BasicNewsRecipe):
                 _raw = url_or_raw
             if raw:
                 return _raw
-                
+
             if not isinstance(_raw, unicode) and self.encoding:
                 _raw = _raw.decode(docEncoding, 'replace')
             massage = list(BeautifulSoup.MARKUP_MASSAGE)
             massage.append((re.compile(r'&(\S+?);'), lambda match: entity_to_unicode(match, encoding=self.encoding)))
             return BeautifulSoup(_raw, markupMassage=massage)
-        
+
         # Entry point
         soup = get_the_soup( self.encoding, url_or_raw )
         contentType = soup.find(True,attrs={'http-equiv':'Content-Type'})
@@ -122,7 +122,7 @@ class NYTimes(BasicNewsRecipe):
         if self.verbose > 2:
             self.log( "  document encoding: '%s'" % docEncoding)
         if docEncoding != self.encoding :
-            soup = get_the_soup(docEncoding, url_or_raw)         
+            soup = get_the_soup(docEncoding, url_or_raw)
 
         return soup
 
@@ -133,7 +133,7 @@ class NYTimes(BasicNewsRecipe):
         feed = key = 'All Top Stories'
         articles[key] = []
         ans.append(key)
-        
+
         soup = self.index_to_soup('http://www.nytimes.com/pages/todaysheadlines/')
 
         # Fetch the outer table
@@ -242,10 +242,10 @@ class NYTimes(BasicNewsRecipe):
                                 if url == article['url'] :
                                     duplicateFound = True
                                     break
-                            
-                            if duplicateFound:        
+
+                            if duplicateFound:
                                 # Continue fetching, don't add this article
-                                continue        
+                                continue
 
                         if not articles.has_key(feed):
                             articles[feed] = []
@@ -254,7 +254,7 @@ class NYTimes(BasicNewsRecipe):
                                  description=description, author=author, content=''))
 
         ans = self.sort_index_by(ans, {'Top Stories':-1})
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]        
+        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans
 
     def strip_anchors(self,soup):
@@ -270,7 +270,7 @@ class NYTimes(BasicNewsRecipe):
 #         refresh = soup.find('meta', {'http-equiv':'refresh'})
 #         if refresh is None:
 #             return self.strip_anchors(soup)
-# 
+#
 #         content = refresh.get('content').partition('=')[2]
 #         raw = self.browser.open('http://www.nytimes.com'+content).read()
 #         soup = BeautifulSoup(raw.decode('cp1252', 'replace'))
@@ -280,7 +280,7 @@ class NYTimes(BasicNewsRecipe):
             content = refresh.get('content').partition('=')[2]
             raw = self.browser.open('http://www.nytimes.com'+content).read()
             soup = BeautifulSoup(raw.decode('cp1252', 'replace'))
-        
+
         soup = self.strip_anchors(soup)
 
         # Test for empty content
@@ -291,7 +291,7 @@ class NYTimes(BasicNewsRecipe):
             return soup
         else:
             print "no allowed content found, removing article"
-            raise StringError
+            raise Exception()
 
     def postprocess_html(self,soup, True):
 
@@ -334,7 +334,7 @@ class NYTimes(BasicNewsRecipe):
             bTag = Tag(soup, "b")
             bTag.insert(0, subhead.contents[0])
             subhead.replaceWith(bTag)
-            
+
         # Synthesize a section header
         dsk = soup.find('meta', attrs={'name':'dsk'})
         if dsk is not None and dsk.has_key('content'):
@@ -343,12 +343,12 @@ class NYTimes(BasicNewsRecipe):
             hTag.insert(0,NavigableString(dsk['content']))
             articleTag = soup.find(True, attrs={'id':'article'})
             articleTag.insert(0,hTag)
-            
+
         # Add class="articleBody" to <div> so we can format with CSS
         divTag = soup.find('div',attrs={'id':'articleBody'})
         if divTag is not None :
             divTag['class'] = divTag['id']
-        
+
         # Add class="authorId" to <div> so we can format with CSS
         divTag = soup.find('div',attrs={'id':'authorId'})
         if divTag is not None :

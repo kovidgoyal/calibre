@@ -60,7 +60,7 @@ class LinuxFreeze(Command):
                             arch),
                         '/usr/lib/libpng12.so.0',
                         '/usr/lib/libexslt.so.0',
-                        '/usr/lib/libMagickWand.so',
+                        '/usr/lib/libMagickWand.so.2',
                         '/usr/lib/libMagickCore.so.2',
                         '/usr/lib/libgcrypt.so.11',
                         '/usr/lib/libgpg-error.so.0',
@@ -83,8 +83,7 @@ class LinuxFreeze(Command):
         self.info('Freezing calibre located at', CALIBRESRC)
 
         entry_points = entry_points['console_scripts'] + entry_points['gui_scripts']
-        entry_points = ['calibre_postinstall=calibre.linux:binary_install',
-                        'calibre-parallel=calibre.parallel:main'] + entry_points
+        entry_points = ['calibre_postinstall=calibre.linux:main'] + entry_points
         executables = {}
         for ep in entry_points:
             executables[ep.split('=')[0].strip()] = (ep.split('=')[1].split(':')[0].strip(),
@@ -147,6 +146,9 @@ class LinuxFreeze(Command):
         sys.frozen_path = DIR_NAME
         sys.extensions_location = os.path.join(DIR_NAME, 'plugins')
         sys.resources_location = os.path.join(DIR_NAME, 'resources')
+        dfv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        if dfv and os.path.exists(dfv):
+            sys.path.insert(0, dfv)
 
         executables = %(executables)s
 
@@ -250,7 +252,6 @@ class LinuxFreeze(Command):
 
         exes = list(executables.keys())
         exes.remove('calibre_postinstall')
-        exes.remove('calibre-parallel')
         open(os.path.join(FREEZE_DIR, 'manifest'), 'wb').write('\n'.join(exes))
 
         self.info('Creating archive...')

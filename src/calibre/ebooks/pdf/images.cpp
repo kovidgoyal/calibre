@@ -340,17 +340,17 @@ void PNGMemWriter::init(vector<char> *buf, int width, int height) {
 
 }
 
-
+/*
 void calibre_jpeg_error_exit (j_common_ptr cinfo)
 {
-    /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+    // cinfo->err really points to a my_error_mgr struct, so coerce pointer 
     calibre_jpeg_err_mgr *err = (calibre_jpeg_err_mgr *)(cinfo->err);
 
-    /* Always display the message. */
-    /* We could postpone this until after returning, if we chose. */
+    // Always display the message. 
+    // We could postpone this until after returning, if we chose. 
     //(*cinfo->err->output_message) (cinfo);
 
-    /* Return control to the setjmp point */
+    // Return control to the setjmp point 
     longjmp(err->setjmp_buffer, 1);
 }
 
@@ -366,7 +366,7 @@ JPEGWriter::JPEGWriter() {
 void JPEGWriter::init(int width, int height) {
     cinfo.image_width = width; 
     cinfo.image_height = height;
-    cinfo.input_components = 3;       /* # of color components per pixel */
+    cinfo.input_components = 3;       // # of color components per pixel 
     cinfo.in_color_space = JCS_RGB;
     jpeg_set_defaults(&this->cinfo);
     this->check();
@@ -387,7 +387,7 @@ void JPEGWriter::check() {
 void JPEGWriter::raise() {
     char buffer[JMSG_LENGTH_MAX];
 
-    /* Create the message */
+    // Create the message 
     (*this->cinfo.err->format_message) ((jpeg_common_struct *)(&this->cinfo), buffer);
     jpeg_destroy_compress(&this->cinfo);
     throw ReflowException(buffer);
@@ -422,3 +422,4 @@ void JPEGWriter::write_splash_bitmap(SplashBitmap *bitmap) {
 JPEGWriter::~JPEGWriter() {
     jpeg_destroy_compress(&this->cinfo);
 }
+*/

@@ -111,6 +111,7 @@ class Command(object):
         self.b = os.path.basename
         self.s = os.path.splitext
         self.e = os.path.exists
+        self.orig_euid = os.geteuid() if hasattr(os, 'geteuid') else None
         self.real_uid = os.environ.get('SUDO_UID', None)
         self.real_gid = os.environ.get('SUDO_GID', None)
         self.real_user = os.environ.get('SUDO_USER', None)
@@ -121,19 +122,19 @@ class Command(object):
         if self.real_user is not None:
             self.info('Dropping privileges to those of', self.real_user+':',
                     self.real_uid)
+        if self.real_gid is not None:
+            os.setegid(int(self.real_gid))
         if self.real_uid is not None:
             os.seteuid(int(self.real_uid))
-        #if self.real_gid is not None:
-        #    os.setegid(int(self.real_gid))
 
     def regain_privileges(self):
         if not islinux or isosx:
             return
-        if os.geteuid() != 0:
+        if os.geteuid() != 0 and self.orig_euid == 0:
             self.info('Trying to get root privileges')
             os.seteuid(0)
-        #if os.getegid() != 0:
-        #    os.setegid(0)
+            if os.getegid() != 0:
+                os.setegid(0)
 
     def pre_sub_commands(self, opts):
         pass

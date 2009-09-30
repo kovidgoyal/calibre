@@ -13,6 +13,8 @@ from setup import Command, installer_name
 
 class Linux32(VMInstaller):
 
+    description = 'Build 32bit linux binary installer'
+
     INSTALLER_EXT = 'tar.bz2'
     VM_NAME = 'gentoo32_build'
     VM = '/vmware/bin/gentoo32_build'
@@ -20,6 +22,8 @@ class Linux32(VMInstaller):
 
 
 class Linux64(Command):
+
+    description = 'Build 64bit linux binary installer'
 
     sub_commands = ['linux_freeze']
 
@@ -30,5 +34,7 @@ class Linux64(Command):
         return os.path.basename(installer)
 
 class Linux(Command):
+
+    description = 'Build linux binary installers'
 
     sub_commands = ['linux64', 'linux32']

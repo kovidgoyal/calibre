@@ -19,7 +19,7 @@ DEPENDENCIES = [
             ('python-dateutil', '1.4.1', 'python-dateutil', 'python-dateutil', 'python-dateutil'),
             ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
             ('dnspython', '1.6.0', 'dnspython', 'dnspython', 'dnspython', 'dnspython'),
-            ('poppler-qt4', '0.10.6', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4', 'poppler-qt4'),
+            ('poppler', '0.12.0', 'poppler', 'poppler', 'poppler', 'poppler'),
             ('podofo', '0.7', 'podofo', 'podofo', 'podofo', 'podofo'),
             ('libwmf', '0.2.8', 'libwmf', 'libwmf', 'libwmf', 'libwmf'),
             ]
@@ -186,7 +186,7 @@ else:
             data = dict(version = version, name='osx',
                 installer_name='OS X universal dmg',
                 title='Download %s for OS X'%(__appname__),
-                compatibility='%s works on OS X Tiger and Leopard, but not Snow Leopard (It might work on Snow Leopard if run with Rosetta).'%(__appname__,),
+                compatibility='%s works on OS X Tiger, Leopard, and Snow Leopard.'%(__appname__,),
                 path=MOBILEREAD+file, app=__appname__,
                 note=Markup(\
     u'''

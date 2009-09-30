@@ -99,11 +99,11 @@ namespace calibre_reflow {
             vector<string*> str() const;
             void clear();
     };
-
+/*
     struct calibre_jpeg_err_mgr {
-        struct jpeg_error_mgr pub;    /* "public" fields */
+        struct jpeg_error_mgr pub;    // "public" fields 
 
-        jmp_buf setjmp_buffer;    /* for return to caller */
+        jmp_buf setjmp_buffer;    // for return to caller 
     };
 
     class JPEGWriter {
@@ -125,6 +125,6 @@ namespace calibre_reflow {
             void write_image(JSAMPARRAY image_buffer, JDIMENSION number_of_scanlines);
             void write_splash_bitmap(SplashBitmap *bitmap);
     };
+*/
 }
-
 #endif

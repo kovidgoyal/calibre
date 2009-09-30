@@ -390,13 +390,14 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                                         self.action_save,
                                         self.action_open_containing_folder,
                                         self.action_show_book_details,
+                                        self.action_del,
                                         similar_menu=similar_menu)
         self.memory_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None)
+                self.action_view, self.action_save, None, None, self.action_del)
         self.card_a_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None)
+                self.action_view, self.action_save, None, None, self.action_del)
         self.card_b_view.set_context_menu(None, None, None,
-                self.action_view, self.action_save, None, None)
+                self.action_view, self.action_save, None, None, self.action_del)
         QObject.connect(self.library_view,
                 SIGNAL('files_dropped(PyQt_PyObject)'),
                         self.files_dropped, Qt.QueuedConnection)

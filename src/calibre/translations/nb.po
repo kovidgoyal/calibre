@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-09-18 06:45+0000\n"
-"PO-Revision-Date: 2009-09-16 19:49+0000\n"
+"POT-Creation-Date: 2009-09-18 19:33+0000\n"
+"PO-Revision-Date: 2009-09-19 16:40+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-18 09:47+0000\n"
+"X-Launchpad-Export-Date: 2009-09-23 09:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -28,7 +28,7 @@ msgstr "Gjør absolutt ingenting"
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:199
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:703
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:706
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:403
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:410
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:65
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:67
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:318
@@ -459,7 +459,7 @@ msgstr "Kommuniser med EB600 eBook-leser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr ""
+msgstr "Kommuniser med ESlick eBook reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -643,26 +643,31 @@ msgstr ""
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:274
-msgid "Number of colors for grayscale image conversion. Default: %default"
+msgid ""
+"Number of colors for grayscale image conversion. Default: %default. Values "
+"of less than 256 may result in blurred text on your device if you are "
+"creating your comics in EPUB format."
 msgstr ""
-"Antall farger brukt for gråskala bildekonvertering. Standard er %default"
+"Antall farger for konvertering til grå-skalering.  Standard %default. "
+"Verdier på mindre enn 256 kan resultere i uskarp tekst i enheten din dersom "
+"du oppretter dine tegneserier til EPUB format."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:276
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:278
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
 "Forhindre normalisering (forbedre kontrasten) av farge rangering for bilder. "
 "Standard: False"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:279
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr "Beholde bilde sideforhold. Standard er å fylle hele skjermen."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
 msgid "Disable sharpening."
 msgstr "Ikke foreta skjerping av bilder"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:285
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
@@ -670,11 +675,11 @@ msgstr ""
 "Slå av finjusteringen av tegneseriesider. For noen tegneserier, kan "
 "finjustering fjerne innhold og kantrammer."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:286
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
 msgid "Don't split landscape images into two portrait images"
 msgstr "Ikke splitt landskapsbilder i to portrett bilder"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:288
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:290
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
@@ -682,7 +687,7 @@ msgstr ""
 "Behold apparisjonsfaktor og skaleringsbilde ved å benytte skjermhøyde som "
 "bildevidde, for bruk av landskapsmodus."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:291
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:293
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
@@ -691,7 +696,7 @@ msgstr ""
 "landskapssider blir splittet til portrettbilder som leses fra høyre til "
 "venstre."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:295
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:297
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
@@ -699,7 +704,7 @@ msgstr ""
 "Slå på kantutjevning. Reduserer ujevne kanter. Dette valget kan påvirke "
 "prosesstiden betraktelig."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:298
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:300
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
@@ -707,12 +712,22 @@ msgstr ""
 "Ikke sorter filene i tegneserien alfabetisk etter navn. Bruk rekkefølgen "
 "filene ble lagt til i tegneserien."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:302
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:304
+msgid ""
+"The format that images in the created ebook are converted to. You can "
+"experiment to see which format gives you optimal size and look on your "
+"device."
+msgstr ""
+"Formatet som bildene i den opprettede e-boken er konvertert til. Du kan "
+"eksperimentere deg frem til å se hvilket format som gir den mest optimale  "
+"størrelsen og det beste utseendet i din enhet."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:308
 msgid "Apply no processing to the image"
 msgstr "Ikke legg prosesser til bildet"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:427
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:438
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:434
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:445
 msgid "Page"
 msgstr "Side"
 
@@ -1326,6 +1341,9 @@ msgid ""
 "Average line length for line breaking if the HTML is from a previous partial "
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
+"Gjennomsnittlig linjelengde for linjebryting dersom HTML filen er fra en "
+"tidligere delvis konvertering fra en PDF fil. Standard er %default som slår "
+"av dette valget."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2065,6 +2083,10 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
+"Normalt behandler Calibre blanke linjer som avsnittmerker. Med dette valget "
+"vil Calibre regne med at hver linje som starter med et innrykk (enten "
+"tabulator eller flere en 2 mellomrom) representerer et avsnitt. Avsnittet "
+"slutter der neste linje med et innrykk begynner."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -2499,7 +2521,7 @@ msgstr "Standard oppgaver som gjøres når send til enhet-knappen er klikket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:85
 msgid "Maximum number of waiting worker processes"
-msgstr ""
+msgstr "Maksumum antall ventende arbeidsprosesser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:397
@@ -2516,7 +2538,7 @@ msgstr "Kopier til utklippstavlen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:381
 msgid "Choose Files"
-msgstr ""
+msgstr "Velg filer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:52
 msgid "Searching in"
@@ -2607,7 +2629,7 @@ msgstr "Valg spesifisert til"
 msgid "input"
 msgstr "Inndata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:28
@@ -2635,59 +2657,64 @@ msgstr "Inndata"
 msgid "Form"
 msgstr "Form"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:94
 msgid "&Number of Colors:"
 msgstr "&Antall Farger:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:96
 msgid "Disable &normalize"
 msgstr "Slå av &normaliser"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 msgid "Keep &aspect ratio"
 msgstr "Behold &størrelsesforhold"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
 msgid "Disable &Sharpening"
 msgstr "Slå av &kontrastøkning"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:104
 msgid "Disable &Trimming"
 msgstr "Slå av &Justering"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:103
 msgid "&Wide"
 msgstr "&Bredde"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:99
 msgid "&Landscape"
 msgstr "&Landskap"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:101
 msgid "&Right to left"
 msgstr "&Høyre til venstre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "Don't so&rt"
 msgstr "Ikke so&rter"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:86
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:102
 msgid "De&speckle"
 msgstr "Kant&utgjevning"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:95
 msgid "&Disable comic processing"
 msgstr "&Slå av tegneserieprossessering"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:107
+msgid "&Output format:"
+msgstr "&Utdataformat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -2832,7 +2859,7 @@ msgstr " punkter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:91
 msgid "Line &height:"
-msgstr "Linje &høyde"
+msgstr "Linje&hløyde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:93
 msgid "Remove &spacing between paragraphs"
@@ -2840,7 +2867,7 @@ msgstr "Fjern &mellomrom mellom avsnitt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:94
 msgid "No text &justification"
-msgstr "Ingen tekst &justeringer"
+msgstr "Ingen tekst&justeringer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:95
 msgid "&Linearize tables"
@@ -2852,15 +2879,15 @@ msgstr "&Omskriv unicodetegn til ASCII."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
 msgid "Font size &key:"
-msgstr "Fontstørrelse &nøkkel:"
+msgstr "Fontstørrelse&nøkkel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:98
 msgid "Input character &encoding"
-msgstr "Tegnsett for inndata &omkoding"
+msgstr "Tegnsett for &omkoding av inndata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:99
 msgid "&Disable font size rescaling"
-msgstr "&Slå av fontstørrelse omskalering"
+msgstr "&Slå av omskalering av fontstørrelse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:100
 msgid "Insert &blank line"
@@ -3217,10 +3244,6 @@ msgstr "Dialog"
 msgid "&Input format:"
 msgstr "&Inndataformat:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:107
-msgid "&Output format:"
-msgstr "&Utdataformat:"
-
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
 "Structure\n"
@@ -3273,7 +3296,7 @@ msgstr "XPath uttrykket %s er ugyldig."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
-msgstr "Kapittell &merke:"
+msgstr "Kapittel&merke:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
@@ -4118,7 +4141,7 @@ msgstr "Bruk &Romerske tall for seriell numerering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:486
 msgid "Enable system &tray icon (needs restart)"
-msgstr "Slå på system &oppgavepanelikonet (trenger omstart)"
+msgstr "Slå på oppgave&panelikonet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:487
 msgid "Show &notifications in system tray"
@@ -4194,11 +4217,11 @@ msgstr "&Fjern e-post"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:507
 msgid "calibre can send your books to you (or your reader) by email"
-msgstr "Calibre kan sende deg bøker til deg (eller din leser) via e-post"
+msgstr "Calibre kan sende bøker til deg (eller din leser) via e-post"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
 msgid "&Maximum number of waiting worker processes (needs restart):"
-msgstr ""
+msgstr "&Maximum antall ventende arbeidsprosesser (omstart behøves):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:509
 msgid "&Check database integrity"
@@ -4264,7 +4287,7 @@ msgstr "&Vis passord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:519
 msgid "Max. &OPDS items per query:"
-msgstr ""
+msgstr "Maksimum &OPDS enheter per spørring:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:520
 msgid "&Start Server"
@@ -4438,7 +4461,7 @@ msgstr "Vis oppgave&detaljer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:47
 msgid "Stop &all jobs"
-msgstr ""
+msgstr "Stopp &alle jobber"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:133
 msgid "Edit Meta information"
@@ -4538,7 +4561,7 @@ msgstr "Omslaget i %s format er ikke gyldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:268
 msgid "Abort the editing of all remaining books"
-msgstr ""
+msgstr "Avbryt redigering av alle gjenværende bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:459
 msgid "Downloading cover..."
@@ -4590,7 +4613,7 @@ msgstr "Kunne ikke åpne %s. Blir den benyttet i et annet program?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Edit Meta Information"
-msgstr "Rediger metadatainformasjon"
+msgstr "Rediger metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:342
 msgid "Swap the author and title"
@@ -5173,7 +5196,7 @@ msgstr ""
 "qt-block-indent:0; text-indent:0px;\">Legg inn et regulært uttrykksmønster "
 "til bruk når du forsøker å gjette e-bok metadata fra filnavnet. </p>\n"
 "<p style=\" toppmarg:12px; bunnmarg:12px; venstremarg:0px; høyremarg:0px; -"
-"qt-block-indent:0; text-indent:0px;\">A <a "
+"qt-block-indent:0; text-indent:0px;\">En <a "
 "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" "
 "tekstdekorasjon: understrek; farge:#0000ee;\">referanse</span></a> av "
 "syntaksen dersom et regulært uttrykk er tilgjengelig.</p>\n"
@@ -5412,7 +5435,7 @@ msgstr "Lagre et enkelt format til lagringsenhet..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:124
 msgid "Search (For Advanced Search click the button to the left)"
-msgstr "Søk (For Avansert Søk klikk på knappen til venstre)"
+msgstr "Søk (For avansert søk, klikk på knappen til venstre)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:141
 msgid "Error communicating with device"
@@ -5456,11 +5479,11 @@ msgstr "Last ned metadata og omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:230
 msgid "Download only metadata"
-msgstr "Last kun ned metadata"
+msgstr "Last bare ned metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:231
 msgid "Download only covers"
-msgstr "Last kun ned omslag"
+msgstr "Last bare ned omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:234
 msgid "Add books from a single directory"
@@ -5519,7 +5542,7 @@ msgstr "Samlet konvertering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:331
 msgid "Run welcome wizard"
-msgstr "Kjør velkommenveiviser"
+msgstr "Kjør velkomstveiviser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:365
 msgid "Similar books..."
@@ -5890,7 +5913,7 @@ msgstr "Logg debugging informasjon til konsollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1757
 msgid "Do not check for updates"
-msgstr ""
+msgstr "Ikke søk etter oppdateringer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1805
 msgid "If you are sure it is not running"
@@ -5985,7 +6008,7 @@ msgstr "Slett"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:350
 msgid "Edit meta information"
-msgstr "Rediger metadatainformasjon"
+msgstr "Rediger metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:351
 msgid "E"
@@ -6145,11 +6168,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 msgid "Queueing books for bulk conversion"
-msgstr ""
+msgstr "Kø bøker for samlet konvertering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:183
 msgid "Queueing "
-msgstr ""
+msgstr "Kø "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:237
 msgid "You must set a username and password for %s"
@@ -6817,7 +6840,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:111
 msgid "Mail &Server"
-msgstr "E-post &Server"
+msgstr "E-post&server"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:112
 msgid "calibre can <b>optionally</b> use a server to send mail"
@@ -6937,6 +6960,8 @@ msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
 msgstr ""
+"Maksimum antall treff som resultat per OPDS spørring. Dette affekterer "
+"Stanza, WordPlayer osv integrering."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:117
 msgid ""
@@ -7999,6 +8024,10 @@ msgstr "Vis detaljert utdatainformasjon. Benyttes for feilsøking"
 #~ msgstr ""
 #~ "Uthentet markup fra lesbart format. Dette kan medføre at mellomrom, "
 #~ "tabulatorer og linjeskift blir modifisert."
+
+#~ msgid "Number of colors for grayscale image conversion. Default: %default"
+#~ msgstr ""
+#~ "Antall farger brukt for gråskala bildekonvertering. Standard er %default"
 
 #~ msgid "Rendering comic pages..."
 #~ msgstr "Prosesserer tegneserie sider..."

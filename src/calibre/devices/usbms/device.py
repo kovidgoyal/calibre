@@ -564,13 +564,13 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 self.open_windows()
             except DeviceError:
-                time.sleep(3)
+                time.sleep(5)
                 self.open_windows()
         if isosx:
             try:
                 self.open_osx()
             except DeviceError:
-                time.sleep(3)
+                time.sleep(7)
                 self.open_osx()
 
     def eject_windows(self):
@@ -675,13 +675,52 @@ class Device(DeviceConfig, DevicePlugin):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
-    def create_upload_path(self, root, mdata, ext, id):
-        from calibre.library.save_to_disk import config, get_components
-        opts = config().parse()
-        components = get_components(opts.template, mdata, id, opts.timefmt, 250)
-        components = [str(x) for x in components]
-        components = shorten_components_to(250 - len(root), components)
-        filepath = '%s%s' % (os.path.join(root, *components), ext)
+    def create_upload_path(self, path, mdata, fname):
+        path = os.path.abspath(path)
+        newpath = path
+        extra_components = []
+
+        if self.SUPPORTS_SUB_DIRS and self.settings().use_subdirs:
+            if 'tags' in mdata.keys():
+                for tag in mdata['tags']:
+                    if tag.startswith(_('News')):
+                        extra_components.append('news')
+                        c = sanitize(mdata.get('title', ''))
+                        if c:
+                            extra_components.append(c)
+                        c = sanitize(mdata.get('timestamp', ''))
+                        if c:
+                            extra_components.append(c)
+                        break
+                    elif tag.startswith('/'):
+                        for c in tag.split('/'):
+                            c = sanitize(c)
+                            if not c: continue
+                            extra_components.append(c)
+                        break
+
+            if not extra_components:
+                c = sanitize(mdata.get('authors', _('Unknown')))
+                if c:
+                    extra_components.append(c)
+                c = sanitize(mdata.get('title', _('Unknown')))
+                if c:
+                    extra_components.append(c)
+                    newpath = os.path.join(newpath, c)
+
+        fname = sanitize(fname)
+        extra_components.append(fname)
+        extra_components = [str(x) for x in extra_components]
+        def remove_trailing_periods(x):
+            ans = x
+            while ans.endswith('.'):
+                ans = ans[:-1]
+            if not ans:
+                ans = 'x'
+            return ans
+        extra_components = list(map(remove_trailing_periods, extra_components))
+        components = shorten_components_to(250 - len(path), extra_components)
+        filepath = os.path.join(path, *components)
         filedir = os.path.dirname(filepath)
 
         if not self.SUPPORTS_SUB_DIRS or not self.settings().use_subdirs:

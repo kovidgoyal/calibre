@@ -52,6 +52,8 @@ info = warn = None
 
 class Win32Freeze(Command):
 
+    description = 'Freeze windows calibre installation'
+
     def run(self, opts):
         global info, warn
         info, warn = self.info, self.warn
@@ -121,6 +123,9 @@ base = os.path.dirname(sys.executable.decode(fenc))
 sys.resources_location = os.path.join(base, 'resources')
 sys.extensions_location = os.path.join(base, 'plugins')
 
+dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+if dv and os.path.exists(dv):
+    sys.path.insert(0, os.path.abspath(dv))
 
 del sys
 '''
@@ -189,9 +194,8 @@ class BuildEXE(bc):
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
         print '\tAdding poppler'
-        for x in (r'utils\Release\pdftohtml.exe',
-                r'qt4\src\Release\poppler-qt4.dll'):
-            shutil.copyfile(os.path.join(POPPLER, x),
+        for x in (r'pdftohtml.exe', 'freetype.dll'):
+            shutil.copyfile(os.path.join(r'C:\cygwin\home\kovid\poppler-old\bin', x),
                     os.path.join(PY2EXE_DIR, os.path.basename(x)))
         for x in ('jpeg62', 'zlib1', 'libpng12'):
             shutil.copy2(os.path.join(GNUWIN32, 'bin', x+'.dll'), PY2EXE_DIR)
@@ -279,9 +283,12 @@ def main(args=sys.argv):
                                   'packages'  : ['PIL', 'lxml', 'cherrypy',
                                                  'dateutil', 'dns'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
-                                                 "_imagingtk", "ImageTk", "FixTk"
+                                                 "_imagingtk", "ImageTk",
+                                                 "FixTk",
+                                                 'PyQt4.uic.port_v3.proxy_base'
                                                 ],
-                                  'dll_excludes' : ['mswsock.dll'],
+                                  'dll_excludes' : ['mswsock.dll', 'tcl85.dll',
+                                      'tk85.dll'],
                                  },
                     },
 

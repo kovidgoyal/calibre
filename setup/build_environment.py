@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess
+import os, socket, struct, subprocess, glob
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
@@ -84,6 +84,7 @@ ft_lib_dirs = []
 ft_libs = []
 jpg_libs = []
 jpg_lib_dirs = []
+poppler_objs = []
 fc_inc = '/usr/include/fontconfig'
 fc_lib = '/usr/lib'
 podofo_inc = '/usr/include/podofo'
@@ -102,7 +103,8 @@ if iswindows:
             (r'C:\cygwin\home\kovid\poppler\poppler-build\qt4\src\Release;'
                 r'C:\cygwin\home\kovid\poppler\poppler-build\Release'))
     popplerqt4_lib_dirs = poppler_lib_dirs
-    poppler_libs = ['poppler', 'poppler-qt4']
+    poppler_libs = []
+    poppler_objs = glob.glob(r'C:\cygwin\home\kovid\poppler\poppler-build\poppler.dir\Release\*.obj')
     popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
     png_inc_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\include']
     png_lib_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\lib']
@@ -120,14 +122,22 @@ elif isosx:
     fc_inc = '/Users/kovid/fontconfig/include/fontconfig'
     fc_lib = '/Users/kovid/fontconfig/lib'
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            '/Volumes/sw/build/poppler-0.10.7/poppler')
+            '/Volumes/sw/build/poppler-0.12.0/poppler:/Volumes/sw/build/poppler-0.12.0')
     popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
-            '/Users/kovid/poppler/lib')
+            '/Volumes/sw/lib')
     popplerqt4_lib_dirs = poppler_lib_dirs
     poppler_libs     = popplerqt4_libs = ['poppler']
     podofo_inc = '/usr/local/include/podofo'
     podofo_lib = '/usr/local/lib'
+    magick_inc_dirs = consolidate('MAGICK_INC',
+        '/Users/kovid/ImageMagick/include/ImageMagick')
+    magick_lib_dirs = consolidate('MAGICK_LIB',
+        '/Users/kovid/ImageMagick/lib')
+    magick_libs = ['MagickWand', 'MagickCore']
+    png_inc_dirs = consolidate('PNG_INC_DIR', '/usr/local/include')
+    png_lib_dirs = consolidate('PNG_LIB_DIR', '/usr/local/lib')
+    png_libs = ['png']
 else:
     # Include directories
     poppler_inc_dirs = pkgconfig_include_dirs('poppler',
