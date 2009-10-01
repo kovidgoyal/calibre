@@ -34,7 +34,6 @@ BLOCK_STYLES = [
 ]
 
 SPACE_TAGS = [
-    'span',
     'td',
 ]
 
