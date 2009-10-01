@@ -9,13 +9,8 @@ Freeze app into executable using py2exe.
 QT_DIR           = 'C:\\Qt\\4.5.2'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
-POPPLER          = 'C:\\cygwin\\home\\kovid\\poppler\\poppler-build'
-GNUWIN32         = r'C:\cygwin\home\kovid\gnuwin32'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
-PDFTK            = 'C:\\pdftk.exe'
-PODOFO           = 'C:\\podofo'
-FONTCONFIG_DIR   = 'C:\\fontconfig'
-VC90             = r'C:\VC90.CRT'
+SW               = r'C:\cygwin\home\kovid\sw'
 
 import sys
 
@@ -193,36 +188,23 @@ class BuildEXE(bc):
                 shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
-        print '\tAdding poppler'
-        for x in (r'pdftohtml.exe', 'freetype.dll'):
-            shutil.copyfile(os.path.join(r'C:\cygwin\home\kovid\poppler-old\bin', x),
-                    os.path.join(PY2EXE_DIR, os.path.basename(x)))
-        for x in ('jpeg62', 'zlib1', 'libpng12'):
-            shutil.copy2(os.path.join(GNUWIN32, 'bin', x+'.dll'), PY2EXE_DIR)
-        print '\tAdding podofo'
-        for f in glob.glob(os.path.join(PODOFO, '*.dll')):
-            shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
 
-        print '\tAdding ImageMagick'
-        for f in os.listdir(IMAGEMAGICK_DIR):
-            shutil.copyfile(os.path.join(IMAGEMAGICK_DIR, f), os.path.join(PY2EXE_DIR, f))
-        print '\tCopying fontconfig'
-        for f in glob.glob(os.path.join(FONTCONFIG_DIR, '*')):
-            tgt = os.path.join(PY2EXE_DIR, os.path.basename(f))
-            if os.path.isdir(f):
-                shutil.copytree(f, tgt)
-            else:
-                shutil.copyfile(f, tgt)
+        print '\tAdding misc binary deps'
+        bindir = os.path.join(SW, 'bin')
+        shutil.copy2(os.path.join(bindir, 'pdftohtml.exe'), PY2EXE_DIR)
+        for pat in ('*.dll', '*.xml'):
+            for f in glob.glob(os.path.join(bindir, pat)):
+                shutil.copy2(f, PY2EXE_DIR)
+        for x in ('Microsoft.VC90.CRT', 'zlib1.dll', 'libxml2.dll'):
+            shutil.copy2(os.path.join(bindir, x+'.manifest'), PY2EXE_DIR)
+        shutil.copytree(os.path.join(SW, 'etc', 'fonts'),
+						os.path.join(PY2EXE_DIR, 'fontconfig'))
 
         print
         print 'Doing DLL redirection' # See http://msdn.microsoft.com/en-us/library/ms682600(VS.85).aspx
         for f in glob.glob(os.path.join(PY2EXE_DIR, '*.exe')):
             open(f + '.local', 'w').write('\n')
 
-        print
-        print 'Adding Windows runtime dependencies...'
-        for f in glob.glob(os.path.join(VC90, '*')):
-            shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
 
 
 def exe_factory(dest_base, script, icon_resources=None):
@@ -271,7 +253,7 @@ def main(args=sys.argv):
                                              'email.iterators',
                                              'email.generator',
                                              'win32process', 'win32api', 'msvcrt',
-                                             'win32event', 'calibre.ebooks.lrf.any.*',
+                                             'win32event',
                                              'sqlite3.dump',
                                              'BeautifulSoup', 'pyreadline',
                                              'pydoc', 'IPython.Extensions.*',

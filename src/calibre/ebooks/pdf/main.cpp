@@ -168,6 +168,8 @@ extern "C" {
 int main(int argc, char **argv) {
     char *memblock;
     ifstream::pos_type size;
+    int ret = 0;
+
 
     if (argc != 2)  {
         cerr << "Usage: " << argv[0] << " file.pdf" << endl;
@@ -186,7 +188,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    int ret = 0;
     try {
         Reflow reflow(memblock, size);
         reflow.render();

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess, glob
+import os, socket, struct, subprocess
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
@@ -91,33 +91,31 @@ podofo_inc = '/usr/include/podofo'
 podofo_lib = '/usr/lib'
 
 if iswindows:
-    fc_inc = r'C:\cygwin\home\kovid\fontconfig\include\fontconfig'
-    fc_lib = r'C:\cygwin\home\kovid\fontconfig\lib'
-    poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            (r'C:\cygwin\home\kovid\poppler\poppler-source\poppler;'
-             r'C:\cygwin\home\kovid\poppler\poppler-source;'
-             r'C:\cygwin\home\kovid\poppler\poppler-build;'
-             r'C:\cygwin\home\kovid\poppler\poppler-build\poppler'))
-    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[1]+r'\qt4']
-    poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
-            (r'C:\cygwin\home\kovid\poppler\poppler-build\qt4\src\Release;'
-                r'C:\cygwin\home\kovid\poppler\poppler-build\Release'))
-    popplerqt4_lib_dirs = poppler_lib_dirs
-    poppler_libs = []
-    poppler_objs = glob.glob(r'C:\cygwin\home\kovid\poppler\poppler-build\poppler.dir\Release\*.obj')
-    popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
-    png_inc_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\include']
-    png_lib_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\lib']
-    png_libs = [r'libpng']
-    jpg_lib_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\lib']
+    prefix  = r'C:\cygwin\home\kovid\sw'
+    sw_inc_dir  = os.path.join(prefix, 'include')
+    sw_lib_dir  = os.path.join(prefix, 'lib')
+    fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
+    fc_lib = sw_lib_dir
+    png_inc_dirs = [sw_inc_dir]
+    png_lib_dirs = [sw_lib_dir]
+    png_libs = ['png12']
+    jpg_lib_dirs = [sw_lib_dir]
     jpg_libs = ['jpeg']
+    ft_lib_dirs = [sw_lib_dir]
+    ft_libs = ['freetype']
+    poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
+            r'%s\poppler;%s'%(sw_inc_dir, sw_inc_dir))
+
+    popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[1]+r'\qt4']
+    poppler_lib_dirs = consolidate('POPPLER_LIB_DIR', sw_lib_dir)
+    popplerqt4_lib_dirs = poppler_lib_dirs
+    poppler_libs = ['poppler']
+    popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
     magick_inc_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\include']
     magick_lib_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\lib']
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
-    ft_lib_dirs = [r'C:\cygwin\home\\kovid\gnuwin32\lib']
-    ft_libs = ['freetype']
-    podofo_inc = 'C:\\podofo\\include\\podofo'
-    podofo_lib = r'C:\podofo'
+    podofo_inc = os.path.join(sw_inc_dir, 'podofo')
+    podofo_lib = sw_lib_dir
 elif isosx:
     fc_inc = '/Users/kovid/fontconfig/include/fontconfig'
     fc_lib = '/Users/kovid/fontconfig/lib'
@@ -137,7 +135,7 @@ elif isosx:
     magick_libs = ['MagickWand', 'MagickCore']
     png_inc_dirs = consolidate('PNG_INC_DIR', '/usr/local/include')
     png_lib_dirs = consolidate('PNG_LIB_DIR', '/usr/local/lib')
-    png_libs = ['png']
+    png_libs = ['png12']
 else:
     # Include directories
     poppler_inc_dirs = pkgconfig_include_dirs('poppler',

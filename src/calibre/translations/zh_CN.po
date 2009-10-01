@@ -5807,7 +5807,7 @@ msgstr "开始转换 %d 本书"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:184
 msgid "Convert book %d of %d (%s)"
-msgstr "转换 %2$d 本书中的第 %1$d 本 (%s)"
+msgstr "转换 %d 本书中的第 %d 本 (%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:204
@@ -5819,7 +5819,7 @@ msgstr "无法转换某些书籍"
 msgid ""
 "Could not convert %d of %d books, because no suitable source format was "
 "found."
-msgstr "由于未找到适用源格式，无法转换 %2$d 本书中的 %1$d 本。"
+msgstr "由于未找到适用源格式，无法转换 %d 本书中的 %d 本。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:123
 msgid "Queueing books for bulk conversion"

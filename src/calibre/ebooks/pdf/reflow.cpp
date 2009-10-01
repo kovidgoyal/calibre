@@ -149,7 +149,7 @@ string XMLString::str() const {
 }
 
 XMLString::~XMLString() {
-    delete this->text; delete this->x_right;
+    delete this->text; delete this->x_right; delete this->xml_text;
 }
 
 

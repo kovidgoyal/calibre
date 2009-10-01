@@ -1,0 +1,167 @@
+Notes on setting up the windows development environment
+========================================================
+
+Set CMAKE_PREFIX_PATH to C:\cygwin\home\kovid\sw
+
+jpeg-7
+-------
+
+Copy 
+jconfig.vc to jconfig.h, makejsln.vc9 to jpeg.sln,
+makeasln.vc9 to apps.sln, makejvcp.vc9 to jpeg.vcproj,
+makecvcp.vc9 to cjpeg.vcproj, makedvcp.vc9 to djpeg.vcproj,
+maketvcp.vc9 to jpegtran.vcproj, makervcp.vc9 to rdjpgcom.vcproj, and
+makewvcp.vc9 to wrjpgcom.vcproj.  (Note that the renaming is critical!)
+
+Load jpeg.sln in Visual Studio
+
+Goto Project->Properties->General Properties and change Configuration Type to dll
+
+Add 
+
+#define USE_WINDOWS_MESSAGEBOX
+
+to jconfig.h (this will cause error messages to show up in a box)
+
+Change the definitions of GLOBAL and EXTERN in jmorecfg.h to
+#define GLOBAL(type)        __declspec(dllexport) type
+#define EXTERN(type)        extern __declspec(dllexport) type
+
+cp build/jpeg-7/Release/jpeg.dll bin/
+cp build/jpeg-7/Release/jpeg.lib build/jpeg-7/Release/jpeg.exp
+cp build/jpeg-7/jerror.h build/jpeg-7/jpeglib.h build/jpeg-7/jconfig.h build/jpeg-7/jmorecfg.h include/
+
+zlib
+------
+
+nmake -f win32/Makefile.msc
+nmake -f win32/Makefile.msc test
+
+cp zlib1.dll* ../../bin
+cp zlib.lib zdll.* ../../lib
+cp zconf.h zlib.h ../../include
+
+
+libpng
+---------
+
+cp scripts/CMakelists.txt .
+mkdir build
+Run cmake-gui.exe with source directory . and build directory build
+You will have to point to sw/lib/zdll.lib and sw/include for zlib
+Also disable PNG_NO_STDIO and PNG_NO_CONSOLE_IO
+
+Now open PNG.sln in VS2008
+Set Build type to Release
+
+cp build/libpng-1.2.40/build/Release/libpng12.dll bin/
+cp build/libpng-1.2.40/build/Release/png12.* lib/
+cp build/libpng-1.2.40/png.h build/libpng-1.2.40/pngconf.h include/
+
+freetype
+-----------
+
+Edit *all copies* of the file ftoption.h and add to generate a .lib
+and a correct dll
+
+#define FT_EXPORT(return_type) __declspec(dllexport) return_type 
+#define FT_EXPORT_DEF(return_type) __declspec(dllexport) return_type
+
+
+VS 2008 .sln file is present, open it
+
+Change active build type to release mutithreaded
+
+Project->Properties->Configuration Properties 
+change configuration type to dll
+
+cp build/freetype-2.3.9/objs/release_mt/freetype.dll bin/
+
+Now change configuration back to static for .lib
+cp build/freetype-2.3.9/objs/win32/vc2008/freetype239MT.lib lib/
+cp -rf build/freetype-2.3.9/include/* include/
+
+expat
+--------
+
+Has a VC 6 project file expat.dsw
+
+Set active build to Relase and change build type to dll
+
+cp build/expat-2.0.1/win32/bin/Release/*.lib lib/
+cp build/expat-2.0.1/win32/bin/Release/*.exp lib/
+cp build/expat-2.0.1/win32/bin/Release/*.dll bin/
+cp build/expat-2.0.1/lib/expat.h build/expat-2.0.1/lib/expat_external.h include/
+
+libxml2
+-------------
+
+cd win32
+cscript configure.js include=C:\cygwin\home\kovid\sw\include lib=C:\cygwin\home\sw\lib prefix=C:\cygwin\home\kovid\sw zlib=yes iconv=no
+nmake /f Makefile.msvc
+nmake /f Makefile.msvc install
+mv lib/libxml2.dll bin/
+cp ./build/libxml2-2.7.5/win32/bin.msvc/*.manifest bin/
+
+kdewin32-msvc
+----------------
+
+Get it from http://www.winkde.org/pub/kde/ports/win32/repository/kdesupport/
+mkdir build
+Run cmake
+
+Set build type to release and configuration to dll
+
+Build
+
+cp build/kdewin32-msvc-0.3.9/build/include/* include/
+cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.dll bin/
+cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.lib lib/
+cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.exp lib/
+cp -r build/kdewin32-msvc-0.3.9/include/msvc/ include/
+cp build/kdewin32-msvc-0.3.9/include/*.h include/
+
+fontconfig
+---------------
+
+Get it from http://www.winkde.org/pub/kde/ports/win32/repository/win32libs/
+mkdir build
+Remove subdirectory test from the bottom of CMakeLists.txt
+run cmake
+
+Set build type to release and project config to dll
+Right click on the fontconfig project and select properties. Add sw/include/msvc to the include paths
+Build only fontconfig
+
+cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.dll bin
+cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.lib lib
+cp build/fontconfig-msvc-2.4.2-3/build/src/Release/*.exp lib
+cp -r build/fontconfig-msvc-2.4.2-3/fontconfig/ include/
+
+Also install the etc files from the font-config-bin archive from kde win32libs
+It contains correct fonts.conf etc.
+
+
+poppler
+-------------
+
+In Cmake: disable GTK, Qt, OPenjpeg, zlib, lcms, gtk_tests, qt_tests. Enable qt4, jpeg, png and zlib
+
+NOTE: poppler must be built as a static library, unless you build the qt4 bindings
+
+Now do the same for the pdftohtml project
+
+cp poppler/*.h ~/sw/include/poppler && cp goo/*.h ~/sw/include/poppler/goo && cp splash/*.h ~/sw/include/poppler/splash && cp build/Release/poppler.lib ../../lib/ && cp build/utils/Release/*.exe ../../bin/
+
+
+podofo
+----------
+
+Add the following three lines near the top of CMakeLists.txt
+SET(WANT_LIB64 FALSE)
+SET(PODOFO_BUILD_SHARED TRUE)
+SET(PODOFO_BUILD_STATIC FALSE)
+
+cp build/podofo-0.7.0/build/src/Release/podofo.dll bin/
+cp build/podofo-0.7.0/build/src/Release/podofo.lib lib/
+cp build/podofo-0.7.0/build/src/Release/podofo.exp lib/
