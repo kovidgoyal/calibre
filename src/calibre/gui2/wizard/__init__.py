@@ -473,6 +473,7 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def initializePage(self):
         lp = prefs['library_path']
+        self.default_library_name = None
         if not lp:
             fname = _('Calibre Library')
             if isinstance(fname, unicode):
@@ -481,6 +482,7 @@ class LibraryPage(QWizardPage, LibraryUI):
                 except:
                     fname = 'Calibre Library'
             lp = os.path.expanduser('~'+os.sep+fname)
+            self.default_library_name = lp
             if not os.path.exists(lp):
                 try:
                     os.makedirs(lp)
@@ -497,6 +499,17 @@ class LibraryPage(QWizardPage, LibraryUI):
     def commit(self, completed):
         oldloc = prefs['library_path']
         newloc = unicode(self.location.text())
+        try:
+            newloce = newloc.encode(filesystem_encoding)
+            if self.default_library_name is not None and \
+                os.path.exists(self.default_library_name) and \
+                not os.listdir(self.default_library_name) and \
+                newloce != self.default_library_name:
+                    os.rmdir(self.default_library_name)
+        except:
+            pass
+        if not os.path.exists(newloc):
+            os.mkdir(newloc)
         if not patheq(oldloc, newloc):
             move_library(oldloc, newloc, self.wizard(), completed)
             return True
