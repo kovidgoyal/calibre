@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.14\n"
-"POT-Creation-Date: 2009-10-01 14:21+MDT\n"
-"PO-Revision-Date: 2009-10-01 14:21+MDT\n"
+"Project-Id-Version: calibre 0.6.15\n"
+"POT-Creation-Date: 2009-10-01 15:10+MDT\n"
+"PO-Revision-Date: 2009-10-01 15:10+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -948,7 +948,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:122
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:111
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:98
-#: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:78
+#: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
 msgstr ""
 
@@ -2050,7 +2050,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:41
@@ -2730,23 +2730,23 @@ msgstr ""
 msgid "Level &3 TOC (XPath expression):"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:63
 msgid "Do not add &detected chapters to the Table of Contents"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:64
 msgid "Number of &links to add to Table of Contents"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
 msgid "&Force use of auto-generated Table of Contents"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:67
 msgid "TOC &Filter:"
 msgstr ""
 
@@ -4726,7 +4726,7 @@ msgid "Bad database location"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:428
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:477
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:478
 msgid "Calibre Library"
 msgstr ""
 
@@ -5716,7 +5716,7 @@ msgstr ""
 msgid "Could not move library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:541
 msgid "welcome wizard"
 msgstr ""
 
