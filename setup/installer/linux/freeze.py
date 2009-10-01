@@ -65,6 +65,7 @@ class LinuxFreeze(Command):
                         '/usr/lib/libgcrypt.so.11',
                         '/usr/lib/libgpg-error.so.0',
                         '/usr/lib/libphonon.so.4',
+                        '/usr/lib/libffi.so.5',
                         '/usr/lib/libssl.so.0.9.8',
                         '/usr/lib/libcrypto.so.0.9.8',
                         '/lib/libreadline.so.6',
