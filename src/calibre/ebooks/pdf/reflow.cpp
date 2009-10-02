@@ -5,6 +5,7 @@
 
 #include <Outline.h>
 #include <PDFDocEncoding.h>
+#include <poppler/ErrorCodes.h>
 #include <goo/GooList.h>
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
@@ -684,6 +685,7 @@ void XMLOutputDev::drawImage(GfxState *state, Object *ref, Stream *str,
 Reflow::Reflow(char *pdfdata, size_t sz) :
     pdfdata(pdfdata), current_font_size(-1), doc(NULL), obj()
 {
+    int err;
     this->obj.initNull();
     if (globalParams == NULL) {
         globalParams = new GlobalParams();
@@ -694,9 +696,14 @@ Reflow::Reflow(char *pdfdata, size_t sz) :
     this->doc = new PDFDoc(str, NULL, NULL);
 
     if (!this->doc->isOk()) {
+        err = this->doc->getErrorCode();
         ostringstream stm;
-        stm << "Failed to open PDF file";
-        stm << " with error code: " << doc->getErrorCode();
+        if (err == errEncrypted) 
+            stm << "PDF is password protected.";
+        else {
+            stm << "Failed to open PDF file";
+            stm << " with error code: " << err;
+        }
         delete this->doc;
         this->doc = NULL;
         throw ReflowException(stm.str().c_str());
@@ -706,9 +713,6 @@ Reflow::Reflow(char *pdfdata, size_t sz) :
 
 void
 Reflow::render() {
-    if (this->doc->isEncrypted()) {
-        throw ReflowException("Document is encrypted.");
-    }
 
     if (!this->doc->okToCopy()) 
         cout << "Warning, this document has the copy protection flag set, ignoring." << endl;
@@ -851,7 +855,6 @@ string Reflow::decode_info_string(Dict *info, const char *key) const {
 
 vector<char>* Reflow::render_first_page(bool use_crop_box, double x_res,
         double y_res) {
-    if (this->is_locked()) throw ReflowException("Document is locked.");
     if (this->numpages() < 1) throw ReflowException("Document has no pages.");
     globalParams->setTextEncoding(encoding);
     globalParams->setEnableFreeType(yes);
