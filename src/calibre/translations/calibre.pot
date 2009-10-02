@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.15\n"
-"POT-Creation-Date: 2009-10-01 15:10+MDT\n"
-"PO-Revision-Date: 2009-10-01 15:10+MDT\n"
+"Project-Id-Version: calibre 0.6.16\n"
+"POT-Creation-Date: 2009-10-01 23:15+MDT\n"
+"PO-Revision-Date: 2009-10-01 23:15+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -95,8 +95,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:261
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:268
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:111
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:118
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:124
@@ -521,7 +521,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:686
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:434
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1007
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1011
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1334
@@ -1276,7 +1276,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1012
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1072
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 msgid "Tags"
 msgstr ""
 
@@ -1284,7 +1284,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:354
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 msgid "Series"
 msgstr ""
 
@@ -1953,47 +1953,64 @@ msgstr ""
 msgid "Choose Files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:52
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:53
 msgid "Searching in"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:164
 msgid "Adding..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:177
 msgid "Searching in all sub-directories..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:244
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:190
+msgid "Path error"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:191
+msgid "The specified directory could not be processed."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:482
+msgid "No books"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:196
+msgid "No books found"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:262
 msgid "Added"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:257
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:275
 msgid "Adding failed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:258
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:276
 msgid "The add books process seems to have hung. Try restarting calibre and adding the books in smaller increments, until you find the problem book."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:288
 msgid "Duplicates found!"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:271
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:289
 msgid "Books with the same title as the following already exist in the database. Add them anyway?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:274
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:292
 msgid "Adding duplicates..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:335
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:353
 msgid "Saving..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:388
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:406
 msgid "Saved"
 msgstr ""
 
@@ -2944,10 +2961,6 @@ msgstr ""
 msgid "Send specific format to storage card B"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:482
-msgid "No books"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:483
 msgid "selected to send"
 msgstr ""
@@ -3086,7 +3099,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:344
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 msgid "Formats"
 msgstr ""
 
@@ -5238,11 +5251,11 @@ msgstr ""
 msgid "Click to browse books by tags"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 msgid "Authors"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 msgid "Publishers"
 msgstr ""
 
@@ -6260,56 +6273,56 @@ msgid ""
 "Start the calibre content server."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:45
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:47
 msgid ""
 "%sUsage%s: %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:89
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:91
 msgid "Created by "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:90
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:92
 msgid "Whenever you pass arguments to %prog that have spaces in them, enclose the arguments in quotation marks."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:553
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:555
 msgid "Path to the database in which books are stored"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:555
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:557
 msgid "Pattern to guess metadata from filenames"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:557
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:559
 msgid "Access key for isbndb.com"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:559
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:561
 msgid "Default timeout for network operations (seconds)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:561
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:563
 msgid "Path to directory in which your library of books is stored"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:563
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:565
 msgid "The language in which to display the user interface"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:565
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:567
 msgid "The default output format for ebook conversions."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:569
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:571
 msgid "Ordered list of formats to prefer for input."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:571
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:573
 msgid "Read metadata from files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/config.py:573
+#: /home/kovid/work/calibre/src/calibre/utils/config.py:575
 msgid "The priority of worker processes"
 msgstr ""
 
