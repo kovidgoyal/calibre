@@ -147,6 +147,7 @@ class TagsModel(QAbstractItemModel):
             state_map = dict(izip(names, states))
             category_index = self.index(i, 0, QModelIndex())
             if len(category.children) > 0:
+                r, self.rowCount(category_index)
                 self.beginRemoveRows(category_index, 0,
                         len(category.children)-1)
                 category.children = []
@@ -166,6 +167,13 @@ class TagsModel(QAbstractItemModel):
             return NONE
         item = index.internalPointer()
         return item.data(role)
+
+    def headerData(self, *args):
+        return NONE
+
+    def flags(self, *args):
+        return Qt.ItemIsEnabled|Qt.ItemIsSelectable
+
 
     def index(self, row, column, parent):
         if not self.hasIndex(row, column, parent):
