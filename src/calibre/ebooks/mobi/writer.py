@@ -340,6 +340,9 @@ class MobiWriter(object):
         self._conforming_periodical_toc = False
         self._indexable = False
         self._ctoc = ""
+        self._ctoc_records = []
+        self._ctoc_offset = 0
+        self._ctoc_largest = 0
         self._HTMLRecords = []
         self._tbSequence = ""
         self._MobiDoc = None
@@ -887,7 +890,6 @@ class MobiWriter(object):
         tbsType = 0x00
         tbSequence = ""
 
-
         # Generate TBS for type 0x101/0x103 - structured periodical
         if self._initialIndexRecordFound == False :
             # Is there any indexed content yet?
@@ -1001,7 +1003,7 @@ class MobiWriter(object):
 
                     # Assemble arg3: Upper nybble: ending section index
                     #                Lower nybble = flags for next section - 0 or 1
-                    arg3 = (self._HTMLRecords[nrecords].continuingNodeParent + 1) << 4
+                    arg3 = (self._HTMLRecords[nrecords].continuingNodeParent + 1) << 4                    
                     arg3Flags = 0               # 0: has nodes?
                     arg3 |= arg3Flags
                     tbSequence += decint(arg3, DECINT_FORWARD)
@@ -1011,7 +1013,7 @@ class MobiWriter(object):
                     #                              flag: 4 = starting nodes from previous section
 
                     sectionBase = self._HTMLRecords[nrecords].continuingNodeParent
-                    sectionDelta = self._sectionCount - sectionBase - 1
+                    sectionDelta = self._sectionCount - sectionBase - 1                       
                     articleOffset = self._HTMLRecords[nrecords].continuingNode + 1
                     arg4 = (sectionDelta + articleOffset) << 4
 
@@ -1041,7 +1043,7 @@ class MobiWriter(object):
                     # Write first article of new section
                     #arg6 = self._sectionCount - 1                   # We're now into the following section
                     #arg6 = self._HTMLRecords[nrecords].nextSectionNumber
-                    arg6 = sectionDelta + self._HTMLRecords[nrecords].nextSectionOpeningNode
+                    arg6 = sectionDelta + self._HTMLRecords[nrecords].nextSectionOpeningNode              
                     arg6 <<= 4
                     if self._HTMLRecords[nrecords].nextSectionNodeCount > 1 :
                         arg6Flags = 4
@@ -1238,7 +1240,10 @@ class MobiWriter(object):
             self._conforming_periodical_toc = self._evaluate_periodical_toc()
 
         # This routine decides whether to build flat or structured based on self._conforming_periodical_toc
-        self._ctoc = self._generate_ctoc()
+        # self._ctoc = self._generate_ctoc()
+        
+        # There may be multiple CNCX records built below, but the last record is returned and should be stored
+        self._ctoc_records.append(self._generate_ctoc())
 
         # Build the HTMLRecords list so we can assemble the trailing bytes sequences in the following while loop
         toc = self._oeb.toc
@@ -1395,8 +1400,10 @@ class MobiWriter(object):
         if btype < 0x100 :
             record0.write(pack('>I', 0xffffffff))
         elif btype > 0x100 and self._indexable :
-            record0.write(pack('>I', 0xffffffff if self._primary_index_record is
-                None else self._primary_index_record+3))
+            if self._primary_index_record is None: 
+                record0.write(pack('>I', 0xffffffff))
+            else:
+                record0.write(pack('>I', self._primary_index_record + 2 + len(self._ctoc_records)))
         else :
             record0.write(pack('>I', 0xffffffff))
 
@@ -1613,8 +1620,7 @@ class MobiWriter(object):
         self._primary_index_record = None
 
 		# Build the NCXEntries and INDX
-        indxt, indxt_count, indices, last_name = \
-                self._generate_indxt(self._ctoc)
+        indxt, indxt_count, indices, last_name = self._generate_indxt()
 
         if last_name is None:
             self._oeb.log.warn('Input document has no TOC. No index generated.')
@@ -1723,7 +1729,13 @@ class MobiWriter(object):
         indx0 = indx0.getvalue()
 
         self._primary_index_record = len(self._records)
-        self._records.extend([indx0, indx1, self._ctoc])
+        
+        # GR: handle multiple ctoc records
+        # self._records.extend([indx0, indx1, self._ctoc])
+        self._records.extend([indx0, indx1 ])
+        for (i,ctoc_record) in enumerate(self._ctoc_records):
+            self._records.append(ctoc_record)
+            # print "adding %d of %d ctoc records" % (i+1, len(self._ctoc_records))
 
         # Indexing for author/description fields in summary section
         # Test for indexed periodical - only one that needs secondary index
@@ -1786,7 +1798,29 @@ class MobiWriter(object):
         else :
             text = "(none)".encode('utf-8')
         return text
-
+        
+    def _add_to_ctoc(self, ctoc_str, record_offset):
+        # Write vwilen + string to ctoc
+        # Return offset
+        # Is there enough room for this string in the current ctoc record?
+        if 0xfbf8 - self._ctoc.tell() < 2 + len(ctoc_str):
+            # flush this ctoc, start a new one
+            print "closing ctoc_record at 0x%X" % self._ctoc.tell()
+            print "starting new ctoc with '%-50.50s ...'" % ctoc_str
+            # pad with 00 
+            pad = 0xfbf8 - self._ctoc.tell() 
+            print "padding %d bytes of 00" % pad
+            self._ctoc.write('\0' * (pad))
+            self._ctoc_records.append(self._ctoc.getvalue())
+            self._ctoc.truncate(0)
+            self._ctoc_offset += 0x10000
+            record_offset = self._ctoc_offset
+                    
+        offset = self._ctoc.tell() + record_offset
+        self._ctoc.write(decint(len(ctoc_str), DECINT_FORWARD) + ctoc_str)
+        return offset
+    
+        
     def _add_flat_ctoc_node(self, node, ctoc, title=None):
         # Process 'chapter' or 'article' nodes only, force either to 'chapter'
         t = node.title if title is None else title
@@ -1803,8 +1837,9 @@ class MobiWriter(object):
             ctoc_name_map['klass'] = node.klass
 
         # Add title offset to name map
-        ctoc_name_map['titleOffset'] = ctoc.tell()
-        ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+#         ctoc_name_map['titleOffset'] = ctoc.tell()
+#         ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+        ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
         self._chapterCount += 1
 
         # append this node's name_map to map
@@ -1815,6 +1850,8 @@ class MobiWriter(object):
 
     def _add_structured_ctoc_node(self, node, ctoc, title=None):
         # Process 'periodical', 'section' and 'article'
+        
+        # Fetch the offset referencing the current ctoc_record
         if node.klass is None :
             return
         t = node.title if title is None else title
@@ -1829,14 +1866,16 @@ class MobiWriter(object):
 
         if node.klass == 'chapter':
             # Add title offset to name map
-            ctoc_name_map['titleOffset'] = ctoc.tell()
-            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
+#             ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
             self._chapterCount += 1
 
         elif node.klass == 'periodical' :
             # Add title offset
-            ctoc_name_map['titleOffset'] = ctoc.tell()
-            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
+#             ctoc.write( decint(len(t), DECINT_FORWARD) + t )
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
 
             # Look for existing class entry 'periodical' in _ctoc_map
             for entry in self._ctoc_map:
@@ -1847,15 +1886,18 @@ class MobiWriter(object):
                 else :
                     continue
             else:
-                ctoc_name_map['classOffset'] = ctoc.tell()
-                ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+                # class names should always be in CNCX 0 - no offset
+#                 ctoc_name_map['classOffset'] = ctoc.tell()
+#                 ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
 
             self._periodicalCount += 1
 
         elif node.klass == 'section' :
             # Add title offset
-            ctoc_name_map['titleOffset'] = ctoc.tell()
-            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
+#             ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
 
             # Look for existing class entry 'section' in _ctoc_map
             for entry in self._ctoc_map:
@@ -1866,15 +1908,18 @@ class MobiWriter(object):
                 else :
                     continue
             else:
-                ctoc_name_map['classOffset'] = ctoc.tell()
-                ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+                # class names should always be in CNCX 0 - no offset
+#                 ctoc_name_map['classOffset'] = ctoc.tell()
+#                 ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
 
             self._sectionCount += 1
 
         elif node.klass == 'article' :
             # Add title offset/title
-            ctoc_name_map['titleOffset'] = ctoc.tell()
-            ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
+#             ctoc.write(decint(len(t), DECINT_FORWARD)+t)
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
 
             # Look for existing class entry 'article' in _ctoc_map
             for entry in self._ctoc_map:
@@ -1884,22 +1929,26 @@ class MobiWriter(object):
                 else :
                     continue
             else:
-                ctoc_name_map['classOffset'] = ctoc.tell()
-                ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+                # class names should always be in CNCX 0 - no offset
+#                 ctoc_name_map['classOffset'] = ctoc.tell()
+#                 ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
+                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
 
             # Add description offset/description
             if node.description :
                 d = self._clean_text_value(node.description)
-                ctoc_name_map['descriptionOffset'] = ctoc.tell()
-                ctoc.write(decint(len(d), DECINT_FORWARD)+d)
+#                 ctoc_name_map['descriptionOffset'] = ctoc.tell() + ctoc_offset
+#                 ctoc.write(decint(len(d), DECINT_FORWARD)+d)
+                ctoc_name_map['descriptionOffset'] = self._add_to_ctoc(d, self._ctoc_offset)
             else :
                 ctoc_name_map['descriptionOffset'] = None
 
-            # Add author offset/description
+            # Add author offset/attribution
             if node.author :
                 a = self._clean_text_value(node.author)
-                ctoc_name_map['authorOffset'] = ctoc.tell()
-                ctoc.write(decint(len(a), DECINT_FORWARD)+a)
+#                 ctoc_name_map['authorOffset'] = ctoc.tell() + ctoc_offset
+#                 ctoc.write(decint(len(a), DECINT_FORWARD)+a)
+                ctoc_name_map['authorOffset'] = self._add_to_ctoc(a, self._ctoc_offset)
             else :
                 ctoc_name_map['authorOffset'] = None
 
@@ -1909,9 +1958,10 @@ class MobiWriter(object):
             raise NotImplementedError( \
             'writer._generate_ctoc.add_node: title: %s has unrecognized klass: %s, playOrder: %d' % \
             (node.title, node.klass, node.play_order))
-
+            
         # append this node's name_map to map
         self._ctoc_map.append(ctoc_name_map)
+
 
     def _generate_ctoc(self):
         # Generate the compiled TOC strings
@@ -1931,7 +1981,8 @@ class MobiWriter(object):
         reduced_toc = []
         self._ctoc_map = []				# per node dictionary of {class/title/desc/author} offsets
         self._last_toc_entry = None
-        ctoc = StringIO()
+        #ctoc = StringIO()
+        self._ctoc = StringIO()
 
         # Track the individual node types
         self._periodicalCount = 0
@@ -1946,8 +1997,9 @@ class MobiWriter(object):
             for (child) in toc.iter():
                 if self.opts.verbose > 2 :
                     self._oeb.logger.info("  %s" % child)
-                self._add_structured_ctoc_node(child, ctoc)
+                self._add_structured_ctoc_node(child, self._ctoc)
                 first = False
+
         else :
             self._oeb.logger.info('Generating flat CTOC ...')
             previousOffset = -1
@@ -1979,7 +2031,7 @@ class MobiWriter(object):
                     # print "_generate_ctoc: child offset: 0x%X" % currentOffset
 
                     if currentOffset != previousOffset :
-                        self._add_flat_ctoc_node(child, ctoc)
+                        self._add_flat_ctoc_node(child, self._ctoc)
                         reduced_toc.append(child)
                         previousOffset = currentOffset
                     else :
@@ -2021,8 +2073,13 @@ class MobiWriter(object):
                                     (self._periodicalCount, self._sectionCount, self._articleCount) )
             else :
                 self._oeb.logger.info("chapterCount: %d" % self._chapterCount)
+                
+        if True:
+            rec_count = len(self._ctoc_records)
+            self._oeb.logger.info("  CNCX utilization: %d %s %.0f%% full" % \
+                (rec_count + 1, 'records, last record' if rec_count else 'record,', len(self._ctoc.getvalue())/655) )
 
-        return align_block(ctoc.getvalue())
+        return align_block(self._ctoc.getvalue())
 
     def _write_periodical_node(self, indxt, indices, index, offset, length, count, firstSection, lastSection) :
         pos = 0xc0 + indxt.tell()
@@ -2341,7 +2398,7 @@ class MobiWriter(object):
 
         return last_name, c
 
-    def _generate_indxt(self, ctoc):
+    def _generate_indxt(self):
         # Assumption: child.depth() represents nestedness of the TOC.
         # A flat document (book) has a depth of 2:
         # <navMap>					child.depth() = 2
