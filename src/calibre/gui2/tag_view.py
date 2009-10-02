@@ -75,6 +75,13 @@ class TagTreeItem(object):
         elif self.type == self.TAG:
             self.tag, self.icon_map = data, list(map(QVariant, icon_map))
 
+    def __str__(self):
+        if self.type == self.ROOT:
+            return 'ROOT'
+        if self.type == self.CATEGORY:
+            return 'CATEGORY:'+self.name+':%d'%len(self.children)
+        return 'TAG:'+self.tag.name
+
     def row(self):
         if self.parent is not None:
             return self.parent.children.index(self)
@@ -132,11 +139,12 @@ class TagsModel(QAbstractItemModel):
             for tag in data[r]:
                 t = TagTreeItem(parent=c, data=tag, icon_map=self.icon_map)
 
-        self.refresh()
         self.db.add_listener(self.database_changed)
+        self.connect(self, SIGNAL('need_refresh()'), self.refresh,
+                Qt.QueuedConnection)
 
     def database_changed(self, event, ids):
-        self.refresh()
+        self.emit(SIGNAL('need_refresh()'))
 
     def refresh(self):
         data = self.db.get_categories(config['sort_by_popularity'])
@@ -147,7 +155,6 @@ class TagsModel(QAbstractItemModel):
             state_map = dict(izip(names, states))
             category_index = self.index(i, 0, QModelIndex())
             if len(category.children) > 0:
-                r, self.rowCount(category_index)
                 self.beginRemoveRows(category_index, 0,
                         len(category.children)-1)
                 category.children = []
