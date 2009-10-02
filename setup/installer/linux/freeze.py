@@ -24,6 +24,7 @@ class LinuxFreeze(Command):
 
         is64bit = platform.architecture()[0] == '64bit'
         arch = 'x86_64' if is64bit else 'i686'
+        ffi = '/usr/lib/libffi.so.5' if is64bit else '/usr/lib/gcc/i686-pc-linux-gnu/4.4.1/libffi.so.4'
 
 
         QTDIR          = '/usr/lib/qt4'
@@ -58,6 +59,7 @@ class LinuxFreeze(Command):
                         '/usr/lib/libgthread-2.0.so.0',
                         '/usr/lib/gcc/***-pc-linux-gnu/4.4.1/libstdc++.so.6'.replace('***',
                             arch),
+                        ffi,
                         '/usr/lib/libpng12.so.0',
                         '/usr/lib/libexslt.so.0',
                         '/usr/lib/libMagickWand.so.2',
@@ -65,7 +67,6 @@ class LinuxFreeze(Command):
                         '/usr/lib/libgcrypt.so.11',
                         '/usr/lib/libgpg-error.so.0',
                         '/usr/lib/libphonon.so.4',
-                        '/usr/lib/libffi.so.5',
                         '/usr/lib/libssl.so.0.9.8',
                         '/usr/lib/libcrypto.so.0.9.8',
                         '/lib/libreadline.so.6',
