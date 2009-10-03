@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-10-02 05:30+0000\n"
-"PO-Revision-Date: 2009-10-01 20:09+0000\n"
+"PO-Revision-Date: 2009-10-02 11:00+0000\n"
 "Last-Translator: Thruth Wang <wanglihao@gmail.com>\n"
 "Language-Team: Simplified Chinese <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-02 06:36+0000\n"
+"X-Launchpad-Export-Date: 2009-10-03 06:45+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -2329,11 +2329,11 @@ msgstr "搜索所有子文件夹..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:190
 msgid "Path error"
-msgstr ""
+msgstr "路径错误"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:191
 msgid "The specified directory could not be processed."
-msgstr ""
+msgstr "无法处理指定目录。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:482
@@ -2342,7 +2342,7 @@ msgstr "没有书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:196
 msgid "No books found"
-msgstr ""
+msgstr "未找到书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:262
 msgid "Added"
@@ -5462,7 +5462,7 @@ msgstr "无法转换"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1212
 msgid "Starting conversion of %d book(s)"
-msgstr ""
+msgstr "开始转换 %d 本书"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1323
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1342
