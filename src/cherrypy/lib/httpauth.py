@@ -8,7 +8,7 @@ Usage:
     First use 'doAuth' to request the client authentication for a
     certain resource. You should send an httplib.UNAUTHORIZED response to the
     client so he knows he has to authenticate itself.
-    
+
     Then use 'parseAuthorization' to retrieve the 'auth_map' used in
     'checkResponse'.
 
@@ -30,27 +30,27 @@ __license__ = """
 Copyright (c) 2005, Tiago Cogumbreiro <cogumbreiro@users.sf.net>
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, 
+    * Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, 
-      this list of conditions and the following disclaimer in the documentation 
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
       and/or other materials provided with the distribution.
-    * Neither the name of Sylvain Hellegouarch nor the names of his contributors 
-      may be used to endorse or promote products derived from this software 
+    * Neither the name of Sylvain Hellegouarch nor the names of his contributors
+      may be used to endorse or promote products derived from this software
       without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
@@ -83,6 +83,7 @@ SUPPORTED_QOP = (AUTH, AUTH_INT)
 #
 DIGEST_AUTH_ENCODERS = {
     MD5: lambda val: md5(val).hexdigest(),
+    'md5': lambda val:md5(val).hexdigest(),
     MD5_SESS: lambda val: md5(val).hexdigest(),
 #    SHA: lambda val: sha(val).hexdigest(),
 }
@@ -125,7 +126,7 @@ def doAuth (realm):
     """'doAuth' function returns the challenge string b giving priority over
     Digest and fallback to Basic authentication when the browser doesn't
     support the first one.
-    
+
     This should be set in the HTTP header under the key 'WWW-Authenticate'."""
 
     return digestAuth (realm) + " " + basicAuth (realm)
@@ -195,7 +196,7 @@ def parseAuthorization (credentials):
 #
 def md5SessionKey (params, password):
     """
-    If the "algorithm" directive's value is "MD5-sess", then A1 
+    If the "algorithm" directive's value is "MD5-sess", then A1
     [the session key] is calculated only once - on the first request by the
     client following receipt of a WWW-Authenticate challenge from the server.
 
@@ -340,24 +341,24 @@ AUTH_RESPONSES = {
 def checkResponse (auth_map, password, method = "GET", encrypt=None, **kwargs):
     """'checkResponse' compares the auth_map with the password and optionally
     other arguments that each implementation might need.
-    
+
     If the response is of type 'Basic' then the function has the following
     signature:
-    
+
     checkBasicResponse (auth_map, password) -> bool
-    
+
     If the response is of type 'Digest' then the function has the following
     signature:
-    
+
     checkDigestResponse (auth_map, password, method = 'GET', A1 = None) -> bool
-    
+
     The 'A1' argument is only used in MD5_SESS algorithm based responses.
     Check md5SessionKey() for more info.
     """
     global AUTH_RESPONSES
     checker = AUTH_RESPONSES[auth_map["auth_scheme"]]
     return checker (auth_map, password, method=method, encrypt=encrypt, **kwargs)
- 
+
 
 
 
