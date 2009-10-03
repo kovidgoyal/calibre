@@ -111,7 +111,8 @@ class PDFWriter(QObject):
 
         self.logger.debug('Processing %s...' % item)
 
-        self.view.load(QUrl(item))
+        #self.view.load(QUrl(item))
+        self.view.setHtml(open(item, 'r+b').read().decode('utf-8'), QUrl(item))
 
     def _render_html(self, ok):
         if ok:
