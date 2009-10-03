@@ -52,7 +52,7 @@ extern "C" {
             reflow = new Reflow(pdfdata, size);
             info = reflow->get_info();
             if (PyObject_IsTrue(cover)) {
-                if (!reflow->is_locked() && reflow->numpages() > 0) {
+                if (reflow->numpages() > 0) {
                     vector<char> *data = reflow->render_first_page();
                     if (data && data->size() > 0) {
                         PyObject *d = PyBytes_FromStringAndSize(&((*data)[0]), data->size());
@@ -168,6 +168,8 @@ extern "C" {
 int main(int argc, char **argv) {
     char *memblock;
     ifstream::pos_type size;
+    int ret = 0;
+
 
     if (argc != 2)  {
         cerr << "Usage: " << argv[0] << " file.pdf" << endl;
@@ -186,7 +188,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    int ret = 0;
     try {
         Reflow reflow(memblock, size);
         reflow.render();

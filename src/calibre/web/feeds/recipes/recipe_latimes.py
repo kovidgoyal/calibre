@@ -5,7 +5,6 @@ __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 latimes.com
 '''
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LATimes(BasicNewsRecipe):
@@ -14,8 +13,7 @@ class LATimes(BasicNewsRecipe):
     description           = u'News from Los Angeles'
     oldest_article        = 7
     max_articles_per_feed = 100
-    language = 'en'
-
+    language              = 'en'
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
@@ -41,19 +39,24 @@ class LATimes(BasicNewsRecipe):
                 .subhead{font-family :Georgia,"Times New Roman",Times,serif; font-size:x-small;}
                 '''
 
+   # recursions = 1
+   # match_regexps = [r'http://www.latimes.com/.*page=[2-9]']
 
     keep_only_tags    = [dict(name='div', attrs={'class':["story"  ,"entry"] })]
-    remove_tags       = [   dict(name='div', attrs={'class':['articlerail',"sphereTools","tools","toppaginate","entry-footer-left","entry-footer-right"]}),
+
+
+    remove_tags      = [   dict(name='div', attrs={'class':['articlerail',"sphereTools","tools","toppaginate","entry-footer-left","entry-footer-right"]}),
                             dict(name='div', attrs={'id':["moduleArticleToolsContainer",]}),
-                            dict(name='ul', attrs={'class':["article-nav clearfix",]}),
                             dict(name='p', attrs={'class':["entry-footer",]}),
+                           dict(name='ul', attrs={'class':"article-nav clearfix"}),
                             dict(name=['iframe'])
                         ]
 
+
     feeds          = [(u'News', u'http://feeds.latimes.com/latimes/news')
                       ,(u'Local','http://feeds.latimes.com/latimes/news/local')
-                      ,(u'Most Emailed','http://feeds.latimes.com/MostEmailed')
-                      ,(u'California Politics','http://feeds.latimes.com/latimes/news/local/politics/cal/')
+                      ,(u'MostEmailed','http://feeds.latimes.com/MostEmailed')
+                      ,(u'Politics','http://feeds.latimes.com/latimes/news/local/politics/cal/')
                       ,('OrangeCounty','http://feeds.latimes.com/latimes/news/local/orange/')
                       ,('National','http://feeds.latimes.com/latimes/news/nationworld/nation')
                       ,('Politics','http://feeds.latimes.com/latimes/news/politics/')
@@ -62,5 +65,22 @@ class LATimes(BasicNewsRecipe):
                       ,('Entertainment','http://feeds.latimes.com/latimes/entertainment/')
                       ]
 
+
     def get_article_url(self, article):
-        return article.get('feedburner_origlink')
+        ans = article.get('feedburner_origlink').rpartition('?')[0]
+
+        try:
+            self.log('Looking for full story link in', ans)
+            soup = self.index_to_soup(ans)
+            x = soup.find(text="single page")
+
+            if x is not None:
+                a = x.parent
+                if a and a.has_key('href'):
+                    ans = 'http://www.latimes.com'+a['href']
+                    self.log('Found full story link', ans)
+        except:
+            pass
+        return ans
+
+

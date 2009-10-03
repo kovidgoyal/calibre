@@ -1194,16 +1194,23 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         previous = self.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.library_view.selectionModel().selectedRows()]
+        num = 0
         if bulk or (bulk is None and len(book_ids) > 1):
             self.__bulk_queue = convert_bulk_ebook(self, self.queue_convert_jobs,
                 self.library_view.model().db, book_ids,
                 out_format=prefs['output_format'], args=(rows, previous,
                     self.book_converted))
+            num = len(self.__bulk_queue.book_ids)
         else:
             jobs, changed, bad = convert_single_ebook(self,
                 self.library_view.model().db, book_ids, out_format=prefs['output_format'])
             self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                     self.book_converted)
+            num = len(jobs)
+
+        if num > 0:
+            self.status_bar.showMessage(_('Starting conversion of %d book(s)') %
+                num, 2000)
 
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
             converted_func, extra_job_args=[]):

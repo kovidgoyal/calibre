@@ -16,7 +16,7 @@ from setup.build_environment import fc_inc, fc_lib, \
         fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
         leopard_build, QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, \
-        magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, poppler_objs, \
+        magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, jpg_lib_dirs
 MT
 isunix = islinux or isosx
@@ -26,8 +26,8 @@ make = 'make' if isunix else NMAKE
 class Extension(object):
 
     def absolutize(self, paths):
-        return [x if os.path.isabs(x) else os.path.join(SRC, x.replace('/',
-            os.sep)) for x in paths]
+        return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/',
+            os.sep)) for x in paths]))
 
 
     def __init__(self, name, sources, **kwargs):
@@ -61,7 +61,6 @@ extensions = [
                 libraries=poppler_libs+magick_libs+png_libs+ft_libs+jpg_libs+pdfreflow_libs,
                 lib_dirs=poppler_lib_dirs+magick_lib_dirs+png_lib_dirs+ft_lib_dirs+jpg_lib_dirs,
                 inc_dirs=poppler_inc_dirs+magick_inc_dirs+png_inc_dirs,
-                extra_objs=poppler_objs,
                 error=reflow_error,
                 cflags=['-DPNG_SKIP_SETJMP_CHECK'] if islinux else []
                 ),
@@ -161,7 +160,7 @@ if isosx:
 if iswindows:
     cc = cxx = msvc.cc
     cflags = '/c /nologo /Ox /MD /W3 /EHsc /DNDEBUG'.split()
-    ldflags = '/DLL /nologo /INCREMENTAL:NO'.split()
+    ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
     #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
     #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
 
@@ -372,6 +371,8 @@ class BuildPDF2XML(Command):
 
     def run(self, opts):
         dest = os.path.expanduser('~/bin/pdf2xml')
+        if iswindows:
+            dest = r'C:\cygwin\home\kovid\sw\bin\pdf2xml.exe'
         odest = self.j(self.d(self.SRC), 'build', 'objects', 'pdf2xml')
         if not os.path.exists(odest):
             os.makedirs(odest)
@@ -380,11 +381,15 @@ class BuildPDF2XML(Command):
         for src in reflow_sources:
             if src.endswith('python.cpp'):
                 continue
-            obj = self.j(odest, self.b(src+'.o'))
+            obj = self.j(odest, self.b(src+('.obj' if iswindows else '.o')))
             if self.newer(obj, [src]+reflow_headers):
-                cmd = ['g++', '-pthread', '-pedantic', '-ggdb', '-c', '-Wall', '-I/usr/include/poppler',
+                cmd = [cxx, '-pthread', '-pedantic', '-ggdb', '-c', '-Wall', '-I/usr/include/poppler',
                         '-I/usr/include/ImageMagick',
                         '-DPDF2XML', '-o', obj, src]
+                if iswindows:
+                    cmd = [cxx, '/c', '/MD', '/W3', '/EHsc', '/Zi', '/DPDF2XML']
+                    cmd += ['-I'+x for x in poppler_inc_dirs+magick_inc_dirs]
+                    cmd += ['/Fo'+obj, src]
                 self.info(*cmd)
                 subprocess.check_call(cmd)
             objects.append(obj)
@@ -392,6 +397,12 @@ class BuildPDF2XML(Command):
         if self.newer(dest, objects):
             cmd = ['g++', '-g', '-o', dest]+objects+['-lpoppler', '-lMagickWand',
             '-lpng', '-lpthread']
+            if iswindows:
+                cmd = [msvc.linker] + '/INCREMENTAL:NO /DEBUG /NODEFAULTLIB:libcmt.lib'.split()
+                cmd += ['/LIBPATH:'+x for x in magick_lib_dirs+poppler_lib_dirs]
+                cmd += [x+'.lib' for x in
+                        png_libs+magick_libs+poppler_libs+ft_libs+jpg_libs+pdfreflow_libs]
+                cmd += ['/OUT:'+dest] + objects
             self.info(*cmd)
             subprocess.check_call(cmd)
 

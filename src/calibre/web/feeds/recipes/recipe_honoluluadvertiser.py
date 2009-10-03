@@ -15,28 +15,24 @@ class Honoluluadvertiser(BasicNewsRecipe):
     publisher             = 'Honolulu Advertiser'
     category              = 'news, Honolulu, Hawaii'
     oldest_article        = 2
-    language = 'en'
-
+    language              = 'en'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
-    remove_javascript     = True
-    cover_url             = 'http://www.honoluluadvertiser.com/graphics/branding.gif'
 
-    html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , category
-                        , '--publisher'     , publisher
-                        ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-    
+    conversion_options = {
+                             'comments'  : description
+                            ,'tags'      : category
+                            ,'language'  : language
+                            ,'publisher' : publisher
+                         }
+
     keep_only_tags = [dict(name='td')]
 
     remove_tags = [dict(name=['object','link'])]
+    remove_attributes = ['style']
 
-                        
     feeds = [
               (u'Breaking news', u'http://www.honoluluadvertiser.com/apps/pbcs.dll/section?Category=RSS01&MIME=XML' )
              ,(u'Local news', u'http://www.honoluluadvertiser.com/apps/pbcs.dll/section?Category=RSS02&MIME=XML' )
@@ -47,14 +43,13 @@ class Honoluluadvertiser(BasicNewsRecipe):
             ]
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        mtag = '\n<meta http-equiv="Content-Language" content="en"/>\n'
-        soup.head.insert(0,mtag)
+        st = soup.find('td')
+        if st:
+           st.name = 'div'
         return soup
 
     def print_version(self, url):
-        ubody, sep, rest = url.rpartition('/-1/')
+        ubody, sep, rest = url.rpartition('?source')
         root, sep2, article_id = ubody.partition('/article/')
         return u'http://www.honoluluadvertiser.com/apps/pbcs.dll/article?AID=/' + article_id + '&template=printart'
-        
+

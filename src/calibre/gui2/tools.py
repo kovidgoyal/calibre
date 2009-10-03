@@ -31,7 +31,6 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
     total = len(book_ids)
     if total == 0:
         return None, None, None
-    parent.status_bar.showMessage(_('Starting conversion of %d books') % total, 2000)
 
     for i, book_id in enumerate(book_ids):
         temp_files = []
@@ -103,7 +102,6 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     total = len(book_ids)
     if total == 0:
         return None, None, None
-    parent.status_bar.showMessage(_('Starting conversion of %d books') % total, 2000)
 
     d = BulkConfig(parent, db, out_format)
     if d.exec_() != QDialog.Accepted:

@@ -32,7 +32,11 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QSpinBox" name="opt_max_toc_links"/>
+    <widget class="QSpinBox" name="opt_max_toc_links">
+     <property name="maximum">
+      <number>10000</number>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_16">

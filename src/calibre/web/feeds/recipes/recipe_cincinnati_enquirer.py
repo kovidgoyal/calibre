@@ -9,22 +9,35 @@ class AdvancedUserRecipe1234144423(BasicNewsRecipe):
     oldest_article = 7
     language = 'en'
 
-    __author__     = 'Joseph Kitzmiller'
+    __author__     = 'Joseph Kitzmiller and Sujata Raman'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     remove_javascript     = True
     encoding = 'cp1252'
-    extra_css = ' p {font-size: medium; font-weight: normal;} '
-    
-    keep_only_tags = [dict(name='div', attrs={'class':'padding'})]
-    
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#0E5398; }
+                    h2{color:#666666;}
+                   .blog_title{color:#4E0000; font-family:Georgia,"Times New Roman",Times,serif; font-size:large;}
+                   .sidebar-photo{font-family:Arial,Helvetica,sans-serif; color:#333333; font-size:30%;}
+                   .blog_post{font-family:Arial,Helvetica,sans-serif; color:#222222; font-size:xx-small;}
+                   .article-bodytext{font-family:Arial,Helvetica,sans-serif; font-size:xx-small; color:#222222;font-weight:normal;}
+                   .blog caitlin{font-family:Arial,Helvetica,sans-serif; font-size:xx-small; color:#222222; font-weight:normal;}
+                   .ratingbyline{font-family:Arial,Helvetica,sans-serif; color:#333333; font-size:50%;}
+                   .author{font-family:Arial,Helvetica,sans-serif; color:#777777; font-size:50%;}
+                   .date{font-family:Arial,Helvetica,sans-serif; color:#777777; font-size:50%;}
+                   .padding{font-family:Arial,Helvetica,sans-serif; font-size:70%; color:#222222; font-weight:normal;}
+                    '''
+
+    keep_only_tags = [dict(name='div', attrs={'class':['padding','sidebar-photo','blog caitlin']})]
+
     remove_tags = [
                      dict(name=['object','link','table','embed'])
-                    ,dict(name='div',attrs={'id':'pluckcomments'})
-                    ,dict(name='div',attrs={'class':'articleflex-container'})
+                    ,dict(name='div',attrs={'id':["pluckcomments","StoryChat"]})
+                    ,dict(name='div',attrs={'class':['articleflex-container',]})
+                     ,dict(name='p',attrs={'class':['posted','tags']})
                   ]
-   
+
     feeds          = [(u'Cincinnati Enquirer', u'http://rss.cincinnati.com/apps/pbcs.dll/section?category=rssenq01&mime=xml')]
 
     def preprocess_html(self, soup):
