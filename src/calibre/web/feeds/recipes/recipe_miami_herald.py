@@ -1,4 +1,3 @@
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
@@ -10,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheMiamiHerald(BasicNewsRecipe):
     title                 = 'The Miami Herald'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic and Sujata Raman'
     description           = "Miami-Dade and Broward's source for the latest breaking local news on sports, weather, business, jobs, real estate, shopping, health, travel, entertainment, & more."
     oldest_article        = 1
     max_articles_per_feed = 100
@@ -22,19 +21,28 @@ class TheMiamiHerald(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     remove_javascript     = True
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , category
-                        , '--publisher'     , publisher
-                        ]
+    extra_css = '''
+                h1{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#1A272F; }
+                .subheadline{font-family:Arial,Helvetica,sans-serif; font-size:30%; color: #666666;}
+                #storyBodyContent{font-family:Arial,Helvetica,sans-serif; font-size:xx-small; }
+                .byline{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#58595B; }
+                .credit_line{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#58595B; }
+                .storyPublishDate{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#666666; }
+                .shirttail{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#666666;font-style:italic }
+                .imageCaption{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#666666; }
+                '''
 
+    keep_only_tags = [dict(name='div', attrs={'id':['storyBody','storyPhotoContentArea']}),
+                      ]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'pageContainer'})]
+    remove_tags = [dict(name=['object','link','embed']),
+                   dict(name='div', attrs={'class':["imageBuyButton","shareLinksArea","storyTools","spill_navigation pagination","circPromoArea","storyTools_footer","storyYahooContentMatch"]}) ,
+                   dict(name='div', attrs={'id':["pluck","mlt","storyAssets"]}) ]
+
 
     feeds = [
-              (u'Breaking News'  , u'http://www.miamiherald.com/416/index.xml' )
+             (u'Breaking News'  , u'http://www.miamiherald.com/416/index.xml' )
              ,(u'Miami-Dade' , u'http://www.miamiherald.com/460/index.xml' )
              ,(u'Broward' , u'http://www.miamiherald.com/467/index.xml' )
              ,(u'Florida Keys' , u'http://www.miamiherald.com/505/index.xml' )
@@ -49,6 +57,26 @@ class TheMiamiHerald(BasicNewsRecipe):
              ,(u'Environment' , u'http://www.miamiherald.com/573/index.xml' )
             ]
 
-    def print_version(self, url):
-        return url.replace('/story/','/v-print/story/')
+
+
+
+
+    def get_article_url(self, article):
+        ans = article.get('guid', None)
+        print ans
+        try:
+            self.log('Looking for full story link in', ans)
+            soup = self.index_to_soup(ans)
+            x = soup.find(text="Full Story")
+
+            if x is not None:
+                a = x.parent
+                if a and a.has_key('href'):
+                    ans = 'http://www.miamiherald.com'+a['href']
+                    self.log('Found full story link', ans)
+        except:
+            pass
+        return ans
+
+
 
