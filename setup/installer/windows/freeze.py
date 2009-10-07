@@ -6,13 +6,15 @@ __docformat__ = 'restructuredtext en'
 '''
 Freeze app into executable using py2exe.
 '''
+import sys, os
+
 QT_DIR           = 'C:\\Qt\\4.5.2'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
-IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 SW               = r'C:\cygwin\home\kovid\sw'
+IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.5.6',
+        'VisualMagick', 'bin')
 
-import sys
 
 def fix_module_finder():
     # ModuleFinder can't handle runtime changes to __path__, but win32com uses them
@@ -186,6 +188,15 @@ class BuildEXE(bc):
         for pat in ('*.dll', '*.sys', '*.cat', '*.inf'):
             for f in glob.glob(os.path.join(LIBUSB_DIR, pat)):
                 shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
+        # Copy ImageMagick
+        for pat in ('*.dll', '*.xml'):
+            for f in glob.glob(self.j(IMAGEMAGICK, pat)):
+                ok = True
+                for ex in ('magick++', 'x11.dll', 'xext.dll'):
+                    if ex in f.lower(): ok = False
+                if not ok: continue
+                shutil.copy2(f, self.dll_dir)
+
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
 
