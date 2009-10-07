@@ -247,7 +247,7 @@ function setup_sorting() {
     });
 
     $('table#book_list  thead tr td').mouseout(function() {
-        this.style.backgroundColor = "inherit";
+        this.style.backgroundColor = "transparent";
     });
 
     for (i = 0; i < cmap.length; i++) {
