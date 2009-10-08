@@ -1200,6 +1200,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.library_view.model().db, book_ids,
                 out_format=prefs['output_format'], args=(rows, previous,
                     self.book_converted))
+            if self.__bulk_queue is None:
+                return
             num = len(self.__bulk_queue.book_ids)
         else:
             jobs, changed, bad = convert_single_ebook(self,
