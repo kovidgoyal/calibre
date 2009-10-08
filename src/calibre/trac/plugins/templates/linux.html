@@ -112,10 +112,13 @@ sudo python setup.py install
                                 </pre>
                                 Note that if your distribution does not have a
                                 correctly compiled libunrar.so, ${app} will not 
-                                support rar files. The calibre_postinstall step 
-                                is required for device detection and integration
-                                with your desktop environment.
-                            </p>
+                                support rar files. In order to compile ${app} successfully
+                                poppler headers must include XPdf headers. That is, poppler 
+                                must have been configured with --enable-xpdf-headers. Also,
+                                some distributions have buggy libpng headers. See 
+                                <a href="https://bugs.launchpad.net/ubuntu/+source/libpng/+bug/218409">here</a>
+                                for example. 
+                                </p>
                         </div>
                     </td>
                 </tr>

@@ -10,6 +10,8 @@
  *	(GEnie : OUTER; CIS : [71755,204])
  */
  
+#pragma once
+
 #undef D2_DES		
 #undef D3_DES		
  

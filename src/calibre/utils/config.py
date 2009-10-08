@@ -411,7 +411,11 @@ class Config(ConfigInterface):
         if os.path.exists(self.config_file_path):
             try:
                 with ExclusiveFile(self.config_file_path) as f:
-                    src = f.read().decode('utf-8')
+                    try:
+                        src = f.read().decode('utf-8')
+                    except ValueError:
+                        print "Failed to parse", self.config_file_path
+                        traceback.print_exc()
             except LockError:
                 raise IOError('Could not lock config file: %s'%self.config_file_path)
         return self.option_set.parse_string(src)

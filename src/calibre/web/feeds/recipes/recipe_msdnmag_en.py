@@ -18,38 +18,19 @@ class MSDNMagazine_en(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    remove_javascript     = True
-    current_issue         = 'http://msdn.microsoft.com/en-us/magazine/default.aspx'
-    language = 'en'
+    language              = 'en'
 
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     feeds = [(u'Articles', u'http://msdn.microsoft.com/en-us/magazine/rss/default.aspx?z=z&iss=1')]
 
-    keep_only_tags = [dict(name='div', attrs={'class':'topic'})]
+    keep_only_tags = [dict(name='div', attrs={'class':'navpage'})]
 
     remove_tags = [
                      dict(name=['object','link','base','table'])
                     ,dict(name='div', attrs={'class':'MTPS_CollapsibleRegion'})
                   ]
-
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(self.current_issue)
-        link_item = soup.find('span',attrs={'class':'ContentsImageSpacer'})
-        if link_item:
-           imgt = link_item.find('img')
-           if imgt:
-              cover_url = imgt['src']
-        return cover_url
-
+    remove_tags_after = dict(name='div', attrs={'class':'navpage'})
 
     def preprocess_html(self, soup):
         for item in soup.findAll('div',attrs={'class':['FeatureSmallHead','ColumnTypeSubTitle']}):

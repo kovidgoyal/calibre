@@ -15,6 +15,9 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+#pragma once
+
 typedef struct lz_info lz_info;
 typedef int (*get_chars_t)(lz_info *lzi, int n, unsigned char *buf);
 typedef int (*output_match_t)(lz_info *lzi, int match_pos, int match_len);

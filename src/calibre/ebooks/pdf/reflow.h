@@ -4,8 +4,7 @@
  * Based on pdftohtml from the poppler project.
  */
 
-#ifndef CALIBRE_REFLOW
-#define CALIBRE_REFLOW
+#pragma once
 #define UNICODE
 
 #ifdef _WIN32 
@@ -248,4 +247,3 @@ class XMLOutputDev : public OutputDev {
     void process_link(Link* link);
 };
 }
-#endif

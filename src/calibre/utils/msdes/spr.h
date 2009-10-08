@@ -21,6 +21,8 @@
  | URL: http://www.gnu.org/licenses/gpl.html
 */
 
+#pragma once
+
 static unsigned long SP1[64] = {
 0x02080800L, 0x00080000L, 0x02000002L, 0x02080802L,
 0x02000000L, 0x00080802L, 0x00080002L, 0x02000002L,

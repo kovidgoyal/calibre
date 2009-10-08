@@ -55,8 +55,7 @@
   THE SOFTWARE.
 */
 
-#ifndef PICTUREFLOW_H
-#define PICTUREFLOW_H
+#pragma once
 
 #include <QWidget>
 
@@ -202,4 +201,3 @@ private:
   PictureFlowPrivate* d;
 };
 
-#endif // PICTUREFLOW_H

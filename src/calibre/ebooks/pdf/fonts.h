@@ -4,9 +4,7 @@
  */
 
 
-
-#ifndef CALIBRE_REFLOW_FONTS
-#define CALIBRE_REFLOW_FONTS
+#pragma once
 
 #include <vector>
 #include <sstream>
@@ -102,4 +100,3 @@ class Fonts : public vector<XMLFont*> {
 
 
 }
-#endif

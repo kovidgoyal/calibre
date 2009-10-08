@@ -131,7 +131,7 @@ class BaseJob(object):
 
     @property
     def details(self):
-        return self.log_file.read().decode('utf-8')
+        return self.log_file.read().decode('utf-8', 'replace')
 
 
 class ParallelJob(BaseJob):
