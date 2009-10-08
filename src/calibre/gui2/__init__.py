@@ -124,17 +124,22 @@ class CopyButton(QPushButton):
 
 
     def keyPressEvent(self, ev):
-        if ev.key() in self.ACTION_KEYS:
-            self.copied()
-        else:
-            QPushButton.event(self, ev)
+        try:
+            if ev.key() in self.ACTION_KEYS:
+                self.copied()
+                return
+        except:
+            pass
+        return QPushButton.event(self, ev)
 
 
     def keyReleaseEvent(self, ev):
-        if ev.key() in self.ACTION_KEYS:
+        try:
+            if ev.key() in self.ACTION_KEYS:
+                return
+        except:
             pass
-        else:
-            QPushButton.event(self, ev)
+        return QPushButton.event(self, ev)
 
     def mouseReleaseEvent(self, ev):
         ev.accept()

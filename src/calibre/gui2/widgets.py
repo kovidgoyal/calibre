@@ -105,13 +105,13 @@ class FilenamePattern(QWidget, Ui_Form):
         return pat
 
 
-
+IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
 class ImageView(QLabel):
 
     MAX_WIDTH  = 400
     MAX_HEIGHT = 300
-    DROPABBLE_EXTENSIONS = ('jpg', 'jpeg', 'gif', 'png', 'bmp')
+    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
 
     @classmethod
     def paths_from_event(cls, event):

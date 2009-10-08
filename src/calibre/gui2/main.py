@@ -30,7 +30,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            max_available_height, config, info_dialog, \
                            available_width, GetMetadata
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
-from calibre.gui2.widgets import ProgressIndicator
+from calibre.gui2.widgets import ProgressIndicator, IMAGE_EXTENSIONS
 from calibre.gui2.wizard import move_library
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
@@ -220,6 +220,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 self.status_bar.job_done, Qt.QueuedConnection)
         QObject.connect(self.status_bar, SIGNAL('show_book_info()'),
                 self.show_book_info)
+        QObject.connect(self.status_bar, SIGNAL('files_dropped(PyQt_PyObject,PyQt_PyObject)'),
+                self.files_dropped_on_book)
         ####################### Setup Toolbar #####################
         md = QMenu()
         md.addAction(_('Edit metadata individually'))
@@ -826,6 +828,31 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         to_device = self.stack.currentIndex() != 0
         self._add_books(paths, to_device)
 
+    def files_dropped_on_book(self, event, paths):
+        accept = False
+        if self.current_view() is not self.library_view:
+            return
+        db = self.library_view.model().db
+        current_idx = self.library_view.currentIndex()
+        if not current_idx.isValid(): return
+        cid = db.id(current_idx.row())
+        for path in paths:
+            ext = os.path.splitext(path)[1].lower()
+            if ext:
+                ext = ext[1:]
+            if ext in IMAGE_EXTENSIONS:
+                pmap = QPixmap()
+                pmap.load(path)
+                if not pmap.isNull():
+                    accept = True
+                    db.set_cover(cid, pmap)
+            elif ext in BOOK_EXTENSIONS:
+                db.add_format_with_hooks(cid, ext, path, index_is_id=True)
+                accept = True
+        if accept:
+            event.accept()
+            self.cover_cache.refresh([cid])
+            self.library_view.model().current_changed(current_idx, current_idx)
 
     def add_filesystem_book(self, path):
         if os.access(path, os.R_OK):
