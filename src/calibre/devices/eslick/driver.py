@@ -25,8 +25,8 @@ class ESLICK(USBMS):
     BCD         = [0x0110]
 
     VENDOR_NAME = 'FOXIT'
-    WINDOWS_MAIN_MEM = 'ESLICK_USB_DEVICE'
-    WINDOWS_CARD_A_MEM = 'ESLICK_USB_DEVICE'
+    WINDOWS_MAIN_MEM = 'ESLICK_USB_DEVIC'
+    WINDOWS_CARD_A_MEM = 'ESLICK_USB_DEVIC'
 
     #OSX_MAIN_MEM = 'Kindle Internal Storage Media'
     #OSX_CARD_A_MEM = 'Kindle Card Storage Media'
