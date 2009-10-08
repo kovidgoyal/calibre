@@ -30,6 +30,7 @@ TAG_MAP = {
     'i' : 'emphasis',
     'p' : 'p',
     'li' : 'p',
+    'br' : 'empty-line',
 }
 
 TAG_SPACE = [
@@ -74,6 +75,7 @@ class FB2MLizer(object):
         output.append(self.fb2mlize_images())
         output.append(self.fb2_footer())
         output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
+        return output
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
@@ -112,7 +114,7 @@ class FB2MLizer(object):
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+                output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
         return output
 
     def get_toc(self):
@@ -151,7 +153,7 @@ class FB2MLizer(object):
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
         aid = self.link_hrefs[aid]
-        return '<v id="%s"></v>' % aid
+        return '<a id="%s" />' % aid
 
     def fb2mlize_images(self):
         images = [u'']
@@ -204,6 +206,7 @@ class FB2MLizer(object):
             href = elem.get('href')
             if href:
                 href = prepare_string_for_xml(page.abshref(href))
+                href = href.replace('"', '&quot;')
                 if '://' in href:
                     fb2_text.append('<a xlink:href="%s">' % href)
                 else:
@@ -240,7 +243,10 @@ class FB2MLizer(object):
                 fb2_text.append(' ')
 
         if hasattr(elem, 'text') and elem.text != None:
-            fb2_text.append(prepare_string_for_xml(elem.text))
+            if 'p' not in tag_stack:
+                fb2_text.append('<p>%s</p>' % prepare_string_for_xml(elem.text))
+            else:
+                fb2_text.append(prepare_string_for_xml(elem.text))
 
         for item in elem:
             fb2_text += self.dump_text(item, stylizer, page, tag_stack)
