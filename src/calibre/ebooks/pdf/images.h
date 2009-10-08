@@ -1,5 +1,4 @@
-#ifndef _CALIBRE_REFLOW_IMAGES
-#define _CALIBRE_REFLOW_IMAGES
+#pragma once
 
 #include <vector>
 #include <GfxState.h>
@@ -127,4 +126,3 @@ namespace calibre_reflow {
     };
 */
 }
-#endif

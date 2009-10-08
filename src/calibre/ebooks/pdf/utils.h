@@ -4,9 +4,7 @@
  */
 
 
-#ifndef _CALIBRE_REFLOW_UTILS
-#define _CALIBRE_REFLOW_UTILS
-
+#pragma once
 #include <string>
 #include <sstream>
 
@@ -45,4 +43,3 @@ inline string encode_for_xml(const string &sSrc )
 
 
 }
-#endif

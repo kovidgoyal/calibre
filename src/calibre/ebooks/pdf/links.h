@@ -5,9 +5,7 @@
 
 
 
-#ifndef _CALIBRE_XML_LINKS
-#define _CALIBRE_XML_LINKS
-
+#pragma once
 #include <vector>
 #include <sstream>
 
@@ -65,5 +63,4 @@ class XMLLinks : public vector<XMLLink*> {
 
 
 }
-#endif
    
