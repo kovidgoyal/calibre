@@ -30,7 +30,8 @@ class Win32(VMInstaller):
     VM_NAME = 'xp_build'
     VM = '/vmware/bin/%s'%VM_NAME
     FREEZE_COMMAND = 'win32_freeze'
-    SHUTDOWN_CMD = ['shutdown', '-s']
+    SHUTDOWN_CMD = ['shutdown', '-s', '-t', '0', '-c',
+        'Shutdown called by calibre setup']
 
     def download_installer(self):
         installer = self.installer()
@@ -50,4 +51,19 @@ class Win32(VMInstaller):
             self.warn('Failed to run installjammer')
             raise SystemExit(1)
 
+class Win2(Win32):
+
+    FREEZE_COMMAND = 'win32_freeze2'
+    FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command} --no-ice'
+    INSTALLER_EXT = 'msi'
+
+    def download_installer(self):
+        installer = self.installer()
+        if os.path.exists('build/winfrozen'):
+            shutil.rmtree('build/winfrozen')
+        subprocess.check_call(('scp',
+            'xp_build:build/%s/%s'%(__appname__, installer), 'dist'))
+        if not os.path.exists(installer):
+            self.warn('Failed to freeze')
+            raise SystemExit(1)
 

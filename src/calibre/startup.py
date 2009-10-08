@@ -29,7 +29,7 @@ if not _run_once:
         winutil, winutilerror = plugins['winutil']
         if not winutil:
             raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
-        if len(sys.argv) > 1:
+        if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode):
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
 
     ################################################################################

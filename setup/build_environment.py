@@ -111,8 +111,8 @@ if iswindows:
     popplerqt4_lib_dirs = poppler_lib_dirs
     poppler_libs = ['poppler']
     popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
-    magick_inc_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\include']
-    magick_lib_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\lib']
+    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.5.6')]
+    magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir

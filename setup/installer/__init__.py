@@ -11,6 +11,22 @@ import subprocess, tempfile, os, time
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
 
+class Rsync(Command):
+
+    description = 'Sync source tree from development machine'
+
+    SYNC_CMD = ('rsync -avz --exclude src/calibre/plugins '
+               '--exclude src/calibre/manual --exclude src/calibre/trac '
+               '--exclude .bzr --exclude .build --exclude .svn --exclude build --exclude dist '
+               '--exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" '
+               'rsync://{host}/work/{project} . ')
+
+    def run(self, opts):
+        cmd = self.SYNC_CMD.format(host=HOST, project=PROJECT)
+        self.info(self.SYNC_CMD)
+        subprocess.check_call(self.SYNC_CMD, shell=True)
+
+
 class VMInstaller(Command):
 
     EXTRA_SLEEP = 5
@@ -25,13 +41,8 @@ class VMInstaller(Command):
 
     BUILD_CMD = 'ssh -t %s bash build-calibre'
     BUILD_PREFIX = ['#!/bin/bash', 'export CALIBRE_BUILDBOT=1']
-    BUILD_RSYNC  = [r'cd ~/build', (
-        'rsync -avz --exclude src/calibre/plugins '
-               '--exclude calibre/src/calibre.egg-info --exclude docs '
-               '--exclude .bzr --exclude .build --exclude build --exclude dist '
-               '--exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" '
-               'rsync://{host}/work/{project} . ')]
-    BUILD_CLEAN = ['cd {project} ',
+    BUILD_RSYNC  = [r'cd ~/build', Rsync.SYNC_CMD]
+    BUILD_CLEAN = ['cd ~/build/{project} ',
                    'rm -rf dist/* build/* src/calibre/plugins/*']
     BUILD_BUILD = ['python setup.py build',]
 
@@ -45,7 +56,7 @@ class VMInstaller(Command):
 
     def get_build_script(self):
         ans = '\n'.join(self.BUILD_PREFIX)+'\n\n'
-        ans += ' && \\\n'.join(self.BUILD_RSYNC)+ ' && \\\n'
+        ans += ' && \\\n'.join(self.BUILD_RSYNC) + ' && \\\n'
         ans += ' && \\\n'.join(self.BUILD_CLEAN) + ' && \\\n'
         ans += ' && \\\n'.join(self.BUILD_BUILD) + ' && \\\n'
         ans += self.FREEZE_TEMPLATE.format(freeze_command=self.FREEZE_COMMAND) + '\n'
