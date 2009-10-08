@@ -19,6 +19,7 @@ from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.utils.fonts import fontconfig
+from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
 
@@ -106,6 +107,37 @@ class FilenamePattern(QWidget, Ui_Form):
 
 
 IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
+
+class FormatList(QListWidget):
+    DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
+
+    @classmethod
+    def paths_from_event(cls, event):
+        '''
+        Accept a drop event and return a list of paths that can be read from
+        and represent files with extensions.
+        '''
+        if event.mimeData().hasFormat('text/uri-list'):
+            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
+            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
+
+    def dragEnterEvent(self, event):
+        if int(event.possibleActions() & Qt.CopyAction) + \
+           int(event.possibleActions() & Qt.MoveAction) == 0:
+            return
+        paths = self.paths_from_event(event)
+        if paths:
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        paths = self.paths_from_event(event)
+        event.setDropAction(Qt.CopyAction)
+        self.emit(SIGNAL('formats_dropped(PyQt_PyObject,PyQt_PyObject)'),
+                event, paths)
+
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
 
 class ImageView(QLabel):
 
