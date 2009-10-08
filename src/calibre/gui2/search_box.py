@@ -20,6 +20,11 @@ class SearchLineEdit(QLineEdit):
         self.emit(SIGNAL('mouse_released(PyQt_PyObject)'), event)
         QLineEdit.mouseReleaseEvent(self, event)
 
+    def dropEvent(self, ev):
+        if self.parent().help_state:
+            self.parent().normalize_state()
+        return QLineEdit.dropEvent(self, ev)
+
 class SearchBox2(QComboBox):
 
     '''
@@ -27,7 +32,7 @@ class SearchBox2(QComboBox):
 
         * Call initialize()
         * Connect to the search() and cleared() signals from this widget
-        * Call search_done() after evry search is complete
+        * Call search_done() after every search is complete
         * Use clear() to clear back to the help message
     '''
 
