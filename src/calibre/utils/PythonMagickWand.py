@@ -82,8 +82,6 @@ if isosx:
         _lib = util.find_library('Wand')
 elif iswindows:
     flib = os.path.join(os.path.dirname(sys.executable), 'DLLs', 'CORE_RL_wand_.dll')
-    if not os.path.exists(flib):
-        flib = os.path.join(os.path.dirname(sys.executable), 'CORE_RL_wand_.dll')
     _lib = flib if isfrozen else 'CORE_RL_wand_'
 else:
     if isfrozen:

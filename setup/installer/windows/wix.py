@@ -37,7 +37,8 @@ class WixMixIn:
                 app_components    = components,
                 exe_map           = self.smap,
                 main_icon         = self.j(self.src_root, 'icons', 'library.ico'),
-                web_icon         = self.j(self.src_root, 'icons', 'web.ico'),
+                web_icon          = self.j(self.src_root, 'icons', 'web.ico'),
+                crt_msm           = self.j(self.SW, 'Microsoft_VC90_CRT_x86.msm')
                 )
         template = open(self.j(self.d(__file__), 'en-us.xml'),
                 'rb').read()
@@ -60,10 +61,15 @@ class WixMixIn:
         self.installer = self.j(self.installer, '%s-%s.msi' % (__appname__,
             __version__))
         license = self.j(self.src_root, 'LICENSE.rtf')
+        banner  = self.j(self.src_root, 'icons', 'wix-banner.bmp')
+        dialog  = self.j(self.src_root, 'icons', 'wix-dialog.bmp')
         cmd = [LIGHT, '-nologo', '-ext', 'WixUIExtension',
                 '-cultures:en-us', '-loc', enusf, wixobj,
                 '-ext', 'WixUtilExtension',
-                '-o', self.installer, '-dWixUILicenseRtf='+license]
+                '-o', self.installer,
+                '-dWixUILicenseRtf='+license,
+                '-dWixUIBannerBmp='+banner,
+                '-dWixUIDialogBmp='+dialog]
         cmd.append('-sice:ICE60') # No language in dlls warning
         if self.opts.no_ice:
             cmd.append('-sval')

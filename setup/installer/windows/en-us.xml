@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
-    <String Id="AdvancedWelcomeEulaDlgDescriptionPerUser">Click Install to install the product with default options just for you. Click Advanced to change installation options. If you are upgrading from a {app} version older than 0.6.17, please uninstall {app} first.</String>
+    <String Id="AdvancedWelcomeEulaDlgDescriptionPerUser">If you are upgrading from a {app} version older than 0.6.17, please uninstall {app} first. Click Advanced to change installation settings.</String>
 </WixLocalization>
 
