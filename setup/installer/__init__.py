@@ -19,12 +19,12 @@ class Rsync(Command):
                '--exclude src/calibre/manual --exclude src/calibre/trac '
                '--exclude .bzr --exclude .build --exclude .svn --exclude build --exclude dist '
                '--exclude "*.pyc" --exclude "*.pyo" --exclude "*.swp" --exclude "*.swo" '
-               'rsync://{host}/work/{project} . ')
+               'rsync://{host}/work/{project} ..')
 
     def run(self, opts):
         cmd = self.SYNC_CMD.format(host=HOST, project=PROJECT)
-        self.info(self.SYNC_CMD)
-        subprocess.check_call(self.SYNC_CMD, shell=True)
+        self.info(cmd)
+        subprocess.check_call(cmd, shell=True)
 
 
 class VMInstaller(Command):
@@ -41,10 +41,9 @@ class VMInstaller(Command):
 
     BUILD_CMD = 'ssh -t %s bash build-calibre'
     BUILD_PREFIX = ['#!/bin/bash', 'export CALIBRE_BUILDBOT=1']
-    BUILD_RSYNC  = [r'cd ~/build', Rsync.SYNC_CMD]
-    BUILD_CLEAN = ['cd ~/build/{project} ',
-                   'rm -rf dist/* build/* src/calibre/plugins/*']
-    BUILD_BUILD = ['python setup.py build',]
+    BUILD_RSYNC  = [r'cd ~/build/{project}', Rsync.SYNC_CMD]
+    BUILD_CLEAN  = ['rm -rf dist/* build/* src/calibre/plugins/*']
+    BUILD_BUILD  = ['python setup.py build',]
 
     def add_options(self, parser):
         if not parser.has_option('--dont-shutdown'):

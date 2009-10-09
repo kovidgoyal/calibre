@@ -11,7 +11,7 @@ from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
 
-from setup import isosx, iswindows
+from setup import isosx, iswindows, islinux
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 if not os.path.exists(OSX_SDK):
@@ -213,12 +213,15 @@ def get_ip_address(ifname):
     )[20:24])
 
 try:
-    HOST=get_ip_address('eth0')
+    if islinux:
+        HOST=get_ip_address('eth0')
+    else:
+        HOST='192.168.1.2'
 except:
     try:
         HOST=get_ip_address('wlan0')
     except:
-        HOST='unknown'
+        HOST='192.168.1.2'
 
 PROJECT=os.path.basename(os.path.abspath('.'))
 
