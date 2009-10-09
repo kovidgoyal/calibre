@@ -638,6 +638,33 @@ class Device(DeviceConfig, DevicePlugin):
                 pass
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
+    def linux_post_yank(self):
+        for drive, mp in getattr(self, '_linux_mount_map', {}).items():
+            if drive and mp:
+                mp = mp[:-1]
+                cmd = 'calibre-mount-helper'
+                if getattr(sys, 'frozen_path', False):
+                    cmd = os.path.join(sys.frozen_path, cmd)
+                cmd = [cmd, 'cleanup']
+                if mp and os.path.exists(mp):
+                    try:
+                        subprocess.Popen(cmd + [drive, mp]).wait()
+                    except:
+                        import traceback
+                        traceback.print_exc()
+        self._linux_mount_map = {}
+
+    def post_yank_cleanup(self):
+        if islinux:
+            try:
+                self.linux_post_yank()
+            except:
+                import traceback
+                traceback.print_exc()
+        self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+
+
+
     def _sanity_check(self, on_card, files):
         if on_card == 'carda' and not self._card_a_prefix:
             raise ValueError(_('The reader has no storage card in this slot.'))

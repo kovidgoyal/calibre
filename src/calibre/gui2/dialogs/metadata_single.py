@@ -13,7 +13,7 @@ import traceback
 from datetime import datetime, timedelta
 
 from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
-    QPixmap, QListWidgetItem, QDialog, QListWidget
+    QPixmap, QListWidgetItem, QDialog
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, choose_images, ResizableDialog
@@ -80,36 +80,6 @@ class Format(QListWidgetItem):
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
                                  text, parent, QListWidgetItem.UserType)
 
-class FormatList(QListWidget):
-    DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
-
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
-            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
-            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
-
-    def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-        if paths:
-            event.acceptProposedAction()
-
-    def dropEvent(self, event):
-        paths = self.paths_from_event(event)
-        event.setDropAction(Qt.CopyAction)
-        self.emit(SIGNAL('formats_dropped(PyQt_PyObject,PyQt_PyObject)'),
-                event, paths)
-
-    def dragMoveEvent(self, event):
-        event.acceptProposedAction()
 
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
