@@ -31,8 +31,7 @@ class Win32(VMInstaller):
     FREEZE_COMMAND = 'win32_freeze'
     FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command} --no-ice'
     INSTALLER_EXT = 'msi'
-    SHUTDOWN_CMD = ['shutdown.exe', '-s', '-c',
-        'Shutdown called by calibre setup']
+    SHUTDOWN_CMD = ['shutdown.exe', '-s', '-f', '-t', '0']
 
     def download_installer(self):
         installer = self.installer()

@@ -10,7 +10,7 @@ class TheDailyMail(BasicNewsRecipe):
     max_articles_per_feed = 50
 
     extra_css = '''#js-article-text{font-family:Arial,Helvetica,sans-serif;}
-                    h1{font-size:large; font-weight:bold;}
+                    h1{font-size:x-large; font-weight:bold;}
                     a.author{color:#003580;}
                     .js-article-text{font-size:50%;}
                     .imageCaption{font-size:x-small; font-weight:bold}
