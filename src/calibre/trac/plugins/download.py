@@ -141,7 +141,7 @@ else:
 
         def windows(self, req):
             version = self.version_from_filename()
-            file = '%s-%s.exe'%(__appname__, version,)
+            file = '%s-%s.msi'%(__appname__, version,)
             data = dict(version = version, name='windows',
                 installer_name='Windows installer',
                 title='Download %s for windows'%(__appname__),
