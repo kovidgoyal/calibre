@@ -18,7 +18,7 @@ __all__ = [
         'pypi_register', 'pypi_upload', 'upload_to_server',
         'upload_user_manual', 'upload_installers', 'upload_demo',
         'linux32', 'linux64', 'linux', 'linux_freeze',
-        'osx32_freeze', 'osx32', 'osx',
+        'osx32_freeze', 'osx32', 'osx', 'rsync',
         'win32_freeze', 'win32', 'win',
         'stage1', 'stage2', 'stage3', 'publish'
         ]
@@ -64,6 +64,9 @@ upload_user_manual = UploadUserManual()
 upload_installers = UploadInstallers()
 upload_demo = UploadDemo()
 upload_to_server = UploadToServer()
+
+from setup.installer import Rsync
+rsync = Rsync()
 
 from setup.installer.linux import Linux, Linux32, Linux64
 linux = Linux()

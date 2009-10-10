@@ -12,8 +12,8 @@ import time
 import traceback
 from datetime import datetime, timedelta
 
-from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate
-from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
+from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDate, \
+    QPixmap, QListWidgetItem, QDialog
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, choose_images, ResizableDialog
@@ -80,6 +80,7 @@ class Format(QListWidgetItem):
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
                                  text, parent, QListWidgetItem.UserType)
 
+
 class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     COVER_FETCH_TIMEOUT = 240 # seconds
@@ -129,16 +130,21 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def add_format(self, x):
         files = choose_files(self, 'add formats dialog',
-                             "Choose formats for " + qstring_to_unicode((self.title.text())),
-                             [('Books', BOOK_EXTENSIONS)])
-        if not files:
-            return
-        for _file in files:
+                             _("Choose formats for ") + unicode((self.title.text())),
+                             [(_('Books'), BOOK_EXTENSIONS)])
+        self._add_formats(files)
+
+    def _add_formats(self, paths):
+        added = False
+        if not paths:
+            return added
+        bad_perms = []
+        for _file in paths:
             _file = os.path.abspath(_file)
             if not os.access(_file, os.R_OK):
-                QErrorMessage(self.window).showMessage("You do not have "+\
-                                    "permission to read the file: " + _file)
+                bad_perms.append(_file)
                 continue
+
             _file = run_plugins_on_import(_file)
             size = os.stat(_file).st_size
             ext = os.path.splitext(_file)[1].lower().replace('.', '')
@@ -149,6 +155,17 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     break
             Format(self.formats, ext, size, path=_file)
             self.formats_changed = True
+            added = True
+        if bad_perms:
+            error_dialog(self.window, _('You do not have '
+                'permission to read the following files:'),
+                det_msg='\n'.join(bad_perms), show=True)
+
+        return added
+
+    def formats_dropped(self, event, paths):
+        if self._add_formats(paths):
+            event.accept()
 
     def remove_format(self, x):
         rows = self.formats.selectionModel().selectedRows(0)
@@ -276,6 +293,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.row = row
         self.cover_data = None
         self.formats_changed = False
+        self.formats.setAcceptDrops(True)
         self.cover_changed = False
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
@@ -287,6 +305,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                                     self.select_cover)
         QObject.connect(self.add_format_button, SIGNAL("clicked(bool)"), \
                                                     self.add_format)
+        self.connect(self.formats,
+                SIGNAL('formats_dropped(PyQt_PyObject,PyQt_PyObject)'),
+                self.formats_dropped)
         QObject.connect(self.remove_format_button, SIGNAL("clicked(bool)"), \
                                                 self.remove_format)
         QObject.connect(self.fetch_metadata_button, SIGNAL('clicked()'),

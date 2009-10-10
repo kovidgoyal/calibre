@@ -1,14 +1,48 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re, collections
+import os, re, collections
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QWidget, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon, QScrollArea, QFrame
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
 from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import qstring_to_unicode, config
+from calibre.gui2.widgets import IMAGE_EXTENSIONS
+from calibre.ebooks import BOOK_EXTENSIONS
 
 class BookInfoDisplay(QWidget):
+
+    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
+
+    @classmethod
+    def paths_from_event(cls, event):
+        '''
+        Accept a drop event and return a list of paths that can be read from
+        and represent files with extensions.
+        '''
+        if event.mimeData().hasFormat('text/uri-list'):
+            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
+            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
+
+    def dragEnterEvent(self, event):
+        if int(event.possibleActions() & Qt.CopyAction) + \
+           int(event.possibleActions() & Qt.MoveAction) == 0:
+            return
+        paths = self.paths_from_event(event)
+        if paths:
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        paths = self.paths_from_event(event)
+        event.setDropAction(Qt.CopyAction)
+        self.emit(SIGNAL('files_dropped(PyQt_PyObject, PyQt_PyObject)'), event,
+            paths)
+
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
+
+
     class BookCoverDisplay(QLabel):
 
         WIDTH = 81
@@ -184,15 +218,22 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.tag_view_button)
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay(self.clearMessage)
+        self.book_info.setAcceptDrops(True)
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidget(self.book_info)
         self.scroll_area.setMaximumHeight(120)
         self.scroll_area.setWidgetResizable(True)
         self.connect(self.book_info, SIGNAL('show_book_info()'), self.show_book_info)
+        self.connect(self.book_info,
+                SIGNAL('files_dropped(PyQt_PyObject,PyQt_PyObject)'),
+                    self.files_dropped, Qt.QueuedConnection)
         self.addWidget(self.scroll_area, 100)
         self.setMinimumHeight(120)
         self.setMaximumHeight(120)
 
+    def files_dropped(self, event, paths):
+        self.emit(SIGNAL('files_dropped(PyQt_PyObject, PyQt_PyObject)'), event,
+            paths)
 
     def reset_info(self):
         self.book_info.show_data({})
@@ -243,7 +284,6 @@ if __name__ == '__main__':
     # Used to create the animated status icon
     from PyQt4.Qt import QApplication, QPainter, QSvgRenderer, QColor
     from subprocess import check_call
-    import os
     app = QApplication([])
 
     def create_pixmaps(path, size=16, delta=20):

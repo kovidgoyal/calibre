@@ -80,6 +80,12 @@ class DevicePlugin(Plugin):
         '''
         raise NotImplementedError()
 
+    def post_yank_cleanup(self):
+        '''
+        Called if the user yanks the device without ejecting it first.
+        '''
+        raise NotImplementedError()
+
     def set_progress_reporter(self, report_progress):
         '''
         @param report_progress: Function that is called with a % progress

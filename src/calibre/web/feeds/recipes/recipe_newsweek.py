@@ -1,45 +1,51 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+    
 import re
 from calibre import strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
-
+    
 class Newsweek(BasicNewsRecipe):
+    
 
     title          = 'Newsweek'
     __author__     = 'Kovid Goyal and Sujata Raman'
     description    = 'Weekly news and current affairs in the US'
     no_stylesheets = True
 
-    extra_css      = '''
-                        h1{color:#383733;font-family:Arial,Helvetica,sans-serif;font-size:large;}
-                        .deck{font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;color:#383733;font-size:small;}
-                        .articleInfo{color:#474537;font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                        .authorName{color:#B61900;font-family:Arial,Helvetica,sans-serif;font-size:medium;}
-                        .authorInfo{color:#0066CC;font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
-                        .articleUpdated{ font-size:xx-small; color:#73726C; font-family:Arial,Helvetica,sans-serif;}
-                        .issueDate{font-family :Arial,Helvetica,sans-serif;font-size:xx-small;font-style:italic;}
-                        .story{color:#333333; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;font-size:small;}
-                        .photoCredit{color:#999999;font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
-                        .photoCaption{color:#0A0A09;font-family:Arial,Helvetica,sans-serif;font-size:xx-small;font-weight:bold;}'''
-
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#383733;}
+                    .deck{font-family:Georgia,sans-serif; color:#383733;}
+                    .bylineDate{font-family:georgia ; color:#58544A; font-size:x-small;}
+                    .authorInfo{font-family:arial,helvetica,sans-serif; color:#0066CC; font-size:x-small;}
+                    .articleUpdated{font-family:arial,helvetica,sans-serif; color:#73726C; font-size:x-small;}
+                    .issueDate{font-family:arial,helvetica,sans-serif; color:#73726C; font-size:x-small; font-style:italic;}
+                    h5{font-family:arial,helvetica,sans-serif; color:#73726C; font-size:x-small;}
+                    h6{font-family:arial,helvetica,sans-serif; color:#73726C; font-size:x-small;}
+                    .story{font-family:georgia,sans-serif ; color:#363636;}
+                    .photoCredit{color:#999999; font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
+                    .photoCaption{color:#0A0A09;font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
+                    .fwArticle{font-family:Arial,Helvetica,sans-serif;font-size:x-small;font-weight:bold;}
+                    '''
+   
     encoding       = 'utf-8'
     language = 'en'
 
     remove_tags = [
             {'class':['fwArticle noHr','fwArticle','subinfo','hdlBulletItem','head-content','navbar','link', 'ad', 'sponsorLinksArticle', 'mm-content',
-                'inline-social-links-wrapper', 'email-article',
+                'inline-social-links-wrapper', 'email-article','ToolBox',
                 'inlineComponentRight',
                 'comments-and-social-links-wrapper', 'EmailArticleBlock']},
             {'id' : ['footer', 'ticker-data', 'topTenVertical',
                 'digg-top-five', 'mesothorax', 'nw-comments',
                 'ToolBox', 'EmailMain']},
             {'class': re.compile('related-cloud')},
+            dict(name='li', attrs={'id':['slug_bigbox']})
             ]
-    keep_only_tags = [{'class':['article HorizontalHeader', 'articlecontent']}]
+
+  
+    keep_only_tags = [{'class':['article HorizontalHeader', 'articlecontent','photoBox']}, ]
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
 
@@ -177,3 +183,4 @@ class Newsweek(BasicNewsRecipe):
                 if article.description is None :
                     article.description = extractDescription(article.href)
         return
+
