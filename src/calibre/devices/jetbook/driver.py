@@ -36,8 +36,8 @@ class JETBOOK(USBMS):
     WINDOWS_MAIN_MEM = 'EBOOK'
     WINDOWS_CARD_A_MEM = 'EBOOK'
 
-    OSX_MAIN_MEM = None
-    OSX_CARD_A_MEM = None
+    OSX_MAIN_MEM = 'Linux ebook Media'
+    OSX_CARD_A_MEM = 'Linux ebook Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Jetbook Storage Card'
