@@ -90,7 +90,7 @@ class UploadInstallers(Command):
 
     def run(self, opts):
         self.info('Uploading installers...')
-        installers = list(map(installer_name, ('dmg', 'exe', 'tar.bz2')))
+        installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
         installers.append(installer_name('tar.bz2', is64bit=True))
         map(self.upload_installer, installers)
 
