@@ -507,6 +507,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
+        self.search.setMaximumWidth(self.width()-150)
 
 
         if config['autolaunch_server']:
@@ -522,6 +523,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.action_news, SIGNAL('triggered(bool)'),
                 self.scheduler.show_dialog)
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
+
+    def resizeEvent(self, ev):
+        MainWindow.resizeEvent(self, ev)
+        self.search.setMaximumWidth(self.width()-150)
+
 
     def create_device_menu(self):
         self._sync_menu = DeviceMenu(self)
