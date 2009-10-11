@@ -18,10 +18,10 @@ PML_HTML_RULES = [
     (re.compile(r'\\x(?P<text>.*?)\\x', re.DOTALL), lambda match: '<h1 style="page-break-before: always;">%s</h1>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\X(?P<val>[0-4])(?P<text>.*?)\\X[0-4]', re.DOTALL), lambda match: '<h%s style="page-break-before: always;">%s</h%s>' % (int(match.group('val')) + 1, match.group('text'), int(match.group('val')) + 1) if match.group('text') else ''),
     (re.compile(r'\\C\d=".+?"'), lambda match: ''), # This should be made to create a TOC entry
-    (re.compile(r'\\c(?P<text>.*?)\\c', re.DOTALL), lambda match: '<div style="text-align: center; display: block; margin: auto;">%s</div>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\r(?P<text>.*?)\\r', re.DOTALL), lambda match: '<div style="text-align: right; display: block;">%s</div>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\c(?P<text>.*?)\\c', re.DOTALL), lambda match: '<span style="text-align: center; display: block; margin: auto;">%s</span>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\r(?P<text>.*?)\\r', re.DOTALL), lambda match: '<span style="text-align: right; display: block;">%s</span>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\i(?P<text>.*?)\\i', re.DOTALL), lambda match: '<i>%s</i>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\u(?P<text>.*?)\\u', re.DOTALL), lambda match: '<div style="text-decoration: underline;">%s</div>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\u(?P<text>.*?)\\u', re.DOTALL), lambda match: '<span style="text-decoration: underline;">%s</span>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\o(?P<text>.*?)\\o', re.DOTALL), lambda match: '<del>%s</del>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\v(?P<text>.*?)\\v', re.DOTALL), lambda match: '<!-- %s -->' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\t(?P<text>.*?)\\t', re.DOTALL), lambda match: '<div style="margin-left: 5%%;">%s</div>' % match.group('text') if match.group('text') else ''),
