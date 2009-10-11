@@ -42,10 +42,12 @@ class Writer(FormatWriter):
         pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 
         text, text_sizes = self._text(pml)
-        chapter_index = self._chapter_index(pml)
-        chapter_index = [chapter_index] if chapter_index != '' else []
-        link_index = self._link_index(pml)
-        link_index = [link_index] if link_index != '' else []
+        #chapter_index = self._chapter_index(pml)
+        #chapter_index = [chapter_index] if chapter_index != '' else []
+        chapter_index = []
+        #link_index = self._link_index(pml)
+        #link_index = [link_index] if link_index != '' else []
+        link_index = []
         images = self._images(oeb_book.manifest, pmlmlizer.image_hrefs)
         metadata = [self._metadata(metadata)]
         chapter_index_count = len(chapter_index[0].split('\x00')) - 1 if len(chapter_index) >= 1 else 0
