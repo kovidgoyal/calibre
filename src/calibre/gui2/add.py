@@ -9,7 +9,7 @@ from PyQt4.Qt import QThread, SIGNAL, QObject, QTimer, Qt, \
         QProgressDialog
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import question_dialog, error_dialog
+from calibre.gui2 import question_dialog, error_dialog, info_dialog
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding
@@ -45,13 +45,22 @@ class RecursiveFind(QThread):
     def run(self):
         root = os.path.abspath(self.path)
         self.books = []
-        for dirpath in os.walk(root):
-            if self.canceled:
-                return
-            self.emit(SIGNAL('update(PyQt_PyObject)'),
-                        _('Searching in')+' '+dirpath[0])
-            self.books += list(self.db.find_books_in_directory(dirpath[0],
-                                            self.single_book_per_directory))
+        try:
+            for dirpath in os.walk(root):
+                if self.canceled:
+                    return
+                self.emit(SIGNAL('update(PyQt_PyObject)'),
+                            _('Searching in')+' '+dirpath[0])
+                self.books += list(self.db.find_books_in_directory(dirpath[0],
+                                                self.single_book_per_directory))
+        except Exception, err:
+            try:
+                msg = unicode(err)
+            except:
+                msg = repr(err)
+            self.emit(SIGNAL('found(PyQt_PyObject)'), msg)
+            return
+
         self.books = [formats for formats in self.books if formats]
 
         if not self.canceled:
@@ -177,6 +186,15 @@ class Adder(QObject):
         self.rfind.start()
 
     def add(self, books):
+        if isinstance(books, basestring):
+            error_dialog(self.pd, _('Path error'),
+                    _('The specified directory could not be processed.'),
+                    det_msg=books, show=True)
+            return self.canceled()
+        if not books:
+            info_dialog(self.pd, _('No books'),
+                    _('No books found'), show=True)
+            return self.canceled()
         books = [[b] if isinstance(b, basestring) else b for b in books]
         self.rfind = None
         from calibre.ebooks.metadata.worker import read_metadata

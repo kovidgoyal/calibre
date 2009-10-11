@@ -38,6 +38,8 @@ def make_config_dir():
     if not os.path.exists(plugin_dir):
         os.makedirs(plugin_dir, mode=448) # 0700 == 448
 
+def check_config_write_access():
+    return os.access(config_dir, os.W_OK) and os.access(config_dir, os.X_OK)
 
 class CustomHelpFormatter(IndentedHelpFormatter):
 

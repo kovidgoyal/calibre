@@ -33,7 +33,7 @@ class FontConfig(Thread):
             config = os.path.join(config_dir, 'fonts.conf')
         if iswindows and getattr(sys, 'frozen', False):
             config_dir = os.path.join(os.path.dirname(sys.executable),
-                'etc', 'fonts')
+                'fontconfig')
             if isinstance(config_dir, unicode):
                 config_dir = config_dir.encode(sys.getfilesystemencoding())
             config = os.path.join(config_dir, 'fonts.conf')
@@ -148,9 +148,10 @@ fontconfig.start()
 
 def test():
     from pprint import pprint;
-    pprint(fontconfig.find_font_families());
-    pprint(fontconfig.files_for_family('liberation serif'));
-    pprint(fontconfig.match('liberation serif:slant=italic:weight=bold', verbose=True))
+    pprint(fontconfig.find_font_families())
+    pprint(fontconfig.files_for_family('liberation serif'))
+    m = 'times new roman' if iswindows else 'liberation serif'
+    pprint(fontconfig.match(m+':slant=italic:weight=bold', verbose=True))
 
 if __name__ == '__main__':
     test()

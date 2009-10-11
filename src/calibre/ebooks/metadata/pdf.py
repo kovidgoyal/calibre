@@ -39,7 +39,7 @@ def get_metadata(stream, cover=True):
     if cover and 'cover' in info:
         data = info['cover']
         if data is None:
-            prints(title, 'is an encrypted document, cover extraction not allowed.')
+            prints(title, 'has no pages, cover extraction impossible.')
         else:
             mi.cover_data = ('png', data)
 
