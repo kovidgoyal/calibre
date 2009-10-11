@@ -64,7 +64,7 @@ PML_HTML_RULES = [
     (re.compile(r'(?<=[^\\])\\Sp'), lambda match: ''),
     (re.compile(r'(?<=[^\\])\\Sb'), lambda match: ''),
     # Remove invalid single item pml codes.
-    (re.compile(r'(?<=[^\\])\\.'), lambda match: ''),
+    (re.compile(r'(?<=[^\\])\\[^\\]'), lambda match: ''),
 
     # Replace \\ with \.
     (re.compile(r'\\\\'), lambda match: '\\'),
@@ -78,6 +78,7 @@ def pml_to_html(pml):
     return html
 
 def footnote_sidebar_to_html(id, pml):
+    if id.startswith('\x01'):
+        id = id[2:]
     html = '<div id="sidebar-%s"><dt>%s</dt></div><dd>%s</dd>' % (id, id, pml_to_html(pml))
     return html
-
