@@ -323,17 +323,16 @@ class ResultCache(SearchQueryParser):
 
     def seriescmp(self, x, y):
         try:
-            ans = cmp(self._data[x][9].lower(), self._data[y][9].lower()) if str else\
-              cmp(self._data[x][9], self._data[y][9])
+            ans = cmp(self._data[x][9].lower(), self._data[y][9].lower())
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][9], self._data[y][9])
         if ans != 0: return ans
         return cmp(self._data[x][10], self._data[y][10])
 
-    def cmp(self, loc, x, y, str=True, subsort=False):
+    def cmp(self, loc, x, y, asstr=True, subsort=False):
         try:
-            ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if str else\
-              cmp(self._data[x][loc], self._data[y][loc])
+            ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if \
+                asstr else cmp(self._data[x][loc], self._data[y][loc])
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][loc], self._data[y][loc])
         if subsort and ans == 0:
@@ -352,7 +351,7 @@ class ResultCache(SearchQueryParser):
             self.first_sort = False
         fcmp = self.seriescmp if field == 'series' else \
             functools.partial(self.cmp, FIELD_MAP[field], subsort=subsort,
-                              str=field not in ('size', 'rating', 'timestamp'))
+                              asstr=field not in ('size', 'rating', 'timestamp'))
 
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
