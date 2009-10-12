@@ -492,7 +492,9 @@ class LibraryPage(QWizardPage, LibraryUI):
         import __builtin__
         __builtin__.__dict__['_'] = lambda(x): x
         from calibre.utils.localization import set_translators
+        from calibre.gui2 import qt_app
         set_translators()
+        qt_app.load_translations()
         self.emit(SIGNAL('retranslate()'))
         self.init_languages()
 
@@ -627,7 +629,7 @@ def wizard(parent=None):
     return w
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     wizard().exec_()
 
