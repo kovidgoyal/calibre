@@ -33,8 +33,8 @@ class Device(object):
 
     output_profile = 'default'
     output_format = 'EPUB'
-    name = _('Default')
-    manufacturer = _('Default')
+    name = 'Default'
+    manufacturer = 'Default'
     id = 'default'
 
     @classmethod
@@ -146,8 +146,9 @@ def get_manufacturers():
     mans = set([])
     for x in get_devices():
         mans.add(x.manufacturer)
-    mans.remove(_('Default'))
-    return [_('Default')] + sorted(mans)
+    if 'Default' in mans:
+        mans.remove('Default')
+    return ['Default'] + sorted(mans)
 
 def get_devices_of(manufacturer):
     ans = [d for d in get_devices() if d.manufacturer == manufacturer]
@@ -464,6 +465,36 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.setupUi(self)
         self.registerField('library_location', self.location)
         self.connect(self.button_change, SIGNAL('clicked()'), self.change)
+        self.init_languages()
+        self.connect(self.language, SIGNAL('currentIndexChanged(int)'),
+                self.change_language)
+
+    def init_languages(self):
+        self.language.blockSignals(True)
+        self.language.clear()
+        from calibre.utils.localization import available_translations, \
+            get_language, get_lang
+        lang = get_lang()
+        if lang is None or lang not in available_translations():
+            lang = 'en'
+        self.language.addItem(get_language(lang), QVariant(lang))
+        items = [(l, get_language(l)) for l in available_translations() \
+                 if l != lang]
+        if lang != 'en':
+            items.append(('en', get_language('en')))
+        items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        for item in items:
+            self.language.addItem(item[1], QVariant(item[0]))
+        self.language.blockSignals(False)
+
+    def change_language(self, idx):
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
+        import __builtin__
+        __builtin__.__dict__['_'] = lambda(x): x
+        from calibre.utils.localization import set_translators
+        set_translators()
+        self.emit(SIGNAL('retranslate()'))
+        self.init_languages()
 
     def change(self):
         dir = choose_dir(self, 'database location dialog',
@@ -548,6 +579,8 @@ class Wizard(QWizard):
         self.setPixmap(self.BackgroundPixmap, QPixmap(I('wizard.svg')))
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
+        self.connect(self.library_page, SIGNAL('retranslate()'),
+                self.retranslate)
         self.finish_page = FinishPage()
         bt = unicode(self.buttonText(self.FinishButton)).replace('&', '')
         t = unicode(self.finish_page.finish_text.text())
@@ -572,6 +605,10 @@ class Wizard(QWizard):
         nw = min(580, nw)
         self.resize(nw, nh)
 
+    def retranslate(self):
+        for pid in self.pageIds():
+            page = self.page(pid)
+            page.retranslateUi(page)
 
     def accept(self):
         pages = map(self.page, self.visitedPages())
