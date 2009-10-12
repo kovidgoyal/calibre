@@ -623,7 +623,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         try:
             al.setPlainText(open(log_access_file, 'rb').read().decode('utf8', 'replace'))
         except IOError:
-            el.setPlainText('No access log found')
+            al.setPlainText('No access log found')
+        bx = QDialogButtonBox(QDialogButtonBox.Ok)
+        layout.addWidget(bx)
+        self.connect(bx, SIGNAL('accepted()'), d.accept)
         d.show()
 
     def set_server_options(self):
