@@ -34,7 +34,6 @@ class HeaderRecord(object):
         self.has_metadata, = struct.unpack('>H', raw[24:26])
         self.footnote_rec, = struct.unpack('>H', raw[28:30])
         self.sidebar_rec, = struct.unpack('>H', raw[30:32])
-        self.bookmark_offset, = struct.unpack('>H', raw[32:34])
         self.image_data_offset, = struct.unpack('>H', raw[40:42])
         self.metadata_offset, = struct.unpack('>H', raw[44:46])
         self.footnote_offset, = struct.unpack('>H', raw[48:50])

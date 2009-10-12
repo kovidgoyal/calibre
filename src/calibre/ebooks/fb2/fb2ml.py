@@ -75,7 +75,6 @@ class FB2MLizer(object):
         output.append(self.fb2mlize_images())
         output.append(self.fb2_footer())
         output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
-        return output
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
 
     def fb2_header(self):
