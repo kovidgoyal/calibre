@@ -192,6 +192,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>700</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
          <string>&lt;p&gt;Search the list of books by title, author, publisher, tags, comments, etc.&lt;br&gt;&lt;br&gt;Words separated by spaces are ANDed</string>
         </property>

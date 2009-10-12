@@ -508,14 +508,21 @@ class ResizableDialog(QDialog):
 
 gui_thread = None
 
-
+qt_app = None
 class Application(QApplication):
 
     def __init__(self, args):
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         QApplication.__init__(self, qargs)
-        global gui_thread
+        global gui_thread, qt_app
         gui_thread = QThread.currentThread()
+        self._translator = None
+        self.load_translations()
+        qt_app = self
+
+    def load_translations(self):
+        if self._translator is not None:
+            self.removeTranslator(self._translator)
         self._translator = QTranslator(self)
         if set_qt_translator(self._translator):
             self.installTranslator(self._translator)

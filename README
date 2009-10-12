@@ -15,3 +15,5 @@ bzr branch lp:calibre
 To update your copy of the source code:
 bzr merge
 
+Tarballs of the source code for each release are now available \
+at http://code.google.com/p/calibre-ebook

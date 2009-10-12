@@ -35,6 +35,9 @@ void ensure_root() {
 
 int do_mount(const char *dev, const char *mp) {
     char options[1000], marker[2000];
+#ifdef __NetBSD__
+    char uids[100], gids[100];
+#endif
     int errsv;
 
     if (!exists(dev)) {
@@ -57,9 +60,19 @@ int do_mount(const char *dev, const char *mp) {
         }
         close(fd);
     }
+#ifdef __NetBSD__
+    snprintf(options, 1000, "rw,noexec,nosuid,sync,nodev");
+    snprintf(uids, 100, "%d", getuid());
+    snprintf(gids, 100, "%d", getgid());
+#else
     snprintf(options, 1000, "rw,noexec,nosuid,sync,nodev,quiet,shortname=mixed,uid=%d,gid=%d,umask=077,fmask=0177,dmask=0077,utf8,iocharset=iso8859-1", getuid(), getgid());
+#endif
     ensure_root();
+#ifdef __NetBSD__
+    execlp("mount_msdos", "mount_msdos", "-u", uids, "-g", gids, "-o", options, dev, mp, NULL);
+#else
     execlp("mount", "mount", "-t", "vfat", "-o", options, dev, mp, NULL);
+#endif
     errsv = errno;
     fprintf(stderr, "Failed to mount with error: %s\n", strerror(errsv));
     return EXIT_FAILURE;
@@ -76,7 +89,11 @@ int call_eject(const char *dev, const char *mp) {
 
     if (pid == 0) { /* Child process */
         ensure_root();
+#ifdef __NetBSD__
+        execlp("eject", "eject", dev, NULL);
+#else
         execlp("eject", "eject", "-s", dev, NULL);
+#endif
         /* execlp failed */
         errsv = errno;
         fprintf(stderr, "Failed to eject with error: %s\n", strerror(errsv));
