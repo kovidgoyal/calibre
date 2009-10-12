@@ -209,14 +209,8 @@ class Writer(FormatWriter):
         compression = 10 # zlib compression.
         non_text_offset = text_count + 1
 
-        if chapter_count > 0:
-            chapter_offset = non_text_offset
-        else:
-            chapter_offset = text_count
-        if link_count > 0:
-            link_offset = chapter_offset + chapter_count
-        else:
-            link_offset = chapter_offset
+        chapter_offset = non_text_offset
+        link_offset = chapter_offset + chapter_count
 
         if image_count > 0:
             image_data_offset = link_offset + link_count
