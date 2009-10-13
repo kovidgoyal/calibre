@@ -24,6 +24,10 @@
 
 				<DirectoryRef Id="APPLICATIONFOLDER">
 						{app_components}
+                        <Component Id="AddToPath" Guid="*">
+                            <Environment Id='UpdatePath' Name='PATH' Action='set' System='yes' Part='last' Value='[APPLICATIONFOLDER]' />
+                            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}" Name="system_path_updated" Type="integer" Value="1" KeyPath="yes"/>
+                        </Component>
                 </DirectoryRef>
 
                 <DirectoryRef Id="ApplicationProgramsFolder">
@@ -83,6 +87,11 @@
                         <Feature Id="DS" Title="Shortcut on desktop" Level="1"
                             Description="Shortcut to {app} on your desktop">
                             <ComponentRef Id="DesktopShortcut"/>
+                        </Feature>
+
+                        <Feature Id="FAddToPath" Title="Add install directory to path" Level="1"
+                            Description="Add installation directory to PATH. Makes using command line tools easier">
+                            <ComponentRef Id="AddToPath"/>
                         </Feature>
 				</Feature>
 
