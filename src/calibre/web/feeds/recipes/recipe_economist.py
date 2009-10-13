@@ -8,8 +8,7 @@ economist.com
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
-import mechanize, string
-from urllib2 import quote
+import mechanize, string, urllib
 
 class Economist(BasicNewsRecipe):
 
@@ -24,15 +23,26 @@ class Economist(BasicNewsRecipe):
     cover_url = 'http://www.economist.com/images/covers/currentcovereu_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title'])]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
+    needs_subscription = True
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
-        if self.username is not None and self.password is not None:
-            req = mechanize.Request('http://www.economist.com/members/members.cfm?act=exec_login', headers={'Referer':'http://www.economist.com'})
-            data = 'logging_in=Y&returnURL=http%253A%2F%2Fwww.economist.com%2Findex.cfm&email_address=username&pword=password&x=7&y=11'
-            data = data.replace('username', quote(self.username)).replace('password', quote(self.password))
-            req.add_data(data)
-            br.open(req).read()
+        br.open('http://www.economist.com')
+        req = mechanize.Request(
+                'http://www.economist.com/members/members.cfm?act=exec_login',
+                headers = {
+                    'Referer':'http://www.economist.com/',
+                    },
+                data=urllib.urlencode({
+                    'logging_in' : 'Y',
+                    'returnURL'  : '/',
+                    'email_address': self.username,
+                    'fakepword' : 'Password',
+                    'pword'     : self.password,
+                    'x'         : '0',
+                    'y'         : '0',
+                    }))
+        br.open(req).read()
         return br
 
     def parse_index(self):
