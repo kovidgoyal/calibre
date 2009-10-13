@@ -1829,7 +1829,7 @@ def run_gui(opts, args, actions, listener, app):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
     if getattr(main, 'restart_after_quit', False):
-        e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0]
+        e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
         print 'Restarting with:', e, sys.argv
         if hasattr(sys, 'frameworks_dir'):
             app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
