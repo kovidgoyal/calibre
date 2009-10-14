@@ -51,6 +51,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.regex.setText(regex)
         self.regex_valid(True)
         self.highlighter = RegexHighlighter(self.preview.document())
+        self.highlighter.update_regex(regex)
 
         if not db or not book_id:
             self.button_box.addButton(QDialogButtonBox.Open)
