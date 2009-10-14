@@ -80,6 +80,28 @@ What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 At the moment |app| has full support for the SONY PRS 300/500/505/600/700, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Netronix EB600, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
+How can I help get my device supported in |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your device appears as a USB disk to the operating system. Adding support for it to |app| is very easy.
+We just need some information from you:
+
+  * What e-book formats does your device support?
+  * Is there a special directory on the device in which all e-book files should be placed?
+  * We also need the output from running the following command in a terminal, both with the device
+    connected and without::
+
+        calibre-debug -d
+
+  * If your device supports SD cards, run the above command with the cards inserted.
+
+To run the above command, on Windows you should use the full path to calibre-debug.exe
+On OSX, you should go to Preferences->Advanced and click "Install command line tools".
+
+Once you send us the output for a particular operating system, support for the device
+will appear in the next release of |app|.
+
+
 Can I use both |app| and the SONY software to manage my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
