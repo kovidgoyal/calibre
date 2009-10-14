@@ -200,6 +200,12 @@ class Install(Develop):
             <prefix>/share/calibre. These can all be controlled via options.
 
             The default <prefix> is the prefix of your python installation.
+
+            The .desktop, .mime and icon files are installed using XDG. The
+            location they are installed to can be controlled by setting
+            the environment variables:
+            XDG_DATA_DIRS=/usr/share equivalent
+            XDG_UTILS_INSTALL_MODE=system
     ''')
     short_description = 'Install calibre from source'
 
