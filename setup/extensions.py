@@ -136,7 +136,7 @@ if isunix:
     cxx = os.environ.get('CXX', 'g++')
     cflags = os.environ.get('OVERRIDE_CFLAGS',
         '-O3 -Wall -DNDEBUG -fno-strict-aliasing -pipe')
-    cflags = shlex.split(cflags) + '-fPIC'
+    cflags = shlex.split(cflags) + ['-fPIC']
     ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
     ldflags = shlex.split(ldflags)
     cflags += shlex.split(os.environ.get('CFLAGS', ''))
