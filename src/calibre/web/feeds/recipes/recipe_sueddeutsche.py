@@ -11,7 +11,7 @@ class Sueddeutsche(BasicNewsRecipe):
 
     title = u'S\xfcddeutsche'
     description = 'News from Germany'
-    __author__ = 'Oliver Niesner'
+    __author__ = 'Oliver Niesner and Sujata Raman'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     oldest_article = 7
@@ -22,51 +22,26 @@ class Sueddeutsche(BasicNewsRecipe):
     encoding = 'iso-8859-15'
     remove_javascript = True
 
+    keep_only_tags = [
+                        dict(name='div', attrs={'id':["artikel","contentTable"]}) ,
+                         ]
+    remove_tags = [ dict(name='link'), dict(name='iframe'),
+                    dict(name='div', attrs={'id':["themenbox","artikelfoot","CAD_AD","rechteSpalte"]}),
+                    dict(name='div', attrs={'class':["similar-article-box","artikelliste","nteaser301bg","pages closed"]}),
+                    dict(name='p', attrs={'class':["ressortartikeln",]}),
+                    dict(name='table', attrs={'class':["kommentare","footer","pageBoxBot","pageAktiv","bgcontent"]}),
+                    dict(name='ul', attrs={'class':["breadcrumb","articles","activities"]}),
+                    dict(name='p', text = "ANZEIGE")
+                     ]
 
-    remove_tags_after = [dict(name='p', attrs={'class':'mttt'}),
-                         dict(name='p', attrs={'class':'artikelFliestext'})]
-
-
-
-
-
-
-    remove_tags = [dict(name='span', attrs={'class':'r10000000'}),
-                   dict(name='td', attrs={'class':'artikelDruckenRight'}),
-                   dict(name='td', attrs={'class':'bgc4c4c4'}),
-                   dict(name='div', attrs={'class':'footerCopy padleft5'}),
-                   dict(name='div', attrs={'class':'articleDistractor'}),
-                   dict(name='div', attrs={'class':'footerLinks'}),
-                   dict(name='div', attrs={'class':'nnav-headimagebottom'}),
-                   dict(name='div', attrs={'class':'nnavlink'}),
-                   dict(name='div', attrs={'class':'nnavlinkhome'}),
-                   dict(name='div', attrs={'class':'SpecialGrafik'}),
-                   dict(name='div', attrs={'class':'similar-article-box'}),
-                   dict(name='div', attrs={'class':'tiefethemen'}),
-                   dict(name='table', attrs={'class':'footer'}),
-                   dict(name='ul', attrs={'class':'breadcrumb'}),
-                   dict(name='a', attrs={'class':'List'}),
-                   dict(name='span', attrs={'class':'icVers'}),
-                   dict(id='nnav-head'),
-                   dict(id='nnav-top'),
-                   dict(id='nnav-logo'),
-                   dict(id='nnav-logodiv'),
-                   dict(id='nnav-bottom'),
-                   dict(id='nnav-headimagebottom'),
-                   dict(id='headerLBox'),
-                   dict(id='logout'),
-                   dict(id='nnav-headerteaser'),
-                   dict(id='nnav-oly'),
-                   dict(id='bookmarklist1'),
-                   dict(id='bookmarklist2'),
-                   dict(id='navlist-personnames'),
-                   dict(id='artikelfoot'),
-                   dict(id='nnav-bgheader'),
-                   dict(id='rechteSpalte'),
-                   dict(id=''),
-                   dict(name='td', attrs={'class':'artikelDruckenCenter'})]
-
-
+    extra_css = '''
+                    h2{font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #003399;}
+                    a{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-style:italic;}
+                    .dachzeile p{font-family:Arial,Helvetica,sans-serif; font-size: x-small; }
+                    h1{ font-family:Arial,Helvetica,sans-serif;  font-size:x-large; font-weight:bold;}
+                    .artikelTeaser{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-weight:bold; }
+                    body{font-family:Arial,Helvetica,sans-serif; }
+                    .photo {font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #666666;}                 '''
 
     #feeds = [(u'Topthemen', u'http://suche.sueddeutsche.de/query/politik/-docdatetime/drilldown/%C2%A7documenttype%3AArtikel?output=rss')]
 
@@ -83,12 +58,11 @@ class Sueddeutsche(BasicNewsRecipe):
              (u'Auto&Reise', u'http://suche.sueddeutsche.de/query/automobil/nav/%C2%A7ressort%3A%22Auto%20%26%20Mobil%22/sort/-docdatetime?output=rss'),
              (u'Computer', u'http://suche.sueddeutsche.de/query/computer/nav/%C2%A7ressort%3AComputer/sort/-docdatetime?output=rss'),
              (u'Job&Karriere', u'http://suche.sueddeutsche.de/query/job/nav/%C2%A7ressort%3A%22Job%20%26%20Karriere%22/sort/-docdatetime?output=rss'),
-             (u'Reise', u'http://suche.sueddeutsche.de/query/reise/nav/%C2%A7ressort%3AReise/sort/-docdatetime?output=rss')]
+             (u'Reise', u'http://suche.sueddeutsche.de/query/reise/nav/%C2%A7ressort%3AReise/sort/-docdatetime?output=rss')
+             ]
 
-
-
-    def print_version(self, url):
-        return url.replace('/text/', '/text/print.html')
+   # def print_version(self, url):
+   #     return url.replace('/text/', '/text/print.html')
 
 
 
