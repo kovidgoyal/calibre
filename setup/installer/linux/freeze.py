@@ -161,8 +161,6 @@ class LinuxFreeze(Command):
         elif exe not in executables:
             print >>sys.stderr, 'Invalid invocation of calibre loader. CALIBRE_CX_EXE=%%s is unknown'%%exe
         else:
-            from PyQt4.QtCore import QCoreApplication
-            QCoreApplication.setLibraryPaths([sys.frozen_path, os.path.join(sys.frozen_path, "qtplugins")])
             sys.argv[0] = exe
             module, func = executables[exe]
             module = __import__(module, fromlist=[1])
@@ -248,6 +246,7 @@ class LinuxFreeze(Command):
             export MAGICK_CONFIGURE_PATH=$base/ImageMagick/config
             export MAGICK_CODER_MODULE_PATH=$base/ImageMagick/modules-Q16/coders
             export MAGICK_CODER_FILTER_PATH=$base/ImageMagick/modules-Q16/filter
+            export QT_PLUGIN_PATH=$base/qtplugins
             $loader "$@"
             ''')%exe)
             os.chmod(path, 0755)
