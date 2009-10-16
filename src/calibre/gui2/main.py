@@ -518,10 +518,17 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.test_server_timer = QTimer.singleShot(10000, self.test_server)
 
 
-        self.scheduler = Scheduler(self)
+        self.scheduler = Scheduler(self, self.library_view.model().db)
         self.action_news.setMenu(self.scheduler.news_menu)
         self.connect(self.action_news, SIGNAL('triggered(bool)'),
                 self.scheduler.show_dialog)
+        self.connect(self.scheduler, SIGNAL('delete_old_news(PyQt_PyObject)'),
+                self.library_view.model().delete_books_by_id,
+                Qt.QueuedConnection)
+        self.connect(self.scheduler,
+                SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
+                self.download_scheduled_recipe, Qt.QueuedConnection)
+
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
     def resizeEvent(self, ev):
@@ -1155,27 +1162,27 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Fetch news #################################
 
-    def download_scheduled_recipe(self, recipe, script, callback):
+    def download_scheduled_recipe(self, arg):
         func, args, desc, fmt, temp_files = \
-                fetch_scheduled_recipe(recipe, script)
+                fetch_scheduled_recipe(arg)
         job = self.job_manager.run_job(
                 Dispatcher(self.scheduled_recipe_fetched), func, args=args,
                            description=desc)
-        self.conversion_jobs[job] = (temp_files, fmt, recipe, callback)
-        self.status_bar.showMessage(_('Fetching news from ')+recipe.title, 2000)
+        self.conversion_jobs[job] = (temp_files, fmt, arg)
+        self.status_bar.showMessage(_('Fetching news from ')+arg['title'], 2000)
 
     def scheduled_recipe_fetched(self, job):
-        temp_files, fmt, recipe, callback = self.conversion_jobs.pop(job)
+        temp_files, fmt, arg = self.conversion_jobs.pop(job)
         pt = temp_files[0]
         if job.failed:
             return self.job_exception(job)
-        id = self.library_view.model().add_news(pt.name, recipe)
+        id = self.library_view.model().add_news(pt.name, arg)
         self.library_view.model().reset()
         sync = dynamic.get('news_to_be_synced', set([]))
         sync.add(id)
         dynamic.set('news_to_be_synced', sync)
-        callback(recipe)
-        self.status_bar.showMessage(recipe.title + _(' fetched.'), 3000)
+        self.scheduler.recipe_downloaded(arg)
+        self.status_bar.showMessage(arg['title'] + _(' fetched.'), 3000)
         self.email_news(id)
         self.sync_news()
 

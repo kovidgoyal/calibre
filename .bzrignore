@@ -9,9 +9,9 @@ dist
 docs
 resources/localization
 resources/images.qrc
-resources/recipes.pickle
 resources/scripts.pickle
 resources/ebook-convert-complete.pickle
+resources/builtin_recipes.xml
 setup/installer/windows/calibre/build.log
 src/calibre/translations/.errors
 src/cssutils/.svn/

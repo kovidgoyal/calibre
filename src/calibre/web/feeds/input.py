@@ -43,14 +43,15 @@ class RecipeInput(InputFormatPlugin):
 
     def convert(self, recipe_or_file, opts, file_ext, log,
             accelerators):
-        from calibre.web.feeds.recipes import \
-                get_builtin_recipe, compile_recipe
+        from calibre.web.feeds.recipes import compile_recipe
+        from calibre.web.feeds.recipes.collection import \
+                get_builtin_recipe_by_title
         if os.access(recipe_or_file, os.R_OK):
             recipe = compile_recipe(open(recipe_or_file, 'rb').read())
         else:
             title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
             title = os.path.basename(title).rpartition('.')[0]
-            recipe = get_builtin_recipe(title)
+            recipe = compile_recipe(get_builtin_recipe_by_title(title, log))
 
         if recipe is None:
             raise ValueError('%r is not a valid recipe file or builtin recipe' %

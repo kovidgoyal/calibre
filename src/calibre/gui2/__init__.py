@@ -396,7 +396,8 @@ class FileDialog(QObject):
         if filters:
             for filter in filters:
                 text, extensions = filter
-                extensions = ['*.'+i if not i.startswith('.') else i for i in extensions]
+                extensions = ['*'+(i if i.startswith('.') else '.'+i) for i in
+                        extensions]
                 ftext += '%s (%s);;'%(text, ' '.join(extensions))
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'

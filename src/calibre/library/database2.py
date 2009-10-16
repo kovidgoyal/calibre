@@ -1323,14 +1323,18 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('metadata', [id])
 
-    def add_news(self, path, recipe):
+    def add_news(self, path, arg):
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else open(path, 'rb')
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
         mi.series_index = 1.0
-        mi.tags = [_('News'), recipe.title]
+        mi.tags = [_('News')]
+        if arg['add_title_tag']:
+            mi.tags += [arg['title']]
+        if arg['custom_tags']:
+            mi.tags += arg['custom_tags']
         obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
                               (mi.title, mi.authors[0]))
         id = obj.lastrowid
@@ -1695,6 +1699,11 @@ books_series_link      feeds
                     break
 
         return duplicates
+
+    def get_custom_recipes(self):
+        for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
+            yield id, title, script
+
 
     def check_integrity(self, callback):
         callback(0., _('Checking SQL integrity...'))

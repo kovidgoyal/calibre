@@ -207,8 +207,7 @@ class QueueBulk(QProgressDialog):
         self.jobs.reverse()
         self.queue(self.jobs, self.changed, self.bad, *self.args)
 
-def fetch_scheduled_recipe(recipe, script):
-    from calibre.gui2.dialogs.scheduler import config
+def fetch_scheduled_recipe(arg):
     from calibre.ebooks.conversion.config import load_defaults
     fmt = prefs['output_format'].lower()
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
@@ -228,16 +227,14 @@ def fetch_scheduled_recipe(recipe, script):
         recs.append(('header', True, OptionRecommendation.HIGH))
         recs.append(('header_format', '%t', OptionRecommendation.HIGH))
 
-    args = [script, pt.name, recs]
-    if recipe.needs_subscription:
-        x = config.get('recipe_account_info_%s'%recipe.id, False)
-        if not x:
-            raise ValueError(_('You must set a username and password for %s')%recipe.title)
-        recs.append(('username', x[0], OptionRecommendation.HIGH))
-        recs.append(('password', x[1], OptionRecommendation.HIGH))
+    args = [arg['recipe'], pt.name, recs]
+    if arg['username'] is not None:
+        recs.append(('username', arg['username'], OptionRecommendation.HIGH))
+    if arg['password'] is not None:
+        recs.append(('password', arg['password'], OptionRecommendation.HIGH))
 
 
-    return 'gui_convert', args, _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
+    return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
 def convert_existing(parent, db, book_ids, output_format):
     already_converted_ids = []
