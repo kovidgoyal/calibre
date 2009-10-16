@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-10-10 02:36+0000\n"
-"PO-Revision-Date: 2009-10-14 01:40+0000\n"
+"PO-Revision-Date: 2009-10-16 01:29+0000\n"
 "Last-Translator: Fabio Malcher Miranda <mirand863@hotmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-15 06:51+0000\n"
+"X-Launchpad-Export-Date: 2009-10-16 06:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -790,11 +790,11 @@ msgstr "OPÇÕES DE SAÍDA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr ""
+msgstr "Opções para controlar o processamento do arquivo de saída %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
-msgstr ""
+msgstr "Opções para controlar a aparência do arquivo de saída"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
@@ -806,26 +806,29 @@ msgid ""
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
 msgstr ""
+"Controlar a geração automática de índice. Por padrão, se o arquivo fonte tem "
+"um índice, ele será usado no lugar do que seria gerado automaticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
-msgstr ""
+msgstr "Opções para escolher os metadados no arquivo de saída"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "Opções para ajudar a depurar a conversão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
-msgstr ""
+msgstr "Listar receitas construídas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:251
 msgid "Output saved to"
-msgstr ""
+msgstr "Arquivo de saída salvo em"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:91
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
 msgstr ""
+"Nível de detalhes do log. Especifique várias vezes para mais detalhes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:98
 msgid ""
@@ -833,6 +836,9 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"Salvar o resultado de diferentes etapas do processo de conversão para a "
+"pasta especificada. Útil se você não tem certeza em que etapa do processo de "
+"conversão está ocorrendo um erro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:107
 msgid ""
@@ -841,6 +847,10 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"Especificar o perfil de origem. O perfil de origem dá informações ao sistema "
+"de conversão sobre como interpretar várias informações no documento de "
+"origem. Por exemplo, comprimento dependente da resolução (ou seja, "
+"comprimento em pixels). As escolhas são:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:118
 msgid ""
@@ -849,6 +859,10 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"Especificar o perfil de saída. O perfil de saída diz ao sistema de conversão "
+"como otimizar o documento criado para o aparelho especificado. Em alguns "
+"casos, um perfil de saída é necessário para criar documentos que irão "
+"funcionar em um aparelho. Por exemplo, EPUB no leitor SONY. As escolhas são:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:129
 msgid ""
@@ -869,7 +883,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:151
 msgid "Disable all rescaling of font sizes."
-msgstr ""
+msgstr "Desativar redimensionamento do tamanho das letras."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:158
 msgid ""
@@ -884,6 +898,10 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
+"Alguns documentos mal modelados usam tabelas para controlar a disposição do "
+"texto na página. Quando convertidos estes documentos geralmente ficam com "
+"texto fora da página e outros problemas. Esta opção irá extrair o conteúdo "
+"das tabelas e mostra ele forma linear."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:176
 msgid ""
@@ -912,10 +930,13 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+"Normalmente, se o arquivo fonte já tem um índice, ele é usado em preferencia "
+"ao que é gerado automaticamente. Com esta opção, o que é gerado "
+"automaticamente sempre será usado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr ""
+msgstr "Não adicionar ao índice os capítulos detectados automaticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:216
 msgid ""

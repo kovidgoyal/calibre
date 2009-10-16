@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-10-10 02:36+0000\n"
-"PO-Revision-Date: 2009-10-14 22:05+0000\n"
+"PO-Revision-Date: 2009-10-15 13:33+0000\n"
 "Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-15 06:51+0000\n"
+"X-Launchpad-Export-Date: 2009-10-16 06:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -382,15 +382,15 @@ msgstr "Wyłącz wtyczkę"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr ""
+msgstr "Komunikacja z telefonami z Androidem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
-msgstr ""
+msgstr "Komunikacja z czytnikiem BeBook eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:95
 msgid "Communicate with the BeBook Mini eBook reader."
-msgstr ""
+msgstr "Komunikacja z czytnikiem BeBook Mini eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:12
 msgid "Communicate with the Blackberry smart phone."
@@ -540,7 +540,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:670
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:672
 msgid "The reader has no storage card in this slot."
-msgstr ""
+msgstr "Brak pamięci na karcie urządzenia w tym wejściu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:674
 msgid "Selected slot: %s is not supported."
@@ -570,7 +570,7 @@ msgstr "Konfiguruj urządzenie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:16
 msgid "settings for device drivers"
-msgstr ""
+msgstr "ustawienia dla sterowników urządzeń"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:17
 msgid "Ordered list of formats the device will accept"
@@ -578,7 +578,7 @@ msgstr "Uporządkowana lista formatów akceptowanych przez urządzenie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:18
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "Umieszczaj pliki w podfolderach, jeśli urządzenie wpiera ich obsługę"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:19
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:64
@@ -635,6 +635,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr ""
+"Zachowuj proporcję wymiarów grafiki. Domyślnie grafika rozszerzana jest na "
+"cały ekran."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
 msgid "Disable sharpening."
@@ -720,23 +722,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr ""
+msgstr "OPCJE WCZYTYWANIA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
-msgstr ""
+msgstr "Opcje umożliwiające kontrolę nad procesem wczytywania pliku %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr ""
+msgstr "OPCJE WYSYŁANIA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
-msgstr ""
+msgstr "Opcje umożliwiające kontrolę nad procesem wysyłania pliku %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:119
 msgid "Options to control the look and feel of the output"
 msgstr ""
+"Opcje umożliwiające kontrole nad wyglądem i zachowaniem wysyłanego pliku"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
@@ -751,7 +754,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:155
 msgid "Options to set metadata in the output"
-msgstr ""
+msgstr "Opcje odpowiedzialne za ustawienia metadanych w plikach wyjściowych"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
@@ -763,7 +766,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:251
 msgid "Output saved to"
-msgstr ""
+msgstr "Plik wyjściowy zapisany do"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:91
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
@@ -924,21 +927,29 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Ustaw górny margines w punktach. Domyślna wartość %default. Informacja: 72 "
+"punkty to 1 cal."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:286
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Ustaw dolny margines w punktach. Domyślna wartość %default. Informacja: 72 "
+"punkty to 1 cal."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:291
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Ustaw lewy margines w punktach. Domyślna wartość %default. Informacja: 72 "
+"punkty to 1 cal."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:296
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Ustaw prawy margines w punktach. Domyślna wartość %default. Informacja: 72 "
+"punkty to 1 cal."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:301
 msgid ""
@@ -965,6 +976,8 @@ msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
 msgstr ""
+"Wstaw pusta linię pomiędzy paragrafami. Ustawienie nie będzie działać, jeśli "
+"plik źródłowy nie używa pragrafów (znaczników <p> lub <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:328
 msgid ""
@@ -1019,11 +1032,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:401
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:37
 msgid "Set the title."
-msgstr ""
+msgstr "Wpisz tytuł."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:405
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
+"Wpisz autorów. Jeśli jest więcej niż jeden, należy oddzielić ich znakami et "
+"(\"&\")."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:410
 msgid "The version of the title to be used for sorting. "
@@ -1041,17 +1056,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:422
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:53
 msgid "Set the ebook description."
-msgstr ""
+msgstr "Wpisz opis książki."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:426
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:55
 msgid "Set the ebook publisher."
-msgstr ""
+msgstr "Wpisz wydawcę książki."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:430
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:59
 msgid "Set the series this ebook belongs to."
-msgstr ""
+msgstr "Wpisz serię, do której należy książka."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:434
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:61
@@ -1061,12 +1076,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:438
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:63
 msgid "Set the rating. Should be a number between 1 and 5."
-msgstr ""
+msgstr "Wpisz ocenę. Musi to być cyfra pomiędzy 1 a 5."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:442
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:65
 msgid "Set the ISBN of the book."
-msgstr ""
+msgstr "Wpisz numer ISBN książki."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:446
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:67
@@ -1081,7 +1096,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:454
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:71
 msgid "Set the language."
-msgstr ""
+msgstr "Wpisz język."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:546
 msgid "Could not find an ebook inside the archive"
@@ -1089,15 +1104,15 @@ msgstr "Nie znaleziono e-book'a w archiwum"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:712
 msgid "Converting input to HTML..."
-msgstr ""
+msgstr "Przekształcam plik wejściowy do HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:735
 msgid "Running transforms on ebook..."
-msgstr ""
+msgstr "Wykonywanie przekształceń na książce..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:821
 msgid "Creating"
-msgstr ""
+msgstr "Tworzenie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:57
 msgid ""
@@ -1225,7 +1240,7 @@ msgstr "Nie można przetworzyć obrazu %s. Błąd: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1003
 msgid "Unable to process interlaced PNG %s"
-msgstr ""
+msgstr "Nie można było przetworzyć pliku PNG z przepolotem %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1018
 msgid ""
@@ -1276,7 +1291,7 @@ msgstr "Wyjściowy plik LRS"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
-msgstr ""
+msgstr "Nie zapisuj zagnieżdżonych w pliku grafik i czcionek na dysku"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
@@ -1339,7 +1354,7 @@ msgstr "Ustaw tytuł książki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr ""
+msgstr "Ustaw klucz sortowania dla tytułu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
@@ -1347,7 +1362,7 @@ msgstr "Ustaw autora"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr ""
+msgstr "Ustaw klucz sortowania dla autorów"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
@@ -1374,11 +1389,11 @@ msgstr "Ustaw wydawcę"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
-msgstr ""
+msgstr "Wpisz klasyfikację książki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:610
 msgid "Set the book creator"
-msgstr ""
+msgstr "Wpisz twórcę książki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set the book producer"
@@ -1457,7 +1472,7 @@ msgstr "Rodzina czcionek monospace do umieszczenia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:152
 msgid "Comic"
-msgstr ""
+msgstr "Komiks"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:358
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
@@ -1533,11 +1548,11 @@ msgstr "Opublikowana"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
 msgid "Rights"
-msgstr ""
+msgstr "Uprawnienia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:19
 msgid "options"
-msgstr ""
+msgstr "opcje"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid ""
@@ -1573,7 +1588,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:57
 msgid "Set the book category."
-msgstr ""
+msgstr "Wpisz kategorię książki."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -1598,19 +1613,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:144
 msgid "No file specified"
-msgstr ""
+msgstr "Nie wybrano pliku"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:159
 msgid "Original metadata"
-msgstr ""
+msgstr "Oryginalne metadane"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:176
 msgid "Changed metadata"
-msgstr ""
+msgstr "Zmienione metadane"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:188
 msgid "OPF created in"
-msgstr ""
+msgstr "Plik OPF stworzony w"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:194
 msgid "Cover saved to"
@@ -1618,7 +1633,7 @@ msgstr "Okładka zapisana do"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:196
 msgid "No cover found"
-msgstr ""
+msgstr "Nie znaleziono okładki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -1681,11 +1696,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1314
 msgid "Cover"
-msgstr ""
+msgstr "Okładka"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
-msgstr ""
+msgstr "Przekształć grafiki tak, aby odpowiadały limitom urządzenia Palm."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
@@ -1710,11 +1725,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:102
 msgid "All articles"
-msgstr ""
+msgstr "Wszystkie artykuły"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1315
 msgid "Title Page"
-msgstr ""
+msgstr "Strona tytułowa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1316
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
@@ -1725,19 +1740,19 @@ msgstr "Spis treści"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
 msgid "Index"
-msgstr ""
+msgstr "Spis"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
 msgid "Glossary"
-msgstr ""
+msgstr "Słowniczek"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
 msgid "Acknowledgements"
-msgstr ""
+msgstr "Podziękowania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
 msgid "Bibliography"
-msgstr ""
+msgstr "Bibliografia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1321
 msgid "Colophon"
@@ -1745,39 +1760,39 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1322
 msgid "Copyright"
-msgstr ""
+msgstr "Prawa autorskie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
 msgid "Dedication"
-msgstr ""
+msgstr "Dedykacja"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
 msgid "Epigraph"
-msgstr ""
+msgstr "Epigraf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
 msgid "Foreword"
-msgstr ""
+msgstr "Przedsłowie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
 msgid "List of Illustrations"
-msgstr ""
+msgstr "Lista ilustracji"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
 msgid "List of Tables"
-msgstr ""
+msgstr "Lista tabel"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
 msgid "Notes"
-msgstr ""
+msgstr "Notatki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
 msgid "Preface"
-msgstr ""
+msgstr "Wstęp"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
 msgid "Main Text"
-msgstr ""
+msgstr "Tekst główny"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:53
 msgid "Options to control e-book conversion."
@@ -1826,7 +1841,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
 msgid "Unnamed"
-msgstr ""
+msgstr "Nienazwany"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -2058,7 +2073,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
-msgstr ""
+msgstr "Opcje dzielenia:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
@@ -2528,7 +2543,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:43
 msgid "Split files &larger than:"
-msgstr ""
+msgstr "&Dziel pliki większe niż:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:44
 msgid " KB"
@@ -2627,7 +2642,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
-msgstr ""
+msgstr "Pozwól &automatycznie obracać szerokie grafiki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:117
 msgid "&Wordspace:"
@@ -2639,7 +2654,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Render &tables as images"
-msgstr ""
+msgstr "Renderuj &tabele jako grafiki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "Text size multiplier for text in rendered tables:"
@@ -2810,7 +2825,7 @@ msgstr "&Tytuł dla spisu treści:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:46
 msgid "Rescale images for &Palm devices"
-msgstr ""
+msgstr "Przeskaluj grafiki dla urządzeń &Palm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:47
 msgid "Use author &sort for author"
@@ -2892,7 +2907,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:40
 msgid "No &Images"
-msgstr ""
+msgstr "Brak &grafik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:17
 msgid "PDF Output"
