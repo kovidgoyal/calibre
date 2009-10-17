@@ -598,7 +598,11 @@ OptionRecommendation(name='language',
                 elif x == 'tags':
                     val = [i.strip() for i in val.split(',')]
                 elif x in ('rating', 'series_index'):
-                    val = float(val)
+                    try:
+                        val = float(val)
+                    except ValueError:
+                        self.log.warn(_('Values of series index and rating must'
+                        ' be numbers. Ignoring'), val)
                 setattr(mi, x, val)
 
 
