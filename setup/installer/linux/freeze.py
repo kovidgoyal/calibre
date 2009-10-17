@@ -20,7 +20,6 @@ class LinuxFreeze(Command):
         from cx_Freeze import Executable, setup
         from calibre.linux import entry_points
         from calibre import walk
-        from calibre.web.feeds.recipes import recipe_modules
 
         is64bit = platform.architecture()[0] == '64bit'
         arch = 'x86_64' if is64bit else 'i686'
@@ -110,7 +109,6 @@ class LinuxFreeze(Command):
         packages = ['calibre', 'encodings', 'cherrypy', 'cssutils', 'xdg',
                     'dateutil', 'dns', 'email']
 
-        includes += ['calibre.web.feeds.recipes.'+r for r in recipe_modules]
         includes += ['calibre.gui2.convert.'+x.split('/')[-1].rpartition('.')[0] for x in \
                 glob.glob('src/calibre/gui2/convert/*.py')]
 
