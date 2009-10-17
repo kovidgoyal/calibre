@@ -43,7 +43,7 @@ class Stage2(Command):
 class Stage3(Command):
 
    description = 'Stage 3 of the publish process'
-   sub_commands = ['upload_rss', 'upload_user_manual', 'upload_demo',
+   sub_commands = ['upload_rss', 'upload_user_manual', 'upload_demo', 'sdist',
             'upload_to_sourceforge', 'upload_to_google_code', 'tag_release',
             'upload_to_server', 'upload_to_mobileread',
 ]
