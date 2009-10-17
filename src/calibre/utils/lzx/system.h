@@ -7,8 +7,7 @@
  * For further details, see the file COPYING.LIB distributed with libmspack
  */
 
-#ifndef MSPACK_SYSTEM_H
-#define MSPACK_SYSTEM_H 1
+#pragma once
 
 #ifdef _MSC_VER
 #define inline
@@ -61,6 +60,4 @@ static inline size_t strlen(const char *s) {
   while (*e) e++;
   return e - s;
 }
-#endif
-            
 #endif

@@ -141,11 +141,13 @@ else:
 
         def windows(self, req):
             version = self.version_from_filename()
-            file = '%s-%s.exe'%(__appname__, version,)
+            file = '%s-%s.msi'%(__appname__, version,)
             data = dict(version = version, name='windows',
                 installer_name='Windows installer',
                 title='Download %s for windows'%(__appname__),
-                compatibility='%s works on Windows XP and Windows Vista.'%(__appname__,),
+                compatibility=('%(a)s works on Windows XP, Vista and 7.'
+                    'If you are upgrading from a version older than 0.6.17, '
+                    'please uninstall %(a)s first.')%dict(a=__appname__,),
                 path=MOBILEREAD+file, app=__appname__,
                 note=Markup(\
     '''

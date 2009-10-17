@@ -105,7 +105,7 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
 
     d = BulkConfig(parent, db, out_format)
     if d.exec_() != QDialog.Accepted:
-        return jobs, changed, bad
+        return None
 
     output_format = d.output_format
     user_recs = cPickle.loads(d.recommendations)

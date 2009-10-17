@@ -128,6 +128,10 @@ class DeviceManager(Thread):
                         job.abort(Exception(_('Device no longer connected.')))
                     except Queue.Empty:
                         break
+                try:
+                    self.device.post_yank_cleanup()
+                except:
+                    pass
                 device[2] = False
                 self.device = None
                 self.connected_slot(False)

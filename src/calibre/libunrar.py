@@ -25,9 +25,10 @@ if iswindows:
 else:
     Structure = _Structure
 if hasattr(sys, 'frozen') and iswindows:
-    _libunrar = cdll.LoadLibrary(os.path.join(os.path.dirname(sys.executable),
-        'unrar.dll'))
-_libunrar = load_library(_librar_name, cdll)
+    lp = os.path.join(os.path.dirname(sys.executable), 'DLLs', 'unrar.dll')
+    _libunrar = cdll.LoadLibrary(lp)
+else:
+    _libunrar = load_library(_librar_name, cdll)
 
 RAR_OM_LIST    = 0
 RAR_OM_EXTRACT = 1

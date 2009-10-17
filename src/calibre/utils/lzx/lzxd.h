@@ -10,10 +10,10 @@
  * For further details, see the file COPYING.LIB distributed with libmspack
  */
 
+#pragma once
+
 #include <sys/types.h>
 
-#ifndef MSPACK_LZX_H
-#define MSPACK_LZX_H 1
 
 /* LZX compression / decompression definitions */
 
@@ -166,4 +166,3 @@ extern int lzxd_decompress(struct lzxd_stream *lzx, off_t out_bytes);
  */
 void lzxd_free(struct lzxd_stream *lzx);
 
-#endif

@@ -62,7 +62,7 @@ class PDFWriter(QObject):
                     self.custom_size = None
 
         self.opts = opts
-        
+
         self.size = self._size()
 
     def dump(self, items, out_stream, pdf_metadata):
@@ -111,7 +111,7 @@ class PDFWriter(QObject):
 
         self.logger.debug('Processing %s...' % item)
 
-        self.view.load(QUrl(item))
+        self.view.load(QUrl.fromLocalFile(item))
 
     def _render_html(self, ok):
         if ok:
@@ -149,15 +149,15 @@ class PDFWriter(QObject):
 
 
 class ImagePDFWriter(PDFWriter):
-    
+
     def _render_next(self):
         item = str(self.render_queue.pop(0))
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
         self.logger.debug('Processing %s...' % item)
-        
+
         height = 'height: %fcm;' % (self.size[1] * 1.3)
-        
+
         html = '<html><body style="margin: 0;"><img src="%s" style="%s display: block; margin-left: auto; margin-right: auto; padding: 0px;" /></body></html>' % (item, height)
 
         self.view.setHtml(html)

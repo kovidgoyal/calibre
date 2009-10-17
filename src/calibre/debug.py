@@ -190,6 +190,9 @@ def main(args=sys.argv):
     elif opts.develop_from is not None:
         develop_from(opts.develop_from)
     else:
+        from calibre.utils.config import config_dir
+        ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
+        os.environ['IPYTHONDIR'] = ipydir
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed()
         ipshell()

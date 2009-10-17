@@ -11,7 +11,7 @@ from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
 
-from setup import isosx, iswindows
+from setup import isosx, iswindows, islinux
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 if not os.path.exists(OSX_SDK):
@@ -111,8 +111,8 @@ if iswindows:
     popplerqt4_lib_dirs = poppler_lib_dirs
     poppler_libs = ['poppler']
     popplerqt4_libs = poppler_libs + ['QtCore4', 'QtGui4']
-    magick_inc_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\include']
-    magick_lib_dirs = [r'C:\cygwin\home\kovid\ImageMagick-6.5.6-Q16\lib']
+    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.5.6')]
+    magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
@@ -213,12 +213,15 @@ def get_ip_address(ifname):
     )[20:24])
 
 try:
-    HOST=get_ip_address('eth0')
+    if islinux:
+        HOST=get_ip_address('eth0')
+    else:
+        HOST='192.168.1.2'
 except:
     try:
         HOST=get_ip_address('wlan0')
     except:
-        HOST='unknown'
+        HOST='192.168.1.2'
 
 PROJECT=os.path.basename(os.path.abspath('.'))
 

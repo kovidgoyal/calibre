@@ -115,8 +115,7 @@
  * - #MSPACK_ERR_DECRUNCH indicates an error occured during decompression.
  */
 
-#ifndef LIB_MSPACK_H
-#define LIB_MSPACK_H 1
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -1479,4 +1478,3 @@ struct mskwaj_decompressor {
 };
 #endif
 
-#endif

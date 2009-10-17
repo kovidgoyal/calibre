@@ -165,3 +165,19 @@ SET(PODOFO_BUILD_STATIC FALSE)
 cp build/podofo-0.7.0/build/src/Release/podofo.dll bin/
 cp build/podofo-0.7.0/build/src/Release/podofo.lib lib/
 cp build/podofo-0.7.0/build/src/Release/podofo.exp lib/
+
+ImageMagick
+--------------
+
+Edit VisualMagick/configure/configure.cpp to set
+
+int projectType = MULTITHREADEDDLL;
+
+Run configure.bat ina  visual studio command prompt
+
+Edit magick/magick-config.h
+
+Undefine ProvideDllMain and MAGICKCORE_X11_DELEGATE
+
+Now open VisualMagick/VisualDynamicMT.sln set to Release
+Remove the CORE_xlib project

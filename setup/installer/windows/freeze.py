@@ -1,280 +1,359 @@
-#!/usr/bin/env  python
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import with_statement
+
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-'''
-Freeze app into executable using py2exe.
-'''
-QT_DIR           = 'C:\\Qt\\4.5.2'
+import sys, os, shutil, glob, py_compile, subprocess, re
+
+from setup import Command, modules, functions, basenames, __version__, \
+    __appname__
+from setup.build_environment import msvc, MT, RC
+from setup.installer.windows.wix import WixMixIn
+
+QT_DIR = 'C:\\Qt\\4.5.2'
+QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'phonon']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
-IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 SW               = r'C:\cygwin\home\kovid\sw'
+IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.5.6',
+        'VisualMagick', 'bin')
 
-import sys
-
-def fix_module_finder():
-    # ModuleFinder can't handle runtime changes to __path__, but win32com uses them
-    import py2exe.mf as modulefinder
-    import win32com
-    for p in win32com.__path__[1:]:
-        modulefinder.AddPackagePath("win32com", p)
-    for extra in ["win32com.shell"]: #,"win32com.mapi"
-        __import__(extra)
-        m = sys.modules[extra]
-        for p in m.__path__[1:]:
-            modulefinder.AddPackagePath(extra, p)
-
-
-import os, shutil, zipfile, glob, re
-from distutils.core import setup
-from setup import __version__ as VERSION, __appname__ as APPNAME, scripts, \
-    basenames, SRC, Command
-
-BASE_DIR = os.path.dirname(SRC)
-ICONS = [os.path.abspath(os.path.join(BASE_DIR, 'icons', i)) for i in ('library.ico', 'viewer.ico')]
-for icon in ICONS:
-    if not os.access(icon, os.R_OK):
-        raise Exception('No icon at '+icon)
-
-VERSION = re.sub('[a-z]\d+', '', VERSION)
+VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
 
-PY2EXE_DIR = os.path.join(BASE_DIR, 'build','py2exe')
+DESCRIPTIONS = {
+        'calibre' : 'The main calibre program',
+        'ebook-viewer' : 'Viewer for all e-book formats',
+        'lrfviewer'    : 'Viewer for LRF files',
+        'ebook-convert': 'Command line interface to the conversion/news download system',
+        'ebook-meta'   : 'Command line interface for manipulating e-book metadata',
+        'calibredb'    : 'Command line interface to the calibre database',
+        'calibre-launcher' : 'Utility functions common to all executables',
+        'calibre-debug' : 'Command line interface for calibre debugging/development',
+        'calibre-customize' : 'Command line interface to calibre plugin system',
+        'pdfmanipulate' : 'Command line tool to manipulate PDF files',
+        'calibre-server': 'Standalone calibre content server',
+        'calibre-parallel': 'calibre worker process',
+        'calibre-smtp' : 'Command line interface for sending books via email',
+}
 
-info = warn = None
+class Win32Freeze(Command, WixMixIn):
 
-class Win32Freeze(Command):
+    description = 'Free windows calibre installation'
 
-    description = 'Freeze windows calibre installation'
+    def add_options(self, parser):
+        parser.add_option('--no-ice', default=False, action='store_true',
+                help='Disable ICE checks when building MSI (needed when running'
+                ' from cygwin sshd)')
+        parser.add_option('--msi-compression', '--compress', default='high',
+                help='Compression when generating installer. Set to none to disable')
+        parser.add_option('--keep-site', default=False, action='store_true',
+            help='Keep human readable site.py')
+        parser.add_option('--verbose', default=0, action="count",
+                help="Be more verbose")
 
     def run(self, opts):
-        global info, warn
-        info, warn = self.info, self.warn
-        main()
+        self.SW = SW
+        self.opts = opts
+        self.src_root = self.d(self.SRC)
+        self.base = self.j(self.d(self.SRC), 'build', 'winfrozen')
+        self.rc_template = self.j(self.d(self.a(__file__)), 'template.rc')
+        self.py_ver = ''.join(map(str, sys.version_info[:2]))
+        self.lib_dir = self.j(self.base, 'Lib')
 
-BOOT_COMMON = '''\
-import sys, os
-if sys.frozen == "windows_exe":
-    class Stderr(object):
-        softspace = 0
-        _file = None
-        _error = None
-        def write(self, text, alert=sys._MessageBox, fname=os.path.expanduser('~\calibre.log')):
-            if self._file is None and self._error is None:
-                try:
-                    self._file = open(fname, 'wb')
-                except Exception, details:
-                    self._error = details
-                    import atexit
-                    atexit.register(alert, 0,
-                                    ("The logfile %s could not be opened: "
-                                    "\\n%s\\n\\nTry setting the HOME environment "
-                                    "variable to a directory for which you "
-                                    "have write permission.") % (fname, details),
-                                    "Errors occurred")
-                else:
-                    import atexit
-                    #atexit.register(alert, 0,
-                    #                "See the logfile '%s' for details" % fname,
-                    #                "Errors occurred")
-            if self._file is not None:
-                self._file.write(text)
-                self._file.flush()
-        def flush(self):
-            if self._file is not None:
-                self._file.flush()
+        self.initbase()
+        self.build_launchers()
+        self.freeze()
+        self.embed_manifests()
+        self.install_site_py()
+        self.create_installer()
 
-    #del sys._MessageBox
-    #del Stderr
+    def initbase(self):
+        if self.e(self.base):
+            shutil.rmtree(self.base)
+        os.makedirs(self.base)
 
-    class Blackhole(object):
-        softspace = 0
-        def write(self, text):
-            pass
-        def flush(self):
-            pass
-    sys.stdout = Stderr()
-    sys.stderr = Stderr()
-    del Blackhole
+    def freeze(self):
+        shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
 
-# Disable linecache.getline() which is called by
-# traceback.extract_stack() when an exception occurs to try and read
-# the filenames embedded in the packaged python code.  This is really
-# annoying on windows when the d: or e: on our build box refers to
-# someone elses removable or network drive so the getline() call
-# causes it to ask them to insert a disk in that drive.
-import linecache
-def fake_getline(filename, lineno, module_globals=None):
-    return ''
-linecache.orig_getline = linecache.getline
-linecache.getline = fake_getline
-
-del linecache, fake_getline
-
-fenc = sys.getfilesystemencoding( )
-base = os.path.dirname(sys.executable.decode(fenc))
-sys.resources_location = os.path.join(base, 'resources')
-sys.extensions_location = os.path.join(base, 'plugins')
-
-dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-if dv and os.path.exists(dv):
-    sys.path.insert(0, os.path.abspath(dv))
-
-del sys
-'''
-
-try:
-    import py2exe
-    bc = py2exe.build_exe.py2exe
-except ImportError:
-    py2exe = object
-    bc = object
-
-class BuildEXE(bc):
-
-    def run(self):
-        py2exe.build_exe.py2exe.run(self)
-        info('\nAdding plugins...')
-        tgt = os.path.join(self.dist_dir, 'plugins')
+        self.info('Adding plugins...')
+        tgt = os.path.join(self.base, 'plugins')
         if not os.path.exists(tgt):
             os.mkdir(tgt)
-        for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.dll')):
-            shutil.copyfile(f, os.path.join(self.dist_dir, os.path.basename(f)))
-        for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.pyd')):
-            shutil.copyfile(f, os.path.join(tgt, os.path.basename(f)))
-        for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.manifest')):
-            shutil.copyfile(f, os.path.join(tgt, os.path.basename(f)))
-        shutil.copyfile('LICENSE', os.path.join(self.dist_dir, 'LICENSE'))
+        base = self.j(self.SRC, 'calibre', 'plugins')
+        for pat in ('*.pyd', '*.manifest'):
+            for f in glob.glob(self.j(base, pat)):
+                shutil.copy2(f, tgt)
 
-
-        info('\nAdding resources...')
-        tgt = os.path.join(self.dist_dir, 'resources')
+        self.info('Adding resources...')
+        tgt = self.j(self.base, 'resources')
         if os.path.exists(tgt):
             shutil.rmtree(tgt)
-        shutil.copytree(os.path.join(BASE_DIR, 'resources'), tgt)
+        shutil.copytree(self.j(self.src_root, 'resources'), tgt)
 
-        info('\nAdding QtXml4.dll')
-        shutil.copyfile(os.path.join(QT_DIR, 'bin', 'QtXml4.dll'),
-                            os.path.join(self.dist_dir, 'QtXml4.dll'))
-        info('\nAdding Qt plugins...')
+        self.info('Adding Qt and python...')
+        self.dll_dir = self.j(self.base, 'DLLs')
+        shutil.copytree(r'C:\Python%s\DLLs'%self.py_ver, self.dll_dir,
+                ignore=shutil.ignore_patterns('msvc*.dll', 'Microsoft.*'))
+        for x in QT_DLLS:
+            x += '4.dll'
+            if not x.startswith('phonon'): x = 'Qt'+x
+            shutil.copy2(os.path.join(QT_DIR, 'bin', x), self.dll_dir)
+        shutil.copy2(r'C:\windows\system32\python%s.dll'%self.py_ver,
+                    self.dll_dir)
+        for x in os.walk(r'C:\Python%s\Lib'%self.py_ver):
+            for f in x[-1]:
+                if f.lower().endswith('.dll'):
+                    f = self.j(x[0], f)
+                    if 'py2exe' not in f:
+                        shutil.copy2(f, self.dll_dir)
+        shutil.copy2(
+            r'C:\Python%(v)s\Lib\site-packages\pywin32_system32\pywintypes%(v)s.dll'
+            % dict(v=self.py_ver), self.dll_dir)
+
+        def ignore_lib(root, items):
+            ans = []
+            for x in items:
+                ext = os.path.splitext(x)[1]
+                if (not ext and (x in ('demos', 'tests') or 'py2exe' in x)) or \
+                    (ext in ('.dll', '.chm', '.htm', '.txt')):
+                    ans.append(x)
+            return ans
+
+        shutil.copytree(r'C:\Python%s\Lib'%self.py_ver, self.lib_dir,
+                ignore=ignore_lib)
+
+        # Fix win32com
+        sp_dir = self.j(self.lib_dir, 'site-packages')
+        comext = self.j(sp_dir, 'win32comext')
+        shutil.copytree(self.j(comext, 'shell'), self.j(sp_dir, 'win32com', 'shell'))
+        shutil.rmtree(comext)
+
+        for pat in (r'numpy', r'PyQt4\uic\port_v3'):
+            x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
+            shutil.rmtree(x)
+
+        self.info('Adding calibre sources...')
+        for x in glob.glob(self.j(self.SRC, '*')):
+            shutil.copytree(x, self.j(sp_dir, self.b(x)))
+
+        for x in (r'calibre\manual', r'calibre\trac', 'pythonwin'):
+            shutil.rmtree(self.j(sp_dir, x))
+
+        for x in os.walk(self.j(sp_dir, 'calibre')):
+            for f in x[-1]:
+                if not f.endswith('.py'):
+                    os.remove(self.j(x[0], f))
+
+        self.info('Byte-compiling all python modules...')
+        for x in ('test', 'lib2to3', 'distutils'):
+            shutil.rmtree(self.j(self.lib_dir, x))
+        for x in os.walk(self.lib_dir):
+            root = x[0]
+            for f in x[-1]:
+                if f.endswith('.py'):
+                    y = self.j(root, f)
+                    rel = os.path.relpath(y, self.lib_dir)
+                    try:
+                        py_compile.compile(y, dfile=rel, doraise=True)
+                        os.remove(y)
+                    except:
+                        self.warn('Failed to byte-compile', y)
+                    pyc, pyo = y+'c', y+'o'
+                    epyc, epyo, epy = map(os.path.exists, (pyc,pyo,y))
+                    if (epyc or epyo) and epy:
+                        os.remove(y)
+                    if epyo and epyc:
+                        os.remove(pyc)
+
+        self.info('\nAdding Qt plugins...')
         qt_prefix = QT_DIR
-        plugdir = os.path.join(qt_prefix, 'plugins')
+        plugdir = self.j(qt_prefix, 'plugins')
+        tdir = self.j(self.base, 'qt_plugins')
         for d in ('imageformats', 'codecs', 'iconengines'):
-            info(d)
+            self.info('\t', d)
             imfd = os.path.join(plugdir, d)
-            tg = os.path.join(self.dist_dir, d)
+            tg = os.path.join(tdir, d)
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
 
-        info('Adding main scripts')
-        f = zipfile.ZipFile(os.path.join(PY2EXE_DIR, 'library.zip'), 'a', zipfile.ZIP_DEFLATED)
-        for i in scripts['console'] + scripts['gui']:
-            f.write(i, i.partition('\\')[-1])
-        f.close()
-
-        info('Copying icons')
-        for icon in ICONS:
-            shutil.copyfile(icon, os.path.join(PY2EXE_DIR, os.path.basename(icon)))
-
         print
         print 'Adding third party dependencies'
-        tdir = os.path.join(PY2EXE_DIR, 'driver')
+        tdir = os.path.join(self.base, 'driver')
         os.makedirs(tdir)
         for pat in ('*.dll', '*.sys', '*.cat', '*.inf'):
             for f in glob.glob(os.path.join(LIBUSB_DIR, pat)):
                 shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
         print '\tAdding unrar'
-        shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
+        shutil.copyfile(LIBUNRAR,
+                os.path.join(self.dll_dir, os.path.basename(LIBUNRAR)))
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')
-        shutil.copy2(os.path.join(bindir, 'pdftohtml.exe'), PY2EXE_DIR)
-        for pat in ('*.dll', '*.xml'):
+        shutil.copy2(os.path.join(bindir, 'pdftohtml.exe'), self.base)
+        for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
-                shutil.copy2(f, PY2EXE_DIR)
-        for x in ('Microsoft.VC90.CRT', 'zlib1.dll', 'libxml2.dll'):
-            shutil.copy2(os.path.join(bindir, x+'.manifest'), PY2EXE_DIR)
+                ok = True
+                for ex in ('expatw',):
+                    if ex in f.lower():
+                        ok = False
+                if not ok: continue
+                dest = self.dll_dir
+                shutil.copy2(f, dest)
+        for x in ('zlib1.dll', 'libxml2.dll'):
+            shutil.copy2(self.j(bindir, x+'.manifest'), self.dll_dir)
+
         shutil.copytree(os.path.join(SW, 'etc', 'fonts'),
-						os.path.join(PY2EXE_DIR, 'fontconfig'))
+						os.path.join(self.base, 'fontconfig'))
+        # Copy ImageMagick
+        for pat in ('*.dll', '*.xml'):
+            for f in glob.glob(self.j(IMAGEMAGICK, pat)):
+                ok = True
+                for ex in ('magick++', 'x11.dll', 'xext.dll'):
+                    if ex in f.lower(): ok = False
+                if not ok: continue
+                shutil.copy2(f, self.dll_dir)
 
-        print
-        print 'Doing DLL redirection' # See http://msdn.microsoft.com/en-us/library/ms682600(VS.85).aspx
-        for f in glob.glob(os.path.join(PY2EXE_DIR, '*.exe')):
-            open(f + '.local', 'w').write('\n')
+    def embed_manifests(self):
+        self.info('Embedding remaining manifests...')
+        for x in os.walk(self.base):
+            for f in x[-1]:
+                base, ext = os.path.splitext(f)
+                if ext != '.manifest': continue
+                dll = self.j(x[0], base)
+                manifest = self.j(x[0], f)
+                res = 2
+                if os.path.splitext(dll)[1] == '.exe':
+                    res = 1
+                if os.path.exists(dll):
+                    self.run_builder([MT, '-manifest', manifest,
+                        '-outputresource:%s;%d'%(dll,res)])
+                    os.remove(manifest)
 
+    def compress(self):
+        self.info('Compressing app dir using 7-zip')
+        subprocess.check_call([r'C:\Program Files\7-Zip\7z.exe', 'a', '-r',
+            '-scsUTF-8', '-sfx', 'winfrozen', 'winfrozen'], cwd=self.base)
 
+    def embed_resources(self, module, desc=None):
+        icon_base = self.j(self.src_root, 'icons')
+        icon_map = {'calibre':'library', 'ebook-viewer':'viewer',
+                'lrfviewer':'viewer'}
+        file_type = 'DLL' if module.endswith('.dll') else 'APP'
+        template = open(self.rc_template, 'rb').read()
+        bname = self.b(module)
+        internal_name = os.path.splitext(bname)[0]
+        icon = icon_map.get(internal_name, 'command-prompt')
+        icon = self.j(icon_base, icon+'.ico')
+        if desc is None:
+            defdesc = 'A dynamic link library' if file_type == 'DLL' else \
+                    'An executable program'
+            desc = DESCRIPTIONS.get(internal_name, defdesc)
+        license = 'GNU GPL v3.0'
+        def e(val): return val.replace('"', r'\"')
+        rc = template.format(
+                icon=icon,
+                file_type=e(file_type),
+                file_version=e(WINVER.replace('.', ',')),
+                file_version_str=e(WINVER),
+                file_description=e(desc),
+                internal_name=e(internal_name),
+                original_filename=e(bname),
+                product_version=e(WINVER.replace('.', ',')),
+                product_version_str=e(__version__),
+                product_name=e(__appname__),
+                product_description=e(__appname__+' - E-book management'),
+                legal_copyright=e(license),
+                legal_trademarks=e(__appname__ + \
+                        ' is a registered U.S. trademark number 3,666,525')
+        )
+        tdir = self.obj_dir
+        rcf = self.j(tdir, bname+'.rc')
+        with open(rcf, 'wb') as f:
+            f.write(rc)
+        res = self.j(tdir, bname + '.res')
+        cmd = [RC, '/n', '/fo'+res, rcf]
+        self.run_builder(cmd)
+        return res
 
-def exe_factory(dest_base, script, icon_resources=None):
-    exe = {
-           'dest_base'       : dest_base,
-           'script'          : script,
-           'name'            : dest_base,
-           'version'         : WINVER,
-           'description'     : 'calibre - E-book library management',
-           'author'          : 'Kovid Goyal',
-           'copyright'       : '(c) Kovid Goyal, 2008',
-           'company'         : 'kovidgoyal.net',
-           }
-    if icon_resources is not None:
-        exe['icon_resources'] = icon_resources
-    return exe
+    def install_site_py(self):
+        if not os.path.exists(self.lib_dir):
+            os.makedirs(self.lib_dir)
+        shutil.copy2(self.j(self.d(__file__), 'site.py'), self.lib_dir)
+        y = os.path.join(self.lib_dir, 'site.py')
+        py_compile.compile(y, dfile='site.py', doraise=True)
+        if not self.opts.keep_site:
+            os.remove(y)
 
-def main(args=sys.argv):
-    sys.argv[1:2] = ['py2exe']
-    if os.path.exists(PY2EXE_DIR):
-        shutil.rmtree(PY2EXE_DIR)
+    def run_builder(self, cmd):
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+        if p.wait() != 0:
+            self.info('Failed to run builder:')
+            self.info(*cmd)
+            self.info(p.stdout.read())
+            self.info(p.stderr.read())
+            sys.exit(1)
 
-    fix_module_finder()
+    def build_launchers(self):
+        self.obj_dir = self.j(self.src_root, 'build', 'launcher')
+        if not os.path.exists(self.obj_dir):
+            os.makedirs(self.obj_dir)
+        base = self.j(self.src_root, 'setup', 'installer', 'windows')
+        sources = [self.j(base, x) for x in ['util.c']]
+        headers = [self.j(base, x) for x in ['util.h']]
+        objects = [self.j(self.obj_dir, self.b(x)+'.obj') for x in sources]
+        cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
+        cflags += ['/DPYDLL="python%s.dll"'%self.py_ver, '/IC:/Python%s/include'%self.py_ver]
+        for src, obj in zip(sources, objects):
+            if not self.newer(obj, headers+[src]): continue
+            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
+            self.run_builder(cmd)
 
-    boot_common = os.path.join(sys.prefix, 'Lib', 'site-packages', 'py2exe',
-    'boot_common.py')
-    open(boot_common, 'wb').write(BOOT_COMMON)
+        dll = self.j(self.obj_dir, 'calibre-launcher.dll')
+        ver = '.'.join(__version__.split('.')[:2])
+        if self.newer(dll, objects):
+            cmd = [msvc.linker, '/DLL', '/INCREMENTAL:NO', '/VERSION:'+ver,
+                    '/OUT:'+dll, '/nologo', '/MACHINE:X86'] + objects + \
+                [self.embed_resources(dll),
+                '/LIBPATH:C:/Python%s/libs'%self.py_ver,
+                'python%s.lib'%self.py_ver,
+                '/delayload:python%s.dll'%self.py_ver]
+            self.info('Linking calibre-launcher.dll')
+            self.run_builder(cmd)
 
-    console = [exe_factory(basenames['console'][i], scripts['console'][i])
-               for i in range(len(scripts['console']))]
-    setup(
-          cmdclass = {'py2exe': BuildEXE},
-          windows = [
-                     exe_factory(APPNAME, scripts['gui'][0], [(1, ICONS[0])]),
-                     exe_factory('lrfviewer', scripts['gui'][1], [(1, ICONS[1])]),
-                     exe_factory('ebook-viewer', scripts['gui'][2], [(1, ICONS[1])]),
-                    ],
-          console = console,
-          options = { 'py2exe' : {'compressed': 1,
-                                  'optimize'  : 2,
-                                  'dist_dir'  : PY2EXE_DIR,
-                                  'includes'  : [
-                                             'sip', 'pkg_resources', 'PyQt4.QtSvg',
-                                             'mechanize', 'ClientForm', 'wmi',
-                                             'win32file', 'pythoncom',
-                                             'email.iterators',
-                                             'email.generator',
-                                             'win32process', 'win32api', 'msvcrt',
-                                             'win32event',
-                                             'sqlite3.dump',
-                                             'BeautifulSoup', 'pyreadline',
-                                             'pydoc', 'IPython.Extensions.*',
-                                             'calibre.web.feeds.recipes.*',
-                                             'calibre.gui2.convert.*',
-                                             'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
-                                             ],
-                                  'packages'  : ['PIL', 'lxml', 'cherrypy',
-                                                 'dateutil', 'dns'],
-                                  'excludes'  : ["Tkconstants", "Tkinter", "tcl",
-                                                 "_imagingtk", "ImageTk",
-                                                 "FixTk",
-                                                 'PyQt4.uic.port_v3.proxy_base'
-                                                ],
-                                  'dll_excludes' : ['mswsock.dll', 'tcl85.dll',
-                                      'tk85.dll'],
-                                 },
-                    },
+        src = self.j(base, 'main.c')
+        shutil.copy2(dll, self.base)
+        for typ in ('console', 'gui', ):
+            self.info('Processing %s launchers'%typ)
+            subsys = 'WINDOWS' if typ == 'gui' else 'CONSOLE'
+            for mod, bname, func in zip(modules[typ], basenames[typ],
+                    functions[typ]):
+                xflags = list(cflags)
+                if typ == 'gui':
+                    xflags += ['/DGUI_APP=']
 
-          )
-    return 0
-
+                xflags += ['/DMODULE="%s"'%mod, '/DBASENAME="%s"'%bname,
+                    '/DFUNCTION="%s"'%func]
+                dest = self.j(self.obj_dir, bname+'.obj')
+                if self.newer(dest, [src]+headers):
+                    self.info('Compiling', bname)
+                    cmd = [msvc.cc] + xflags + ['/Tc'+src, '/Fo'+dest]
+                    self.run_builder(cmd)
+                exe = self.j(self.base, bname+'.exe')
+                manifest = exe+'.manifest'
+                lib = dll.replace('.dll', '.lib')
+                if self.newer(exe, [dest, lib, self.rc_template, __file__]):
+                    self.info('Linking', bname)
+                    cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+                            '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:'+subsys,
+                            '/LIBPATH:C:/Python%s/libs'%self.py_ver, '/RELEASE',
+                            '/OUT:'+exe, self.embed_resources(exe),
+                            dest, lib]
+                    self.run_builder(cmd)
 
 

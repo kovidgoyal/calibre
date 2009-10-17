@@ -10,7 +10,6 @@ import os, shutil, subprocess
 
 from setup import Command, __appname__
 from setup.installer import VMInstaller
-from setup.installer.windows import build_installer
 
 class Win(Command):
 
@@ -30,24 +29,18 @@ class Win32(VMInstaller):
     VM_NAME = 'xp_build'
     VM = '/vmware/bin/%s'%VM_NAME
     FREEZE_COMMAND = 'win32_freeze'
-    SHUTDOWN_CMD = ['shutdown', '-s']
+    FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command} --no-ice'
+    INSTALLER_EXT = 'msi'
+    SHUTDOWN_CMD = ['shutdown.exe', '-s', '-f', '-t', '0']
 
     def download_installer(self):
         installer = self.installer()
-        if os.path.exists('build/py2exe'):
-            shutil.rmtree('build/py2exe')
-        subprocess.check_call(('scp', '-rp', 'xp_build:build/%s/build/py2exe'%__appname__,
-                     'build'))
-        if not os.path.exists('build/py2exe'):
-            self.warn('Failed to run py2exe')
-            raise SystemExit(1)
-        self.run_windows_install_jammer(installer)
-
-    def run_windows_install_jammer(self, installer):
-        build_installer.run_install_jammer(
-                                    installer_name=os.path.basename(installer))
+        if os.path.exists('build/winfrozen'):
+            shutil.rmtree('build/winfrozen')
+        subprocess.check_call(('scp',
+            'xp_build:build/%s/%s'%(__appname__, installer), 'dist'))
         if not os.path.exists(installer):
-            self.warn('Failed to run installjammer')
+            self.warn('Failed to freeze')
             raise SystemExit(1)
 
 

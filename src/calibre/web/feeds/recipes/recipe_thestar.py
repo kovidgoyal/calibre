@@ -17,10 +17,10 @@ class TheTorontoStar(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    delay                 = 2
     publisher             = 'The Toronto Star'
     category              = "Toronto Star,Canada's largest daily newspaper,breaking news,classifieds,careers,GTA,Toronto Maple Leafs,sports,Toronto,news,editorial,The Star,Ontario,information,columnists,business,entertainment,births,deaths,automotive,rentals,weather,archives,Torstar,technology,Joseph Atkinson"
     encoding              = 'utf-8'
-    extra_css             = ' .headlineArticle{font-size: x-large; font-weight: bold} .navbar{text-align:center} '
 
     conversion_options = {
                              'comments'    : description
@@ -28,8 +28,8 @@ class TheTorontoStar(BasicNewsRecipe):
                             ,'publisher'   : publisher
                          }
 
-    keep_only_tags = [dict(name='div', attrs={'id':'AssetWebPart1'})]
-    remove_attributes= ['style']
+    keep_only_tags = [dict(name='div', attrs={'class':'ts-article'})]
+    remove_tags_before = dict(name='div',attrs={'id':'ts-article_header'})
 
     feeds          = [
                         (u'News'         , u'http://www.thestar.com/rss/0?searchMode=Query&categories=296'    )
@@ -43,5 +43,7 @@ class TheTorontoStar(BasicNewsRecipe):
                      ]
 
     def print_version(self, url):
-        return url.replace('/article/','/printArticle/')
+        artl = url.rpartition('--')[0]
+        artid = artl.rpartition('/')[2]
+        return 'http://www.thestar.com/printarticle/' + artid
 

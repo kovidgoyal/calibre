@@ -439,7 +439,7 @@
                  <item>
                   <layout class="QGridLayout" name="gridLayout">
                    <item row="0" column="1" rowspan="3">
-                    <widget class="QListWidget" name="formats">
+                    <widget class="FormatList" name="formats">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>
@@ -451,6 +451,9 @@
                        <width>16777215</width>
                        <height>130</height>
                       </size>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DropOnly</enum>
                      </property>
                      <property name="iconSize">
                       <size>
@@ -702,6 +705,11 @@
    <class>TagsLineEdit</class>
    <extends>QLineEdit</extends>
    <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FormatList</class>
+   <extends>QListWidget</extends>
+   <header location="global">calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -19,23 +19,19 @@ class StraitsTimes(BasicNewsRecipe):
     encoding               = 'cp1252'
     publisher              = 'Singapore Press Holdings Ltd.'
     category               = 'news, politics, singapore, asia'
-    language = 'en'
+    language               = 'en'
+    extra_css              = ' .top_headline{font-size: x-large; font-weight: bold} '
 
+    conversion_options = {
+                             'comments'  : description
+                            ,'tags'      : category
+                            ,'language'  : language
+                            ,'publisher' : publisher
+                         }
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        , '--ignore-tables'
-                        ]
+    remove_tags = [dict(name=['object','link','map'])]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
-
-    remove_tags = [
-                     dict(name=['object','link'])
-                    ,dict(name='table', attrs={'width':'980'})
-                    ,dict(name='td'   , attrs={'class':'padlrt10'})
-                  ]
+    keep_only_tags = [dict(name='div', attrs={'class':['top_headline','story_text']})]
 
     feeds = [
                (u'Singapore'       , u'http://www.straitstimes.com/STI/STIFILES/rss/break_singapore.xml' )
@@ -51,7 +47,4 @@ class StraitsTimes(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-
-    def print_version(self, url):
-        return url.replace('http://www.straitstimes.com','http://www.straitstimes.com/print')
 

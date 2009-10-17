@@ -6,7 +6,7 @@ Builtin recipes.
 '''
 recipe_modules = ['recipe_' + r for r in (
            'newsweek', 'atlantic', 'economist', 'portfolio', 'the_register',
-           'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
+           'usatoday', 'bbc', 'greader', 'wsj', #'outlook_india',
            'wired', 'globe_and_mail', 'smh', 'espn', 'business_week', 'miami_herald',
            'ars_technica', 'upi', 'new_yorker', 'irish_times', 'lanacion',
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
@@ -59,7 +59,7 @@ recipe_modules = ['recipe_' + r for r in (
            'intelligencer', 'theoldfoodie', 'hln_be', 'honvedelem',
            'the_new_republic', 'philly', 'salon', 'tweakers', 'smashing',
            'thestar', 'business_standard', 'lemonde_dip', 'javalobby',
-           'serverside', 'infoworld'
+           'serverside', 'infoworld', 'sanjosemercurynews',
           )]
 
 
