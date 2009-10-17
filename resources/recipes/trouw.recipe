@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from calibre.web.feeds.news import BasicNewsRecipe
+
 class Trouw(BasicNewsRecipe):
     title          = u'Trouw'
     __author__     = u'JvdW'
