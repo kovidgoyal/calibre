@@ -1,0 +1,39 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.nakedcapitalism.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class nakedcapitalism(BasicNewsRecipe):
+    title                 = 'Naked Capitalism'
+    __author__            = 'Darko Miletic'
+    description           = 'Commentary on current economic and financial news.'
+    publisher             = 'Aurora Advisors, Inc.'
+    category              = 'news, business, finances, money, banking'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    language              = 'en'
+    extra_css             = ' #BlogTitle{font-size: x-large; font-weight: bold} #BlogDate{font-size: small} '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    feeds = [(u'Articles', u'http://www.nakedcapitalism.com/feed')]
+
+    keep_only_tags = [
+                        dict(name='h3', attrs={'class':'post-title entry-title'})
+                       ,dict(name='div', attrs={'class':'entry'})
+                     ]
+    
+    remove_tags = [dict(name=['object','link','base'])]
+                      
