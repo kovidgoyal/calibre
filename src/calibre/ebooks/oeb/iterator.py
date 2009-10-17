@@ -122,7 +122,7 @@ class EbookIterator(object):
                                 else:
                                     print 'Loaded embedded font:', repr(family)
 
-    def __enter__(self):
+    def __enter__(self, raw_only=False):
         self.delete_on_exit = []
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
@@ -139,7 +139,7 @@ class EbookIterator(object):
                 plumber.opts, plumber.input_fmt, self.log,
                 {}, self.base)
 
-        if plumber.input_fmt.lower() in ('pdf', 'rb'):
+        if not raw_only and plumber.input_fmt.lower() in ('pdf', 'rb'):
             self.pathtoopf = create_oebbook(self.log, self.pathtoopf, plumber.opts,
                     plumber.input_plugin)
         if hasattr(self.pathtoopf, 'manifest'):
