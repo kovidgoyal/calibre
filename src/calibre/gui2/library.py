@@ -222,8 +222,8 @@ class BooksModel(QAbstractTableModel):
         self.count_changed()
         return ret
 
-    def add_news(self, path, recipe):
-        ret = self.db.add_news(path, recipe)
+    def add_news(self, path, arg):
+        ret = self.db.add_news(path, arg)
         self.count_changed()
         return ret
 

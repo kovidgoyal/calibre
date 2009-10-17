@@ -8,7 +8,6 @@ import datetime, re, cPickle, sre_constants
 from zlib import compress, decompress
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.web.feeds.recipes import migrate_automatic_profile_to_automatic_recipe
 from calibre.ebooks.metadata import string_to_authors
 
 class Concatenate(object):
@@ -739,10 +738,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     @staticmethod
     def upgrade_version8(conn):
-        feeds = conn.execute('SELECT title, script FROM feeds').fetchall()
-        for title, script in feeds:
-            script = migrate_automatic_profile_to_automatic_recipe(script)
-            conn.execute('UPDATE feeds SET script=? WHERE title=?', (script, title))
+        conn.execute('DELETE FROM feeds')
         conn.execute('pragma user_version=9')
         conn.commit()
 
@@ -1362,6 +1358,26 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         feeds = self.conn.get('SELECT title, script FROM feeds')
         for title, script in feeds:
             yield title, script
+
+    def get_feed(self, id):
+        return self.conn.get('SELECT script FROM feeds WHERE id=%d'%id,
+                all=False)
+
+    def update_feed(self, id, script, title):
+        self.conn.execute('UPDATE feeds set title=? WHERE id=?', (title, id))
+        self.conn.execute('UPDATE feeds set script=? WHERE id=?', (script, id))
+        self.conn.commit()
+
+    def remove_feeds(self, ids):
+        for x in ids:
+            self.conn.execute('DELETE FROM feeds WHERE id=?', (x,))
+        self.conn.commit()
+
+    def add_feed(self, title, script):
+        self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)',
+                                  (title, script))
+        self.conn.commit()
+
 
     def set_feeds(self, feeds):
         self.conn.execute('DELETE FROM feeds')

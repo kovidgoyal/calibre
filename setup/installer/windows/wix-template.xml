@@ -2,14 +2,29 @@
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi' xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
 >		
 
-		<Product Name='{app}' Id='{product_guid}' UpgradeCode='{upgrade_code}'
+		<Product Name='{app}' Id='*' UpgradeCode='{upgrade_code}'
 				Language='1033' Codepage='1252' Version='{version}' Manufacturer='Kovid Goyal'>
 				
 				<Package Id='*' Keywords='Installer' Description="{app} Installer"
 						Comments='{app} is a registered trademark of Kovid Goyal' Manufacturer='Kovid Goyal'
 						InstallerVersion='300' Languages='1033' Compressed='yes'
 						SummaryCodepage='1252' />
+
                 <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
+                
+                <Upgrade Id="{upgrade_code}">
+                    <UpgradeVersion Maximum="{version}"
+                       IncludeMaximum="yes"
+                       OnlyDetect="no"
+                       Language="1033"
+                       Property="OLDPRODUCTFOUND"/>
+                    <UpgradeVersion Minimum="{version}"
+                       IncludeMinimum="no"
+                       OnlyDetect="yes"
+                       Language="1033"
+                       Property="NEWPRODUCTFOUND"/>
+               </Upgrade>
+               <CustomAction Id="PreventDowngrading" Error="Newer version already installed."/>
 
                 <Directory Id='TARGETDIR' Name='SourceDir'>
                     <Merge Id="VCRedist" SourceFile="{crt_msm}" DiskId="1" Language="0"/>
@@ -24,6 +39,10 @@
 
 				<DirectoryRef Id="APPLICATIONFOLDER">
 						{app_components}
+                        <Component Id="AddToPath" Guid="*">
+                            <Environment Id='UpdatePath' Name='PATH' Action='set' System='yes' Part='last' Value='[APPLICATIONFOLDER]' />
+                            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}" Name="system_path_updated" Type="integer" Value="1" KeyPath="yes"/>
+                        </Component>
                 </DirectoryRef>
 
                 <DirectoryRef Id="ApplicationProgramsFolder">
@@ -84,6 +103,11 @@
                             Description="Shortcut to {app} on your desktop">
                             <ComponentRef Id="DesktopShortcut"/>
                         </Feature>
+
+                        <Feature Id="FAddToPath" Title="Add install directory to path" Level="1"
+                            Description="Add installation directory to PATH. Makes using command line tools easier">
+                            <ComponentRef Id="AddToPath"/>
+                        </Feature>
 				</Feature>
 
 				<!-- Add icon to entry in Add/Remove programs -->
@@ -93,7 +117,14 @@
                 <Condition
                     Message="This application is only supported on Windows XP SP2, or higher.">
                     <![CDATA[Installed OR (VersionNT >= 501)]]>
-				</Condition>
+                </Condition>
+                <InstallExecuteSequence>
+                    <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
+                    <RemoveExistingProducts Before="InstallInitialize" />
+                </InstallExecuteSequence>
+                <InstallUISequence>
+                    <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
+                </InstallUISequence>
 
                 <UI>
                     <UIRef Id="WixUI_Advanced" />
