@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-17 04:36+0000\n"
-"PO-Revision-Date: 2009-10-17 02:10+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2009-10-17 16:31+0000\n"
+"PO-Revision-Date: 2009-10-18 06:11+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-17 07:08+0000\n"
+"X-Launchpad-Export-Date: 2009-10-18 07:03+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -240,6 +240,9 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
+"Si spécifié, le plugin de sortie essaiera de créer une sortie qui sera aussi "
+"lisible que possible par l'humain. Peut être sans effet pour quelques "
+"plugins de sortie."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:44
 msgid "Input profile"
@@ -586,7 +589,7 @@ msgstr "Configurer l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:16
 msgid "settings for device drivers"
-msgstr ""
+msgstr "paramètres pour les pilotes de périphériques"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:17
 msgid "Ordered list of formats the device will accept"
@@ -613,12 +616,12 @@ msgstr "Lit les informations de l'appareil..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:107
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:115
 msgid "Adding books to device metadata listing..."
-msgstr ""
+msgstr "Ajoute les livres à liste des métadonnées de l'appareil..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:138
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 msgid "Removing books from device metadata listing..."
-msgstr ""
+msgstr "Supprime les livres de la liste des métadonnées de l'appareil..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:196
 msgid "Rendered %s"
@@ -717,6 +720,9 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
+"Format dans lequel les images de l'ebook créé seront converties. Vous pouvez "
+"tester pour voir quel format vous donne une taille et un rendu optimal sur "
+"votre appareil."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:308
 msgid "Apply no processing to the image"
@@ -1240,6 +1246,8 @@ msgstr "Ne trouve pas d'ebook dans l'archive"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:604
 msgid "Values of series index and rating must be numbers. Ignoring"
 msgstr ""
+"Les valeurs pour les index de séries et les notes doivent être des nombres. "
+"Ignoré."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:716
 msgid "Converting input to HTML..."
@@ -1351,6 +1359,9 @@ msgid ""
 "Average line length for line breaking if the HTML is from a previous partial "
 "conversion of a PDF file. Default is %default which disables this."
 msgstr ""
+"Longueur moyenne de ligne pour les sauts de lignes si le HTML provient d'une "
+"conversion précédente et partielle d'un fichier PDF. Par défaut : %default "
+"(qui désactivera cela)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2403,6 +2414,8 @@ msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
 msgstr ""
+"Exécute le texte en entrée via le pré-processeur markdown. Pour en apprendre "
+"plus à propos de markdown voir"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -2435,12 +2448,20 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
+"Le nombre maximum de caractères par ligne. Ceci génère une rupture sur le "
+"premier espace avant la valeur spécifiée. Si aucun espace n'est trouvé, la "
+"ligne sera scindée sur l'espace suivant et ne devra pas excéder la valeur "
+"spécifiée. Avec un minimum de 25 caractères. Utiliser 0 pour désactiver la "
+"rupture de la ligne."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:48
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
+"Forcer la rupture sur la valeur maximale de la longueur de ligne quand aucun "
+"n'espace n'est présent. Autorise aussi la valeur maximale de la longueur de "
+"ligne à être en dessous du minimum"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:52
 msgid "Add a tab at the beginning of each paragraph."
@@ -2560,7 +2581,7 @@ msgstr "Copier dans le Presse-papiers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:386
 msgid "Choose Files"
-msgstr ""
+msgstr "Choisir les fichiers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:53
 msgid "Searching in"
@@ -2576,11 +2597,11 @@ msgstr "Cherche dans tous les sous-répertoires..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:190
 msgid "Path error"
-msgstr ""
+msgstr "Chemin de l'erreur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:191
 msgid "The specified directory could not be processed."
-msgstr ""
+msgstr "Le chemin spécifié ne peut pas être traité."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:486
@@ -2589,7 +2610,7 @@ msgstr "Aucun livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:196
 msgid "No books found"
-msgstr ""
+msgstr "Aucun livre trouvé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:262
 msgid "Added"
@@ -2604,6 +2625,9 @@ msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr ""
+"L'ajout de livres semble avoir rencontrer un dysfonctionnement. Essayer de "
+"redémarrer calibre et ajouter les livres avec un incrément plus petit, "
+"jusqu'à ce que vous trouviez le problème."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:288
 msgid "Duplicates found!"
@@ -2826,6 +2850,9 @@ msgid ""
 "of the conversion process. This HTML can sometimes serve as a good starting "
 "point for hand editing a conversion."
 msgstr ""
+"Le processus de débogage génère un fichier HTML intermédiaire à plusieurs "
+"étapes du processus de conversion. Cet HTML peut parfois servir comme un bon "
+"point d'entrée pour l'édition manuelle de la conversion."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -2875,7 +2902,7 @@ msgstr "Sortie FB2"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:53
 msgid "&Inline TOC"
-msgstr ""
+msgstr "TDM intégrée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:15
 msgid "Look & Feel"
@@ -2939,7 +2966,7 @@ msgstr "Insérer une ligne blanche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
 msgid "Extra &CSS"
-msgstr ""
+msgstr "&CSS complémentaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -2951,7 +2978,7 @@ msgstr "Autoriser la rotation &automatique des images larges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:117
 msgid "&Wordspace:"
-msgstr ""
+msgstr "&Espace entre les mots:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:119
 msgid "Minimum para. &indent:"
@@ -3302,6 +3329,8 @@ msgstr ""
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
 msgstr ""
+"Recherche fine pour la détection des en-têtes de chapitres et pour les "
+"autres structures de document."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:34
 msgid "Detect chapters at (XPath expression):"
@@ -4033,7 +4062,7 @@ msgstr "Le modèle %s est invalide:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:100
 msgid "TabWidget"
-msgstr ""
+msgstr "Widget avec onglet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:101
 msgid ""
@@ -4531,7 +4560,7 @@ msgstr "Afficher les &détails du travail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:47
 msgid "Stop &all jobs"
-msgstr ""
+msgstr "Arrêter tous les travaux"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:133
 msgid "Edit Meta information"
@@ -4606,7 +4635,7 @@ msgstr "N'est pas une image valide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:133
 msgid "Choose formats for "
-msgstr ""
+msgstr "Choisir les formats pour "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
@@ -4615,7 +4644,7 @@ msgstr "Livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:160
 msgid "You do not have permission to read the following files:"
-msgstr ""
+msgstr "Vous n'avez par la permission de lire les fichiers suivants:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:184
@@ -4645,7 +4674,7 @@ msgstr "La couverture du format %s est invalide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:285
 msgid "Abort the editing of all remaining books"
-msgstr ""
+msgstr "Abandonner l'édition des livres restants"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:488
 msgid "Downloading cover..."
@@ -4733,11 +4762,11 @@ msgstr "Publié:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:380
 msgid "dd MMM yyyy"
-msgstr ""
+msgstr "dd MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:381
 msgid "&Date:"
-msgstr ""
+msgstr "&Date:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:382
 msgid "&Comments"
@@ -4897,19 +4926,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
 msgid "&Schedule"
-msgstr ""
+msgstr "&Planifier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:215
 msgid "Add &title as tag"
-msgstr ""
+msgstr "Ajouter le &titre comme étiquette"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:216
 msgid "&Extra  tags:"
-msgstr ""
+msgstr "&Etiquettes complémentaires:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "&Advanced"
-msgstr ""
+msgstr "&Avancé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid "&Download now"
@@ -5256,15 +5285,15 @@ msgid ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
 "type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:'Candara'; font-size:10pt; font-"
+"weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
 "pattern to use when trying to guess ebook metadata from filenames. </p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
 "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
-"decoration: underline; color:#0000ee;\">reference</span></a> on the syntax "
+"decoration: underline; color:#0000ff;\">reference</span></a> on the syntax "
 "of regular expressions is available.</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" "
@@ -5277,22 +5306,23 @@ msgstr ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
 "type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
+"</style></head><body style=\" font-family:'Candara'; font-size:10pt; font-"
+"weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
-"pattern to use when trying to guess ebook metadata from filenames. </p>\n"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Indiquer une expression "
+"régulière à utiliser pour essayer de trouver les métadonnées du livre à "
+"partir de vos noms de fichiers. </p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Une <a "
 "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
-"decoration: underline; color:#0000ee;\">la référence</span></a> pour la "
-"syntaxe des expressions régulières est disponible.</p>\n"
+"decoration: underline; color:#0000ff;\">référence</span></a> concernant la "
+"syntaxe des expressions régulière est disponible.</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Utiliser la fonctionnalité "
-"de <span style=\" font-weight:600;\">Test</span> ci-dessous pour tester "
-"l'expression régulière sur quelques exemples de noms de fichiers. Les noms "
-"de groupes pour les différentes entrées de métadonnées sont documentés dans "
-"les bulles d'aide.</p></body></html>"
+"de <span style=\" font-weight:600;\">Test</span> ci -dessous pour tester "
+"votre expression régulière sur quelques exemples de noms de fichiers. Les "
+"noms de groupe pour les différentes entrées de métadonnées sont documentés "
+"dans les bulles d'aide.</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:104
 msgid "Regular &expression"
@@ -5843,7 +5873,7 @@ msgstr "Conversion impossible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1254
 msgid "Starting conversion of %d book(s)"
-msgstr ""
+msgstr "Démarrer la conversion de %d livre(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1365
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1384
@@ -6007,7 +6037,7 @@ msgstr "Loggue les informations de débogage dans la console"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1807
 msgid "Do not check for updates"
-msgstr ""
+msgstr "Ne pas vérifier les mises à jour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1855
 msgid "If you are sure it is not running"
@@ -6259,11 +6289,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:121
 msgid "Queueing books for bulk conversion"
-msgstr ""
+msgstr "Mise en file d'attente des livres pour la conversion par lot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:181
 msgid "Queueing "
-msgstr ""
+msgstr "Mise en file d'attente "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:237
 msgid "Fetch news from "
@@ -6849,7 +6879,7 @@ msgstr "email &Kindle:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:52
 msgid "Choose your &language:"
-msgstr ""
+msgstr "Choisir votre &langue:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:53
 msgid ""
@@ -7520,7 +7550,7 @@ msgstr "Convertir les chemins en minuscule."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:77
 msgid "Replace whitespace with underscores."
-msgstr ""
+msgstr "Remplacer les espaces par des underscores."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:230
 msgid "Requested formats not available"
@@ -7588,7 +7618,7 @@ msgstr "Le format de sortie par défaut pour les conversions d'ebook."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:575
 msgid "Ordered list of formats to prefer for input."
-msgstr ""
+msgstr "Liste triée de formats à privilégier pour l'entrée."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:577
 msgid "Read metadata from files"
@@ -9842,3 +9872,47 @@ msgstr "Affiche des informations détaillées. Utile pour le débogage"
 
 #~ msgid "sr-Latn-RS"
 #~ msgstr "sr-Latn-RS"
+
+#~ msgid ""
+#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+#~ "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+#~ "type=\"text/css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
+#~ "pattern to use when trying to guess ebook metadata from filenames. </p>\n"
+#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
+#~ "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
+#~ "decoration: underline; color:#0000ee;\">reference</span></a> on the syntax "
+#~ "of regular expressions is available.</p>\n"
+#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" "
+#~ "font-weight:600;\">Test</span> functionality below to test your regular "
+#~ "expression on a few sample filenames. The group names for the various "
+#~ "metadata entries are documented in tooltips.</p></body></html>"
+#~ msgstr ""
+#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+#~ "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+#~ "type=\"text/css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
+#~ "pattern to use when trying to guess ebook metadata from filenames. </p>\n"
+#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
+#~ "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
+#~ "decoration: underline; color:#0000ee;\">la référence</span></a> pour la "
+#~ "syntaxe des expressions régulières est disponible.</p>\n"
+#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Utiliser la fonctionnalité "
+#~ "de <span style=\" font-weight:600;\">Test</span> ci-dessous pour tester "
+#~ "l'expression régulière sur quelques exemples de noms de fichiers. Les noms "
+#~ "de groupes pour les différentes entrées de métadonnées sont documentés dans "
+#~ "les bulles d'aide.</p></body></html>"
