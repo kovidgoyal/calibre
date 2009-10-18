@@ -196,7 +196,8 @@ class SchedulerConfig(object):
         self.root.text = '\n\n\t'
         for x in self.root:
             x.tail = '\n\n\t'
-        self.root[-1].tail = '\n\n'
+        if len(self.root) > 0:
+            self.root[-1].tail = '\n\n'
         with ExclusiveFile(self.conf_path) as f:
             f.seek(0)
             f.truncate()
