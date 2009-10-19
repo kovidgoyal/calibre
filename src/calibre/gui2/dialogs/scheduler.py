@@ -55,6 +55,10 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.old_news.setValue(gconf['oldest_news'])
 
     def break_cycles(self):
+        self.disconnect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
+                self.search_done)
+        self.disconnect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
+                self.search.search_done)
         self.recipe_model = None
 
     def search_done(self, *args):
