@@ -188,7 +188,7 @@ class MobiMLizer(object):
             bstate.vpadding = bstate.vmargin = 0
             if tag not in TABLE_TAGS:
                 wrapper.attrib['height'] = self.mobimlize_measure(vspace)
-                para.attrib['width'] = self.mobimlize_measure(indent)                
+                para.attrib['width'] = self.mobimlize_measure(indent)
             elif tag == 'table' and vspace > 0:
                 vspace = int(round(vspace / self.profile.fbase))
                 while vspace > 0:

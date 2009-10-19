@@ -188,6 +188,16 @@ class Stylizer(object):
                         %(text, item.href))
             for elem in matches:
                 self.style(elem)._update_cssdict(cssdict)
+        for elem in xpath(tree, '//h:img[@width or @height]'):
+            base = elem.get('style', '').strip()
+            if base:
+                base += ';'
+            for prop in ('width', 'height'):
+                val = elem.get(prop, False)
+                if val:
+                    base += '%s: %s;'%(prop, val)
+                    del elem.attrib[prop]
+            elem.set('style', base)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr()
 
