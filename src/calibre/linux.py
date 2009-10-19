@@ -140,8 +140,8 @@ class PostInstall:
             for f in os.listdir('.'):
                 if os.stat(f).st_uid == 0:
                     os.rmdir(f) if os.path.isdir(f) else os.unlink(f)
-        if os.stat(config_dir).st_uid == 0:
-            os.rmdir(config_dir)
+            if os.stat(config_dir).st_uid == 0:
+                os.rmdir(config_dir)
 
         if warn is None and self.warnings:
             self.info('There were %d warnings'%len(self.warnings))
