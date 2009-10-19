@@ -6,7 +6,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, re, os, shutil, subprocess, stat, glob, zipfile, plistlib
 from setup import __version__ as VERSION, __appname__ as APPNAME, SRC, Command, \
         scripts, basenames, functions as main_functions, modules as main_modules
-from setuptools import setup
+
+try:
+    from setuptools import setup
+except:
+    setup
+    class setup:
+        pass
 
 try:
     from py2app.build_app import py2app
