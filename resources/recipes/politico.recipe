@@ -6,9 +6,12 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 politico.com
 '''
 
+import re, traceback
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Politico(BasicNewsRecipe):
+  
     title                 = 'Politico'
     __author__            = 'Darko Miletic'
     description           = 'Political news from USA'
@@ -55,13 +58,13 @@ class Politico(BasicNewsRecipe):
             del item['style']
         return soup
 
-    def print_url(self, soup, default):
-        printtags = soup.findAll('a',href=True)
-        for printtag in printtags:
-            if printtag.string == "Print":
-               return printtag['href']
-        return default
+    url_pat = re.compile(r'<a href="([^"]+printstory\.cfm[^"]+)"')
 
     def print_version(self, url):
-        soup = self.index_to_soup(url)
-        return self.print_url(soup, None)
+        raw = self.index_to_soup(url, raw=True)
+        try:
+            url = self.url_pat.search(raw).group(1)
+        except:
+            traceback.print_exc()
+            url = None
+        return url

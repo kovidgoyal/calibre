@@ -120,7 +120,7 @@
                 </Condition>
                 <InstallExecuteSequence>
                     <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
-                    <RemoveExistingProducts Before="InstallInitialize" />
+                    <RemoveExistingProducts After="InstallFinalize" />
                 </InstallExecuteSequence>
                 <InstallUISequence>
                     <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>

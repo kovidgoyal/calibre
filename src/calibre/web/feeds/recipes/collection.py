@@ -193,11 +193,16 @@ class SchedulerConfig(object):
 
     def write_scheduler_file(self):
         from calibre.utils.lock import ExclusiveFile
+        self.root.text = '\n\n\t'
+        for x in self.root:
+            x.tail = '\n\n\t'
+        if len(self.root) > 0:
+            self.root[-1].tail = '\n\n'
         with ExclusiveFile(self.conf_path) as f:
             f.seek(0)
             f.truncate()
             f.write(etree.tostring(self.root, encoding='utf-8',
-                xml_declaration=True, pretty_print=True))
+                xml_declaration=True, pretty_print=False))
 
     def serialize_schedule(self, typ, schedule):
         s = E.schedule({'type':typ})
