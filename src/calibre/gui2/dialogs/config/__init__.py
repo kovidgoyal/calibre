@@ -453,6 +453,12 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 self.delete_news.setEnabled)
         self.setup_conversion_options()
         self.opt_worker_limit.setValue(config['worker_limit'])
+        self.connect(self.button_open_config_dir, SIGNAL('clicked()'),
+                self.open_config_dir)
+
+    def open_config_dir(self):
+        from calibre.utils.config import config_dir
+        QDesktopServices.openUrl(QUrl.fromLocalFile(config_dir))
 
     def create_symlinks(self):
         from calibre.utils.osx_symlinks import create_symlinks
