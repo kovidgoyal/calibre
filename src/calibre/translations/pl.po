@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-10-17 16:31+0000\n"
-"PO-Revision-Date: 2009-10-17 19:11+0000\n"
+"PO-Revision-Date: 2009-10-18 11:01+0000\n"
 "Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-18 07:03+0000\n"
+"X-Launchpad-Export-Date: 2009-10-19 07:10+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -1056,7 +1056,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:418
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:51
 msgid "Set the cover to the specified file."
-msgstr ""
+msgstr "Wybierz okładkę dla wybranego pliku."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:422
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:53
@@ -1416,7 +1416,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
 msgid "Set book ID"
-msgstr ""
+msgstr "Wpisz identyfikator książki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -1442,6 +1442,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
+"Dodaj dodatkowy odstęp poniżej nagłówka. Domyślna wartość to %default "
+"punktów."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
@@ -1547,7 +1549,7 @@ msgstr "Język"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1011
 msgid "Timestamp"
-msgstr ""
+msgstr "Data"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
@@ -1660,7 +1662,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:105
 msgid "The ISBN ID of the book you want metadata for."
-msgstr ""
+msgstr "Kod ISBN książki, dla której chcesz pobrać metadane."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid "The author whose book to search for."
@@ -1677,6 +1679,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:53
 msgid "LibraryThing.com timed out. Try again later."
 msgstr ""
+"Czas oczekiwania na odpowiedź z LibraryThing.com minął. Spróbuj ponownie "
+"później."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:60
 msgid ""
@@ -1726,7 +1730,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
 msgid "Title for any generated in-line table of contents."
-msgstr ""
+msgstr "Tytuł dla automatuycznie wygenerowanego spisu treści."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
@@ -1867,11 +1871,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:119
 msgid "Footnotes"
-msgstr ""
+msgstr "Przypisy"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Sidebar"
-msgstr ""
+msgstr "Pasek boczny"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:22
@@ -2261,7 +2265,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:398
 msgid "Copied"
-msgstr ""
+msgstr "Skopiowano"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:157
 msgid "Copy"
@@ -5465,7 +5469,7 @@ msgstr "Niewłaściwa lokalizacja biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1626
 msgid "Could not access %s. Using %s as the library."
-msgstr ""
+msgstr "Nie można uzyskać dostępu %s. Używam %s jako biblioteki."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1673
 msgid ""
@@ -5521,7 +5525,7 @@ msgstr "Użyj biblioteki zlokalizowanej pod podaną ścieżką."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1803
 msgid "Start minimized to system tray."
-msgstr ""
+msgstr "Uruchom zminimalizowany w zasobniku systemowym."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1805
 msgid "Log debugging information to console"
@@ -6057,7 +6061,7 @@ msgstr "Nie można otworzyć e-booka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:640
 msgid "Options to control the ebook viewer"
-msgstr ""
+msgstr "Opcje odpowiadające za kontolę nad przeglądarką książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:647
 msgid ""
@@ -6570,7 +6574,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:230
 msgid "Invalid fields. Available fields:"
-msgstr ""
+msgstr "Niewłaściwe pola. Dostepne pola:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:237
 msgid "Invalid sort field. Available fields:"
@@ -6611,7 +6615,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:354
 msgid "You must specify at least one file to add"
-msgstr ""
+msgstr "Musisz określić conajmniej jeden plik do dodania"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:370
 msgid ""
@@ -6637,7 +6641,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:419
 msgid "You must specify an id and an ebook file"
-msgstr ""
+msgstr "Musisz podać identyfikator i plik książki"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:424
 msgid "ebook file must have an extension"
@@ -6655,7 +6659,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:449
 msgid "You must specify an id and a format"
-msgstr ""
+msgstr "Musisz podać identyfikator i format książki"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:467
 msgid ""
@@ -6859,15 +6863,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
 msgid "Convert paths to lowercase."
-msgstr ""
+msgstr "Przekształć scieżki na małe znaki."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:77
 msgid "Replace whitespace with underscores."
-msgstr ""
+msgstr "Zastąp spacje podkreśleniami."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:230
 msgid "Requested formats not available"
-msgstr ""
+msgstr "Żądane formaty nie dostępne"
 
 #: /home/kovid/work/calibre/src/calibre/library/server.py:222
 msgid "Password to access your calibre library. Username is "
@@ -6899,7 +6903,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:559
 msgid "Path to the database in which books are stored"
-msgstr ""
+msgstr "Ścieżka do bazy danych, w której książki są zlokalizowane"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:561
 msgid "Pattern to guess metadata from filenames"
@@ -6987,7 +6991,7 @@ msgstr "angielski (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (IND)"
-msgstr ""
+msgstr "angielski (Indie)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
@@ -7117,12 +7121,12 @@ msgstr "Ty"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:82
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:170
 msgid "Scheduled"
-msgstr ""
+msgstr "Zaplanowano"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:171
 msgid "Custom"
-msgstr ""
+msgstr "Dostosuj"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:458
 msgid ""

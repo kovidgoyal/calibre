@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-10-17 16:31+0000\n"
-"PO-Revision-Date: 2009-10-17 21:01+0000\n"
+"PO-Revision-Date: 2009-10-18 08:21+0000\n"
 "Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-18 07:03+0000\n"
+"X-Launchpad-Export-Date: 2009-10-19 07:10+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -5004,7 +5004,7 @@ msgstr "Erweiterte Suche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:89
 msgid "Find entries that have..."
-msgstr "Finde Einträge, die folgendes enthalten..."
+msgstr "Finde Einträge, die das Folgende enthalten..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:90
 msgid "&All these words:"
