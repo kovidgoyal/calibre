@@ -5,7 +5,6 @@ __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 laprensa.com.ar
 '''
-import urllib
 
 from calibre.web.feeds.news import BasicNewsRecipe
 

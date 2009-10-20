@@ -27,7 +27,7 @@
                <CustomAction Id="PreventDowngrading" Error="Newer version already installed."/>
 
                 <Directory Id='TARGETDIR' Name='SourceDir'>
-                    <Merge Id="VCRedist" SourceFile="{crt_msm}" DiskId="1" Language="0"/>
+                        <Merge Id="VCRedist" SourceFile="{crt_msm}" DiskId="1" Language="0"/>
 						<Directory Id='ProgramFilesFolder' Name='PFiles'>
 								<Directory Id='APPLICATIONFOLDER' Name='{app}' />
 						</Directory>
@@ -143,7 +143,7 @@
                 has to install the VC90 merge module into the system winsxs folder for python
                 to work, so per user installs are impossible anyway.
                 -->
-                <Property Id="ApplicationFolderName" Value="Calibre - E-book Management" />
+                <Property Id="ApplicationFolderName" Value="Calibre2" />
                 <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
                 <WixVariable Id="WixUISupportPerUser" Value="0" />
 
