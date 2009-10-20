@@ -19,6 +19,7 @@ from calibre.utils.zipfile import safe_replace, ZipFile
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
 from calibre.ebooks.epub.output import EPUBOutput
+from calibre import guess_type
 
 TITLEPAGE = EPUBOutput.TITLEPAGE_COVER.decode('utf-8')
 
@@ -39,20 +40,20 @@ class UnsupportedFormatError(Exception):
 
 class SpineItem(unicode):
 
-    def __new__(cls, *args):
-        args = list(args)
-        path = args[0]
+    def __new__(cls, path, mime_type=None):
         ppath = path.partition('#')[0]
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
-        args[0] = path
-        obj = super(SpineItem, cls).__new__(cls, *args)
+        obj = super(SpineItem, cls).__new__(cls, path)
         raw = open(path, 'rb').read()
         raw, obj.encoding = xml_to_unicode(raw)
         obj.character_count = character_count(raw)
         obj.start_page = -1
         obj.pages      = -1
         obj.max_page   = -1
+        if mime_type is None:
+            mime_type = guess_type(obj)[0]
+        obj.mime_type = mime_type
         return obj
 
 class FakeOpts(object):
@@ -150,8 +151,17 @@ class EbookIterator(object):
         self.language = self.opf.language
         if self.language:
             self.language = self.language.lower()
-        self.spine = [SpineItem(i.path) for i in self.opf.spine if i.is_linear]
-        self.spine += [SpineItem(i.path) for i in self.opf.spine if not i.is_linear]
+        ordered = [i for i in self.opf.spine if i.is_linear] + \
+                  [i for i in self.opf.spine if not i.is_linear]
+        self.spine = []
+        for i in ordered:
+            spath = i.path
+            mt = None
+            if i.idref is not None:
+                mt = self.opf.manifest.type_for_id(i.idref)
+            if mt is None:
+                mt = guess_type(spath)[0]
+            self.spine.append(SpineItem(spath, mime_type=mt))
 
         cover = self.opf.cover
         if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
