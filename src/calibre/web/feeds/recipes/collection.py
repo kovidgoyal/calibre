@@ -234,13 +234,16 @@ class SchedulerConfig(object):
         if typ == 'interval':
             return utcnow - ld > timedelta(sch)
         elif typ == 'day/time':
-            day, hour, minute = sch
             now = datetime.now()
+            offset = now - utcnow
+            ld_local = ld + offset
+            day, hour, minute = sch
+
             is_today = day < 0 or day > 6 or \
                     day == calendar.weekday(now.year, now.month, now.day)
-            is_time = now.hour >= hour and now.minute >= minute
-            was_downloaded_already_today = \
-                    utcnow - ld < timedelta(days=1)
+            is_time = now.hour > hour or \
+                    (now.hour == hour and now.minute >= minute)
+            was_downloaded_already_today = ld_local.date() == now.date()
             return is_today and not was_downloaded_already_today and is_time
         return False
 
