@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, textwrap, subprocess, shutil, tempfile, atexit, stat
+import sys, os, textwrap, subprocess, shutil, tempfile, atexit, stat, shlex
 
 from setup import Command, islinux, basenames, modules, functions, \
         __appname__, __version__
@@ -149,7 +149,9 @@ class Develop(Command):
         src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
         dest = os.path.join(self.staging_bindir, 'calibre-mount-helper')
         self.info('Installing mount helper to '+ dest)
-        p = subprocess.Popen(['gcc', '-Wall', '-pedantic', src, '-o', dest])
+        cflags = os.environ.get('OVERRIDE_CFLAGS', '-Wall -pedantic')
+        cflags = shlex.split(cflags)
+        p = subprocess.Popen(['gcc']+cflags+[src, '-o', dest])
         ret = p.wait()
         if ret != 0:
             return warn()

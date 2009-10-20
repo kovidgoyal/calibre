@@ -164,6 +164,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             return cls(*args)
 
         def ok(urn):
+            if restrict_to_urns is None:
+                return False
             return not restrict_to_urns or urn in restrict_to_urns
 
         new_root = factory(NewsTreeItem, None)
@@ -230,6 +232,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
     def search(self, query, refinement):
         try:
             results = self.parse(unicode(query))
+            if not results:
+                results = None
         except ParseException:
             results = []
         self.do_refresh(restrict_to_urns=results)
