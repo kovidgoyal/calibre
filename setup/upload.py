@@ -345,7 +345,6 @@ class UploadToServer(Command):
                 shell=True)
         check_call('scp dist/calibre-*.tar.gz.asc divok:%s/signatures/'%DOWNLOADS,
                 shell=True)
-        check_call('''rm -rf dist/* build/*''', shell=True)
         check_call('ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/',
                    shell=True)
         check_call('ssh divok bzr update /usr/local/calibre',

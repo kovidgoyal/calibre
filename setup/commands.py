@@ -21,7 +21,7 @@ __all__ = [
         'linux32', 'linux64', 'linux', 'linux_freeze', 'linux_freeze2',
         'osx32_freeze', 'osx32', 'osx', 'rsync',
         'win32_freeze', 'win32', 'win',
-        'stage1', 'stage2', 'stage3', 'publish'
+        'stage1', 'stage2', 'stage3', 'stage4', 'publish'
         ]
 
 
@@ -50,13 +50,14 @@ from setup.resources import Resources
 resources = Resources()
 
 from setup.publish import Manual, TagRelease, UploadRss, Stage1, Stage2, \
-        Stage3, Publish
+        Stage3, Stage4, Publish
 manual = Manual()
 tag_release = TagRelease()
 upload_rss = UploadRss()
 stage1 = Stage1()
 stage2 = Stage2()
 stage3 = Stage3()
+stage4 = Stage4()
 publish = Publish()
 
 from setup.upload import UploadUserManual, UploadInstallers, UploadDemo, \
