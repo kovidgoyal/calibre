@@ -16,8 +16,9 @@ __all__ = [
         'sdist',
         'manual', 'tag_release', 'upload_rss',
         'pypi_register', 'pypi_upload', 'upload_to_server',
-        'upload_user_manual', 'upload_installers', 'upload_demo',
-        'linux32', 'linux64', 'linux', 'linux_freeze',
+        'upload_user_manual', 'upload_to_mobileread', 'upload_demo',
+        'upload_to_sourceforge', 'upload_to_google_code',
+        'linux32', 'linux64', 'linux', 'linux_freeze', 'linux_freeze2',
         'osx32_freeze', 'osx32', 'osx', 'rsync',
         'win32_freeze', 'win32', 'win',
         'stage1', 'stage2', 'stage3', 'publish'
@@ -59,11 +60,13 @@ stage3 = Stage3()
 publish = Publish()
 
 from setup.upload import UploadUserManual, UploadInstallers, UploadDemo, \
-        UploadToServer
+        UploadToServer, UploadToSourceForge, UploadToGoogleCode
 upload_user_manual = UploadUserManual()
-upload_installers = UploadInstallers()
+upload_to_mobileread = UploadInstallers()
 upload_demo = UploadDemo()
 upload_to_server = UploadToServer()
+upload_to_sourceforge = UploadToSourceForge()
+upload_to_google_code = UploadToGoogleCode()
 
 from setup.installer import Rsync
 rsync = Rsync()
@@ -74,6 +77,8 @@ linux32 = Linux32()
 linux64 = Linux64()
 from setup.installer.linux.freeze import LinuxFreeze
 linux_freeze = LinuxFreeze()
+from setup.installer.linux.freeze2 import LinuxFreeze2
+linux_freeze2 = LinuxFreeze2()
 
 from setup.installer.osx import OSX, OSX32
 osx = OSX()

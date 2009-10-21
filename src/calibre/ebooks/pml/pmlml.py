@@ -154,9 +154,14 @@ class PMLMLizer(object):
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
 
+        # Turn all html entities into unicode. This should not be necessary as
+        # lxml should have already done this but we want to be sure it happens.
         for entity in set(re.findall('&.+?;', text)):
             mo = re.search('(%s)' % entity[1:-1], text)
             text = text.replace(entity, entity_to_unicode(mo))
+
+        # Turn all unicode characters into their PML hex equivelent
+        text = re.sub('[^\x00-\x7f]', lambda x: '\\U%04x' % ord(x.group()), text)
 
         return text
 

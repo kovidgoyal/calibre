@@ -141,7 +141,9 @@ class Win32Freeze(Command, WixMixIn):
             shutil.copytree(x, self.j(sp_dir, self.b(x)))
 
         for x in (r'calibre\manual', r'calibre\trac', 'pythonwin'):
-            shutil.rmtree(self.j(sp_dir, x))
+            deld = self.j(sp_dir, x)
+            if os.path.exists(deld):
+                shutil.rmtree(deld)
 
         for x in os.walk(self.j(sp_dir, 'calibre')):
             for f in x[-1]:

@@ -78,7 +78,7 @@ class CYBOOKG3(USBMS):
         return zip(paths, cycle([on_card]))
 
 
-class CYBOOK_OPUS(USBMS):
+class CYBOOK_OPUS(CYBOOKG3):
 
     name           = 'Cybook Opus Device Interface'
     gui_name       = 'Cybook Opus'

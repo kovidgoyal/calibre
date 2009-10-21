@@ -43,9 +43,10 @@ class Stage2(Command):
 class Stage3(Command):
 
    description = 'Stage 3 of the publish process'
-   sub_commands = ['upload_rss', 'upload_user_manual', 'upload_demo',
-            'pypi_upload', 'tag_release', 'upload_installers',
-            'upload_to_server']
+   sub_commands = ['upload_rss', 'upload_user_manual', 'upload_demo', 'sdist',
+            'upload_to_sourceforge', 'upload_to_google_code', 'tag_release',
+            'upload_to_server', 'upload_to_mobileread',
+]
 
 class Publish(Command):
 

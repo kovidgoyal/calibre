@@ -168,7 +168,9 @@ def main(args=sys.argv):
         sys.argv = args[:1]
         base = os.path.dirname(os.path.abspath(opts.exec_file))
         sys.path.insert(0, base)
-        execfile(opts.exec_file)
+        g = globals()
+        g['__name__'] = '__main__'
+        execfile(opts.exec_file, g)
     elif opts.debug_device_driver:
         debug_device_driver()
     elif opts.migrate:
@@ -190,14 +192,8 @@ def main(args=sys.argv):
     elif opts.develop_from is not None:
         develop_from(opts.develop_from)
     else:
-        from calibre.utils.config import config_dir
-        ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
-        os.environ['IPYTHONDIR'] = ipydir
-        from IPython.Shell import IPShellEmbed
-        ipshell = IPShellEmbed()
-        ipshell()
-
-
+        from calibre import ipython
+        ipython()
 
     return 0
 

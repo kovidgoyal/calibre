@@ -6,11 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, uuid, shutil, subprocess
+import os, shutil, subprocess
 
 from setup import __appname__, __version__, basenames
-
-guid = uuid.uuid4 # Random GUID
 
 WIXP = r'C:\Program Files\Windows Installer XML v3.5'
 CANDLE = WIXP+r'\bin\candle.exe'
@@ -31,8 +29,7 @@ class WixMixIn:
         wxs = template.format(
                 app               = __appname__,
                 version           = __version__,
-                product_guid      = guid(),
-                upgrade_code      = guid(),
+                upgrade_code      = 'BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1',
                 compression       = self.opts.msi_compression,
                 app_components    = components,
                 exe_map           = self.smap,

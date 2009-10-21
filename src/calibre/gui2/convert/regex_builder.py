@@ -51,6 +51,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.regex.setText(regex)
         self.regex_valid(True)
         self.highlighter = RegexHighlighter(self.preview.document())
+        self.highlighter.update_regex(regex)
 
         if not db or not book_id:
             self.button_box.addButton(QDialogButtonBox.Open)
@@ -86,7 +87,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def open_book(self, pathtoebook):
         self.iterator = EbookIterator(pathtoebook)
-        self.iterator.__enter__()
+        self.iterator.__enter__(raw_only=True)
         text = [u'']
         for path in self.iterator.spine:
             html = open(path, 'rb').read().decode(path.encoding, 'replace')

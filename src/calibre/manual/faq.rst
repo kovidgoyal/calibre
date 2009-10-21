@@ -20,7 +20,7 @@ What formats does |app| support conversion to/from?
 |app| supports the conversion of many input formats to many output formats.
 It can convert every input format in the following list, to every output format.
 
-*Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TXT
+*Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TCR, TXT
 *Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PML, RB, PDF, TXT
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
@@ -80,13 +80,47 @@ What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 At the moment |app| has full support for the SONY PRS 300/500/505/600/700, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Netronix EB600, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
-I used |app| to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?
+How can I help get my device supported in |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your device appears as a USB disk to the operating system. Adding support for it to |app| is very easy.
+We just need some information from you:
+
+  * What e-book formats does your device support?
+  * Is there a special directory on the device in which all e-book files should be placed?
+  * We also need the output from running the following command in a terminal, both with the device
+    connected and without::
+
+        calibre-debug -d
+
+  * If your device supports SD cards, run the above command with the cards inserted.
+
+To run the above command, on Windows you should use the full path to calibre-debug.exe
+On OSX, you should go to Preferences->Advanced and click "Install command line tools".
+
+Once you send us the output for a particular operating system, support for the device
+will appear in the next release of |app|.
+
+
+Can I use both |app| and the SONY software to manage my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You should not use both |app| and Connect to transfer books to the reader. You can fix this problem by: 
-  * Removing any storage cards from your reader. 
-  * Deleting the file media.xml from the reader's main memory using windows explorer (search for the file to find all locations where it is present). Note that by doing this you will lose all your collections, bookmarks, history etc. 
-  * Unplugging the reader and waiting till the list of books shows up again 
-  * Re-connecting the reader and starting the SONY software
+
+Yes, you can use both, provided you don not run them at the same time. That is, you should use the following sequence:
+Connect reader->Use one of the programs->Disconnect reader. Reconnect reader->Use the other program->disconnect reader.
+
+The underlying reason is that the Reader uses a single file to keep track
+of 'meta' information, such as collections, and this is written to by both
+|app| and the Sony software when either updates something on the Reader.
+The file will be saved when the Reader is (safely) disconnected, so using one
+or the other is safe if there's a disconnection between them, but if
+you're not the type to remember this, then the simple answer is to stick
+to one or the other for the transfer and just export/import from/to the
+other via the computers hard disk.
+
+If you do need to reset your metadata due to problems caused by using both
+at the same time, then just delete the media.xml file on the Reader using
+your PC's file explorer and it'll be recreated after disconnection.
+
 
 Can I use the collections feature of the SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

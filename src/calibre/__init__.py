@@ -419,3 +419,15 @@ if isosx:
     except:
         import traceback
         traceback.print_exc()
+
+def ipython(user_ns=None):
+    if user_ns is None:
+        user_ns = locals()
+    from calibre.utils.config import config_dir
+    ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
+    os.environ['IPYTHONDIR'] = ipydir
+    from IPython.Shell import IPShellEmbed
+    ipshell = IPShellEmbed(user_ns=user_ns)
+    ipshell()
+
+

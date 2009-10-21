@@ -124,8 +124,6 @@ class PyPIRegister(Command):
             auth)
         self.info('Server response (%s): %s' % (code, result))
 
-
-
     def verify_metadata(self):
         ''' Send the metadata to the package index server to be checked.
         '''

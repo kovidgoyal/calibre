@@ -323,17 +323,16 @@ class ResultCache(SearchQueryParser):
 
     def seriescmp(self, x, y):
         try:
-            ans = cmp(self._data[x][9].lower(), self._data[y][9].lower()) if str else\
-              cmp(self._data[x][9], self._data[y][9])
+            ans = cmp(self._data[x][9].lower(), self._data[y][9].lower())
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][9], self._data[y][9])
         if ans != 0: return ans
         return cmp(self._data[x][10], self._data[y][10])
 
-    def cmp(self, loc, x, y, str=True, subsort=False):
+    def cmp(self, loc, x, y, asstr=True, subsort=False):
         try:
-            ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if str else\
-              cmp(self._data[x][loc], self._data[y][loc])
+            ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if \
+                asstr else cmp(self._data[x][loc], self._data[y][loc])
         except AttributeError: # Some entries may be None
             ans = cmp(self._data[x][loc], self._data[y][loc])
         if subsort and ans == 0:
@@ -352,7 +351,7 @@ class ResultCache(SearchQueryParser):
             self.first_sort = False
         fcmp = self.seriescmp if field == 'series' else \
             functools.partial(self.cmp, FIELD_MAP[field], subsort=subsort,
-                              str=field not in ('size', 'rating', 'timestamp'))
+                              asstr=field not in ('size', 'rating', 'timestamp'))
 
         self._map.sort(cmp=fcmp, reverse=not ascending)
         self._map_filtered = [id for id in self._map if id in self._map_filtered]
@@ -1324,14 +1323,18 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('metadata', [id])
 
-    def add_news(self, path, recipe):
+    def add_news(self, path, arg):
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else open(path, 'rb')
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
         mi.series_index = 1.0
-        mi.tags = [_('News'), recipe.title]
+        mi.tags = [_('News')]
+        if arg['add_title_tag']:
+            mi.tags += [arg['title']]
+        if arg['custom_tags']:
+            mi.tags += arg['custom_tags']
         obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)',
                               (mi.title, mi.authors[0]))
         id = obj.lastrowid
@@ -1696,6 +1699,11 @@ books_series_link      feeds
                     break
 
         return duplicates
+
+    def get_custom_recipes(self):
+        for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
+            yield id, title, script
+
 
     def check_integrity(self, callback):
         callback(0., _('Checking SQL integrity...'))

@@ -42,26 +42,38 @@ class Check(Command):
     BUILTINS = ['_', '__', 'dynamic_property', 'I', 'P']
     CACHE = '.check-cache.pickle'
 
+    def get_files(self, cache):
+        for x in os.walk(self.j(self.SRC, 'calibre')):
+            for f in x[-1]:
+                y = self.j(x[0], f)
+                mtime = os.stat(y).st_mtime
+                if f.endswith('.py') and f not in ('ptempfile.py', 'feedparser.py',
+                    'pyparsing.py', 'markdown.py') and \
+                    'genshi' not in y and cache.get(y, 0) != mtime and \
+                    'prs500/driver.py' not in y:
+                        yield y, mtime
+
+        for x in os.walk(self.j(self.d(self.SRC), 'resources', 'recipes')):
+            for f in x[-1]:
+                f = self.j(x[0], f)
+                mtime = os.stat(f).st_mtime
+                if f.endswith('.recipe') and cache.get(f, 0) != mtime:
+                    yield f, mtime
+
+
     def run(self, opts):
         cache = {}
         if os.path.exists(self.CACHE):
             cache = cPickle.load(open(self.CACHE, 'rb'))
-        for x in os.walk(self.j(self.SRC, 'calibre')):
-            for f in x[-1]:
-                f = self.j(x[0], f)
-                mtime = os.stat(f).st_mtime
-                if f.endswith('.py') and cache.get(f, 0) != mtime and \
-                        self.b(f) not in ('ptempfile.py', 'feedparser.py',
-                        'pyparsing.py', 'markdown.py') and 'genshi' not in f and \
-                        'prs500/driver.py' not in f:
-                    self.info('\tChecking', f)
-                    w = check_for_python_errors(f, self.BUILTINS)
-                    if w:
-                        self.report_errors(w)
-                        cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
-                        subprocess.call(['gvim', '-f', f])
-                        raise SystemExit(1)
-                    cache[f] = mtime
+        for f, mtime in self.get_files(cache):
+            self.info('\tChecking', f)
+            w = check_for_python_errors(f, self.BUILTINS)
+            if w:
+                self.report_errors(w)
+                cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
+                subprocess.call(['gvim', '-f', f])
+                raise SystemExit(1)
+            cache[f] = mtime
         cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
 
 

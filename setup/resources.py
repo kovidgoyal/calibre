@@ -26,17 +26,6 @@ class Resources(Command):
 
     description = 'Compile various needed calibre resources'
 
-    def get_recipes(self):
-        sdir = os.path.join('src', 'calibre', 'web', 'feeds', 'recipes')
-        resources= {}
-        files = []
-        for f in os.listdir(sdir):
-            if f.endswith('.py') and f != '__init__.py':
-                files.append(os.path.join(sdir, f))
-                resources[f.replace('.py', '')] = open(files[-1], 'rb').read()
-        return resources, files
-
-
     def run(self, opts):
         scripts = {}
         for x in ('console', 'gui'):
@@ -51,13 +40,15 @@ class Resources(Command):
             f = open(dest, 'wb')
             cPickle.dump(scripts, f, -1)
 
-        recipes, files = self.get_recipes()
+        from calibre.web.feeds.recipes.collection import \
+                serialize_builtin_recipes, iterate_over_builtin_recipe_files
 
-        dest = self.j(self.RESOURCES, 'recipes.pickle')
+        files = [x[1] for x in iterate_over_builtin_recipe_files()]
+
+        dest = self.j(self.RESOURCES, 'builtin_recipes.xml')
         if self.newer(dest, files):
-            self.info('\tCreating recipes.pickle')
-            f = open(dest, 'wb')
-            cPickle.dump(recipes, f, -1)
+            self.info('\tCreating builtin_recipes.xml')
+            open(dest, 'wb').write(serialize_builtin_recipes())
 
         dest = self.j(self.RESOURCES, 'ebook-convert-complete.pickle')
         files = []
@@ -70,8 +61,9 @@ class Resources(Command):
             complete = {}
             from calibre.ebooks.conversion.plumber import supported_input_formats
             complete['input_fmts'] = set(supported_input_formats())
-            from calibre.web.feeds.recipes import recipes
-            complete['input_recipes'] = [t.title+'.recipe ' for t in recipes]
+            from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
+            complete['input_recipes'] = [t+'.recipe ' for t in
+                    get_builtin_recipe_titles()]
             from calibre.customize.ui import available_output_formats
             complete['output'] = set(available_output_formats())
             from calibre.ebooks.conversion.cli import create_option_parser
@@ -89,9 +81,6 @@ class Resources(Command):
                             get_opts_from_parser(p)]
 
             cPickle.dump(complete, open(dest, 'wb'), -1)
-
-
-
 
     def clean(self):
         for x in ('scripts', 'recipes', 'ebook-convert-complete'):

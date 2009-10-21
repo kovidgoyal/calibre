@@ -6,7 +6,6 @@ import re, textwrap
 DEPENDENCIES = [
             #(Generic, version, gentoo, ubuntu, fedora)
             ('python', '2.6', None, None, None),
-            ('setuptools', '0.6c5', 'setuptools', 'python-setuptools', 'python-setuptools-devel'),
             ('Python Imaging Library', '1.1.6', 'imaging', 'python-imaging', 'python-imaging'),
             ('libusb', '0.1.12', None, None, None),
             ('Qt', '4.5.1', 'qt', 'libqt4-core libqt4-gui', 'qt4'),
@@ -14,7 +13,6 @@ DEPENDENCIES = [
             ('python-mechanize', '0.1.11', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
             ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
             ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
-            ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
             ('lxml', '2.1.5', 'lxml', 'python-lxml', 'python-lxml'),
             ('python-dateutil', '1.4.1', 'python-dateutil', 'python-dateutil', 'python-dateutil'),
             ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
@@ -23,7 +21,7 @@ DEPENDENCIES = [
             ('podofo', '0.7', 'podofo', 'podofo', 'podofo', 'podofo'),
             ('libwmf', '0.2.8', 'libwmf', 'libwmf', 'libwmf', 'libwmf'),
             ]
-
+STATUS = 'http://status.calibre-ebook.com/dist'
 
 class CoolDistro:
 
@@ -148,7 +146,7 @@ else:
                 compatibility=('%(a)s works on Windows XP, Vista and 7.'
                     'If you are upgrading from a version older than 0.6.17, '
                     'please uninstall %(a)s first.')%dict(a=__appname__,),
-                path=MOBILEREAD+file, app=__appname__,
+                path=STATUS+'/win32', app=__appname__,
                 note=Markup(\
     '''
     <p>If you are updating from a version of calibre older than 0.6.12 on
@@ -189,7 +187,7 @@ else:
                 installer_name='OS X universal dmg',
                 title='Download %s for OS X'%(__appname__),
                 compatibility='%s works on OS X Tiger, Leopard, and Snow Leopard.'%(__appname__,),
-                path=MOBILEREAD+file, app=__appname__,
+                path=STATUS+'/osx32', app=__appname__,
                 note=Markup(\
     u'''
     <ol>
