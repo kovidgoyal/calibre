@@ -230,15 +230,21 @@ class SchedulerConfig(object):
             typ, sch, ld = self.un_serialize_schedule(recipe)
         except:
             return False
+        utcnow = datetime.utcnow()
         if typ == 'interval':
-            return datetime.utcnow() - ld > timedelta(sch)
+            return utcnow - ld > timedelta(sch)
         elif typ == 'day/time':
-            day, hour, minute = sch
             now = datetime.now()
+            offset = now - utcnow
+            ld_local = ld + offset
+            day, hour, minute = sch
+
             is_today = day < 0 or day > 6 or \
                     day == calendar.weekday(now.year, now.month, now.day)
-            return is_today and datetime.utcnow().date() != ld.date() and \
-                    now.hour >= hour and now.minute >= minute
+            is_time = now.hour > hour or \
+                    (now.hour == hour and now.minute >= minute)
+            was_downloaded_already_today = ld_local.date() == now.date()
+            return is_today and not was_downloaded_already_today and is_time
         return False
 
     def set_account_info(self, urn, un, pw):
