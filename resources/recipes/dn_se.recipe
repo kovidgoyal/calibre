@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class DN_se(BasicNewsRecipe):
     title                 = 'Dagens Nyheter'
     __author__            = 'Darko Miletic'
-    description           = 'News from Sveden'
+    description           = 'News from Sweden'
     publisher             = 'Dagens Nyheter'
     category              = 'news, politics, Sveden'
     oldest_article        = 2
