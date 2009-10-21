@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QComboBox, SIGNAL, Qt, QLineEdit, QStringList
+from PyQt4.Qt import QComboBox, SIGNAL, Qt, QLineEdit, QStringList, pyqtSlot
 
 from calibre.gui2 import config
 
@@ -24,6 +24,17 @@ class SearchLineEdit(QLineEdit):
         if self.parent().help_state:
             self.parent().normalize_state()
         return QLineEdit.dropEvent(self, ev)
+
+    def contextMenuEvent(self, ev):
+        if self.parent().help_state:
+            self.parent().normalize_state()
+        return QLineEdit.contextMenuEvent(self, ev)
+
+    @pyqtSlot()
+    def paste(self, *args):
+        if self.parent().help_state:
+            self.parent().normalize_state()
+        return QLineEdit.paste(self)
 
 class SearchBox2(QComboBox):
 
