@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class OGlobo(BasicNewsRecipe):
     title                 = 'O Globo'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic and Sujata Raman'
     description           = 'News from Brasil'
     publisher             = 'O Globo'
     category              = 'news, politics, Brasil'
@@ -30,15 +30,26 @@ class OGlobo(BasicNewsRecipe):
 
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    keep_only_tags = [dict(name='div', attrs={'id':'ltintb'})]
+    extra_css = '''
+                    cite{color:#007BB5; font-size:xx-small; font-style:italic;}
+                    body{font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
+                    h3{font-size:large; color:#082963; font-weight:bold;}
+                    #ident{color:#0179B4; font-size:xx-small;}
+                    p{color:#000000;font-weight:normal;}                    
+                    .commentario p{color:#007BB5; font-style:italic;}
+                '''
+
+    
+    keep_only_tags = [dict(name='div', attrs={'id':'ltintb'}),
+                      dict(name='a', attrs={'class':['img imgLoader','img ftr imgLoader']}),]
 
     remove_tags = [
                      dict(name='script')
                     ,dict(name='object')
                     ,dict(name='form')
-                    ,dict(name='div', attrs={'id':['linksPatGoogle','rdpm','cor','com','env','rcm_st']})
+                    ,dict(name='div', attrs={'id':['linksPatGoogle','rdpm','cor','com','env','rcm_st','coment',]})
                     ,dict(name='div', attrs={'class':'box-zap-anu2'})
-                    ,dict(name='a')
+                    ,dict(name='a', attrs={'class':'assine'})
                     ,dict(name='link')
                   ]
 
