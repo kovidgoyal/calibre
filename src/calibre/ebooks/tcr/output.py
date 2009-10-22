@@ -24,7 +24,7 @@ class TCROutput(OutputFormatPlugin):
             'The default is utf-8.')),
         OptionRecommendation(name='compression_level', recommended_value=5,
             level=OptionRecommendation.LOW,
-            help=_('Speciy the compression level to use. Scale 1 - 10. 1 ' \
+            help=_('Specify the compression level to use. Scale 1 - 10. 1 ' \
             'being the lowest compression but the fastest and 10 being the ' \
             'highest compression but the slowest.')),
     ])
