@@ -85,11 +85,11 @@ class PMLMLizer(object):
     def pmlmlize_spine(self):
         self.image_hrefs = {}
         self.link_hrefs = {}
-        output = u''
-        output += self.get_cover_page()
-        output += u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk'
-        output += self.get_text()
-        output = output.replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
+        output = [u'']
+        output.append(self.get_cover_page())
+        output.append(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk')
+        output.append(self.get_text())
+        output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
         output = self.clean_text(output)
         return output
 
@@ -104,29 +104,29 @@ class PMLMLizer(object):
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+                output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
         return output
 
     def get_toc(self):
-        toc = u''
+        toc = [u'']
         if self.opts.inline_toc:
             self.log.debug('Generating table of contents...')
-            toc += u'\\X0%s\\X0\n\n' % _('Table of Contents:')
+            toc.append(u'\\X0%s\\X0\n\n' % _('Table of Contents:'))
             for item in self.oeb_book.toc:
                 if item.href in self.link_hrefs.keys():
-                    toc += '* \\q="#%s"%s\\q\n' % (self.link_hrefs[item.href], item.title)
+                    toc.append('* \\q="#%s"%s\\q\n' % (self.link_hrefs[item.href], item.title))
                 else:
                     self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
-        return toc
+        return ''.join(toc)
 
     def get_text(self):
-        text = u''
+        text = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-            text += self.add_page_anchor(item)
+            text.append(self.add_page_anchor(item))
             text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
-        return text
+        return ''.join(text)
 
     def add_page_anchor(self, page):
         return self.get_anchor(page, '')
@@ -171,14 +171,14 @@ class PMLMLizer(object):
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
-            return u''
+            return [u'']
 
-        text = u''
+        text = [u'']
         style = stylizer.style(elem)
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
-            return u''
+            return [u'']
 
         tag = barename(elem.tag)
         tag_count = 0
@@ -198,23 +198,25 @@ class PMLMLizer(object):
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
                     else:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
+                text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
         if tag == 'hr':
-            text += '\\w'
+            w = '\\w'
             width = elem.get('width')
             if width:
-                text += '="%s%%"' % width
+                w += '="%s%%"' % width
             else:
-                text += '="50%"'
+                w += '="50%"'
+            text.append(w)
 
         # Process style information that needs holds a single tag
         # Commented out because every page in an OEB book starts with this style
         #if style['page-break-before'] == 'always':
-        #    text += '\\p'
+        #    text.append('\\p')
 
         pml_tag = TAG_MAP.get(tag, None)
         if pml_tag and pml_tag not in tag_stack:
             tag_count += 1
-            text += '\\%s' % pml_tag
+            text.append('\\%s' % pml_tag)
             tag_stack.append(pml_tag)
 
         # Special processing of tags that require an argument.
@@ -229,27 +231,27 @@ class PMLMLizer(object):
                     if href not in self.link_hrefs.keys():
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
                     href = self.link_hrefs[href]
-                    text += '\\q="#%s"' % href
+                    text.append('\\q="#%s"' % href)
                 tag_count += 1
                 tag_stack.append('q')
 
         # Anchor ids
         id_name = elem.get('id')
         if id_name:
-            text += self.get_anchor(page, id_name)
+            text.append(self.get_anchor(page, id_name))
 
         # Processes style information
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
             if style_tag and style_tag not in tag_stack:
                 tag_count += 1
-                text += '\\%s' % style_tag
+                text.append('\\%s' % style_tag)
                 tag_stack.append(style_tag)
         # margin
 
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            text += self.elem_text(elem, tag_stack)
+            text.append(self.elem_text(elem, tag_stack))
 
         for item in elem:
             text += self.dump_text(item, stylizer, page, tag_stack)
@@ -259,16 +261,16 @@ class PMLMLizer(object):
             close_tag_list.insert(0, tag_stack.pop())
         text += self.close_tags(close_tag_list)
         if tag in SEPARATE_TAGS:
-            text += os.linesep + os.linesep
+            text.append(os.linesep + os.linesep)
 
         if 'block' not in tag_stack:
-            text += os.linesep + os.linesep
+            text.append(os.linesep + os.linesep)
 
         #if style['page-break-after'] == 'always':
-        #    text += '\\p'
+        #    text.append('\\p')
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
-            text += self.elem_tail(elem, tag_stack)
+            text.append(self.elem_tail(elem, tag_stack))
 
         return text
 
@@ -286,10 +288,10 @@ class PMLMLizer(object):
         return text
 
     def close_tags(self, tags):
-        text = u''
+        text = [u'']
         for i in range(0, len(tags)):
             tag = tags.pop()
             if tag != 'block':
-                text += '\\%s' % tag
+                text.append('\\%s' % tag)
         return text
 
