@@ -10,14 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-21 01:30+0000\n"
-"PO-Revision-Date: 2009-10-21 16:35+0000\n"
+"POT-Creation-Date: 2009-10-22 23:36+0000\n"
+"PO-Revision-Date: 2009-10-22 08:38+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-22 07:23+0000\n"
+"X-Launchpad-Export-Date: 2009-10-23 07:26+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -2416,13 +2416,10 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
-"Speciy the compression level to use. Scale 1 - 10. 1 being the lowest "
+"Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
-"Especificar el nivel de compresión que se usará, en una escala de 1 a 10. 1 "
-"es la menor compresión y la más rápida, 10 es la mayor compresíon y la más "
-"lenta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
@@ -4338,7 +4335,7 @@ msgstr "Instalar &herramientas de línea de órdenes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "Open calibre &configuration directory"
-msgstr "Abrir el directorio de &configuración de calibre"
+msgstr "&Abrir el directorio de configuración de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
 msgid ""
@@ -4878,7 +4875,7 @@ msgstr "publicidad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:195
 msgid "&Schedule for download:"
-msgstr "&Planificación de la descarga:"
+msgstr "P&lanificación de la descarga:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
@@ -4951,7 +4948,7 @@ msgstr "&Planificación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:215
 msgid "Add &title as tag"
-msgstr "Añadir el &título como etiqueta"
+msgstr "Añadir el título como &etiqueta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:216
 msgid "&Extra  tags:"

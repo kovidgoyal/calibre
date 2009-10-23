@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-21 01:30+0000\n"
-"PO-Revision-Date: 2009-10-20 01:10+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2009-10-22 23:36+0000\n"
+"PO-Revision-Date: 2009-10-22 21:06+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-21 07:26+0000\n"
+"X-Launchpad-Export-Date: 2009-10-23 07:25+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2441,10 +2441,12 @@ msgstr ""
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
 msgstr ""
+"Geben Sie die Zeichenkodierung für das Ausgabe Dokument an. Die "
+"Voreinstellung ist utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
-"Speciy the compression level to use. Scale 1 - 10. 1 being the lowest "
+"Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
@@ -4365,7 +4367,7 @@ msgstr "Kommandozeilen-Tools &installieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "Open calibre &configuration directory"
-msgstr ""
+msgstr "&Calibre Einstellungsverzeichnis öffnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
 msgid ""
@@ -4853,11 +4855,13 @@ msgstr "Abbruch läuft ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:117
 msgid "Need username and password"
-msgstr ""
+msgstr "Benötige Benutzernamen und Passwort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:118
 msgid "You must provide a username and/or password to use this news source."
 msgstr ""
+"Sie müssen einen Benutzernamen und/oder ein Passwort für die Verwendung "
+"dieser Nachrichtenquelle angeben."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:169
 msgid "Created by: "
@@ -7789,6 +7793,7 @@ msgstr "Nachrichtenquelle unbekannt"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:507
 msgid "The \"%s\" recipe needs a username and password."
 msgstr ""
+"Das \"%s\" Downloadschema benötigt einen Benutzernamen und ein Passwort."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:590
 msgid "Download finished"
