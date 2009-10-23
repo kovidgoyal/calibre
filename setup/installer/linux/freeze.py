@@ -24,7 +24,8 @@ class LinuxFreeze(Command):
         is64bit = platform.architecture()[0] == '64bit'
         arch = 'x86_64' if is64bit else 'i686'
         ffi = '/usr/lib/libffi.so.5' if is64bit else '/usr/lib/gcc/i686-pc-linux-gnu/4.4.1/libffi.so.4'
-
+        stdcpp = '/usr/lib/gcc/%s-pc-linux-gnu/%s/libstdc++.so.6'%(arch, '4.4.2'
+                if is64bit else '4.4.1')
 
         QTDIR          = '/usr/lib/qt4'
         QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml',
@@ -46,6 +47,7 @@ class LinuxFreeze(Command):
                         '/usr/lib/libmng.so.1',
                         '/usr/lib/libpodofo.so.0.6.99',
                         '/lib/libz.so.1',
+                        '/lib/libuuid.so.1',
                         '/usr/lib/libtiff.so.3',
                         '/lib/libbz2.so.1',
                         '/usr/lib/libpoppler.so.5',
@@ -56,8 +58,7 @@ class LinuxFreeze(Command):
                         '/usr/lib/libjpeg.so.7',
                         '/usr/lib/libxslt.so.1',
                         '/usr/lib/libgthread-2.0.so.0',
-                        '/usr/lib/gcc/***-pc-linux-gnu/4.4.1/libstdc++.so.6'.replace('***',
-                            arch),
+                        stdcpp,
                         ffi,
                         '/usr/lib/libpng12.so.0',
                         '/usr/lib/libexslt.so.0',

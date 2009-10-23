@@ -165,7 +165,7 @@ def main(args=sys.argv):
         sys.argv = args[:1]
         exec opts.command
     elif opts.exec_file:
-        sys.argv = args[:1]
+        sys.argv = args
         base = os.path.dirname(os.path.abspath(opts.exec_file))
         sys.path.insert(0, base)
         g = globals()

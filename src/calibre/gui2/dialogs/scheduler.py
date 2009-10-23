@@ -14,7 +14,7 @@ from PyQt4.Qt import QDialog, QApplication, SIGNAL, Qt, QTime, QObject, QMenu, \
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2.search_box import SearchBox2
-from calibre.gui2 import config as gconf
+from calibre.gui2 import config as gconf, error_dialog
 from calibre.web.feeds.recipes.model import RecipeModel
 from calibre.ptempfile import PersistentTemporaryFile
 
@@ -36,6 +36,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.connect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
                 self.search_done)
         self.search.setFocus(Qt.OtherFocusReason)
+        self.commit_on_change = True
 
         self.recipes.setModel(self.recipe_model)
         self.detail_box.setVisible(False)
@@ -55,6 +56,10 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.old_news.setValue(gconf['oldest_news'])
 
     def break_cycles(self):
+        self.disconnect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
+                self.search_done)
+        self.disconnect(self.recipe_model,  SIGNAL('searched(PyQt_PyObject)'),
+                self.search.search_done)
         self.recipe_model = None
 
     def search_done(self, *args):
@@ -68,25 +73,32 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.last_downloaded.setVisible(enabled)
 
     def current_changed(self, current, previous):
-        if previous.isValid():
-            self.commit(urn=getattr(previous.internalPointer(), 'urn', None))
+        if self.commit_on_change:
+            if previous.isValid():
+                if not self.commit(urn=getattr(previous.internalPointer(),
+                    'urn', None)):
+                    self.commit_on_change = False
+                    self.recipes.setCurrentIndex(previous)
+        else:
+            self.commit_on_change = True
 
         urn = self.current_urn
         if urn is not None:
             self.initialize_detail_box(urn)
 
     def accept(self):
-        self.commit()
+        if not self.commit():
+            return False
         return QDialog.accept(self)
 
     def download_clicked(self):
         self.commit()
-        if self.current_urn:
+        if self.commit() and self.current_urn:
             self.emit(SIGNAL('download(PyQt_PyObject)'), self.current_urn)
 
     def download_all_clicked(self):
-        self.commit()
-        self.emit(SIGNAL('download(PyQt_PyObject)'), None)
+        if self.commit() and self.commit():
+            self.emit(SIGNAL('download(PyQt_PyObject)'), None)
 
     @property
     def current_urn(self):
@@ -97,10 +109,15 @@ class SchedulerDialog(QDialog, Ui_Dialog):
     def commit(self, urn=None):
         urn = self.current_urn if urn is None else urn
         if not self.detail_box.isVisible() or urn is None:
-            return
+            return True
 
         if self.account.isVisible():
             un, pw = map(unicode, (self.username.text(), self.password.text()))
+            if not un and not pw and self.schedule.isChecked():
+                error_dialog(self, _('Need username and password'),
+                        _('You must provide a username and/or password to '
+                            'use this news source.'), show=True)
+                return False
             self.recipe_model.set_account_info(urn, un.strip(), pw.strip())
 
         if self.schedule.isChecked():
@@ -122,6 +139,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         custom_tags = unicode(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
         self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags)
+        return True
 
     def initialize_detail_box(self, urn):
         self.detail_box.setVisible(True)

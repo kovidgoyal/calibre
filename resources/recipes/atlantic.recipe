@@ -21,9 +21,12 @@ class TheAtlantic(BasicNewsRecipe):
                         dict(name='div', id=['seealso','storybottom',  'footer', 'ad_banner_top', 'sidebar','articletoolstop','subcontent',]),
                         dict(name='p', attrs={'id':["pagination"]}),
                         dict(name='table',attrs={'class':"tools"}),
+                        dict(name='style'),
                         dict(name='a', href='/a/newsletters.mhtml')
                          ]
+    remove_attributes = ['icap', 'callout', 'style']
     no_stylesheets     = True
+    conversion_options = { 'linearize_tables':True }
 
     extra_css = '''
                     #timestamp{font-family:Arial,Helvetica,sans-serif; color:#666666 ;font-size:x-small}
@@ -50,10 +53,14 @@ class TheAtlantic(BasicNewsRecipe):
         for item in soup.findAll('div', attrs={'class':'item'}):
             a = item.find('a')
             if a and a.has_key('href'):
-                url = a['href']#.replace('/doc', 'doc/print')
+                url = a['href']
                 if not url.startswith('http://'):
                     url = 'http://www.theatlantic.com/'+url
+                url = url.replace('/doc/', '/doc/print/')
                 title = self.tag_to_string(a)
+                if title in ('VIDEO', 'AUDIO', 'INTERACTIVE MAP', 'SIDEBAR', 'RECIPES'):
+                    continue
+                title = title.replace('&AMP;', '&')
                 byline = item.find(attrs={'class':'byline'})
                 date = self.tag_to_string(byline) if byline else ''
                 description = ''

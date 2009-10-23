@@ -18,7 +18,6 @@ class Economist(BasicNewsRecipe):
     __author__ = "Kovid Goyal"
     description = 'Global news and current affairs from a European perspective'
     oldest_article = 7.0
-    needs_subscription = False # Strange but true
     INDEX = 'http://www.economist.com/printedition'
     cover_url = 'http://www.economist.com/images/covers/currentcovereu_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title'])]

@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, shutil, cPickle, textwrap, stat
 from subprocess import check_call
 
-from calibre import __version__, __appname__, prints
+from calibre import  __appname__, prints
 
 
 entry_points = {
@@ -140,8 +140,8 @@ class PostInstall:
             for f in os.listdir('.'):
                 if os.stat(f).st_uid == 0:
                     os.rmdir(f) if os.path.isdir(f) else os.unlink(f)
-        if os.stat(config_dir).st_uid == 0:
-            os.rmdir(config_dir)
+            if os.stat(config_dir).st_uid == 0:
+                os.rmdir(config_dir)
 
         if warn is None and self.warnings:
             self.info('There were %d warnings'%len(self.warnings))
@@ -491,36 +491,36 @@ complete -o filenames -F _'''%(opts,exts) + name + ' ' + name +"\n\n"
 
 VIEWER = '''\
 [Desktop Entry]
-Version=%s
+Version=1.0
 Type=Application
 Name=LRF Viewer
 GenericName=Viewer for LRF files
 Comment=Viewer for LRF files (SONY ebook format files)
 TryExec=lrfviewer
-Exec=lrfviewer %%F
+Exec=lrfviewer %F
 Icon=calibre-viewer
 MimeType=application/x-sony-bbeb;
 Categories=Graphics;Viewer;
-'''%(__version__,)
+'''
 
 EVIEWER = '''\
 [Desktop Entry]
-Version=%s
+Version=1.0
 Type=Application
 Name=E-book Viewer
 GenericName=Viewer for E-books
 Comment=Viewer for E-books
 TryExec=ebook-viewer
-Exec=ebook-viewer %%F
+Exec=ebook-viewer %F
 Icon=calibre-viewer
 MimeType=application/epub+zip;
 Categories=Graphics;Viewer;
-'''%(__version__,)
+'''
 
 
 GUI = '''\
 [Desktop Entry]
-Version=%s
+Version=1.0
 Type=Application
 Name=calibre
 GenericName=E-book library management
@@ -529,7 +529,7 @@ TryExec=calibre
 Exec=calibre
 Icon=calibre-gui
 Categories=Office;
-'''%(__version__,)
+'''
 
 MIME = '''\
 <?xml version="1.0"?>

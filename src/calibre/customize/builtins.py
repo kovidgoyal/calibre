@@ -352,6 +352,7 @@ from calibre.ebooks.pdf.output import PDFOutput
 from calibre.ebooks.pml.output import PMLOutput
 from calibre.ebooks.rb.output import RBOutput
 from calibre.ebooks.rtf.output import RTFOutput
+from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
@@ -402,6 +403,7 @@ plugins += [
     PMLOutput,
     RBOutput,
     RTFOutput,
+    TCROutput,
     TXTOutput,
 ]
 plugins += [

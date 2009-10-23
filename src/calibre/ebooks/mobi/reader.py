@@ -489,6 +489,9 @@ class MobiReader(object):
         mobi_version = self.book_header.mobi_version
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
+            for x in tag.attrib:
+                if ':' in x:
+                    del tag.attrib[x]
             if tag.tag in ('country-region', 'place', 'placetype', 'placename',
                 'state', 'city', 'street', 'address', 'content'):
                 tag.tag = 'div' if tag.tag == 'content' else 'span'

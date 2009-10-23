@@ -501,8 +501,10 @@ class BasicNewsRecipe(Recipe):
             if isinstance(self.feeds, basestring):
                 self.feeds = [self.feeds]
 
-        if self.needs_subscription and (self.username is None or self.password is None):
-            raise ValueError('The %s recipe needs a username and password.'%self.title)
+        if self.needs_subscription and (\
+                self.username is None or self.password is None or \
+                (not self.username and not self.password)):
+            raise ValueError(_('The "%s" recipe needs a username and password.')%self.title)
 
         self.browser = self.get_browser()
         self.image_map, self.image_counter = {}, 1

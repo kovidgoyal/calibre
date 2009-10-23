@@ -1316,9 +1316,9 @@ class HTMLConverter(object):
             elif m.group(2) == 'pc':
                 result = unit * (dpi/72.) * 12
             elif m.group(2) == 'mm':
-                result = unit * 0.04 * (dpi/72.)
+                result = unit * 0.04 * (dpi)
             elif m.group(2) == 'cm':
-                result = unit * 0.40 * (dpi/72.)
+                result = unit * 0.4 * (dpi)
         if result is not None:
             if pts:
                 result = int(round(result * (720./dpi)))

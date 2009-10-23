@@ -18,7 +18,7 @@ from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.js import bookmarks, referencing, hyphenation
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import iswindows
-from calibre import prints
+from calibre import prints, guess_type
 
 def load_builtin_fonts():
     base = P('fonts/liberation/*.ttf')
@@ -352,6 +352,8 @@ class DocumentView(QWebView):
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         self.debug_javascript = False
+        self.self_closing_pat = re.compile(r'<([a-z]+)\s+([^>]+)/>',
+                re.IGNORECASE)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
         self.initial_pos = 0.0
@@ -447,8 +449,14 @@ class DocumentView(QWebView):
 
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
+        mt = getattr(path, 'mime_type', None)
+        if mt is None:
+            mt = guess_type(path)[0]
         html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
+        if 'xhtml' in mt:
+            html = self.self_closing_pat.sub(r'<\1 \2></\1>', html)
+        #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
         self.setHtml(html, QUrl.fromLocalFile(path))
         self.turn_off_internal_scrollbars()
 
