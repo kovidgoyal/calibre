@@ -248,6 +248,7 @@ class Serializer(object):
             self.breaks.append(buffer.tell() - 1)
         self.id_offsets[item.href] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
+            buffer.write('<a></a>')
             self.serialize_elem(elem, item)
         if self.write_page_breaks_after_item:
             buffer.write('<mbp:pagebreak/>')
