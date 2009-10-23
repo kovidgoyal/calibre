@@ -36,6 +36,16 @@ class Uncrate(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'class':'serif'})
     remove_tags = [dict(name=['object','link','script','iframe','form'])]
 
+    extra_css = '''
+                    .serif{font-family:Georgia,Rockwell,'Times New Roman',Times,serif; font-weight:normal; font-size: x-small; }
+                    .lefttext{font-family:Georgia,Rockwell,'Times New Roman',Times,serif; font-weight:normal; font-size: x-small; }  
+                    h1{ font-family:Verdana,Arial,Helvetica,sans-serif;font-size:x-large; font-weight:bold;}
+                    .byline{ font-family:Verdana,Arial,Helvetica,sans-serif;font-size: x-small; color:#FF4000;}
+                    .posted{ font-family:Verdana,Arial,Helvetica,sans-serif;font-size: x-small;}
+                    .answer{ font-family:Verdana,Arial,Helvetica,sans-serif;font-size: x-small;}
+                    a{color:#FF4000;}
+                '''
+     
     feeds = [(u'Articles', u'http://feeds.feedburner.com/uncrate')]
 
     def preprocess_html(self, soup):
