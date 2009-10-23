@@ -26,9 +26,9 @@ PML_HTML_RULES = [
     (re.compile(r'\\v(?P<text>.*?)\\v', re.DOTALL), lambda match: '<!-- %s -->' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\t(?P<text>.*?)\\t', re.DOTALL), lambda match: '<div style="margin-left: 5%%;">%s</div>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\T="(?P<val>\d+)%*"(?P<text>.*?)$', re.MULTILINE), lambda match: r'<div style="margin-left: %s%%;">%s</div>' % (match.group('val'), match.group('text')) if match.group('text') else ''),
-    (re.compile(r'\\w="(?P<val>\d+)%"'), lambda match: '<hr width="%s%%" />' % match.group('val')),
+    (re.compile(r'\\w="(?P<val>\d+)%"'), lambda match: '<hr width="%s" />' % match.group('val')),
     (re.compile(r'\\n'), lambda match: ''),
-    (re.compile(r'\\s'), lambda match: ''),
+    (re.compile(r'\\s(?P<text>.*?)\\s', re.DOTALL), lambda match: '<span style="font-size: 50%%">%s</span>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\b(?P<text>.*?)\\b', re.DOTALL), lambda match: '<b>%s</b>' % match.group('text') if match.group('text') else ''), # \b is deprecated; \B should be used instead.
     (re.compile(r'\\l(?P<text>.*?)\\l', re.DOTALL), lambda match: '<span style="font-size: 175%%">%s</span>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\B(?P<text>.*?)\\B', re.DOTALL), lambda match: '<b>%s</b>' % match.group('text') if match.group('text') else ''),
