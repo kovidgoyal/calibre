@@ -95,6 +95,9 @@ class PMLMLizer(object):
 
     def get_cover_page(self):
         output = u''
+        if 'cover' in self.oeb_book.guide:
+            output += '\\m="cover.png"\n'
+            self.image_hrefs[self.oeb_book.guide['cover'].href] = 'cover.png'
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating title page...')
             href = self.oeb_book.guide['titlepage'].href
@@ -191,8 +194,10 @@ class PMLMLizer(object):
         if tag in IMAGE_TAGS:
             if elem.attrib.get('src', None):
                 if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
-                    self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
-                text += '\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])]
+                    if len(self.image_hrefs.keys()) == 0:
+                        self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
+                    else:
+                        self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
         if tag == 'hr':
             text += '\\w'
             width = elem.get('width')
