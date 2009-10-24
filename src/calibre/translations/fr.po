@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-21 01:30+0000\n"
-"PO-Revision-Date: 2009-10-20 01:11+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2009-10-22 23:36+0000\n"
+"PO-Revision-Date: 2009-10-23 18:17+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-21 07:26+0000\n"
+"X-Launchpad-Export-Date: 2009-10-24 07:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2416,7 +2416,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
-"Speciy the compression level to use. Scale 1 - 10. 1 being the lowest "
+"Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
@@ -4339,7 +4339,7 @@ msgstr "&Installer les outils en ligne de commande"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "Open calibre &configuration directory"
-msgstr ""
+msgstr "Ouvrir le répertoire de &configuration de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
 msgid ""
@@ -4831,11 +4831,13 @@ msgstr "Abandon..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:117
 msgid "Need username and password"
-msgstr ""
+msgstr "Nécessite un nom d'utilisateur et un mot de passe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:118
 msgid "You must provide a username and/or password to use this news source."
 msgstr ""
+"Vous devez fournir un nom d'utilisateur et un mode passe pour utiliser cette "
+"source de News."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:169
 msgid "Created by: "
@@ -7763,6 +7765,7 @@ msgstr "Source de News inconnue"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:507
 msgid "The \"%s\" recipe needs a username and password."
 msgstr ""
+"La recette \"%s\" a besoin d'un nom d'utilisateur et d'un mot de passe."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:590
 msgid "Download finished"
