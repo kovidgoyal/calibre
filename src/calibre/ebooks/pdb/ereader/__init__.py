@@ -16,11 +16,11 @@ def image_name(name, taken_names=[]):
         cut = len(name) - 32
         names = name[:10]
         namee = name[10+cut:]
-        name = names + namee
+        name = '%s%s.png' % (names, namee)
     
     while name in taken_names:
-        for i in xrange(9999999999999999999999999999999):
-            name = '%s%s' % (name[:-len('%s' % i)], i)
+        for i in xrange(999999999999999999999999999):
+            name = '%s%s.png' % (name[:-len('%s' % i)], i)
 
     name = name.ljust(32, '\x00')[:32]
     

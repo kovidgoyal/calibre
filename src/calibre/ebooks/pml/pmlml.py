@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into PML markup
 '''
 
-import os
 import re
 
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
@@ -138,16 +137,13 @@ class PMLMLizer(object):
         aid = self.link_hrefs[aid]
         return u'\\Q="%s"' % aid
 
+    def remove_newlines(self, text):
+        text = text.replace('\r\n', ' ')
+        text = text.replace('\n', ' ')
+        text = text.replace('\r', ' ')
+        return text
+
     def clean_text(self, text):
-        # Remove excess spaces at beginning and end of lines
-        text = re.sub('(?m)^[ ]+', '', text)
-        text = re.sub('(?m)[ ]+$', '', text)
-
-        # Remove excessive newlines
-        text = re.sub('%s{1,1}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
-        text = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
-        text = re.sub('[ ]{2,}', ' ', text)
-
         # Remove excessive \p tags
         text = re.sub(r'\\p\s*\\p', '', text)
 
@@ -165,6 +161,17 @@ class PMLMLizer(object):
 
         # Turn all unicode characters into their PML hex equivelent
         text = re.sub('[^\x00-\x7f]', lambda x: '\\U%04x' % ord(x.group()), text)
+
+        # Remove excess spaces at beginning and end of lines
+        text = re.sub('(?m)^[ ]+', '', text)
+        text = re.sub('(?m)[ ]+$', '', text)
+
+        # Remove excessive spaces
+        text = re.sub('[ ]{2,}', ' ', text)
+
+        # Remove excessive newlines
+        text = re.sub('\n[ ]+\n', '\n\n', text)
+        text = re.sub('\n\n\n+', '\n\n', text)
 
         return text
 
@@ -197,7 +204,7 @@ class PMLMLizer(object):
                     if len(self.image_hrefs.keys()) == 0:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
                     else:
-                        self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
+                        self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
                 text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
         if tag == 'hr':
             w = '\\w'
@@ -251,7 +258,7 @@ class PMLMLizer(object):
 
         # Proccess tags that contain text.
         if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
-            text.append(self.elem_text(elem, tag_stack))
+            text.append(self.remove_newlines(elem.text))
 
         for item in elem:
             text += self.dump_text(item, stylizer, page, tag_stack)
@@ -261,30 +268,17 @@ class PMLMLizer(object):
             close_tag_list.insert(0, tag_stack.pop())
         text += self.close_tags(close_tag_list)
         if tag in SEPARATE_TAGS:
-            text.append(os.linesep + os.linesep)
+            text.append('\n\n')
 
         if 'block' not in tag_stack:
-            text.append(os.linesep + os.linesep)
+            text.append('\n\n')
 
         #if style['page-break-after'] == 'always':
         #    text.append('\\p')
 
         if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
-            text.append(self.elem_tail(elem, tag_stack))
+            text.append(self.remove_newlines(elem.tail))
 
-        return text
-
-    def elem_text(self, elem, tag_stack):
-        return self.block_text(elem.text, 'block' in tag_stack)
-
-    def elem_tail(self, elem, tag_stack):
-        return self.block_text(elem.tail, 'block' in tag_stack)
-
-    def block_text(self, text, in_block):
-        if in_block:
-            text = text.replace('\n\r', ' ')
-            text = text.replace('\n', ' ')
-            text = text.replace('\r', ' ')
         return text
 
     def close_tags(self, tags):

@@ -18,7 +18,7 @@ from calibre.customize.conversion import OutputFormatPlugin
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
-from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ebooks.pml.pmlml import PMLMLizer
 
 class PMLOutput(OutputFormatPlugin):
@@ -40,28 +40,26 @@ class PMLOutput(OutputFormatPlugin):
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         with TemporaryDirectory('_pmlz_output') as tdir:
             pmlmlizer = PMLMLizer(log)
-            content = pmlmlizer.extract_content(oeb_book, opts)
+            pml = unicode(pmlmlizer.extract_content(oeb_book, opts))
             with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
-                out.write(content.encode(opts.output_encoding, 'replace'))
+                out.write(pml.encode(opts.output_encoding, 'replace'))
 
-            self.write_images(oeb_book.manifest, tdir)
+            self.write_images(oeb_book.manifest, pmlmlizer.image_hrefs, tdir)
 
             log.debug('Compressing output...')
             pmlz = ZipFile(output_path, 'w')
             pmlz.add_dir(tdir)
 
-    def write_images(self, manifest, out_dir):
+    def write_images(self, manifest, image_hrefs, out_dir):
         for item in manifest:
-            if item.media_type in OEB_IMAGES:
+            if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 im = Image.open(cStringIO.StringIO(item.data))
 
                 data = cStringIO.StringIO()
                 im.save(data, 'PNG')
                 data = data.getvalue()
 
-                name = os.path.splitext(os.path.basename(item.href))[0] + '.png'
-                path = os.path.join(out_dir, name)
+                path = os.path.join(out_dir, image_hrefs[item.href])
 
                 with open(path, 'wb') as out:
                     out.write(data)
-
