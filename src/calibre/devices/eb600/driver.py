@@ -67,3 +67,11 @@ class COOL_ER(EB600):
     OSX_MAIN_MEM = 'COOL-ER eReader Media'
 
     EBOOK_DIR_MAIN = 'my docs'
+
+class ESHINEBOOK(EB600):
+
+    FORMATS = ['epub', 'pdf', 'txt']
+
+    VENDOR_NAME      = 'LONGSHIN'
+    WINDOWS_MAIN_MEM = 'ESHINEBOOK'
+
