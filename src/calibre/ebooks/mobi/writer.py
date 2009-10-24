@@ -247,11 +247,15 @@ class Serializer(object):
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
         self.id_offsets[item.href] = buffer.tell()
+        # Kindle periodical articles are contained in a <div> tag
+        buffer.write('<div>')
         for elem in item.data.find(XHTML('body')):
-            buffer.write('<a></a>')
             self.serialize_elem(elem, item)
+        # Kindle periodical article end marker
+        buffer.write('<div></div>')
         if self.write_page_breaks_after_item:
             buffer.write('<mbp:pagebreak/>')
+        buffer.write('</div>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer
