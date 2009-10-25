@@ -191,7 +191,7 @@ class RBMLizer(object):
                 tag_stack.append(style_tag)
 
         # Proccess tags that contain text.
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+        if hasattr(elem, 'text') and elem.text:
             text.append(prepare_string_for_xml(elem.text))
 
         for item in elem:
@@ -203,7 +203,7 @@ class RBMLizer(object):
 
         text += self.close_tags(close_tag_list)
 
-        if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
+        if hasattr(elem, 'tail') and elem.tail:
                 text.append(prepare_string_for_xml(elem.tail))
 
         return text
