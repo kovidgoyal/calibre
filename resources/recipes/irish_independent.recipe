@@ -1,0 +1,44 @@
+__license__   = 'GPL v3'
+__copyright__ = '2009 Neil Grogan'
+# 
+# Irish Independent Recipe
+#
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class IrishIndependent(BasicNewsRecipe):
+    title          = u'Irish Independent'
+    description = 'Irish and World news from Irelands Bestselling Daily Broadsheet'
+    __author__	= 'Neil Grogan'
+    language = 'en_UK'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_tags_before = dict(id='article')
+    remove_tags_after  = [dict(name='div', attrs={'class':'toolsBottom'})]
+    remove_tags    = [
+	        dict(name='div',attrs={'class':'toolsBottom'}),
+	        dict(name='div',attrs={'class':'toolsTop'}),
+	        dict(name='div',attrs={'class':'boxRelated'}),
+	        dict(name='div',attrs={'class':'section first'}),
+	        dict(name='div',attrs={'class':'tabIt'}),
+	        dict(name='div',attrs={'class':'inner'})
+	        ]
+
+    feeds	= [
+    (u'Frontpage News', u'http://www.independent.ie/rss'),
+    (u'World News', u'http://www.independent.ie/world-news/rss'),
+    (u'Technology', u'http://www.independent.ie/business/technology/rss'),
+    (u'Sport', u'http://www.independent.ie/sport/rss'),
+    (u'Entertainment', u'http://www.independent.ie/entertainment/rss'),
+    (u'Independent Woman', u'http://www.independent.ie/lifestyle/independent-woman/rss'),
+    (u'Education',u'http://www.independent.ie/education/rss'),
+    (u'Lifestyle', u'http://www.independent.ie/lifestyle/rss'),
+    (u'Travel', u'http://www.independent.ie/travel/rss'),
+    (u'Letters', u'http://www.independent.ie/opinion/letters/rss'),
+    (u'Weather', u'http://www.independent.ie/weather/rss')
+    ]
+    
+# If text only articles are desired
+#def print_version(self, url):
+#    return '%s?service=Print' % url
+

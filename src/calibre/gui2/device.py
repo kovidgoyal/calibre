@@ -679,11 +679,13 @@ class DeviceGUI(object):
             auto = []
             if do_auto_convert and _auto_ids:
                 for id in _auto_ids:
-                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
-                    formats = formats if formats != None else []
-                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
+                    dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
+                    formats = [] if dbfmts is None else \
+                        [f.lower() for f in dbfmts.split(',')]
+                    if set(formats).intersection(available_input_formats()) \
+                            and set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats()):
                         auto.append(id)
-            if auto != []:
+            if auto:
                 format = None
                 for fmt in self.device_manager.device_class.settings().format_map:
                     if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
