@@ -241,7 +241,7 @@ class FB2MLizer(object):
             if not fb2_text or fb2_text[-1] != ' ':
                 fb2_text.append(' ')
 
-        if hasattr(elem, 'text') and elem.text != None:
+        if hasattr(elem, 'text') and elem.text:
             if 'p' not in tag_stack:
                 fb2_text.append('<p>%s</p>' % prepare_string_for_xml(elem.text))
             else:
@@ -255,7 +255,7 @@ class FB2MLizer(object):
             close_tag_list.insert(0, tag_stack.pop())
         fb2_text += self.close_tags(close_tag_list)
 
-        if hasattr(elem, 'tail') and elem.tail != None:
+        if hasattr(elem, 'tail') and elem.tail:
             if 'p' not in tag_stack:
                 fb2_text.append('<p>%s</p>' % prepare_string_for_xml(elem.tail))
             else:

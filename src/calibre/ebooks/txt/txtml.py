@@ -94,7 +94,7 @@ class TXTMLizer(object):
         text = re.sub('(?<=.)%s(?=.)' % os.linesep, ' ', text)
 
         # Remove multiple spaces.
-        text = re.sub('[  ]+', ' ', text)
+        text = re.sub('[ ]{2,}', ' ', text)
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)
@@ -172,15 +172,15 @@ class TXTMLizer(object):
         # Are we in a paragraph block?
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
             in_block = True
-            if not end.endswith(u'\n\n') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+            if not end.endswith(u'\n\n') and hasattr(elem, 'text') and elem.text:
                 text.append(u'\n\n')
 
         if tag in SPACE_TAGS:
-            if not end.endswith('u ') and hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+            if not end.endswith('u ') and hasattr(elem, 'text') and elem.text:
                 text.append(u' ')
 
         # Process tags that contain text.
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+        if hasattr(elem, 'text') and elem.text:
             text.append(elem.text)
 
         for item in elem:
@@ -192,7 +192,7 @@ class TXTMLizer(object):
         if in_block:
             text.append(u'\n\n')
 
-        if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
+        if hasattr(elem, 'tail') and elem.tail:
             text.append(elem.tail)
 
         return text

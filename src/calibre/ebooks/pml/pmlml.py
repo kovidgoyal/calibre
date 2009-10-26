@@ -257,7 +257,7 @@ class PMLMLizer(object):
         # margin
 
         # Proccess tags that contain text.
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+        if hasattr(elem, 'text') and elem.text:
             text.append(self.remove_newlines(elem.text))
 
         for item in elem:
@@ -276,7 +276,7 @@ class PMLMLizer(object):
         #if style['page-break-after'] == 'always':
         #    text.append('\\p')
 
-        if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
+        if hasattr(elem, 'tail') and elem.tail:
             text.append(self.remove_newlines(elem.tail))
 
         return text
