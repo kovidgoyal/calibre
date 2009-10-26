@@ -165,7 +165,15 @@ def generate_ebook_convert_help(preamble, info):
 def update_cli_doc(path, raw, info):
     if isinstance(raw, unicode):
         raw = raw.encode('utf-8')
-    if not os.path.exists(path) or open(path, 'rb').read() != raw:
+    old_raw = open(path, 'rb').read() if os.path.exists(path) else ''
+    if not os.path.exists(path) or old_raw != raw:
+        import difflib
+        print path, 'has changed'
+        if old_raw:
+            lines = difflib.unified_diff(old_raw.splitlines(), raw.splitlines(),
+                    path, path)
+            for line in lines:
+                print line
         info('creating '+os.path.splitext(os.path.basename(path))[0])
         open(path, 'wb').write(raw)
 
@@ -181,7 +189,8 @@ def render_options(cmd, groups, options_header=True, add_program=True):
             lines.append('')
         if desc:
             lines.extend([desc, ''])
-        for opt in options:
+        for opt in sorted(options, cmp=lambda x, y:cmp(x.get_opt_string(),
+                y.get_opt_string())):
             help = opt.help if opt.help else ''
             help = help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default))
             opt = opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')
@@ -298,4 +307,8 @@ def setup(app):
     app.add_directive('automember', auto_member, 1, (1, 0, 1))
     app.connect('doctree-read', substitute)
     app.connect('builder-inited', cli_docs)
+    app.connect('build-finished', finished)
+
+def finished(app, exception):
+    pass
 

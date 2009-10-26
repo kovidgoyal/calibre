@@ -95,7 +95,7 @@ def option_parser():
     writers = set([])
     for w in metadata_writers():
         writers = writers.union(set(w.file_types))
-    ft, w = ', '.join(filetypes()), ', '.join(writers)
+    ft, w = ', '.join(sorted(filetypes())), ', '.join(sorted(writers))
     return config().option_parser(USAGE%(ft, w))
 
 def do_set_metadata(opts, mi, stream, stream_type):

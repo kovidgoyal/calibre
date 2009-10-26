@@ -25,10 +25,11 @@ It can convert every input format in the following list, to every output format.
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
 
+.. _best-source-formats:
 
 What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, TXT, PDF 
+In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, PDB, TXT, PDF 
 
 Why does the PDF conversion lose some images/tables?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,6 +54,8 @@ In order to convert a collection of HTML files in a specific oder, you have to c
    </html>
 
 Then just add this HTML file to the GUI and use the convert button to create your ebook.
+
+.. _char-encoding-faq:
 
 How do I convert my file containing non-English characters, or smart quotes?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

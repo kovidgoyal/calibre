@@ -59,6 +59,9 @@ class EB600(USBMS):
 
 class COOL_ER(EB600):
 
+    name = 'Cool-er device interface'
+    gui_name = 'Cool-er'
+
     FORMATS = ['epub', 'mobi', 'prc', 'pdf', 'txt']
 
     VENDOR_NAME = 'COOL-ER'
@@ -68,9 +71,13 @@ class COOL_ER(EB600):
 
     EBOOK_DIR_MAIN = 'my docs'
 
-class ESHINEBOOK(EB600):
+class SHINEBOOK(EB600):
 
-    FORMATS = ['epub', 'pdf', 'txt']
+    name = 'ShineBook device Interface'
+
+    gui_name = 'ShineBook'
+
+    FORMATS = ['epub', 'prc', 'rtf', 'pdf', 'txt']
 
     VENDOR_NAME      = 'LONGSHIN'
     WINDOWS_MAIN_MEM = 'ESHINEBOOK'

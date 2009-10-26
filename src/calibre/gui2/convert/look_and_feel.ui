@@ -87,6 +87,12 @@
         <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/wizard.svg</normaloff>:/images/wizard.svg</iconset>
        </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
       </widget>
      </item>
     </layout>

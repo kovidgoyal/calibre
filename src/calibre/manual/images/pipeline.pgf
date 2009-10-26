@@ -1,0 +1,29 @@
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{shapes.arrows}
+\usetikzlibrary{shapes.misc}
+\usetikzlibrary{decorations.pathmorphing,arrows}
+
+\tikzset{terminal/.style={single arrow,top color=white,bottom color=black!20,very thick,draw=black!50}}
+\tikzset{plugin/.style={rounded rectangle,top color=white,bottom color=blue!40,very thick,draw=blue!70}}
+\tikzset{transform/.style={ellipse,top color=white,bottom color=green!20,very thick,draw=green!50}}
+
+\begin{tikzpicture}[text width=15mm,node distance=20mm and 20mm]
+
+\node[draw,terminal] (inf) {Input\\Format};
+\node[draw,right=of inf,plugin,text centered] (inp) {Input\\Plugin};
+\node[draw,below=of inp,text width=2cm,transform,text centered] (trans) {Transform};
+\node[draw,below=of trans,plugin,text centered] (oup) {Output\\Plugin};
+\node[draw,left=of oup,terminal,shape border rotate=180] (ouf) {Output\\Format};
+
+\begin{scope}[thick]
+\begin{scope}[decoration={snake,post length=1mm}]
+\draw[->,decorate] (inf.east) -- (inp.west);
+\draw[->,decorate] (oup.west) -- (ouf.east);
+\end{scope}
+
+\draw[->] (inp.south) -- node[sloped,above] {XHTML} (trans.north);
+\draw[->] (trans.south) -- (oup.north);
+
+\end{scope}
+\end{tikzpicture}
