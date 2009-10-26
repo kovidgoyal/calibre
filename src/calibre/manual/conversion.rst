@@ -306,6 +306,11 @@ the headers and footers and remove them. Remember that they operate on the inter
 by the conversion pipeline. There is also a wizard to help you customize the regular expressions for
 your document.
 
+The header and footer regular expressions are used in conjunction with the remove header and footer options.
+If the remove option is not enabled the regular expression will not be applied to remove the matched text.
+As stated the removal works by using a python regular expression. All matched text is simply removed from
+the document. You can learn more about regular expressions and the syntax at http://docs.python.org/library/re.html
+
 Miscellaneous
 ~~~~~~~~~~~~~~
 
@@ -419,7 +424,61 @@ generating the Table of Contents much simpler. It is called BookCreator and is a
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
 
+TXT documents can contain any imaginable layout. Since TXT documents provide no way to explicitly mark parts of
+the text, by default |app| only groups parts of the document into paragraphs. The default is to assume one or
+more blank lines are a paragraph boundary.
+
+.. code-block:: txt
+
+    This is the first.
+    
+    This is the
+    second paragraph.
+
+TXT input supports a number of options to differentiate how paragraphs are detected.
+
+:guilabel:`Treat each line as a paragraph`
+    Assumes that every line is a paragraph.
+    
+    .. code-block:: txt
+    
+        This is the first.
+        This is the second.
+        This is the third.
+    
+:guilabel:`Assume print formatting`
+    Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
+    the next line that starts with an indent is reached.
+    
+    .. code-block:: txt
+    
+          This is the
+        first.
+          This is the second.
+        
+          This is the
+        third.
+
+:guilabel:`Process using markdown`
+    |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown
+    allows for basic formatting to be added to the document and is an easy way to differentiate non-paragraph
+    elements such as chapter headings. Marking chapter headings with # and settings the chapter XPath detection
+    expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
+    You can learn more about the markdown syntax at http://daringfireball.net/projects/markdown/syntax
+
 Convert PDF documents
 ~~~~~~~~~~~~~~~~~~~~~~
 
+PDF documents are one of the worst formats to convert from. They are a fixed page size and text placement format.
+Meaning, it is very difficult to determine where one paragraph ends and another begins. |app| will try to unwrap
+paragraphs using a configurable, :guilabel:`Line Un-Wrapping Factor`. This is a scale used to determine the length at which a line should be unwrapped. Valid values are a decimal
+between 0 and 1. The default is 0.5, this is the median line length. Lower this value to include more
+text in the unwrapping. Increase to include less.
+
+Also, they often have headers and footers as part of the document that will become included with the text.
+Use the options to remove headers and footers to mitigate this issue. If the headers and footers are not
+removed from the text it can throw off the paragraph unwrapping.
+
+Some limitations of PDF input is complex, multi-column, and image based documents are not supported.
+Extraction of SVG images from within the document is also not supported.
 
