@@ -133,7 +133,7 @@ to the recipe. Finally, lets replace some of the :term:`CSS` that we disabled ea
 
 With these additions, our recipe has become "production quality", indeed it is very close to the actual recipe used by |app| for the *BBC*, shown below:
 
-.. literalinclude:: ../web/feeds/recipes/recipe_bbc.py
+.. literalinclude:: ../../../resources/recipes/bbc.recipe
 
 This :term:`recipe` explores only the tip of the iceberg when it comes to the power of |app|. To explore more of the abilities of |app| we'll examine a more complex real life example in the next section.
 

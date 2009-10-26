@@ -79,7 +79,10 @@ class AddSave(QTabWidget, Ui_TabWidget):
                 'replace_whitespace', 'to_lowercase'):
             c.set(x, getattr(self, 'opt_'+x).isChecked())
         for x in ('formats', 'template', 'timefmt'):
-            c.set(x, unicode(getattr(self, 'opt_'+x).text()).strip())
+            val = unicode(getattr(self, 'opt_'+x).text()).strip()
+            if x == 'formats' and not val:
+                val = 'all'
+            c.set(x, val)
         self.opt_template.save_history('save_to_disk_template_history')
         prefs['read_file_metadata'] = not bool(self.opt_read_metadata_from_filename.isChecked())
         pattern = self.filename_pattern.commit()

@@ -13,132 +13,156 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QGridLayout" name="gridLayout_6">
-     <item row="1" column="0" colspan="2">
-      <widget class="QLabel" name="label_18">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_disable_font_rescaling">
+     <property name="text">
+      <string>&amp;Disable font size rescaling</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_18">
+     <property name="text">
+      <string>Base &amp;font size:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_base_font_size</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QDoubleSpinBox" name="opt_base_font_size">
+     <property name="suffix">
+      <string> pt</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>30.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>15.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Font size &amp;key:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_font_size_mapping</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="opt_font_size_mapping">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="button_font_key">
+       <property name="toolTip">
+        <string>Wizard to help you choose an appropriate font size key</string>
+       </property>
        <property name="text">
-        <string>Base &amp;font size:</string>
+        <string>...</string>
        </property>
-       <property name="buddy">
-        <cstring>opt_base_font_size</cstring>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/wizard.svg</normaloff>:/images/wizard.svg</iconset>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QDoubleSpinBox" name="opt_base_font_size">
-       <property name="suffix">
-        <string> pt</string>
-       </property>
-       <property name="decimals">
-        <number>1</number>
-       </property>
-       <property name="minimum">
-        <double>0.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>30.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>1.000000000000000</double>
-       </property>
-       <property name="value">
-        <double>15.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Line &amp;height:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_line_height</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QDoubleSpinBox" name="opt_line_height">
-       <property name="suffix">
-        <string> pt</string>
-       </property>
-       <property name="decimals">
-        <number>1</number>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0" colspan="3">
-      <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
-       <property name="text">
-        <string>Remove &amp;spacing between paragraphs</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0" colspan="3">
-      <widget class="QCheckBox" name="opt_dont_justify">
-       <property name="text">
-        <string>No text &amp;justification</string>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0" colspan="3">
-      <widget class="QCheckBox" name="opt_linearize_tables">
-       <property name="text">
-        <string>&amp;Linearize tables</string>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0" colspan="3">
-      <widget class="QCheckBox" name="opt_asciiize">
-       <property name="text">
-        <string>&amp;Transliterate unicode characters to ASCII.</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Font size &amp;key:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_font_size_mapping</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QLineEdit" name="opt_font_size_mapping"/>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Input character &amp;encoding</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_input_encoding</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QLineEdit" name="opt_input_encoding"/>
-     </item>
-     <item row="0" column="0" colspan="3">
-      <widget class="QCheckBox" name="opt_disable_font_rescaling">
-       <property name="text">
-        <string>&amp;Disable font size rescaling</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="3">
-      <widget class="QCheckBox" name="opt_insert_blank_line">
-       <property name="text">
-        <string>Insert &amp;blank line</string>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Line &amp;height:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_line_height</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QDoubleSpinBox" name="opt_line_height">
+     <property name="suffix">
+      <string> pt</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Input character &amp;encoding:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_input_encoding</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="3">
+    <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
+     <property name="text">
+      <string>Remove &amp;spacing between paragraphs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="opt_insert_blank_line">
+     <property name="text">
+      <string>Insert &amp;blank line</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="opt_dont_justify">
+     <property name="text">
+      <string>No text &amp;justification</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QCheckBox" name="opt_linearize_tables">
+     <property name="text">
+      <string>&amp;Linearize tables</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="3">
+    <widget class="QCheckBox" name="opt_asciiize">
+     <property name="text">
+      <string>&amp;Transliterate unicode characters to ASCII.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="4">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Extra &amp;CSS</string>
@@ -149,6 +173,9 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item row="4" column="2" colspan="2">
+    <widget class="QLineEdit" name="opt_input_encoding"/>
    </item>
   </layout>
  </widget>

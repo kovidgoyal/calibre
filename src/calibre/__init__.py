@@ -38,9 +38,9 @@ mimetypes.add_type('application/x-font-opentype',         '.otf')
 mimetypes.add_type('application/x-font-truetype',         '.ttf')
 mimetypes.add_type('application/oebps-package+xml',       '.opf')
 mimetypes.add_type('application/ereader',                 '.pdb')
-mimetypes.add_type('application/mobi',                    '.mobi')
-mimetypes.add_type('application/mobi',                    '.prc')
-mimetypes.add_type('application/mobi',                    '.azw')
+mimetypes.add_type('application/x-mobipocket-ebook',      '.mobi')
+mimetypes.add_type('application/x-mobipocket-ebook',      '.prc')
+mimetypes.add_type('application/x-mobipocket-ebook',      '.azw')
 mimetypes.add_type('image/wmf',                           '.wmf')
 guess_type = mimetypes.guess_type
 import cssutils
@@ -227,7 +227,7 @@ def get_proxies():
             prints('Removing invalid', x, 'proxy:', proxies[x])
             del proxies[x]
     if proxies:
-        prints('Using proxies: %s' % proxies)
+        prints('Using proxies:', proxies)
     return proxies
 
 

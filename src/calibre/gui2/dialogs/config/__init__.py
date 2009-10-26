@@ -14,7 +14,7 @@ from calibre.constants import iswindows, isosx
 from calibre.gui2.dialogs.config.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          ALL_COLUMNS, NONE, info_dialog, choose_files, \
-                         warning_dialog
+                         warning_dialog, ResizableDialog
 from calibre.utils.config import prefs
 from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -323,13 +323,11 @@ class EmailAccounts(QAbstractTableModel):
             self.reset()
 
 
-class ConfigDialog(QDialog, Ui_Dialog):
+class ConfigDialog(ResizableDialog, Ui_Dialog):
 
     def __init__(self, window, db, server=None):
-        QDialog.__init__(self, window)
-        Ui_Dialog.__init__(self)
+        ResizableDialog.__init__(self, window)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
-        self.setupUi(self)
         self._category_model = CategoryModel()
 
         self.category_view.currentChanged = \
