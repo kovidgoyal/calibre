@@ -228,17 +228,16 @@ class HTMLPreProcessor(object):
         else:
             rules = []
 
-        pre_rules = []
+        end_rules = []
         if getattr(self.extra_opts, 'remove_header', None):
-            pre_rules.append(
+            end_rules.append(
                 (re.compile(getattr(self.extra_opts, 'header_regex')), lambda match : '')
             )
         if getattr(self.extra_opts, 'remove_footer', None):
-            pre_rules.append(
+            end_rules.append(
                 (re.compile(getattr(self.extra_opts, 'footer_regex')), lambda match : '')
             )
-
-        end_rules = []
+        
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
             length = line_length(html, getattr(self.extra_opts, 'unwrap_factor'))
             if length:
@@ -247,7 +246,7 @@ class HTMLPreProcessor(object):
                     (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
                 )
 
-        for rule in self.PREPROCESS + pre_rules + rules + end_rules:
+        for rule in self.PREPROCESS + rules + end_rules:
             html = rule[0].sub(rule[1], html)
 
         # Handle broken XHTML w/ SVG (ugh)

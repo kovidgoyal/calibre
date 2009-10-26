@@ -87,12 +87,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def open_book(self, pathtoebook):
         self.iterator = EbookIterator(pathtoebook)
-        self.iterator.__enter__(raw_only=True)
+        self.iterator.__enter__(processed=True)
         text = [u'']
         for path in self.iterator.spine:
-            html = open(path, 'rb').read().decode(path.encoding, 'replace')
+            html = open(path, 'rb').read().decode('utf-8', 'replace')
             text.append(html)
-        self.preview.setPlainText('\n\n'.join(text))
+        self.preview.setPlainText('\n---\n'.join(text))
 
     def button_clicked(self, button):
         if button == self.button_box.button(QDialogButtonBox.Open):
