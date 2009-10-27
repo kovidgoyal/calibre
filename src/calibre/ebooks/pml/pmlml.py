@@ -153,6 +153,10 @@ class PMLMLizer(object):
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
 
+        # Replace bad characters.
+        text = text.replace(u'\xc2', '')
+        text = text.replace(u'\xa0', ' ')
+
         # Turn all html entities into unicode. This should not be necessary as
         # lxml should have already done this but we want to be sure it happens.
         for entity in set(re.findall('&.+?;', text)):
