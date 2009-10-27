@@ -470,7 +470,8 @@ Convert PDF documents
 
 PDF documents are one of the worst formats to convert from. They are a fixed page size and text placement format.
 Meaning, it is very difficult to determine where one paragraph ends and another begins. |app| will try to unwrap
-paragraphs using a configurable, :guilabel:`Line Un-Wrapping Factor`. This is a scale used to determine the length at which a line should be unwrapped. Valid values are a decimal
+paragraphs using a configurable, :guilabel:`Line Un-Wrapping Factor`. This is a scale used to determine the length
+at which a line should be unwrapped. Valid values are a decimal
 between 0 and 1. The default is 0.5, this is the median line length. Lower this value to include more
 text in the unwrapping. Increase to include less.
 
