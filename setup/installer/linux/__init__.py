@@ -6,10 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
 
 from setup.installer import VMInstaller
-from setup import Command, installer_name
+from setup import Command
 
 class Linux32(VMInstaller):
 
@@ -21,17 +20,12 @@ class Linux32(VMInstaller):
     FREEZE_COMMAND = 'linux_freeze'
 
 
-class Linux64(Command):
+class Linux64(Linux32):
 
     description = 'Build 64bit linux binary installer'
-
-    sub_commands = ['linux_freeze']
-
-    def run(self, opts):
-        installer = installer_name('tar.bz2', True)
-        if not os.path.exists(installer):
-            raise Exception('Failed to build installer '+installer)
-        return os.path.basename(installer)
+    VM_NAME = 'gentoo64_build'
+    VM = '/vmware/bin/gentoo64_build'
+    IS_64_BIT = True
 
 class Linux(Command):
 
