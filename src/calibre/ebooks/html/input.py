@@ -409,6 +409,9 @@ class HTMLInput(InputFormatPlugin):
         link = os.path.abspath(link)
         if not os.access(link, os.R_OK):
             return link_
+        if os.path.isdir(link):
+            self.log.warn(link_, 'is a link to a directory. Ignoring.')
+            return link_
         if not islinux:
             link = link.lower()
         if link not in self.added_resources:
