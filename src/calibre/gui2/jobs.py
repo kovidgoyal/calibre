@@ -11,7 +11,7 @@ from Queue import Empty, Queue
 
 from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
     QTimer, SIGNAL, QIcon, QDialog, QAbstractItemDelegate, QApplication, \
-    QSize, QStyleOptionProgressBarV2, QString, QStyle
+    QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -56,6 +56,28 @@ class JobManager(QAbstractTableModel):
             return QVariant(text)
         else:
             return QVariant(section+1)
+
+    def show_tooltip(self, arg):
+        widget, pos = arg
+        QToolTip.showText(pos, self.get_tooltip())
+
+    def get_tooltip(self):
+        running_jobs = [j for j in self.jobs if j.run_state == j.RUNNING]
+        waiting_jobs = [j for j in self.jobs if j.run_state == j.WAITING]
+        lines = [_('There are %d running jobs:')%len(running_jobs)]
+        for job in running_jobs:
+            desc = job.description
+            if not desc:
+                desc = _('Unknown job')
+            p = 100. if job.is_finished else job.percent
+            lines.append('%s:  %.0f%% done'%(desc, p))
+        lines.extend(['', _('There are %d waiting jobs:')%len(waiting_jobs)])
+        for job in waiting_jobs:
+            desc = job.description
+            if not desc:
+                desc = _('Unknown job')
+            lines.append(desc)
+        return '\n'.join(['calibre', '']+ lines)
 
     def data(self, index, role):
         try:
