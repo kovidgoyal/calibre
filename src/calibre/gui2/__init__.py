@@ -130,7 +130,7 @@ class CopyButton(QPushButton):
                 return
         except:
             pass
-        return QPushButton.event(self, ev)
+        QPushButton.keyPressEvent(self, ev)
 
 
     def keyReleaseEvent(self, ev):
@@ -139,7 +139,7 @@ class CopyButton(QPushButton):
                 return
         except:
             pass
-        return QPushButton.event(self, ev)
+        QPushButton.keyReleaseEvent(self, ev)
 
     def mouseReleaseEvent(self, ev):
         ev.accept()
