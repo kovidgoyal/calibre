@@ -418,11 +418,11 @@ Convert Microsoft Word documents
 
 |app| does not directly convert .doc files from Microsoft Word. However, in Word, you can save the document
 as HTML and then convert the resulting HTML file with |app|. When saving as HTML, be sure to use the
-"Save as filtered HTML" option as this will produce clean HTML that will convert well.
+"Save as Web Page, Filtered" option as this will produce clean HTML that will convert well.
 
 There is a Word macro package that can automate the conversion of Word documents using |app|. It also makes
 generating the Table of Contents much simpler. It is called BookCreator and is available for free
-`here <http://www.mobileread.com/forums/showthread.php?t=36098>`_.
+`here <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
 
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
