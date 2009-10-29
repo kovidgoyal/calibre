@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-10-20 00:20+0000\n"
-"PO-Revision-Date: 2009-10-19 09:51+0000\n"
-"Last-Translator: Plazec <Unknown>\n"
+"POT-Creation-Date: 2009-10-21 01:30+0000\n"
+"PO-Revision-Date: 2009-10-21 00:12+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-20 07:08+0000\n"
+"X-Launchpad-Export-Date: 2009-10-21 07:26+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -52,7 +52,7 @@ msgstr "Nedělá vůbec nic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:171
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:870
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:872
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
@@ -112,7 +112,7 @@ msgstr "Nedělá vůbec nic"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:431
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:876
@@ -152,7 +152,7 @@ msgstr "Vstup metadat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:213
 msgid "Metadata writer"
-msgstr "Modul výstupu metadat"
+msgstr "Zápis metadat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:13
 msgid ""
@@ -332,7 +332,7 @@ msgstr "Tento profil je určený pro Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
 msgid "Installed plugins"
-msgstr "Nainstalovaná moduly"
+msgstr "Nainstalované moduly"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Mapping for filetype plugins"
@@ -570,7 +570,7 @@ msgid "There is insufficient free space on the storage card"
 msgstr "Na paměťové kartě není dostatek volného místa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:713
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1006
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1010
@@ -810,7 +810,7 @@ msgstr "Nastevení výstupních metadat"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:158
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "Nastavení které pomohou s odladěním převodu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
@@ -830,6 +830,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"Uložit výstup z různých fází převodního řetezu do určeného adresáře. "
+"Užitečbé pokud si nejste jisti v jaké fázi převodu dochází k chybě."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:107
 msgid ""
@@ -838,6 +840,9 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"Určete vstupní profil. tento vstupní profil dává převodnímu systému "
+"informace jak vyhodnotit různé informace ve vstupním dokumentu. Například "
+"délky závislé na rozlišení (např. délky v pixelech). Na výběr je:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:118
 msgid ""
@@ -846,6 +851,10 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"Určete výstupní profil. tento vstupní profil dává převodnímu systému "
+"informace jak přizpůsobit vytvořený dokument pro vybrané zařízení. V "
+"některých případech je výstupní profil vyžadován k vytvoření dokumentů které "
+"na zařízení budou fungovat. Například EPUB na čtečce SONY."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:129
 msgid ""
@@ -854,6 +863,10 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
+"Základní velikost písma v bodech. Všechy velikosti písma ve vytvořené knize "
+"budou mít změněnou velikost podle této hodnoty. Vybráním větší velikosti "
+"můžete bude písmo ve výstupu vetší a naopak. Standardně je velikost písma "
+"založená na výstupním profilu který vyberete."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:139
 msgid ""
@@ -863,10 +876,16 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
+"Mapování z jmen fontů z kaskádových stylů na velikosti fontů v bodech. "
+"Příklad nastavení je 12,12,14,16,18,20,22,24. Toto jsou mapování fro "
+"velikosti od xx-small do xx-large, stím že s poslední velikost je určena pro "
+"veliké fonty. Algoritmus změny velikosti fontů pužije tyto velikosti po "
+"změnu velikosti fontů. Standardně se použije mapování založené na výstupním "
+"profilu který vyberete."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:151
 msgid "Disable all rescaling of font sizes."
-msgstr ""
+msgstr "Zakázat veškeré změny velikostí písma."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:158
 msgid ""
@@ -942,12 +961,17 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"Maxímální počet odkazů, které se mají vložit do Obsahu. Nastavte 0 pro "
+"zakázání. Výchozí hodnota je %default. Odkazy jsou do Obsahu přidávány pouze "
+"pokud bylo nalezeno méně kapitol než je maximální hodnota."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:231
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
+"Odstranit položky z Obsahu jejichž názvy odpovídají určenému regulárnímu "
+"výrazu.  Odpovídající položky a jejich potomci budou odstraněni."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:242
 msgid ""
@@ -981,7 +1005,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:275
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
-msgstr ""
+msgstr "Výraz XPath. Zalomení stran jsou vložena před určený prvek."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid ""
@@ -1761,7 +1785,7 @@ msgstr ""
 "\n"
 "Stáhnout obálku knihy identifikované uvedeným kódém ISBN z LibraryThing.com\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1057
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1314
 msgid "Cover"
 msgstr "Obálka"
@@ -1884,7 +1908,7 @@ msgstr "Užitečné pro ladění programu."
 msgid "Usage: ebook-convert INFILE OUTFILE [OPTIONS..]"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:38
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:39
 msgid "%s format books are not supported"
 msgstr "Knihy ve formátu %s nejsou podporovány."
 
@@ -2602,7 +2626,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr ""
+msgstr "EPUB výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:15
@@ -2641,7 +2665,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
-msgstr ""
+msgstr "FB2 Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:37
@@ -2716,7 +2740,7 @@ msgstr "Extra &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
-msgstr ""
+msgstr "LRF Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
@@ -2897,7 +2921,7 @@ msgstr "Kniha "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:15
 msgid "MOBI Output"
-msgstr ""
+msgstr "MOBI Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:45
 msgid "&Title for Table of Contents:"
@@ -2925,7 +2949,7 @@ msgstr "Nastavení stránky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:111
 msgid "&Output profile:"
-msgstr ""
+msgstr "Výstupní pr&ofil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:112
 msgid "Profile description"
@@ -2971,7 +2995,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:16
 msgid "PDB Output"
-msgstr ""
+msgstr "PDB Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:36
 msgid "&Format:"
@@ -2991,7 +3015,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:17
 msgid "PDF Output"
-msgstr ""
+msgstr "PDF Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
 msgid "&Paper Size:"
@@ -3003,7 +3027,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
-msgstr ""
+msgstr "RB Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1371
@@ -3044,7 +3068,7 @@ msgstr "Převést"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:195
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "Nastavení specifické vstupnímu formátu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:61
@@ -3055,7 +3079,7 @@ msgstr "Dialog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:106
 msgid "&Input format:"
-msgstr ""
+msgstr "Vstupn&í formát:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -3187,7 +3211,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
-msgstr ""
+msgstr "TXT Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:52
 msgid "&Line ending style:"
@@ -3838,7 +3862,7 @@ msgstr "Změnit cesty na malá písmena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:117
 msgid "&Saving books"
-msgstr "&Ukládám Knihy"
+msgstr "&Ukládání Knih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:471
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:368
@@ -4463,28 +4487,36 @@ msgstr ""
 msgid "Aborting..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:117
+msgid "Need username and password"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:118
+msgid "You must provide a username and/or password to use this news source."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:169
 msgid "Created by: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:176
 msgid "Last downloaded: never"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:191
 msgid "%d days, %d hours and %d minutes ago"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:193
 msgid "Last downloaded"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:190
 msgid "Schedule news download"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:216
 msgid "Add a custom news source"
 msgstr "Přidat vlastní zdroj zpráv"
 
@@ -4733,7 +4765,7 @@ msgstr "Recept pro "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:255
 msgid "Switch to Advanced mode"
-msgstr "P5epnout do pokročilého režimu"
+msgstr "Přepnout do pokročilého režimu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:164
@@ -5806,7 +5838,7 @@ msgstr "Kniha nemá ani název ani ISBN"
 msgid "No matches found for this book"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:71
 msgid "Search"
 msgstr ""
 

@@ -28,16 +28,13 @@ class NUUT2(USBMS):
 
     VENDOR_NAME      = 'NEOLUX'
     WINDOWS_MAIN_MEM = 'NUUT2'
-    #WINDOWS_CARD_A_MEM = 'EBOOK'
 
     OSX_MAIN_MEM = 'NEXTPPRS MASS STORAGE Media'
-    #OSX_CARD_A_MEM = 'EB600 Card Storage Media'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'NUUT2 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'NUUT2 Storage Card'
 
     EBOOK_DIR_MAIN = 'books'
-    EBOOK_DIR_CARD_A = 'books'
     SUPPORTS_SUB_DIRS = True
 
 

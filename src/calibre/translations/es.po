@@ -10,14 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-20 00:20+0000\n"
-"PO-Revision-Date: 2009-10-20 01:10+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"POT-Creation-Date: 2009-10-22 23:36+0000\n"
+"PO-Revision-Date: 2009-10-25 08:18+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-20 07:09+0000\n"
+"X-Launchpad-Export-Date: 2009-10-26 04:31+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -55,7 +55,7 @@ msgstr "No hacer nada en absoluto"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:171
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:870
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:872
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
@@ -115,7 +115,7 @@ msgstr "No hacer nada en absoluto"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:431
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:876
@@ -581,7 +581,7 @@ msgid "There is insufficient free space on the storage card"
 msgstr "No hay suficiente espacio libre en la tarjeta de almacenamiento"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:713
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1006
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1010
@@ -1913,7 +1913,7 @@ msgstr ""
 "Obtener una portada para el libro identificado por el ISBN en "
 "LibraryThing.com\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1057
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1314
 msgid "Cover"
 msgstr "Portada"
@@ -2041,7 +2041,7 @@ msgstr "Útil para depuración."
 msgid "Usage: ebook-convert INFILE OUTFILE [OPTIONS..]"
 msgstr "Uso: ebook-convert FICHERO_ENTRADA FICHERO_SALIDA [OPCIONES...]"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:38
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:39
 msgid "%s format books are not supported"
 msgstr "El formato de libros %s no está soportado"
 
@@ -2411,13 +2411,18 @@ msgstr ""
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
 msgstr ""
+"Especificar la codificación del documento de salida. El valor por defecto es "
+"utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
-"Speciy the compression level to use. Scale 1 - 10. 1 being the lowest "
+"Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Especificar el nivel de compresión que se usará. Escala de 1 a 10, donde 1 "
+"es la menor compresión, pero la más rápida, y 10 es la mayor compresión, "
+"pero la más lenta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
@@ -4333,7 +4338,7 @@ msgstr "Instalar &herramientas de línea de órdenes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "Open calibre &configuration directory"
-msgstr ""
+msgstr "&Abrir el directorio de configuración de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
 msgid ""
@@ -4819,28 +4824,38 @@ msgstr "Se necesita contraseña."
 msgid "Aborting..."
 msgstr "Abortando..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:117
+msgid "Need username and password"
+msgstr "Es necesario un usuario y contraseña"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:118
+msgid "You must provide a username and/or password to use this news source."
+msgstr ""
+"Debe proporcionar un usuario y una contraseña para usar esta fuente de "
+"noticias."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:169
 msgid "Created by: "
 msgstr "Creado por: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:176
 msgid "Last downloaded: never"
 msgstr "Última descarga: nunca"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:191
 msgid "%d days, %d hours and %d minutes ago"
 msgstr "Hace %d días, %d horas y %d minutos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:193
 msgid "Last downloaded"
 msgstr "Última descarga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:190
 msgid "Schedule news download"
 msgstr "Descarga de noticias planificada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:216
 msgid "Add a custom news source"
 msgstr "Añadir una nueva fuente de noticias"
 
@@ -4863,7 +4878,7 @@ msgstr "publicidad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:195
 msgid "&Schedule for download:"
-msgstr "&Planificación de la descarga:"
+msgstr "P&lanificación de la descarga:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
@@ -4936,7 +4951,7 @@ msgstr "&Planificación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:215
 msgid "Add &title as tag"
-msgstr "Añadir el &título como etiqueta"
+msgstr "Añadir el título como &etiqueta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:216
 msgid "&Extra  tags:"
@@ -6234,7 +6249,7 @@ msgstr "El libro no tiene ni título ni ISBN"
 msgid "No matches found for this book"
 msgstr "No se ha encontrado el libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:71
 msgid "Search"
 msgstr "Buscar"
 
@@ -7746,7 +7761,7 @@ msgstr "Fuente de noticias desconocida"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:507
 msgid "The \"%s\" recipe needs a username and password."
-msgstr ""
+msgstr "La receta \"%s\" necesita usuario y contraseña."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:590
 msgid "Download finished"

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-10-20 00:20+0000\n"
-"PO-Revision-Date: 2009-10-20 03:49+0000\n"
-"Last-Translator: Kyle WANG <waxaca@163.com>\n"
+"POT-Creation-Date: 2009-10-21 01:30+0000\n"
+"PO-Revision-Date: 2009-10-21 06:07+0000\n"
+"Last-Translator: irvenwindson <Yuexi.Chen@gmail.com>\n"
 "Language-Team: Simplified Chinese <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-20 07:09+0000\n"
+"X-Launchpad-Export-Date: 2009-10-22 07:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -52,7 +52,7 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:171
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:329
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf.py:444
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:870
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:872
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
@@ -112,7 +112,7 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:431
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:876
@@ -549,7 +549,7 @@ msgid "There is insufficient free space on the storage card"
 msgstr "存储卡上的空间不足"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:713
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1006
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1010
@@ -1711,7 +1711,7 @@ msgstr ""
 "\n"
 "通过书籍的ISBN从LibraryThing.com获得书籍的封面图片\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1055
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1057
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1314
 msgid "Cover"
 msgstr "封面"
@@ -1834,7 +1834,7 @@ msgstr "有利调试。"
 msgid "Usage: ebook-convert INFILE OUTFILE [OPTIONS..]"
 msgstr "用法: ebook-convert INFILE OUTFILE [OPTIONS..]"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:38
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:39
 msgid "%s format books are not supported"
 msgstr "不支持 %s 格式电子书"
 
@@ -4457,28 +4457,36 @@ msgstr "需要密码"
 msgid "Aborting..."
 msgstr "正在中止..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:117
+msgid "Need username and password"
+msgstr "需要用户名和密码"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:118
+msgid "You must provide a username and/or password to use this news source."
+msgstr "您必须为该新闻源提供用户名和/或密码"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:169
 msgid "Created by: "
 msgstr "创建者： "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:176
 msgid "Last downloaded: never"
 msgstr "最后下载：无"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:191
 msgid "%d days, %d hours and %d minutes ago"
 msgstr "%d 天 %d 小时 %d 分钟前"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:193
 msgid "Last downloaded"
 msgstr "最后下载"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:190
 msgid "Schedule news download"
 msgstr "计划新闻下载"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:216
 msgid "Add a custom news source"
 msgstr "添加自定义新闻源"
 
@@ -5808,7 +5816,7 @@ msgstr "书籍既没有标题也没有 ISBN 编号"
 msgid "No matches found for this book"
 msgstr "未找到匹配此书信息"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:71
 msgid "Search"
 msgstr "搜索"
 
