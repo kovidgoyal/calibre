@@ -242,7 +242,7 @@ class LibraryServer(object):
     STANZA_ENTRY=MarkupTemplate(textwrap.dedent('''\
     <entry xmlns:py="http://genshi.edgewall.org/">
         <title>${record[FM['title']]}</title>
-        <id>urn:calibre:${record[FM['id']]}</id>
+        <id>urn:calibre:${urn}</id>
         <author><name>${authors}</name></author>
         <updated>${timestamp}</updated>
         <link type="${mimetype}" href="/get/${fmt}/${record[FM['id']]}" />
@@ -678,6 +678,7 @@ class LibraryServer(object):
                     extra='\n'.join(extra),
                     mimetype=mimetype,
                     fmt=fmt,
+                    urn=record[FIELD_MAP['uuid']],
                     timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5])
                     )
             books.append(self.STANZA_ENTRY.generate(**data)\

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Wrapper for multi-threaded access to a single sqlite database connection. Serializes
 all calls.
 '''
-import sqlite3 as sqlite, traceback, time
+import sqlite3 as sqlite, traceback, time, uuid
 from sqlite3 import IntegrityError
 from threading import Thread
 from Queue import Queue
@@ -121,6 +121,7 @@ class DBThread(Thread):
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
         self.conn.create_function('title_sort', 1, title_sort)
+        self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
 
     def run(self):
         try:
