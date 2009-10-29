@@ -26,8 +26,8 @@ class NUUT2(USBMS):
     PRODUCT_ID  = [0xb055]
     BCD         = [0x318]
 
-    #VENDOR_NAME      = 'NETRONIX'
-    #WINDOWS_MAIN_MEM = 'EBOOK'
+    VENDOR_NAME      = 'NEOLUX'
+    WINDOWS_MAIN_MEM = 'NUUT2'
     #WINDOWS_CARD_A_MEM = 'EBOOK'
 
     OSX_MAIN_MEM = 'NEXTPPRS MASS STORAGE Media'
