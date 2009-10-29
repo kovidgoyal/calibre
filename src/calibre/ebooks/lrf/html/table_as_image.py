@@ -11,16 +11,15 @@ from PyQt4.Qt import QUrl, QApplication, QSize, QEventLoop, \
                      SIGNAL, QPainter, QImage, QObject, Qt
 from PyQt4.QtWebKit import QWebPage
 
-
 class HTMLTableRenderer(QObject):
 
     def __init__(self, html, base_dir, width, height, dpi, factor):
         '''
         `width, height`: page width and height in pixels
-        `base_dir`: The directory in which the HTML file that contains the table resides 
+        `base_dir`: The directory in which the HTML file that contains the table resides
         '''
         QObject.__init__(self)
-        
+
         self.app = None
         self.width, self.height, self.dpi = width, height, dpi
         self.base_dir = base_dir
@@ -30,10 +29,10 @@ class HTMLTableRenderer(QObject):
         self.page = QWebPage()
         self.connect(self.page, SIGNAL('loadFinished(bool)'), self.render_html)
         self.page.mainFrame().setTextSizeMultiplier(factor)
-        self.page.mainFrame().setHtml(html, 
+        self.page.mainFrame().setHtml(html,
                                 QUrl('file:'+os.path.abspath(self.base_dir)))
-        
-        
+
+
     def render_html(self, ok):
         try:
             if not ok:
@@ -61,7 +60,7 @@ class HTMLTableRenderer(QObject):
                 self.images.append((f, img.width(), img.height()))
         finally:
             QApplication.quit()
-        
+
 def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
     head = ''
     for e in soup.findAll(['link', 'style']):
@@ -85,10 +84,11 @@ def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
     images, tdir = do_render(html, base_dir, width, height, dpi, factor)
     atexit.register(shutil.rmtree, tdir)
     return images
-    
+
 def do_render(html, base_dir, width, height, dpi, factor):
-    if QApplication.instance() is None:
-        QApplication([])
+    from calibre.gui2 import is_ok_to_use_qt
+    if not is_ok_to_use_qt():
+        raise Exception('Not OK to use Qt')
     tr = HTMLTableRenderer(html, base_dir, width, height, dpi, factor)
     tr.loop.exec_()
     return tr.images, tr.tdir

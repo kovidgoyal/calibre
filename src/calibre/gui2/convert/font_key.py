@@ -98,7 +98,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
-    QApplication([])
+    from calibre.gui2 import is_ok_to_use_qt
+    is_ok_to_use_qt()
     d = FontKeyChooser()
     d.exec_()

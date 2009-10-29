@@ -9,7 +9,7 @@ Scheduler for automated recipe downloads
 
 from datetime import datetime, timedelta
 
-from PyQt4.Qt import QDialog, QApplication, SIGNAL, Qt, QTime, QObject, QMenu, \
+from PyQt4.Qt import QDialog, SIGNAL, Qt, QTime, QObject, QMenu, \
         QAction, QIcon, QMutex, QTimer
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
@@ -306,7 +306,8 @@ class Scheduler(QObject):
             self.download(urn)
 
 if __name__ == '__main__':
-    QApplication([])
+    from calibre.gui2 import is_ok_to_use_qt
+    is_ok_to_use_qt()
     from calibre.library.database2 import LibraryDatabase2
     d = SchedulerDialog(RecipeModel(LibraryDatabase2('/home/kovid/documents/library')))
     d.exec_()
