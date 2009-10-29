@@ -157,6 +157,16 @@ def add_simple_plugin(path_to_plugin):
 def main(args=sys.argv):
     from calibre.constants import debug
     debug()
+    if len(args) > 2 and args[1] in ('-e', '--exec-file'):
+        sys.argv = [args[2]] + args[3:]
+        ef = os.path.abspath(args[2])
+        base = os.path.dirname(ef)
+        sys.path.insert(0, base)
+        g = globals()
+        g['__name__'] = '__main__'
+        execfile(ef, g)
+        return
+
     opts, args = option_parser().parse_args(args)
     if opts.gui:
         from calibre.gui2.main import main

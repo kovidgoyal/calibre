@@ -102,7 +102,6 @@ def render_html(path_to_html, width=590, height=750):
         page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         loop = QEventLoop()
         renderer = HTMLRenderer(page, loop)
-
         page.connect(page, SIGNAL('loadFinished(bool)'), renderer,
                 Qt.QueuedConnection)
         page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
