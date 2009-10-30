@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-10-21 01:30+0000\n"
-"PO-Revision-Date: 2009-10-21 06:07+0000\n"
+"POT-Creation-Date: 2009-10-26 17:36+0000\n"
+"PO-Revision-Date: 2009-10-29 20:48+0000\n"
 "Last-Translator: irvenwindson <Yuexi.Chen@gmail.com>\n"
 "Language-Team: Simplified Chinese <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-22 07:24+0000\n"
+"X-Launchpad-Export-Date: 2009-10-30 08:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -106,8 +106,8 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:543
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:552
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:769
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:772
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:771
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:774
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
@@ -312,31 +312,31 @@ msgstr "该配置文件适用 SONY PRS 产品线，如 500/505/700 型号等，�
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr "该配置文件适用 Amazon Kindle DX。"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Installed plugins"
 msgstr "已安装插件"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Mapping for filetype plugins"
 msgstr "关联插件文件类型"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Local plugin customization"
 msgstr "本地插件定制"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Disabled plugins"
 msgstr "禁用插件"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:74
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:75
 msgid "No valid plugin found in "
 msgstr "无有效插件位于 "
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:232
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:233
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr "插件 %s 初始化返回失败回溯："
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:362
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:363
 msgid ""
 "    %prog options\n"
 "\n"
@@ -348,29 +348,29 @@ msgstr ""
 "    通过加载外部插件定制 Calibre。\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:368
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:369
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr "添加插件，指定包含其 zip 文件的路径。"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:370
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:371
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr "按名称移除自定义插件（对内置插件无效）。"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:372
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:373
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr "定制插件，指定插件名和自定制字符串，使用逗号分隔。"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:374
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:375
 msgid "List all installed plugins"
 msgstr "列出全部已装插件"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:376
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:377
 msgid "Enable the named plugin"
 msgstr "启用该名称插件"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:378
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:379
 msgid "Disable the named plugin"
 msgstr "禁用该名称插件"
 
@@ -1148,7 +1148,7 @@ msgid ""
 msgstr "正常情况下，如果输入文件没有封面，您也未指定，会生成一个默认封面带有标题、作者等信息。选定此选项可以禁用生成默认封面。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:123
-#: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:111
+#: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:113
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
@@ -2177,10 +2177,10 @@ msgstr "指定输出文档的字符集编码。默认为 utf-8。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
 msgid ""
-"Speciy the compression level to use. Scale 1 - 10. 1 being the lowest "
+"Specify the compression level to use. Scale 1 - 10. 1 being the lowest "
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
-msgstr "指定使用的压缩水平。从1到10。1压缩率最低但最快，10压缩率最高但最慢。"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
@@ -2441,7 +2441,7 @@ msgstr "输入"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:88
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:44
@@ -2554,16 +2554,17 @@ msgstr "选择文件夹放置调试输出。如果您选择文件夹，将在期
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:53
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:474
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:486
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:487
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:503
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:504
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:537
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:493
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:556
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:356
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:361
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:375
@@ -2642,20 +2643,46 @@ msgstr "FB2 输出"
 msgid "&Inline TOC"
 msgstr "内置目录(&I)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:15
-msgid "Look & Feel"
-msgstr "外观"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
+msgid "Font rescaling wizard"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:17
-msgid "Control the look and feel of the output"
-msgstr "控制输出文件外观"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:100
+msgid ""
+"<p>This wizard will help you choose an appropriate font size key for your "
+"needs. Just enter the base font size of the input document and then enter an "
+"input font size. The wizard will display what font size it will be mapped "
+"to, by the font rescaling algorithm. You can adjust the algorithm by "
+"adjusting the output base font size and font key below. When you find values "
+"suitable for you, click OK.</p>\n"
+"<p>By default, if the output base font size is zero and/or no font size key "
+"is specified, calibre will use the values from the current Output Profile. "
+"</p>\n"
+"<p>See the <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/conversion.html#font-size-"
+"rescaling\">User Manual</a> for a discussion of how font size rescaling "
+"works.</p>"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:89
-msgid "Base &font size:"
-msgstr "基准字体大小(&f):"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
+msgid "&Output document"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:90
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:92
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
+msgid "&Base font size:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:108
+msgid "Font size &key:"
+msgstr "字体大小 Key(&K)："
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:125
@@ -2666,43 +2693,75 @@ msgstr "基准字体大小(&f):"
 msgid " pt"
 msgstr " pt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:91
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
+msgid "Use &default values"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
+msgid "&Input document"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
+msgid "&Font size: "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
+msgid " will map to size: "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
+msgid "0.0 pt"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
+msgid "Look & Feel"
+msgstr "外观"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
+msgid "Control the look and feel of the output"
+msgstr "控制输出文件外观"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:100
+msgid "Base &font size:"
+msgstr "基准字体大小(&f):"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:102
 msgid "Line &height:"
 msgstr "行高(&H)："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:93
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:104
 msgid "Remove &spacing between paragraphs"
 msgstr "删除段间空行(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:94
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:105
 msgid "No text &justification"
 msgstr "关闭文字调整(&j)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:95
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:106
 msgid "&Linearize tables"
 msgstr "线性化重整表格(&L)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:96
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:107
 msgid "&Transliterate unicode characters to ASCII."
 msgstr "将unicode字符转换为ASCII字符."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
-msgid "Font size &key:"
-msgstr "字体大小 Key(&K)："
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:109
+msgid "Input character &encoding:"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:98
-msgid "Input character &encoding"
-msgstr "输入字符编码(&E)"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:110
 msgid "&Disable font size rescaling"
 msgstr "关闭文字大小缩放(&D)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:100
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:111
 msgid "Insert &blank line"
 msgstr "插入空行(&B)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:112
+msgid "Wizard to help you choose an appropriate font size key"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:114
 msgid "Extra &CSS"
 msgstr "额外CSS样式(&C)"
 
@@ -3423,9 +3482,9 @@ msgstr "正在发送邮件至"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:598
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:605
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:696
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:810
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:817
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:698
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:812
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:819
 msgid "No suitable formats"
 msgstr "无合适格式"
 
@@ -3462,30 +3521,30 @@ msgstr "附加"
 msgid "Sent news to"
 msgstr "将新闻发送到"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:697
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:811
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:699
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:813
 msgid "Auto convert the following books before uploading to the device?"
 msgstr "上传到设备之前自动转换如下书籍？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:728
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:730
 msgid "Sending news to device."
 msgstr "将新闻传送到设备."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:780
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:782
 msgid "Sending books to device."
 msgstr "传送书籍到设备。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:818
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:820
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr "无法上传下列书籍到设备，未找到何时格式。请先将书籍转换为设备支持的格式。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:866
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:868
 msgid "No space on device"
 msgstr "设备存储空间不足"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:867
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:869
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
 msgstr "<p>由于设备存储空间不足无法将书籍传送到设备上 "
@@ -3620,127 +3679,127 @@ msgstr "如选中, 下载的新闻奖自动被发送到 <br>该邮件地址 (使
 msgid "new email address"
 msgstr "新邮件地址"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:467
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:797
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:140
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1045
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Error"
 msgstr "错误"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:468
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:466
 msgid "Failed to install command line tools."
 msgstr "安装命令行工具失败。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:471
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:469
 msgid "Command line tools installed"
 msgstr "命令行工具已安装"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:470
 msgid "Command line tools installed in"
 msgstr "命令行工具安装于"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:471
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr "如果您移动 calibre.app，您必须重新安装命令行工具。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:522
 msgid "No valid plugin path"
 msgstr "不合法的插件路径"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:523
 msgid "%s is not a valid plugin path"
 msgstr "%s 不是合法的插件路径"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:526
 msgid "Choose plugin"
 msgstr "选择插件"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:538
 msgid "Plugin cannot be disabled"
 msgstr "该插件不能被禁用"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:539
 msgid "The plugin: %s cannot be disabled"
 msgstr "插件: %s 不能被禁用"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:550
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:548
 msgid "Plugin not customizable"
 msgstr "无法个性化插件"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:549
 msgid "Plugin: %s does not need customization"
 msgstr "插件: %s 无需个性化设置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:575
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:573
 msgid "Customize %s"
 msgstr "个性化 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:585
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:583
 msgid "Cannot remove builtin plugin"
 msgstr "不能移除内置插件"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:586
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:584
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr " 无法移除. 该插件是内置插件. 您可以尝试禁用它而非移除."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:619
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:617
 msgid "Error log:"
 msgstr "错误日志:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:626
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:624
 msgid "Access log:"
 msgstr "访问日志:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:654
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:652
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:589
 msgid "Failed to start content server"
 msgstr "无法启动内容服务器"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:678
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:676
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:503
 msgid "Select location for books"
 msgstr "选择书籍位置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:686
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:684
 msgid "Invalid size"
 msgstr "无效的尺寸"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:687
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:685
 msgid "The size %s is invalid. must be of the form widthxheight"
 msgstr "尺寸大小 %s 不合法. 合法的格式为 宽度x高度"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:738
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:743
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:736
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:741
 msgid "Invalid database location"
 msgstr "不合法的数据库路径"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:739
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:737
 msgid "Invalid database location "
 msgstr "不合法的数据库路径 "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:740
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:738
 msgid "<br>Must be a directory."
 msgstr "<br>必须是文件目录."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:744
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:742
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "不合法的数据库路径.<br>无法写入到 "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:778
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:776
 msgid "Checking database integrity"
 msgstr "检查数据库完整性"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:798
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:796
 msgid "Failed to check database integrity"
 msgstr "检查数据库完整性失败"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:803
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:801
 msgid "Some inconsistencies found"
 msgstr "找到部分不一致"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:804
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:802
 msgid ""
 "The following books had formats listed in the database that are not actually "
 "available. The entries for the formats have been removed. You should check "
@@ -3840,240 +3899,240 @@ msgstr "将路径名改为小写(&L)"
 msgid "&Saving books"
 msgstr "保存书籍(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:471
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:490
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:368
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:173
 msgid "Preferences"
 msgstr "首选项"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:491
 msgid ""
 "&Location of ebooks (The ebooks are stored in folders sorted by author and "
 "metadata is stored in the file metadata.db)"
 msgstr "电子书位置(&L)（电子书籍按作者排序存储在文件目录中，元数据存储在 metadata.db）"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:492
 msgid "Browse for the new database location"
 msgstr "选择新的数据库路径"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:494
 msgid "Show notification when &new version is available"
 msgstr "新版程序可用时提示(&N)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:476
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:495
 msgid "Default network &timeout:"
 msgstr "默认网络超时(&t)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:477
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:496
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
 msgstr "设置网络访问的默认超时限制 (例如在从互联网获取信息时的超时)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:478
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:497
 msgid " seconds"
 msgstr " 秒"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:479
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:498
 msgid "Choose &language (requires restart):"
 msgstr "选择界面语言, 需重启(&l):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:480
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:499
 msgid "Normal"
 msgstr "普通"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:500
 msgid "High"
 msgstr "高"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:501
 msgid "Low"
 msgstr "低"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:483
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:502
 msgid "Job &priority:"
 msgstr "进程优先级(&p):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:503
 msgid "Preferred &output format:"
 msgstr "首选输出格式(&O)："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:504
 msgid "Preferred &input format order:"
 msgstr "首选输入格式顺序(&I)："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:507
 msgid "Use &Roman numerals for series number"
 msgstr "使用罗马数字作为序列数(&R)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:489
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
 msgid "Enable system &tray icon (needs restart)"
 msgstr "显示系统托盘图标, 需重启生效(&t)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:490
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:509
 msgid "Show &notifications in system tray"
 msgstr "在系统托盘除显示和提醒"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:491
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:510
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr "在单独的窗口显示封面浏览界面, 需重启生效(&b)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:511
 msgid "Search as you type"
 msgstr "即时搜索"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:493
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:512
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr "自动将下载的新闻传输到电子书阅读器上(&n)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:513
 msgid "&Delete news from library when it is automatically sent to reader"
 msgstr "在将新闻传送到设备上后从书库中删除(&D)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr "浏览模式下显示的书籍封面数量(&N), 须重启生效;"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
 msgid "Toolbar"
 msgstr "工具栏"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:516
 msgid "Large"
 msgstr "大"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:498
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:517
 msgid "Medium"
 msgstr "中"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:518
 msgid "Small"
 msgstr "小"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:519
 msgid "&Button size in toolbar"
 msgstr "工具栏按钮大小(&B)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:501
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:520
 msgid "Show &text in toolbar buttons"
 msgstr "在工具栏显示按钮文字(&t)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:521
 msgid "Select visible &columns in library view"
 msgstr "选择在书库界面中显示的新系列(&c)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:524
 msgid "Use internal &viewer for:"
 msgstr "使用内部浏览器显示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:525
 msgid "Add an email address to which to send books"
 msgstr "将电子邮件地址添加到书籍发送目的"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:507
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:526
 msgid "&Add email"
 msgstr "添加邮件地址(&A)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:527
 msgid "Make &default"
 msgstr "设为默认(&d)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:509
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:528
 msgid "&Remove email"
 msgstr "删除邮件地址(&R)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:510
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:529
 msgid "calibre can send your books to you (or your reader) by email"
 msgstr "Calibre 可以通过电子邮件将电子书籍发送给您或您的设备"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:530
 msgid "&Maximum number of waiting worker processes (needs restart):"
 msgstr "等待中的工作进程最大值（需要重启）(&M)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:512
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:531
 msgid "&Check database integrity"
 msgstr "检查数据库完整性(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:532
 msgid "&Install command line tools"
 msgstr "安装命令行工具(&I)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:533
 msgid "Open calibre &configuration directory"
 msgstr "打开 calibre 配置目录(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:534
 msgid ""
 "calibre contains a network server that allows you to access your book "
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr "Calibre 带有一个网络服务器程序，您可以由此使用浏览器访问你的书库。对服务器程序配置的修改需要重启服务器程序生效。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:535
 msgid "Server &port:"
 msgstr "服务器端口(&p):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:517
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:536
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:117
 msgid "&Username:"
 msgstr "用户名(&U):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:537
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:119
 msgid "&Password:"
 msgstr "密码(&P):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:538
 msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
 msgstr "如果您使用空密码将导致其他人可以从web界面访问您的书籍库."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:539
 msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
 msgstr "显示书籍封面的最大尺寸(宽度x高度). 过大的封面将会被相应缩小. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:540
 msgid "Max. &cover size:"
 msgstr "最大封面大小(&c):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:541
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 msgid "&Show password"
 msgstr "显示密码(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:542
 msgid "Max. &OPDS items per query:"
 msgstr "每次请求最大 OPDS 项(&O)："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:543
 msgid "&Start Server"
 msgstr "启动服务器(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:544
 msgid "St&op Server"
 msgstr "停止服务器(&o)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:545
 msgid "&Test Server"
 msgstr "测试服务器(&T)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:527
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid "Run server &automatically on startup"
 msgstr "在系统启动时自动启动服务器(&a)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:547
 msgid "View &server logs"
 msgstr "查看服务器日志(&s)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:548
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
 msgid ""
 "<p>Remember to leave calibre running as the server only runs as long as "
@@ -4088,33 +4147,33 @@ msgstr ""
 "http://myhostname:8080 作为新类目。此时 myhostname 应该为有效主机名，或者您 Calibre 程序所运行计算机的 IP "
 "地址。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr "从可以通过配置插件的启用与否来调整Calibre的功能特性."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:551
 msgid "Enable/&Disable plugin"
 msgstr "启用/禁用插件(&D)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:533
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:552
 msgid "&Customize plugin"
 msgstr "定制插件(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:553
 msgid "&Remove plugin"
 msgstr "移除插件(&R)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:554
 msgid "Add new plugin"
 msgstr "添加插件"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:555
 msgid "Plugin &file:"
 msgstr "插件文件(&F)："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:538
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:557
 msgid "&Add"
 msgstr "添加(&A)"
 
@@ -7469,6 +7528,9 @@ msgstr "显示详细输出信息。有利调试"
 #~ "conversion of a PDF file."
 #~ msgstr "如果该HTML由PDF转换而来, 请指定平均行长度."
 
+#~ msgid "Input character &encoding"
+#~ msgstr "输入字符编码(&E)"
+
 #~ msgid "&Header regular expression:"
 #~ msgstr "页眉正则表达式(&H)："
 
@@ -7513,3 +7575,9 @@ msgstr "显示详细输出信息。有利调试"
 
 #~ msgid "Chinese"
 #~ msgstr "中文"
+
+#~ msgid ""
+#~ "Speciy the compression level to use. Scale 1 - 10. 1 being the lowest "
+#~ "compression but the fastest and 10 being the highest compression but the "
+#~ "slowest."
+#~ msgstr "指定使用的压缩水平。从1到10。1压缩率最低但最快，10压缩率最高但最慢。"
