@@ -23,6 +23,7 @@ from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import islinux
 from calibre import unicode_path
 from calibre.utils.localization import get_lang
+from calibre.utils.filenames import ascii_filename
 
 class Link(object):
     '''
@@ -333,9 +334,11 @@ class HTMLInput(InputFormatPlugin):
         htmlfile_map = {}
         for f in filelist:
             path = f.path
+            print 111, path, repr(path), repr(os.path.dirname(path))
             oeb.container = DirContainer(os.path.dirname(path), log)
             bname = os.path.basename(path)
-            id, href = oeb.manifest.generate(id='html', href=bname)
+            id, href = oeb.manifest.generate(id='html',
+                    href=ascii_filename(bname))
             htmlfile_map[path] = href
             item = oeb.manifest.add(id, href, 'text/html')
             item.html_input_href = bname
