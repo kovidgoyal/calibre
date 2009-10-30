@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-10-22 23:36+0000\n"
-"PO-Revision-Date: 2009-10-22 16:34+0000\n"
-"Last-Translator: Øyvind Øritsland <Unknown>\n"
+"POT-Creation-Date: 2009-10-26 17:36+0000\n"
+"PO-Revision-Date: 2009-10-29 20:47+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-23 07:26+0000\n"
+"X-Launchpad-Export-Date: 2009-10-30 08:27+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -106,8 +106,8 @@ msgstr "Gjør absolutt ingenting"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:543
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:552
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:769
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:772
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:771
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:774
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
@@ -330,31 +330,31 @@ msgstr ""
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr "Denne profilen er ment for Amazon Kindle DX."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Installed plugins"
 msgstr "Installerte programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Mapping for filetype plugins"
 msgstr "Kartlegging av programtillegg for filtyper"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Local plugin customization"
 msgstr "Lokal innstilling av programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Disabled plugins"
 msgstr "Slå av programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:74
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:75
 msgid "No valid plugin found in "
 msgstr "Ingen gyldige programtillegg ble funnet i "
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:232
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:233
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr "Initialisering av programtillegg %s mislykket med sporingshistorie:"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:362
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:363
 msgid ""
 "    %prog options\n"
 "\n"
@@ -366,19 +366,19 @@ msgstr ""
 "    Tilpass Calibre ved å laste eksterne programtillegg.\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:368
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:369
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
 "Legg til et programtillegg ved å spesifisere stien hvor den befinner seg i "
 "ZIP filen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:370
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:371
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
 "Fjern et tilpasset programtillegg ved navn. Dette har ingen effekt på "
 "innebygde programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:372
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:373
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
@@ -386,15 +386,15 @@ msgstr ""
 "Tilpass programtillegg. Spesifiser navnet på programtillegget og "
 "tilpassningsstrengen separert ved komma."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:374
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:375
 msgid "List all installed plugins"
 msgstr "Se alle Installerte programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:376
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:377
 msgid "Enable the named plugin"
 msgstr "Slå på navngitte programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:378
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:379
 msgid "Disable the named plugin"
 msgstr "Slå av navngitte programtillegg"
 
@@ -1292,7 +1292,7 @@ msgstr ""
 "forfatter osv. Dette valget slår av genereringen av dette omslaget."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:123
-#: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:111
+#: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:113
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:98
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
@@ -2668,7 +2668,7 @@ msgstr "Inndata"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:88
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:44
@@ -2786,16 +2786,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:53
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:474
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:486
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:487
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:503
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:504
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:537
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:493
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:556
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:356
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:361
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:375
@@ -2877,20 +2878,46 @@ msgstr "FB2 Utdata"
 msgid "&Inline TOC"
 msgstr "&Innlagt TOC"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:15
-msgid "Look & Feel"
-msgstr "Utseende"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
+msgid "Font rescaling wizard"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:17
-msgid "Control the look and feel of the output"
-msgstr "Kontroller utseende til utdataene"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:100
+msgid ""
+"<p>This wizard will help you choose an appropriate font size key for your "
+"needs. Just enter the base font size of the input document and then enter an "
+"input font size. The wizard will display what font size it will be mapped "
+"to, by the font rescaling algorithm. You can adjust the algorithm by "
+"adjusting the output base font size and font key below. When you find values "
+"suitable for you, click OK.</p>\n"
+"<p>By default, if the output base font size is zero and/or no font size key "
+"is specified, calibre will use the values from the current Output Profile. "
+"</p>\n"
+"<p>See the <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/conversion.html#font-size-"
+"rescaling\">User Manual</a> for a discussion of how font size rescaling "
+"works.</p>"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:89
-msgid "Base &font size:"
-msgstr "Basis &fontstørrelse:"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
+msgid "&Output document"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:90
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:92
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
+msgid "&Base font size:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:108
+msgid "Font size &key:"
+msgstr "Fontstørrelse&nøkkel:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:125
@@ -2901,43 +2928,75 @@ msgstr "Basis &fontstørrelse:"
 msgid " pt"
 msgstr " punkter"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:91
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
+msgid "Use &default values"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
+msgid "&Input document"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
+msgid "&Font size: "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
+msgid " will map to size: "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
+msgid "0.0 pt"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
+msgid "Look & Feel"
+msgstr "Utseende"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
+msgid "Control the look and feel of the output"
+msgstr "Kontroller utseende til utdataene"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:100
+msgid "Base &font size:"
+msgstr "Basis &fontstørrelse:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:102
 msgid "Line &height:"
 msgstr "Linje&hløyde"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:93
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:104
 msgid "Remove &spacing between paragraphs"
 msgstr "Fjern &mellomrom mellom avsnitt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:94
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:105
 msgid "No text &justification"
 msgstr "Ingen tekst&justeringer"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:95
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:106
 msgid "&Linearize tables"
 msgstr "&Linierte tabeller"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:96
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:107
 msgid "&Transliterate unicode characters to ASCII."
 msgstr "&Omskriv unicodetegn til ASCII."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
-msgid "Font size &key:"
-msgstr "Fontstørrelse&nøkkel:"
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:109
+msgid "Input character &encoding:"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:98
-msgid "Input character &encoding"
-msgstr "Tegnsett for &omkoding av inndata"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:110
 msgid "&Disable font size rescaling"
 msgstr "&Slå av omskalering av fontstørrelse"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:100
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:111
 msgid "Insert &blank line"
 msgstr "Sett inn &blank linje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:112
+msgid "Wizard to help you choose an appropriate font size key"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:114
 msgid "Extra &CSS"
 msgstr "Ekstra &CSS"
 
@@ -3668,9 +3727,9 @@ msgstr "Sender e-post til"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:598
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:605
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:696
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:810
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:817
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:698
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:812
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:819
 msgid "No suitable formats"
 msgstr "Ingen passende formater"
 
@@ -3709,20 +3768,20 @@ msgstr "Vedlagt følger"
 msgid "Sent news to"
 msgstr "Sent nyheter til"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:697
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:811
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:699
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:813
 msgid "Auto convert the following books before uploading to the device?"
 msgstr "Autokonverter følgende bøker før du laster dem opp til enheten?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:728
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:730
 msgid "Sending news to device."
 msgstr "Sender nyheter til enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:780
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:782
 msgid "Sending books to device."
 msgstr "Sender bøker til enheten."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:818
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:820
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
@@ -3731,11 +3790,11 @@ msgstr ""
 "ble funnet. Konverter boken/bøkene til et format som er støttet av din enhet "
 "først."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:866
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:868
 msgid "No space on device"
 msgstr "Ikke plass på enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:867
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:869
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
 msgstr ""
@@ -3874,130 +3933,130 @@ msgstr ""
 msgid "new email address"
 msgstr "ny e-postadresse"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:467
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:797
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:465
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:140
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1045
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:53
 msgid "Error"
 msgstr "Feil"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:468
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:466
 msgid "Failed to install command line tools."
 msgstr "Kunne ikke installere kommandolinjeverktøy."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:471
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:469
 msgid "Command line tools installed"
 msgstr "Kommandolinjeverktøy installert"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:470
 msgid "Command line tools installed in"
 msgstr "Kommandolinjeverktøy ble installert i"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:471
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
 msgstr ""
 "Dersom du flytter calibre.app, må du re-installere kommandolinjeverktøyene."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:522
 msgid "No valid plugin path"
 msgstr "Ingen gyldig programtillegsbane"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:523
 msgid "%s is not a valid plugin path"
 msgstr "%s er ikke en gyldig bane for programtillegget"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:526
 msgid "Choose plugin"
 msgstr "Velg programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:538
 msgid "Plugin cannot be disabled"
 msgstr "Programtillegget kan ikke slåes av"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:539
 msgid "The plugin: %s cannot be disabled"
 msgstr "Programtillegget: %s kan ikke slåes av"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:550
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:548
 msgid "Plugin not customizable"
 msgstr "Programtillegg ikke egendefinert"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:549
 msgid "Plugin: %s does not need customization"
 msgstr "Programtillegg: %s trenger ikke å egendefineres"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:575
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:573
 msgid "Customize %s"
 msgstr "Egendefiner %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:585
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:583
 msgid "Cannot remove builtin plugin"
 msgstr "Kan ikke fjerne innebygget programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:586
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:584
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
 " kan ikke fjernes. Dette er et innebygget programtillegg. Forsøk å slå det "
 "av istedet."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:619
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:617
 msgid "Error log:"
 msgstr "Feil-logg:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:626
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:624
 msgid "Access log:"
 msgstr "tilgangslogg:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:654
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:652
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:589
 msgid "Failed to start content server"
 msgstr "Kunne ikke starte innholdsserveren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:678
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:676
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:503
 msgid "Select location for books"
 msgstr "Velg lokalisasjon for bøker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:686
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:684
 msgid "Invalid size"
 msgstr "Ugyldig størrelse"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:687
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:685
 msgid "The size %s is invalid. must be of the form widthxheight"
 msgstr "Størrelsen %s er ugyldig. må være i formatet breddexhøyde"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:738
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:743
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:736
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:741
 msgid "Invalid database location"
 msgstr "Ugyldig lokalisering av databasen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:739
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:737
 msgid "Invalid database location "
 msgstr "Ugyldig lokalisering av databasen "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:740
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:738
 msgid "<br>Must be a directory."
 msgstr "<br>Må være en katalog."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:744
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:742
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Ugyldig lokalisering av databasen.<br>Kan ikke skrive til "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:778
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:776
 msgid "Checking database integrity"
 msgstr "Sjekker databasens integritet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:798
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:796
 msgid "Failed to check database integrity"
 msgstr "Kunne ikke sjekke databasens integritet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:803
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:801
 msgid "Some inconsistencies found"
 msgstr "Noen uoverensstemmelser ble funnet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:804
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:802
 msgid ""
 "The following books had formats listed in the database that are not actually "
 "available. The entries for the formats have been removed. You should check "
@@ -4109,13 +4168,13 @@ msgstr "Forandre stier til &små bokstaver"
 msgid "&Saving books"
 msgstr "&Lagrer bøker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:471
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:490
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:368
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:173
 msgid "Preferences"
 msgstr "Innstillinger"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:472
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:491
 msgid ""
 "&Location of ebooks (The ebooks are stored in folders sorted by author and "
 "metadata is stored in the file metadata.db)"
@@ -4123,19 +4182,19 @@ msgstr ""
 "&Lokalisering av e-bøker (e-bøkene er lagret i foldere sortert etter "
 "forfattere og metadata er lagret i filen metadata.db)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:492
 msgid "Browse for the new database location"
 msgstr "Søk etter den nye databaselokaliseringen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:494
 msgid "Show notification when &new version is available"
 msgstr "Varsle når &ny versjon er tilgjengelig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:476
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:495
 msgid "Default network &timeout:"
 msgstr "Standard netttilgang &tidsavbrudd:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:477
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:496
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
@@ -4143,139 +4202,139 @@ msgstr ""
 "Legg inn standard for tidsavbrudd for nettverkstilgang (for eksempel all den "
 "tid vi går på nettet for å finne informasjon)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:478
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:497
 msgid " seconds"
 msgstr " sekunder"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:479
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:498
 msgid "Choose &language (requires restart):"
 msgstr "Velg &språk (krever omstart):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:480
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:499
 msgid "Normal"
 msgstr "Vanlig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:500
 msgid "High"
 msgstr "Høy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:501
 msgid "Low"
 msgstr "Lav"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:483
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:502
 msgid "Job &priority:"
 msgstr "oppgave&prioritet:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:503
 msgid "Preferred &output format:"
 msgstr "Foretrukket &utdataformat:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:504
 msgid "Preferred &input format order:"
 msgstr "Foretrukket &inndataformat:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:507
 msgid "Use &Roman numerals for series number"
 msgstr "Bruk &Romerske tall for seriell numerering"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:489
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
 msgid "Enable system &tray icon (needs restart)"
 msgstr "Slå på oppgave&panelikonet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:490
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:509
 msgid "Show &notifications in system tray"
 msgstr "Vis &varsler i oppgavepanelet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:491
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:510
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr "Vis omslag &søk i eget vindu (krever omstart)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:511
 msgid "Search as you type"
 msgstr "Søk mens du taster"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:493
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:512
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr "Send nedlastede &nyheter til eBokleseren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:513
 msgid "&Delete news from library when it is automatically sent to reader"
 msgstr "&Slett nyheter fra biblioteket når de automatisk sendes til leseren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr "&Antall omslag som skal vises i søkemodus (krever omstart):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
 msgid "Toolbar"
 msgstr "Verktøylinje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:516
 msgid "Large"
 msgstr "Store"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:498
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:517
 msgid "Medium"
 msgstr "Medium"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:518
 msgid "Small"
 msgstr "Små"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:519
 msgid "&Button size in toolbar"
 msgstr "&Knappestørrelse i verktøylinjen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:501
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:520
 msgid "Show &text in toolbar buttons"
 msgstr "Vis &tekst i verktøylinjens knapper"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:521
 msgid "Select visible &columns in library view"
 msgstr "Velg synlige &kolonner i bibliotekvisningsmodus"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:524
 msgid "Use internal &viewer for:"
 msgstr "Bruk intern &leser for:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:525
 msgid "Add an email address to which to send books"
 msgstr "Legg til en e-postadresse til hvor du vil sende bøker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:507
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:526
 msgid "&Add email"
 msgstr "&Legg til e-post"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:527
 msgid "Make &default"
 msgstr "Lag &standard"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:509
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:528
 msgid "&Remove email"
 msgstr "&Fjern e-post"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:510
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:529
 msgid "calibre can send your books to you (or your reader) by email"
 msgstr "Calibre kan sende bøker til deg (eller din leser) via e-post"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:530
 msgid "&Maximum number of waiting worker processes (needs restart):"
 msgstr "&Maximum antall ventende arbeidsprosesser (omstart behøves):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:512
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:531
 msgid "&Check database integrity"
 msgstr "&Sjekk databasens integritet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:532
 msgid "&Install command line tools"
 msgstr "&Installer kommandolinjeverktøy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:533
 msgid "Open calibre &configuration directory"
 msgstr "Åpne Calibre&konfigurasjonsmappen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:534
 msgid ""
 "calibre contains a network server that allows you to access your book "
 "collection using a browser from anywhere in the world. Any changes to the "
@@ -4285,25 +4344,25 @@ msgstr ""
 "ved å benytte en nettleser fra hvilket som helst sted i verden. Enhver "
 "forandring av innstillingene vil taes ibruk etter en omstart av serveren."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:535
 msgid "Server &port:"
 msgstr "Server &port:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:517
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:536
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:117
 msgid "&Username:"
 msgstr "&Brukernavn:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:537
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:119
 msgid "&Password:"
 msgstr "&Passord:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:538
 msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
@@ -4311,7 +4370,7 @@ msgstr ""
 "Dersom du lar passordet stå tomt, vil enhver kunne gå inn i din boksamling "
 "ved å benytte web-brukergrensesnittet."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:539
 msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
@@ -4319,41 +4378,41 @@ msgstr ""
 "Maksimal størrelse (breddexhøyde) for å vise omslag. Større omslag vil bli "
 "re-dimensjonert. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:540
 msgid "Max. &cover size:"
 msgstr "Maks. &omslagsstørrelse:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:541
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 msgid "&Show password"
 msgstr "&Vis passord"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:542
 msgid "Max. &OPDS items per query:"
 msgstr "Maksimum &OPDS enheter per spørring:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:543
 msgid "&Start Server"
 msgstr "&Start server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:544
 msgid "St&op Server"
 msgstr "St&op server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:545
 msgid "&Test Server"
 msgstr "&Test server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:527
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid "Run server &automatically on startup"
 msgstr "Kjør server &automatisk ved oppstart"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:547
 msgid "View &server logs"
 msgstr "Vis &serverlogger"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:548
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
 msgid ""
 "<p>Remember to leave calibre running as the server only runs as long as "
@@ -4370,7 +4429,7 @@ msgstr ""
 "din iPhone. Her skal myhostname være fullt kvalifisert vertsnavn eller IP-"
 "adressen til datamaskinen Calibre kjører på."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:550
 msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
@@ -4378,27 +4437,27 @@ msgstr ""
 "Her kan du skreddersy Calibres atferd ved å kontrollere hvilke "
 "programtillegg som skal benyttes."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:551
 msgid "Enable/&Disable plugin"
 msgstr "Slå på/&Slå av programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:533
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:552
 msgid "&Customize plugin"
 msgstr "&Skreddersy programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:553
 msgid "&Remove plugin"
 msgstr "&Fjern programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:554
 msgid "Add new plugin"
 msgstr "Legg til nytt programtillegg"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:555
 msgid "Plugin &file:"
 msgstr "Programtillegg &fil"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:538
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:557
 msgid "&Add"
 msgstr "&Legg til"
 
@@ -8403,6 +8462,9 @@ msgstr "Vis detaljert utdatainformasjon. Benyttes for feilsøking"
 
 #~ msgid "This recipe requires a username and password"
 #~ msgstr "Denne nyhetskilden krever brukernavn og passord"
+
+#~ msgid "Input character &encoding"
+#~ msgstr "Tegnsett for &omkoding av inndata"
 
 #~ msgid ""
 #~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
