@@ -251,7 +251,7 @@ class %(classname)s(%(base_class)s):
     def add_builtin_recipe(self):
         from calibre.web.feeds.recipes.collection import \
             get_builtin_recipe_by_title, get_builtin_recipe_titles
-        items = get_builtin_recipe_titles()
+        items = sorted(get_builtin_recipe_titles())
 
 
         title, ok = QInputDialog.getItem(self, _('Pick recipe'), _('Pick the recipe to customize'),
@@ -259,15 +259,15 @@ class %(classname)s(%(base_class)s):
         if ok:
             title = unicode(title)
             profile = get_builtin_recipe_by_title(title)
-        if self._model.has_title(title):
-            if question_dialog(self, _('Replace recipe?'),
-                _('A custom recipe named %s already exists. Do you want to '
-                    'replace it?')%title):
-                self._model.replace_by_title(title, profile)
+            if self._model.has_title(title):
+                if question_dialog(self, _('Replace recipe?'),
+                    _('A custom recipe named %s already exists. Do you want to '
+                        'replace it?')%title):
+                    self._model.replace_by_title(title, profile)
+                else:
+                    return
             else:
-                return
-        else:
-            self.model.add(title, profile)
+                self.model.add(title, profile)
 
         self.clear()
 
