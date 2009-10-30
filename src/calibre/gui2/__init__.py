@@ -130,7 +130,7 @@ class CopyButton(QPushButton):
                 return
         except:
             pass
-        return QPushButton.event(self, ev)
+        QPushButton.keyPressEvent(self, ev)
 
 
     def keyReleaseEvent(self, ev):
@@ -139,7 +139,7 @@ class CopyButton(QPushButton):
                 return
         except:
             pass
-        return QPushButton.event(self, ev)
+        QPushButton.keyReleaseEvent(self, ev)
 
     def mouseReleaseEvent(self, ev):
         ev.accept()
@@ -528,12 +528,14 @@ class Application(QApplication):
         if set_qt_translator(self._translator):
             self.installTranslator(self._translator)
 
+_store_app = None
+
 def is_ok_to_use_qt():
-    global gui_thread
+    global gui_thread, _store_app
     if islinux and ':' not in os.environ.get('DISPLAY', ''):
         return False
-    if QApplication.instance() is None:
-        QApplication([])
+    if _store_app is None and QApplication.instance() is None:
+        _store_app = QApplication([])
     if gui_thread is None:
         gui_thread = QThread.currentThread()
     return gui_thread is QThread.currentThread()

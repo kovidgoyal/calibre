@@ -80,12 +80,19 @@ class MergeMetadata(object):
     def __call__(self, oeb, mi, opts):
         self.oeb, self.log = oeb, oeb.log
         m = self.oeb.metadata
-        meta_info_to_oeb_metadata(mi, m, oeb.log)
         self.log('Merging user specified metadata...')
+        meta_info_to_oeb_metadata(mi, m, oeb.log)
         cover_id = self.set_cover(mi, opts.prefer_metadata_cover)
         m.clear('cover')
         if cover_id is not None:
             m.add('cover', cover_id)
+        if mi.uuid is not None:
+            m.filter('identifier', lambda x:x.id=='uuid_id')
+            self.oeb.metadata.add('identifier', mi.uuid, id='uuid_id',
+                                    scheme='uuid')
+            self.oeb.uid = self.oeb.metadata.identifier[-1]
+
+
 
 
     def set_cover(self, mi, prefer_metadata_cover):

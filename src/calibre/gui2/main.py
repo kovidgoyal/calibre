@@ -11,7 +11,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
                      QToolButton, QDialog, QDesktopServices, QFileDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                     QMessageBox, QStackedLayout
+                     QMessageBox, QStackedLayout, QHelpEvent
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import  prints, patheq
@@ -89,6 +89,18 @@ class Listener(Thread):
         except:
             pass
 
+class SystemTrayIcon(QSystemTrayIcon):
+
+    def __init__(self, icon, parent):
+        QSystemTrayIcon.__init__(self, icon, parent)
+
+    def event(self, ev):
+        if ev.type() == ev.ToolTip:
+            evh = QHelpEvent(ev)
+            self.emit(SIGNAL('tooltip_requested(PyQt_PyObject)'),
+                    (self, evh.globalPos()))
+            return True
+        return QSystemTrayIcon.event(self, ev)
 
 class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     'The main GUI'
@@ -144,8 +156,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.device_connected = False
         self.viewers = collections.deque()
         self.content_server = None
-        self.system_tray_icon = QSystemTrayIcon(QIcon(I('library.png')), self)
+        self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
         self.system_tray_icon.setToolTip('calibre')
+        self.connect(self.system_tray_icon,
+                SIGNAL('tooltip_requested(PyQt_PyObject)'),
+                self.job_manager.show_tooltip)
         if not config['systray_icon']:
             self.system_tray_icon.hide()
         else:

@@ -10,7 +10,7 @@ from BeautifulSoup import BeautifulSoup, Tag
 
 
 from PyQt4 import QtCore
-from PyQt4.Qt import QUrl, QEventLoop, SIGNAL,  QObject, QApplication, Qt, \
+from PyQt4.Qt import QUrl, QEventLoop, SIGNAL,  QObject, Qt, \
     QPrinter, QPrintPreviewDialog, QPrintDialog, QDialog, QMetaObject, Q_ARG
 from PyQt4.QtWebKit import QWebView
 
@@ -18,8 +18,9 @@ PRINTCSS = 'body{width:100%;margin:0;padding:0;font-family:Arial;color:#000;back
 
 class Printing(QObject):
     def __init__(self, spine, preview):
-        if QApplication.instance() is None:
-            QApplication([])
+        from calibre.gui2 import is_ok_to_use_qt
+        if not is_ok_to_use_qt():
+            raise Exception('Not OK to use Qt')
         QObject.__init__(self)
         self.loop = QEventLoop()
 

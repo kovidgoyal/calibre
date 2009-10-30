@@ -18,7 +18,9 @@ from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.genshi.template import MarkupTemplate
 
-FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'cover'])
+FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
+    'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
+    'formats', 'isbn', 'uuid', 'cover'])
 
 XML_TEMPLATE = '''\
 <?xml version="1.0"  encoding="UTF-8"?>
@@ -26,6 +28,7 @@ XML_TEMPLATE = '''\
 <py:for each="record in data">
     <record>
         <id>${record['id']}</id>
+        <uuid>${record['uuid']}</uuid>
         <title>${record['title']}</title>
         <authors sort="${record['author_sort']}">
         <py:for each="author in record['authors']">
@@ -71,7 +74,7 @@ STANZA_TEMPLATE='''\
   <py:for each="record in data">
   <entry>
       <title>${record['title']}</title>
-      <id>urn:calibre:${record['id']}</id>
+      <id>urn:calibre:${record['uuid']}</id>
       <author><name>${record['author_sort']}</name></author>
       <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
       <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/')).replace('http%3A', 'http:')}" />
@@ -227,7 +230,7 @@ def command_list(args, dbpath):
     if not set(fields).issubset(FIELDS):
         parser.print_help()
         print
-        print >>sys.stderr, _('Invalid fields. Available fields:'), ','.join(FIELDS)
+        print >>sys.stderr, _('Invalid fields. Available fields:'), ','.join(sorted(FIELDS))
         return 1
 
     db = get_db(dbpath, opts)

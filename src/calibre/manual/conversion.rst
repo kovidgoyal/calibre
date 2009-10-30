@@ -301,15 +301,16 @@ Removing headers and footers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These options are useful primarily for conversion of PDF documents. Often, the conversion leaves
-behing page headers and footers in the text. These options use regular expressions to try and detect
+behind page headers and footers in the text. These options use regular expressions to try and detect
 the headers and footers and remove them. Remember that they operate on the intermediate XHTML produced
 by the conversion pipeline. There is also a wizard to help you customize the regular expressions for
 your document.
 
 The header and footer regular expressions are used in conjunction with the remove header and footer options.
 If the remove option is not enabled the regular expression will not be applied to remove the matched text.
-As stated the removal works by using a python regular expression. All matched text is simply removed from
-the document. You can learn more about regular expressions and the syntax at http://docs.python.org/library/re.html
+The removal works by using a python regular expression. All matched text is simply removed from
+the document. You can learn more about regular expressions and their syntax at
+http://docs.python.org/library/re.html.
 
 Miscellaneous
 ~~~~~~~~~~~~~~
@@ -408,27 +409,28 @@ This will result in an automatically generated two level Table of Contents that 
 Format specific tips
 ----------------------
 
-Here you will find tips specific to the conversion of particular formats.
+Here you will find tips specific to the conversion of particular formats. Options specific to particular
+format, whether input or output are available in the conversion dialog under their own section, for example
+`TXT Input` or `EPUB Output`.
 
 Convert Microsoft Word documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |app| does not directly convert .doc files from Microsoft Word. However, in Word, you can save the document
 as HTML and then convert the resulting HTML file with |app|. When saving as HTML, be sure to use the
-"Save as filtered HTML" option as this will produce clean HTML that will convert well.
+"Save as Web Page, Filtered" option as this will produce clean HTML that will convert well.
 
 There is a Word macro package that can automate the conversion of Word documents using |app|. It also makes
 generating the Table of Contents much simpler. It is called BookCreator and is available for free
-`here <http://www.mobileread.com/forums/showthread.php?t=36098>`_.
+`here <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
 
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
 
-TXT documents can contain any imaginable layout. Since TXT documents provide no way to explicitly mark parts of
-the text, by default |app| only groups parts of the document into paragraphs. The default is to assume one or
-more blank lines are a paragraph boundary.
-
-.. code-block:: txt
+TXT documents have no well defined way to specify formatting like bold, italics, etc, or document structure like paragraphs, headings, sections and so on.
+Since TXT documents provide no way to explicitly mark parts of
+the text, by default |app| only groups lines in the input document into paragraphs. The default is to assume one or
+more blank lines are a paragraph boundary::
 
     This is the first.
     
@@ -437,41 +439,38 @@ more blank lines are a paragraph boundary.
 
 TXT input supports a number of options to differentiate how paragraphs are detected.
 
-:guilabel:`Treat each line as a paragraph`
-    Assumes that every line is a paragraph.
-    
-    .. code-block:: txt
-    
-        This is the first.
-        This is the second.
-        This is the third.
-    
-:guilabel:`Assume print formatting`
-    Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
-    the next line that starts with an indent is reached.
-    
-    .. code-block:: txt
-    
-          This is the
-        first.
-          This is the second.
-        
-          This is the
-        third.
+    :guilabel:`Treat each line as a paragraph`
+        Assumes that every line is a paragraph::
 
-:guilabel:`Process using markdown`
-    |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown
-    allows for basic formatting to be added to the document and is an easy way to differentiate non-paragraph
-    elements such as chapter headings. Marking chapter headings with # and settings the chapter XPath detection
-    expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
-    You can learn more about the markdown syntax at http://daringfireball.net/projects/markdown/syntax
+            This is the first.
+            This is the second.
+            This is the third.
+        
+    :guilabel:`Assume print formatting`
+        Assumes that every paragraph starts with an indent (either a tab or 2+ spaces). Paragraphs end when
+        the next line that starts with an indent is reached::
+
+            This is the
+            first.
+            This is the second.
+            
+            This is the
+            third.
+
+    :guilabel:`Process using markdown`
+        |app| also supports running TXT input though a transformation preprocessor known as markdown. Markdown
+        allows for basic formatting to be added to TXT documents, such as bold, italics, section headings, tables,
+        loists, a Table of Contents, etc. Marking chapter headings with a leading # and setting the chapter XPath detection
+        expression to "//h:h1" is the easiest way to have a proper table of contents generated from a TXT document.
+        You can learn more about the markdown syntax at http://daringfireball.net/projects/markdown/syntax.
+
 
 Convert PDF documents
-~~~~~~~~~~~~~~~~~~~~~~
 
 PDF documents are one of the worst formats to convert from. They are a fixed page size and text placement format.
 Meaning, it is very difficult to determine where one paragraph ends and another begins. |app| will try to unwrap
-paragraphs using a configurable, :guilabel:`Line Un-Wrapping Factor`. This is a scale used to determine the length at which a line should be unwrapped. Valid values are a decimal
+paragraphs using a configurable, :guilabel:`Line Un-Wrapping Factor`. This is a scale used to determine the length
+at which a line should be unwrapped. Valid values are a decimal
 between 0 and 1. The default is 0.5, this is the median line length. Lower this value to include more
 text in the unwrapping. Increase to include less.
 
@@ -480,5 +479,5 @@ Use the options to remove headers and footers to mitigate this issue. If the hea
 removed from the text it can throw off the paragraph unwrapping.
 
 Some limitations of PDF input is complex, multi-column, and image based documents are not supported.
-Extraction of SVG images from within the document is also not supported.
+Extraction of vector images and tables from within the document is also not supported.
 

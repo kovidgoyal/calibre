@@ -24,7 +24,7 @@ except ImportError:
 from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
 from calibre import fit_image, guess_type, prepare_string_for_xml, \
-        strftime as _strftime
+        strftime as _strftime, prints
 from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
 from calibre.utils.config import config_dir
@@ -45,6 +45,8 @@ def expose(func):
 
     def do(self, *args, **kwargs):
         dict.update(cherrypy.response.headers, {'Server':self.server_name})
+        if not self.embedded:
+            self.db.check_if_modified()
         return func(self, *args, **kwargs)
 
     return cherrypy.expose(do)
@@ -77,6 +79,159 @@ class LibraryServer(object):
             </book>
         ''')
 
+    MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian)')
+
+    MOBILE_BOOK = textwrap.dedent('''\
+    <tr xmlns:py="http://genshi.edgewall.org/">
+    <td class="thumbnail">
+        <img type="image/jpeg" src="/get/thumb/${r[0]}" border="0"/>
+    </td>
+    <td>
+        <py:for each="format in r[13].split(',')">
+            <span class="button"><a href="/get/${format}/${authors}-${r[1]}_${r[0]}.${format}">${format.lower()}</a></span>&nbsp;
+        </py:for>
+       ${r[1]} by ${authors} - ${r[6]/1024}k - ${r[3] if r[3] else ''} ${pubdate} ${'['+r[7]+']' if r[7] else ''}
+    </td>
+    </tr>
+    ''')
+
+    MOBILE = MarkupTemplate(textwrap.dedent('''\
+    <html xmlns:py="http://genshi.edgewall.org/">
+    <head>
+    <style>
+    .navigation table.buttons {
+        width: 100%;
+    }
+    .navigation .button {
+        width: 50%;
+    }
+    .button a, .button:visited a {
+        padding: 0.5em;
+        font-size: 1.25em;
+        border: 1px solid black;
+        text-color: black;
+        background-color: #ddd;
+        border-top: 1px solid ThreeDLightShadow;
+        border-right: 1px solid ButtonShadow;
+        border-bottom: 1px solid ButtonShadow;
+        border-left: 1 px solid ThreeDLightShadow;
+        -moz-border-radius: 0.25em;
+        -webkit-border-radius: 0.25em;
+    }
+
+    .button:hover a {
+        border-top: 1px solid #666;
+        border-right: 1px solid #CCC;
+        border-bottom: 1 px solid #CCC;
+        border-left: 1 px solid #666;
+
+
+    }
+    div.navigation {
+        padding-bottom: 1em;
+        clear: both;
+    }
+
+    #search_box {
+        border: 1px solid #393;
+        -moz-border-radius: 0.5em;
+        -webkit-border-radius: 0.5em;
+        padding: 1em;
+        margin-bottom: 0.5em;
+        float: right;
+    }
+
+    #listing {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #listing td {
+        padding: 0.25em;
+    }
+
+    #listing td.thumbnail {
+        height: 60px;
+        width: 60px;
+    }
+
+    #listing tr:nth-child(even) {
+
+        background: #eee;
+    }
+
+    #listing .button a{
+        display: inline-block;
+        width: 2.5em;
+        padding-left: 0em;
+        padding-right: 0em;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    #logo {
+        float: left;
+    }
+    #spacer {
+        clear: both;
+    }
+
+    </style>
+    <link rel="icon" href="http://calibre.kovidgoyal.net/chrome/site/favicon.ico" type="image/x-icon" />
+    </head>
+    <body>
+        <div id="logo">
+        <img src="/static/calibre.png" alt="Calibre" />
+        </div>
+        <div id="search_box">
+        <form method="get" action="/mobile">
+        Show <select name="num">
+            <py:for each="option in [5,10,25,100]">
+                 <option py:if="option == num" value="${option}" SELECTED="SELECTED">${option}</option>
+                 <option py:if="option != num" value="${option}">${option}</option>
+            </py:for>
+            </select>
+        books matching <input name="search" id="s" value="${search}" /> sorted by
+
+        <select name="sort">
+            <py:for each="option in ['date','author','title','rating','size','tags','series']">
+                 <option py:if="option == sort" value="${option}" SELECTED="SELECTED">${option}</option>
+                 <option py:if="option != sort" value="${option}">${option}</option>
+            </py:for>
+        </select>
+        <select name="order">
+            <py:for each="option in ['ascending','descending']">
+                 <option py:if="option == order" value="${option}" SELECTED="SELECTED">${option}</option>
+                 <option py:if="option != order" value="${option}">${option}</option>
+            </py:for>
+        </select>
+        <input id="go" type="submit" value="Search"/>
+        </form>
+        </div>
+        <div class="navigation">
+        <span style="display: block; text-align: center;">Books ${start} to ${ min((start+num-1) , total) } of ${total}</span>
+        <table class="buttons">
+        <tr>
+        <td class="button" style="text-align:left;">
+			<a py:if="start > 1" href="${url_base};start=1">First</a>
+			<a py:if="start > 1" href="${url_base};start=${max(start-(num+1),1)}">Previous</a>
+		</td>
+        <td class="button" style="text-align: right;">
+            <a py:if=" total > (start + num) " href="${url_base};start=${start+num}">Next</a>
+            <a py:if=" total > (start + num) " href="${url_base};start=${total-num+1}">Last</a>
+        </td>
+        </tr>
+        </table>
+        </div>
+        <hr class="spacer" />
+        <table id="listing">
+            <py:for each="book in books">
+                ${Markup(book)}
+            </py:for>
+        </table>
+    </body>
+    </html>
+    '''))
+
     LIBRARY = MarkupTemplate(textwrap.dedent('''\
     <?xml version="1.0" encoding="utf-8"?>
     <library xmlns:py="http://genshi.edgewall.org/" start="$start" num="${len(books)}" total="$total" updated="${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}">
@@ -89,7 +244,7 @@ class LibraryServer(object):
     STANZA_ENTRY=MarkupTemplate(textwrap.dedent('''\
     <entry xmlns:py="http://genshi.edgewall.org/">
         <title>${record[FM['title']]}</title>
-        <id>urn:calibre:${record[FM['id']]}</id>
+        <id>urn:calibre:${urn}</id>
         <author><name>${authors}</name></author>
         <updated>${timestamp}</updated>
         <link type="${mimetype}" href="/get/${fmt}/${record[FM['id']]}" />
@@ -191,6 +346,7 @@ class LibraryServer(object):
             item
             break
         self.opts = opts
+        self.embedded = embedded
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
         self.max_stanza_items = opts.max_opds_items
@@ -525,6 +681,7 @@ class LibraryServer(object):
                     extra='\n'.join(extra),
                     mimetype=mimetype,
                     fmt=fmt,
+                    urn=record[FIELD_MAP['uuid']],
                     timestamp=strftime('%Y-%m-%dT%H:%M:%S+00:00', record[5])
                     )
             books.append(self.STANZA_ENTRY.generate(**data)\
@@ -532,6 +689,52 @@ class LibraryServer(object):
 
         return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
                 next_link=next_link, updated=updated, id='urn:calibre:main').render('xml')
+
+
+    @expose
+    def mobile(self, start='1', num='25', sort='date', search='',
+                _=None, order='descending'):
+        '''
+        Serves metadata from the calibre database as XML.
+
+        :param sort: Sort results by ``sort``. Can be one of `title,author,rating`.
+        :param search: Filter results by ``search`` query. See :class:`SearchQueryParser` for query syntax
+        :param start,num: Return the slice `[start:start+num]` of the sorted and filtered results
+        :param _: Firefox seems to sometimes send this when using XMLHttpRequest with no caching
+        '''
+        try:
+            start = int(start)
+        except ValueError:
+            raise cherrypy.HTTPError(400, 'start: %s is not an integer'%start)
+        try:
+            num = int(num)
+        except ValueError:
+            raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
+        ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
+        ids = sorted(ids)
+        items = [r for r in iter(self.db) if r[0] in ids]
+        if sort is not None:
+            self.sort(items, sort, (order.lower().strip() == 'ascending'))
+
+        book, books = MarkupTemplate(self.MOBILE_BOOK), []
+        for record in items[(start-1):(start-1)+num]:
+            aus = record[2] if record[2] else __builtin__._('Unknown')
+            authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
+            record[10] = fmt_sidx(float(record[10]))
+            ts, pd = strftime('%Y/%m/%d %H:%M:%S', record[5]), \
+                strftime('%Y/%m/%d %H:%M:%S', record[FIELD_MAP['pubdate']])
+            books.append(book.generate(r=record, authors=authors, timestamp=ts,
+                pubdate=pd).render('xml').decode('utf-8'))
+        updated = self.db.last_modified()
+
+        cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+
+
+        url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
+
+        return self.MOBILE.generate(books=books, start=start, updated=updated, search=search, sort=sort, order=order, num=num,
+                                     total=len(ids), url_base=url_base).render('html')
 
 
     @expose
@@ -584,10 +787,22 @@ class LibraryServer(object):
             cherrypy.request.headers.get('Stanza-Device-Name', 919) != 919 or \
             cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919 or \
             ua.startswith('Stanza')
-        return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None),
+
+        # A better search would be great
+        want_mobile = self.MOBILE_UA.search(ua) is not None
+        if self.opts.develop and not want_mobile:
+            prints('User agent:', ua)
+
+        if want_opds:
+            return self.stanza(search=kwargs.get('search', None), sortby=kwargs.get('sortby',None), authorid=kwargs.get('authorid',None),
                            tagid=kwargs.get('tagid',None),
                            seriesid=kwargs.get('seriesid',None),
-                           offset=kwargs.get('offset', 0)) if want_opds else self.static('index.html')
+                           offset=kwargs.get('offset', 0))
+
+        if want_mobile:
+            return self.mobile()
+
+        return self.static('index.html')
 
 
     @expose

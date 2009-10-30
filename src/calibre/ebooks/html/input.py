@@ -23,6 +23,7 @@ from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import islinux
 from calibre import unicode_path
 from calibre.utils.localization import get_lang
+from calibre.utils.filenames import ascii_filename
 
 class Link(object):
     '''
@@ -320,8 +321,8 @@ class HTMLInput(InputFormatPlugin):
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
 
-        bookid = "urn:uuid:%s" % str(uuid.uuid4())
-        metadata.add('identifier', bookid, id='calibre-uuid')
+        bookid = str(uuid.uuid4())
+        metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
                 self.oeb.uid = metadata.identifier[0]
@@ -333,9 +334,11 @@ class HTMLInput(InputFormatPlugin):
         htmlfile_map = {}
         for f in filelist:
             path = f.path
+            print 111, path, repr(path), repr(os.path.dirname(path))
             oeb.container = DirContainer(os.path.dirname(path), log)
             bname = os.path.basename(path)
-            id, href = oeb.manifest.generate(id='html', href=bname)
+            id, href = oeb.manifest.generate(id='html',
+                    href=ascii_filename(bname))
             htmlfile_map[path] = href
             item = oeb.manifest.add(id, href, 'text/html')
             item.html_input_href = bname
@@ -408,6 +411,9 @@ class HTMLInput(InputFormatPlugin):
             link = os.path.join(base, link)
         link = os.path.abspath(link)
         if not os.access(link, os.R_OK):
+            return link_
+        if os.path.isdir(link):
+            self.log.warn(link_, 'is a link to a directory. Ignoring.')
             return link_
         if not islinux:
             link = link.lower()

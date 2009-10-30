@@ -18,7 +18,7 @@ from calibre.ebooks.metadata import authors_to_string
 
 from PyQt4 import QtCore
 from PyQt4.Qt import QUrl, QEventLoop, SIGNAL, QObject, \
-    QApplication, QPrinter, QMetaObject, QSizeF, Qt
+    QPrinter, QMetaObject, QSizeF, Qt
 from PyQt4.QtWebKit import QWebView
 
 from pyPdf import PdfFileWriter, PdfFileReader
@@ -37,8 +37,9 @@ class PDFMetadata(object):
 
 class PDFWriter(QObject):
     def __init__(self, opts, log):
-        if QApplication.instance() is None:
-            QApplication([])
+        from calibre.gui2 import is_ok_to_use_qt
+        if not is_ok_to_use_qt():
+            raise Exception('Not OK to use Qt')
         QObject.__init__(self)
 
         self.logger = log

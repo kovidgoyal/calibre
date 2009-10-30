@@ -282,9 +282,10 @@ class StatusBar(QStatusBar):
 
 if __name__ == '__main__':
     # Used to create the animated status icon
-    from PyQt4.Qt import QApplication, QPainter, QSvgRenderer, QColor
+    from PyQt4.Qt import QPainter, QSvgRenderer, QColor
     from subprocess import check_call
-    app = QApplication([])
+    from calibre.gui2 import is_ok_to_use_qt
+    is_ok_to_use_qt()
 
     def create_pixmaps(path, size=16, delta=20):
         r = QSvgRenderer(path)

@@ -64,26 +64,27 @@ this, make your changes, then run::
     bzr commit -m "Comment describing your changes"
     bzr send -o my-changes
 
-This will create a my-changes file in the current directory, simply attach that to a ticket on the |app| `bug tracker <http://calibre.kovidgoyal.net>`_.
+This will create a :file:`my-changes` file in the current directory,
+simply attach that to a ticket on the |app| `bug tracker <http://calibre.kovidgoyal.net/newticket>`_.
 
 If you plan to do a lot of development on |app|, then the best method is to create a 
-`Launchpad <http://launchpad.net>`_ account. Once you have the account, you can create your own
-branch in which you do |app| development. To do that go to `Launchpad code <https://code.launchpad.net>`_ and click
-"Register a branch" (choose a branch type of "Hosted"). Once the branch is setup you can associate it
-with the code you checked out in the previous step running the following command in any directory 
-in the |app| code you checked out::
+`Launchpad <http://launchpad.net>`_ account. Once you have the account, you can use it to register
+your bzr branch created by the `bzr branch` command above with the |app| project. First run the
+following command to tell bzr about your launchpad account::
 
-    bzr push <URL of your launchpad branch>
+    bzr launchpad-login your_launchpad_username
 
-This will host your branch on launchpad. Now go to `calibre@Launchapd <http://code.launchpad.net/calibre>`_ and register
-your branch with the |app| project. Now whenever you commit changes to your branch with the command::
+Now, you have to setup SSH access to Launchpad. First create an SSH public/private keypair. Then upload 
+the public key to Launchpad by going to your Launchpad account page. Instructions for setting up the 
+private key in bzr are at http://bazaar-vcs.org/Bzr_and_SSH. Now you can upload your branch to the |app|
+project in Launchapd by following the instructions at https://help.launchpad.net/Code/UploadingABranch.
+Now whenever you commit changes to your branch with the command::
 
     bzr commit -m "Comment describing your change"
 
 I can merge it directly from you branch into the main |app| source tree. You should also subscribe to the |app|
 developers mailing list `calibre-devs <https://launchpad.net/~calibre-devs>`_. Before making major changes, you should
-discuss them on the mailing list to ensure that the changes will be accepted once you're done. 
-
+discuss them on the mailing list or the #calibre IRC channel on Freenode to ensure that the changes will be accepted once you're done. 
 
 Windows development environment
 ---------------------------------
