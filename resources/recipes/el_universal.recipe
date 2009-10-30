@@ -94,7 +94,7 @@ class ElUniversal(BasicNewsRecipe):
              ,(u'Mexico'           , u'http://www.eluniversal.com.mx/rss/mexico.xml'       )
              ,(u'Estados'          , u'http://www.eluniversal.com.mx/rss/estados.xml'      )
              ,(u'Finanzas'         , u'http://www.eluniversal.com.mx/rss/finanzas.xml'     )
-             (u'Deportes'         , u'http://www.eluniversal.com.mx/rss/deportes.xml'     )
+             ,(u'Deportes'         , u'http://www.eluniversal.com.mx/rss/deportes.xml'     )
              ,(u'Espectaculos'     , u'http://www.eluniversal.com.mx/rss/espectaculos.xml' )
              ,(u'Cultura'          , u'http://www.eluniversal.com.mx/rss/cultura.xml'      )
              ,(u'Ciencia'          , u'http://www.eluniversal.com.mx/rss/ciencia.xml'      )
