@@ -386,7 +386,7 @@ def main():
                      {
                          'optimize' : 2,
                          'dist_dir' : 'build/py2app',
-                         'argv_emulation' : False,
+                         'argv_emulation' : True,
                          'iconfile' : icon,
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml',
