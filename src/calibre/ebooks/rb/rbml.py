@@ -82,13 +82,16 @@ class RBMLizer(object):
 
     def get_cover_page(self):
         output = u''
+        if 'cover' in self.oeb_book.guide:
+            if self.name_map.get(self.oeb_book.guide['cover'].href, None):
+                output += '<IMG SRC="%s">' % self.name_map[self.oeb_book.guide['cover'].href]
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating cover page...')
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
                 stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
-                output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+                output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
         return output
 
     def get_toc(self):
@@ -152,7 +155,7 @@ class RBMLizer(object):
         if tag in IMAGE_TAGS:
             if elem.attrib.get('src', None):
                 if page.abshref(elem.attrib['src']) not in self.name_map.keys():
-                    self.name_map[page.abshref(elem.attrib['src'])] = unique_name('%s' % len(self.image_hrefs.keys()), self.image_hrefs.keys(), self.name_map.keys())
+                    self.name_map[page.abshref(elem.attrib['src'])] = unique_name('%s' % len(self.name_map.keys()), self.name_map.keys())
                 text.append('<IMG SRC="%s">' % self.name_map[page.abshref(elem.attrib['src'])])
 
         rb_tag = tag.upper() if tag in TAGS else None

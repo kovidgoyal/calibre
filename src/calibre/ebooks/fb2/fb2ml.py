@@ -107,6 +107,9 @@ class FB2MLizer(object):
 
     def get_cover_page(self):
         output = u''
+        if 'cover' in self.oeb_book.guide:
+            output += '<image xlink:href="#cover.jpg" />'
+            self.image_hrefs[self.oeb_book.guide['cover'].href] = 'cover.jpg'
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating cover page...')
             href = self.oeb_book.guide['titlepage'].href
