@@ -139,10 +139,9 @@ class OEBReader(object):
             mi.book_producer = '%(a)s (%(v)s) [http://%(a)s.kovidgoyal.net]'%\
                 dict(a=__appname__, v=__version__)
         meta_info_to_oeb_metadata(mi, self.oeb.metadata, self.logger)
-        bookid = "urn:uuid:%s" % str(uuid.uuid4()) if mi.application_id is None \
-                else mi.application_id
-        self.oeb.metadata.add('identifier', bookid, id='calibre-uuid')
-        self.oeb.uid = self.oeb.metadata.identifier[0]
+        self.oeb.metadata.add('identifier', str(uuid.uuid4()), id='uuid_id',
+                                scheme='uuid')
+        self.oeb.uid = self.oeb.metadata.identifier[-1]
 
     def _manifest_prune_invalid(self):
         '''

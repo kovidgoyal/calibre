@@ -320,8 +320,8 @@ class HTMLInput(InputFormatPlugin):
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
 
-        bookid = "urn:uuid:%s" % str(uuid.uuid4())
-        metadata.add('identifier', bookid, id='calibre-uuid')
+        bookid = str(uuid.uuid4())
+        metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
         for ident in metadata.identifier:
             if 'id' in ident.attrib:
                 self.oeb.uid = metadata.identifier[0]
@@ -408,6 +408,9 @@ class HTMLInput(InputFormatPlugin):
             link = os.path.join(base, link)
         link = os.path.abspath(link)
         if not os.access(link, os.R_OK):
+            return link_
+        if os.path.isdir(link):
+            self.log.warn(link_, 'is a link to a directory. Ignoring.')
             return link_
         if not islinux:
             link = link.lower()

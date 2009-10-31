@@ -59,7 +59,7 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5,
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
              'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15,
-             'lccn':16, 'pubdate':17, 'flags':18, 'cover':19}
+             'lccn':16, 'pubdate':17, 'flags':18, 'uuid':19, 'cover':20}
 INDEX_MAP = dict(zip(FIELD_MAP.values(), FIELD_MAP.keys()))
 
 
@@ -447,7 +447,7 @@ class LibraryDatabase2(LibraryDatabase):
 
         for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
                      'publisher', 'rating', 'series', 'series_index', 'tags',
-                     'title', 'timestamp'):
+                     'title', 'timestamp', 'uuid'):
             setattr(self, prop, functools.partial(get_property,
                     loc=FIELD_MAP['comments' if prop == 'comment' else prop]))
 
@@ -622,6 +622,50 @@ class LibraryDatabase2(LibraryDatabase):
         END TRANSACTION;
         ''')
 
+    def upgrade_version_7(self):
+        'Add uuid column'
+        self.conn.executescript('''
+        BEGIN TRANSACTION;
+        ALTER TABLE books ADD COLUMN uuid TEXT;
+        DROP TRIGGER IF EXISTS books_insert_trg;
+        DROP TRIGGER IF EXISTS books_update_trg;
+        UPDATE books SET uuid=uuid4();
+
+        CREATE TRIGGER books_insert_trg AFTER INSERT ON books
+        BEGIN
+            UPDATE books SET sort=title_sort(NEW.title),uuid=uuid4() WHERE id=NEW.id;
+        END;
+
+        CREATE TRIGGER books_update_trg AFTER UPDATE ON books
+        BEGIN
+            UPDATE books SET sort=title_sort(NEW.title) WHERE id=NEW.id;
+        END;
+
+        DROP VIEW meta;
+        CREATE VIEW meta AS
+        SELECT id, title,
+               (SELECT sortconcat(bal.id, name) FROM books_authors_link AS bal JOIN authors ON(author = authors.id) WHERE book = books.id) authors,
+               (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+               (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+               timestamp,
+               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+               (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+               (SELECT text FROM comments WHERE book=books.id) comments,
+               (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+               series_index,
+               sort,
+               author_sort,
+               (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+               isbn,
+               path,
+               lccn,
+               pubdate,
+               flags,
+               uuid
+        FROM books;
+
+        END TRANSACTION;
+        ''')
 
 
     def last_modified(self):
@@ -785,6 +829,7 @@ class LibraryDatabase2(LibraryDatabase):
         mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
         mi.timestamp   = self.timestamp(idx, index_is_id=index_is_id)
         mi.pubdate     = self.pubdate(idx, index_is_id=index_is_id)
+        mi.uuid        = self.uuid(idx, index_is_id=index_is_id)
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -1530,7 +1575,9 @@ class LibraryDatabase2(LibraryDatabase):
         '''
         if prefix is None:
             prefix = self.library_path
-        FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'isbn'])
+        FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
+            'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
+            'isbn', 'uuid'])
         data = []
         for record in self.data:
             if record is None: continue

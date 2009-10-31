@@ -432,6 +432,9 @@ class OPF(object):
     identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
     application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
+    uuid_id_path    = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
+                            '(re:match(@opf:scheme, "uuid", "i") or re:match(@scheme, "uuid", "i"))]')
+
     manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]')
     manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]')
     spine_path      = XPath('descendant::*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
@@ -748,6 +751,25 @@ class OPF(object):
         return property(fget=fget, fset=fset)
 
     @dynamic_property
+    def uuid(self):
+
+        def fget(self):
+            for match in self.uuid_id_path(self.metadata):
+                return self.get_text(match) or None
+
+        def fset(self, val):
+            matches = self.uuid_id_path(self.metadata)
+            if not matches:
+                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'uuid'}
+                matches = [self.create_metadata_element('identifier',
+                                                        attrib=attrib)]
+            self.set_text(matches[0], unicode(val))
+
+        return property(fget=fget, fset=fset)
+
+
+
+    @dynamic_property
     def book_producer(self):
 
         def fget(self):
@@ -977,6 +999,9 @@ def metadata_to_opf(mi, as_string=True):
     if not mi.application_id:
         mi.application_id = str(uuid.uuid4())
 
+    if not mi.uuid:
+        mi.uuid = str(uuid.uuid4())
+
     if not mi.book_producer:
         mi.book_producer = __appname__ + ' (%s) '%__version__ + \
             '[http://calibre-ebook.com]'
@@ -986,13 +1011,14 @@ def metadata_to_opf(mi, as_string=True):
 
     root = etree.fromstring(textwrap.dedent(
     '''
-    <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="%(a)s_id">
+    <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id">
         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
             <dc:identifier opf:scheme="%(a)s" id="%(a)s_id">%(id)s</dc:identifier>
+            <dc:identifier opf:scheme="uuid" id="uuid_id">%(uuid)s</dc:identifier>
         </metadata>
         <guide/>
     </package>
-    '''%dict(a=__appname__, id=mi.application_id)))
+    '''%dict(a=__appname__, id=mi.application_id, uuid=mi.uuid)))
     metadata = root[0]
     guide = root[1]
     metadata[0].tail = '\n'+(' '*8)
