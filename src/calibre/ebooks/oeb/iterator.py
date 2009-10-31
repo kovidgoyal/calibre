@@ -19,7 +19,7 @@ from calibre.utils.zipfile import safe_replace, ZipFile
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
 from calibre.ebooks.epub.output import EPUBOutput
-from calibre import guess_type
+from calibre import guess_type, prints
 
 TITLEPAGE = EPUBOutput.TITLEPAGE_COVER.decode('utf-8')
 
@@ -99,29 +99,63 @@ class EbookIterator(object):
                 if text in open(path, 'rb').read().decode(path.encoding).lower():
                     return i
 
+    def find_missing_css_files(self):
+        for x in os.walk(os.path.dirname(self.pathtoopf)):
+            for f in x[-1]:
+                if f.endswith('.css'):
+                    yield os.path.join(x[0], f)
+
+    def find_declared_css_files(self):
+        for item in self.opf.manifest:
+            if item.mime_type and 'css' in item.mime_type.lower():
+                yield item.path
+
     def find_embedded_fonts(self):
         '''
         This will become unnecessary once Qt WebKit supports the @font-face rule.
         '''
-        for item in self.opf.manifest:
-            if item.mime_type and 'css' in item.mime_type.lower():
-                css = open(item.path, 'rb').read().decode('utf-8', 'replace')
-                for match in re.compile(r'@font-face\s*{([^}]+)}').finditer(css):
-                    block  = match.group(1)
-                    family = re.compile(r'font-family\s*:\s*([^;]+)').search(block)
-                    url    = re.compile(r'url\s*\([\'"]*(.+?)[\'"]*\)', re.DOTALL).search(block)
-                    if url:
-                        path = url.group(1).split('/')
-                        path = os.path.join(os.path.dirname(item.path), *path)
-                        id = QFontDatabase.addApplicationFont(path)
-                        if id != -1:
-                            families = [unicode(f) for f in QFontDatabase.applicationFontFamilies(id)]
-                            if family:
-                                family = family.group(1).strip().replace('"', '')
-                                if family not in families:
-                                    print 'WARNING: Family aliasing not supported:', block
-                                else:
-                                    print 'Loaded embedded font:', repr(family)
+        css_files = set(self.find_declared_css_files())
+        if not css_files:
+            css_files = set(self.find_missing_css_files())
+        bad_map = {}
+        font_family_pat = re.compile(r'font-family\s*:\s*([^;]+)')
+        for csspath in css_files:
+            css = open(csspath, 'rb').read().decode('utf-8', 'replace')
+            for match in re.compile(r'@font-face\s*{([^}]+)}').finditer(css):
+                block  = match.group(1)
+                family = font_family_pat.search(block)
+                url    = re.compile(r'url\s*\([\'"]*(.+?)[\'"]*\)', re.DOTALL).search(block)
+                if url:
+                    path = url.group(1).split('/')
+                    path = os.path.join(os.path.dirname(csspath), *path)
+                    if not os.access(path, os.R_OK):
+                        continue
+                    id = QFontDatabase.addApplicationFont(path)
+                    if id != -1:
+                        families = [unicode(f) for f in QFontDatabase.applicationFontFamilies(id)]
+                        if family:
+                            family = family.group(1).strip().replace('"', '')
+                            bad_map[family] = families[0]
+                            if family not in families:
+                                prints('WARNING: Family aliasing not fully supported.')
+                                prints('\tDeclared family: %s not in actual families: %s'
+                                        % (family, families))
+                            else:
+                                prints('Loaded embedded font:', repr(family))
+        if bad_map:
+            def prepend_embedded_font(match):
+                for bad, good in bad_map.items():
+                    if bad in match.group(1):
+                        prints('Substituting font family: %s -> %s'%(bad, good))
+                        return 'font-family: %s;'%good
+
+            for csspath in css_files:
+                with open(csspath, 'r+b') as f:
+                    css = f.read()
+                    css = font_family_pat.sub(prepend_embedded_font, css)
+                    f.seek(0)
+                    f.truncate()
+                    f.write(css)
 
     def __enter__(self, processed=False):
         self.delete_on_exit = []
