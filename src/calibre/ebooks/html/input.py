@@ -334,7 +334,6 @@ class HTMLInput(InputFormatPlugin):
         htmlfile_map = {}
         for f in filelist:
             path = f.path
-            print 111, path, repr(path), repr(os.path.dirname(path))
             oeb.container = DirContainer(os.path.dirname(path), log)
             bname = os.path.basename(path)
             id, href = oeb.manifest.generate(id='html',
