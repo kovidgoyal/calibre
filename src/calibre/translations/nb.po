@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-10-26 17:36+0000\n"
-"PO-Revision-Date: 2009-10-29 20:47+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-10-31 08:01+0000\n"
+"Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-30 08:27+0000\n"
+"X-Launchpad-Export-Date: 2009-10-31 08:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -2395,6 +2395,9 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Spesifiser kompresjonsraten som skal benyttes. Skala fra 1 til 10,der 1 har "
+"den laveste kompresjonen men er raskest og 10 har den høyeste kompresjonen "
+"men den sakteste."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
@@ -2880,7 +2883,7 @@ msgstr "&Innlagt TOC"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
 msgid "Font rescaling wizard"
-msgstr ""
+msgstr "Veiviser for omskalering av fontstørrelse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:100
 msgid ""
@@ -2898,15 +2901,29 @@ msgid ""
 "rescaling\">User Manual</a> for a discussion of how font size rescaling "
 "works.</p>"
 msgstr ""
+"<p>Denne veiviseren hjelper deg til å velge en anvendelig "
+"fontstørrelsesnøkkel til dine behov. Legg inn normalstørrelsen for fonter i "
+"dokumentet  og deretter fontstørrelsen du ønsker som inndata i dokumentet. "
+"Veiviseren vil vise hviklen fontstørrelse som vil bli laget via en "
+"fontomskaleringsalgoritme. Du kan justere algoritmen ved å endre basis-"
+"utdatas fontstørrelse og fontnøkkelen under. Når du ser at verdiene passer "
+"til ditt bruk, klikker du OK.</p>\n"
+"<p>Som standard, dersom utdatas basisfontstørrelse er null og/eller ingen "
+"forntstørrelsesnøkkel er spesifisert, vil Calibre benytte verdiene fra "
+"gjeldende utdataprofil. </p>\n"
+"<p>Se <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/conversion.html#font-size-"
+"rescaling\">Brukermanual</a> som et hjelpemiddel for hvordan "
+"fontstørrelsesomskalering fungerer.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
 msgid "&Output document"
-msgstr ""
+msgstr "&Utdatadokument"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 msgid "&Base font size:"
-msgstr ""
+msgstr "&Normalstørrelse for fonter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:108
@@ -2930,23 +2947,23 @@ msgstr " punkter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
 msgid "Use &default values"
-msgstr ""
+msgstr "Benytt &normalverdier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Input document"
-msgstr ""
+msgstr "&Inndatadokument"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 msgid "&Font size: "
-msgstr ""
+msgstr "&Fontstørrelse: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
 msgid " will map to size: "
-msgstr ""
+msgstr " vil omgjøre til størrelse: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
 msgid "0.0 pt"
-msgstr ""
+msgstr "0.0 punkter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -2982,7 +2999,7 @@ msgstr "&Omskriv unicodetegn til ASCII."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:109
 msgid "Input character &encoding:"
-msgstr ""
+msgstr "Inndatategn &kodesetting:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:110
 msgid "&Disable font size rescaling"
@@ -2995,6 +3012,7 @@ msgstr "Sett inn &blank linje"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:112
 msgid "Wizard to help you choose an appropriate font size key"
 msgstr ""
+"Veiviser som hjelper deg til å velge en fungsjonell fontstørrelsenøkkel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:114
 msgid "Extra &CSS"
