@@ -274,6 +274,7 @@ class GetMetadata(QObject):
         self.emit(SIGNAL('metadata(PyQt_PyObject, PyQt_PyObject)'), id, mi)
 
 class TableView(QTableView):
+
     def __init__(self, parent):
         QTableView.__init__(self, parent)
         self.read_settings()
