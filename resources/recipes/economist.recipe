@@ -16,9 +16,11 @@ class Economist(BasicNewsRecipe):
     language = 'en'
 
     __author__ = "Kovid Goyal"
-    description = 'Global news and current affairs from a European perspective'
-    oldest_article = 7.0
     INDEX = 'http://www.economist.com/printedition'
+    description = ('Global news and current affairs from a European perspective.'
+            ' Needs a subscription from ')+INDEX
+
+    oldest_article = 7.0
     cover_url = 'http://www.economist.com/images/covers/currentcovereu_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title'])]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')

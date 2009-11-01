@@ -147,7 +147,7 @@ class EbookIterator(object):
                 for bad, good in bad_map.items():
                     if bad in match.group(1):
                         prints('Substituting font family: %s -> %s'%(bad, good))
-                        return 'font-family: %s;'%good
+                        return match.group().replace(bad, '"%s"'%good)
 
             for csspath in css_files:
                 with open(csspath, 'r+b') as f:
