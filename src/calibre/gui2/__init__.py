@@ -274,6 +274,7 @@ class GetMetadata(QObject):
         self.emit(SIGNAL('metadata(PyQt_PyObject, PyQt_PyObject)'), id, mi)
 
 class TableView(QTableView):
+
     def __init__(self, parent):
         QTableView.__init__(self, parent)
         self.read_settings()
@@ -585,8 +586,11 @@ def build_forms(srcdir, info=None):
             if form.endswith('viewer%smain.ui'%os.sep):
                 info('\t\tPromoting WebView')
                 dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
+                dat = dat.replace('from PyQt4 import QtWebKit', '')
+                if iswindows:
+                    dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
+                    dat = dat.replace('from QtWebKit.QWebView import QWebView', '')
                 dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
-                dat += '\nQtWebKit'
 
             open(compiled_form, 'wb').write(dat)
 

@@ -15,8 +15,8 @@ class Guardian(BasicNewsRecipe):
     __author__ = 'Seabound and Sujata Raman'
     language = 'en_GB'
 
-    oldest_article = 7
-    max_articles_per_feed = 20
+    #oldest_article = 7
+    #max_articles_per_feed = 100
     remove_javascript = True
 
     timefmt = ' [%a, %d %b %Y]'
@@ -45,26 +45,94 @@ class Guardian(BasicNewsRecipe):
 
 
 
-    feeds = [
-        ('Front Page', 'http://www.guardian.co.uk/rss'),
-        ('Business', 'http://www.guardian.co.uk/business/rss'),
-        ('Sport', 'http://www.guardian.co.uk/sport/rss'),
-        ('Culture', 'http://www.guardian.co.uk/culture/rss'),
-        ('Money', 'http://www.guardian.co.uk/money/rss'),
-        ('Life & Style', 'http://www.guardian.co.uk/lifeandstyle/rss'),
-        ('Travel', 'http://www.guardian.co.uk/travel/rss'),
-        ('Environment', 'http://www.guardian.co.uk/environment/rss'),
-        ('Comment','http://www.guardian.co.uk/commentisfree/rss'),
-        ]
+   # feeds = [
+   #     ('Front Page', 'http://www.guardian.co.uk/rss'),
+   #     ('Business', 'http://www.guardian.co.uk/business/rss'),
+   #     ('Sport', 'http://www.guardian.co.uk/sport/rss'),
+   #     ('Culture', 'http://www.guardian.co.uk/culture/rss'),
+   #     ('Money', 'http://www.guardian.co.uk/money/rss'),
+   #     ('Life & Style', 'http://www.guardian.co.uk/lifeandstyle/rss'),
+   #     ('Travel', 'http://www.guardian.co.uk/travel/rss'),
+   #     ('Environment', 'http://www.guardian.co.uk/environment/rss'),
+   #     ('Comment','http://www.guardian.co.uk/commentisfree/rss'),
+   #     ]
 
-    def get_article_url(self, article):
-          url = article.get('guid', None)
-          if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
-              '/gallery/' in url  or 'ivebeenthere' in url or \
-              'pickthescore' in url or 'audioslideshow' in url :
-              url = None
-          return url
+   # def get_article_url(self, article):
+   #       url = article.get('guid', None)
+   #       if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
+   #           '/gallery/' in url  or 'ivebeenthere' in url or \
+   #           'pickthescore' in url or 'audioslideshow' in url :
+   #           url = None
+   #       return url
 
+    def parse_index(self):
+
+            articles = []
+
+
+            soup = self.index_to_soup('http://www.guardian.co.uk/theguardian')
+             # find cover pic
+            img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
+
+            if img is not None:
+                self.cover_url = img['src']
+
+             # end find cover pic
+            for li in soup.findAll( 'li'):
+
+                if li.a and li.a.has_key('href'):
+                        url =  li.a['href']
+                        if 'mainsection' in url:
+
+
+                            #find the articles in the Main Section
+
+                            soup = self.index_to_soup(url)
+
+                            for tag in soup.findAll('h3'):
+                                for a in tag.findAll('a'):
+
+                                    if a and a.has_key('href'):
+
+                                        url2 =  a['href']
+
+                                    else:
+                                        url2 =''
+
+                                    title = self.tag_to_string(a)
+                                    #eliminate duplicates
+                                    if len(articles) == 0:
+                                        desc = 'Main Section'
+                                        date = ''
+                                        articles.append({
+                                                 'title':title,
+                                                 'date':date,
+                                                 'url':url2,
+                                                 'description':desc,
+                                                    })
+                                    else:
+                                        if len(articles) > 0:
+                                            if {'title':title,'date':date,'url':url2,'description':desc} in articles:
+                                                ulrl2 = ''
+                                    #eliminate duplicates
+                                            else:
+
+                                                desc = 'Main Section'
+                                                date = ''
+                                                articles.append({
+                                                     'title':title,
+                                                     'date':date,
+                                                     'url':url2,
+                                                     'description':desc,
+                                                        })
+                            #find the articles in the Main Section
+                else:
+                        url =''
+
+
+
+
+            return [('Current Issue', articles)]
 
 
     def preprocess_html(self, soup):
