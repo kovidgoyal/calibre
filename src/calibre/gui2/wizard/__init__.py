@@ -468,6 +468,11 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.init_languages()
         self.connect(self.language, SIGNAL('currentIndexChanged(int)'),
                 self.change_language)
+        self.connect(self.location, SIGNAL('textChanged(QString)'),
+                self.location_text_changed)
+
+    def location_text_changed(self, newtext):
+        self.emit(SIGNAL('completeChanged()'))
 
     def init_languages(self):
         self.language.blockSignals(True)
@@ -525,9 +530,13 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.location.setText(lp)
 
     def isComplete(self):
-        lp = unicode(self.location.text())
-        return lp and os.path.exists(lp) and os.path.isdir(lp) and os.access(lp,
-                os.W_OK)
+        try:
+            lp = unicode(self.location.text())
+            ans = bool(lp) and os.path.exists(lp) and os.path.isdir(lp) and os.access(lp,
+                    os.W_OK)
+        except:
+            ans = False
+        return ans
 
     def commit(self, completed):
         oldloc = prefs['library_path']
