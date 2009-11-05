@@ -6,14 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.ebooks.oeb.base import OEB_DOCS, XPath
+from calibre.ebooks.oeb.base import OEB_DOCS, XPath, XHTML
 
 class LinearizeTables(object):
 
     def linearize(self, root):
         for x in XPath('//h:table|//h:td|//h:tr|//h:th|//h:caption|'
                 '//h:tbody|//h:tfoot|//h:thead|//h:colgroup|//h:col')(root):
-            x.tag = 'div'
+            x.tag = XHTML('div')
             for attr in ('style', 'font', 'valign',
                          'colspan', 'width', 'height',
                          'rowspan', 'summary', 'align',

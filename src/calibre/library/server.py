@@ -45,6 +45,8 @@ def expose(func):
 
     def do(self, *args, **kwargs):
         dict.update(cherrypy.response.headers, {'Server':self.server_name})
+        if not self.embedded:
+            self.db.check_if_modified()
         return func(self, *args, **kwargs)
 
     return cherrypy.expose(do)
@@ -344,6 +346,7 @@ class LibraryServer(object):
             item
             break
         self.opts = opts
+        self.embedded = embedded
         self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
         self.max_stanza_items = opts.max_opds_items

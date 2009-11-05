@@ -87,4 +87,6 @@ class Economist(BasicNewsRecipe):
                 feeds[key].append(article)
 
         ans = [(key, feeds[key]) for key in ans if feeds.has_key(key)]
+        if not ans:
+            raise Exception('Could not find any articles. Has your subscription expired?')
         return ans

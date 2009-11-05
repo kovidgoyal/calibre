@@ -439,6 +439,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.count   = self.data.count
 
         self.refresh()
+        self.last_update_check = self.last_modified()
+
 
         def get_property(idx, index_is_id=False, loc=-1):
             row = self.data._data[idx] if index_is_id else self.data[idx]
@@ -671,6 +673,11 @@ class LibraryDatabase2(LibraryDatabase):
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
         return datetime.utcfromtimestamp(os.stat(self.dbpath).st_mtime)
+
+    def check_if_modified(self):
+        if self.last_modified() > self.last_update_check:
+            self.refresh()
+        self.last_update_check = datetime.utcnow()
 
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'

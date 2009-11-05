@@ -18,7 +18,6 @@ from PyQt4.QtGui import QColor
 from PyQt4.QtGui import QImage
 from PyQt4.QtGui import QPainter
 from PyQt4.QtSvg import QSvgRenderer
-from PyQt4.QtGui import QApplication
 from calibre.ebooks.oeb.base import XHTML, XLINK
 from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
 from calibre.ebooks.oeb.base import xml2str, xpath
@@ -30,8 +29,9 @@ KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
 
 class SVGRasterizer(object):
     def __init__(self):
-        if QApplication.instance() is None:
-            QApplication([])
+        from calibre.gui2 import is_ok_to_use_qt
+        if not is_ok_to_use_qt():
+            raise Exception('Not OK to use Qt')
 
     @classmethod
     def config(cls, cfg):

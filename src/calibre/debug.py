@@ -174,13 +174,6 @@ def main(args=sys.argv):
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
-    elif opts.exec_file:
-        sys.argv = args
-        base = os.path.dirname(os.path.abspath(opts.exec_file))
-        sys.path.insert(0, base)
-        g = globals()
-        g['__name__'] = '__main__'
-        execfile(opts.exec_file, g)
     elif opts.debug_device_driver:
         debug_device_driver()
     elif opts.migrate:

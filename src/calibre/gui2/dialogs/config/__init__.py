@@ -325,13 +325,15 @@ class EmailAccounts(QAbstractTableModel):
 
 class ConfigDialog(ResizableDialog, Ui_Dialog):
 
+    def category_current_changed(self, n, p):
+        self.stackedWidget.setCurrentIndex(n.row())
+
     def __init__(self, window, db, server=None):
         ResizableDialog.__init__(self, window)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self._category_model = CategoryModel()
 
-        self.category_view.currentChanged = \
-            lambda n, p: self.stackedWidget.setCurrentIndex(n.row())
+        self.category_view.currentChanged = self.category_current_changed
         self.category_view.setModel(self._category_model)
         self.db = db
         self.server = server
@@ -814,6 +816,6 @@ if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
     d=ConfigDialog(None, LibraryDatabase2('/tmp'))
-    d.category_view.setCurrentIndex(d.category_view.model().index(2))
+    d.category_view.setCurrentIndex(d.category_view.model().index(0))
     d.show()
     app.exec_()

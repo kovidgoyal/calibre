@@ -114,6 +114,8 @@ class OEBReader(object):
             except etree.XMLSyntaxError:
                 data = re.sub(r'(?is)<tours>.+</tours>', '', data)
                 self.logger.warn('OPF contains invalid tours section')
+                data = data.replace('<dc-metadata>',
+                    '<dc-metadata xmlns:dc="http://purl.org/metadata/dublin_core">')
                 opf = etree.fromstring(data)
 
         ns = namespace(opf.tag)
