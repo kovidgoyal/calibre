@@ -1,7 +1,7 @@
 """CSSMediaRule implements DOM Level 2 CSS CSSMediaRule."""
 __all__ = ['CSSMediaRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssmediarule.py 1820 2009-08-01 20:53:08Z cthedot $'
+__version__ = '$Id: cssmediarule.py 1871 2009-10-17 19:57:37Z cthedot $'
 
 import cssrule
 import cssutils
@@ -87,6 +87,7 @@ class CSSMediaRule(cssrule.CSSRule):
             - :exc:`~xml.dom.NoModificationAllowedErr`:
               Raised if the rule is readonly.
         """
+        # media "name"? { cssRules }
         super(CSSMediaRule, self)._setCssText(cssText)
         
         # might be (cssText, namespaces)
@@ -104,7 +105,9 @@ class CSSMediaRule(cssrule.CSSRule):
                 self._valuestr(cssText),
                 error=xml.dom.InvalidModificationErr)
         else:
-            # media "name"? { cssRules }
+            # save if parse goes wrong
+            oldmedia = cssutils.stylesheets.MediaList()
+            oldmedia._absorb(self.media)
             
             # media
             wellformed = True
@@ -112,8 +115,7 @@ class CSSMediaRule(cssrule.CSSRule):
                                             mediaqueryendonly=True,
                                             separateEnd=True)        
             if u'{' == self._tokenvalue(end) or self._prods.STRING == self._type(end):
-                newmedia = cssutils.stylesheets.MediaList()
-                newmedia.mediaText = mediatokens
+                self.media.mediaText = mediatokens
             
             # name (optional)
             name = None
@@ -209,14 +211,16 @@ class CSSMediaRule(cssrule.CSSRule):
                                                    new=new)
                 
                 # no post condition                    
-                if newmedia.wellformed and wellformed:
-                    # keep reference
-                    self._media.mediaText = newmedia.mediaText  
+                if self.media.wellformed and wellformed:
                     self.name = name
                     self._setSeq(nameseq)
                     del self._cssRules[:]
                     for r in newcssrules:
                         self._cssRules.append(r)
+                        
+                else:
+                    # RESET
+                    self.media._absorb(oldmedia)
         
     cssText = property(_getCssText, _setCssText,
         doc="(DOM) The parsable textual representation of this rule.")
@@ -243,7 +247,13 @@ class CSSMediaRule(cssrule.CSSRule):
         Delete the rule at `index` from the media block.
         
         :param index:
-            of the rule to remove within the media block's rule collection
+            The `index` of the rule to be removed from the media block's rule
+            list. For an `index` < 0 **no** :exc:`~xml.dom.IndexSizeErr` is
+            raised but rules for normal Python lists are used. E.g. 
+            ``deleteRule(-1)`` removes the last rule in cssRules.
+            
+            `index` may also be a CSSRule object which will then be removed
+            from the media block.
 
         :Exceptions:
             - :exc:`~xml.dom.IndexSizeErr`:
@@ -253,6 +263,16 @@ class CSSMediaRule(cssrule.CSSRule):
               Raised if this media rule is readonly.
         """
         self._checkReadonly()
+
+        if isinstance(index, cssrule.CSSRule):
+            for i, r in enumerate(self.cssRules):
+                if index == r:
+                    index = i
+                    break
+            else:
+                raise xml.dom.IndexSizeErr(u"CSSMediaRule: Not a rule in"
+                                           " this rule'a cssRules list: %s"
+                                           % index)
 
         try:
             self._cssRules[index]._parentRule = None # detach

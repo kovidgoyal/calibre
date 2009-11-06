@@ -1,7 +1,7 @@
 """CSSPageRule implements DOM Level 2 CSS CSSPageRule."""
 __all__ = ['CSSPageRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: csspagerule.py 1824 2009-08-01 21:00:34Z cthedot $'
+__version__ = '$Id: csspagerule.py 1868 2009-10-17 19:36:54Z cthedot $'
 
 from cssstyledeclaration import CSSStyleDeclaration
 from selectorlist import SelectorList
@@ -141,7 +141,6 @@ class CSSPageRule(cssrule.CSSRule):
 #        if not newselector in (None, u':first', u':left', u':right'):
 #            self._log.warn(u'CSSPageRule: Unknown CSS 2.1 @page selector: %r' %
 #                     newselector, neverraise=True)
-
         return wellformed, newseq
 
     def _getCssText(self):
@@ -171,7 +170,11 @@ class CSSPageRule(cssrule.CSSRule):
                             self._valuestr(cssText), 
                             error=xml.dom.InvalidModificationErr)
         else:
-            wellformed = True
+            # save if parse goes wrong
+            oldstyle = CSSStyleDeclaration()
+            oldstyle._absorb(self.style)
+            
+            ok = True
             selectortokens, startbrace = self._tokensupto2(tokenizer, 
                                                            blockstartonly=True,
                                                            separateEnd=True)
@@ -180,22 +183,21 @@ class CSSPageRule(cssrule.CSSRule):
                                                         separateEnd=True)
             nonetoken = self._nexttoken(tokenizer)
             if self._tokenvalue(startbrace) != u'{':
-                wellformed = False
+                ok = False
                 self._log.error(
                     u'CSSPageRule: No start { of style declaration found: %r' %
                     self._valuestr(cssText), startbrace)
             elif nonetoken:
-                wellformed = False
+                ok = False
                 self._log.error(
                     u'CSSPageRule: Trailing content found.', token=nonetoken)
                 
-                
-            wellformed, newselectorseq = self.__parseSelectorText(selectortokens)
+            selok, newselectorseq = self.__parseSelectorText(selectortokens)
+            ok = ok and selok
 
-            teststyle = CSSStyleDeclaration(parentRule=self)
             val, typ = self._tokenvalue(braceorEOFtoken), self._type(braceorEOFtoken)
             if val != u'}' and typ != 'EOF':
-                wellformed = False
+                ok = False
                 self._log.error(
                     u'CSSPageRule: No "}" after style declaration found: %r' %
                     self._valuestr(cssText))
@@ -203,14 +205,14 @@ class CSSPageRule(cssrule.CSSRule):
                 if 'EOF' == typ:
                     # add again as style needs it
                     styletokens.append(braceorEOFtoken)
-                teststyle.cssText = styletokens
-
-            if wellformed:
-                # known as correct from before
-                cssutils.log.enabled = False
-                self._selectorText = newselectorseq # TODO: TEST and REFS
                 self.style.cssText = styletokens
-                cssutils.log.enabled = True
+
+            if ok:
+                # TODO: TEST and REFS
+                self._selectorText = newselectorseq 
+            else:
+                # RESET
+                self.style._absorb(oldstyle)
                 
     cssText = property(_getCssText, _setCssText,
         doc="(DOM) The parsable textual representation of this rule.")

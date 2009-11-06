@@ -7,9 +7,10 @@ TODO
 """
 __all__ = ['Selector']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: selector.py 1741 2009-05-09 18:20:20Z cthedot $'
+__version__ = '$Id: selector.py 1868 2009-10-17 19:36:54Z cthedot $'
 
 from cssutils.util import _SimpleNamespaces
+from cssutils.helper import Deprecated
 import cssutils
 import xml.dom
 
@@ -98,13 +99,13 @@ class Selector(cssutils.util.Base2):
           ;
 
     """
-    def __init__(self, selectorText=None, parentList=None,
+    def __init__(self, selectorText=None, parent=None,
                  readonly=False):
         """
         :Parameters:
             selectorText
                 initial value of this selector
-            parentList
+            parent
                 a SelectorList
             readonly
                 default to False
@@ -113,7 +114,7 @@ class Selector(cssutils.util.Base2):
 
         self.__namespaces = _SimpleNamespaces(log=self._log)
         self._element = None
-        self._parent = parentList
+        self._parent = parent
         self._specificity = (0, 0, 0, 0)
         
         if selectorText:
@@ -169,10 +170,10 @@ class Selector(cssutils.util.Base2):
     element = property(lambda self: self._element, 
                        doc=u"Effective element target of this selector.")
 
-    parentList = property(lambda self: self._parent,
+    parent = property(lambda self: self._parent,
         doc="(DOM) The SelectorList that contains this Selector or\
         None if this Selector is not attached to a SelectorList.")
-        
+                
     def _getSelectorText(self):
         """Return serialized format."""
         return cssutils.ser.do_css_Selector(self)
@@ -201,7 +202,7 @@ class Selector(cssutils.util.Base2):
 
         try:
             # uses parent stylesheets namespaces if available, otherwise given ones
-            namespaces = self.parentList.parentRule.parentStyleSheet.namespaces
+            namespaces = self.parent.parentRule.parentStyleSheet.namespaces
         except AttributeError:
             pass
         tokenizer = self._tokenize2(selectorText)
@@ -787,3 +788,11 @@ class Selector(cssutils.util.Base2):
                     """)
 
     wellformed = property(lambda self: bool(len(self.seq)))
+
+
+    @Deprecated('Use property parent instead')
+    def _getParentList(self):
+        return self.parent
+    
+    parentList = property(_getParentList,
+        doc="DEPRECATED, see property parent instead")

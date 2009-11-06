@@ -60,7 +60,7 @@ class Profiles(object):
         'int': r'[-]?\d+',
         'nmchar': r'[\w-]|{nonascii}|{escape}',
         'num': r'[-]?\d+|[-]?\d*\.\d+',
-        'positivenum': r'\d+|[-]?\d*\.\d+',
+        'positivenum': r'\d+|\d*\.\d+',
         'number': r'{num}',
         'string': r'{string1}|{string2}',
         'string1': r'"(\\\"|[^\"])*"',

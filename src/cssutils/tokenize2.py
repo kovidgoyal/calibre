@@ -4,10 +4,11 @@
 """
 __all__ = ['Tokenizer', 'CSSProductions']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: tokenize2.py 1834 2009-08-02 12:20:21Z cthedot $'
+__version__ = '$Id: tokenize2.py 1865 2009-10-11 15:23:11Z cthedot $'
 
 from cssproductions import *
 from helper import normalize
+import itertools
 import re
 
 class Tokenizer(object):
@@ -20,7 +21,8 @@ class Tokenizer(object):
         u'@import': CSSProductions.IMPORT_SYM,
         u'@media': CSSProductions.MEDIA_SYM,        
         u'@namespace': CSSProductions.NAMESPACE_SYM,
-        u'@page': CSSProductions.PAGE_SYM
+        u'@page': CSSProductions.PAGE_SYM,
+        u'@variables': CSSProductions.VARIABLES_SYM
         }
     _linesep = u'\n'
     unicodesub = re.compile(r'\\[0-9a-fA-F]{1,6}(?:\r\n|[\t|\r|\n|\f|\x20])?').sub
@@ -40,6 +42,8 @@ class Tokenizer(object):
                                     productions))
         self.commentmatcher = [x[1] for x in self.tokenmatches if x[0] == 'COMMENT'][0]
         self.urimatcher = [x[1] for x in self.tokenmatches if x[0] == 'URI'][0]
+        
+        self._pushed = []
 
     def _expand_macros(self, macros, productions):
         """returns macro expanded productions, order of productions is kept"""
@@ -59,6 +63,13 @@ class Tokenizer(object):
         for key, value in expanded_productions:
             compiled.append((key, re.compile('^(?:%s)' % value, re.U).match))
         return compiled
+
+    def push(self, *tokens):
+        """Push back tokens which have been pulled but not processed."""
+        self._pushed = itertools.chain(tokens, self._pushed)
+
+    def clear(self):
+        self._pushed = []
 
     def tokenize(self, text, fullsheet=False):
         """Generator: Tokenize text and yield tokens, each token is a tuple 
@@ -107,6 +118,11 @@ class Tokenizer(object):
             col += len(found)
         
         while text:
+            
+            for pushed in self._pushed:
+                # do pushed tokens before new ones 
+                yield pushed
+
             # speed test for most used CHARs
             c = text[0]
             if c in '{}:;,':

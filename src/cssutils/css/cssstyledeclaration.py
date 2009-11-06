@@ -51,7 +51,7 @@ TODO:
 """
 __all__ = ['CSSStyleDeclaration', 'Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstyledeclaration.py 1819 2009-08-01 20:52:43Z cthedot $'
+__version__ = '$Id: cssstyledeclaration.py 1870 2009-10-17 19:56:59Z cthedot $'
 
 from cssproperties import CSS2Properties
 from property import Property
@@ -200,6 +200,12 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
             if isinstance(val, Property) and not val.name in names:
                 names.append(val.name)
         return reversed(names)    
+
+    def _absorb(self, other):
+        """Replace all own data with data from other object."""
+        self._parentRule = other._parentRule
+        self.seq.absorb(other.seq)
+        self._readonly = other._readonly
 
     # overwritten accessor functions for CSS2Properties' properties
     def _getP(self, CSSName):

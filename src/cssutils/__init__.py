@@ -70,11 +70,11 @@ Usage may be::
 __all__ = ['css', 'stylesheets', 'CSSParser', 'CSSSerializer']
 __docformat__ = 'restructuredtext'
 __author__ = 'Christof Hoeke with contributions by Walter Doerwald'
-__date__ = '$LastChangedDate:: 2009-08-01 16:10:11 -0600 #$:'
+__date__ = '$LastChangedDate:: 2009-10-17 15:12:28 -0600 #$:'
 
-VERSION = '0.9.6b3'
+VERSION = '0.9.7a1'
 
-__version__ = '%s $Id: __init__.py 1832 2009-08-01 22:10:11Z cthedot $' % VERSION
+__version__ = '%s $Id: __init__.py 1877 2009-10-17 21:12:28Z cthedot $' % VERSION
 
 import codec
 import xml.dom
@@ -270,6 +270,12 @@ def replaceUrls(sheet, replacer):
 
 def resolveImports(sheet, target=None):
     """Recurcively combine all rules in given `sheet` into a `target` sheet.
+    @import rules which use media information are tried to be wrapped into
+    @media rules so keeping the media information. This may not work in 
+    all instances (if e.g. an @import rule itself contains an @import rule
+    with different media infos or if it is contains rules which may not be 
+    used inside an @media block like @namespace rules.). In these cases
+    the @import rule is kept as in the original sheet and a WARNING is issued.
 
     :param sheet:
         in this given :class:`cssutils.css.CSSStyleSheet` all import rules are
@@ -290,8 +296,22 @@ def resolveImports(sheet, target=None):
             log.info(u'Processing @import %r' % rule.href, neverraise=True)
             if rule.styleSheet:
                 target.add(css.CSSComment(cssText=u'/* START @import "%s" */' % rule.href))
-                resolveImports(rule.styleSheet, target)
-                target.add(css.CSSComment(cssText=u'/* END "%s" */' % rule.href))
+                if rule.media.mediaText == 'all':
+                    t = target
+                else:
+                    log.info(u'Replacing @import media with @media: %s' % 
+                             rule.media.mediaText, neverraise=True)
+                    t = css.CSSMediaRule(rule.media.mediaText)
+                try:
+                    resolveImports(rule.styleSheet, t)
+                except xml.dom.HierarchyRequestErr, e:
+                    log.warn(u'Cannot resolve @import: %s' % 
+                             e, neverraise=True)
+                    target.add(rule)
+                else:
+                    if t != target:
+                        target.add(t)
+                    t.add(css.CSSComment(cssText=u'/* END "%s" */' % rule.href))
             else:
                 log.error(u'Cannot get referenced stylesheet %r' %
                           rule.href, neverraise=True)

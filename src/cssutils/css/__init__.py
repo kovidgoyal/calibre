@@ -37,12 +37,13 @@ __all__ = [
     'CSSPageRule',
     'CSSStyleRule',
     'CSSUnknownRule',
+    'CSSVariablesRule'
     'Selector', 'SelectorList',
     'CSSStyleDeclaration', 'Property',
     'CSSValue', 'CSSPrimitiveValue', 'CSSValueList'
     ]
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: __init__.py 1610 2009-01-03 21:07:57Z cthedot $'
+__version__ = '$Id: __init__.py 1859 2009-10-10 21:50:27Z cthedot $'
 
 from cssstylesheet import *
 from cssrulelist import *
@@ -55,9 +56,11 @@ from cssmediarule import *
 from cssnamespacerule import *
 from csspagerule import *
 from cssstylerule import *
+from cssvariablesrule import *
 from cssunknownrule import *
 from selector import *
 from selectorlist import *
 from cssstyledeclaration import *
+from cssvariablesdeclaration import *
 from property import *
 from cssvalue import *
