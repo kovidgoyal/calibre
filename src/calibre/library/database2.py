@@ -1584,7 +1584,7 @@ class LibraryDatabase2(LibraryDatabase):
             prefix = self.library_path
         FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
             'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
-            'isbn', 'uuid'])
+            'isbn', 'uuid', 'pubdate'])
         data = []
         for record in self.data:
             if record is None: continue
