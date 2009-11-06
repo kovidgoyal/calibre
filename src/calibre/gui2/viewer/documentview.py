@@ -458,6 +458,12 @@ class DocumentView(QWebView):
     def path(self):
         return os.path.abspath(unicode(self.url().toLocalFile()))
 
+    def self_closing_sub(self, match):
+        tag = match.group(1)
+        if tag.lower().strip() == 'br':
+            return match.group()
+        return '<%s %s></%s>'%(match.group(1), match.group(2), match.group(1))
+
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
         mt = getattr(path, 'mime_type', None)
@@ -466,7 +472,7 @@ class DocumentView(QWebView):
         html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
         if 'xhtml' in mt:
-            html = self.self_closing_pat.sub(r'<\1 \2></\1>', html)
+            html = self.self_closing_pat.sub(self.self_closing_sub, html)
         #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
         self.setHtml(html, QUrl.fromLocalFile(path))
         self.turn_off_internal_scrollbars()
