@@ -750,7 +750,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 if model.location_for_row(x) == 'carda':
                     self.card_a_view.write_settings()
                 elif model.location_for_row(x) == 'cardb':
-                    self.carb_b_view.write_settings()
+                    self.card_b_view.write_settings()
 
     def device_detected(self, connected):
         '''
