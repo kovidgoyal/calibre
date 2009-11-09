@@ -157,7 +157,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.formats_changed = True
             added = True
         if bad_perms:
-            error_dialog(self.window, _('You do not have '
+            error_dialog(self.window, _('No permission'),
+                    _('You do not have '
                 'permission to read the following files:'),
                 det_msg='\n'.join(bad_perms), show=True)
 
