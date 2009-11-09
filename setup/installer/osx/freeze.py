@@ -9,8 +9,8 @@ from setup import __version__ as VERSION, __appname__ as APPNAME, SRC, Command, 
 
 try:
     from setuptools import setup
-except:
     setup
+except:
     class setup:
         pass
 
