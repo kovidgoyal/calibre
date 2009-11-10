@@ -20,7 +20,7 @@ from calibre.utils.genshi.template import MarkupTemplate
 
 FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
-    'formats', 'isbn', 'uuid', 'cover'])
+    'formats', 'isbn', 'uuid', 'pubdate', 'cover'])
 
 XML_TEMPLATE = '''\
 <?xml version="1.0"  encoding="UTF-8"?>
@@ -38,6 +38,7 @@ XML_TEMPLATE = '''\
         <publisher>${record['publisher']}</publisher>
         <rating>${record['rating']}</rating>
         <date>${record['timestamp']}</date>
+        <pubdate>${record['pubdate']}</pubdate>
         <size>${record['size']}</size>
         <tags py:if="record['tags']">
         <py:for each="tag in record['tags']">

@@ -2,7 +2,7 @@
 ``name`` property from http://www.w3.org/TR/css3-cascade/#cascading."""
 __all__ = ['CSSImportRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssimportrule.py 1824 2009-08-01 21:00:34Z cthedot $'
+__version__ = '$Id: cssimportrule.py 1871 2009-10-17 19:57:37Z cthedot $'
 
 import cssrule
 import cssutils
@@ -105,6 +105,10 @@ class CSSImportRule(cssrule.CSSRule):
                 self._valuestr(cssText),
                 error=xml.dom.InvalidModificationErr)
         else:
+            # save if parse goes wrong
+            oldmedia = cssutils.stylesheets.MediaList()
+            oldmedia._absorb(self.media)
+            
             # for closures: must be a mutable
             new = {'keyword': self._tokenvalue(attoken),
                    'href': None,
@@ -164,12 +168,14 @@ class CSSImportRule(cssrule.CSSRule):
                         self._log.error(u'CSSImportRule: No ";" found: %s' %
                                         self._valuestr(cssText), token=token)
 
-                    media = cssutils.stylesheets.MediaList()
-                    media.mediaText = mediatokens
-                    if media.wellformed:
-                        new['media'] = media
-                        seq.append(media, 'media')
+                    #media = cssutils.stylesheets.MediaList()
+                    self.media.mediaText = mediatokens
+                    if self.media.wellformed:
+                        new['media'] = self.media
+                        seq.append(self.media, 'media')
                     else:
+                        # RESET
+                        self.media._absorb(oldmedia)
                         new['wellformed'] = False
                         self._log.error(u'CSSImportRule: Invalid MediaList: %s' %
                                         self._valuestr(cssText), token=token)
@@ -227,17 +233,8 @@ class CSSImportRule(cssrule.CSSRule):
             if wellformed:
                 self.atkeyword = new['keyword']
                 self.hreftype = new['hreftype']
-                if new['media']:
-                    # use same object
-                    self.media.mediaText = new['media'].mediaText
-                    # put it in newseq too
-                    for index, x in enumerate(newseq):
-                        if x.type == 'media':
-                            newseq.replace(index, self.media,
-                                           x.type, x.line, x.col)
-                            break
-                else:
-                	# reset media 
+                if not new['media']:
+                	# reset media to base media 
                     self.media.mediaText = u'all'
                     newseq.append(self.media, 'media')
                 self.name = new['name']

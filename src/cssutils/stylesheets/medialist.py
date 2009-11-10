@@ -6,7 +6,7 @@ TODO:
 """
 __all__ = ['MediaList']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: medialist.py 1605 2009-01-03 18:27:32Z cthedot $'
+__version__ = '$Id: medialist.py 1871 2009-10-17 19:57:37Z cthedot $'
 
 from cssutils.css import csscomment
 from mediaquery import MediaQuery
@@ -55,6 +55,13 @@ class MediaList(cssutils.util.Base, cssutils.util.ListSeq):
     def __str__(self):
         return "<cssutils.stylesheets.%s object mediaText=%r at 0x%x>" % (
                 self.__class__.__name__, self.mediaText, id(self))
+
+    def _absorb(self, other):
+        """Replace all own data with data from other object."""
+        #self._parentRule = other._parentRule
+        self.seq[:] = other.seq[:]
+        self._readonly = other._readonly
+
 
     length = property(lambda self: len(self),
         doc="The number of media in the list (DOM readonly).")

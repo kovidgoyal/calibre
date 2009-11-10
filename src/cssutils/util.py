@@ -2,7 +2,7 @@
 """
 __all__ = []
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: util.py 1781 2009-07-19 12:30:49Z cthedot $'
+__version__ = '$Id: util.py 1872 2009-10-17 21:00:40Z cthedot $'
 
 from helper import normalize
 from itertools import ifilter
@@ -488,6 +488,27 @@ class Seq(object):
         self._seq = []
         self._readonly = readonly
 
+    def __repr__(self):
+        "returns a repr same as a list of tuples of (value, type)"
+        return u'cssutils.%s.%s([\n    %s], readonly=%r)' % (self.__module__,
+                                          self.__class__.__name__,
+            u',\n    '.join([u'%r' % item for item in self._seq]
+            ), self._readonly)
+
+    def __str__(self):
+        vals = []
+        for v in self:
+            if isinstance(v.value, basestring):
+                vals.append(v.value)
+            elif type(v) == tuple:
+                vals.append(v.value[1])
+            else:
+                vals.append(str(v))
+
+        return "<cssutils.%s.%s object length=%r values=%r readonly=%r at 0x%x>" % (
+                self.__module__, self.__class__.__name__, len(self),
+                u', '.join(vals), self._readonly, id(self))
+
     def __delitem__(self, i):
         del self._seq[i]
 
@@ -503,8 +524,12 @@ class Seq(object):
     def __len__(self):
         return len(self._seq)
 
+    def absorb(self, other):
+        "Replace own data with data from other seq"
+        self._seq = other._seq
+
     def append(self, val, typ, line=None, col=None):
-        "if not readonly add new Item()"
+        "If not readonly add new Item()"
         if self._readonly:
             raise AttributeError('Seq is readonly.')
         else:
@@ -517,7 +542,7 @@ class Seq(object):
         else:
             self._seq.append(item)
 
-    def replace(self, index= - 1, val=None, typ=None, line=None, col=None):
+    def replace(self, index=-1, val=None, typ=None, line=None, col=None):
         """
         if not readonly replace Item at index with new Item or
         simply replace value or type
@@ -544,26 +569,6 @@ class Seq(object):
             self._seq[index] = Item(old.value + val, old.type,
                                     old.line, old.col)
 
-    def __repr__(self):
-        "returns a repr same as a list of tuples of (value, type)"
-        return u'cssutils.%s.%s([\n    %s], readonly=%r)' % (self.__module__,
-                                          self.__class__.__name__,
-            u',\n    '.join([u'%r' % item for item in self._seq]
-            ), self._readonly)
-
-    def __str__(self):
-        vals = []
-        for v in self:
-            if isinstance(v.value, basestring):
-                vals.append(v.value)
-            elif type(v) == tuple:
-                vals.append(v.value[1])
-            else:
-                vals.append(str(v))
-
-        return "<cssutils.%s.%s object length=%r values=%r readonly=%r at 0x%x>" % (
-                self.__module__, self.__class__.__name__, len(self),
-                u''.join(vals), self._readonly, id(self))
 
 class Item(object):
     """

@@ -1,7 +1,7 @@
 """Property is a single CSS property in a CSSStyleDeclaration."""
 __all__ = ['Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: property.py 1811 2009-07-29 13:11:15Z cthedot $'
+__version__ = '$Id: property.py 1868 2009-10-17 19:36:54Z cthedot $'
 
 from cssutils.helper import Deprecated
 from cssvalue import CSSValue
@@ -44,7 +44,7 @@ class Property(cssutils.util.Base):
 
     """
     def __init__(self, name=None, value=None, priority=u'', 
-                 _mediaQuery=False, parent=None, parentStyle=None):
+                 _mediaQuery=False, parent=None):
         """
         :param name:
             a property name string (will be normalized)
@@ -58,8 +58,6 @@ class Property(cssutils.util.Base):
         :param parent:
             the parent object, normally a 
             :class:`cssutils.css.CSSStyleDeclaration`
-        :param parentStyle:
-            DEPRECATED: Use ``parent`` instead
         """
         super(Property, self).__init__()
         self.seqs = [[], None, []]
@@ -76,7 +74,7 @@ class Property(cssutils.util.Base):
         if value:
             self.cssValue = value
         else:
-            self.seqs[1] = CSSValue()
+            self.seqs[1] = CSSValue(parent=self)
 
         self._priority = u''
         self._literalpriority = u''
@@ -246,31 +244,28 @@ class Property(cssutils.util.Base):
           type of values than the values allowed by the CSS property.
         """
         if self._mediaQuery and not cssText:
-            self.seqs[1] = CSSValue()
+            self.seqs[1] = CSSValue(parent=self)
         else:
-            if not self.seqs[1]:
-                self.seqs[1] = CSSValue()
+            #if not self.seqs[1]:
+            #    self.seqs[1] = CSSValue(parent=self)
 
-            cssvalue = self.seqs[1]
-            cssvalue.cssText = cssText
-            if cssvalue.wellformed: #cssvalue._value and 
-                self.seqs[1] = cssvalue
-            self.wellformed = self.wellformed and cssvalue.wellformed
+            self.seqs[1] = CSSValue(parent=self)
+            
+            self.seqs[1].cssText = cssText
+            self.wellformed = self.wellformed and self.seqs[1].wellformed
+            # self.valid = self.valid and self.cssValue.valid
 
     cssValue = property(_getCSSValue, _setCSSValue,
         doc="(cssutils) CSSValue object of this property")
 
-
     def _getValue(self):
         if self.cssValue:
-            return self.cssValue.cssText # _value # [0]
+            return self.cssValue.cssText
         else:
             return u''
 
     def _setValue(self, value):
-        self.cssValue.cssText = value
-#        self.valid = self.valid and self.cssValue.valid
-        self.wellformed = self.wellformed and self.cssValue.wellformed
+        self._setCSSValue(value)
 
     value = property(_getValue, _setValue,
                      doc="The textual value of this Properties cssValue.")
@@ -483,12 +478,3 @@ class Property(cssutils.util.Base):
 
     valid = property(validate, doc="Check if value of this property is valid "
                                    "in the properties context.")
-
-
-    @Deprecated('Use ``parent`` attribute instead.')
-    def _getParentStyle(self):
-        return self._parent
-
-    parentStyle = property(_getParentStyle, _setParent,
-        doc="DEPRECATED: Use ``parent`` instead")
-

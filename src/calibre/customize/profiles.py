@@ -250,7 +250,7 @@ class HanlinV3Output(OutputProfile):
 
     name        = 'Hanlin V3'
     short_name  = 'hanlinv3'
-    description = _('This profile is intended for the Hanlin V3 and its clones.')
+    description = _('This profile is intended for the Hanlin V3/V5 and its clones.')
 
     # Screen size is a best guess
     screen_size               = (584, 754)

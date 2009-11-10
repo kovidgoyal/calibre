@@ -12,7 +12,7 @@ open issues
 """
 __all__ = ['CSSProductions', 'MACROS', 'PRODUCTIONS']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssproductions.py 1835 2009-08-02 16:47:27Z cthedot $'
+__version__ = '$Id: cssproductions.py 1855 2009-10-07 17:03:19Z cthedot $'
 
 # a complete list of css3 macros
 MACROS = {
@@ -41,6 +41,7 @@ MACROS = {
     'nl': r'\n|\r\n|\r|\f',
 
     'A': r'A|a|\\0{0,4}(?:41|61)(?:\r\n|[ \t\r\n\f])?',
+    'B': r'B|b|\\0{0,4}(?:42|62)(?:\r\n|[ \t\r\n\f])?',
     'C': r'C|c|\\0{0,4}(?:43|63)(?:\r\n|[ \t\r\n\f])?',
     'D': r'D|d|\\0{0,4}(?:44|64)(?:\r\n|[ \t\r\n\f])?',
     'E': r'E|e|\\0{0,4}(?:45|65)(?:\r\n|[ \t\r\n\f])?',
@@ -58,6 +59,7 @@ MACROS = {
     'S': r'S|s|\\0{0,4}(?:53|73)(?:\r\n|[ \t\r\n\f])?|\\S|\\s',
     'T': r'T|t|\\0{0,4}(?:54|74)(?:\r\n|[ \t\r\n\f])?|\\T|\\t',
     'U': r'U|u|\\0{0,4}(?:55|75)(?:\r\n|[ \t\r\n\f])?|\\U|\\u',
+    'V': r'V|v|\\0{0,4}(?:56|76)(?:\r\n|[ \t\r\n\f])?|\\V|\\v',
     'X': r'X|x|\\0{0,4}(?:58|78)(?:\r\n|[ \t\r\n\f])?|\\X|\\x',
     'Z': r'Z|z|\\0{0,4}(?:5a|7a)(?:\r\n|[ \t\r\n\f])?|\\Z|\\z',
     }
@@ -107,6 +109,7 @@ class CSSProductions(object):
     IMPORT_SYM = 'IMPORT_SYM'
     NAMESPACE_SYM = 'NAMESPACE_SYM'
     PAGE_SYM = 'PAGE_SYM'
+    VARIABLES_SYM = 'VARIABLES_SYM'
 
 for i, t in enumerate(PRODUCTIONS):
     setattr(CSSProductions, t[0].replace('-', '_'), t[0])

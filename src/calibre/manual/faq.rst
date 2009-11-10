@@ -108,7 +108,7 @@ will appear in the next release of |app|.
 Can I use both |app| and the SONY software to manage my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Yes, you can use both, provided you don not run them at the same time. That is, you should use the following sequence:
+Yes, you can use both, provided you do not run them at the same time. That is, you should use the following sequence:
 Connect reader->Use one of the programs->Disconnect reader. Reconnect reader->Use the other program->disconnect reader.
 
 The underlying reason is that the Reader uses a single file to keep track
@@ -122,7 +122,7 @@ other via the computers hard disk.
 
 If you do need to reset your metadata due to problems caused by using both
 at the same time, then just delete the media.xml file on the Reader using
-your PC's file explorer and it'll be recreated after disconnection.
+your PC's file explorer and it will be recreated after disconnection.
 
 
 Can I use the collections feature of the SONY reader?
@@ -148,6 +148,21 @@ How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First install the WordPlayer e-book reading app from the Android Marketplace onto you phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single androind device out there, so if you would like to have support for your device added, follow the instructions above for getting your device supported in |app|.
+
+Can I access my |app| books using the web browser in my Kindle or other reading device?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|app| has a *Content Server* that exports the books in |app| as a web page. You can turn it on under
+Preferences->Content Server. Then just point the web browser on your device to the computer running 
+the Content Server and you will be able to browse your book collection. For example, if the computer running
+the server has IP address 63.45.128.5, in the browser, you would type::
+
+    http://63.45.128.5:8080
+
+Some devices, like the Kindle, do not allow you to access port 8080 (the default port on which the content
+server runs. In that case, change the port in the |app| Preferences to 80. (On some operating systems,
+you may not be able to run the server on a port number less than 1024 because of security settings. In
+this case the simplest solution is to adjust your router to forward requests on port 80 to port 8080).
 
 I get the error message "Failed to start content server: Port 8080 not free on '0.0.0.0'"?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

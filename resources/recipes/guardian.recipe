@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 www.guardian.co.uk
 '''
-
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Guardian(BasicNewsRecipe):
@@ -15,8 +15,8 @@ class Guardian(BasicNewsRecipe):
     __author__ = 'Seabound and Sujata Raman'
     language = 'en_GB'
 
-    oldest_article = 7
-    max_articles_per_feed = 20
+    #oldest_article = 7
+    #max_articles_per_feed = 100
     remove_javascript = True
 
     timefmt = ' [%a, %d %b %Y]'
@@ -43,29 +43,97 @@ class Guardian(BasicNewsRecipe):
                     #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
                 '''
 
+    def parse_index(self):
+
+            soup = self.index_to_soup('http://www.guardian.co.uk/theguardian')
+             # find cover pic
+            img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
+            if img is None: return None
+            else:
+                self.cover_url = img['src']
+             # end find cover pic
+            sections = []
+            ans = []
+            for li in soup.findAll( 'li'):
+                section = ''
+                articles = []
+
+                if li.a and li.a.has_key('href'):
+                        url =  li.a['href']
+                        if 'mainsection' in url:
+                            section = self.tag_to_string(url)
+                            i = len(section)
+
+                            index1 = section.rfind('/',0,i)
+                            section = section[index1+1:i]
+                            sections.append(section)
+
+                            #find the articles in the Main Section  start
+                            soup = self.index_to_soup(url)
+                            date = strftime('%a, %d %b')
+                            descl = []
+
+                            for desclist in  soup.findAll(name='div',attrs={'class':"trailtext"}):
+                                descl.append(self.tag_to_string(desclist).strip())
+
+                            t = -1
+                            for tag in soup.findAll('h3'):
+                                t = t+1
+
+                                for a in tag.findAll('a'):
+
+                                    if t < len(descl):
+                                        desc =  descl[t]
+                                    else:
+                                        desc = ''
+                                    if a and a.has_key('href'):
+                                        url2 =  a['href']
+                                    else:
+                                        url2 =''
+                                    title = self.tag_to_string(a)
+
+                                    if len(articles) == 0:    #First article
+
+                                         articles.append({
+                                                 'title':title,
+                                                 'date':date,
+                                                 'url':url2,
+                                                 'description':desc,
+                                                    })
+                                    else:
+                                        #eliminate duplicates start
+                                        if {'title':title,'date':date,'url':url2,'description':desc} in articles :
+                                                url2 = ''
+                                        #eliminate duplicates end
+                                        else:
+                                                if 'http://jobs.guardian.co.uk/' in url2:
+                                                    url2 = ''
+                                                else:
+
+                                                    articles.append({
+                                                     'title':title,
+                                                     'date':date,
+                                                     'url':url2,
+                                                     'description':desc,
+                                                        })
+                            #find the articles in the Main Section end
+                            ans.append( articles)
+
+                        else:
+                                url =''
 
 
-    feeds = [
-        ('Front Page', 'http://www.guardian.co.uk/rss'),
-        ('Business', 'http://www.guardian.co.uk/business/rss'),
-        ('Sport', 'http://www.guardian.co.uk/sport/rss'),
-        ('Culture', 'http://www.guardian.co.uk/culture/rss'),
-        ('Money', 'http://www.guardian.co.uk/money/rss'),
-        ('Life & Style', 'http://www.guardian.co.uk/lifeandstyle/rss'),
-        ('Travel', 'http://www.guardian.co.uk/travel/rss'),
-        ('Environment', 'http://www.guardian.co.uk/environment/rss'),
-        ('Comment','http://www.guardian.co.uk/commentisfree/rss'),
-        ]
+            titles = map(self.find_title, sections)
+            ans1 = list(zip(titles,ans))
 
-    def get_article_url(self, article):
-          url = article.get('guid', None)
-          if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
-              '/gallery/' in url  or 'ivebeenthere' in url or \
-              'pickthescore' in url or 'audioslideshow' in url :
-              url = None
-          return url
+            return ans1[2:]
 
+    def find_title(self, section):
+        d = {'topstories':'Top Stories', 'international':'International', 'editorialsandreply':'Editorials and Reply',
+             'commentanddebate':'Comment and Debate','uknews':'UK News','saturday':'Saturday','sunday':'Sunday',
+                'reviews':'Reviews', 'obituaries':'Obituaries'}
 
+        return d.get(section, section)
 
     def preprocess_html(self, soup):
 

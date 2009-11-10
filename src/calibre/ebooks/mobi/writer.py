@@ -709,6 +709,10 @@ class MobiWriter(object):
 
                 if self.opts.verbose > 3 :self._oeb.logger.info("     node: %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, interimSpanRecord, offset, length) )
+            elif thisRecord == numberOfHTMLRecords-1:
+                # Check for short terminating record (GR provisional)
+                if self._HTMLRecords[thisRecord].continuingNode == -1:
+                    self._HTMLRecords[thisRecord].continuingNode = self._HTMLRecords[thisRecord].openingNode - 1
             else :
                 if self.opts.verbose > 3 : self._oeb.logger.info("     node: %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, thisRecord, offset, length) )

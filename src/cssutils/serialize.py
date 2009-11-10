@@ -3,7 +3,7 @@
 """cssutils serializer"""
 __all__ = ['CSSSerializer', 'Preferences']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: serialize.py 1741 2009-05-09 18:20:20Z cthedot $'
+__version__ = '$Id: serialize.py 1872 2009-10-17 21:00:40Z cthedot $'
 
 import codecs
 import cssutils
@@ -384,6 +384,32 @@ class CSSSerializer(object):
         else:
             return u''
 
+    def do_CSSVariablesRule(self, rule):
+        """
+        serializes CSSVariablesRule
+
+        media
+            TODO
+        variables
+            CSSStyleDeclaration
+
+        + CSSComments
+        """
+        variablesText = rule.variables.cssText
+
+        if variablesText and rule.wellformed:
+            out = Out(self)
+            out.append(self._atkeyword(rule, u'@variables'))   
+            for item in rule.seq:
+                # assume comments {
+                out.append(item.value, item.type)            
+            out.append(u'{')
+            out.append(u'%s%s}' % (variablesText, self.prefs.lineSeparator),
+                       indent=1)            
+            return out.value()            
+        else:
+            return u''
+        
     def do_CSSFontFaceRule(self, rule):
         """
         serializes CSSFontFaceRule
@@ -712,11 +738,40 @@ class CSSSerializer(object):
         else: 
             return u''
 
+    def do_css_CSSVariablesDeclaration(self, variables):
+        """Variables of CSSVariableRule."""
+        if len(variables.seq) > 0:
+            out = Out(self)
+            
+            lastitem = len(variables.seq) - 1
+            for i, item in enumerate(variables.seq):
+                type_, val = item.type, item.value
+                if u'var' == type_:
+                    name, cssvalue = val
+                    out.append(name)
+                    out.append(u':')
+                    out.append(cssvalue.cssText)
+                    if i < lastitem or not self.prefs.omitLastSemicolon:
+                        out.append(u';')
+                
+                elif isinstance(val, cssutils.css.CSSComment):
+                    # CSSComment
+                    out.append(val, 'COMMENT')
+                    out.append(self.prefs.lineSeparator)
+                else:
+                    out.append(val.cssText, type_)
+                    out.append(self.prefs.lineSeparator)
+            
+            return out.value().strip() 
+
+        else:
+            return u''
+
     def do_css_CSSStyleDeclaration(self, style, separator=None):
         """
         Style declaration of CSSStyleRule
         """
-#        # TODO: use Out()
+        # TODO: use Out()
         
         # may be comments only       
         if len(style.seq) > 0:
@@ -867,7 +922,19 @@ class CSSSerializer(object):
                 out.append(val, type_)
                 
             return out.value() 
-            
+
+    def do_css_CSSVariable(self, variable):
+        """Serializes a CSSVariable"""
+        if not variable:
+            return u''
+        else:
+            out = Out(self)
+            for item in variable.seq:
+                type_, val = item.type, item.value
+                out.append(val, type_)
+
+            return out.value()
+          
     def do_css_RGBColor(self, cssvalue):
         """Serialize a RGBColor value"""
         if not cssvalue:
@@ -877,17 +944,6 @@ class CSSSerializer(object):
             unary = None
             for item in cssvalue.seq:
                 type_, val = item.type, item.value
-                
-#                # prepare
-#                if 'CHAR' == type_ and val in u'+-':
-#                    # save - for next round                
-#                    if u'-' == val:
-#                        # omit +
-#                        unary = val
-#                    continue
-#                elif unary:
-#                    val = unary + val.cssText
-#                    unary = None
                     
                 out.append(val, type_)
             

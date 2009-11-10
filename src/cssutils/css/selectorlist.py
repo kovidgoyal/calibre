@@ -17,7 +17,7 @@ TODO
 """
 __all__ = ['SelectorList']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: selectorlist.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: selectorlist.py 1868 2009-10-17 19:36:54Z cthedot $'
 
 from selector import Selector
 import cssutils
@@ -73,7 +73,7 @@ class SelectorList(cssutils.util.Base, cssutils.util.ListSeq):
         self._checkReadonly()
         if not isinstance(newSelector, Selector):
             newSelector = Selector((newSelector, namespaces),
-                                   parentList=self)
+                                   parent=self)
         if newSelector.wellformed:
             newSelector._parent = self # maybe set twice but must be!
             return newSelector
@@ -88,6 +88,12 @@ class SelectorList(cssutils.util.Base, cssutils.util.ListSeq):
                 namespaces.update(selector._namespaces)
             return namespaces
 
+    def _absorb(self, other):
+        """Replace all own data with data from other object."""
+        self._parentRule = other._parentRule
+        self.seq[:] = other.seq[:]
+        self._readonly = other._readonly
+        
     def _getUsedUris(self):
         "Used by CSSStyleSheet to check if @namespace rules are needed"
         uris = set()
@@ -191,7 +197,7 @@ class SelectorList(cssutils.util.Base, cssutils.util.ListSeq):
                     expected = None
 
                 selector = Selector((selectortokens, namespaces),
-                                    parentList=self)
+                                    parent=self)
                 if selector.wellformed:
                     newseq.append(selector)
                 else:
@@ -212,8 +218,6 @@ class SelectorList(cssutils.util.Base, cssutils.util.ListSeq):
                             self._valuestr(selectorText))
         if wellformed:
             self.seq = newseq
-#            for selector in newseq:
-#                 self.appendSelector(selector)
 
     selectorText = property(_getSelectorText, _setSelectorText,
         doc="""(cssutils) The textual representation of the selector for

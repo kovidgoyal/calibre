@@ -276,8 +276,10 @@ def input_format_plugins():
             yield plugin
 
 def plugin_for_input_format(fmt):
+    customization = config['plugin_customization']
     for plugin in input_format_plugins():
         if fmt.lower() in plugin.file_types:
+            plugin.site_customization = customization.get(plugin.name, None)
             return plugin
 
 def all_input_formats():
@@ -302,8 +304,10 @@ def output_format_plugins():
             yield plugin
 
 def plugin_for_output_format(fmt):
+    customization = config['plugin_customization']
     for plugin in output_format_plugins():
         if fmt.lower() == plugin.file_type:
+            plugin.site_customization = customization.get(plugin.name, None)
             return plugin
 
 def available_output_formats():

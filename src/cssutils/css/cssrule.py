@@ -1,7 +1,7 @@
 """CSSRule implements DOM Level 2 CSS CSSRule."""
 __all__ = ['CSSRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssrule.py 1808 2009-07-29 13:09:36Z cthedot $'
+__version__ = '$Id: cssrule.py 1855 2009-10-07 17:03:19Z cthedot $'
 
 import cssutils
 import xml.dom
@@ -27,9 +27,11 @@ class CSSRule(cssutils.util.Base2):
     FONT_FACE_RULE = 5 #f
     PAGE_RULE = 6 #p
     NAMESPACE_RULE = 7 # CSSOM
+    VARIABLES_RULE = 8 # CSS Variables
 
     _typestrings = ['UNKNOWN_RULE', 'STYLE_RULE', 'CHARSET_RULE', 'IMPORT_RULE',
                      'MEDIA_RULE', 'FONT_FACE_RULE', 'PAGE_RULE', 'NAMESPACE_RULE',
+                     'VARIABLES_RULE',
                      'COMMENT']
 
     def __init__(self, parentRule=None, parentStyleSheet=None, readonly=False):

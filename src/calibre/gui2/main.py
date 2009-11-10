@@ -742,6 +742,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ########################## Connect to device ##############################
 
+    def save_device_view_settings(self):
+        model = self.location_view.model()
+        self.memory_view.write_settings()
+        for x in range(model.rowCount()):
+            if x > 1:
+                if model.location_for_row(x) == 'carda':
+                    self.card_a_view.write_settings()
+                elif model.location_for_row(x) == 'cardb':
+                    self.card_b_view.write_settings()
+
     def device_detected(self, connected):
         '''
         Called when a device is connected to the computer.
@@ -757,6 +767,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.device_connected = True
             self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix())
         else:
+            self.save_device_view_settings()
             self.device_connected = False
             self._sync_menu.enable_device_actions(False)
             self.location_view.model().update_devices()
@@ -765,7 +776,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.device_info = ' '
             if self.current_view() != self.library_view:
                 self.status_bar.reset_info()
-                self.location_selected('library')
+                self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
     def info_read(self, job):
         '''
@@ -807,6 +818,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.card_b_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
+            view.read_settings()
             if not view.restore_column_widths():
                 view.resizeColumnsToContents()
             view.resizeRowsToContents()
@@ -1662,7 +1674,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         dynamic.set('sort_column', self.library_view.model().sorted_on)
         self.library_view.write_settings()
         if self.device_connected:
-            self.memory_view.write_settings()
+            self.save_device_view_settings()
 
     def restart(self):
         self.quit(restart=True)

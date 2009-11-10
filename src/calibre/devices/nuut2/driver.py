@@ -19,7 +19,7 @@ class NUUT2(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdft', 'txt']
+    FORMATS     = ['epub', 'pdf', 'txt']
     DRM_FORMATS = ['epub']
 
     VENDOR_ID   = [0x140e]

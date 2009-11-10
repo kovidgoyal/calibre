@@ -12,8 +12,7 @@ class NewScientist(BasicNewsRecipe):
     title                 = 'New Scientist - Online News'
     __author__            = 'Darko Miletic'
     description           = 'Science news and science articles from New Scientist.'
-    language = 'en'
-
+    language              = 'en'
     publisher             = 'New Scientist'
     category              = 'science news, science articles, science jobs, drugs, cancer, depression, computer software, sex'
     delay                 = 3
@@ -21,16 +20,14 @@ class NewScientist(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    remove_javascript     = True
     encoding              = 'utf-8'
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        }
 
     keep_only_tags = [dict(name='div', attrs={'id':['pgtop','maincol']})]
 
@@ -53,18 +50,9 @@ class NewScientist(BasicNewsRecipe):
                      ]
 
     def get_article_url(self, article):
-        url = article.get('link',  None)
-        raw = article.get('description',  None)
-        rsoup = self.index_to_soup(raw)
-        atags = rsoup.findAll('a',href=True)
-        for atag in atags:
-            if atag['href'].startswith('http://res.feedsportal.com/viral/sendemail2.html?'):
-               st, sep, rest = atag['href'].partition('&link=')
-               real_url, sep2, drest = rest.partition('" target=')
-               return real_url
+        url = article.get('guid',  None)
         return url
 
     def print_version(self, url):
-        rawurl, sep, params = url.partition('?')
-        return rawurl + '?full=true&print=true'
+        return url + '?full=true&print=true'
 

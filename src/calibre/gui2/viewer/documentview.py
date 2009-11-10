@@ -15,10 +15,11 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
-from calibre.gui2.viewer.js import bookmarks, referencing, hyphenation
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import iswindows
 from calibre import prints, guess_type
+
+bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = hyphenator = None
 
 def load_builtin_fonts():
     base = P('fonts/liberation/*.ttf')
@@ -192,15 +193,24 @@ class Document(QWebPage):
         self.hyphenate_default_lang = opts.hyphenate_default_lang
 
     def load_javascript_libraries(self):
+        global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, hyphenator
         self.mainFrame().addToJavaScriptWindowObject("py_bridge", self)
-        jquery = open(P('content_server/jquery.js'), 'rb').read()
-        jquery_scrollTo = open(P('viewer/jquery_scrollTo.js'), 'rb').read()
-        hyphenator = open(P('viewer/hyphenate/Hyphenator.js'),
-                'rb').read().decode('utf-8')
+        if jquery is None:
+            jquery = P('content_server/jquery.js', data=True)
+        if jquery_scrollTo is None:
+            jquery_scrollTo = P('viewer/jquery_scrollTo.js', data=True)
+        if hyphenator is None:
+            hyphenator = P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
         self.javascript(jquery)
         self.javascript(jquery_scrollTo)
+        if bookmarks is None:
+            bookmarks = P('viewer/bookmarks.js', data=True)
         self.javascript(bookmarks)
+        if referencing is None:
+            referencing = P('viewer/referencing.js', data=True)
         self.javascript(referencing)
+        if hyphenation is None:
+            hyphenation = P('viewer/hyphenation.js', data=True)
         self.javascript(hyphenation)
         default_lang = self.hyphenate_default_lang
         lang = self.current_language
@@ -333,6 +343,7 @@ class Document(QWebPage):
     def width(self):
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
+
 class EntityDeclarationProcessor(object):
 
     def __init__(self, html):
@@ -447,6 +458,12 @@ class DocumentView(QWebView):
     def path(self):
         return os.path.abspath(unicode(self.url().toLocalFile()))
 
+    def self_closing_sub(self, match):
+        tag = match.group(1)
+        if tag.lower().strip() == 'br':
+            return match.group()
+        return '<%s %s></%s>'%(match.group(1), match.group(2), match.group(1))
+
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
         mt = getattr(path, 'mime_type', None)
@@ -455,7 +472,7 @@ class DocumentView(QWebView):
         html = open(path, 'rb').read().decode(path.encoding, 'replace')
         html = EntityDeclarationProcessor(html).processed_html
         if 'xhtml' in mt:
-            html = self.self_closing_pat.sub(r'<\1 \2></\1>', html)
+            html = self.self_closing_pat.sub(self.self_closing_sub, html)
         #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
         self.setHtml(html, QUrl.fromLocalFile(path))
         self.turn_off_internal_scrollbars()
@@ -508,6 +525,7 @@ class DocumentView(QWebView):
 
     @classmethod
     def test_line(cls, img, y):
+        'Test if line contains pixels of exactly the same color'
         start = img.pixel(0, y)
         for i in range(1, img.width()):
             if img.pixel(i, y) != start:
@@ -517,6 +535,7 @@ class DocumentView(QWebView):
     def find_next_blank_line(self, overlap):
         img = QImage(self.width(), overlap, QImage.Format_ARGB32)
         painter = QPainter(img)
+        # Render a region of width x overlap pixels atthe bottom of the current viewport
         self.document.mainFrame().render(painter, QRegion(0, 0, self.width(), overlap))
         painter.end()
         for i in range(overlap-1, -1, -1):
@@ -542,18 +561,20 @@ class DocumentView(QWebView):
                 self.manager.scrolled(self.scroll_fraction)
 
     def next_page(self):
-        delta_y = self.document.window_height - 25
+        window_height = self.document.window_height
+        delta_y = window_height - 25
         if self.document.at_bottom:
             if self.manager is not None:
                 self.manager.next_document()
         else:
             opos = self.document.ypos
             lower_limit = opos + delta_y
-            max_y = self.document.height - self.document.window_height
+            max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
             if lower_limit > opos:
                 self.document.scroll_to(self.document.xpos, lower_limit)
-            self.find_next_blank_line( self.height() - (self.document.ypos-opos) )
+            actually_scrolled = self.document.ypos - opos
+            self.find_next_blank_line(window_height - actually_scrolled)
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
 

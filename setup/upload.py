@@ -303,9 +303,6 @@ class UploadInstallers(Command):
         installers.append(installer_name('tar.bz2', is64bit=True))
         map(self.upload_installer, installers)
 
-        check_call('''ssh divok echo %s \\> %s/latest_version'''\
-                   %(__version__, DOWNLOADS), shell=True)
-
 class UploadUserManual(Command):
     description = 'Build and upload the User Manual'
     sub_commands = ['manual']
@@ -349,6 +346,8 @@ class UploadToServer(Command):
                    shell=True)
         check_call('ssh divok bzr update /usr/local/calibre',
                    shell=True)
+        check_call('''ssh divok echo %s \\> %s/latest_version'''\
+                   %(__version__, DOWNLOADS), shell=True)
         check_call('ssh divok /etc/init.d/apache2 graceful',
                    shell=True)
 

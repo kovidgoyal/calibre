@@ -12,14 +12,42 @@ from lxml import html
 from calibre.constants import preferred_encoding
 
 class NewYorkReviewOfBooks(BasicNewsRecipe):
-    
+
     title = u'New York Review of Books (no subscription)'
     description = u'Book reviews'
     language = 'en'
 
-    __author__ = 'Kovid Goyal' 
+    __author__ = 'Kovid Goyal and Sujata Raman'
+
+    no_stylesheets = True
+    no_javascript = True
     remove_tags_before = {'id':'container'}
-    remove_tags = [{'class':['noprint', 'ad', 'footer']}, {'id':'right-content'}]
+    remove_tags = [{'class':['noprint', 'ad', 'footer']}, {'id':'right-content'},
+                    dict(name='img', attrs={'src':"/images/1x1-clear.gif"}),
+
+                   ]
+
+    extra_css = '''
+                    p{font-family:"Times New Roman",Georgia,serif; font-size: 60%;}
+                    .caption{ font-family:"Times New Roman",Georgia,serif; font-size:40%;}
+                    h2{font-family:"Times New Roman",Georgia,serif; font-size:90%;}
+                    a{ color:#003399; }
+                    .reviewed-title{font-family:"Times New Roman",Georgia,serif;font-size : 50%; font-style:italic;}
+                    .reviewed-author{font-family:"Times New Roman",Georgia,serif;font-size : 50%;}
+                    .reviewed-info{font-family:"Times New Roman",Georgia,serif;font-size : 50%;}
+                    h5{font-family:"Times New Roman",Georgia,serif;font-size : 50%;}
+                    .date{font-family:"Times New Roman",Georgia,serif;font-variant:small-caps;font-size : 50%;}
+                    h4{font-family:"Times New Roman",Georgia,serif;font-size : 50%;}
+                '''
+
+    def preprocess_html(self, soup):
+
+         for tag in soup.findAll(name=['span',]):
+             tag.name = 'div'
+         for tag in soup.findAll(name=['blockquote',]):
+             tag.name = 'p'
+
+         return soup
 
     def parse_index(self):
         root = html.fromstring(self.browser.open('http://www.nybooks.com/current-issue').read())
@@ -40,6 +68,6 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
                                'description': '',
                                }
                     articles.append(article)
-                    
+
         return [('Current Issue', articles)]
-       
+

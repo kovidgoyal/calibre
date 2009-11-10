@@ -60,8 +60,8 @@ def pushtoken(token, tokens):
     ``tokens``"""
     # TODO: may use itertools.chain?
     yield token
-    for x in tokens:
-        yield x
+    for t in tokens:
+        yield t
                   
 def string(value):
     """
