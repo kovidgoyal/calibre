@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-11-06 21:27+0000\n"
-"PO-Revision-Date: 2009-11-06 18:34+0000\n"
+"POT-Creation-Date: 2009-11-09 16:18+0000\n"
+"PO-Revision-Date: 2009-11-09 11:28+0000\n"
 "Last-Translator: ritibelle <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-07 04:37+0000\n"
+"X-Launchpad-Export-Date: 2009-11-10 11:29+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -111,7 +111,7 @@ msgstr "Não faz absolutamente nada"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:431
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
@@ -358,7 +358,7 @@ msgstr "Nenhum extra válido encontrado em "
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr "A inicialização do extra %s falhou, deixando o seguinte relatório:"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:363
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:367
 msgid ""
 "    %prog options\n"
 "\n"
@@ -370,18 +370,18 @@ msgstr ""
 "    Personalize o calibre carregando extras externos.\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:369
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:373
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
 "Adicione um extra especificando um caminho para o ficheiro zip que o contém."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:371
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:375
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
 "Remova um extra identificado pelo seu nome. Não tem qualquer efeito sobre os "
 "extras integrados."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:373
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:377
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
@@ -389,15 +389,15 @@ msgstr ""
 "Personalize o extra. Especifique o nome do extra e uma expressão "
 "identificadora, separados por uma vírgula."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:375
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:379
 msgid "List all installed plugins"
 msgstr "Listar todos os extras instalados"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:377
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:381
 msgid "Enable the named plugin"
 msgstr "Activar o extra mencionado"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:379
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:383
 msgid "Disable the named plugin"
 msgstr "Desactivar o extra mencionado"
 
@@ -1867,11 +1867,11 @@ msgstr ""
 "%prog [options] key\n"
 "\n"
 "Recolher os metadados para os livros de isndb.com. Pode especificar ou\n"
-"ISBN do livro ou o seu título e autor. Se especificar o título e autor,\n"
+"o ISBN do livro ou o seu título e autor. Se especificar o título e autor,\n"
 "então pode ser mostrado mais do que um livro.\n"
 "\n"
-"key is the account key you generate after signing up for a free account from "
-"isbndb.com.\n"
+"key é a chave da conta que gerou depois de se ter registado para uma conta "
+"grátis em isbndb.com.\n"
 "\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:105
@@ -4482,7 +4482,7 @@ msgstr "&Mostrar a palavra-passe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:542
 msgid "Max. &OPDS items per query:"
-msgstr "Max. itens &OPDS por consulta"
+msgstr "Max. items &OPDS por pesquisa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:543
 msgid "&Start Server"
@@ -4737,85 +4737,89 @@ msgid "Books"
 msgstr "Livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:160
-msgid "You do not have permission to read the following files:"
-msgstr "Você não tem permissão de leitura para os seguintes arquivos:"
+msgid "No permission"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:183
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:161
+msgid "You do not have permission to read the following files:"
+msgstr "Não tem permissão para ler os seguintes ficheiros:"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:185
 msgid "No format selected"
 msgstr "Nenhum formato seleccionado"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:196
 msgid "Could not read metadata"
 msgstr "É impossível ler os metadados"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:197
 msgid "Could not read metadata from %s format"
 msgstr "É impossível ler os metadados do formato %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:242
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:248
 msgid "Could not read cover"
 msgstr "É impossível ler a capa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:242
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:243
 msgid "Could not read cover from %s format"
 msgstr "É impossível ler a capa do formato %s."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:248
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:249
 msgid "The cover in the %s format is invalid"
 msgstr "A capa do formato %s é inválida"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:286
 msgid "Abort the editing of all remaining books"
-msgstr "Cancelar a edição de todos os livros restantes"
+msgstr "Cancelar a edição de todos os restantes livros"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:489
 msgid "Downloading cover..."
 msgstr "A descarregar a capa..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:505
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:501
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:512
 msgid "Cannot fetch cover"
 msgstr "É impossível recolher a capa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:501
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:512
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:513
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>É impossível recolher a capa.</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "The download timed out."
 msgstr "O descarregamento está a demorar demasiado tempo."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:507
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 "É impossível encontrar a capa para este livro. Tente especificar o ISBN "
 "primeiro."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:519
 msgid "Bad cover"
 msgstr "Capa com erros"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:520
 msgid "The cover is not a valid picture"
 msgstr "A capa não é uma imagem válida"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:560
 msgid "Cannot fetch metadata"
 msgstr "É impossível recolher os metadados"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:561
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr "Deve especificar pelo menos um de ISBN, Título, Autores ou Editora"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:612
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:613
 msgid "Permission denied"
 msgstr "Permissão negada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:614
 msgid "Could not open %s. Is it being used by another program?"
 msgstr "É impossível abrir %s. Está a ser usado por outro programa?"
 
@@ -5977,7 +5981,7 @@ msgstr "É impossível converter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1281
 msgid "Starting conversion of %d book(s)"
-msgstr "Iniciar conversão de %d livro(s)"
+msgstr "Iniciar a conversão de %d livro(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1392
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1411
@@ -6050,9 +6054,9 @@ msgid ""
 "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 "first remove the DRM using third party tools."
 msgstr ""
-"<p>Não pode converter: %s<p> Ele é um e-livro com proteção <a "
-"href=\"%s\">GDD(Gestão de Direitos Digitais)</a>. Você deve primeiro remover "
-"a GDD usando ferramentas de terceiros."
+"<p>É impossível converter: %s<p> É um livro com protecção <a href=\"%s\">DRM "
+"(Digital Rights Management)</a>. Primeiro deve remover o DRM usando "
+"ferramentas de terceiros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1624
 msgid "<b>Failed</b>"
@@ -6137,7 +6141,7 @@ msgstr "Registar a informação de depuração na consola"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1835
 msgid "Do not check for updates"
-msgstr "Não verificar atualizações"
+msgstr "Não verificar por actualizações"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1883
 msgid "If you are sure it is not running"
@@ -6389,11 +6393,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:121
 msgid "Queueing books for bulk conversion"
-msgstr "Enfileirando livros para conversão em massa"
+msgstr "A criar a fila de espera dos livros para conversão a granel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:181
 msgid "Queueing "
-msgstr "Enfileirando "
+msgstr "A criar a fila de espera "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:237
 msgid "Fetch news from "
@@ -6408,8 +6412,8 @@ msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
 msgstr ""
-"Os seguintes livros já foram convertidos para o formato %s. Deseja "
-"reconverter eles?"
+"Os seguintes livros já foram convertidos para o formato %s. Deseja voltar a "
+"convertê-los?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -7185,8 +7189,8 @@ msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
 msgstr ""
-"Número máximo de resultados a serem retornados por consulta OPDS. Isto afeta "
-"a integração com Stanza, WordPlayer, etc."
+"O número máximo de resultados a serem mostrados por pesquisa OPDS. Isto "
+"afecta a integração com Stanza, WordPlayer, etc."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:121
 msgid ""
@@ -7737,7 +7741,7 @@ msgstr "A Processar..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:94
 msgid "Brazilian Portuguese"
-msgstr "Português brasileiro"
+msgstr "Português do Brasil"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
 msgid "English (UK)"
@@ -7745,7 +7749,7 @@ msgstr "Inglês (Reino Unido)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
 msgid "Simplified Chinese"
-msgstr "Chinês simplificado"
+msgstr "Chinês Simplificado"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Chinese (HK)"
@@ -7765,11 +7769,11 @@ msgstr "Inglês (Austrália)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (CA)"
-msgstr "Inglês (Califórnia)"
+msgstr "Inglês (Canadá)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (IND)"
-msgstr ""
+msgstr "English (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
