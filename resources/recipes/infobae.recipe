@@ -6,6 +6,8 @@ __copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
 infobae.com
 '''
 import re
+import urllib, urlparse
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Infobae(BasicNewsRecipe):
@@ -61,11 +63,11 @@ class Infobae(BasicNewsRecipe):
 #        return u'http://www.infobae.com/notas/nota_imprimir.php?Idx=' + article_id
 
     def get_article_url(self, article):
-        import urllib, urlparse
-        parts = list(urlparse.urlparse(article.get('link')))
+        ans = article.get('link').encode('utf-8')
+        parts = list(urlparse.urlparse(ans))
         parts[2] = urllib.quote(parts[2])
         ans = urlparse.urlunparse(parts)
-        return ans
+        return ans.decode('utf-8')
 
 
     def preprocess_html(self, soup):

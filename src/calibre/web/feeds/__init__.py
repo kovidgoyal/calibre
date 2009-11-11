@@ -5,10 +5,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.
 '''
-import time, logging, traceback, copy, re
+import time, traceback, copy, re
 from datetime import datetime
 
 from calibre.web.feeds.feedparser import parse
+from calibre.utils.logging import default_log
 from calibre import entity_to_unicode
 from lxml import html
 
@@ -87,11 +88,12 @@ Has content : %s
 
 class Feed(object):
 
-    def __init__(self, get_article_url=lambda item: item.get('link', None)):
+    def __init__(self, get_article_url=lambda item: item.get('link', None),
+            log=default_log):
         '''
         Parse a feed into articles.
         '''
-        self.logger = logging.getLogger('feeds2disk')
+        self.logger = log
         self.get_article_url = get_article_url
 
     def populate_from_feed(self, feed, title=None, oldest_article=7,
@@ -288,15 +290,18 @@ class FeedCollection(list):
 
 
 def feed_from_xml(raw_xml, title=None, oldest_article=7,
-                  max_articles_per_feed=100, get_article_url=lambda item: item.get('link', None)):
+                  max_articles_per_feed=100,
+                  get_article_url=lambda item: item.get('link', None),
+                  log=default_log):
     feed = parse(raw_xml)
-    pfeed = Feed(get_article_url=get_article_url)
+    pfeed = Feed(get_article_url=get_article_url, log=log)
     pfeed.populate_from_feed(feed, title=title,
                             oldest_article=oldest_article,
                             max_articles_per_feed=max_articles_per_feed)
     return pfeed
 
-def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100):
+def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100,
+        log=default_log):
     '''
     @param index: A parsed index as returned by L{BasicNewsRecipe.parse_index}.
     @return: A list of L{Feed} objects.
@@ -304,7 +309,7 @@ def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100):
     '''
     feeds = []
     for title, articles in index:
-        pfeed = Feed()
+        pfeed = Feed(log=log)
         pfeed.populate_from_preparsed_feed(title, articles, oldest_article=oldest_article,
                                        max_articles_per_feed=max_articles_per_feed)
         feeds.append(pfeed)
