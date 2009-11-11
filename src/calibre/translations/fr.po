@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-06 21:27+0000\n"
-"PO-Revision-Date: 2009-11-05 21:05+0000\n"
+"POT-Creation-Date: 2009-11-09 16:18+0000\n"
+"PO-Revision-Date: 2009-11-10 15:46+0000\n"
 "Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-07 04:36+0000\n"
+"X-Launchpad-Export-Date: 2009-11-11 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -111,7 +111,7 @@ msgstr "Ne fait strictement rien"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:431
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:432
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:391
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
@@ -329,7 +329,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:253
 msgid "This profile is intended for the Hanlin V3/V5 and its clones."
-msgstr ""
+msgstr "Ce profil est prévu pour les Hanlin V3/V5 et leurs clones."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:306
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -359,7 +359,7 @@ msgstr "Absence de plugin valide "
 msgid "Initialization of plugin %s failed with traceback:"
 msgstr "L'initialisation du plugin %s a échoué en laissant une trace:"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:363
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:367
 msgid ""
 "    %prog options\n"
 "\n"
@@ -371,18 +371,18 @@ msgstr ""
 "    Personnaliser Calibre en chargeant des modules additionnels externes.\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:369
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:373
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
 "Ajouter un plugin en précisant le chemin vers le fichier zip qui le contient."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:371
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:375
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
 "Suppression d'un plugin personnalisé d'après son nom. Ceci n'a pas d'effet "
 "sur les plugins intégrés."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:373
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:377
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
@@ -390,15 +390,15 @@ msgstr ""
 "Personnaliser le plugin. Spécifier le nom du plugin et la chaîne de "
 "personnalisation séparés par une virgule."
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:375
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:379
 msgid "List all installed plugins"
 msgstr "Lister tous les plugins installés"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:377
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:381
 msgid "Enable the named plugin"
 msgstr "Activer le plugin nommé"
 
-#: /home/kovid/work/calibre/src/calibre/customize/ui.py:379
+#: /home/kovid/work/calibre/src/calibre/customize/ui.py:383
 msgid "Disable the named plugin"
 msgstr "Désactive le plugin nommé"
 
@@ -479,7 +479,7 @@ msgstr "Communique avec le lecteur d'ebook IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
-msgstr ""
+msgstr "Communique avec le lecteur Iriver Story."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:22
 msgid "Communicate with the JetBook eBook reader."
@@ -4745,86 +4745,90 @@ msgid "Books"
 msgstr "Livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:160
+msgid "No permission"
+msgstr "Aucune permission"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:161
 msgid "You do not have permission to read the following files:"
 msgstr "Vous n'avez par la permission de lire les fichiers suivants:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:185
 msgid "No format selected"
 msgstr "Aucun format sélectionné"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:196
 msgid "Could not read metadata"
 msgstr "Impossible de lire les métadonnées"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:197
 msgid "Could not read metadata from %s format"
 msgstr "Impossible de lire les métadonnées à partir du format %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:241
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:242
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:248
 msgid "Could not read cover"
 msgstr "Impossible de lire la couverture"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:242
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:243
 msgid "Could not read cover from %s format"
 msgstr "Impossible de lire la couverture à partir du format %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:248
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:249
 msgid "The cover in the %s format is invalid"
 msgstr "La couverture du format %s est invalide"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:285
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:286
 msgid "Abort the editing of all remaining books"
 msgstr "Abandonner l'édition des livres restants"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:489
 msgid "Downloading cover..."
 msgstr "Télécharge la couverture..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:500
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:505
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:501
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:512
 msgid "Cannot fetch cover"
 msgstr "Erreur à la récupération de l'image de couverture"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:501
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:512
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:513
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr "<b>Erreur à la récupération de l'image de couverture.</b><br/>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:503
 msgid "The download timed out."
 msgstr "Timeout lors du téléchargement."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:507
 msgid "Could not find cover for this book. Try specifying the ISBN first."
 msgstr ""
 "Impossible de trouver la couverture de ce livre. Essayez déjà de spécifier "
 "le numéro ISBN."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:519
 msgid "Bad cover"
 msgstr "Mauvaise couverture"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:520
 msgid "The cover is not a valid picture"
 msgstr "La couverture n'est pas une image valide"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:560
 msgid "Cannot fetch metadata"
 msgstr "Impossible de récupérer les métadonnées"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:561
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
 msgstr ""
 "Vous devez spécifier au moins un ISBN, un titre, des auteurs ou un éditeur"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:612
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:613
 msgid "Permission denied"
 msgstr "Permission refusée"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:614
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
 "Impossible d'ouvrir %s. Est-il en cours d'utilisation par un autre programme "
