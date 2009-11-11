@@ -1,13 +1,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-    
+
 import re
 from calibre import strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
-    
+
 class Newsweek(BasicNewsRecipe):
-    
+
 
     title          = 'Newsweek'
     __author__     = 'Kovid Goyal and Sujata Raman'
@@ -23,12 +23,12 @@ class Newsweek(BasicNewsRecipe):
                     .issueDate{font-family:arial,helvetica,sans-serif; color:#73726C; font-size:x-small; font-style:italic;}
                     h5{font-family:arial,helvetica,sans-serif; color:#73726C; font-size:x-small;}
                     h6{font-family:arial,helvetica,sans-serif; color:#73726C; font-size:x-small;}
-                    .story{font-family:georgia,sans-serif ; color:#363636;}
+                    .story{font-family:georgia,sans-serif ;color:black;}
                     .photoCredit{color:#999999; font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
                     .photoCaption{color:#0A0A09;font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
                     .fwArticle{font-family:Arial,Helvetica,sans-serif;font-size:x-small;font-weight:bold;}
                     '''
-   
+
     encoding       = 'utf-8'
     language = 'en'
 
@@ -44,7 +44,7 @@ class Newsweek(BasicNewsRecipe):
             dict(name='li', attrs={'id':['slug_bigbox']})
             ]
 
-  
+
     keep_only_tags = [{'class':['article HorizontalHeader', 'articlecontent','photoBox']}, ]
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']

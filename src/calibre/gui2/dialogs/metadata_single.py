@@ -27,7 +27,7 @@ from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
-from calibre.customize.ui import run_plugins_on_import
+from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
 
 class CoverFetcher(QThread):
 
@@ -50,7 +50,7 @@ class CoverFetcher(QThread):
                     self.needs_isbn = True
                     return
                 au = self.author if self.author else None
-                key = prefs['isbndb_com_key']
+                key = get_isbndb_key()
                 if not key:
                     key = None
                 results = search(title=self.title, author=au,

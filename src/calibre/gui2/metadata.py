@@ -11,8 +11,8 @@ from Queue import Queue, Empty
 
 
 from calibre.ebooks.metadata.fetch import search
-from calibre.utils.config import prefs
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
+from calibre.customize.ui import get_isbndb_key
 
 class Worker(Thread):
 
@@ -64,7 +64,7 @@ class DownloadMetadata(Thread):
             self.tb = traceback.format_exc()
 
     def _run(self):
-        self.key = prefs['isbndb_com_key']
+        self.key = get_isbndb_key()
         if not self.key:
             self.key = None
         self.fetched_metadata = {}

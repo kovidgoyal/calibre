@@ -6,7 +6,7 @@ from PyQt4.Qt import    QDialog, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
                         QStringListModel, QAbstractItemModel, QFont, \
                         SIGNAL, QThread, Qt, QSize, QVariant, QUrl, \
-                        QModelIndex, QInputDialog, QAbstractTableModel, \
+                        QModelIndex, QAbstractTableModel, \
                         QDialogButtonBox, QTabWidget, QBrush, QLineEdit, \
                         QProgressDialog
 
@@ -550,15 +550,16 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                     info_dialog(self, _('Plugin not customizable'),
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
+                config_dialog = QDialog(self)
+                button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+                v = QVBoxLayout(config_dialog)
+
+                config_dialog.connect(button_box, SIGNAL('accepted()'), config_dialog.accept)
+                config_dialog.connect(button_box, SIGNAL('rejected()'), config_dialog.reject)
+                config_dialog.setWindowTitle(_('Customize') + ' ' + plugin.name)
+
                 if hasattr(plugin, 'config_widget'):
-                    config_dialog = QDialog(self)
-                    button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-
-                    config_dialog.connect(button_box, SIGNAL('accepted()'), config_dialog.accept)
-                    config_dialog.connect(button_box, SIGNAL('rejected()'), config_dialog.reject)
-
                     config_widget = plugin.config_widget()
-                    v = QVBoxLayout(config_dialog)
                     v.addWidget(config_widget)
                     v.addWidget(button_box)
                     config_dialog.exec_()
@@ -567,17 +568,28 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                         plugin.save_settings(config_widget)
                         self._plugin_model.refresh_plugin(plugin)
                 else:
-                    help = plugin.customization_help()
+                    help_text = plugin.customization_help(gui=True)
+                    help_text = QLabel(help_text, config_dialog)
+                    help_text.setWordWrap(True)
+                    help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse
+                            | Qt.LinksAccessibleByKeyboard)
+                    help_text.setOpenExternalLinks(True)
+                    v.addWidget(help_text)
                     sc = plugin_customization(plugin)
                     if not sc:
                         sc = ''
                     sc = sc.strip()
-                    text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
-                                                    help, QLineEdit.Normal, sc)
-                    if ok:
-                        customize_plugin(plugin, unicode(text).strip())
+                    sc = QLineEdit(sc, config_dialog)
+                    v.addWidget(sc)
+                    v.addWidget(button_box)
+                    config_dialog.exec_()
+
+                    if config_dialog.result() == QDialog.Accepted:
+                        sc = unicode(sc.text()).strip()
+                        customize_plugin(plugin, sc)
+
                     self._plugin_model.refresh_plugin(plugin)
-            if op == 'remove':
+            elif op == 'remove':
                 if remove_plugin(plugin):
                     self._plugin_model.populate()
                     self._plugin_model.reset()

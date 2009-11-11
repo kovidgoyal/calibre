@@ -117,3 +117,9 @@ Metadata plugins add the ability to read/write metadata from ebook files to |app
    :hidden:
    
    plugins
+
+Metadata download plugins
+----------------------------
+
+Metadata download plugins add various sources that |app| uses to download metadata based on title/author/isbn etc. See :ref:`pluginsMetadataSource`
+for details.

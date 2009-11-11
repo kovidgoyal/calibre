@@ -98,3 +98,32 @@ Metadata plugins
 .. automember:: MetadataWriterPlugin.file_types
 
 .. automethod:: MetadataWriterPlugin.set_metadata
+
+
+.. _pluginsMetadataSource:
+
+Metadata download plugins
+--------------------------
+
+.. class:: calibre.ebooks.metadata.fetch.MetadataSource
+
+    Represents a source to query for metadata. Subclasses must implement
+    at least the fetch method and optionally the is_ok method.
+
+    When :meth:`fetch` is called, the `self` object will have the following
+    useful attributes (each of which may be None)::
+
+        title, author, publisher, isbn, log, verbose and extra
+
+    Use these attributes to construct the search query. extra is reserved for
+    future use.
+
+    The fetch method must store the results in `self.results` as a list of
+    :class:`MetaInformation` objects. If there is an error, it should be stored
+    in `self.exception` and `self.tb` (for the traceback).
+
+.. automethod:: calibre.ebooks.metadata.fetch.MetadataSource.fetch
+
+.. automethod:: calibre.ebooks.metadata.fetch.MetadataSource.is_ok
+
+
