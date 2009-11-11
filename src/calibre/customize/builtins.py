@@ -374,7 +374,8 @@ from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 
-plugins = [HTML2ZIP]
+from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB
+plugins = [HTML2ZIP, GoogleBooks, ISBNDB]
 plugins += [
     ComicInput,
     EPUBInput,

@@ -8,46 +8,72 @@ from threading import Thread
 
 from calibre import preferred_encoding
 from calibre.utils.config import OptionParser
+from calibre.utils.logging import default_log
 
-class FetchGoogle(Thread):
-    name = 'Google Books'
+from calibre.customize import Plugin
 
-    def __init__(self, title, author, publisher, isbn, verbose):
+class MetadataSource(Plugin):
+
+    author = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+    type = _('Metadata download')
+
+    def __call__(self, title, author, publisher, isbn, verbose, log=None,
+            extra=None):
+        self.worker = Thread(target=self.fetch)
+        self.worker.daemon = True
         self.title = title
         self.verbose = verbose
         self.author = author
         self.publisher = publisher
         self.isbn = isbn
-        Thread.__init__(self, None)
-        self.daemon = True
-        self.exception, self.tb = None, None
+        self.log = log if log is not None else default_log
+        self.extra = extra
+        self.exception, self.tb, self.results = None, None, []
+        self.worker.start()
 
-    def run(self):
+    def fetch(self):
+        '''
+        All the actual work is done here.
+        '''
+        raise NotImplementedError
+
+    def is_ok(self):
+        '''
+        Used to check if the plugin has been correctly customized.
+        For example: The isbndb plugin checks to see if the site_customization
+        has been set with an isbndb.com access key.
+        '''
+        return True
+
+    def join(self):
+        return self.worker.join()
+
+class GoogleBooks(MetadataSource):
+
+    name = 'Google Books'
+
+    def is_ok(self):
+        return bool(self.site_customization)
+
+    def fetch(self):
         from calibre.ebooks.metadata.google_books import search
         try:
             self.results = search(self.title, self.author, self.publisher,
                                   self.isbn, max_results=10,
                                   verbose=self.verbose)
         except Exception, e:
-            self.results = []
             self.exception = e
             self.tb = traceback.format_exc()
 
 
-class FetchISBNDB(Thread):
-    name = 'IsbnDB'
-    def __init__(self, title, author, publisher, isbn, verbose, key):
-        self.title = title
-        self.author = author
-        self.publisher = publisher
-        self.isbn = isbn
-        self.verbose = verbose
-        Thread.__init__(self, None)
-        self.daemon = True
-        self.exception, self.tb = None, None
-        self.key = key
+class ISBNDB(MetadataSource):
 
-    def run(self):
+    name = 'IsbnDB'
+
+    def fetch(self):
+        if not self.site_customization:
+            return
         from calibre.ebooks.metadata.isbndb import option_parser, create_books
         args = ['isbndb']
         if self.isbn:
@@ -61,14 +87,22 @@ class FetchISBNDB(Thread):
                 args.extend(['--publisher', self.publisher])
         if self.verbose:
             args.extend(['--verbose'])
-        args.append(self.key)
+        args.append(self.site_customization) # IsbnDb key
         try:
             opts, args = option_parser().parse_args(args)
             self.results = create_books(opts, args)
         except Exception, e:
-            self.results = []
             self.exception = e
             self.tb = traceback.format_exc()
+
+    def customization_help(self, gui=False):
+        ans = _('To use isbndb.com you must sign up for a %sfree account%s '
+                'and enter your access key below.')
+        if gui:
+            ans = '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
+        else:
+            ans = ans.replace('%s', '')
+        return ans
 
 def result_index(source, result):
     if not result.isbn:
@@ -90,16 +124,14 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
            verbose=0):
     assert not(title is None and author is None and publisher is None and \
                    isbn is None)
+    from calibre.customize.ui import metadata_sources, migrate_isbndb_key
+    migrate_isbndb_key()
     if isbn is not None:
         isbn = re.sub(r'[^a-zA-Z0-9]', '', isbn).upper()
-    fetchers = [FetchGoogle(title, author, publisher, isbn, verbose)]
-    if isbndb_key:
-        fetchers.append(FetchISBNDB(title, author, publisher, isbn, verbose,
-                                        isbndb_key))
-
+    fetchers = list(metadata_sources(isbndb_key=isbndb_key))
 
     for fetcher in fetchers:
-        fetcher.start()
+        fetcher(title, author, publisher, isbn, verbose)
     for fetcher in fetchers:
         fetcher.join()
     for fetcher in fetchers[1:]:
@@ -131,7 +163,8 @@ def option_parser():
                       help='Maximum number of results to fetch')
     parser.add_option('-k', '--isbndb-key',
                       help=('The access key for your ISBNDB.com account. '
-                      'Only needed if you want to search isbndb.com'))
+                      'Only needed if you want to search isbndb.com '
+                      'and you haven\'t customized the IsbnDB plugin.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help='Be more verbose about errors')
     return parser
