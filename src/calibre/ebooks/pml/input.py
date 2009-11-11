@@ -42,9 +42,23 @@ class PMLInput(InputFormatPlugin):
         if self.options.input_encoding:
             ienc = self.options.input_encoding
 
+        style = '''
+<style>
+.s {font-size: 1em}
+.l {font-size: 1.5em}
+.k {font-size: 0.75em}
+.c {text-align: center; margin: auto}
+.r {text-align: right}
+.t {margin-left: 5%}
+.p {page-break-after: always}
+.x {page-break-before: always}
+</style>
+'''
         self.log.debug('Converting PML to HTML...')
         html = pml_to_html(pml_stream.read().decode(ienc)) 
-        html_stream.write('<html><head><title /></head><body>' + html.encode('utf-8', 'replace') + '</body></html>')
+        html_stream.write('<html><head><title />%s</head><body>' % style)
+        html_stream.write(html.encode('utf-8', 'replace'))
+        html_stream.write('</body></html>') 
 
         if pclose:
             pml_stream.close()

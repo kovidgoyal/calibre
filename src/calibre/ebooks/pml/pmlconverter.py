@@ -14,27 +14,38 @@ from calibre import my_unichr
 from calibre.ebooks.pdb.ereader import image_name
 
 PML_HTML_RULES = [
-    (re.compile(r'\\p'), lambda match: '<br /><br style="page-break-after: always;" />'),
-    (re.compile(r'\\x(?P<text>.*?)\\x', re.DOTALL), lambda match: '<h1 style="page-break-before: always;">%s</h1>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\X(?P<val>[0-4])(?P<text>.*?)\\X[0-4]', re.DOTALL), lambda match: '<h%s style="page-break-before: always;">%s</h%s>' % (int(match.group('val')) + 1, match.group('text'), int(match.group('val')) + 1) if match.group('text') else ''),
+    # Any literal <, &, and > chars be escaped to avoid HTML issues (though
+    # <footnote> and <sidebar> tags are handled specially later).
+    (re.compile(r'&'), lambda match: '&amp;'),
+    (re.compile(r'<'), lambda match: '&lt;'),
+    (re.compile(r'>'), lambda match: '&gt;'),
+
+    # NOP-process all \x escapes, turning \\ into &#92;  This keeps the regex
+    # parsing simple while making sure that we don't try to honor \\x as \x
+    # (and also makes sure we DO honor \\\x as &#92; followed by \x).
+    (re.compile(r'\\(.)'), lambda match: '&#92;' if match.group(1) == '\\' else '\\' + match.group(1)),
+
+    (re.compile(r'\\p'), lambda match: '<br /><br class="p" />'),
+    (re.compile(r'\\x(?P<text>.*?)\\x', re.DOTALL), lambda match: '<h1 class="x">%s</h1>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\X(?P<val>[0-4])(?P<text>.*?)\\X[0-4]', re.DOTALL), lambda match: '<h%s>%s</h%s>' % (int(match.group('val')) + 1, match.group('text'), int(match.group('val')) + 1) if match.group('text') else ''),
     (re.compile(r'\\C\d=".+?"'), lambda match: ''), # This should be made to create a TOC entry
-    (re.compile(r'\\c(?P<text>.*?)\\c', re.DOTALL), lambda match: '<span style="text-align: center; display: block; margin: auto;">%s</span>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\r(?P<text>.*?)\\r', re.DOTALL), lambda match: '<span style="text-align: right; display: block;">%s</span>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\c(?P<text>.*?)\\c', re.DOTALL), lambda match: '<div class="c">%s</div>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\r(?P<text>.*?)\\r', re.DOTALL), lambda match: '<div class="r">%s</div>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\i(?P<text>.*?)\\i', re.DOTALL), lambda match: '<i>%s</i>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\u(?P<text>.*?)\\u', re.DOTALL), lambda match: '<span style="text-decoration: underline;">%s</span>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\u(?P<text>.*?)\\u', re.DOTALL), lambda match: '<u>%s</u>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\o(?P<text>.*?)\\o', re.DOTALL), lambda match: '<del>%s</del>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\v(?P<text>.*?)\\v', re.DOTALL), lambda match: '<!-- %s -->' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\t(?P<text>.*?)\\t', re.DOTALL), lambda match: '<div style="margin-left: 5%%;">%s</div>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\T="(?P<val>\d+)%*"(?P<text>.*?)$', re.MULTILINE), lambda match: r'<div style="margin-left: %s%%;">%s</div>' % (match.group('val'), match.group('text')) if match.group('text') else ''),
-    (re.compile(r'\\w="(?P<val>\d+)%"'), lambda match: '<hr width="%s" />' % match.group('val')),
+    (re.compile(r'\\t(?P<text>.*?)\\t', re.DOTALL), lambda match: '<div class="t">%s</div>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\T="(?P<val>\d+)%*"(?P<text>.*?)$', re.MULTILINE), lambda match: r'<div style="margin-left: %s%%">%s</div>' % (match.group('val'), match.group('text')) if match.group('text') else ''),
+    (re.compile(r'\\w="(?P<val>\d+)%"'), lambda match: '<hr width="%s%%" />' % match.group('val')),
     (re.compile(r'\\n'), lambda match: ''),
-    (re.compile(r'\\s(?P<text>.*?)\\s', re.DOTALL), lambda match: '<span style="font-size: 50%%">%s</span>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\s(?P<text>.*?)\\s', re.DOTALL), lambda match: '<span class="s">%s</span>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\b(?P<text>.*?)\\b', re.DOTALL), lambda match: '<b>%s</b>' % match.group('text') if match.group('text') else ''), # \b is deprecated; \B should be used instead.
-    (re.compile(r'\\l(?P<text>.*?)\\l', re.DOTALL), lambda match: '<span style="font-size: 175%%">%s</span>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\l(?P<text>.*?)\\l', re.DOTALL), lambda match: '<span class="l">%s</span>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\B(?P<text>.*?)\\B', re.DOTALL), lambda match: '<b>%s</b>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\Sp(?P<text>.*?)\\Sp', re.DOTALL), lambda match: '<sup>%s</sup>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\Sb(?P<text>.*?)\\Sb', re.DOTALL), lambda match: '<sub>%s</sub>' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\k(?P<text>.*?)\\k', re.DOTALL), lambda match: '<span style="font-size: 50%%">%s</span>' % match.group('text').upper() if match.group('text') else ''),
+    (re.compile(r'\\k(?P<text>.*?)\\k', re.DOTALL), lambda match: '<span class="k">%s</span>' % match.group('text').upper() if match.group('text') else ''),
     (re.compile(r'\\a(?P<num>\d{3})'), lambda match: '&#%s;' % match.group('num')),
     (re.compile(r'\\U(?P<num>[0-9a-f]{4})'), lambda match: '%s' % my_unichr(int(match.group('num'), 16))),
     (re.compile(r'\\m="(?P<name>.+?)"'), lambda match: '<img src="images/%s" />' % image_name(match.group('name')).strip('\x00')),
@@ -47,8 +58,8 @@ PML_HTML_RULES = [
     (re.compile(r'\\I(?P<text>.*?)\\I', re.DOTALL), lambda match: '<i>%s</i>' % match.group('text') if match.group('text') else ''),
 
     # Sidebar and Footnotes
-    (re.compile(r'<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', re.DOTALL), lambda match: '<div id="fns-%s">%s</div>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
-    (re.compile(r'<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', re.DOTALL), lambda match: '<div id="fns-%s">%s</div>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
+    (re.compile(r'&lt;sidebar\s+id="(?P<target>.+?)"&gt;\s*(?P<text>.*?)\s*&lt;/sidebar&gt;', re.DOTALL), lambda match: '<div id="fns-%s">%s</div>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
+    (re.compile(r'&lt;footnote\s+id="(?P<target>.+?)"&gt;\s*(?P<text>.*?)\s*&lt;/footnote&gt;', re.DOTALL), lambda match: '<div id="fns-%s">%s</div>' % (match.group('target'), match.group('text')) if match.group('text') else ''),
 
     # eReader files are one paragraph per line.
     # This forces the lines to wrap properly.
@@ -58,16 +69,17 @@ PML_HTML_RULES = [
     # Ensure empty lines carry over.
     (re.compile('(\r\n|\n|\r){3}'), lambda match: '<br />'),
 
-    # Remove unmatched plm codes.
-    (re.compile(r'(?<=[^\\])\\[pxcriouvtblBk]'), lambda match: ''),
-    (re.compile(r'(?<=[^\\])\\X[0-4]'), lambda match: ''),
-    (re.compile(r'(?<=[^\\])\\Sp'), lambda match: ''),
-    (re.compile(r'(?<=[^\\])\\Sb'), lambda match: ''),
-    # Remove invalid single item pml codes.
-    (re.compile(r'(?<=[^\\])\\[^\\]'), lambda match: ''),
+    # Try to fix some of the misordering of character-attribute tags.
+    (re.compile(r'(?P<ch>(<(i|u|b|del|sup|sub)( [^>]+)?>)+)(?P<close>(</(div|span)>)+)'), lambda match: match.group('close') + match.group('ch')),
+    (re.compile(r'(?P<ch>(<(i|u|b|del|sup|sub|span)( [^>]+)?>)+)(?P<blk>(<(div|h\d)( [^>]+)?>)+)'), lambda match: match.group('blk') + match.group('ch')),
 
-    # Replace \\ with \.
-    (re.compile(r'\\\\'), lambda match: '\\'),
+    # Remove unmatched plm codes.
+    (re.compile(r'\\X[0-4]'), lambda match: ''),
+    (re.compile(r'\\T="\d+%*"'), lambda match: ''),
+    (re.compile(r'\\Sp'), lambda match: ''),
+    (re.compile(r'\\Sb'), lambda match: ''),
+    # Remove invalid single item pml codes.
+    (re.compile(r'\\.'), lambda match: ''),
 ]
 
 def pml_to_html(pml):
