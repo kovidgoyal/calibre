@@ -79,7 +79,7 @@ class PMLInput(InputFormatPlugin):
                     pimg_name = os.path.basename(img)
                     pimg_path = os.path.join(os.getcwd(), 'images', pimg_name)
                     
-                    images.append(pimg_name)
+                    images.append('images/' + pimg_name)
                     
                     shutil.move(img, pimg_path)
         else:
