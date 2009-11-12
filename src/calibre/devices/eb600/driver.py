@@ -82,3 +82,13 @@ class SHINEBOOK(EB600):
     VENDOR_NAME      = 'LONGSHIN'
     WINDOWS_MAIN_MEM = 'ESHINEBOOK'
 
+class POCKETBOOK360(EB600):
+
+    name = 'PocketBook 360 Device Interface'
+
+    gui_name = 'PocketBook 360'
+
+    FORMATS = ['epub', 'pdf', 'txt']
+
+    VENDOR_NAME = 'PHILIPS'
+    WINDOWS_MAIN_MEM = 'MASS_STORGE'
