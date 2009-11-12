@@ -122,6 +122,8 @@ Metadata download plugins
     :class:`MetaInformation` objects. If there is an error, it should be stored
     in `self.exception` and `self.tb` (for the traceback).
 
+.. automember:: calibre.ebooks.metadata.fetch.MetadataSource.metadata_type
+
 .. automethod:: calibre.ebooks.metadata.fetch.MetadataSource.fetch
 
 .. automethod:: calibre.ebooks.metadata.fetch.MetadataSource.is_ok

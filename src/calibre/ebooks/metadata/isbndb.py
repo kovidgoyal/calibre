@@ -125,7 +125,16 @@ def create_books(opts, args, timeout=5.):
     if opts.verbose:
         print ('ISBNDB query: '+url)
 
-    return [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
+    tans = [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
+    ans = []
+    for x in tans:
+        add = True
+        for y in ans:
+            if y.isbn == x.isbn:
+                add = False
+        if add:
+            ans.append(x)
+    return ans
 
 def main(args=sys.argv):
     parser = option_parser()
