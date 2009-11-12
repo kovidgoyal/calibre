@@ -197,6 +197,17 @@ class PDFMetadataReader(MetadataReaderPlugin):
             return get_quick_metadata(stream)
         return get_metadata(stream)
 
+class PMLMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read PML metadata'
+    file_types  = set(['pml', 'pmlz'])
+    description = _('Read metadata from %s files') % 'PML'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.pml import get_metadata
+        return get_metadata(stream)
+
 class RARMetadataReader(MetadataReaderPlugin):
 
     name = 'Read RAR metadata'
