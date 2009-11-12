@@ -1046,7 +1046,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             _('Downloading %s for %d book(s)')%(x, len(ids)))
         self._book_metadata_download_check = QTimer(self)
         self.connect(self._book_metadata_download_check,
-                SIGNAL('timeout()'), self.book_metadata_download_check)
+                SIGNAL('timeout()'), self.book_metadata_download_check,
+                Qt.QueuedConnection)
         self._book_metadata_download_check.start(100)
 
     def book_metadata_download_check(self):

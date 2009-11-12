@@ -6,6 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import traceback
 from threading import Thread
 from Queue import Queue, Empty
 
@@ -27,9 +28,12 @@ class Worker(Thread):
             isbn = self.jobs.get()
             if not isbn:
                 break
-            cdata, _ = cover_from_isbn(isbn)
-            if cdata:
-                self.results.put((isbn, cdata))
+            try:
+                cdata, _ = cover_from_isbn(isbn)
+                if cdata:
+                    self.results.put((isbn, cdata))
+            except:
+                traceback.print_exc()
 
     def __enter__(self):
         self.start()
