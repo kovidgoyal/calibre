@@ -1,0 +1,19 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1257302745(BasicNewsRecipe):
+    title          = u'National Public Radio'
+    oldest_article = 7
+    language = 'en'
+    __author__ = 'onyxrev'
+    max_articles_per_feed = 100
+
+    remove_tags_before = {'class':'storytitle'}
+    remove_tags_after =  dict(name='div', attrs={'id':'storytext' })
+    remove_tags = [
+                     dict(name='body', attrs={'id':'blog'}),
+                     dict(name='div', attrs={'class':'enlarge_measure'}),
+                     dict(name='div', attrs={'class':'enlarge_html'}),
+                     dict(name='div', attrs={'class':'bucketwrap primary'})
+                  ]
+
+    feeds          = [(u'National Public Radio', u'http://www.npr.org/rss/rss.php?id=1001')]
