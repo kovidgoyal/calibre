@@ -1039,7 +1039,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata import DownloadMetadata
         self._download_book_metadata = DownloadMetadata(db, ids,
-                get_covers=covers, set_metadata=set_metadata)
+                get_covers=covers, set_metadata=set_metadata,
+                get_social_metadata=config['get_social_metadata'])
         self._download_book_metadata.start()
         x = _('covers') if covers and not set_metadata else _('metadata')
         self.progress_indicator.start(

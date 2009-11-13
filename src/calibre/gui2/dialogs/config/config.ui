@@ -90,7 +90,7 @@
           <x>0</x>
           <y>0</y>
           <width>524</width>
-          <height>682</height>
+          <height>680</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
@@ -161,6 +161,13 @@
               <widget class="QCheckBox" name="new_version_notification">
                <property name="text">
                 <string>Show notification when &amp;new version is available</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="opt_get_social_metadata">
+               <property name="text">
+                <string>Download &amp;social metadata (tags/ratings/etc.) by default</string>
                </property>
               </widget>
              </item>

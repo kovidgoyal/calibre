@@ -16,7 +16,8 @@ from PyQt4.Qt import SIGNAL, QObject, QCoreApplication, Qt, QTimer, QThread, QDa
     QPixmap, QListWidgetItem, QDialog
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
-                           choose_files, choose_images, ResizableDialog
+                           choose_files, choose_images, ResizableDialog, \
+                           warning_dialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -28,6 +29,7 @@ from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
 from calibre.customize.ui import run_plugins_on_import, get_isbndb_key
+from calibre.gui2.dialogs.config.social import SocialMetadata
 
 class CoverFetcher(QThread):
 
@@ -541,6 +543,15 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 if d.exec_() == QDialog.Accepted:
                     book = d.selected_book()
                     if book:
+                        if d.opt_get_social_metadata.isChecked():
+                            d2 = SocialMetadata(book, self)
+                            d2.exec_()
+                            if d2.exceptions:
+                                det = '\n'.join([x[0]+'\n\n'+x[-1]+'\n\n\n' for
+                                    x in d2.exceptions])
+                                warning_dialog(self, _('There were errors'),
+                                       _('There were errors downloading social metadata'),
+                                       det_msg=det, show=True)
                         self.title.setText(book.title)
                         self.authors.setText(authors_to_string(book.authors))
                         if book.author_sort: self.author_sort.setText(book.author_sort)
@@ -552,14 +563,18 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                             self.pubdate.setDate(QDate(d.year, d.month, d.day))
                         summ = book.comments
                         if summ:
-                            prefix = qstring_to_unicode(self.comments.toPlainText())
+                            prefix = unicode(self.comments.toPlainText())
                             if prefix:
                                 prefix += '\n'
                             self.comments.setText(prefix + summ)
+                        if book.rating is not None:
+                            self.rating.setValue(int(book.rating))
+                        if book.tags:
+                            self.tags.setText(', '.join(book.tags))
         else:
             error_dialog(self, _('Cannot fetch metadata'),
                          _('You must specify at least one of ISBN, Title, '
-                           'Authors or Publisher'))
+                           'Authors or Publisher'), show=True)
 
     def enable_series_index(self, *args):
         self.series_index.setEnabled(True)

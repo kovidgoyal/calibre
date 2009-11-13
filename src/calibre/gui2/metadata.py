@@ -11,7 +11,7 @@ from threading import Thread
 from Queue import Queue, Empty
 
 
-from calibre.ebooks.metadata.fetch import search
+from calibre.ebooks.metadata.fetch import search, get_social_metadata
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre.customize.ui import get_isbndb_key
 
@@ -45,12 +45,15 @@ class Worker(Thread):
 
 class DownloadMetadata(Thread):
 
-    def __init__(self, db, ids, get_covers, set_metadata=True):
+    def __init__(self, db, ids, get_covers, set_metadata=True,
+            get_social_metadata=True):
         Thread.__init__(self)
         self.setDaemon(True)
         self.metadata = {}
         self.covers   = {}
         self.set_metadata = set_metadata
+        self.get_social_metadata = get_social_metadata
+        self.social_metadata_exceptions = []
         self.db = db
         self.updated = set([])
         self.get_covers = get_covers
@@ -95,6 +98,8 @@ class DownloadMetadata(Thread):
                     if fmi.isbn and self.get_covers:
                         self.worker.jobs.put(fmi.isbn)
                     mi.smart_update(fmi)
+                    if mi.isbn and self.get_social_metadata:
+                        self.social_metadata_exceptions = get_social_metadata(mi)
                 else:
                     self.failures[id] = (mi.title,
                         _('No matches found for this book'))
