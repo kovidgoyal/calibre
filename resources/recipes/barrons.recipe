@@ -17,7 +17,7 @@ class Barrons(BasicNewsRecipe):
         needs_subscription    = True
         language = 'en'
 
-        __author__ = 'Kovid Goyal'
+        __author__ = 'Kovid Goyal and Sujata Raman'
         description = 'Weekly publication for investors from the publisher of the Wall Street Journal'
         timefmt  = ' [%a, %b %d, %Y]'
         use_embedded_content   = False
@@ -75,14 +75,14 @@ class Barrons(BasicNewsRecipe):
         def print_version(self, url):
                main, sep, rest = url.rpartition('?')
                return main + '#printmode'
-            
+
         def postprocess_html(self, soup, first):
 
                for tag in soup.findAll(name=['ul', 'li']):
                     tag.name = 'div'
                for tag in soup.findAll(name ='div', attrs={'id': "articleThumbnail_1"}):
                   tag.extract()
-                   
+
                return soup
 
 ## Comment out the feeds you don't want retrieved.
@@ -98,7 +98,7 @@ class Barrons(BasicNewsRecipe):
                 ('Funds/Q&A', 'http://online.barrons.com/xml/rss/3_7519.xml'),
                 ]
 
-            
+
         def get_cover_url(self):
             cover_url = None
             index = 'http://online.barrons.com/home-page'
@@ -108,7 +108,7 @@ class Barrons(BasicNewsRecipe):
                cover_url = link_item.img['src']
             return cover_url
 
-        
+
         ## Logout of website
         ## NOT CURRENTLY WORKING
         # def cleanup(self):
