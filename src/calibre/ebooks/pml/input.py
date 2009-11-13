@@ -31,6 +31,7 @@ class PMLInput(InputFormatPlugin):
             pclose = True
         else:
             pml_stream = pml_path
+            pml_stream.seek(0)
             
         if not hasattr(html_path, 'write'):
             html_stream = open(html_path, 'wb')
@@ -38,7 +39,7 @@ class PMLInput(InputFormatPlugin):
         else:
             html_stream = html_path
         
-        ienc = pml_stream.encoding if pml_stream.encoding else 'utf-8'
+        ienc = pml_stream.encoding if pml_stream.encoding else 'cp1252'
         if self.options.input_encoding:
             ienc = self.options.input_encoding
 
