@@ -331,7 +331,11 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 custom_tags)
 
     def get_to_be_downloaded_recipes(self):
-        return self.scheduler_config.get_to_be_downloaded_recipes()
+        ans = self.scheduler_config.get_to_be_downloaded_recipes()
+        ans2 = [x for x in ans if self.get_recipe(x) is not None]
+        for x in set(ans) - set(ans2):
+            self.un_schedule_recipe(x)
+        return ans2
 
     def scheduled_urns(self):
         ans = []
