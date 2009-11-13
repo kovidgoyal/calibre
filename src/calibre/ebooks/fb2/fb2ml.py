@@ -30,7 +30,7 @@ TAG_MAP = {
     'i' : 'emphasis',
     'p' : 'p',
     'li' : 'p',
-    'br' : 'empty-line',
+    'br' : 'p',
 }
 
 TAG_SPACE = [
@@ -227,8 +227,14 @@ class FB2MLizer(object):
             fb2_text.append(self.get_anchor(page, id_name))
 
         fb2_tag = TAG_MAP.get(tag, None)
-        if fb2_tag and fb2_tag not in tag_stack:
-            tag_count += 1
+        if fb2_tag:
+            if fb2_tag not in tag_stack:
+                tag_count += 1
+            else:
+                tag_stack.reverse()
+                tag_stack.remove(fb2_tag)
+                tag_stack.reverse()
+                fb2_text.append('</%s>' % fb2_tag)
             fb2_text.append('<%s>' % fb2_tag)
             tag_stack.append(fb2_tag)
 
