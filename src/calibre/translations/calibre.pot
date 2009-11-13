@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.21\n"
-"POT-Creation-Date: 2009-11-13 15:53+MST\n"
-"PO-Revision-Date: 2009-11-13 15:53+MST\n"
+"Project-Id-Version: calibre 0.6.22\n"
+"POT-Creation-Date: 2009-11-13 16:05+MST\n"
+"PO-Revision-Date: 2009-11-13 16:05+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -53,6 +53,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:894
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:39
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:21
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pml.py:18
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pml.py:40
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/topaz.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/txt.py:14
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:44
@@ -177,30 +179,31 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:170
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:181
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:192
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:214
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:204
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:225
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:235
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:245
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:236
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:246
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:256
 msgid "Read metadata from %s files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:204
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:215
 msgid "Read metadata from ebooks in RAR archives"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:256
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:267
 msgid "Read metadata from ebooks in ZIP archives"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:267
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:277
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:287
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:278
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:288
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:298
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:320
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:331
 msgid "Set metadata in %s files"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:298
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
 msgid "Set metadata from %s files"
 msgstr ""
 
