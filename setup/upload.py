@@ -200,24 +200,9 @@ class UploadToSourceForge(Command):
     PROJECT  = 'calibre'
     BASE     = '/home/frs/project/c/ca/'+PROJECT
 
-    def create(self):
-        self.info('Creating shell...')
-        try:
-            check_call(['ssh', '-x',
-            '%s,%s@shell.sourceforge.net'%(self.USERNAME, self.PROJECT),
-            'create'])
-        except:
-            pass
-
     @property
     def rdir(self):
         return self.BASE+'/'+__version__
-
-    def mk_release_dir(self):
-        self.info('Creating release directory...')
-        check_call(['ssh', '-x',
-            '%s,%s@shell.sourceforge.net'%(self.USERNAME, self.PROJECT),
-            'mkdir', '-p', self.rdir])
 
     def upload_installers(self):
         for x in installers():
@@ -229,8 +214,6 @@ class UploadToSourceForge(Command):
 
     def run(self, opts):
         self.opts = opts
-        self.create()
-        self.mk_release_dir()
         self.upload_installers()
 
 
