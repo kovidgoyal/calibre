@@ -173,7 +173,6 @@ class QueueBulk(QProgressDialog):
             for x in list(lrecs):
                 if x[0] == 'debug_pipeline':
                     lrecs.remove(x)
-
             try:
                 dtitle = unicode(mi.title)
             except:
