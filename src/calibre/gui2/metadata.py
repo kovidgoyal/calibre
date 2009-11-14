@@ -100,6 +100,8 @@ class DownloadMetadata(Thread):
                     mi.smart_update(fmi)
                     if mi.isbn and self.get_social_metadata:
                         self.social_metadata_exceptions = get_social_metadata(mi)
+                    if not self.get_social_metadata:
+                        mi.tags = []
                 else:
                     self.failures[id] = (mi.title,
                         _('No matches found for this book'))
