@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.22\n"
-"POT-Creation-Date: 2009-11-13 16:05+MST\n"
-"PO-Revision-Date: 2009-11-13 16:05+MST\n"
+"Project-Id-Version: calibre 0.6.23\n"
+"POT-Creation-Date: 2009-11-13 18:55+MST\n"
+"PO-Revision-Date: 2009-11-13 18:55+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -109,8 +109,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:771
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:774
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:106
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:434
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:391
@@ -1411,8 +1411,20 @@ msgstr ""
 msgid "Metadata download"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:107
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:63
+msgid "Downloads metadata from Google Books"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:79
+msgid "Downloads metadata from isbndb.com"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:106
 msgid "To use isbndb.com you must sign up for a %sfree account%s and enter your access key below."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:118
+msgid "Downloads social metadata from amazon.com"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
@@ -3784,31 +3796,31 @@ msgstr ""
 msgid "ISBN"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:150
 msgid "Finding metadata..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:159
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:162
 msgid "Could not find metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:160
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:163
 msgid "The metadata download seems to have stalled. Try again later."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:172
 msgid "Warning"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:173
 msgid "Could not fetch metadata from:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:177
 msgid "No metadata found"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:178
 msgid "No metadata found, try adjusting the title and author or the ISBN key."
 msgstr ""
 

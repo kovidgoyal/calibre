@@ -201,10 +201,10 @@ def get_social_metadata(mi, verbose=0):
         mi.tags += list(tags)
         mi.tags = list(sorted(list(set(mi.tags))))
     if comments:
-        if not mi.comments or len(mi.comments) < len(comments):
+        if not mi.comments or len(mi.comments)+20 < len(' '.join(comments)):
             mi.comments = ''
             for x in comments:
-                mi.comments += '\n\n'+x
+                mi.comments += x+'\n\n'
 
     return [(x.name, x.exception, x.tb) for x in fetchers if x.exception is not
             None]

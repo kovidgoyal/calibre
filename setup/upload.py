@@ -202,9 +202,12 @@ class UploadToSourceForge(Command):
 
     def create(self):
         self.info('Creating shell...')
-        check_call(['ssh', '-x',
+        try:
+            check_call(['ssh', '-x',
             '%s,%s@shell.sourceforge.net'%(self.USERNAME, self.PROJECT),
             'create'])
+        except:
+            pass
 
     @property
     def rdir(self):
