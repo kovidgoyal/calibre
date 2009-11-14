@@ -101,7 +101,10 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.timeout = timeout
         QObject.connect(self.fetch, SIGNAL('clicked()'), self.fetch_metadata)
 
-        self.key.setText(get_isbndb_key())
+        isbndb_key = get_isbndb_key()
+        if not isbndb_key:
+            isbndb_key = ''
+        self.key.setText(isbndb_key)
 
         self.setWindowTitle(title if title else _('Unknown'))
         self.isbn = isbn

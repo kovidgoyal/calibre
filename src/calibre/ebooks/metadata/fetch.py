@@ -60,9 +60,7 @@ class MetadataSource(Plugin):
 class GoogleBooks(MetadataSource):
 
     name = 'Google Books'
-
-    def is_ok(self):
-        return bool(self.site_customization)
+    description = _('Downloads metadata from Google Books')
 
     def fetch(self):
         from calibre.ebooks.metadata.google_books import search
@@ -78,6 +76,7 @@ class GoogleBooks(MetadataSource):
 class ISBNDB(MetadataSource):
 
     name = 'IsbnDB'
+    description = _('Downloads metadata from isbndb.com')
 
     def fetch(self):
         if not self.site_customization:
@@ -116,6 +115,7 @@ class Amazon(MetadataSource):
 
     name = 'Amazon'
     metadata_type = 'social'
+    description = _('Downloads social metadata from amazon.com')
 
     def fetch(self):
         if not self.isbn:
