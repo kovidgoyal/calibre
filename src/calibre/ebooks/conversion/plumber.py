@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, sys, shutil
+import os, re, sys, shutil, pprint
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.customize.ui import input_profiles, output_profiles, \
@@ -649,6 +649,14 @@ OptionRecommendation(name='language',
         self.read_user_metadata()
         self.opts.no_inline_navbars = self.opts.output_profile.supports_mobi_indexing \
                 and self.output_fmt == 'mobi'
+        if self.opts.verbose:
+            self.log.filter_level = self.log.DEBUG
+        if self.opts.verbose > 1:
+            self.log.debug('Resolved conversion options')
+            try:
+                self.log.debug(pprint.pformat(self.opts.__dict__))
+            except:
+                self.log.exception('Failed to get resolved conversion options')
 
     def flush(self):
         try:
