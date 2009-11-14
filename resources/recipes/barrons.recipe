@@ -17,11 +17,11 @@ class Barrons(BasicNewsRecipe):
         needs_subscription    = True
         language = 'en'
 
-        __author__ = 'Kovid Goyal'
+        __author__ = 'Kovid Goyal and Sujata Raman'
         description = 'Weekly publication for investors from the publisher of the Wall Street Journal'
         timefmt  = ' [%a, %b %d, %Y]'
         use_embedded_content   = False
-        no_stylesheets = False
+        no_stylesheets = True
         match_regexps = ['http://online.barrons.com/.*?html\?mod=.*?|file:.*']
         conversion_options = {'linearize_tables': True}
         ##delay = 1
@@ -29,6 +29,20 @@ class Barrons(BasicNewsRecipe):
         ## Don't grab articles more than 7 days old
         oldest_article = 7
 
+        extra_css = '''
+                    .datestamp{color:#666666; font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
+                    h3{color:#FF0000; font-family:Georgia,"Times New Roman",Times,serif; }
+                    h2{font-family:Georgia,"Times New Roman",Times,serif; }
+                    h1{ font-family:Georgia,"Times New Roman",Times,serif; }
+                    .byline{color:#AAAAAA; font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
+                    .subhead{color:#666666; font-family:Georgia,"Times New Roman",Times,serif; font-size: small;}
+                    .articlePage{ font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;color:#333333;}
+                    .insettipUnit{font-size: x-small;}
+                    '''
+        remove_tags = [
+                           dict(name ='div', attrs={'class':['tabContainer artTabbedNav','rssToolBox hidden','articleToolbox']}),
+                           dict(name = 'a', attrs ={'class':'insetClose'})
+                        ]
 
         preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
                 [
@@ -56,10 +70,20 @@ class Barrons(BasicNewsRecipe):
                 br.submit()
             return br
 
-## Use the print version of a page when available.
+        ## Use the print version of a page when available.
 
         def print_version(self, url):
-                return url.replace('/article/', '/article_print/')
+               main, sep, rest = url.rpartition('?')
+               return main + '#printmode'
+
+        def postprocess_html(self, soup, first):
+
+               for tag in soup.findAll(name=['ul', 'li']):
+                    tag.name = 'div'
+               for tag in soup.findAll(name ='div', attrs={'id': "articleThumbnail_1"}):
+                  tag.extract()
+
+               return soup
 
 ## Comment out the feeds you don't want retrieved.
 ## Because these feeds are sorted alphabetically when converted to LRF, you may want to number them to put them in the order you desire
@@ -73,6 +97,17 @@ class Barrons(BasicNewsRecipe):
                 ('Technology', 'http://online.barrons.com/xml/rss/3_7518.xml'),
                 ('Funds/Q&A', 'http://online.barrons.com/xml/rss/3_7519.xml'),
                 ]
+
+
+        def get_cover_url(self):
+            cover_url = None
+            index = 'http://online.barrons.com/home-page'
+            soup = self.index_to_soup(index)
+            link_item = soup.find('ul',attrs={'class':'newsItem barronsMag'})
+            if link_item:
+               cover_url = link_item.img['src']
+            return cover_url
+
 
         ## Logout of website
         ## NOT CURRENTLY WORKING

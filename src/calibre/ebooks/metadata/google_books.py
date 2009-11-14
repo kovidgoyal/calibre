@@ -135,7 +135,11 @@ class ResultList(list):
 
     def get_tags(self, entry, verbose):
         try:
-            tags = [x.text for x in subject(entry)]
+            btags = [x.text for x in subject(entry)]
+            tags = []
+            for t in btags:
+                tags.extend([y.strip() for y in t.split('/')])
+            tags = list(sorted(list(set(tags))))
         except:
             report(verbose)
             tags = []

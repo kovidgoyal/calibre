@@ -372,7 +372,8 @@ from calibre.customize.profiles import input_profiles, output_profiles
 from calibre.devices.bebook.driver import BEBOOK, BEBOOK_MINI
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybookg3.driver import CYBOOKG3, CYBOOK_OPUS
-from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK
+from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
+                POCKETBOOK360
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
@@ -385,8 +386,8 @@ from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 
-from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB
-plugins = [HTML2ZIP, GoogleBooks, ISBNDB]
+from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
+plugins = [HTML2ZIP, GoogleBooks, ISBNDB, Amazon]
 plugins += [
     ComicInput,
     EPUBInput,
@@ -441,7 +442,8 @@ plugins += [
     SHINEBOOK,
     ESLICK,
     NUUT2,
-    IRIVER_STORY
+    IRIVER_STORY,
+    POCKETBOOK360
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

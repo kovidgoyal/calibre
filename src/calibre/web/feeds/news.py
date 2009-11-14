@@ -704,7 +704,8 @@ class BasicNewsRecipe(Recipe):
         self.report_progress(0, _('Fetching feeds...'))
         try:
             feeds = feeds_from_index(self.parse_index(), oldest_article=self.oldest_article,
-                                     max_articles_per_feed=self.max_articles_per_feed)
+                                     max_articles_per_feed=self.max_articles_per_feed,
+                                     log=self.log)
             self.report_progress(0, _('Got feeds from index page'))
         except NotImplementedError:
             feeds = self.parse_feeds()
@@ -1028,6 +1029,7 @@ class BasicNewsRecipe(Recipe):
                 with closing(self.browser.open(url)) as f:
                     parsed_feeds.append(feed_from_xml(f.read(),
                                           title=title,
+                                          log=self.log,
                                           oldest_article=self.oldest_article,
                                           max_articles_per_feed=self.max_articles_per_feed,
                                           get_article_url=self.get_article_url))

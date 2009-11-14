@@ -193,7 +193,7 @@ def extract(path, dir):
         raise Exception('Unknown archive type')
     extractor(path, dir)
 
-def get_proxies():
+def get_proxies(debug=True):
     proxies = {}
 
     for q in ('http', 'ftp'):
@@ -226,9 +226,39 @@ def get_proxies():
         if len(proxies[x]) < 5:
             prints('Removing invalid', x, 'proxy:', proxies[x])
             del proxies[x]
-    if proxies:
+    if proxies and debug:
         prints('Using proxies:', proxies)
     return proxies
+
+def get_parsed_proxy(typ='http', debug=True):
+    proxies = get_proxies(debug)
+    if typ not in proxies:
+        return
+    pattern = re.compile((
+        '(?:ptype://)?' \
+        '(?:(?P<user>\w+):(?P<pass>.*)@)?' \
+        '(?P<host>[\w\-\.]+)' \
+        '(?::(?P<port>\d+))?').replace('ptype', typ)
+    )
+
+    match = pattern.match(proxies['typ'])
+    if match:
+        try:
+            ans = {
+                    'host' : match.group('host'),
+                    'port' : match.group('port'),
+                    'user' : match.group('user'),
+                    'pass' : match.group('pass')
+                }
+            if ans['port']:
+                ans['port'] = int(ans['port'])
+        except:
+            if debug:
+                traceback.print_exc()
+            return
+        if debug:
+            prints('Using http proxy', ans)
+        return ans
 
 
 def browser(honor_time=True, max_time=2, mobile_browser=False):

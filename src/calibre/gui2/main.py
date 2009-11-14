@@ -1039,14 +1039,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata import DownloadMetadata
         self._download_book_metadata = DownloadMetadata(db, ids,
-                get_covers=covers, set_metadata=set_metadata)
+                get_covers=covers, set_metadata=set_metadata,
+                get_social_metadata=config['get_social_metadata'])
         self._download_book_metadata.start()
         x = _('covers') if covers and not set_metadata else _('metadata')
         self.progress_indicator.start(
             _('Downloading %s for %d book(s)')%(x, len(ids)))
         self._book_metadata_download_check = QTimer(self)
         self.connect(self._book_metadata_download_check,
-                SIGNAL('timeout()'), self.book_metadata_download_check)
+                SIGNAL('timeout()'), self.book_metadata_download_check,
+                Qt.QueuedConnection)
         self._book_metadata_download_check.start(100)
 
     def book_metadata_download_check(self):

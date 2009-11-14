@@ -455,6 +455,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.opt_worker_limit.setValue(config['worker_limit'])
         self.connect(self.button_open_config_dir, SIGNAL('clicked()'),
                 self.open_config_dir)
+        self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
 
     def open_config_dir(self):
         from calibre.utils.config import config_dir
@@ -740,6 +741,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
+        config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:

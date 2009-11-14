@@ -1,0 +1,87 @@
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+'''
+Fetch Weltonline.
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class weltDe(BasicNewsRecipe):
+
+    title = 'Weltonline'
+    description = 'german newspaper'
+    __author__ = 'Oliver Niesner'
+    use_embedded_content   = False
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 15 # reduced to this value to prevent too many articles (suggested by Gregory Riker
+    no_stylesheets = True
+    remove_stylesheets = True
+    remove_javascript = True
+    language = 'de'
+    encoding = 'iso-8859-1'
+
+
+    remove_tags = [dict(id='jumplinks'),
+		   dict(id='ad1'),
+		   dict(id='fullimage_index'),
+		   dict(id='additionalNav'),
+		   dict(id='printMenu'),
+		   dict(id='topteaser1'),
+		   dict(id='topteaser2'),
+		   dict(id='servicesBox'),
+		   dict(id='servicesNav'),
+		   dict(id='ad2'),
+		   dict(id='brandingWrapper'),
+		   dict(id='links-intern'),
+		   dict(id='navigation'),
+		   dict(id='subNav'),
+		   dict(id='branding'),
+		   dict(id='servicesNav'),
+		   dict(id='searchArea'),
+		   dict(id='servicesBox'),
+		   dict(id='toggleAdvancedSearch'),
+		   dict(id='mainNav'),
+		   dict(id='ratingBox5136466_1'),
+		   dict(id='ratingBox5136466_2'),
+		   dict(id='articleInlineMediaBox0'),
+		   dict(id='sectionSponsor'),
+		   #dict(id=''),
+                   dict(name='span'),
+		   dict(name='div', attrs={'class':'printURL'}),
+		   dict(name='div', attrs={'class':'ad'}),
+		   dict(name='div', attrs={'class':'inlineBox inlineFurtherLinks'}),
+		   dict(name='div', attrs={'class':'inlineBox videoInlineBox'}),
+		   dict(name='div', attrs={'class':'inlineGallery'}),
+		   dict(name='div', attrs={'class':'ratingBox'}),
+		   dict(name='div', attrs={'class':'socialBookmarks clear'}),
+		   dict(name='div', attrs={'class':'articleOptions clear'}),
+		   dict(name='div', attrs={'class':'noPrint galleryIndex'}),
+		   dict(name='div', attrs={'class':'inlineBox inlineTagCloud'}),
+		   dict(name='p', attrs={'class':'jump'}),
+		   dict(name='a', attrs={'class':'commentLink'}),
+		   dict(name='h2', attrs={'class':'jumpHeading'}),
+		   dict(name='ul', attrs={'class':'optionsSubNav clear'}),
+		   dict(name='li', attrs={'class':'next'}),
+		   dict(name='li', attrs={'class':'prev'}),
+		   dict(name='li', attrs={'class':'active'})]
+
+    remove_tags_after = [dict(id='tw_link_widget')]
+
+    feeds =  [ ('Politik', 'http://welt.de/politik/?service=Rss'),
+	       ('Deutsche Dinge', 'http://www.welt.de/deutsche-dinge/?service=Rss'),
+	       ('Wirtschaft', 'http://welt.de/wirtschaft/?service=Rss'),
+	       ('Finanzen', 'http://welt.de/finanzen/?service=Rss'),
+	       ('Sport', 'http://welt.de/sport/?service=Rss'),
+	       ('Webwelt', 'http://welt.de/webwelt/?service=Rss'),
+	       ('Kultur', 'http://welt.de/kultur/?service=Rss'),
+	       ('Literarische Welt', 'http://welt.de/kultur/literarischewelt/?service=Rss'),
+	       ('Wissenschaft', 'http://welt.de/wissenschaft/?service=Rss'),
+	       ('Satire', 'http://welt.de/satire/?service=Rss'),
+	       ('Motor', 'http://welt.de/motor/?service=Rss'),
+	       ('Vermischtes', 'http://welt.de/vermischtes/?service=Rss')]
+
+
+    def print_version(self, url):
+        return url.replace ('.html', '.html?print=yes')

@@ -83,6 +83,8 @@ def _config():
         help='Search history for the recipe scheduler')
     c.add_opt('worker_limit', default=6,
             help=_('Maximum number of waiting worker processes'))
+    c.add_opt('get_social_metadata', default=True,
+            help=_('Download social metadata (tags/rating/etc.)'))
 
     return ConfigProxy(c)
 

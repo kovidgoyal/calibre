@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 import traceback, sys, textwrap, re
 from threading import Thread
 
-from calibre import preferred_encoding
+from calibre import prints
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
 
@@ -15,7 +15,14 @@ from calibre.customize import Plugin
 class MetadataSource(Plugin):
 
     author = 'Kovid Goyal'
+
     supported_platforms = ['windows', 'osx', 'linux']
+
+    #: The type of metadata fetched. 'basic' means basic metadata like
+    #: title/author/isbn/etc. 'social' means social metadata like
+    #: tags/rating/reviews/etc.
+    metadata_type = 'basic'
+
     type = _('Metadata download')
 
     def __call__(self, title, author, publisher, isbn, verbose, log=None,
@@ -49,12 +56,11 @@ class MetadataSource(Plugin):
     def join(self):
         return self.worker.join()
 
+
 class GoogleBooks(MetadataSource):
 
     name = 'Google Books'
-
-    def is_ok(self):
-        return bool(self.site_customization)
+    description = _('Downloads metadata from Google Books')
 
     def fetch(self):
         from calibre.ebooks.metadata.google_books import search
@@ -70,6 +76,7 @@ class GoogleBooks(MetadataSource):
 class ISBNDB(MetadataSource):
 
     name = 'IsbnDB'
+    description = _('Downloads metadata from isbndb.com')
 
     def fetch(self):
         if not self.site_customization:
@@ -104,6 +111,23 @@ class ISBNDB(MetadataSource):
             ans = ans.replace('%s', '')
         return ans
 
+class Amazon(MetadataSource):
+
+    name = 'Amazon'
+    metadata_type = 'social'
+    description = _('Downloads social metadata from amazon.com')
+
+    def fetch(self):
+        if not self.isbn:
+            return
+        from calibre.ebooks.metadata.amazon import get_social_metadata
+        try:
+            self.results = get_social_metadata(self.title, self.author,
+                    self.publisher, self.isbn)
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
 def result_index(source, result):
     if not result.isbn:
         return -1
@@ -134,15 +158,57 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
         fetcher(title, author, publisher, isbn, verbose)
     for fetcher in fetchers:
         fetcher.join()
+    results = list(fetchers[0].results)
     for fetcher in fetchers[1:]:
-        merge_results(fetchers[0].results, fetcher.results)
+        merge_results(results, fetcher.results)
 
-    results = sorted(fetchers[0].results, cmp=lambda x, y : cmp(
+    results = sorted(results, cmp=lambda x, y : cmp(
             (x.comments.strip() if x.comments else ''),
             (y.comments.strip() if y.comments else '')
                                                   ), reverse=True)
 
     return results, [(x.name, x.exception, x.tb) for x in fetchers]
+
+def get_social_metadata(mi, verbose=0):
+    from calibre.customize.ui import metadata_sources
+    fetchers = list(metadata_sources(metadata_type='social'))
+    for fetcher in fetchers:
+        fetcher(mi.title, mi.authors, mi.publisher, mi.isbn, verbose)
+    for fetcher in fetchers:
+        fetcher.join()
+    ratings, tags, comments = [], set([]), set([])
+    for fetcher in fetchers:
+        if fetcher.results:
+            dmi = fetcher.results
+            if dmi.rating is not None:
+                ratings.append(dmi.rating)
+            if dmi.tags:
+                for t in dmi.tags:
+                    tags.add(t)
+            if mi.pubdate is None and dmi.pubdate is not None:
+                mi.pubdate = dmi.pubdate
+            if dmi.comments:
+                comments.add(dmi.comments)
+    if ratings:
+        rating = sum(ratings)/float(len(ratings))
+        if mi.rating is None:
+            mi.rating = rating
+        else:
+            mi.rating = (mi.rating + rating)/2.0
+    if tags:
+        if not mi.tags:
+            mi.tags = []
+        mi.tags += list(tags)
+        mi.tags = list(sorted(list(set(mi.tags))))
+    if comments:
+        if not mi.comments or len(mi.comments)+20 < len(' '.join(comments)):
+            mi.comments = ''
+            for x in comments:
+                mi.comments += x+'\n\n'
+
+    return [(x.name, x.exception, x.tb) for x in fetchers if x.exception is not
+            None]
+
 
 
 def option_parser():
@@ -174,11 +240,13 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     results, exceptions = search(opts.title, opts.author, opts.publisher,
                                  opts.isbn, opts.isbndb_key, opts.verbose)
+    social_exceptions = []
     for result in results:
-        print unicode(result).encode(preferred_encoding)
+        social_exceptions.extend(get_social_metadata(result, opts.verbose))
+        prints(unicode(result))
         print
 
-    for name, exception, tb in exceptions:
+    for name, exception, tb in exceptions+social_exceptions:
         if exception is not None:
             print 'WARNING: Fetching from', name, 'failed with error:'
             print exception

@@ -8,9 +8,10 @@ spiegel.de
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Spiegel_int(BasicNewsRecipe):
     title                 = 'Spiegel Online International'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic and Sujata Raman'
     description           = "News and POV from Europe's largest newsmagazine"
     oldest_article        = 7
     max_articles_per_feed = 100
@@ -21,8 +22,9 @@ class Spiegel_int(BasicNewsRecipe):
     publisher             = 'SPIEGEL ONLINE GmbH'
     category              = 'news, politics, Germany'
     lang                  = 'en'
-    
-    conversion_options = {  
+    recursions = 1
+    match_regexps = [r'http://www.spiegel.de/.*-[1-9],00.html']
+    conversion_options = {
                              'comments'    : description
                             ,'tags'        : category
                             ,'language'    : lang
@@ -30,11 +32,63 @@ class Spiegel_int(BasicNewsRecipe):
                             ,'pretty_print': True
                          }
 
-    remove_tags_after = dict(name='div', attrs={'id':'spArticleBody'})
+    extra_css = '''
+                   #spArticleColumn{font-family:verdana,arial,helvetica,geneva,sans-serif ; }
+                   h1{color:#666666; font-weight:bold;}
+                   h2{color:#990000;}
+                   h3{color:#990000;}
+                   h4 {color:#990000;}
+                   a{color:#990000;}
+                   .spAuthor{font-style:italic;}
+                   #spIntroTeaser{font-weight:bold;}
+                   .spCredit{color:#666666; font-size:x-small;}
+                   .spShortDate{font-size:x-small;}
+                   .spArticleImageBox {font-size:x-small;}
+                   .spPhotoGallery{font-size:x-small; color:#990000 ;}
+                '''
+
+    keep_only_tags = [
+                        dict(name ='div', attrs={'id': ['spArticleImageBox spAssetAlignleft','spArticleColumn']}),
+                    ]
+
+    remove_tags = [
+                    dict(name='div', attrs={'id':['spSocialBookmark','spArticleFunctions','spMultiPagerHeadlines',]}),
+                    dict(name='div', attrs={'class':['spCommercial spM520','spArticleCredit','spPicZoom']}),
+                    ]
 
     feeds          = [(u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/rss/0,5291,676,00.xml')]
 
-    def print_version(self, url):
-        main, sep, rest = url.rpartition(',')
-        rmain, rsep, rrest = main.rpartition(',')
-        return rmain + ',druck-' + rrest + ',' + rest
+    def postprocess_html(self, soup,first):
+
+         for tag in soup.findAll(name='div',attrs={'id':"spMultiPagerControl"}):
+                tag.extract()
+
+         p =  soup.find(name = 'p', attrs={'id':'spIntroTeaser'})
+
+         if p.string is not None:
+            t = p.string.rpartition(':')[0]
+
+            if 'Part'in t:
+                if soup.h1 is not None:
+                     soup.h1.extract()
+                if soup.h2 is not None:
+                 soup.h2.extract()
+                 functag = soup.find(name= 'div', attrs={'id':"spArticleFunctions"})
+                 if functag is not None:
+                     functag.extract()
+                 auttag = soup.find(name= 'p', attrs={'class':"spAuthor"})
+                 if auttag is not None:
+                     auttag.extract()
+
+                 pictag = soup.find(name= 'div', attrs={'id':"spArticleTopAsset"})
+                 if pictag is not None:
+                     pictag.extract()
+
+
+         return soup
+
+   # def print_version(self, url):
+   #     main, sep, rest = url.rpartition(',')
+   #     rmain, rsep, rrest = main.rpartition(',')
+   #     return rmain + ',druck-' + rrest + ',' + rest
+

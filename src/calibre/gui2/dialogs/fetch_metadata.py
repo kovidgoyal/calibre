@@ -11,7 +11,7 @@ from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, QThread, \
 from PyQt4.QtGui import QDialog, QItemSelectionModel
 
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
-from calibre.gui2 import error_dialog, NONE, info_dialog
+from calibre.gui2 import error_dialog, NONE, info_dialog, config
 from calibre.gui2.widgets import ProgressIndicator
 from calibre import strftime
 from calibre.customize.ui import get_isbndb_key, set_isbndb_key
@@ -101,7 +101,10 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.timeout = timeout
         QObject.connect(self.fetch, SIGNAL('clicked()'), self.fetch_metadata)
 
-        self.key.setText(get_isbndb_key())
+        isbndb_key = get_isbndb_key()
+        if not isbndb_key:
+            isbndb_key = ''
+        self.key.setText(isbndb_key)
 
         self.setWindowTitle(title if title else _('Unknown'))
         self.isbn = isbn
@@ -115,6 +118,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
                      self.show_summary)
         self.matches.setMouseTracking(True)
         self.fetch_metadata()
+        self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
 
 
     def show_summary(self, current, *args):

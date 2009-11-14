@@ -90,9 +90,10 @@ def output_profiles():
         if isinstance(plugin, OutputProfile):
             yield plugin
 
-def metadata_sources(customize=True, isbndb_key=None):
+def metadata_sources(metadata_type='basic', customize=True, isbndb_key=None):
     for plugin in _initialized_plugins:
-        if isinstance(plugin, MetadataSource):
+        if isinstance(plugin, MetadataSource) and \
+                plugin.metadata_type == metadata_type:
             if is_disabled(plugin):
                 continue
             if customize:

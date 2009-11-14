@@ -14,7 +14,7 @@ class NYTimes(BasicNewsRecipe):
 
     title       = 'New York Times Top Stories'
     __author__  = 'GRiker'
-    language = 'en'
+    language = _('English')
     description = 'Top Stories from the New York Times'
 
     # List of sections typically included in Top Stories.  Use a keyword from the
@@ -78,6 +78,14 @@ class NYTimes(BasicNewsRecipe):
                  .articleBody   {text-align:    left;}\n    \
                  .authorId      {text-align:    left;       \
                                  font-style:    italic;}\n  '
+
+#     def get_cover_url(self):
+#        st = time.localtime()
+#        year = str(st.tm_year)
+#        month = "%.2d" % st.tm_mon
+#        day = "%.2d" % st.tm_mday
+#        cover = 'http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/nytfrontpage/' + 'scan.jpg'
+#        return cover
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -202,21 +210,25 @@ class NYTimes(BasicNewsRecipe):
 
                 # Get the bylines and descriptions
                 if not skipThisSection :
-                    for (x,i) in enumerate(sectionblock.contents) :
+                    lines = sectionblock.contents
+                    contentStrings = []
 
-                        # Extract the bylines and descriptions
-                        if (i.string is not None) and       \
-                           (i.string.strip() > "") and      \
-                           not isinstance(i,Comment):
-                            contentString = i.strip().encode('utf-8')
-                            if contentString[0:3] == 'By ' and contentString[4].isupper() :
-                                bylines.append(contentString)
-                            else :
-                                descriptions.append(contentString)
+                    for line in lines:
+                        if not isinstance(line, Comment) and line.strip and line.strip() > "":
+                            contentStrings.append(line.strip())
+
+                    # Gather the byline/description pairs
+                    bylines = []
+                    descriptions = []
+                    for contentString in contentStrings:
+                        if contentString[0:3] == 'By ' and contentString[3].isupper() :
+                            bylines.append(contentString)
+                        else:
+                            descriptions.append(contentString)
 
                     # Fetch the article titles and URLs
                     articleCount = len(sectionblock.findAll('span'))
-                    for (i,span) in enumerate(sectionblock.findAll('span')) :
+                    for (i,span) in enumerate(sectionblock.findAll(attrs={'class':'headlineWrapper'})) :
                         a = span.find('a', href=True)
                         url = re.sub(r'\?.*', '', a['href'])
                         url += '?pagewanted=all'
@@ -228,7 +240,11 @@ class NYTimes(BasicNewsRecipe):
                         if not isinstance(title, unicode):
                             title = title.decode('utf-8', 'replace')
 
-                        description = descriptions[i]
+                        # Allow for unattributed, undescribed entries "Editor's Note"
+                        if i >= len(descriptions) :
+                            description = None
+                        else :
+                            description = descriptions[i]
 
                         if len(bylines) == articleCount :
                             author = bylines[i]
@@ -291,7 +307,7 @@ class NYTimes(BasicNewsRecipe):
             return soup
         else:
             print "no allowed content found, removing article"
-            raise Exception()
+            raise Exception
 
     def postprocess_html(self,soup, True):
 
