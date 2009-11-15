@@ -246,6 +246,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         md.addAction(_('Download metadata and covers'))
         md.addAction(_('Download only metadata'))
         md.addAction(_('Download only covers'))
+        md.addAction(_('Download only social metadata'))
         self.metadata_menu = md
         self.add_menu = QMenu()
         self.add_menu.addAction(_('Add books from a single directory'))
@@ -288,7 +289,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     set_metadata=False)
         QObject.connect(md.actions()[6], SIGNAL('triggered(bool)'),
                 self.__em5__)
-
+        self.__em6__ = partial(self.download_metadata, covers=False,
+                    set_metadata=False, set_social_metadata=True)
+        QObject.connect(md.actions()[7], SIGNAL('triggered(bool)'),
+                self.__em6__)
 
 
         self.save_menu = QMenu()
@@ -1027,7 +1031,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     ############################### Edit metadata ##############################
 
-    def download_metadata(self, checked, covers=True, set_metadata=True):
+    def download_metadata(self, checked, covers=True, set_metadata=True,
+            set_social_metadata=None):
         rows = self.library_view.selectionModel().selectedRows()
         previous = self.library_view.currentIndex()
         if not rows or len(rows) == 0:
@@ -1037,12 +1042,19 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         db = self.library_view.model().db
         ids = [db.id(row.row()) for row in rows]
+        if set_social_metadata is None:
+            get_social_metadata = config['get_social_metadata']
+        else:
+            get_social_metadata = set_social_metadata
         from calibre.gui2.metadata import DownloadMetadata
         self._download_book_metadata = DownloadMetadata(db, ids,
                 get_covers=covers, set_metadata=set_metadata,
-                get_social_metadata=config['get_social_metadata'])
+                get_social_metadata=get_social_metadata)
         self._download_book_metadata.start()
-        x = _('covers') if covers and not set_metadata else _('metadata')
+        if set_social_metadata is not None and set_social_metadata:
+            x = _('social metadata')
+        else:
+            x = _('covers') if covers and not set_metadata else _('metadata')
         self.progress_indicator.start(
             _('Downloading %s for %d book(s)')%(x, len(ids)))
         self._book_metadata_download_check = QTimer(self)
