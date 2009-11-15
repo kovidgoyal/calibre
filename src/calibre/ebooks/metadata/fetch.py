@@ -191,7 +191,7 @@ def get_social_metadata(mi, verbose=0):
                 comments.add(dmi.comments)
     if ratings:
         rating = sum(ratings)/float(len(ratings))
-        if mi.rating is None:
+        if mi.rating is None or mi.rating == 0:
             mi.rating = rating
         else:
             mi.rating = (mi.rating + rating)/2.0
