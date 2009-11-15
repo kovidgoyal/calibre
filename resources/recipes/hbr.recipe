@@ -1,0 +1,89 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class HBR(BasicNewsRecipe):
+
+    title = 'Harvard Business Review'
+    description = 'To subscribe go to http://hbr.harvardbusiness.org'
+    needs_subscription = True
+    __author__ = 'Kovid Goyal'
+    timefmt                = ' [%B %Y]'
+    no_stylesheets = True
+
+    LOGIN_URL = 'http://hbr.harvardbusiness.org/login?request_url=/'
+    INDEX = 'http://hbr.harvardbusiness.org/current'
+
+    keep_only_tags = [dict(name='div', id='content')]
+    remove_tags = [
+            dict(id=['articleDate', 'subscriptionModule', 'errorArea',
+                'feedbackForm', 'relatedModule', 'articleSecondaryModule',
+                'contentRight', 'summaryLink']),
+            dict(name='form'),
+            ]
+
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open(self.LOGIN_URL)
+        br.select_form(nr=0)
+        br['ssousername'] = self.username
+        br['password'] = self.password
+        raw = br.submit().read()
+        if 'My Account' not in raw:
+            raise Exception('Failed to login, are you sure your username and password are correct?')
+        self.logout_url = None
+        link = br.find_link(text='(sign out)')
+        if link:
+            self.logout_url = link.absolute_url
+        return br
+
+    def cleanup(self):
+        if self.logout_url is not None:
+            self.browser.open(self.logout_url)
+
+    def map_url(self, url):
+        if url.endswith('/ar/1'):
+            return url[:-1]+'pr'
+
+    def get_features(self, soup):
+        div = soup.find('div', id='issueFeatures')
+        for li in div.findAll('li'):
+            a = li.find('a', href=True)
+            url = 'http://hbr.harvardbusiness.org'+a['href']
+            url = self.map_url(url)
+            if not url:
+                continue
+            title = self.tag_to_string(a)
+            p = li.find('p')
+            desc = ''
+            if p is not None:
+                desc = self.tag_to_string(p)
+            yield {'title':title, 'url':url, 'description':desc}
+
+    def get_departments(self, soup):
+        div = soup.find('div', id='issueDepartmentsContent')
+        for h4 in div.findAll('h4'):
+            feed = self.tag_to_string(h4)
+            articles = []
+            ul = h4.findNextSibling('ul')
+            for li in ul.findAll('li'):
+                a = li.find('a', href=True)
+                url = 'http://hbr.harvardbusiness.org'+a['href']
+                url = self.map_url(url)
+                if not url:
+                    continue
+                title = self.tag_to_string(a)
+                p = li.find('p')
+                desc = ''
+                if p is not None:
+                    desc = self.tag_to_string(p)
+                articles.append({'title':title, 'url':url, 'description':desc})
+            yield [feed, articles]
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+        feeds = []
+        feeds.append(('Features', list(self.get_features(soup))))
+        feeds.extend(self.get_departments(soup))
+        return feeds
+
+
