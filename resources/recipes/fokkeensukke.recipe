@@ -1,0 +1,87 @@
+#!/usr/bin/python
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+
+class FokkeEnSukkeRecipe(BasicNewsRecipe) :
+    __license__   = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'nl'
+    description = u'Popular Dutch daily cartoon Fokke en Sukke'
+
+    title = u'Fokke en Sukke'
+    no_stylesheets = True
+    # For reasons unknown to me the extra css is, on the cartoon pages, inserted in the <body> and not in the <head>. My reader (Sony PRS-600) has a serious issue
+    # with that: it treats it as content and displays it as is. Setting this property to empty solves this for me.
+    template_css = ''
+    INDEX = u'http://foksuk.nl'
+
+    # This cover is not as nice as it could be, needs some work
+    #cover_url = 'http://foksuk.nl/content/wysiwyg/simpleimages/image350.gif'
+
+    keep_only_tags = [dict(name='div', attrs={'class' : 'cartoon'})]
+
+    def parse_index(self) :
+        # A list with daynames as they _can_ appear in the index
+        dayNames = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag & zondag']
+        soup = self.index_to_soup(self.INDEX)
+
+        # Find the links for the various cartoons for this week and loop through them
+        index = soup.find('div', attrs={'class' : 'selectcartoon'})
+        links = index.findAll('a')
+        maxIndex = len(links) - 1
+        articles = []
+        for i in range(len(links)) :
+            # The first link does not interest us, as it points to no cartoon. A begin_at parameter in the range() function would be nice.
+            if i == 0 :
+                continue
+
+            # There can be more than one cartoon for a given day (currently either one or two). If there's only one, there is just a link with the dayname.
+            # If there are two, there are three links in sequence: <a>dayname</a> <a>1</a> <a>2</a>. In that case we're interested in the last two.
+            if links[i].renderContents() in dayNames :
+                # If the link is not in daynames, we processed it already, but if it is, let's see if the next one has '1' as content
+                if (i + 1 <= maxIndex) and (links[i + 1].renderContents() == '1') :
+                    # Got you! Add it to the list
+                    article = {'title' : links[i].renderContents() + ' 1', 'date' : u'', 'url'  : self.INDEX + links[i + 1]['href'], 'description' : ''}
+                    articles.append(article)
+                    # If there is a '1', there should be a '2' as well, but better save than sorry
+                    if (i + 2 <= maxIndex) and (links[i + 2].renderContents() == '2') :
+                        # Got you! Add it to the list
+                        article = {'title' : links[i].renderContents() + ' 2', 'date' : u'', 'url'  : self.INDEX + links[i + 2]['href'], 'description' : ''}
+                        articles.append(article)
+                    else :
+                        # There is only one cartoon for this day. Add it to the list.
+                        article = {'title' : links[i].renderContents(), 'date' : u'', 'url'  : self.INDEX + links[i]['href'], 'description' : ''}
+                        articles.append(article)
+        # Might as well use the weeknumber as title
+        week = index.find('span', attrs={'class' : 'week'}).renderContents()
+
+        return [[week, articles]]
+
+    def preprocess_html(self, soup) :
+        # This method is called for every page, be it cartoon or TOC. We need to process each in their own way
+        cartoon = soup.find('div', attrs={'class' : 'cartoon'})
+        if cartoon :
+            # It is a cartoon. Extract the title.
+            title = ''
+            img = soup.find('img', attrs = {'alt' : True})
+            if img :
+                title = img['alt']
+
+            # Using the 'extra_css' displays it in the <body> and not in the <head>. See comment at the top of this class. Setting the style this way solves that.
+            tag = Tag(soup, 'div', [('style', 'text-align: center; margin-bottom: 8px')])
+            tag.insert(0, title)
+            cartoon.insert(0, tag)
+
+            # I have not quite worked out why, but we have to throw out this part of the page. It contains the very same index we processed earlier,
+            # and Calibre does not like that too much. As far as I can tell it goes into recursion and the result is an empty eBook.
+            select = cartoon.find('div', attrs={'class' : 'selectcartoon'})
+            if select :
+                select.extract()
+
+            return cartoon
+        else :
+            # It is a TOC. Just return the whole lot.
+            return soup
+
+
