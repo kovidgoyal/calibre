@@ -34,6 +34,13 @@
       <widget class="QComboBox" name="input_formats"/>
      </item>
      <item>
+      <widget class="QCheckBox" name="opt_individual_saved_settings">
+       <property name="text">
+        <string>Use &amp;saved conversion settings for individual books</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -109,7 +116,7 @@
         <x>0</x>
         <y>0</y>
         <width>810</width>
-        <height>492</height>
+        <height>489</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
