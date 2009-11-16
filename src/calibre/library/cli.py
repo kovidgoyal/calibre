@@ -9,7 +9,7 @@ Command line interface to the calibre database.
 
 import sys, os, cStringIO
 from textwrap import TextWrapper
-from urllib import quote
+from xml.sax.saxutils import escape
 
 from calibre import terminal_controller, preferred_encoding, prints
 from calibre.utils.config import OptionParser, prefs
@@ -48,10 +48,10 @@ XML_TEMPLATE = '''\
         <comments>${record['comments']}</comments>
         <series py:if="record['series']" index="${record['series_index']}">${record['series']}</series>
         <isbn>${record['isbn']}</isbn>
-        <cover py:if="record['cover']">${record['cover']}</cover>
+        <cover py:if="record['cover']">${escape(record['cover'].replace(os.sep, '/'))}</cover>
         <formats py:if="record['formats']">
         <py:for each="path in record['formats']">
-            <format>${path}</format>
+            <format>${escape(path.replace(os.sep, '/'))}</format>
         </py:for>
         </formats>
     </record>
@@ -78,9 +78,9 @@ STANZA_TEMPLATE='''\
       <id>urn:calibre:${record['uuid']}</id>
       <author><name>${record['author_sort']}</name></author>
       <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
-      <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/')).replace('http%3A', 'http:')}" />
-      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
-      <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
+      <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/'))}"/>
+      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}"/>
+      <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}"/>
       <content type="xhtml">
           <div xmlns="http://www.w3.org/1999/xhtml">
               <py:for each="f in ('authors', 'publisher', 'rating', 'tags', 'series', 'isbn')">
@@ -186,7 +186,7 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         return o.getvalue()
     elif output_format == 'xml':
         template = MarkupTemplate(XML_TEMPLATE)
-        return template.generate(data=data).render('xml')
+        return template.generate(data=data, os=os, escape=escape).render('xml')
     elif output_format == 'stanza':
         data = [i for i in data if i.has_key('fmt_epub')]
         for x in data:
@@ -194,7 +194,7 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
                 x['fmt_epub'] = x['fmt_epub'].encode('utf-8')
         template = MarkupTemplate(STANZA_TEMPLATE)
         return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle,
-                sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
+                sep=os.sep, quote=escape, updated=db.last_modified()).render('xml')
 
 def list_option_parser():
     parser = get_parser(_(
