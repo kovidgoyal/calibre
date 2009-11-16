@@ -17,7 +17,7 @@
 #
 # Contributor(s):
 #
-TOOLSVERSION = u"ODFPY/0.9.1dev"
+TOOLSVERSION = u"ODFPY/0.9.2dev"
 
 ANIMNS         = u"urn:oasis:names:tc:opendocument:xmlns:animation:1.0"
 DBNS           = u"urn:oasis:names:tc:opendocument:xmlns:database:1.0"

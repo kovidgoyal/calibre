@@ -446,6 +446,9 @@ def SequenceRef(**args):
 def SheetName(**args):
     return Element(qname = (TEXTNS,'sheet-name'), **args)
 
+def SoftPageBreak(**args):
+    return Element(qname = (TEXTNS,'soft-page-break'), **args)
+
 def SortKey(**args):
     return Element(qname = (TEXTNS,'sort-key'), **args)
 
