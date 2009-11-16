@@ -243,7 +243,7 @@ class HTMLPreProcessor(object):
             if length:
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(r'(?<=.{%i}[a-z\.,;:)-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(r'(?<=.{%i}[a-z\.,;:)\-IA])\s*(?P<ital></(i|b|u)>)?\s*(<p.*?>)\s*(?=(<(i|b|u)>)?\s*[\w\d(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + rules + end_rules:
