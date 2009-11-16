@@ -1746,9 +1746,17 @@ class OEBBook(object):
             return d.replace('\r\n', '\n').replace('\r', '\n')
         if isinstance(data, unicode):
             return fix_data(data)
-        if data[:2] in ('\xff\xfe', '\xfe\xff'):
+        bom_enc = None
+        if data[:4] in ('\0\0\xfe\xff', '\xff\xfe\0\0'):
+            bom_enc = {'\0\0\xfe\xff':'utf-32-be',
+                    '\xff\xfe\0\0':'utf-32-le'}[data[:4]]
+        elif data[:2] in ('\xff\xfe', '\xfe\xff'):
+            bom_enc = {'\xff\xfe':'utf-16-le', '\xfe\xff':'utf-16-be'}[data[:2]]
+        elif data[:3] == '\xef\xbb\xbf':
+            bom_enc = 'utf-8'
+        if bom_enc is not None:
             try:
-                return fix_data(data.decode('utf-16'))
+                return fix_data(data.decode(bom_enc))
             except UnicodeDecodeError:
                 pass
         if self.input_encoding is not None:
