@@ -35,7 +35,7 @@ PML_HTML_RULES = [
     (re.compile(r'\\u(?P<text>.*?)\\u', re.DOTALL), lambda match: '<u>%s</u>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\o(?P<text>.*?)\\o', re.DOTALL), lambda match: '<del>%s</del>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\v(?P<text>.*?)\\v', re.DOTALL), lambda match: '<!-- %s -->' % match.group('text') if match.group('text') else ''),
-    (re.compile(r'\\t(?P<text>.*?)\\t', re.DOTALL), lambda match: '<div style="margin-left: 5%;">%s</div>' % match.group('text') if match.group('text') else ''),
+    (re.compile(r'\\t(?P<text>.*?)\\t', re.DOTALL), lambda match: '<div style="margin-left: 5%%;">%s</div>' % match.group('text') if match.group('text') else ''),
     (re.compile(r'\\T="(?P<val>\d+)%*"(?P<text>.*?)$', re.MULTILINE), lambda match: r'<div style="margin-left: %s%%">%s</div>' % (match.group('val'), match.group('text')) if match.group('text') else ''),
     (re.compile(r'\\w="(?P<val>\d+)%"'), lambda match: '<hr width="%s%%" />' % match.group('val')),
     (re.compile(r'\\n'), lambda match: ''),
