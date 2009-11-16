@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.6.23\n"
-"POT-Creation-Date: 2009-11-15 11:47+MST\n"
-"PO-Revision-Date: 2009-11-15 11:47+MST\n"
+"POT-Creation-Date: 2009-11-15 20:41+MST\n"
+"PO-Revision-Date: 2009-11-15 20:41+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -2074,12 +2074,16 @@ msgstr ""
 msgid "Saved"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
+msgid "For settings that cannot be specified in this dialog, use the values saved in a previous conversion (if they exist) instead of using the defaults specified in the Preferences"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:67
 msgid "Bulk Convert"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:73
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
 msgid "Options specific to the output format."
 msgstr ""
 
@@ -2194,7 +2198,7 @@ msgid "&Disable comic processing"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:107
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
 msgid "&Output format:"
 msgstr ""
 
@@ -2739,23 +2743,27 @@ msgstr ""
 msgid "Regex:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:171
 msgid "Convert"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:48
 msgid "Dialog"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:109
 msgid "&Input format:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
+msgid "Use &saved conversion settings for individual books"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
@@ -5420,37 +5428,37 @@ msgid "Publishers"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:186
 msgid "Convert book %d of %d (%s)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:90
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:206
 msgid "Could not convert some books"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:91
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:207
 msgid "Could not convert %d of %d books, because no suitable source format was found."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:124
 msgid "Queueing books for bulk conversion"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:185
 msgid "Queueing "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:241
 msgid "Fetch news from "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:252
 msgid "Convert existing"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:248
+#: /home/kovid/work/calibre/src/calibre/gui2/tools.py:253
 msgid "The following books have already been converted to %s format. Do you wish to reconvert them?"
 msgstr ""
 
