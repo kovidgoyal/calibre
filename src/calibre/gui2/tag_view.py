@@ -47,7 +47,10 @@ class TagsView(QTreeView):
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
-        self.model().refresh()
+        try:
+            self.model().refresh()
+        except: #Database connection could be closed if an integrity check is happening
+            pass
         if ci.isValid():
             self.scrollTo(ci, QTreeView.PositionAtTop)
 
