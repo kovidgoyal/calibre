@@ -111,17 +111,17 @@ class DownloadMetadata(Thread):
                 self.commit_covers()
 
         self.commit_covers(True)
-        if self.set_metadata:
-            for id in self.fetched_metadata:
-                self.db.set_metadata(id, self.metadata[id])
-        if not self.set_metadata and self.get_social_metadata:
+        for id in self.fetched_metadata:
             mi = self.metadata[id]
-            if mi.rating:
-                self.db.set_rating(id, mi.rating)
-            if mi.tags:
-                self.db.set_tags(id, mi.tags)
-            if mi.comments:
-                self.db.set_comment(id, mi.comments)
+            if self.set_metadata:
+                self.db.set_metadata(id, mi)
+            if not self.set_metadata and self.get_social_metadata:
+                if mi.rating:
+                    self.db.set_rating(id, mi.rating)
+                if mi.tags:
+                    self.db.set_tags(id, mi.tags)
+                if mi.comments:
+                    self.db.set_comment(id, mi.comments)
 
         self.updated = set(self.fetched_metadata)
 
