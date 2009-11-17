@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-11-16 03:54+0000\n"
+"POT-Creation-Date: 2009-11-16 20:00+0000\n"
 "PO-Revision-Date: 2009-11-15 23:45+0000\n"
 "Last-Translator: Miro Glavić <glavicmiro@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-16 04:33+0000\n"
+"X-Launchpad-Export-Date: 2009-11-17 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -593,7 +593,7 @@ msgstr "Memorijska kartica nema dovoljno slobodnog prostora"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:713
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1058
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1062
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1385
@@ -1693,7 +1693,7 @@ msgstr "Komentari"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1013
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1073
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Tags"
 msgstr "Tagovi"
 
@@ -1701,7 +1701,7 @@ msgstr "Tagovi"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:355
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:93
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Series"
 msgstr "Serije"
 
@@ -3883,7 +3883,7 @@ msgstr "Put"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:345
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:91
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Formats"
 msgstr "Formati"
 
@@ -6358,11 +6358,11 @@ msgstr ""
 msgid "Click to browse books by tags"
 msgstr "Klikni da pretražiš knjige po tagovima"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Authors"
 msgstr "Autori"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Publishers"
 msgstr "Izdavači"
 
