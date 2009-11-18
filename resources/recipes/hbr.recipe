@@ -6,10 +6,10 @@ class HBR(BasicNewsRecipe):
     title = 'Harvard Business Review'
     description = 'To subscribe go to http://hbr.harvardbusiness.org'
     needs_subscription = True
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal and Sujata Raman'
     timefmt                = ' [%B %Y]'
-    no_stylesheets = True   
-    
+    no_stylesheets = True
+
     LOGIN_URL = 'http://hbr.harvardbusiness.org/login?request_url=/'
     INDEX = 'http://hbr.harvardbusiness.org/current'
 
@@ -20,14 +20,14 @@ class HBR(BasicNewsRecipe):
                 'contentRight', 'summaryLink']),
             dict(name='form'),
             ]
-    
+
     extra_css = '''
                 a {font-family:Georgia,"Times New Roman",Times,serif; font-style:italic; color:#000000; }
                 .article{font-family:Georgia,"Times New Roman",Times,serif; font-size: xx-small;}
                 h2{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:large; }
                 h4{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:small;  }
                 #articleAuthors{font-family:Georgia,"Times New Roman",Times,serif; font-style:italic; color:#000000;font-size:x-small;}
-                #summaryText{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:x-small;}                
+                #summaryText{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:x-small;}
                 '''
 
     def get_browser(self):
@@ -100,10 +100,10 @@ class HBR(BasicNewsRecipe):
         index = 'http://hbr.harvardbusiness.org/current'
         soup = self.index_to_soup(index)
         link_item = soup.find('img', alt=re.compile("HBR Cover Image"), src=True)
-        
+
         if link_item:
            cover_url = 'http://hbr.harvardbusiness.org' + link_item['src']
-           
+
         return cover_url
-    
-  
+
+
