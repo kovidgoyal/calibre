@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-16 20:00+0000\n"
-"PO-Revision-Date: 2009-11-16 11:39+0000\n"
-"Last-Translator: ritibelle <Unknown>\n"
+"PO-Revision-Date: 2009-11-17 11:13+0000\n"
+"Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-17 04:49+0000\n"
+"X-Launchpad-Export-Date: 2009-11-18 04:34+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -1735,7 +1735,7 @@ msgstr "Rettigheter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:77
 msgid "EDITORIAL REVIEW"
-msgstr ""
+msgstr "REDAKSJONELL ANMELDELSE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:19
 msgid "options"
@@ -1846,25 +1846,27 @@ msgstr "Fant ikke omslag"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:26
 msgid "Metadata download"
-msgstr ""
+msgstr "Nedlasting av metadata"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:63
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Last ned metadata fra Google Bøker"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:79
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Last ned metadata fra isbnb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:106
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
 msgstr ""
+"For å benytte isbnb.com må du først sette opp en %sgratis konto%s og legge "
+"inn tilgansnøkkelen under."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:118
 msgid "Downloads social metadata from amazon.com"
-msgstr ""
+msgstr "Last ned sosiale metadata fra amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -2588,7 +2590,7 @@ msgstr "Maksumum antall ventende arbeidsprosesser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:87
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr ""
+msgstr "Last ned sosiale metadata (emneord/bedømmelser/osv.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:398
@@ -2682,6 +2684,9 @@ msgid ""
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
 msgstr ""
+"For innstillinger som ikke kan spesifiseres i denne dialogen, benytt "
+"verdiene som er lagret i en tidligere konvertering (om de finnes) i stedet "
+"for å benytte standardspesifikasjonen under innstillinger."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:67
 msgid "Bulk Convert"
@@ -3421,7 +3426,7 @@ msgstr "&Inndataformat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
 msgid "Use &saved conversion settings for individual books"
-msgstr ""
+msgstr "Bruk &lagrede konverteringsinnstillinger for individuelle bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -4065,7 +4070,7 @@ msgstr "Programtillegg: %s trenger ikke å egendefineres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:560
 msgid "Customize"
-msgstr ""
+msgstr "Tilpass"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:598
 msgid "Cannot remove builtin plugin"
@@ -4268,7 +4273,7 @@ msgstr "Varsle når &ny versjon er tilgjengelig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:498
 msgid "Download &social metadata (tags/ratings/etc.) by default"
-msgstr ""
+msgstr "Last ned &sosiale metadata (emneord/bedømminger/osv.) som standard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:499
 msgid "Default network &timeout:"
@@ -4543,7 +4548,7 @@ msgstr "&Legg til"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/social.py:34
 msgid "Downloading social metadata, please wait..."
-msgstr ""
+msgstr "Laster ned sosiale metadata, vennligst vent..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:48
 msgid "Are you sure?"
@@ -4633,6 +4638,7 @@ msgstr "Velg boken som samsvarer mest med ditt eksemplar fra listen under"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:87
 msgid "Download &social metadata (tags/rating/etc.) for the selected book"
 msgstr ""
+"Last ned &sosiale metadata (emneord/bedømminger/osv.) for den valgte boken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:37
 msgid "Details of job"
@@ -4722,7 +4728,7 @@ msgstr "Fjern &format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:157
 msgid "&Swap title and author"
-msgstr ""
+msgstr "&Bytt mellom tittel og forfatter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:122
 msgid "Not a valid picture"
@@ -4739,7 +4745,7 @@ msgstr "Bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:162
 msgid "No permission"
-msgstr ""
+msgstr "Ingen tilatelse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:163
 msgid "You do not have permission to read the following files:"
@@ -4809,11 +4815,11 @@ msgstr "Omslaget har ikke gyldig bilde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:552
 msgid "There were errors"
-msgstr ""
+msgstr "Det oppsto feil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:553
 msgid "There were errors downloading social metadata"
-msgstr ""
+msgstr "Det oppsto feil ved nedlastingen av sosiale metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:577
 msgid "Cannot fetch metadata"
@@ -5719,7 +5725,7 @@ msgstr "Last bare ned omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:249
 msgid "Download only social metadata"
-msgstr ""
+msgstr "Last kun ned sosiale metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:252
 msgid "Add books from a single directory"
@@ -5922,7 +5928,7 @@ msgstr "Ingen bøker ble valgt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1055
 msgid "social metadata"
-msgstr ""
+msgstr "sosiale metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1057
 msgid "covers"
