@@ -213,9 +213,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         self.device_manager.umount_device)
 
         ####################### Vanity ########################
-        self.vanity_template  = _('<p>For help visit <a href="http://%s.'
-                'kovidgoyal.net/user_manual">%s.kovidgoyal.net</a>'
-                '<br>')%(__appname__, __appname__)
+        self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
+                '<br>')%'http://calibre.kovidgoyal.net/user_manual'
         self.vanity_template += _('<b>%s</b>: %s by <b>Kovid Goyal '
             '%%(version)s</b><br>%%(device)s</p>')%(__appname__, __version__)
         self.latest_version = ' '
