@@ -221,10 +221,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
         if not opts.no_update_check:
-            self.update_checker = CheckForUpdates()
+            self.update_checker = CheckForUpdates(self)
             QObject.connect(self.update_checker,
                     SIGNAL('update_found(PyQt_PyObject)'), self.update_found)
-            self.update_checker.start()
+            self.update_checker.start(2000)
         ####################### Status Bar #####################
         self.status_bar = StatusBar(self.jobs_dialog, self.system_tray_icon)
         self.setStatusBar(self.status_bar)
@@ -1755,6 +1755,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()
+        self.update_checker.stop()
         self.listener.close()
         self.job_manager.server.close()
         while self.spare_servers:
