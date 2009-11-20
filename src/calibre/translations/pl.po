@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-16 20:00+0000\n"
-"PO-Revision-Date: 2009-11-17 08:09+0000\n"
+"PO-Revision-Date: 2009-11-19 13:34+0000\n"
 "Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-18 04:34+0000\n"
+"X-Launchpad-Export-Date: 2009-11-20 04:41+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -2898,7 +2898,7 @@ msgstr "&Tytuł: "
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:354
 msgid "Change the title of this book"
-msgstr ""
+msgstr "Zmień tytuł tej ksiązki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:138
@@ -3001,19 +3001,19 @@ msgstr "Marginesy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:115
 msgid "&Left:"
-msgstr ""
+msgstr "&Lewy:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:117
 msgid "&Top:"
-msgstr ""
+msgstr "&Górny:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:119
 msgid "&Right:"
-msgstr ""
+msgstr "&Prawy:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:121
 msgid "&Bottom:"
-msgstr ""
+msgstr "&Dolny:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input.py:12
 msgid "PDB Input"
@@ -3035,7 +3035,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:36
 msgid "&Format:"
-msgstr ""
+msgstr "&Format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
@@ -3055,11 +3055,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
 msgid "&Paper Size:"
-msgstr ""
+msgstr "Rozmiar &papieru:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:41
 msgid "&Orientation:"
-msgstr ""
+msgstr "&Orientacja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
@@ -3076,15 +3076,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "No formats available"
-msgstr ""
+msgstr "Brak dostępnych formatów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "Open book"
-msgstr ""
+msgstr "Otwórz książkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "~"
-msgstr ""
+msgstr "~"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
 msgid "Regex Builder"
@@ -3092,7 +3092,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
 msgid "Preview"
-msgstr ""
+msgstr "Podgląd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
@@ -3100,7 +3100,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:171
 msgid "Convert"
-msgstr ""
+msgstr "Konwertuj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
@@ -3115,7 +3115,7 @@ msgstr "Okno dialogowe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:109
 msgid "&Input format:"
-msgstr ""
+msgstr "Format w&ejściowy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
 msgid "Use &saved conversion settings for individual books"
@@ -3126,6 +3126,8 @@ msgid ""
 "Structure\n"
 "Detection"
 msgstr ""
+"Wykrywanie\n"
+"struktury"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:19
 msgid ""
@@ -3170,7 +3172,7 @@ msgstr "Wyrażenie XPath %s jest nieprawidłowe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
-msgstr ""
+msgstr "&Znacznik rozdziału:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
@@ -3197,6 +3199,8 @@ msgid ""
 "Table of\n"
 "Contents"
 msgstr ""
+"Spis\n"
+"treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
@@ -3220,7 +3224,7 @@ msgstr "Nie dodawaj &wykrytych rozdziałów do spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:64
 msgid "Number of &links to add to Table of Contents"
-msgstr ""
+msgstr "Liczba &linków do dodania do spisu tresci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
@@ -3263,7 +3267,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:56
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "&Maksymalna długość linii:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:57
 msgid "Force maximum line lenght"
@@ -3290,27 +3294,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:69
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:70
 msgid "a"
-msgstr ""
+msgstr "a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:71
 msgid "br"
-msgstr ""
+msgstr "br"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:72
 msgid "div"
-msgstr ""
+msgstr "div"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "h1"
-msgstr ""
+msgstr "h1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:74
 msgid "h2"
-msgstr ""
+msgstr "h2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:75
 msgid "h3"
@@ -3318,31 +3322,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:76
 msgid "h4"
-msgstr ""
+msgstr "h4"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:77
 msgid "h5"
-msgstr ""
+msgstr "h5"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:78
 msgid "h6"
-msgstr ""
+msgstr "h6"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:79
 msgid "hr"
-msgstr ""
+msgstr "hr"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:80
 msgid "span"
-msgstr ""
+msgstr "span"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:81
 msgid "Having the &attribute:"
-msgstr ""
+msgstr "Zawierające &atrybut:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:82
 msgid "With &value:"
-msgstr ""
+msgstr "O &wartości:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:83
 msgid "(A regular expression)"
@@ -3362,7 +3366,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:39
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:130
 msgid "No details available."
-msgstr ""
+msgstr "Brak szczegółów."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:128
 msgid "Device no longer connected."
@@ -3419,24 +3423,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:327
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:334
 msgid "Send to storage card A"
-msgstr ""
+msgstr "Prześlij na kartę pamięci A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:329
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:336
 msgid "Send to storage card B"
-msgstr ""
+msgstr "Prześlij na kartę pamięci B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:339
 msgid "Send specific format to main memory"
-msgstr ""
+msgstr "Prześlij okreslony format na główna pamięć"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:341
 msgid "Send specific format to storage card A"
-msgstr ""
+msgstr "Prześlij okreslony format na kartę pamięci A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:343
 msgid "Send specific format to storage card B"
-msgstr ""
+msgstr "Prześlij okreslony format na kartę pamięci B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:487
 msgid "selected to send"
@@ -3448,25 +3452,25 @@ msgstr "Wybierz format plików przesyłanych na urządzenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:499
 msgid "No device"
-msgstr ""
+msgstr "Brak urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:500
 msgid "Cannot send: No device is connected"
-msgstr ""
+msgstr "Nie można było przesłać: Żadne urządenie nie jest podłączone"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:503
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:507
 msgid "No card"
-msgstr ""
+msgstr "Brak karty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:508
 msgid "Cannot send: Device has no storage card"
-msgstr ""
+msgstr "Nie można przesłać: Urządzenie nie posiada karty pamięci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:550
 msgid "E-book:"
-msgstr ""
+msgstr "E-book:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:553
 msgid "Attached, you will find the e-book"
@@ -3483,7 +3487,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:568
 msgid "Sending email to"
-msgstr ""
+msgstr "Wysyłanie wiadomości do"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:598
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:605
@@ -3504,7 +3508,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:625
 msgid "Failed to email books"
-msgstr ""
+msgstr "Przesłanie książek na email nie powiodło się"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:626
 msgid "Failed to email the following books:"
@@ -3516,7 +3520,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:657
 msgid "News:"
-msgstr ""
+msgstr "Aktualności:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:658
 msgid "Attached is the"
@@ -3524,7 +3528,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:669
 msgid "Sent news to"
-msgstr ""
+msgstr "Wysyłaj aktualności do"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:699
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:813
@@ -3547,7 +3551,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:868
 msgid "No space on device"
-msgstr ""
+msgstr "Brak miejsca na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:869
 msgid ""
@@ -3561,7 +3565,7 @@ msgstr "Wybierz dostepne formaty i ich porządek dla tego urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:63
 msgid "Use sub directories"
-msgstr ""
+msgstr "Uzywaj podkatalogów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:85
@@ -3601,7 +3605,7 @@ msgstr "Ustaw parametry domyślne konwersji komiksów (pliki CBR/CBZ)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:49
 msgid "Set options for converting %s"
-msgstr ""
+msgstr "Ustaw opcje dla konwersji %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:92
 msgid "&Title:"
@@ -3621,7 +3625,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:171
 msgid "plugins"
-msgstr ""
+msgstr "wtyczki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:196
 msgid "Conversion"
@@ -3663,11 +3667,11 @@ msgstr "Wtyczki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
 msgid "Auto send"
-msgstr ""
+msgstr "Wysyłaj automatycznie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:216
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:221
 msgid "Formats to email. The first matching format will be sent."
@@ -3738,7 +3742,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:560
 msgid "Customize"
-msgstr ""
+msgstr "Dostosuj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:598
 msgid "Cannot remove builtin plugin"
@@ -3793,11 +3797,11 @@ msgstr "Niewłaściwa lokalizacja bazy danych.<br>Nie można zapisać do "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:792
 msgid "Checking database integrity"
-msgstr ""
+msgstr "Sprawdzanie integralności bazy danych"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:812
 msgid "Failed to check database integrity"
-msgstr ""
+msgstr "Sprawdzenie integralności bazy danych się nie powiodło"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:817
 msgid "Some inconsistencies found"
@@ -3850,7 +3854,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:106
 msgid "Save &cover separately"
-msgstr ""
+msgstr "Zapisuj &okładki osobno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:107
 msgid "Update &metadata in saved copies"
@@ -3870,7 +3874,7 @@ msgstr "Formatuj &daty według schematu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:111
 msgid "File &formats to save:"
-msgstr ""
+msgstr "&Formaty pliku do zapisu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:112
 msgid "Save &template"
