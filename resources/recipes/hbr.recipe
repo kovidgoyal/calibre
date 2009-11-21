@@ -8,6 +8,7 @@ class HBR(BasicNewsRecipe):
     needs_subscription = True
     __author__ = 'Kovid Goyal and Sujata Raman'
     timefmt                = ' [%B %Y]'
+    language = 'en'
     no_stylesheets = True
 
     LOGIN_URL = 'http://hbr.harvardbusiness.org/login?request_url=/'

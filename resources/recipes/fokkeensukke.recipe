@@ -49,10 +49,10 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe) :
                         # Got you! Add it to the list
                         article = {'title' : links[i].renderContents() + ' 2', 'date' : u'', 'url'  : self.INDEX + links[i + 2]['href'], 'description' : ''}
                         articles.append(article)
-                    else :
-                        # There is only one cartoon for this day. Add it to the list.
-                        article = {'title' : links[i].renderContents(), 'date' : u'', 'url'  : self.INDEX + links[i]['href'], 'description' : ''}
-                        articles.append(article)
+                else :
+                    # There is only one cartoon for this day. Add it to the list.
+                    article = {'title' : links[i].renderContents(), 'date' : u'', 'url'  : self.INDEX + links[i]['href'], 'description' : ''}
+                    articles.append(article)
         # Might as well use the weeknumber as title
         week = index.find('span', attrs={'class' : 'week'}).renderContents()
 
