@@ -9,7 +9,6 @@ Command line interface to the calibre database.
 
 import sys, os, cStringIO
 from textwrap import TextWrapper
-from xml.sax.saxutils import escape
 
 from calibre import terminal_controller, preferred_encoding, prints
 from calibre.utils.config import OptionParser, prefs
@@ -48,10 +47,10 @@ XML_TEMPLATE = '''\
         <comments>${record['comments']}</comments>
         <series py:if="record['series']" index="${record['series_index']}">${record['series']}</series>
         <isbn>${record['isbn']}</isbn>
-        <cover py:if="record['cover']">${escape(record['cover'].replace(os.sep, '/'))}</cover>
+        <cover py:if="record['cover']">${record['cover'].replace(os.sep, '/')}</cover>
         <formats py:if="record['formats']">
         <py:for each="path in record['formats']">
-            <format>${escape(path.replace(os.sep, '/'))}</format>
+            <format>${path.replace(os.sep, '/')}</format>
         </py:for>
         </formats>
     </record>
@@ -186,15 +185,17 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         return o.getvalue()
     elif output_format == 'xml':
         template = MarkupTemplate(XML_TEMPLATE)
-        return template.generate(data=data, os=os, escape=escape).render('xml')
+        return template.generate(data=data, os=os).render('xml')
     elif output_format == 'stanza':
+        def quote(raw):
+            return raw.replace('"', r'\"')
         data = [i for i in data if i.has_key('fmt_epub')]
         for x in data:
             if isinstance(x['fmt_epub'], unicode):
                 x['fmt_epub'] = x['fmt_epub'].encode('utf-8')
         template = MarkupTemplate(STANZA_TEMPLATE)
         return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle,
-                sep=os.sep, quote=escape, updated=db.last_modified()).render('xml')
+                sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
 
 def list_option_parser():
     parser = get_parser(_(
