@@ -101,8 +101,6 @@ def metadata_sources(metadata_type='basic', customize=True, isbndb_key=None):
                 plugin.site_customization = customization.get(plugin.name, None)
             if plugin.name == 'IsbnDB' and isbndb_key is not None:
                 plugin.site_customization = isbndb_key
-            if not plugin.is_ok():
-                continue
             yield plugin
 
 def get_isbndb_key():

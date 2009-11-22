@@ -50,3 +50,5 @@ def Radialgradient(**args):
 def Stop(**args):
     return Element(qname = (SVGNS,'stop'), **args)
 
+def Title(**args):
+    return Element(qname = (SVGNS,'title'), **args)

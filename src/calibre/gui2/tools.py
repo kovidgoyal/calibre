@@ -111,17 +111,21 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     user_recs = cPickle.loads(d.recommendations)
 
     book_ids = convert_existing(parent, db, book_ids, output_format)
-    return QueueBulk(parent, book_ids, output_format, queue, db, user_recs, args)
+    use_saved_single_settings = d.opt_individual_saved_settings.isChecked()
+    return QueueBulk(parent, book_ids, output_format, queue, db, user_recs,
+            args, use_saved_single_settings=use_saved_single_settings)
 
 class QueueBulk(QProgressDialog):
 
-    def __init__(self, parent, book_ids, output_format, queue, db, user_recs, args):
+    def __init__(self, parent, book_ids, output_format, queue, db, user_recs,
+            args, use_saved_single_settings=True):
         QProgressDialog.__init__(self, '',
                 QString(), 0, len(book_ids), parent)
         self.setWindowTitle(_('Queueing books for bulk conversion'))
         self.book_ids, self.output_format, self.queue, self.db, self.args, self.user_recs = \
                 book_ids, output_format, queue, db, args, user_recs
         self.parent = parent
+        self.use_saved_single_settings = use_saved_single_settings
         self.i, self.bad, self.jobs, self.changed = 0, [], [], False
         self.timer = QTimer(self)
         self.connect(self.timer, SIGNAL('timeout()'), self.do_book)
@@ -149,11 +153,12 @@ class QueueBulk(QProgressDialog):
 
             combined_recs = GuiRecommendations()
             default_recs = load_defaults('%s_input' % input_format)
-            specific_recs = load_specifics(self.db, book_id)
             for key in default_recs:
                 combined_recs[key] = default_recs[key]
-            for key in specific_recs:
-                combined_recs[key] = specific_recs[key]
+            if self.use_saved_single_settings:
+                specific_recs = load_specifics(self.db, book_id)
+                for key in specific_recs:
+                    combined_recs[key] = specific_recs[key]
             for item in self.user_recs:
                 combined_recs[item[0]] = item[1]
             save_specifics(self.db, book_id, combined_recs)

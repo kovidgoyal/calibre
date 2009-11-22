@@ -421,7 +421,7 @@ button in the individual book conversion dialog.
 When you Bulk Convert a set of books, settings are taken in the following order:
 
     * From the defaults set in Preferences->Conversion
-    * From the saved conversion settings for each book being converted (if any)
+    * From the saved conversion settings for each book being converted (if any). This can be turned off by the option in the top left corner of the Bulk Conversion dialog.
     * From the settings set in the Bulk conversion dialog
 
 Note that the final settings for each book in a Bulk Conversion will be saved and re-used if the book is converted again. Since the

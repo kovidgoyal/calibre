@@ -115,7 +115,7 @@ class PostInstall:
             self.info('Creating symlinks...')
             for exe in scripts.keys():
                 dest = os.path.join(self.opts.staging_bindir, exe)
-                if os.path.exists(dest):
+                if os.path.lexists(dest):
                     os.unlink(dest)
                 tgt = os.path.join(getattr(sys, 'frozen_path'), exe)
                 self.info('\tSymlinking %s to %s'%(tgt, dest))

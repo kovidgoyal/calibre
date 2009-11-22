@@ -68,6 +68,7 @@ class LibraryDelegate(QItemDelegate):
         self.drawFocus(painter, option, option.rect)
         try:
             painter.setRenderHint(QPainter.Antialiasing)
+            painter.setClipRect(option.rect)
             y = option.rect.center().y()-self.SIZE/2.
             x = option.rect.right()  - self.SIZE
             painter.setPen(self.PEN)

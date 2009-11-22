@@ -66,14 +66,24 @@ class USBMS(CLI, Device):
                     match = fnmatch.filter(files, '*.%s' % (book_type))
                     for i, filename in enumerate(match):
                         self.report_progress((i+1) / float(len(match)), _('Getting list of books on device...'))
-                        bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
+                        try:
+                            bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
+                        except: # Probably a filename encoding error
+                            import traceback
+                            traceback.print_exc()
+                            continue
         else:
             path = os.path.join(prefix, ebook_dir)
             paths = os.listdir(path)
             for i, filename in enumerate(paths):
                 self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
                 if path_to_ext(filename) in self.FORMATS:
-                    bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
+                    try:
+                        bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
+                    except: # Probably a file name encoding error
+                        import traceback
+                        traceback.print_exc()
+                        continue
 
         self.report_progress(1.0, _('Getting list of books on device...'))
 

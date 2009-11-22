@@ -56,6 +56,8 @@ def _quoteattr(data, entities={}):
         the optional entities parameter.  The keys and values must all be
         strings; each key will be replaced with its corresponding value.
     """
+    entities['\n']='&#10;'
+    entities['\r']='&#12;'
     data = _escape(data, entities)
     if '"' in data:
         if "'" in data:

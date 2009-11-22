@@ -552,6 +552,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                                 warning_dialog(self, _('There were errors'),
                                        _('There were errors downloading social metadata'),
                                        det_msg=det, show=True)
+                        else:
+                            book.tags = []
                         self.title.setText(book.title)
                         self.authors.setText(authors_to_string(book.authors))
                         if book.author_sort: self.author_sort.setText(book.author_sort)

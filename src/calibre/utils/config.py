@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, textwrap, traceback
+import os, re, cPickle, textwrap, traceback, plistlib
 from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
@@ -34,9 +34,11 @@ else:
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
+CONFIG_DIR_MODE = 0700
+
 def make_config_dir():
     if not os.path.exists(plugin_dir):
-        os.makedirs(plugin_dir, mode=448) # 0700 == 448
+        os.makedirs(plugin_dir, mode=CONFIG_DIR_MODE)
 
 def check_config_write_access():
     return os.access(config_dir, os.W_OK) and os.access(config_dir, os.X_OK)
@@ -551,6 +553,72 @@ class DynamicConfig(dict):
                 f.write(raw)
 
 dynamic = DynamicConfig()
+
+class XMLConfig(dict):
+
+    '''
+    Similar to :class:`DynamicConfig`, except that it uses an XML storage
+    backend instead of a pickle file.
+
+    See `http://docs.python.org/dev/library/plistlib.html`_ for the supported
+    data types.
+    '''
+
+    def __init__(self, rel_path_to_cf_file):
+        dict.__init__(self)
+        self.file_path = os.path.join(config_dir,
+                *(rel_path_to_cf_file.split('/')))
+        self.file_path = os.path.abspath(self.file_path)
+        if not self.file_path.endswith('.plist'):
+            self.file_path += '.plist'
+
+        self.refresh()
+
+    def refresh(self):
+        d = {}
+        if os.path.exists(self.file_path):
+            with ExclusiveFile(self.file_path) as f:
+                raw = f.read()
+                try:
+                    d = plistlib.readPlistFromString(raw) if raw.strip() else {}
+                except SystemError:
+                    pass
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    d = {}
+        self.clear()
+        self.update(d)
+
+    def __getitem__(self, key):
+        try:
+            ans = dict.__getitem__(self, key)
+            if isinstance(ans, plistlib.Data):
+                ans = ans.data
+            return ans
+        except KeyError:
+            return None
+
+    def __setitem__(self, key, val):
+        if isinstance(val, (bytes, str)):
+            val = plistlib.Data(val)
+        dict.__setitem__(self, key, val)
+        self.commit()
+
+    def set(self, key, val):
+        self.__setitem__(key, val)
+
+    def commit(self):
+        if hasattr(self, 'file_path') and self.file_path:
+            dpath = os.path.dirname(self.file_path)
+            if not os.path.exists(dpath):
+                os.makedirs(dpath, mode=CONFIG_DIR_MODE)
+            with ExclusiveFile(self.file_path) as f:
+                raw = plistlib.writePlistToString(self)
+                f.seek(0)
+                f.truncate()
+                f.write(raw)
+
 
 def _prefs():
     c = Config('global', 'calibre wide preferences')

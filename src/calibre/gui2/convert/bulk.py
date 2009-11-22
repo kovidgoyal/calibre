@@ -31,6 +31,13 @@ class BulkConfig(Config):
 
         self.input_label.hide()
         self.input_formats.hide()
+        self.opt_individual_saved_settings.setVisible(True)
+        self.opt_individual_saved_settings.setChecked(True)
+        self.opt_individual_saved_settings.setToolTip(_('For '
+            'settings that cannot be specified in this dialog, use the '
+            'values saved in a previous conversion (if they exist) instead '
+            'of using the defaults specified in the Preferences'))
+
 
         self.connect(self.output_formats, SIGNAL('currentIndexChanged(QString)'),
                 self.setup_pipeline)

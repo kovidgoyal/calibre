@@ -60,6 +60,7 @@ class DownloadMetadata(Thread):
         self.worker = Worker()
         for id in ids:
             self.metadata[id] = db.get_metadata(id, index_is_id=True)
+            self.metadata[id].rating = None
 
     def run(self):
         self.exception = self.tb = None
@@ -100,15 +101,28 @@ class DownloadMetadata(Thread):
                     mi.smart_update(fmi)
                     if mi.isbn and self.get_social_metadata:
                         self.social_metadata_exceptions = get_social_metadata(mi)
+                        if mi.rating:
+                            mi.rating *= 2
+                    if not self.get_social_metadata:
+                        mi.tags = []
                 else:
                     self.failures[id] = (mi.title,
                         _('No matches found for this book'))
                 self.commit_covers()
 
         self.commit_covers(True)
-        if self.set_metadata:
-            for id in self.fetched_metadata:
-                self.db.set_metadata(id, self.metadata[id])
+        for id in self.fetched_metadata:
+            mi = self.metadata[id]
+            if self.set_metadata:
+                self.db.set_metadata(id, mi)
+            if not self.set_metadata and self.get_social_metadata:
+                if mi.rating:
+                    self.db.set_rating(id, mi.rating)
+                if mi.tags:
+                    self.db.set_tags(id, mi.tags)
+                if mi.comments:
+                    self.db.set_comment(id, mi.comments)
+
         self.updated = set(self.fetched_metadata)
 
 

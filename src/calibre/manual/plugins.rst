@@ -108,7 +108,7 @@ Metadata download plugins
 .. class:: calibre.ebooks.metadata.fetch.MetadataSource
 
     Represents a source to query for metadata. Subclasses must implement
-    at least the fetch method and optionally the is_ok method.
+    at least the fetch method.
 
     When :meth:`fetch` is called, the `self` object will have the following
     useful attributes (each of which may be None)::
@@ -124,8 +124,9 @@ Metadata download plugins
 
 .. automember:: calibre.ebooks.metadata.fetch.MetadataSource.metadata_type
 
+.. automember:: calibre.ebooks.metadata.fetch.MetadataSource.string_customization_help
+
 .. automethod:: calibre.ebooks.metadata.fetch.MetadataSource.fetch
 
-.. automethod:: calibre.ebooks.metadata.fetch.MetadataSource.is_ok
 
 

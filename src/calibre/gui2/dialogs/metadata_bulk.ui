@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>495</width>
-    <height>387</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -227,6 +227,13 @@
          <widget class="EnComboBox" name="authors">
           <property name="editable">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="2">
+         <widget class="QCheckBox" name="swap_title_and_author">
+          <property name="text">
+           <string>&amp;Swap title and author</string>
           </property>
          </widget>
         </item>

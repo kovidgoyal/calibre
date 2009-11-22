@@ -6,7 +6,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 from PyQt4.QtCore import SIGNAL, QObject
 from PyQt4.QtGui import QDialog
 
-from calibre.gui2 import qstring_to_unicode
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
@@ -86,7 +85,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def sync(self):
         for id in self.ids:
-            au = qstring_to_unicode(self.authors.text())
+            au = unicode(self.authors.text())
             if au:
                 au = string_to_authors(au)
                 self.db.set_authors(id, au, notify=False)
@@ -97,27 +96,38 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 x = authors_to_sort_string(aut)
                 if x:
                     self.db.set_author_sort(id, x, notify=False)
-            aus = qstring_to_unicode(self.author_sort.text())
+            aus = unicode(self.author_sort.text())
             if aus and self.author_sort.isEnabled():
                 self.db.set_author_sort(id, aus, notify=False)
             if self.write_rating:
                 self.db.set_rating(id, 2*self.rating.value(), notify=False)
-            pub = qstring_to_unicode(self.publisher.text())
+            pub = unicode(self.publisher.text())
             if pub:
                 self.db.set_publisher(id, pub, notify=False)
-            remove_tags = qstring_to_unicode(self.remove_tags.text()).strip()
+            remove_tags = unicode(self.remove_tags.text()).strip()
             if remove_tags:
                 remove_tags = [i.strip() for i in remove_tags.split(',')]
                 self.db.unapply_tags(id, remove_tags, notify=False)
-            tags = qstring_to_unicode(self.tags.text()).strip()
+            tags = unicode(self.tags.text()).strip()
             if tags:
                 tags = map(lambda x: x.strip(), tags.split(','))
                 self.db.set_tags(id, tags, append=True, notify=False)
             if self.write_series:
-                self.db.set_series(id, qstring_to_unicode(self.series.currentText()), notify=False)
+                self.db.set_series(id, unicode(self.series.currentText()), notify=False)
 
             if self.remove_format.currentIndex() > -1:
                 self.db.remove_format(id, unicode(self.remove_format.currentText()), index_is_id=True, notify=False)
+
+            if self.swap_title_and_author.isChecked():
+                title = self.db.title(id, index_is_id=True)
+                aum = self.db.authors(id, index_is_id=True)
+                if aum:
+                    aum = [a.strip().replace('|', ',') for a in aum.split(',')]
+                    new_title = authors_to_string(aum)
+                    self.db.set_title(id, new_title)
+                if title:
+                    new_authors = string_to_authors(title)
+                    self.db.set_authors(id, new_authors)
 
             self.changed = True
 

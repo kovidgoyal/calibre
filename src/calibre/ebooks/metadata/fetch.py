@@ -9,8 +9,10 @@ from threading import Thread
 from calibre import prints
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import default_log
-
+from calibre.ebooks.metadata import MetaInformation
 from calibre.customize import Plugin
+
+metadata_config = None
 
 class MetadataSource(Plugin):
 
@@ -23,11 +25,17 @@ class MetadataSource(Plugin):
     #: tags/rating/reviews/etc.
     metadata_type = 'basic'
 
+    #: If not None, the customization dialog will allow for string
+    #: based customization as well the default customization. The
+    #: string customization will be saved in the site_customization
+    #: member.
+    string_customization_help = None
+
     type = _('Metadata download')
 
     def __call__(self, title, author, publisher, isbn, verbose, log=None,
             extra=None):
-        self.worker = Thread(target=self.fetch)
+        self.worker = Thread(target=self._fetch)
         self.worker.daemon = True
         self.title = title
         self.verbose = verbose
@@ -39,22 +47,86 @@ class MetadataSource(Plugin):
         self.exception, self.tb, self.results = None, None, []
         self.worker.start()
 
+    def _fetch(self):
+        try:
+            self.fetch()
+            if self.results:
+                c = self.config_store().get(self.name, {})
+                res = self.results
+                if isinstance(res, MetaInformation):
+                    res = [res]
+                for mi in res:
+                    if not c.get('rating', True):
+                        mi.rating = None
+                    if not c.get('comments', True):
+                        mi.comments = None
+                    if not c.get('tags', True):
+                        mi.tags = []
+
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
     def fetch(self):
         '''
         All the actual work is done here.
         '''
         raise NotImplementedError
 
-    def is_ok(self):
-        '''
-        Used to check if the plugin has been correctly customized.
-        For example: The isbndb plugin checks to see if the site_customization
-        has been set with an isbndb.com access key.
-        '''
-        return True
-
     def join(self):
         return self.worker.join()
+
+    def is_customizable(self):
+        return True
+
+    def config_store(self):
+        global metadata_config
+        if metadata_config is None:
+            from calibre.utils.config import XMLConfig
+            metadata_config = XMLConfig('plugins/metadata_download')
+        return metadata_config
+
+    def config_widget(self):
+        from PyQt4.Qt import QWidget, QVBoxLayout, QLabel, Qt, QLineEdit, \
+            QCheckBox
+        from calibre.customize.ui import config
+        w = QWidget()
+        w._layout = QVBoxLayout(w)
+        w.setLayout(w._layout)
+        if self.string_customization_help is not None:
+            w._sc_label = QLabel(self.string_customization_help, w)
+            w._layout.addWidget(w._sc_label)
+            customization = config['plugin_customization']
+            def_sc = customization.get(self.name, '')
+            if not def_sc:
+                def_sc = ''
+            w._sc = QLineEdit(def_sc, w)
+            w._layout.addWidget(w._sc)
+            w._sc_label.setWordWrap(True)
+            w._sc_label.setTextInteractionFlags(Qt.LinksAccessibleByMouse
+                    | Qt.LinksAccessibleByKeyboard)
+            w._sc_label.setOpenExternalLinks(True)
+        c = self.config_store()
+        c = c.get(self.name, {})
+        for x, l in {'rating':_('ratings'), 'tags':_('tags'),
+                'comments':_('description/reviews')}.items():
+            cb = QCheckBox(_('Download %s from %s')%(l,
+                self.name))
+            setattr(w, '_'+x, cb)
+            cb.setChecked(c.get(x, True))
+            w._layout.addWidget(cb)
+        return w
+
+    def save_settings(self, w):
+        dl_settings = {}
+        for x in ('rating', 'tags', 'comments'):
+            dl_settings[x] = getattr(w, '_'+x).isChecked()
+        c = self.config_store()
+        c.set(self.name, dl_settings)
+        if hasattr(w, '_sc'):
+            sc = unicode(w._sc.text()).strip()
+            from calibre.customize.ui import customize_plugin
+            customize_plugin(self, sc)
 
 
 class GoogleBooks(MetadataSource):
@@ -102,14 +174,11 @@ class ISBNDB(MetadataSource):
             self.exception = e
             self.tb = traceback.format_exc()
 
-    def customization_help(self, gui=False):
+    @property
+    def string_customization_help(self):
         ans = _('To use isbndb.com you must sign up for a %sfree account%s '
                 'and enter your access key below.')
-        if gui:
-            ans = '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
-        else:
-            ans = ans.replace('%s', '')
-        return ans
+        return '<p>'+ans%('<a href="http://www.isbndb.com">', '</a>')
 
 class Amazon(MetadataSource):
 
@@ -191,7 +260,7 @@ def get_social_metadata(mi, verbose=0):
                 comments.add(dmi.comments)
     if ratings:
         rating = sum(ratings)/float(len(ratings))
-        if mi.rating is None:
+        if mi.rating is None or mi.rating < 0.1:
             mi.rating = rating
         else:
             mi.rating = (mi.rating + rating)/2.0

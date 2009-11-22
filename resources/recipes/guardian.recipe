@@ -43,97 +43,45 @@ class Guardian(BasicNewsRecipe):
                     #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
                 '''
 
+    def find_sections(self):
+        soup = self.index_to_soup('http://www.guardian.co.uk/theguardian')
+        # find cover pic
+        img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
+        if img is not None:
+            self.cover_url = img['src']
+        # end find cover pic
+
+        idx = soup.find('div', id='book-index')
+        for s in idx.findAll('strong', attrs={'class':'book'}):
+            a = s.find('a', href=True)
+            yield (self.tag_to_string(a), a['href'])
+
+    def find_articles(self, url):
+        soup = self.index_to_soup(url)
+        div = soup.find('div', attrs={'class':'book-index'})
+        for ul in div.findAll('ul', attrs={'class':'trailblock'}):
+            for li in ul.findAll('li'):
+                a = li.find(href=True)
+                if not a:
+                    continue
+                title = self.tag_to_string(a)
+                url = a['href']
+                if not title or not url:
+                    continue
+                tt = li.find('div', attrs={'class':'trailtext'})
+                if tt is not None:
+                    for da in tt.findAll('a'): da.extract()
+                    desc = self.tag_to_string(tt).strip()
+                yield {
+                        'title': title, 'url':url, 'description':desc,
+                        'date' : strftime('%a, %d %b'),
+                        }
+
     def parse_index(self):
-
-            soup = self.index_to_soup('http://www.guardian.co.uk/theguardian')
-             # find cover pic
-            img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
-            if img is None: return None
-            else:
-                self.cover_url = img['src']
-             # end find cover pic
-            sections = []
-            ans = []
-            for li in soup.findAll( 'li'):
-                section = ''
-                articles = []
-
-                if li.a and li.a.has_key('href'):
-                        url =  li.a['href']
-                        if 'mainsection' in url:
-                            section = self.tag_to_string(url)
-                            i = len(section)
-
-                            index1 = section.rfind('/',0,i)
-                            section = section[index1+1:i]
-                            sections.append(section)
-
-                            #find the articles in the Main Section  start
-                            soup = self.index_to_soup(url)
-                            date = strftime('%a, %d %b')
-                            descl = []
-
-                            for desclist in  soup.findAll(name='div',attrs={'class':"trailtext"}):
-                                descl.append(self.tag_to_string(desclist).strip())
-
-                            t = -1
-                            for tag in soup.findAll('h3'):
-                                t = t+1
-
-                                for a in tag.findAll('a'):
-
-                                    if t < len(descl):
-                                        desc =  descl[t]
-                                    else:
-                                        desc = ''
-                                    if a and a.has_key('href'):
-                                        url2 =  a['href']
-                                    else:
-                                        url2 =''
-                                    title = self.tag_to_string(a)
-
-                                    if len(articles) == 0:    #First article
-
-                                         articles.append({
-                                                 'title':title,
-                                                 'date':date,
-                                                 'url':url2,
-                                                 'description':desc,
-                                                    })
-                                    else:
-                                        #eliminate duplicates start
-                                        if {'title':title,'date':date,'url':url2,'description':desc} in articles :
-                                                url2 = ''
-                                        #eliminate duplicates end
-                                        else:
-                                                if 'http://jobs.guardian.co.uk/' in url2:
-                                                    url2 = ''
-                                                else:
-
-                                                    articles.append({
-                                                     'title':title,
-                                                     'date':date,
-                                                     'url':url2,
-                                                     'description':desc,
-                                                        })
-                            #find the articles in the Main Section end
-                            ans.append( articles)
-
-                        else:
-                                url =''
-
-
-            titles = map(self.find_title, sections)
-            ans1 = list(zip(titles,ans))
-
-            return ans1[2:]
-
-    def find_title(self, section):
-        d = {'topstories':'Top Stories', 'international':'International', 'editorialsandreply':'Editorials and Reply',
-             'commentanddebate':'Comment and Debate','uknews':'UK News','saturday':'Saturday','sunday':'Sunday',
-                'reviews':'Reviews', 'obituaries':'Obituaries'}
-
-        return d.get(section, section)
+        feeds = []
+        for title, href in self.find_sections():
+            feeds.append((title, list(self.find_articles(href))))
+        return feeds
 
     def preprocess_html(self, soup):
 

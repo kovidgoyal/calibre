@@ -116,6 +116,7 @@ class Config(ResizableDialog, Ui_Dialog):
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
         ResizableDialog.__init__(self, parent)
+        self.opt_individual_saved_settings.setVisible(False)
         self.db, self.book_id = db, book_id
 
         self.setup_input_output_formats(self.db, self.book_id, preferred_input_format,
