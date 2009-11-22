@@ -10,16 +10,10 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from calibre import my_unichr
+from calibre import my_unichr, prepare_string_for_xml
 from calibre.ebooks.pdb.ereader import image_name
 
 PML_HTML_RULES = [
-    # Any literal <, &, and > chars be escaped to avoid HTML issues (though
-    # <footnote> and <sidebar> tags are handled specially later).
-    (re.compile(r'&'), lambda match: '&amp;'),
-    (re.compile(r'<'), lambda match: '&lt;'),
-    (re.compile(r'>'), lambda match: '&gt;'),
-
     # NOP-process all \x escapes, turning \\ into &#92;  This keeps the regex
     # parsing simple while making sure that we don't try to honor \\x as \x
     # (and also makes sure we DO honor \\\x as &#92; followed by \x).
@@ -83,7 +77,7 @@ PML_HTML_RULES = [
 ]
 
 def pml_to_html(pml):
-    html = pml
+    html = prepare_string_for_xml(pml)
     for rule in PML_HTML_RULES:
         html = rule[0].sub(rule[1], html)
 
