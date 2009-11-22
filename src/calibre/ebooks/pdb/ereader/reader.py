@@ -31,5 +31,5 @@ class Reader(FormatReader):
     def dump_pml(self):
         return self.reader.dump_pml()
 
-    def dump_images(self):
-        return self.reader.dump_images()
+    def dump_images(self, out_dir):
+        return self.reader.dump_images(out_dir)
