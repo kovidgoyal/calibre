@@ -355,8 +355,7 @@ class PML_HTMLizer(object):
                         empty = False
                         text = '<br /><br style="page-break-after: always;" />'
                     elif c == 'C':
-                        # This should be made to create a TOC entry
-                        l = line.read(1)
+                        line.read(1)
                         id = 'pml_toc-%s' % len(self.toc)
                         self.toc.add_item(self.file_name, id, self.code_value(line))
                         text = '<span id="%s"></span>' % id
