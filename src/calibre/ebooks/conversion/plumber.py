@@ -309,11 +309,13 @@ OptionRecommendation(name='remove_paragraph_spacing',
         'paragraphs of 1.5em. Spacing removal will not work '
         'if the source file does not use paragraphs (<p> or <div> tags).')
         ),
-        
+
 OptionRecommendation(name='remove_paragraph_spacing_indent_size',
         recommended_value=1.5, level=OptionRecommendation.LOW,
-        help=_('Width of the indent used with Remove spacing between paragraphs option')
-        ),        
+        help=_('When calibre removes inter paragraph spacing, it automatically '
+            'sets a paragraph indent, to ensure that paragraphs can be easily '
+            'distinguished. This option controls the width of that indent.')
+        ),
 
 OptionRecommendation(name='prefer_metadata_cover',
         recommended_value=False, level=OptionRecommendation.LOW,
