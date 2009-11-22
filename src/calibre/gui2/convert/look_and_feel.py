@@ -23,7 +23,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     'font_size_mapping', 'line_height',
                     'linearize_tables',
                     'disable_font_rescaling', 'insert_blank_line',
-                    'remove_paragraph_spacing', 'input_encoding',
+                    'remove_paragraph_spacing', 'remove_paragraph_spacing_indent_size','input_encoding',
                     'asciiize']
                 )
         self.db, self.book_id = db, book_id
@@ -32,6 +32,8 @@ class LookAndFeelWidget(Widget, Ui_Form):
         self.opt_disable_font_rescaling.toggle()
         self.connect(self.button_font_key, SIGNAL('clicked()'),
                 self.font_key_wizard)
+        self.opt_remove_paragraph_spacing.toggle()
+        self.opt_remove_paragraph_spacing.toggle()
 
     def font_key_wizard(self):
         from calibre.gui2.convert.font_key import FontKeyChooser
