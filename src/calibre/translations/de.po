@@ -8,19 +8,19 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-11-16 20:00+0000\n"
-"PO-Revision-Date: 2009-11-16 17:41+0000\n"
-"Last-Translator: S. Dorscht <Unknown>\n"
+"PO-Revision-Date: 2009-11-21 21:12+0000\n"
+"Last-Translator: Fabian Affolter <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-17 04:48+0000\n"
+"X-Launchpad-Export-Date: 2009-11-22 04:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
-msgstr "Macht absolut garnichts"
+msgstr "Macht absolut gar nichts"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:94
@@ -148,15 +148,15 @@ msgstr "Basis"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "File type"
-msgstr "Datei Typ"
+msgstr "Dateityp"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:182
 msgid "Metadata reader"
-msgstr "Metadaten Reader"
+msgstr "Metadaten lesen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:213
 msgid "Metadata writer"
-msgstr "Metadaten Writer"
+msgstr "Metadaten schreiben"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:13
 msgid ""
@@ -164,21 +164,21 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Folge alle lokalen Verweise in einer HTML Datei und erstelle eine ZIP Datei "
-"mit allen verlinkten Dateien. Dieses Plugin läuft immer, wenn sie eine HTML "
-"Datei zur Bibliothek hinzufügen."
+"Alle lokalen Verweise in einer HTML-Datei folgen und eine ZIP-Datei mit "
+"allen verlinkten Dateien erstellen. Dieses Plugin läuft immer, wenn sie eine "
+"HTML-Datei zur Bibliothek hinzufügen."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:48
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Zeichenkodierung der Eingabe HTML Dateien. Üblicherweise ist das: cp1252, "
+"Zeichenkodierung der Eingabe-HTML-Dateien. Üblicherweise ist das: cp1252, "
 "latin1, iso-8859-1 und utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:56
 msgid "Extract cover from comic files"
-msgstr "Umschlagbild aus Comic Dateien extrahieren"
+msgstr "Umschlagbild aus Comic-Dateien extrahieren"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:77
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:89
@@ -202,11 +202,11 @@ msgstr "Metadaten aus %s Dateien lesen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:215
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Metadaten von eBooks in RAR Archiven lesen"
+msgstr "Metadaten von eBooks in RAR-Archiven lesen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:267
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Metadaten aus Büchern in ZIP Archiven lesen"
+msgstr "Metadaten aus Büchern in ZIP-Archiven lesen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:278
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:288
@@ -214,11 +214,11 @@ msgstr "Metadaten aus Büchern in ZIP Archiven lesen"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:320
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:331
 msgid "Set metadata in %s files"
-msgstr "Geben Sie die Metadaten in %s Dateien an"
+msgstr "Geben Sie die Metadaten in %s-Dateien an"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
 msgid "Set metadata from %s files"
-msgstr "Geben Sie die Metadaten von %s Dateien an"
+msgstr "Geben Sie die Metadaten von %s-Dateien an"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:99
 msgid "Conversion Input"
@@ -231,7 +231,7 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Geben Sie die Zeichenkodierung des Eingabe Dokuments an. Falls verwendet, "
+"Geben Sie die Zeichenkodierung des Eingabe-Dokuments an. Falls verwendet, "
 "werden alle im Dokument angegebenen Kodierungen überschrieben. Teilweise "
 "hilfreich bei Dokumenten, die keine oder eine fehlerhafte Encodierung "
 "angegeben haben."
@@ -250,7 +250,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:44
 msgid "Input profile"
-msgstr "Eingabe Profil"
+msgstr "Eingabe-Profil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:48
 msgid ""
@@ -258,13 +258,13 @@ msgid ""
 "nothing about the input document."
 msgstr ""
 "Dieses Profil versucht vernünftige Voreinstellungen zu bieten und ist "
-"hilfreich, wenn Sie nichts über das Eingabe Dokument wissen."
+"hilfreich, wenn Sie nichts über das Eingabe-Dokument wissen."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:56
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 msgid "This profile is intended for the SONY PRS line. The 500/505/700 etc."
 msgstr ""
-"Dieses Profil ist geeignet für die SONY PRS Reihe. PRS 500/505/700 etc."
+"Dieses Profil ist geeignet für die SONY PRS-Reihe. PRS 500/505/700 etc."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:229
@@ -274,7 +274,7 @@ msgstr "Dieses Profil ist geeignet für den Microsoft Reader."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:240
 msgid "This profile is intended for the Mobipocket books."
-msgstr "Dieses Profil ist geeignet für Mobipocket Bücher."
+msgstr "Dieses Profil ist geeignet für Mobipocket-Bücher."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:93
 msgid "This profile is intended for the Hanlin V3 and its clones."
@@ -307,7 +307,7 @@ msgstr "Dieses Profil ist geeignet für den IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:172
 msgid "Output profile"
-msgstr "Ausgabe Profil"
+msgstr "Ausgabe-Profil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:176
 msgid ""
@@ -328,7 +328,7 @@ msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Dieses Profil ist geeignet für die SONY PRS Reihe. PRS 500/505/700 etc. in "
+"Dieses Profil ist geeignet für die SONY PRS-Reihe. PRS 500/505/700 etc. in "
 "horizontaler Darstellung. Vor allem für Comics hilfreich."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:253
@@ -345,7 +345,7 @@ msgstr "Installierte Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr "Mapping für Dateityp Plugins"
+msgstr "Mapping für Dateityp-Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
@@ -361,7 +361,7 @@ msgstr "Kein gültiges Plugin gefunden in "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:262
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Staren des Plugins %s schlug fehl. Traceback:"
+msgstr "Starten des Plugins %s schlug fehl. Traceback:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:396
 msgid ""
@@ -378,7 +378,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:402
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
-"Plugin hinzufügen durch die Angabe des Pfads zur ZIP Datei, die das Plugin "
+"Plugin hinzufügen durch die Angabe des Pfads zur ZIP-Datei, die das Plugin "
 "enthält."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:404
@@ -409,7 +409,7 @@ msgstr "Gewähltes Plugin ausschalten"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "Kommunikation mit Android Telefonen."
+msgstr "Kommunikation mit Android-Telefonen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
@@ -456,7 +456,7 @@ msgstr "John Schember"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:109
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:111
 msgid "Transferring books to device..."
-msgstr "Übertrage Bücher ans Gerät..."
+msgstr "Bücher ans Gerät übertragen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:85
 msgid "Communicate with the Cybook Opus eBook reader."
@@ -476,7 +476,7 @@ msgstr "Kommunikation mit dem IRex Iliad eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:20
 msgid "Device Interface"
-msgstr "Geräte-Interface"
+msgstr "Geräte-Schnittstellen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -523,7 +523,7 @@ msgstr "Kommunikation mit dem Sony PRS-500 eBook Reader."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:79
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:88
 msgid "Getting list of books on device..."
-msgstr "Erhalte die Liste der Bücher auf dem Gerät..."
+msgstr "Die Liste der Bücher auf dem Gerät beziehen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505 eBook reader."
@@ -539,12 +539,12 @@ msgstr "Kovid Goyal und John Schember"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:129
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
 msgid "Removing books from device..."
-msgstr "Entferne Bücher vom Gerät..."
+msgstr "Bücher vom Gerät entfernen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:159
 msgid "Sending metadata to device..."
-msgstr "Sende Metadaten ans Gerät..."
+msgstr "Metadaten ans Gerät senden ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:17
 msgid "Communicate with the Sony PRS-600/700 eBook reader."
@@ -553,27 +553,28 @@ msgstr "Kommunikation mit dem Sony PRS-600/700 eBook Reader."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:357
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "Konnte das Laufwerk %s nicht finden. Versuchen Sie einen Neustart."
+msgstr ""
+"Das Laufwerk %s konnte nicht gefunden werden. Versuchen Sie einen Neustart."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:425
 msgid "Unable to detect the %s disk drive."
-msgstr "Konnte das %s Laufwerk nicht erkennen."
+msgstr "Das %s-Laufwerk konnte nicht erkannt werden."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:518
 msgid "Could not find mount helper: %s."
-msgstr "Konnte Mount Helper nicht finden: %s."
+msgstr "Mount Helper konnte nicht gefunden werden: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:530
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
 msgstr ""
-"Konnte %s Festplatte nicht erkennen. Ihr Kernel könnte eine abgelehnte "
-"Version von SYSFS exportieren."
+"%s Festplatte konnte nicht erkannt werden. Ihr Kernel exportiert "
+"möglicherweise eine abgelehnte Version von SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:538
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "Konnte Hauptspeicher nicht mounten (Error code: %d)"
+msgstr "Hauptspeicher konnte nicht eingehängt werden (Fehler-Code: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:670
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:672
@@ -608,7 +609,7 @@ msgstr "Gerät konfigurieren"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:16
 msgid "settings for device drivers"
-msgstr "Einstellungen der Geräte Treiber"
+msgstr "Einstellungen der Geräte-Treiber"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:17
 msgid "Ordered list of formats the device will accept"
@@ -630,17 +631,17 @@ msgstr "Kommunikation mit einem eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
 msgid "Get device information..."
-msgstr "Erhalte Geräte Information..."
+msgstr "Geräte-Information beziehen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:117
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:125
 msgid "Adding books to device metadata listing..."
-msgstr "Füge Bücher zur Metadaten Liste des Geräts hinzu..."
+msgstr "Bücher zur Metadaten-Liste des Geräts hinzufügen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:148
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:153
 msgid "Removing books from device metadata listing..."
-msgstr "Entferne Bücher von der Metadaten Liste des Geräts..."
+msgstr "Bücher von der Metadaten-Liste des Geräts entfernen ..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:196
 msgid "Rendered %s"
@@ -666,7 +667,7 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
-"Anzahl der Farben für Graustufen Konvertierung. Voreinstellung: %default. "
+"Anzahl der Farben für Graustufen-Konvertierung. Voreinstellung: %default. "
 "Werte geringer als 256 kann unscharfen Text auf dem Gerät erzeugen, falls "
 "Sie Ihre Comics im EPUB Format erstellen."
 
@@ -803,7 +804,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr "EINGABE EINSTELLUNGEN"
+msgstr "EINGABE-EINSTELLUNGEN"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
@@ -811,7 +812,7 @@ msgstr "Einstellungen zur Kontrolle der Verabeitung der Eingabe-Datei %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr "AUSGABE EINSTELLUNGEN"
+msgstr "AUSGABE-EINSTELLUNGEN"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
@@ -950,7 +951,7 @@ msgid ""
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
 msgstr ""
-"XPath Ausdruck, der alle Elemente angibt, die zum Inhaltsverzeichnis auf "
+"XPath-Ausdruck, der alle Elemente angibt, die zum Inhaltsverzeichnis auf "
 "Ebene 1 hinzugefügt werden sollen. Falls dies angegeben wird, erhält es "
 "Priorität über andere Formen der automatischen Erkennung."
 
@@ -960,7 +961,7 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
-"XPath Ausdruck, der alle Elemente angibt, die zum Inhaltsverzeichnis auf "
+"XPath-Ausdruck, der alle Elemente angibt, die zum Inhaltsverzeichnis auf "
 "Ebene 2 hinzugefügt werden sollen. Jeder Eintrag wird unter dem vorherigen "
 "Ebene 1 Eintrag angelegt."
 
@@ -970,7 +971,7 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry."
 msgstr ""
-"XPath Ausdruck, der alle Elemente angibt, die zum Inhaltsverzeichnis auf "
+"XPath-Ausdruck, der alle Elemente angibt, die zum Inhaltsverzeichnis auf "
 "Ebene 3 hinzugefügt werden sollen. Jeder Eintrag wird unter dem vorherigen "
 "Ebene 2 Eintrag angefügt."
 
@@ -1025,14 +1026,14 @@ msgid ""
 "detection, use the expression \"/\". See the XPath Tutorial in the calibre "
 "User Manual for further help on using this feature."
 msgstr ""
-"Ein XPath Ausdruck zur Erkennung von Kapitelüberschriften. In der "
+"Ein XPath-Ausdruck zur Erkennung von Kapitelüberschriften. In der "
 "Voreinstellung werden <h1> oder <h2> Tags verwendet, die die Worte "
 "\"chapter\",\"book\",\"section\" oder \"part\" als Kapitelüberschriften "
 "enthalten und genauso alle Tags, die class=\"chapter\" enthalten. Der "
 "verwendete Ausdruck muss eine Liste von Elementen auswerten. Die "
 "Kapitelerkennung wird durch die Verwendung des Ausdrucks \"/\" "
-"ausgeschaltet. Ein Hilfe zur Verwendung dieses Features gibt es im XPath "
-"Tutorial im Calibre User Manual."
+"ausgeschaltet. Ein Hilfe zur Verwendung dieses Features gibt es im XPath-"
+"Tutorial im Calibre-Benutzerhandbuch."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:256
 msgid ""
@@ -1053,7 +1054,7 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
-"Entweder der Pfad zu einem CSS Stylesheet oder original CSS. Dieses CSS wird "
+"Entweder der Pfad zu einem CSS-Stylesheet oder Original-CSS. Dieses CSS wird "
 "an die Stilregeln der Ursprungsdatei angehängt, so dass es zum Überschreiben "
 "dieser Regeln verwendet werden kann."
 
@@ -1061,7 +1062,7 @@ msgstr ""
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
 msgstr ""
-"Ein XPath Ausdruck. Seitenumbrüche werden vor den angegebenen Elementen "
+"Ein XPath-Ausdruck. Seitenumbrüche werden vor den angegebenen Elementen "
 "eingefügt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
@@ -1099,8 +1100,8 @@ msgid ""
 "device support justification."
 msgstr ""
 "Blocksatz in der Ausgabe nicht erzwingen. Ob der Text dann im Blocksatz "
-"angezeigt wird oder nicht, hängt davon ab, ob das eBook Format oder der "
-"Reader Blocksatz unterstützen."
+"angezeigt wird oder nicht, hängt davon ab, ob das eBook-Format oder der "
+"Reader-Blocksatz unterstützen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:308
 msgid ""
@@ -1126,14 +1127,14 @@ msgid ""
 "does not use paragraphs (<p> or <div> tags)."
 msgstr ""
 "Leerzeile zwischen Paragraphen einfügen. Funktioniert nur, wenn die "
-"Quelldatei Paragraphen verwendet (<p> oder <div> Tags)."
+"Quelldatei-Paragraphen verwendet (<p> oder <div> Tags)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:328
 msgid ""
 "Remove the first image from the input ebook. Useful if the first image in "
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
-"Entferne das erste Bild des eingehenden eBooks. Hilfreich, wenn das erste "
+"Das erste Bild des eingehenden eBooks entfernen. Hilfreich, wenn das erste "
 "Bild in der Ursprungsdatei ein Umschlagbild ist und ein externes "
 "Umschlagbild angegeben werden soll."
 
@@ -1189,11 +1190,11 @@ msgid ""
 "by Chinese and Japanese for instance) the representation used by the largest "
 "number of people will be used (Chinese in the previous example)."
 msgstr ""
-"Unicode Zeichen in eine ASCII Darstellung umsetzen. Verwenden Sie dies mit "
-"Vorsicht, da die Unicode Zeichen mit ASCII ersetzt werden. Zum Beispiel wird "
+"Unicode-Zeichen in eine ASCII-Darstellung umsetzen. Verwenden Sie dies mit "
+"Vorsicht, da die Unicode-Zeichen mit ASCII ersetzt werden. Zum Beispiel wird "
 "\"%s\" durch \"Mikhail Gorbachiov\" ersetzt. Beachten Sie außerdem, dass in "
 "den Fällen, in denen es mehrere Darstellungen eines Zeichens (zum Beispiel "
-"gleiche Zeichen im Chinesischen und Japanischen) gibt, die ASCII Darstellung "
+"gleiche Zeichen im Chinesischen und Japanischen) gibt, die ASCII-Darstellung "
 "verwendet wird, die von der größten Anzahl von Personen benutzt wird (im "
 "vorherigen Beispiel das Chinesische)."
 
@@ -1281,22 +1282,22 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:724
 msgid "Converting input to HTML..."
-msgstr "Konvertiere Eingabe zu HTML..."
+msgstr "Eingabe zu HTML konvertieren ..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:747
 msgid "Running transforms on ebook..."
-msgstr "Führe Veränderungen am eBook durch..."
+msgstr "Veränderungen am eBook durchführen ..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:833
 msgid "Creating"
-msgstr "Erstelle"
+msgstr "Erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:57
 msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
 msgstr ""
-"Inhalt der erstellten EPUB Datei ins angegebene Verzeichnis extrahieren. Der "
+"Inhalt der erstellten EPUB-Datei ins angegebene Verzeichnis extrahieren. Der "
 "Inhalt des Verzeichnisses wird zuvor gelöscht, also Vorsicht!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:63
@@ -7217,7 +7218,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:113
 msgid "&Hostname:"
-msgstr "&Servername:"
+msgstr "&Rechnername:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:114
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
@@ -7255,7 +7256,7 @@ msgid ""
 "Use TLS encryption when connecting to the mail server. This is the most "
 "common."
 msgstr ""
-"TLS Verschlüsselung für die Verbindung zum Mailserver verwenden. Dies trifft "
+"TLS-Verschlüsselung für die Verbindung zum Mailserver verwenden. Dies trifft "
 "meistens zu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
@@ -7276,7 +7277,7 @@ msgstr "Googlemail verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "&Test email"
-msgstr "eMail &testen"
+msgstr "Email &testen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:44
 msgid ""
@@ -7292,11 +7293,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:45
 msgid "Turn on the &content server"
-msgstr "&Content Server einschalten"
+msgstr "&Inhalt-Server einschalten"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:8
 msgid "Settings to control the calibre content server"
-msgstr "Einstellungen zur Steuerung des Calibre Content Servers"
+msgstr "Einstellungen zur Steuerung des Calibre-Inhalt-Servers"
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:12
 msgid "The port on which to listen. Default is %default"
@@ -7378,7 +7379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:212
 msgid "Sort results in ascending order"
-msgstr "Sortiere Ergebnisse in aufsteigender Reihenfolge"
+msgstr "Ergebnisse in aufsteigender Reihenfolge sortieren"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:214
 msgid ""
@@ -7386,7 +7387,7 @@ msgid ""
 "please see the search related documentation in the User Manual. Default is "
 "to do no filtering."
 msgstr ""
-"Filtere die Ergebnisse durch die Suchanfrage. Für das Format der Suchanfrage "
+"Die Ergebnisse durch die Suchanfrage filtern. Für das Format der Suchanfrage "
 "sehen Sie sich bitte die Dokumentation, die die Suche betrifft, im "
 "Benutzerhandbuch an. Voreinstellung ist, keine Filterung durchzuführen."
 
@@ -7456,7 +7457,7 @@ msgid ""
 "in it are different e-book formats of that book"
 msgstr ""
 "Vorausgesetzt jedes Verzeichnis beinhaltet nur ein einziges logisches Buch "
-"und alle Dateien in diesem Verzeichnis sind verschiedene eBook Formate "
+"und alle Dateien in diesem Verzeichnis sind verschiedene eBook-Formate "
 "dieses einzelnen Buches"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:346
@@ -7468,13 +7469,12 @@ msgid ""
 "Add books to database even if they already exist. Comparison is done based "
 "on book titles."
 msgstr ""
-"Füge Bücher zur Datenbank hinzu, auch wenn diese schon vorhanden sind. Der "
+"Bücher zur Datenbank hinzufügen, auch wenn diese schon vorhanden sind. Der "
 "Abgleich erfolgt aufgrund des Titels der Bücher."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:358
 msgid "You must specify at least one file to add"
 msgstr ""
-"Sie müssen wenigstens eine Datei auswählen, die hinzugefügt werden soll"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:374
 msgid ""
@@ -7484,16 +7484,10 @@ msgid ""
 "separated list of id numbers (you can get id numbers by using the list "
 "command). For example, 23,34,57-85\n"
 msgstr ""
-"%prog remove IDs\n"
-"\n"
-"Entfernt die durch ihre IDs gekennzeichneten Bücher aus der Datenbank. Die "
-"IDs sollten als durch Kommata getrennte Liste von ID Zahlen angegeben werden "
-"(Sie erhalten die ID Zahlen durch die Benutzung des Befehls list). Zum "
-"Beispiel: 23,34,57-85\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:389
 msgid "You must specify at least one book to remove"
-msgstr "Sie müssen wenigstens ein Buch auswählen, das entfernt werden soll"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:408
 msgid ""
@@ -7503,15 +7497,10 @@ msgid ""
 "identified by id. You can get id by using the list command. If the format "
 "already exists, it is replaced.\n"
 msgstr ""
-"%prog add_format [options] ID ebook_datei\n"
-"\n"
-"Fügt das eBook der ebook_datei zu den verfügbaren Formaten des durch die ID "
-"gekennzeichneten logischen Buches hinzu. Sie erhalten die ID durch den list "
-"Befehl. Falls das Format schon vorhanden ist, wird es ersetzt.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:423
 msgid "You must specify an id and an ebook file"
-msgstr "Sie müssen eine ID und eine eBook Datei angeben"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:428
 msgid "ebook file must have an extension"
@@ -7556,7 +7545,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:479
 msgid "Print metadata in OPF form (XML)"
-msgstr "Drucke Metadaten als OPF (XML)"
+msgstr "Metadaten als OPF (XML) drucken"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:488
 msgid "You must specify an id"
@@ -8018,15 +8007,15 @@ msgstr "Rufe Feeds ab..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:709
 msgid "Got feeds from index page"
-msgstr "Feeds der Index Seite erhalten"
+msgstr "Feeds der Index-Seite erhalten"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:715
 msgid "Trying to download cover..."
-msgstr "Versuche Umschlagbild zu laden..."
+msgstr "Umschlagbild versuchen heruterzuladen ..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:769
 msgid "Starting download [%d thread(s)]..."
-msgstr "Starte Download von [%d Thread(s)]..."
+msgstr "Download von [%d Thread(s)] starten ..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:785
 msgid "Feeds downloaded to %s"
@@ -8034,11 +8023,11 @@ msgstr "Feeds wurden nach %s heruntergeladen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:795
 msgid "Could not download cover: %s"
-msgstr "Konnte Umschlagbild nicht laden: %s"
+msgstr "Umschlagbild konnte nicht heruntergeladen werden: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:802
 msgid "Downloading cover from %s"
-msgstr "Lade Umschlagbild von %s"
+msgstr "Umschlagbild von %s herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:928
 msgid "Untitled Article"
@@ -8046,15 +8035,15 @@ msgstr "Artikel ohne Titel"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:999
 msgid "Article downloaded: %s"
-msgstr "Artikel geladen: %s"
+msgstr "Artikel heruntergeladen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1010
 msgid "Article download failed: %s"
-msgstr "Laden der Artikel schlug fehl: %s"
+msgstr "Herunterladen der Artikel schlug fehl: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1027
 msgid "Fetching feed"
-msgstr "Rufe Feed ab"
+msgstr "Feed abrufen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:43
 msgid "You"
@@ -8133,9 +8122,9 @@ msgid ""
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
-"Nur Links, die diesem Regulären Ausdruck entsprechen, werden verfolgt. Diese "
+"Nur Links, die diesem regulären Ausdruck entsprechen, werden verfolgt. Diese "
 "Option kann mehrmals angegeben werden, somit werden Links verfolgt, solange "
-"sie einem Regulären Ausdruck entsprechen. In der Voreinstellung werden alle "
+"sie einem regulären Ausdruck entsprechen. In der Voreinstellung werden alle "
 "Links verfolgt."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:478
@@ -8146,19 +8135,19 @@ msgid ""
 "filter-regexp and --match-regexp are specified, then --filter-regexp is "
 "applied first."
 msgstr ""
-"Jeder Link, der diesem Regulären Ausdruck entspricht, wird ignoriert. Diese "
+"Jeder Link, der diesem regulären Ausdruck entspricht, wird ignoriert. Diese "
 "Option kann mehrmals angegeben werden, somit werden Links ignoriert, solange "
-"sie einem Regulären Ausdruck entsprechen. In der Voreinstellung werden keine "
+"sie einem regulären Ausdruck entsprechen. In der Voreinstellung werden keine "
 "Links ignoriert. Falls beide --filter-regexp und --match-regexp angegeben "
 "sind, wird --filter-regexp zuerst angewendet."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:480
 msgid "Do not download CSS stylesheets."
-msgstr "Lade CSS Stylesheets nicht herunter."
+msgstr "CSS-Stylesheets nicht herunterladen."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid "Show detailed output information. Useful for debugging"
-msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
+msgstr "Detaillierte Ausgabeinformation anzeigen. Hilfreich zur Fehlersuche."
 
 #~ msgid "Set the title. Default: filename."
 #~ msgstr "Geben Sie den Titel an. Voreinstellung: Dateiname."
