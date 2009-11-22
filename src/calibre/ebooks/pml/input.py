@@ -11,7 +11,8 @@ import shutil
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
-from calibre.ebooks.pml.pmlconverter import pml_to_html
+from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
+from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
 class PMLInput(InputFormatPlugin):
@@ -22,7 +23,7 @@ class PMLInput(InputFormatPlugin):
     # pmlz is a zip file containing pml files and png images.
     file_types  = set(['pml', 'pmlz'])
 
-    def process_pml(self, pml_path, html_path):
+    def process_pml(self, pml_path, html_path, close_all=False):
         pclose = False
         hclose = False
     
@@ -44,7 +45,8 @@ class PMLInput(InputFormatPlugin):
             ienc = self.options.input_encoding
 
         self.log.debug('Converting PML to HTML...')
-        html = pml_to_html(pml_stream.read().decode(ienc)) 
+        hizer = PML_HTMLizer(close_all)
+        html = hizer.parse_pml(pml_stream.read().decode(ienc), html_path)
         html_stream.write('<html><head><title /></head><body>%s</body></html>' % html.encode('utf-8', 'replace'))
 
         if pclose:
@@ -52,11 +54,14 @@ class PMLInput(InputFormatPlugin):
         if hclose:
             html_stream.close()
 
+        return hizer.get_toc()
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.options = options
         self.log = log
         pages, images = [], []
+        toc = TOC()
 
         if file_ext == 'pmlz':
             log.debug('De-compressing content to temporary directory...')
@@ -71,7 +76,8 @@ class PMLInput(InputFormatPlugin):
                     
                     pages.append(html_name)
                     log.debug('Processing PML item %s...' % pml)
-                    self.process_pml(pml, html_path)
+                    ttoc = self.process_pml(pml, html_path)
+                    toc += ttoc
                     
                 imgs = glob.glob(os.path.join(tdir, '*.png'))
                 if len(imgs) > 0:
@@ -84,7 +90,7 @@ class PMLInput(InputFormatPlugin):
                     
                     shutil.move(img, pimg_path)
         else:
-            self.process_pml(stream, 'index.html')
+            toc = self.process_pml(stream, 'index.html')
 
             pages.append('index.html')
             images = []
@@ -103,7 +109,9 @@ class PMLInput(InputFormatPlugin):
         log.debug('Generating manifest...')
         opf.create_manifest(manifest_items)
         opf.create_spine(pages)
+        opf.set_toc(toc)
         with open('metadata.opf', 'wb') as opffile:
-            opf.render(opffile)
+            with open('toc.ncx', 'wb') as tocfile:
+                opf.render(opffile, tocfile, 'toc.ncx')
         
         return os.path.join(os.getcwd(), 'metadata.opf')
