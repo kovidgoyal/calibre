@@ -163,7 +163,8 @@ Paragraph spacing
 Normally, paragraphs in XHTML are rendered with a blank line between them and no leading text
 indent. |app| has a couple of options to control this. :guilabel:`Remove spacing between paragraphs`
 forcefully ensure that all paragraphs have no inter paragraph spacing. It also sets the text
-indent to 1.5em to mark that start of every paragraph. :guilabel:`Insert blank line` does the
+indent to 1.5em (can be changed) to mark the start of every paragraph.
+:guilabel:`Insert blank line` does the
 opposite, guaranteeing that there is exactly one blank line between each pair of paragraphs. 
 Both these options are very comprehensive, removing spacing, or inserting it for *all* paragraphs
 (technically <p> and <div> tags). This is so that you can just set the option and be sure that

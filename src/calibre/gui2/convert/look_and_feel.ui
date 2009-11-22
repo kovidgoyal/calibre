@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0">
     <widget class="QCheckBox" name="opt_disable_font_rescaling">
      <property name="text">
       <string>&amp;Disable font size rescaling</string>
@@ -31,7 +31,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="3">
+   <item row="1" column="2">
     <widget class="QDoubleSpinBox" name="opt_base_font_size">
      <property name="suffix">
       <string> pt</string>
@@ -63,7 +63,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2" colspan="2">
+   <item row="2" column="1" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLineEdit" name="opt_font_size_mapping">
@@ -107,7 +107,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
+   <item row="3" column="2">
     <widget class="QDoubleSpinBox" name="opt_line_height">
      <property name="suffix">
       <string> pt</string>
@@ -127,12 +127,59 @@
      </property>
     </widget>
    </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QLineEdit" name="opt_input_encoding"/>
+   </item>
    <item row="5" column="0" colspan="3">
-    <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
-     <property name="text">
-      <string>Remove &amp;spacing between paragraphs</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
+       <property name="text">
+        <string>Remove &amp;spacing between paragraphs</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Indent size:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="opt_remove_paragraph_spacing_indent_size">
+         <property name="toolTip">
+          <string>&lt;p&gt;When calibre removes inter paragraph spacing, it automatically sets a paragraph indent, to ensure that paragraphs can be easily distinguished. This option controls the width of that indent.</string>
+         </property>
+         <property name="suffix">
+          <string> em</string>
+         </property>
+         <property name="decimals">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
    <item row="6" column="0">
     <widget class="QCheckBox" name="opt_insert_blank_line">
@@ -155,14 +202,14 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="3">
+   <item row="9" column="0">
     <widget class="QCheckBox" name="opt_asciiize">
      <property name="text">
       <string>&amp;Transliterate unicode characters to ASCII.</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" colspan="4">
+   <item row="10" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Extra &amp;CSS</string>
@@ -173,9 +220,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="4" column="2" colspan="2">
-    <widget class="QLineEdit" name="opt_input_encoding"/>
    </item>
   </layout>
  </widget>
@@ -213,6 +257,38 @@
     <hint type="destinationlabel">
      <x>285</x>
      <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_remove_paragraph_spacing</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_4</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_remove_paragraph_spacing</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>opt_remove_paragraph_spacing_indent_size</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>

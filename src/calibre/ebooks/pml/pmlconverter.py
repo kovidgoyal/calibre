@@ -256,7 +256,7 @@ class PML_HTMLizer(object):
             if code in self.SPAN_STATES:
                 del spans[spans.index(code)]
             for c in divs+spans:
-                if state[c][0]:
+                if self.state[c][0]:
                     if c in self.STATES_VALUE_REQ:
                         text += self.STATES_TAGS[self.CODE_STATES[c]][0] % self.state[c][1]
                     else:
@@ -265,7 +265,7 @@ class PML_HTMLizer(object):
             if code in self.STATES_VALUE_REQ:
                 val = self.code_value(stream)
                 text = self.STATES_TAGS[code][0] % val
-                state[code][1] = val
+                self.state[code][1] = val
             else:
                 text = self.STATES_TAGS[code][0]
 
