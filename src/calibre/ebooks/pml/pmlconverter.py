@@ -12,6 +12,7 @@ import re
 import StringIO
 
 from calibre import my_unichr, prepare_string_for_xml
+from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.pdb.ereader import image_name
 
 class PML_HTMLizer(object):
@@ -118,6 +119,8 @@ class PML_HTMLizer(object):
     def __init__(self, close_all):
         self.close_all = close_all
         self.state = {}
+        self.toc = TOC()
+        self.file_name = ''
 
     def prepare_pml(self, pml):
         # Remove comments
@@ -290,11 +293,14 @@ class PML_HTMLizer(object):
 
         return value.strip()
 
-    def parse_pml(self, pml):
+    def parse_pml(self, pml, file_name=''):
         pml = self.prepare_pml(pml)
         output = []
 
         self.state = {}
+        self.toc = TOC()
+        self.file_name = file_name
+
         for s in self.STATES:
             self.state[s] = [False, ''];
 
@@ -350,8 +356,10 @@ class PML_HTMLizer(object):
                         text = '<br /><br style="page-break-after: always;" />'
                     elif c == 'C':
                         # This should be made to create a TOC entry
-                        line.read(1)
-                        self.code_value(line)
+                        l = line.read(1)
+                        id = 'pml_toc-%s' % len(self.toc)
+                        self.toc.add_item(self.file_name, id, self.code_value(line))
+                        text = '<span id="%s"></span>' % id
                     elif c == 'n':
                         pass
                     elif c == 'F':
@@ -383,6 +391,9 @@ class PML_HTMLizer(object):
             line.close()
 
         return u'\n'.join(output)
+
+    def get_toc(self):
+        return self.toc
 
 
 def pml_to_html(pml, close_all=False):
