@@ -278,7 +278,7 @@ class CSSFlattener(object):
             if self.context.insert_blank_line:
                 cssdict['margin-top'] = cssdict['margin-bottom'] = '0.5em'
             if self.context.remove_paragraph_spacing:
-                cssdict['text-indent'] = '1.5em'
+                cssdict['text-indent'] =  "%1.1f em" % self.context.remove_paragraph_spacing_indent_size
         if cssdict:
             items = cssdict.items()
             items.sort()

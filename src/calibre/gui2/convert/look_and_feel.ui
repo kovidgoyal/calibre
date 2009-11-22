@@ -127,19 +127,38 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="3">
+   <item row="5" column="0" >
     <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
      <property name="text">
       <string>Remove &amp;spacing between paragraphs</string>
      </property>
     </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QCheckBox" name="opt_insert_blank_line">
+   </item> <item row="5" column="1">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Insert &amp;blank line</string>
+      <string>Indent size:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QDoubleSpinBox" name="opt_remove_paragraph_spacing_indent_size">
+     <property name="suffix">
+      <string> em</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+       <widget class="QCheckBox" name="opt_insert_blank_line">
+        <property name="text">
+         <string>Insert &amp;blank line</string>
+        </property>
+       </widget>
    </item>
    <item row="7" column="0">
     <widget class="QCheckBox" name="opt_dont_justify">
@@ -215,6 +234,18 @@
      <y>72</y>
     </hint>
    </hints>
+  </connection>
+  <connection>
+     <sender>opt_remove_paragraph_spacing</sender>
+     <signal>toggled(bool)</signal>
+     <receiver>label_4</receiver>
+     <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+     <sender>opt_remove_paragraph_spacing</sender>
+     <signal>toggled(bool)</signal>
+     <receiver>opt_remove_paragraph_spacing_indent_size</receiver>
+     <slot>setEnabled(bool)</slot>
   </connection>
  </connections>
 </ui>
