@@ -21,8 +21,7 @@ class OurDailyBread(BasicNewsRecipe):
     use_embedded_content  = False
     category              = 'religion'
     encoding              = 'utf-8'
-    extra_css             = ' #devoTitle{font-size: x-large; font-weight: bold} '
-
+  
     conversion_options = {
                              'comments'    : description
                             ,'tags'        : category
@@ -32,13 +31,13 @@ class OurDailyBread(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class':['altbg','text']})]
 
     remove_tags = [dict(name='div', attrs={'id':['ctl00_cphPrimary_pnlBookCover']}),
-                   dict(name='div', attrs={'class':['devotionalLinks']})
                    ]
     extra_css = '''
                 .text{font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
                 .devotionalTitle{font-family:Arial,Helvetica,sans-serif; font-size:large; font-weight: bold;}
                 .devotionalDate{font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
                 .devotionalVerse{font-family:Arial,Helvetica,sans-serif; font-size:xx-small; }
+                a{color:#000000;font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
                 '''
 
     feeds          = [(u'Our Daily Bread', u'http://www.rbc.org/rss.ashx?id=50398')]

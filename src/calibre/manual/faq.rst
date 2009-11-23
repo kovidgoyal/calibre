@@ -21,6 +21,7 @@ What formats does |app| support conversion to/from?
 It can convert every input format in the following list, to every output format.
 
 *Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TCR, TXT
+
 *Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PML, RB, PDF, TCR, TXT
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
@@ -233,9 +234,9 @@ If you are reasonably proficient with computers, you can teach |app| to download
 
 Otherwise, you can register a request for a particular news site by adding a comment `here <http://calibre.kovidgoyal.net/ticket/405>`_.
 
-Can I use web2lrf to download an arbitrary website?
+Can I use web2disk to download an arbitrary website?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``web2lrf --url http://mywebsite.com default``
+``web2disk http://mywebsite.com``
 
 Miscellaneous
 --------------
