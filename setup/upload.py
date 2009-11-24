@@ -116,6 +116,9 @@ class UploadToGoogleCode(Command):
     def delete_old_files(self):
         self.info('Deleting old files from Google Code...')
         for fname in self.old_files:
+            ext = fname.rpartition('.')[-1]
+            if ext in ('flv', 'mp4', 'ogg', 'avi'):
+                continue
             self.info('\tDeleting', fname)
             self.br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%fname)
             self.br.select_form(predicate=lambda x: 'delete.do' in x.action)

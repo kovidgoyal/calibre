@@ -64,21 +64,17 @@ class KINDLE2(KINDLE):
 
     name           = 'Kindle 2 Device Interface'
     description    = _('Communicate with the Kindle 2 eBook reader.')
-    author         = _('John Schember')
-    supported_platforms = ['windows', 'osx', 'linux']
 
+    FORMATS        = KINDLE.FORMATS + ['pdf']
     PRODUCT_ID = [0x0002]
     BCD        = [0x0100]
 
 
-class KINDLE_DX(KINDLE):
+class KINDLE_DX(KINDLE2):
 
     name           = 'Kindle DX Device Interface'
-    description    = _('Communicate with the Kindle 2 eBook reader.')
-    author         = _('John Schember')
-    supported_platforms = ['windows', 'osx', 'linux']
+    description    = _('Communicate with the Kindle DX eBook reader.')
 
-    FORMATS     = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'pdf', 'txt']
 
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
