@@ -12,10 +12,9 @@ from tempfile import NamedTemporaryFile
 
 from setup import Command, __version__, installer_name, __appname__
 
-PREFIX = "/var/www/calibre.kovidgoyal.net"
+PREFIX = "/var/www/calibre-ebook.com"
 DOWNLOADS = PREFIX+"/htdocs/downloads"
 BETAS = DOWNLOADS +'/betas'
-DOCS = PREFIX+"/htdocs/apidocs"
 USER_MANUAL = PREFIX+'/htdocs/user_manual'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"

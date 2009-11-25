@@ -14,7 +14,7 @@ __all__ = [
         'resources',
         'check',
         'sdist',
-        'manual', 'tag_release', 'upload_rss',
+        'manual', 'tag_release',
         'pypi_register', 'pypi_upload', 'upload_to_server',
         'upload_user_manual', 'upload_to_mobileread', 'upload_demo',
         'upload_to_sourceforge', 'upload_to_google_code',
@@ -49,11 +49,10 @@ check = Check()
 from setup.resources import Resources
 resources = Resources()
 
-from setup.publish import Manual, TagRelease, UploadRss, Stage1, Stage2, \
+from setup.publish import Manual, TagRelease, Stage1, Stage2, \
         Stage3, Stage4, Publish
 manual = Manual()
 tag_release = TagRelease()
-upload_rss = UploadRss()
 stage1 = Stage1()
 stage2 = Stage2()
 stage3 = Stage3()

@@ -75,7 +75,13 @@ class Check(Command):
                 raise SystemExit(1)
             cache[f] = mtime
         cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
-
+        wn_path = os.path.expanduser('~/work/servers/src/calibre_servers/main')
+        if os.path.exists(wn_path):
+            sys.path.insert(0, wn_path)
+            self.info('\tChecking Changelog...')
+            import whats_new
+            whats_new.test()
+            sys.path.remove(wn_path)
 
     def report_errors(self, errors):
         for err in errors:

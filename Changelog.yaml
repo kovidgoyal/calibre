@@ -9,10 +9,10 @@
 
   new features:
     - title: Add option to swap title and author in the Bulk metadata dialog
-      tickets: #3885
+      tickets: [3885]
 
     - title: Add option to download only social metadata
-      tickets: #4015
+      tickets: [4015]
 
     - title: Update bundled odfpy library to 0.9.2 for improved conversion of ODT files.
 
@@ -29,18 +29,18 @@
                    ignore the files whose names it cannot decode.
 
     - title: Fix various bugs in the downloading of social metadata in bulk
-      tickets: #4028, #4022
+      tickets: [4028, 4022]
 
     - title: Do not URL encode paths to files in the XML output of calibredb list
       description: Stanza on the iPhone could not handle URL encoded paths
 
     - title: Fix rendering of stars in rating column in the library view
-      tickets: #3944
+      tickets: [3944]
 
     - title: Fix PML parsing changes introduced in 0.6.22 as they break PDB eReader input badly.
 
     - title: "Conversion pipeline: Respect UTF-8/32 BOM mark when decoding files in addition to UTF-16 BOM."
-      tickets: #4025
+      tickets: [4025]
 
     - title: Restore all sections to Guardian newspaper download
 
@@ -62,13 +62,13 @@
 
   new features:
     - title: Support downloading of social metadata (ratings/tags/reviews etc.)
-    - description: >
+      description: >
                 calibre is now able to download social metadata like tags/rating/reviews etc.,
                 in addition to normal metadata and covers. Currently it uses Amazon as the only
                 source for social metadata, but the download system supports plugins for the
                 addition of more sources in the future.
       type: major
-      tickets: #2860
+      tickets: [2860]
 
     - title: Convert metadata download system to plugins, with builtin plugins for isbndb.com, Google Books and Amazon
 
@@ -78,18 +78,18 @@
 
   bug fixes:
     - title: Fix NYT Top stories, Barrons, New Scientist and Irish Times recipes
-      tickets: #4009, #3964, #3972, #3987
+      tickets: [4009, 3964, 3972, 3987]
 
     - title: "FB2 Output: Handle large paragraphs"
-      tickets: #3941
+      tickets: [3941]
 
     - title: "Bulk metadata download: Don't fail on downloading all remaining covers if there is an error downloading a single cover in the list"
 
     - title: Populate site_customization for Input plugins
-      tickets: #3957
+      tickets: [3957]
 
     - title: Fix news download scheduler raising an error for scheduled custom recipe that is subsequently deleted
-      tickets: #4010
+      tickets: [4010]
 
 
 
@@ -101,7 +101,7 @@
       author: Oliver Niesner
 
     - title: An Druma Mor
-    - author: "David O'Callaghan"
+      author: "David O'Callaghan"
 
   improved recipes:
     - Critica Digital
