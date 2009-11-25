@@ -66,8 +66,7 @@ class PML_HTMLizer(object):
         'u': ('<span style="text-decoration : underline;">', '</span>'),
         'd': ('<span style="text-decoration: line-through;">', '</span>'),
         'b': ('<span style="font-weight: bold;">', '</span>'),
-        's': ('<span style="font-size: 75%">', '</span>'),
-        'l': ('<span style="font-size: 125%">', '</span>'),
+        'l': ('<span style="font-size: 150%">', '</span>'),
         'FS': ('<div id="%s">', '</div>'),
     }
 
@@ -91,7 +90,6 @@ class PML_HTMLizer(object):
         'o': 'd',
         'b': 'b',
         'B': 'b',
-        's': 's',
         'l': 'l',
         'Fn': 'a',
         'Sd': 'a',
@@ -108,7 +106,6 @@ class PML_HTMLizer(object):
     ]
 
     SPAN_STATES = [
-        's',
         'l',
         'i',
         'u',
@@ -143,6 +140,23 @@ class PML_HTMLizer(object):
         line = re.sub(r'^[ ]*$', '', line)
 
         return line
+
+    def cleanup_html(self, html):
+        old = html
+        html = self.cleanup_html_remove_redundant(html)
+        while html != old:
+            old = html
+            html = self.cleanup_html_remove_redundant(html)
+        return html
+
+    def cleanup_html_remove_redundant(self, html):
+        for key in self.STATES_TAGS.keys():
+            open, close = self.STATES_TAGS[key]
+            if key in self.STATES_VALUE_REQ:
+                html = re.sub(r'(?u)%s\s*%s' % (open % '.*?', close), '', html)
+            else:
+                html = re.sub(r'(?u)%s\s*%s' % (open, close), '', html)
+        return html
 
     def start_line(self):
         start = u''
@@ -213,17 +227,19 @@ class PML_HTMLizer(object):
 
         if code in self.DIV_STATES:
             ds = self.DIV_STATES[:]
+            ss = self.SPAN_STATES[:]
         elif code in self.SPAN_STATES:
             ds = self.SPAN_STATES[:]
+            ss = []
 
         if self.state[code][0]:
             # Close all.
-            for c in ds:
+            for c in ss+ds:
                 if self.state[c][0]:
                     text += self.STATES_TAGS[c][1]
             # Reopen the based on state.
             del ds[ds.index(code)]
-            for c in ds:
+            for c in ds+ss:
                 if self.state[c][0]:
                     if c in self.STATES_VALUE_REQ:
                         text += self.STATES_TAGS[self.CODE_STATES[c]][0] % self.state[c][1]
@@ -333,16 +349,8 @@ class PML_HTMLizer(object):
                             text = self.process_code_simple('%s%s' % (c, l))
                     elif c == 'q':
                         text = self.process_code_link(line)
-                    elif c in 'crtTiIuobB':
+                    elif c in 'crtTiIuobBl':
                         text = self.process_code_div_span(c, line)
-                    elif c in 'sl':
-                        close = u''
-                        if c == 's' and self.state['l']:
-                            close = self.process_code_div_span('l', line)
-                        if c == 'l' and self.state['s']:
-                            close = self.process_code_div_span('s', line)
-                        text = self.process_code_div_span(c, line)
-                        text = close+text
                     elif c == 'm':
                         empty = False
                         src = self.code_value(line)
@@ -389,7 +397,9 @@ class PML_HTMLizer(object):
                 output.append(u''.join(parsed))
             line.close()
 
-        return u'\n'.join(output)
+        output = self.cleanup_html(u'\n'.join(output))
+
+        return output
 
     def get_toc(self):
         return self.toc
