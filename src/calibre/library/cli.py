@@ -64,7 +64,7 @@ STANZA_TEMPLATE='''\
   <title>calibre Library</title>
   <author>
     <name>calibre</name>
-    <uri>http://calibre.kovidgoyal.net</uri>
+    <uri>http://calibre-ebook.com</uri>
   </author>
   <id>$id</id>
   <updated>${updated.strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>

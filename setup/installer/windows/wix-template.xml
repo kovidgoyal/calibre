@@ -61,10 +61,10 @@
                              WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                         <util:InternetShortcut Id="OnlineDocumentationShortcut"
                             Name="User Manual" Type="url"
-                               Target="http://calibre.kovidgoyal.net/user_manual"/>
+                               Target="http://calibre-ebook.com/user_manual"/>
                         <util:InternetShortcut Id="GetInvolvedS"
                             Name="Get Involved" Type="url"
-                               Target="http://calibre.kovidgoyal.net/wiki/Development"/>
+                            Target="http://calibre-ebook.com/get-involved"/>
 
                         <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
                         <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}" Name="start_menu_shortcuts_installed" Type="integer" Value="1" KeyPath="yes"/>

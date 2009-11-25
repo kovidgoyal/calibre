@@ -13,7 +13,6 @@
 ##
 ##	Version 0.3-2008_2_28
 ##	Based on WIRED.py by David Chen, 2007, and newsweek.py, bbc.py, nytimes.py by Kovid Goyal
-##	https://calibre.kovidgoyal.net/wiki/UserProfiles
 ##
 ##	Usage:
 ##	>web2lrf --user-profile nasa.py
@@ -40,7 +39,7 @@ class NASA(BasicNewsRecipe):
     ## Don't grab articles more than 30 days old
     oldest_article = 30
 
-    preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+    preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
 		[
 		## Fix the encoding to UTF-8
 		(r'<meta http-equiv="Content-Type" content="text/html; charset=(\S+)"', lambda match : match.group().replace(match.group(1), 'UTF-8')),
@@ -53,12 +52,12 @@ class NASA(BasicNewsRecipe):
 
 		## Correctly embed in-line images by removing the surrounding javascript that will be ignored in the conversion
 		(r'<a.*?onclick.*?>.*?(<img .*?>)', lambda match: match.group(1),),
-		
+
 		## This removes header and footer information from each print version.
        	(r'<!-- Top Header starts -->.*?<!-- Body starts -->', lambda match : '<New Stuff>'),
 		(r'<hr align="center" width="200"><p align="center">.*?<!-- Press Release standard text ends -->', lambda match : '<New Stuff>'),
 		(r'<!-- Top Header starts -->.*?<!---->', lambda match : '<New Stuff>'),
-		
+
 		## This removes the "download image" of various sizes from the Image of the day.
 		(r'<div id="download_image_box_print">.*?<div id="caption_region_print">', lambda match : '<New Stuff>'),
 

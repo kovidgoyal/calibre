@@ -18,7 +18,7 @@ class Metadata(object):
     version = __version__
     author = 'Kovid Goyal'
     author_email = 'kovid@kovidgoyal.net'
-    url = 'http://calibre.kovidgoyal.net'
+    url = 'http://calibre-ebook.com'
     description = 'E-book management application.'
     long_description = open('README', 'rb').read()
     license = 'GPL'

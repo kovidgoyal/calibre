@@ -214,7 +214,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help see the: <a href="%s">User Manual</a>'
-                '<br>')%'http://calibre.kovidgoyal.net/user_manual'
+                '<br>')%'http://calibre-ebook.com/user_manual'
         self.vanity_template += _('<b>%s</b>: %s by <b>Kovid Goyal '
             '%%(version)s</b><br>%%(device)s</p>')%(__appname__, __version__)
         self.latest_version = ' '
@@ -1721,12 +1721,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 <title>Donate to support calibre</title>
             </head>
             <body style="background:white">
-                <div><a href="http://calibre.kovidgoyal.net"><img style="border:0px" src="http://calibre.kovidgoyal.net/chrome/site/calibre_banner.png" alt="calibre" /></a></div>
+                <div><a href="http://calibre-ebook.com"><img style="border:0px"
+                src="file://%s" alt="calibre" /></a></div>
                 <p>Calibre %s</p>
                 %s
             </body>
         </html>
-        '''%(MSG, BUTTON)
+        '''%(P('content_server/calibre_banner.png').replace(os.sep, '/'), MSG, BUTTON)
         pt = PersistentTemporaryFile('_donate.htm')
         pt.write(HTML.encode('utf-8'))
         pt.close()
@@ -1812,7 +1813,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def update_found(self, version):
         os = 'windows' if iswindows else 'osx' if isosx else 'linux'
-        url = 'http://%s.kovidgoyal.net/download_%s'%(__appname__, os)
+        url = 'http://calibre-ebook.com/download_%s'%os
         self.latest_version = '<br>' + _('<span style="color:red; font-weight:bold">'
                 'Latest version: <a href="%s">%s</a></span>')%(url, version)
         self.vanity.setText(self.vanity_template%\
@@ -1823,10 +1824,10 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 dynamic.get('update to version %s'%version, True):
             if question_dialog(self, _('Update available'),
                     _('%s has been updated to version %s. '
-                    'See the <a href="http://calibre.kovidgoyal.net/wiki/'
-                    'Changelog">new features</a>. Visit the download pa'
+                    'See the <a href="http://calibre-ebook.com/whats-new'
+                    '">new features</a>. Visit the download pa'
                     'ge?')%(__appname__, version)):
-                url = 'http://calibre.kovidgoyal.net/download_'+\
+                url = 'http://calibre-ebook.com/download_'+\
                     ('windows' if iswindows else 'osx' if isosx else 'linux')
                 QDesktopServices.openUrl(QUrl(url))
             dynamic.set('update to version %s'%version, False)

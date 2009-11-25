@@ -40,7 +40,7 @@ To get help on them specify the input and output file and then use the -h \
 option.
 
 For full documentation of the conversion system see
-''') + 'http://calibre.kovidgoyal.net/user_manual/conversion.html'
+''') + 'http://calibre-ebook.com/user_manual/conversion.html'
 
 def print_help(parser, log):
     help = parser.format_help().encode(preferred_encoding, 'replace')

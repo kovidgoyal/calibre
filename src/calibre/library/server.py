@@ -176,7 +176,7 @@ class LibraryServer(object):
     }
 
     </style>
-    <link rel="icon" href="http://calibre.kovidgoyal.net/chrome/site/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="http://calibre-ebook.com/favicon.ico" type="image/x-icon" />
     </head>
     <body>
         <div id="logo">
@@ -276,7 +276,7 @@ class LibraryServer(object):
       ${Markup(next_link)}
       <author>
         <name>calibre</name>
-        <uri>http://calibre.kovidgoyal.net</uri>
+        <uri>http://calibre-ebook.com</uri>
       </author>
       <subtitle>
             ${subtitle}
@@ -296,7 +296,7 @@ class LibraryServer(object):
       <link rel="search" title="Search" type="application/atom+xml" href="/stanza/?search={searchTerms}"/>
       <author>
         <name>calibre</name>
-        <uri>http://calibre.kovidgoyal.net</uri>
+        <uri>http://calibre-ebook.com</uri>
       </author>
       <subtitle>
             ${subtitle}
