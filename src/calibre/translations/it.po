@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-11-16 20:00+0000\n"
-"PO-Revision-Date: 2009-11-16 04:56+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-11-24 12:48+0000\n"
+"Last-Translator: usa_getta <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-17 04:48+0000\n"
+"X-Launchpad-Export-Date: 2009-11-25 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -966,6 +966,9 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+"Normalmente, se il file sorgente possiede già un Indice (TOC Table of "
+"Contents), esso è usato di preferenza rispetto a quello auto-generato. Con "
+"questa opzione, verrà sempre usato l'indice auto-generato."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:209
 msgid "Don't add auto-detected chapters to the Table of Contents."
@@ -985,12 +988,19 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"Massimo numero di links da inserire nell'Indice (TOC Table of Contents). "
+"Impostare 0 per disabilitare. il default è %default. I links sono aggiunti "
+"all'Indice soltanto se non è già stato raggiunto il numero di capitoli "
+"impostati."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:231
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
+"Rimuove dall'Indice (TOC Table of Contents) le voci il cui titolo "
+"corrisponde alla espressione specificata. Le voci che corrispondono saranno "
+"rimosse insieme alle voci \"figlie\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:242
 msgid ""
@@ -1232,7 +1242,7 @@ msgstr "Conversione dell'inputi in HTML in corso..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:747
 msgid "Running transforms on ebook..."
-msgstr ""
+msgstr "Transcodifica di un ebook in corso..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:833
 msgid "Creating"
@@ -1282,11 +1292,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
-msgstr ""
+msgstr "Indice (in inglese):"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "Non inserire un Indice (TOC Table of Contents) all'inizio dell'Ebook"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
@@ -1294,7 +1304,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
-msgstr ""
+msgstr "Inserire un Indice (TOC Table of Contents) all'inizio dell'Ebook"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:243
 msgid ""
@@ -1429,7 +1439,7 @@ msgstr "Restituisce un file LRS"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
-msgstr ""
+msgstr "Non salvare le immagini incorporate e i font sul disco"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
@@ -1776,10 +1786,13 @@ msgid ""
 "ebook. Metadata specified on the command line will override metadata read "
 "from the OPF file"
 msgstr ""
+"Legge i metadati dal file OPF specificato e li usa per impostare i metadati "
+"nell'ebook. I metadati specificati dalla linea di comando sovrascriveranno i "
+"metadati letti dal file OPF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:85
 msgid "Set the BookID in LRF files"
-msgstr ""
+msgstr "Imposta  il BookID nel file LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:144
 msgid "No file specified"
@@ -1787,15 +1800,15 @@ msgstr "Nessun file specificato"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:159
 msgid "Original metadata"
-msgstr ""
+msgstr "Metadati originali"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:176
 msgid "Changed metadata"
-msgstr ""
+msgstr "Metadati cambiati"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:188
 msgid "OPF created in"
-msgstr ""
+msgstr "Creato OPF in"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:194
 msgid "Cover saved to"
@@ -1807,15 +1820,15 @@ msgstr "Nessuna copertina trovata"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:26
 msgid "Metadata download"
-msgstr ""
+msgstr "Scarica i metadati"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:63
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Scarica i metadati da Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:79
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Scarica i metadati da isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:106
 msgid ""
