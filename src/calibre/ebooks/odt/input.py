@@ -74,10 +74,18 @@ class ODTInput(InputFormatPlugin):
         # about them
         from calibre.ebooks.oeb.base import XPath, XHTML
         path = XPath('//h:p/h:div')
+        path2 = XPath('//h:div[@style]/h:img[@style]')
         for item in oeb.spine:
             root = item.data
             if not hasattr(root, 'xpath'): continue
             for div in path(root):
                 div.getparent().tag = XHTML('div')
+
+            # This construct doesn't render well in HTML
+            for img in path2(root):
+                div = img.getparent()
+                if 'position:relative' in div.attrib['style'] and len(div) == 1 \
+                    and 'img' in div[0].tag:
+                    del div.attrib['style']
 
 
