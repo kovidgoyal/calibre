@@ -375,10 +375,14 @@ class PML_HTMLizer(object):
                     # than a space or = after the code then we can assume the
                     # markup is invalid. We will stop looking for the value
                     # and continue to hopefully not lose any data.
-                    break;
+                    break
             elif state == 1:
                 if c == '"':
                     state = 2
+                elif c != ' ':
+                    # " should always follow = but we will allow for blank
+                    # space after the =.
+                    break
             elif state == 2:
                 if c == '"':
                     state = 3
