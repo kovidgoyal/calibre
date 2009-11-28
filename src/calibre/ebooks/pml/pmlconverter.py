@@ -101,6 +101,7 @@ class PML_HTMLizer(object):
     }
 
     DIV_STATES = [
+        'a',
         'c',
         'r',
         't',
@@ -211,23 +212,7 @@ class PML_HTMLizer(object):
 
         return text
 
-    def process_code_link(self, stream, pre=''):
-        text = u''
-
-        if self.state['a'][0]:
-            text = self.STATES_TAGS['a'][1]
-        else:
-            href = self.code_value(stream)
-            if pre:
-                href = '#%s-%s' % (pre, href)
-            text = self.STATES_TAGS['a'][0] % href
-            self.state['a'][1] = href
-
-        self.state['a'][0] = not self.state['a'][0]
-
-        return text
-
-    def process_code_div_span(self, code, stream):
+    def process_code_div_span(self, code, stream, pre=''):
         text = u''
         ds = []
 
@@ -266,6 +251,8 @@ class PML_HTMLizer(object):
             # Process the code
             if code in self.STATES_VALUE_REQ:
                 val = self.code_value(stream)
+                if pre:
+                    val = '#%s-%s' % (pre, val)
                 text += self.STATES_TAGS[code][0] % val
                 self.state[code][1] = val
             else:
@@ -347,13 +334,13 @@ class PML_HTMLizer(object):
                     elif c in 'XS':
                         l = line.read(1)
                         if '%s%s' % (c, l) == 'Sd':
-                            text = self.process_code_link(line, 'fns')
+                            text = self.process_code_div_span('Sd', line, 'fns')
                         elif '%s%s' % (c, l) == 'SB':
                             text = self.process_code_div_span('SB', line)
                         else:
                             text = self.process_code_simple('%s%s' % (c, l))
                     elif c == 'q':
-                        text = self.process_code_link(line)
+                        text = self.process_code_div_span(c, line)
                     elif c in 'crtTiIuobBlk':
                         text = self.process_code_div_span(c, line)
                     elif c == 'm':
@@ -377,7 +364,7 @@ class PML_HTMLizer(object):
                     elif c == 'F':
                         l = line.read(1)
                         if '%s%s' % (c, l) == 'Fn':
-                            text = self.process_code_link(line, 'fns')
+                            text = self.process_code_div_span('Fn', line, 'fns')
                         elif '%s%s' % (c, l) == 'FN':
                             text = self.process_code_div_span('FN', line)
                     elif c == 'w':
