@@ -139,6 +139,10 @@ class PML_HTMLizer(object):
         pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="fns-%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
         pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="fns-%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
 
+        # Convert &'s into entities so &amp; in the text doesn't get turned into
+        # &. It will display as &amp;
+        pml = pml.replace('&', '&amp;')
+
         pml = re.sub(r'\\a(?P<num>\d{3})', lambda match: '&#%s;' % match.group('num'), pml)
         pml = re.sub(r'\\U(?P<num>[0-9a-f]{4})', lambda match: '%s' % my_unichr(int(match.group('num'), 16)), pml)
 
