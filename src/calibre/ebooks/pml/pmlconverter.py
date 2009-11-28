@@ -50,7 +50,7 @@ class PML_HTMLizer(object):
     ]
 
     STATES_TAGS = {
-        'h1': ('<h1 style="page-break-after: always;">', '</h1>'),
+        'h1': ('<h1 style="page-break-before: always;">', '</h1>'),
         'h2': ('<h2>', '</h2>'),
         'h3': ('<h3>', '</h3>'),
         'h4': ('<h4>', '</h4>'),
@@ -108,6 +108,8 @@ class PML_HTMLizer(object):
         'h4',
         'h5',
         'h6',
+        'sb',
+        'sp',
     ]
 
     DIV_STATES = [
@@ -135,6 +137,13 @@ class PML_HTMLizer(object):
     def prepare_pml(self, pml):
         # Remove comments
         pml = re.sub(r'(?mus)\\v(?P<text>.*?)\\v', '', pml)
+
+        # Remove extra white spaces.
+        pml = re.sub(r'(?mus)[ ]{2,}', ' ', pml)
+        pml = re.sub(r'(?mus)^[ ]*(?=.)', '', pml)
+        pml = re.sub(r'(?mus)(?<=.)[ ]*$', '', pml)
+        pml = re.sub(r'(?mus)^[ ]*$', '', pml)
+        
         # Footnotes and Sidebars
         pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="fns-%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
         pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="fns-%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
@@ -149,14 +158,6 @@ class PML_HTMLizer(object):
         pml = prepare_string_for_xml(pml)
 
         return pml
-
-    def prepare_line(self, line):
-        line = re.sub(r'[ ]{2,}', ' ', line)
-        line = re.sub(r'^[ ]*(?=.)', '', line)
-        line = re.sub(r'(?<=.)[ ]*$', '', line)
-        line = re.sub(r'^[ ]*$', '', line)
-
-        return line
 
     def cleanup_html(self, html):
         old = html
@@ -217,7 +218,9 @@ class PML_HTMLizer(object):
         text = u''
         ds = []
 
-        code = self.CODE_STATES[code]
+        code = self.CODE_STATES.get(code, None)
+        if not code:
+            return text
 
         if code in self.DIV_STATES:
             ds = self.DIV_STATES[:]
@@ -278,7 +281,9 @@ class PML_HTMLizer(object):
     def process_code_block(self, code, stream, pre=''):
         text = u''
 
-        code = self.CODE_STATES[code]
+        code = self.CODE_STATES.get(code, None)
+        if not code:
+            return text
 
         # Close all spans
         for c in self.SPAN_STATES:
@@ -312,27 +317,12 @@ class PML_HTMLizer(object):
 
         return text
 
-
-    def process_code_simple(self, code):
-        if code not in self.CODE_STATES.keys():
-            return u''
-
-        text = u''
-
-        if self.state[self.CODE_STATES[code]][0]:
-            text = self.STATES_TAGS[self.CODE_STATES[code]][1]
-        else:
-            text = self.STATES_TAGS[self.CODE_STATES[code]][0]
-
-        self.state[self.CODE_STATES[code]][0] = not self.state[self.CODE_STATES[code]][0]
-
-        return text
-
     def code_value(self, stream):
         value = u''
         # state 0 is before =
         # state 1 is before the first "
         # state 2 is before the second "
+        # state 3 is after the second "
         state = 0
         loc = stream.tell()
 
@@ -341,6 +331,13 @@ class PML_HTMLizer(object):
             if state == 0:
                 if c == '=':
                     state = 1
+                elif c != ' ':
+                    # A code that requires an argument should have = after the
+                    # code but sometimes has spaces. If it has anything other
+                    # than a space or = after the code then we can assume the
+                    # markup is invalid. We will stop looking for the value
+                    # and continue to hopefully not lose any data.
+                    break;
             elif state == 1:
                 if c == '"':
                     state = 2
@@ -353,6 +350,8 @@ class PML_HTMLizer(object):
             c = stream.read(1)
 
         if state != 3:
+            # Unable to complete the sequence to reterieve the value. Reset
+            # the stream to the location it started.
             stream.seek(loc)
             value = u''
 
@@ -370,12 +369,11 @@ class PML_HTMLizer(object):
             self.state[s] = [False, ''];
 
         for line in pml.splitlines():
-            parsed = []
-            empty = True
-
-            line = self.prepare_line(line)
             if not line:
                 continue
+
+            parsed = []
+            empty = True
 
             # Must use StringIO, cStringIO does not support unicode
             line = StringIO.StringIO(line)
@@ -389,15 +387,15 @@ class PML_HTMLizer(object):
                     c = line.read(1)
 
                     if c == 'x':
-                        text = self.process_code_simple(c)
+                        text = self.process_code_block(c, line)
                     elif c in 'XS':
                         l = line.read(1)
-                        if '%s%s' % (c, l) == 'Sd':
-                            text = self.process_code_block('Sd', line, 'fns')
-                        elif '%s%s' % (c, l) == 'SB':
+                        if '%s%s' % (c, l) == 'SB':
                             text = self.process_code('SB', line)
+                        elif '%s%s' % (c, l) == 'Sd':
+                            text = self.process_code_block('Sd', line, 'fns')
                         else:
-                            text = self.process_code_simple('%s%s' % (c, l))
+                            text = self.process_code_block('%s%s' % (c, l), line)
                     elif c == 'q':
                         text = self.process_code_block(c, line)
                     elif c in 'crtTiIuobBlk':
