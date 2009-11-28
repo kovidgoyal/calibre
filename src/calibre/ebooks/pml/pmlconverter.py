@@ -100,8 +100,17 @@ class PML_HTMLizer(object):
         'SB': 'FS',
     }
 
-    DIV_STATES = [
+    BLOCK_STATES = [
         'a',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+    ]
+
+    DIV_STATES = [
         'c',
         'r',
         't',
@@ -197,22 +206,10 @@ class PML_HTMLizer(object):
 
         return u'%s</p>' % end
 
-    def process_code_simple(self, code):
-        if code not in self.CODE_STATES.keys():
-            return u''
-
-        text = u''
-
-        if self.state[self.CODE_STATES[code]][0]:
-            text = self.STATES_TAGS[self.CODE_STATES[code]][1]
-        else:
-            text = self.STATES_TAGS[self.CODE_STATES[code]][0]
-
-        self.state[self.CODE_STATES[code]][0] = not self.state[self.CODE_STATES[code]][0]
-
-        return text
-
-    def process_code_div_span(self, code, stream, pre=''):
+    def process_code(self, code, stream):
+        '''
+        Used for processing div and span elements.
+        '''
         text = u''
         ds = []
 
@@ -225,6 +222,10 @@ class PML_HTMLizer(object):
             ds = self.SPAN_STATES[:]
             ss = []
 
+        # Close code.
+        # Close all tags starting with the inline then close block. Remove the
+        # Tag that is closed from the list and reopen them all starting with
+        # block followed by inline.
         if self.state[code][0]:
             # Ignore multilple T's on the same line. They do not have a closing
             # code. They get closed at the end of the line.
@@ -243,16 +244,17 @@ class PML_HTMLizer(object):
                         text += self.STATES_TAGS[self.CODE_STATES[c]][0] % self.state[c][1]
                     else:
                         text += self.STATES_TAGS[c][0]
+        # Open code.
+        # If the tag to open is a block we close all inline tags, open the block
+        # then re-open the inline tags.
         else:
-            # Close all spans if code is a div
+            # Close all spans if code is a div.
             for c in ss:
                 if self.state[c][0]:
                     text += self.STATES_TAGS[c][1]
             # Process the code
             if code in self.STATES_VALUE_REQ:
                 val = self.code_value(stream)
-                if pre:
-                    val = '#%s-%s' % (pre, val)
                 text += self.STATES_TAGS[code][0] % val
                 self.state[code][1] = val
             else:
@@ -266,6 +268,59 @@ class PML_HTMLizer(object):
                         text += self.STATES_TAGS[c][0]
 
         self.state[code][0] = not self.state[code][0]
+
+        return text
+
+    def process_code_block(self, code, stream, pre=''):
+        text = u''
+
+        code = self.CODE_STATES[code]
+
+        # Close all spans
+        for c in self.SPAN_STATES:
+            if self.state[c][0]:
+                text += self.STATES_TAGS[c][1]
+
+        # Process the code
+        if self.state[code][0]:
+            # Close tag
+            text += self.STATES_TAGS[code][1]
+        else:
+            # Open tag
+            if code in self.STATES_VALUE_REQ:
+                val = self.code_value(stream)
+                if pre:
+                    val = '#%s-%s' % (pre, val)
+                text += self.STATES_TAGS[code][0] % val
+                self.state[code][1] = val
+            else:
+                text += self.STATES_TAGS[code][0]
+
+        # Re-open all spans if code was a div based on state
+        for c in self.SPAN_STATES:
+            if self.state[c][0]:
+                if c in self.STATES_VALUE_REQ:
+                    text += self.STATES_TAGS[code][0] % self.state[c][1]
+                else:
+                    text += self.STATES_TAGS[c][0]
+
+        self.state[code][0] = not self.state[code][0]
+
+        return text
+
+
+    def process_code_simple(self, code):
+        if code not in self.CODE_STATES.keys():
+            return u''
+
+        text = u''
+
+        if self.state[self.CODE_STATES[code]][0]:
+            text = self.STATES_TAGS[self.CODE_STATES[code]][1]
+        else:
+            text = self.STATES_TAGS[self.CODE_STATES[code]][0]
+
+        self.state[self.CODE_STATES[code]][0] = not self.state[self.CODE_STATES[code]][0]
 
         return text
 
@@ -334,15 +389,15 @@ class PML_HTMLizer(object):
                     elif c in 'XS':
                         l = line.read(1)
                         if '%s%s' % (c, l) == 'Sd':
-                            text = self.process_code_div_span('Sd', line, 'fns')
+                            text = self.process_code_block('Sd', line, 'fns')
                         elif '%s%s' % (c, l) == 'SB':
-                            text = self.process_code_div_span('SB', line)
+                            text = self.process_code('SB', line)
                         else:
                             text = self.process_code_simple('%s%s' % (c, l))
                     elif c == 'q':
-                        text = self.process_code_div_span(c, line)
+                        text = self.process_code_block(c, line)
                     elif c in 'crtTiIuobBlk':
-                        text = self.process_code_div_span(c, line)
+                        text = self.process_code(c, line)
                     elif c == 'm':
                         empty = False
                         src = self.code_value(line)
@@ -364,9 +419,9 @@ class PML_HTMLizer(object):
                     elif c == 'F':
                         l = line.read(1)
                         if '%s%s' % (c, l) == 'Fn':
-                            text = self.process_code_div_span('Fn', line, 'fns')
+                            text = self.process_code_block('Fn', line, 'fns')
                         elif '%s%s' % (c, l) == 'FN':
-                            text = self.process_code_div_span('FN', line)
+                            text = self.process_code('FN', line)
                     elif c == 'w':
                         empty = False
                         text = '<hr width="%s" />' % self.code_value(line)
