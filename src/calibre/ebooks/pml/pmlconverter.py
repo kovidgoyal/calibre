@@ -36,6 +36,7 @@ class PML_HTMLizer(object):
         't',
         's',
         'l',
+        'k',
         'T',
         'Fn',
         'Sd',
@@ -67,6 +68,7 @@ class PML_HTMLizer(object):
         'd': ('<span style="text-decoration: line-through;">', '</span>'),
         'b': ('<span style="font-weight: bold;">', '</span>'),
         'l': ('<span style="font-size: 150%;">', '</span>'),
+        'k': ('<span style="font-size: 75%;">', '</span>'),
         'FS': ('<div id="%s">', '</div>'),
     }
 
@@ -91,6 +93,7 @@ class PML_HTMLizer(object):
         'b': 'b',
         'B': 'b',
         'l': 'l',
+        'k': 'k',
         'Fn': 'a',
         'Sd': 'a',
         'FN': 'FS',
@@ -107,6 +110,7 @@ class PML_HTMLizer(object):
 
     SPAN_STATES = [
         'l',
+        'k',
         'i',
         'u',
         'd',
@@ -125,10 +129,10 @@ class PML_HTMLizer(object):
         pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="fns-%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
         pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="fns-%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
 
-        pml = prepare_string_for_xml(pml)
-
         pml = re.sub(r'\\a(?P<num>\d{3})', lambda match: '&#%s;' % match.group('num'), pml)
         pml = re.sub(r'\\U(?P<num>[0-9a-f]{4})', lambda match: '%s' % my_unichr(int(match.group('num'), 16)), pml)
+
+        pml = prepare_string_for_xml(pml)
 
         return pml
 
@@ -181,7 +185,7 @@ class PML_HTMLizer(object):
             if val[0]:
                 if key == 'T':
                     self.state['T'][0] = False
-                elif key in self.DIV_STATES:
+                if key in self.DIV_STATES:
                     div.append(key)
                 elif key in self.SPAN_STATES:
                     span.append(key)
@@ -238,6 +242,11 @@ class PML_HTMLizer(object):
             ss = []
 
         if self.state[code][0]:
+            # Ignore multilple T's on the same line. They do not have a closing
+            # code. They get closed at the end of the line.
+            if code == 'T':
+                self.code_value(stream)
+                return text
             # Close all.
             for c in ss+ds:
                 if self.state[c][0]:
@@ -346,7 +355,7 @@ class PML_HTMLizer(object):
                             text = self.process_code_simple('%s%s' % (c, l))
                     elif c == 'q':
                         text = self.process_code_link(line)
-                    elif c in 'crtTiIuobBl':
+                    elif c in 'crtTiIuobBlk':
                         text = self.process_code_div_span(c, line)
                     elif c == 'm':
                         empty = False
@@ -384,7 +393,10 @@ class PML_HTMLizer(object):
                 else:
                     if c != ' ':
                         empty = False
-                    text = c
+                    if self.state['k'][0]:
+                        text = c.upper()
+                    else:
+                        text = c
                 parsed.append(text)
                 c = line.read(1)
 
