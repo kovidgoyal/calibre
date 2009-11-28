@@ -214,13 +214,12 @@ class PML_HTMLizer(object):
     def process_code_link(self, stream, pre=''):
         text = u''
 
-        href = self.code_value(stream)
-        if pre:
-            href = '#%s-%s' % (pre, href)
-
         if self.state['a'][0]:
             text = self.STATES_TAGS['a'][1]
         else:
+            href = self.code_value(stream)
+            if pre:
+                href = '#%s-%s' % (pre, href)
             text = self.STATES_TAGS['a'][0] % href
             self.state['a'][1] = href
 
