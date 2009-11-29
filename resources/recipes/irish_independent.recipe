@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2009 Neil Grogan'
-# 
+#
 # Irish Independent Recipe
 #
 
@@ -10,7 +10,7 @@ class IrishIndependent(BasicNewsRecipe):
     title          = u'Irish Independent'
     description = 'Irish and World news from Irelands Bestselling Daily Broadsheet'
     __author__	= 'Neil Grogan'
-    language = 'en_UK'
+    language = 'en_GB'
     oldest_article = 7
     max_articles_per_feed = 100
     remove_tags_before = dict(id='article')
@@ -37,7 +37,7 @@ class IrishIndependent(BasicNewsRecipe):
     (u'Letters', u'http://www.independent.ie/opinion/letters/rss'),
     (u'Weather', u'http://www.independent.ie/weather/rss')
     ]
-    
+
 # If text only articles are desired
 #def print_version(self, url):
 #    return '%s?service=Print' % url

@@ -22,7 +22,10 @@ class NYTimes(BasicNewsRecipe):
     remove_tags_before = dict(id='article')
     remove_tags_after  = dict(id='article')
     remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink clearfix']}),
-                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']),
+                   dict(id=['footer', 'toolsRight', 'articleInline',
+                       'navigation', 'archive', 'side_search', 'blog_sidebar',
+                       'side_tool', 'side_index',
+                       'relatedArticles', 'relatedTopics', 'adxSponLink']),
                    dict(name=['script', 'noscript', 'style'])]
     encoding = 'cp1252'
     no_stylesheets = True

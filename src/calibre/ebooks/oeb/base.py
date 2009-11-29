@@ -849,7 +849,8 @@ class Manifest(object):
                 try:
                     data = etree.fromstring(data)
                 except:
-                    data=data.replace(':=', '=').replace(':>', '>')
+                    data = data.replace(':=', '=').replace(':>', '>')
+                    data = data.replace('<http:/>', '')
                     try:
                         data = etree.fromstring(data)
                     except etree.XMLSyntaxError:
