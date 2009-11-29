@@ -19,7 +19,7 @@ class HLN_be(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    language = 'nl'
+    language = 'nl_BE'
 
     lang                  = 'nl-BE'
     direction             = 'ltr'
@@ -39,7 +39,7 @@ class HLN_be(BasicNewsRecipe):
                     .gen_footnote3{font-size:80%; color: #666666;}
                 '''
 
-    
+
     keep_only_tags = [dict(name='div', attrs={'class':'art_box2'})]
     remove_tags    = [
                          dict(name=['embed','object'])
