@@ -27,14 +27,19 @@ class DailyTelegraph(BasicNewsRecipe):
                         , '--publisher'     , title
                         ]
 
-    keep_only_tags = [
-                        dict(name='h1', attrs={'class':'section-heading'})
-                       ,dict(name='div', attrs={'id':'article'})
-                     ]
+    keep_only_tags = [dict(name='div', attrs={'id': 'story'})]
 
-    remove_tags = [dict(name=['object','link'])]
+    #remove_tags = [dict(name=['object','link'])]
+    remove_tags = [dict(name ='div', attrs = {'class': 'story-info'}),
+                          dict(name ='div', attrs = {'class': 'story-header-tools'}),
+                          dict(name ='div', attrs = {'class': 'story-sidebar'}),
+                          dict(name ='div', attrs = {'class': 'story-footer'}),
+                          dict(name ='div', attrs = {'id': 'comments'}),
+                          dict(name ='div', attrs = {'class': 'story-extras story-extras-2'}),
+                          dict(name ='div', attrs = {'class': 'group item-count-1 story-related'})
+                          ]
 
-    extra_css   = '''                
+    extra_css   = '''
                     h1{font-family :Georgia,"Times New Roman",Times,serif; font-size:large; }
                     #article{font-family :Georgia,"Times New Roman",Times,serif; font-size: x-small;}
                     .module-subheader{font-family :Tahoma,Geneva,Arial,Helvetica,sans-serif; color:#666666; font-size: xx-small;}
@@ -43,34 +48,40 @@ class DailyTelegraph(BasicNewsRecipe):
                     .caption{font-family:Trebuchet MS,Trebuchet,Helvetica,sans-serif; font-size: xx-small;}
                 '''
 
-    feeds          = [
-                     (u'News', u'http://feeds.news.com.au/public/rss/2.0/aus_news_807.xml'),
-                     (u'World News', u'http://feeds.news.com.au/public/rss/2.0/aus_world_808.xml'),
-                     (u'Opinion', u'http://feeds.news.com.au/public/rss/2.0/aus_opinion_58.xml'),
-                     (u'Business', u'http://feeds.news.com.au/public/rss/2.0/aus_business_811.xml'),
-                     (u'Media', u'http://feeds.news.com.au/public/rss/2.0/aus_media_57.xml'),
-                     (u'Higher Education', u'http://feeds.news.com.au/public/rss/2.0/aus_higher_education_56.xml'),
-                     (u'The Arts', u'http://feeds.news.com.au/public/rss/2.0/aus_arts_51.xml'),
-                     (u'Commercial Property', u'http://feeds.news.com.au/public/rss/2.0/aus_business_commercial_property_708.xml'),
-                     (u'The Nation', u'http://feeds.news.com.au/public/rss/2.0/aus_the_nation_62.xml'),
-                     (u'Sport', u'http://feeds.news.com.au/public/rss/2.0/aus_sport_61.xml'),
-                     (u'Travel', u'http://feeds.news.com.au/public/rss/2.0/aus_travel_and_indulgence_63.xml'),
-                     (u'Defence', u'http://feeds.news.com.au/public/rss/2.0/aus_defence_54.xml'),
-                     (u'Aviation', u'http://feeds.news.com.au/public/rss/2.0/aus_business_aviation_706.xml'),
-                     (u'Mining', u'http://feeds.news.com.au/public/rss/2.0/aus_business_mining_704.xml'),
-                     (u'Climate', u'http://feeds.news.com.au/public/rss/2.0/aus_climate_809.xml'),
-                     (u'Property', u'http://feeds.news.com.au/public/rss/2.0/aus_property_59.xml'),
-                     (u'US Election', u'http://feeds.news.com.au/public/rss/2.0/aus_uselection_687.xml')
-                     ]
+    feeds = [(u'News', u'http://feeds.news.com.au/public/rss/2.0/aus_news_807.xml'),
+                    (u'Opinion', u'http://feeds.news.com.au/public/rss/2.0/aus_opinion_58.xml'),
+                    (u'Business', u'http://feeds.news.com.au/public/rss/2.0/aus_business_811.xml'),
+                    (u'Media', u'http://feeds.news.com.au/public/rss/2.0/aus_media_57.xml'),
+                    (u'Higher Education', u'http://feeds.news.com.au/public/rss/2.0/aus_higher_education_56.xml'),
+                    (u'The Arts', u'http://feeds.news.com.au/public/rss/2.0/aus_arts_51.xml'),
+                    (u'Commercial Property', u'http://feeds.news.com.au/public/rss/2.0/aus_business_commercial_property_708.xml'),
+                    (u'The Nation', u'http://feeds.news.com.au/public/rss/2.0/aus_the_nation_62.xml'),
+                    (u'Sport', u'http://feeds.news.com.au/public/rss/2.0/aus_sport_61.xml'),
+                    (u'Travel', u'http://feeds.news.com.au/public/rss/2.0/aus_travel_and_indulgence_63.xml'),
+                    (u'Defence', u'http://feeds.news.com.au/public/rss/2.0/aus_defence_54.xml'),
+                    (u'Aviation', u'http://feeds.news.com.au/public/rss/2.0/aus_business_aviation_706.xml'),
+                    (u'Mining', u'http://feeds.news.com.au/public/rss/2.0/aus_business_mining_704.xml'),
+                    (u'Climate', u'http://feeds.news.com.au/public/rss/2.0/aus_climate_809.xml'),
+                    (u'Property', u'http://feeds.news.com.au/public/rss/2.0/aus_property_59.xml'),
+                    (u'US Election', u'http://feeds.news.com.au/public/rss/2.0/aus_uselection_687.xml')]
+
+    def get_article_url(self, article):
+        return article.id
+
+        #br = self.get_browser()
+        #br.open(article.link).read()
+        #print br.geturl()
+
+        #return br.geturl()
 
     def get_cover_url(self):
-        
-        href =  'http://www.theaustralian.news.com.au/' 
-        
+
+        href =  'http://www.theaustralian.news.com.au/'
+
         soup = self.index_to_soup(href)
-        img = soup.find('img',alt ="Digital editions of The Australian")
+        img = soup.find('img',alt ="AUS HP promo digital2")
         print img
         if img :
            cover_url = img['src']
-                    
+
         return cover_url
