@@ -45,7 +45,7 @@ class PMLInput(InputFormatPlugin):
             ienc = self.options.input_encoding
 
         self.log.debug('Converting PML to HTML...')
-        hizer = PML_HTMLizer(close_all)
+        hizer = PML_HTMLizer()
         html = hizer.parse_pml(pml_stream.read().decode(ienc), html_path)
         html_stream.write('<html><head><title /></head><body>%s</body></html>' % html.encode('utf-8', 'replace'))
 
