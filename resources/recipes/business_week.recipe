@@ -71,10 +71,4 @@ class BusinessWeek(BasicNewsRecipe):
 
         return url
 
-    def postrocess_html(self, soup, first):
-
-            for tag in soup.findAll(name=['ul','li']):
-                tag.name = 'div'
-
-            return soup
 

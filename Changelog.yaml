@@ -46,6 +46,8 @@
 
     - title: Add PDF to list of supported formats for the Kindle 2
 
+    - title: Add 0x0c01 to the list of product ids for HTC Hero (Android) driver
+      tickets: [4088]
 
   new recipes:
     - title: The Economist (no subscription required)
