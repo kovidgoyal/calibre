@@ -143,7 +143,7 @@ class PML_HTMLizer(object):
         pml = re.sub(r'(?mus)^[ ]*(?=.)', '', pml)
         pml = re.sub(r'(?mus)(?<=.)[ ]*$', '', pml)
         pml = re.sub(r'(?mus)^[ ]*$', '', pml)
-        
+
         # Footnotes and Sidebars
         pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="fns-%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
         pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="fns-%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
@@ -230,13 +230,13 @@ class PML_HTMLizer(object):
         elif code in self.BLOCK_STATES:
             text = self.process_code_block(code, stream, pre)
         else:
-            text = self.process_code_simple(code)
+            text = self.process_code_simple(code, stream)
 
         self.state[code][0] = not self.state[code][0]
 
         return text
 
-    def process_code_simple(self, code):
+    def process_code_simple(self, code, stream):
         text = u''
 
         if self.state[code][0]:

@@ -4,6 +4,66 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.25
+  date: 2009-11-30
+
+  new features:
+    - title: Add option to swap title and author in the Bulk metadata dialog
+      tickets: [3885]
+
+    - title: Make the metadata download plugins customizable
+
+    - title: Various improvements to the conversion of PDB/PML books with an all new state machine based parser
+
+    - title: Driver for upgraded SONY PRS 500
+
+    - title: Full support for PocketBook 360 with SD card
+
+    - title: "ODT Input: Reflow positioned images"
+      tickets: [4060]
+
+    - title: "Conversion pipeline: Add option to control the inserted paragraph indent when using the remove blank line between paragraphs option"
+
+    - title: When reading metadata from PDf files, look for the ISBN in the file text.
+      tickets: [3013]
+
+    - title: Periodically check for updates to calibre instead of just at startup
+      tickets: [4040]
+    
+  bug fixes:
+    - title: Reorganize Dutch language news sources into Belgium and Netherlands categories
+      tickets: [4098]
+
+    - title: Fix bad markup in some New York Times articles causing download to fail
+      tickets: [4032]
+
+    - title: Fix recipe for Glasgow Herald
+
+    - title: Fixed recipe for The Australian
+
+    - title: Add PDF to list of supported formats for the Kindle 2
+
+
+  new recipes:
+    - title: The Economist (no subscription required)
+      author: Kovid Goyal
+
+    - title: Sports Illustrated1
+      author: kwetal
+
+    - title: Levante
+      author: kwetal
+
+    - title: ncrnext
+      author: kwetal
+
+  improved recipes:
+    - The Philadelphia Inquirer
+    - Harpers
+    - Our Daily Bread
+    - Sydney Morning Herald
+
+
 - version: 0.6.24
   date: 2009-11-16
 
