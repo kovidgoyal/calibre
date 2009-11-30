@@ -872,8 +872,9 @@ class Text(LRFStream):
             if isinstance(c, basestring):
                 s += c
             elif c is None:
-                p = open_containers.pop()
-                s += u'</%s>'%(p.name,)
+                if open_containers:
+                    p = open_containers.pop()
+                    s += u'</%s>'%(p.name,)
             else:
                 s += unicode(c)
                 if not c.self_closing:

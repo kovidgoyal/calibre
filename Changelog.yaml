@@ -55,6 +55,9 @@
     - title: "LIT Input: Remove more invalid markup present in LIT files created by Microsoft Word plugins"
       tickets: [4087]
 
+    - title: "LRF Input: Workaround buggy LRF files with unbalanced closing tags"
+      tickets: [4108]
+
   new recipes:
     - title: The Economist (no subscription required)
       author: Kovid Goyal
