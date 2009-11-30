@@ -30,13 +30,13 @@ class Barrons(BasicNewsRecipe):
         oldest_article = 7
 
         extra_css = '''
-                    .datestamp{color:#666666; font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
-                    h3{color:#FF0000; font-family:Georgia,"Times New Roman",Times,serif; }
+                    .datestamp{font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
+                    h3{font-family:Georgia,"Times New Roman",Times,serif; }
                     h2{font-family:Georgia,"Times New Roman",Times,serif; }
                     h1{ font-family:Georgia,"Times New Roman",Times,serif; }
-                    .byline{color:#AAAAAA; font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
-                    .subhead{color:#666666; font-family:Georgia,"Times New Roman",Times,serif; font-size: small;}
-                    .articlePage{ font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;color:#333333;}
+                    .byline{font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
+                    .subhead{font-family:Georgia,"Times New Roman",Times,serif; font-size: small;}
+                    .articlePage{ font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif;}
                     .insettipUnit{font-size: x-small;}
                     '''
         remove_tags = [
