@@ -26,6 +26,7 @@ class PRS505(CLI, Device):
     description    = _('Communicate with the Sony PRS-300/505/500 eBook reader.')
     author         = _('Kovid Goyal and John Schember')
     supported_platforms = ['windows', 'osx', 'linux']
+    path_sep = '/'
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
 

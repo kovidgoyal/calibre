@@ -34,6 +34,9 @@
       tickets: [4040]
     
   bug fixes:
+    - title: "Fix bug that prevented saving of books from a connected device to your computer on windows, for non SONY devices"
+      tickets: [4080]
+
     - title: Reorganize Dutch language news sources into Belgium and Netherlands categories
       tickets: [4098]
 

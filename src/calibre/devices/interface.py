@@ -5,6 +5,7 @@ Define the minimum interface that a device backend must satisfy to be used in
 the GUI. A device backend must subclass the L{Device} class. See prs500.py for
 a backend that implement the Device interface for the SONY PRS500 Reader.
 """
+import os
 
 from calibre.customize import Plugin
 
@@ -29,6 +30,9 @@ class DevicePlugin(Plugin):
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
     # Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = True
+    #: Path separator for paths to books on device
+    path_sep = os.sep
+
 
     def reset(self, key='-1', log_packets=False, report_progress=None) :
         """
