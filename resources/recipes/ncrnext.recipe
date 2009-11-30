@@ -1,0 +1,114 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class NrcNextRecipe(BasicNewsRecipe):
+    __license__   = 'GPL v3'
+    __author__ = 'kwetal'
+    version = 1
+    language = 'nl'
+    description = u'Dutch newsblog from the Dutch daily newspaper nrcnext.'
+    title          = u'nrcnext'
+
+    no_stylesheets = True
+    template_css = ''
+
+    # I want to do some special processing on the articles. I could not solve it with the 'extra_css' property . So we do it the hard way.
+    keep_only_tags = [dict(name='div', attrs={'id' : 'main'})]
+    # If that's overkill for you comment out the previous line and uncomment the next. Then get rid of the preprocess_html() method.
+    #keep_only_tags = [dict(name='div', attrs={'class' : 'post'}), dict(name='div', attrs={'class' : 'vlag'}) ]
+
+    remove_tags = [dict(name = 'div', attrs = {'class' : 'meta'}),
+                          dict(name = 'div', attrs = {'class' : 'datumlabel'}),
+                          dict(name = 'ul', attrs = {'class' : 'cats single'}),
+                          dict(name = 'ul', attrs = {'class' : 'cats onderwerpen'}),
+                          dict(name = 'ul', attrs = {'class' : 'cats rubrieken'})]
+
+    use_embedded_content = False
+
+    def parse_index(self) :
+        # Use the wesbite as an index. Their RSS feeds can be out of date.
+        feeds = {}
+        feeds[u'columnisten'] = u'http://www.nrcnext.nl/columnisten/'
+        feeds[u'koken'] = u'http://www.nrcnext.nl/koken/'
+        feeds[u'geld & werk'] = u'http://www.nrcnext.nl/geld-en-werk/'
+        feeds[u'vandaag'] = u'http://www.nrcnext.nl'
+        feeds[u'city life in afrika']  = u'http://www.nrcnext.nl/city-life-in-afrika/'
+        answer = []
+        articles = {}
+        indices = []
+
+        for index, feed in feeds.items() :
+            soup = self.index_to_soup(feed)
+
+            for post in soup.findAll(True, attrs={'class' : 'post'}) :
+                # Find the links to the actual articles and rember the location they're pointing to and the title
+                a = post.find('a', attrs={'rel' : 'bookmark'})
+                href = a['href']
+                title = a.renderContents()
+
+                if index == 'columnisten' :
+                    # In this feed/page articles can be written by more than one author. It is nice to see their names in the titles.
+                    flag = post.find('h2', attrs = {'class' : 'vlag'})
+                    author = flag.contents[0].renderContents()
+                    completeTitle = u''.join([author, u': ', title])
+                else :
+                    completeTitle = title
+
+                # Add the article to a temporary list
+                article = {'title' : completeTitle, 'date' : u'', 'url'  : href, 'description' : '<p>&nbsp;</p>'}
+                if not articles.has_key(index) :
+                    articles[index] = []
+                articles[index].append(article)
+
+            # Add the index title to a temporary list
+            indices.append(index)
+
+        # Now, sort the temporary list of feeds in the order they appear on the website
+        indices = self.sort_index_by(indices, {u'columnisten' : 1, u'koken' : 3, u'geld & werk' : 2, u'vandaag' : 0, u'city life in afrika' : 4})
+        # Apply this sort order to the actual list of feeds and articles
+        answer = [(key, articles[key]) for key in indices if articles.has_key(key)]
+
+        return answer
+
+    def preprocess_html(self, soup) :
+        # This method is called for every page, be it cartoon or TOC. We need to process each in their own way
+        if soup.find('div', attrs = {'id' : 'main', 'class' : 'single'}) :
+            # It's an article, find the interesting part
+            tag = soup.find('div', attrs = {'class' : 'post'})
+            if tag :
+                # And replace any links with their text, so they don't show up underlined on my reader.
+                for link in tag.findAll('a') :
+                    link.replaceWith(link.renderContents())
+
+                # Slows down my Sony reader; feel free to comment out
+                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqvimeo'}) :
+                    movie.extract()
+                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqyoutube'}) :
+                    movie.extract()
+
+                homeMadeSoup = BeautifulSoup('<html><head></head><body></body></html>')
+                body = homeMadeSoup.find('body')
+                body.append(tag)
+
+                return homeMadeSoup
+            else :
+                # This should never happen and other famous last words...
+                return soup
+        else :
+            # It's a TOC, return the whole lot.
+            return soup
+
+    def postproces_html(self, soup) :
+        # Should not happen, but it does. Slows down my Sony eReader
+        for img in soup.findAll('img') :
+            if img['src'].startswith('http://') :
+                img.extract()
+
+        # Happens for some movies which we are not able to view anyway
+        for iframe in soup.findAll('iframe') :
+            if iframe['src'].startswith('http://') :
+                iframe.extract()
+
+
+
+

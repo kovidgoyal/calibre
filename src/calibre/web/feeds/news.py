@@ -122,6 +122,9 @@ class BasicNewsRecipe(Recipe):
     #: websites that try to make it difficult to scrape content.
     articles_are_obfuscated = False
 
+    #: Reverse the order of articles in each feed
+    reverse_article_order = False
+
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overriding all :term:`CSS` except that which is
@@ -728,6 +731,10 @@ class BasicNewsRecipe(Recipe):
             fi.write(html)
 
         self.jobs = []
+
+        if self.reverse_article_order:
+            feeds = [list(reversed(feed)) for feed in feeds]
+
         for f, feed in enumerate(feeds):
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
             if not os.path.isdir(feed_dir):

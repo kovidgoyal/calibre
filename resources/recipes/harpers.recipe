@@ -29,7 +29,13 @@ class Harpers(BasicNewsRecipe):
 
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0em; margin-top: 0em; margin-bottom: 0.5em} img {margin-top: 0em; margin-bottom: 0.4em}"'
 
-
+    extra_css = '''
+                h1{ font-family:georgia ; color:#111111; font-size:large;}                
+                .box-of-helpful{ font-family:arial ; font-size:x-small;}
+                p{font-family:georgia ;}
+                .caption{font-family:Verdana,sans-serif;font-size:x-small;color:#666666;}                                
+                '''
+              
     keep_only_tags = [ dict(name='div', attrs={'id':'cached'}) ]
     remove_tags = [
                      dict(name='table', attrs={'class':['rcnt','rcnt topline']})
@@ -38,6 +44,17 @@ class Harpers(BasicNewsRecipe):
 
     feeds       = [(u"Harper's Magazine", u'http://www.harpers.org/rss/frontpage-rss20.xml')]
 
+    def get_cover_url(self):
+        cover_url = None
+        index = 'http://harpers.org/'
+        soup = self.index_to_soup(index)
+        link_item = soup.find(name = 'img',attrs= {'class':"cover"})
+        print link_item
+        if link_item:
+           cover_url = 'http://harpers.org' + link_item['src'] 
+        print cover_url   
+        return cover_url
+    
     def preprocess_html(self, soup):
         mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
         soup.head.insert(1,mcharset)
@@ -46,4 +63,6 @@ class Harpers(BasicNewsRecipe):
         for item in soup.findAll(xmlns=True):
             del item['xmlns']
         return soup
+
+    
 

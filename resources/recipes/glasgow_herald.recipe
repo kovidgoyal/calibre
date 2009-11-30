@@ -1,4 +1,3 @@
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -9,27 +8,22 @@ class GlasgowHerald(BasicNewsRecipe):
     no_stylesheets = True
     language = 'en_GB'
 
-    __author__     = 'McCande'
+    __author__     = 'Kovid Goyal'
 
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-    [
-                (r'<center><h3>', lambda match : '<h3>'),
-                (r'Click here to comment on this story...', lambda match : ''),
-                (r'<h3>Related links</h3>.*?</head>', lambda match : '</head>'),
-        ]
-        ]
-
-
+    keep_only_tags = [dict(attrs={'class':'article'})]
+    remove_tags = [
+            dict(id=['pic-nav']),
+            dict(attrs={'class':['comments-top']})
+            ]
 
 
     feeds          = [
-                        (u'News', u'http://www.theherald.co.uk/news/news/rss.xml'),
-                        (u'Politics', u'http://www.theherald.co.uk/politics/news/rss.xml'),
-                        (u'Features', u'http://www.theherald.co.uk/features/features/rss.xml'),
-                        (u'Business', u'http://www.theherald.co.uk/business/news/rss.xml')]
+                        (u'News', u'http://www.heraldscotland.com/cmlink/1.758'),
+                        (u'Sport', u'http://www.heraldscotland.com/cmlink/1.761'),
+                        (u'Business', u'http://www.heraldscotland.com/cmlink/1.763'),
+                        (u'Life & Style', u'http://www.heraldscotland.com/cmlink/1.770'),
+                        (u'Arts & Entertainment',
+                        u'http://www.heraldscotland.com/cmlink/1.768',),
+                        (u'Columnists', u'http://www.heraldscotland.com/cmlink/1.658574')]
 
-    def print_version(self, url):
-        (beginning,end)=url.split(".var.")
-        num=end[0:7]
-        main="http://www.theherald.co.uk/misc/print.php?artid="+num
-        return main
+

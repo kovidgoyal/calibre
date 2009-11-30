@@ -270,7 +270,9 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
     ...
 
 
-If you're satisfied with your recipe, consider attaching it to `the wiki <http://calibre.kovidgoyal.net/wiki/UserRecipes>`_, so that others can use it as well. If you feel there is enough demand to justify its inclusion into the set of built-in recipes, add a comment to the ticket http://calibre.kovidgoyal.net/ticket/405
+If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, add a comment to the ticket http://bugs.calibre-ebook.com/ticket/405
+
+Alternatively, you could just post your recipe in the calibre forum at http://www.mobileread.com/forums/forumdisplay.php?f=166 to share it with other calibre users.
 
 
 .. seealso::

@@ -336,7 +336,7 @@ class Py2App(object):
                 NSAppleScriptEnabled=False,
                 NSHumanReadableCopyright='Copyright 2008, Kovid Goyal',
                 CFBundleGetInfoString=('calibre, an E-book management '
-                'application. Visit http://calibre.kovidgoyal.net for details.'),
+                'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='library.icns',
                 LSMultipleInstancesProhibited=True,
                 LSEnvironment=env

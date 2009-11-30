@@ -404,7 +404,7 @@ def main():
                          'packages' : ['PIL', 'Authorization', 'lxml', 'dns'],
                          'excludes' : ['IPython', 'PyQt4.uic.port_v3.proxy_base'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
-                                        ''' Visit http://calibre.kovidgoyal.net for details.''',
+                                        ''' Visit http://calibre-ebook.com for details.''',
                                         'CFBundleIdentifier':'net.kovidgoyal.calibre',
                                         'CFBundleShortVersionString':VERSION,
                                         'CFBundleVersion':APPNAME + ' ' + VERSION,

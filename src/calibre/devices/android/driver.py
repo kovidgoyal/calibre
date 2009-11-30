@@ -20,7 +20,7 @@ class ANDROID(USBMS):
     VENDOR_ID   = [
             0x0bb4,
             ]
-    PRODUCT_ID  = [0x0c02]
+    PRODUCT_ID  = [0x0c02, 0x0c01]
     BCD         = [0x100]
     EBOOK_DIR_MAIN = 'wordplayer/calibretransfer'
 

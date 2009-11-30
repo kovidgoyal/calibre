@@ -19,16 +19,16 @@ class HLN_be(BasicNewsRecipe):
     use_embedded_content  = False
     no_stylesheets        = True
     encoding              = 'utf-8'
-    language = 'nl'
+    language = 'nl_BE'
 
-    
-    conversion_options = {  
+
+    conversion_options = {
                              'comments'    : description
                             ,'tags'        : category
                             ,'language'    : 'nl-NL'
                             ,'publisher'   : publisher
                          }
-    
+
     remove_tags = [dict(name=['form','object','embed'])]
 
     keep_only_tags = [dict(name='div', attrs={'id':'art_box2'})]

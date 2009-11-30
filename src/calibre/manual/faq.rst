@@ -21,6 +21,7 @@ What formats does |app| support conversion to/from?
 It can convert every input format in the following list, to every output format.
 
 *Input Formats:* CBZ, CBR, CBC, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, TCR, TXT
+
 *Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PML, RB, PDF, TCR, TXT
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
@@ -68,8 +69,7 @@ There are two aspects to this problem:
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  You can get help on any individual feature of the converters by mousing over it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal. A good place to start is to look at the following demo files that demonstrate some of the advanced features: 
-  * `html-demo.zip <http://calibre.kovidgoyal.net/downloads/html-demo.zip>`_ 
-  * `txt-demo.zip <http://calibre.kovidgoyal.net/downloads/txt-demo.zip>`_
+  * `html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_ 
 
 
 Device Integration
@@ -231,11 +231,11 @@ I want |app| to download news from my favorite news website.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you are reasonably proficient with computers, you can teach |app| to download news from any website of your choosing. To learn how to do this see :ref:`news`.
 
-Otherwise, you can register a request for a particular news site by adding a comment `here <http://calibre.kovidgoyal.net/ticket/405>`_.
+Otherwise, you can register a request for a particular news site by adding a comment `here <http://bugs.calibre-ebook.com/ticket/405>`_.
 
-Can I use web2lrf to download an arbitrary website?
+Can I use web2disk to download an arbitrary website?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``web2lrf --url http://mywebsite.com default``
+``web2disk http://mywebsite.com``
 
 Miscellaneous
 --------------
@@ -284,5 +284,5 @@ Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. Thi
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices: 
- 1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre.kovidgoyal.net/wiki/Development>`_. 
- 2. `Open a ticket <http://calibre.kovidgoyal.net/newticket>`_ (you have to register and login first) and hopefully I will find the time to implement your feature.
+ 1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_. 
+ 2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first) and hopefully I will find the time to implement your feature.

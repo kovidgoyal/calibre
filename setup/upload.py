@@ -12,10 +12,9 @@ from tempfile import NamedTemporaryFile
 
 from setup import Command, __version__, installer_name, __appname__
 
-PREFIX = "/var/www/calibre.kovidgoyal.net"
+PREFIX = "/var/www/calibre-ebook.com"
 DOWNLOADS = PREFIX+"/htdocs/downloads"
 BETAS = DOWNLOADS +'/betas'
-DOCS = PREFIX+"/htdocs/apidocs"
 USER_MANUAL = PREFIX+'/htdocs/user_manual'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
@@ -116,6 +115,9 @@ class UploadToGoogleCode(Command):
     def delete_old_files(self):
         self.info('Deleting old files from Google Code...')
         for fname in self.old_files:
+            ext = fname.rpartition('.')[-1]
+            if ext in ('flv', 'mp4', 'ogg', 'avi'):
+                continue
             self.info('\tDeleting', fname)
             self.br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%fname)
             self.br.select_form(predicate=lambda x: 'delete.do' in x.action)
@@ -328,8 +330,6 @@ class UploadToServer(Command):
                 shell=True)
         check_call('scp dist/calibre-*.tar.gz.asc divok:%s/signatures/'%DOWNLOADS,
                 shell=True)
-        check_call('ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/',
-                   shell=True)
         check_call('ssh divok bzr update /usr/local/calibre',
                    shell=True)
         check_call('''ssh divok echo %s \\> %s/latest_version'''\

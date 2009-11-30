@@ -120,7 +120,7 @@ html_copy_source = False
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'calibredoc'
 
-html_use_opensearch = 'http://calibre.kovidgoyal.net/user_manual'
+html_use_opensearch = 'http://calibre-ebook.com/user_manual'
 
 html_show_sphinx = False
 
