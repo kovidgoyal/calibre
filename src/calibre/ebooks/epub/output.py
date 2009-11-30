@@ -312,7 +312,6 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:center')(root):
                 tag.tag = XHTML('div')
                 tag.set('style', 'text-align:center')
-
             # ADE can't handle &amp; in an img url
             for tag in XPath('//h:img[@src]')(root):
                 tag.set('src', tag.get('src', '').replace('&', ''))
@@ -339,6 +338,7 @@ class EPUBOutput(OutputFormatPlugin):
                     'text-decoration: underline; cursor:pointer; }')
         else:
             self.oeb.log.warn('No stylesheet found')
+
 
     def workaround_sony_quirks(self):
         '''

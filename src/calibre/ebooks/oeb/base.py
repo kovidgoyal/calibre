@@ -799,6 +799,7 @@ class Manifest(object):
                 try:
                     data = etree.fromstring(data)
                 except etree.XMLSyntaxError, err:
+                    self.log.exception('Initial parse failed:')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
@@ -843,6 +844,7 @@ class Manifest(object):
 
             # Force into the XHTML namespace
             if not namespace(data.tag):
+                self.oeb.log.warn('Forcing', self.href, 'into XHTML namespace')
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
 

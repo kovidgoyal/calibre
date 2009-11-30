@@ -49,6 +49,9 @@
     - title: Add 0x0c01 to the list of product ids for HTC Hero (Android) driver
       tickets: [4088]
 
+    - title: "LIT Input: Remove more invalid markup present in LIT files created by Microsoft Word plugins"
+      tickets: [4087]
+
   new recipes:
     - title: The Economist (no subscription required)
       author: Kovid Goyal

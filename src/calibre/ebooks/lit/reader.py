@@ -866,6 +866,10 @@ class LitContainer(object):
             atoms = self._litfile.get_atoms(entry)
             unbin = UnBinary(raw, name, manifest, HTML_MAP, atoms)
             content = HTML_DECL + str(unbin)
+            tags = ('personname', 'place', 'city', 'country-region')
+            pat = r'(?i)</{0,1}st1:(%s)>'%('|'.join(tags))
+            content = re.sub(pat, '', content)
+            content = re.sub(r'<(/{0,1})form>', r'<\1div>', content)
         else:
             internal = '/'.join(('/data', entry.internal))
             content = self._litfile.get_file(internal)
