@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-11-26 20:00+0000\n"
-"PO-Revision-Date: 2009-11-26 09:23+0000\n"
-"Last-Translator: lafis <Unknown>\n"
+"POT-Creation-Date: 2009-11-29 21:54+0000\n"
+"PO-Revision-Date: 2009-11-30 02:38+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-27 04:47+0000\n"
+"X-Launchpad-Export-Date: 2009-11-30 04:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -68,9 +68,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:778
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:886
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:891
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:951
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:887
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:892
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:952
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:105
@@ -132,7 +132,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server.py:649
 #: /home/kovid/work/calibre/src/calibre/library/server.py:721
 #: /home/kovid/work/calibre/src/calibre/library/server.py:768
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -497,7 +497,7 @@ msgid "Getting list of books on device..."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
-msgid "Communicate with the Sony PRS-300/505 eBook reader."
+msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
@@ -1699,7 +1699,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1083
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1314
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1315
 msgid "Cover"
 msgstr ""
 
@@ -1730,70 +1730,70 @@ msgstr ""
 msgid "All articles"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1315
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1316
 msgid "Title Page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1316
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
 msgid "Index"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
 msgid "Glossary"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
 msgid "Acknowledgements"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1321
 msgid "Bibliography"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1321
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1322
 msgid "Colophon"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1322
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
 msgid "Copyright"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
 msgid "Dedication"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
 msgid "Epigraph"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
 msgid "Foreword"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
 msgid "List of Illustrations"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
 msgid "List of Tables"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
 msgid "Notes"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
 msgid "Preface"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1331
 msgid "Main Text"
 msgstr ""
 
@@ -7062,6 +7062,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (IND)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+msgid "Dutch (NL)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+msgid "Dutch (BE)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53

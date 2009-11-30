@@ -10,14 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-26 20:00+0000\n"
-"PO-Revision-Date: 2009-11-27 15:00+0000\n"
-"Last-Translator: kilikolo <Unknown>\n"
+"POT-Creation-Date: 2009-11-29 21:54+0000\n"
+"PO-Revision-Date: 2009-11-30 02:38+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-28 04:55+0000\n"
+"X-Launchpad-Export-Date: 2009-11-30 04:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -71,9 +71,9 @@ msgstr "No hacer nada en absoluto"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:778
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:886
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:891
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:951
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:887
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:892
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:952
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:105
@@ -135,7 +135,7 @@ msgstr "No hacer nada en absoluto"
 #: /home/kovid/work/calibre/src/calibre/library/server.py:649
 #: /home/kovid/work/calibre/src/calibre/library/server.py:721
 #: /home/kovid/work/calibre/src/calibre/library/server.py:768
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -530,8 +530,8 @@ msgid "Getting list of books on device..."
 msgstr "Obteniendo la lista de libros en el dispositivo ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
-msgid "Communicate with the Sony PRS-300/505 eBook reader."
-msgstr "Comunicar con los lectores Sony PRS-300/505"
+msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
@@ -1986,7 +1986,7 @@ msgstr ""
 "LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1083
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1314
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1315
 msgid "Cover"
 msgstr "Portada"
 
@@ -2021,70 +2021,70 @@ msgstr "Desactivar la compresión del fichero."
 msgid "All articles"
 msgstr "Todos los artículos"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1315
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1316
 msgid "Title Page"
 msgstr "Página de título"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1316
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr "Índice"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
 msgid "Index"
 msgstr "Índice analítico"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
 msgid "Glossary"
 msgstr "Glosario"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
 msgid "Acknowledgements"
 msgstr "Agradecimientos"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1321
 msgid "Bibliography"
 msgstr "Bibliografía"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1321
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1322
 msgid "Colophon"
 msgstr "Colofón"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1322
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
 msgid "Copyright"
 msgstr "Copyright"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
 msgid "Dedication"
 msgstr "Dedicatoria"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
 msgid "Epigraph"
 msgstr "Epígrafe"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
 msgid "Foreword"
 msgstr "Prólogo"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
 msgid "List of Illustrations"
 msgstr "Lista de ilustraciones"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
 msgid "List of Tables"
 msgstr "Lista de tablas"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
 msgid "Notes"
 msgstr "Notas"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
 msgid "Preface"
 msgstr "Prefacio"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1331
 msgid "Main Text"
 msgstr "Texto principal"
 
@@ -7917,6 +7917,14 @@ msgstr "Inglés (Canadá)"
 msgid "English (IND)"
 msgstr "Inglés (India)"
 
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+msgid "Dutch (NL)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+msgid "Dutch (BE)"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
 msgstr "La URL debe tener el esquema sftp"
@@ -10032,3 +10040,6 @@ msgstr "Mostrar información de salida detallada. Útil para la depuración"
 #~ "Con esta opción se interpreta que cada línea con sangría inicial (una "
 #~ "tabulación o 2 o más espacios) representa un párrafo. Los párrafos terminan "
 #~ "cuando se alcanza la siguiente línea con sangría inicial."
+
+#~ msgid "Communicate with the Sony PRS-300/505 eBook reader."
+#~ msgstr "Comunicar con los lectores Sony PRS-300/505"
