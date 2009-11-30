@@ -22,6 +22,9 @@
     - title: "ODT Input: Reflow positioned images"
       tickets: [4060]
 
+    - title: Allow custom new recipes to reverse article order in feeds
+      tickets: [4095]
+
     - title: "Conversion pipeline: Add option to control the inserted paragraph indent when using the remove blank line between paragraphs option"
 
     - title: When reading metadata from PDf files, look for the ISBN in the file text.
