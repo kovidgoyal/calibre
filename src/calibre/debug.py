@@ -35,17 +35,8 @@ Run an embedded python interpreter.
     parser.add_option('--pdfreflow', default=None,
             help='Path to PDF file to try and reflow. Output will be placed in '
             'current directory. ')
-    parser.add_option('-f', '--develop-from', default=None,
-            help=('Develop calibre from the specified path. '
-                'The path should point to the src sub-directory in the '
-                'calibre source tree.'))
 
     return parser
-
-def develop_from(path):
-    from calibre.gui2 import build_forms
-    print 'Compiling .ui forms...'
-    build_forms(path)
 
 def migrate(old, new):
     from calibre.utils.config import prefs
@@ -192,8 +183,6 @@ def main(args=sys.argv):
         from calibre.utils.logging import default_log
         opts2, args = px().parse_args(['xxxx', '-vvvv', opts.pdfreflow])
         run(opts2, opts.pdfreflow, default_log)
-    elif opts.develop_from is not None:
-        develop_from(opts.develop_from)
     else:
         from calibre import ipython
         ipython()
