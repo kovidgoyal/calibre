@@ -388,7 +388,7 @@ class PostInstall:
             finally:
                 os.chdir(cwd)
                 shutil.rmtree(tdir)
-        except Exception, err:
+        except Exception:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up desktop integration failed')

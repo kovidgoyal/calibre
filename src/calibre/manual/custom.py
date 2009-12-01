@@ -127,7 +127,6 @@ def generate_ebook_convert_help(preamble, info):
     input and the output formats, the various combinations are listed below:
 
     ''')
-    sections = []
     toc = {}
     sec_templ = textwrap.dedent('''\
         .. include:: ../global.rst
@@ -141,7 +140,6 @@ def generate_ebook_convert_help(preamble, info):
 
     ''')
     for i, ip in enumerate(input_format_plugins()):
-        path = os.path.join('cli', 'ebook-convert-%d.rst'%i)
         sraw = sec_templ.format(ip.name)
         toc[ip.name] = 'ebook-convert-%d'%i
         for op in output_format_plugins():

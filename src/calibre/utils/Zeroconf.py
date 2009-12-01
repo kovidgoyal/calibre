@@ -1544,7 +1544,7 @@ class Zeroconf(object):
         # This is a quick test to see if we can parse the packets we generate
         #temp = DNSIncoming(out.packet())
         try:
-            bytes_sent = self.socket.sendto(out.packet(), 0, (addr, port))
+            self.socket.sendto(out.packet(), 0, (addr, port))
         except:
             # Ignore this, it may be a temporary loss of network connection
             pass

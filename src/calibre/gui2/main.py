@@ -440,7 +440,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.stack.setCurrentIndex(0)
         try:
             db = LibraryDatabase2(self.library_path)
-        except Exception, err:
+        except Exception:
             import traceback
             error_dialog(self, _('Bad database location'),
                     _('Bad database location')+':'+self.library_path,
@@ -1033,7 +1033,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def download_metadata(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):
         rows = self.library_view.selectionModel().selectedRows()
-        previous = self.library_view.currentIndex()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot download metadata'),
                              _('No books selected'))
@@ -1071,7 +1070,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         x = self._download_book_metadata
         self._download_book_metadata = None
         if x.exception is None:
-            db = self.library_view.model().refresh_ids(
+            self.library_view.model().refresh_ids(
                 x.updated, cr)
             if x.failures:
                 details = ['%s: %s'%(title, reason) for title,

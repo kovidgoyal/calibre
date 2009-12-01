@@ -106,7 +106,7 @@ def process_file(lrfpath, opts, logger=None):
         os.makedirs(opts.out)
 
     document = LRFDocument(open(lrfpath, 'rb'))
-    conv = LRFConverter(document, opts, logger)
+    LRFConverter(document, opts, logger)
 
 
 def main(args=sys.argv):

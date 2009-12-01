@@ -610,7 +610,6 @@ class DeviceGUI(object):
     def emails_sent(self, results, remove=[]):
         errors, good = [], []
         for jobname, exception, tb in results:
-            id = jobname.partition(':')[0]
             title = jobname.partition(':')[-1]
             if exception is not None:
                 errors.append([title, exception, tb])

@@ -43,7 +43,6 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.oeb.base import XLINK_NS
         NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
         log.debug('Parsing XML...')
-        parser = etree.XMLParser(recover=True, no_network=True)
         doc = etree.fromstring(stream.read())
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')

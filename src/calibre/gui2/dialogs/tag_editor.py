@@ -50,7 +50,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         confirms, deletes = [], []
         items = self.available_tags.selectedItems() if item is None else [item]
         if not items:
-            d = error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
+            error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
             return
         for item in items:
             if self.db.is_tag_used(qstring_to_unicode(item.text())):

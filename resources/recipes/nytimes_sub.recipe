@@ -53,8 +53,8 @@ class NYTimes(BasicNewsRecipe):
         articles = {}
         key = None
         ans = []
-        allSectionKeywords = ['The Front Page', 'International','National','Obituaries','Editorials',
-                              'New York','Business Day','Sports','Dining','Arts','Home','Styles']
+        #allSectionKeywords = ['The Front Page', 'International','National','Obituaries','Editorials',
+                              #'New York','Business Day','Sports','Dining','Arts','Home','Styles']
         excludeSectionKeywords = ['Dining','Styles']
 
 

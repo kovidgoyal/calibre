@@ -186,7 +186,7 @@ class TextBlock(object):
         try:
             self.populate(tb.content)
             self.end_line()
-        except TextBlock.HeightExceeded, err:
+        except TextBlock.HeightExceeded:
             pass
             #logger.warning('TextBlock height exceeded, skipping line:\n%s'%(err,))
 

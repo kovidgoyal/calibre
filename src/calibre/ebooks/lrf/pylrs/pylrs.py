@@ -2207,7 +2207,7 @@ class JumpButton(LrsObject, LrsContainer):
     def toElement(self, se):
         b = self.lrsObjectElement("Button")
         pb = SubElement(b, "PushButton")
-        jt = SubElement(pb, "JumpTo",
+        SubElement(pb, "JumpTo",
             refpage=str(self.textBlock.parent.objId),
             refobj=str(self.textBlock.objId))
         return b

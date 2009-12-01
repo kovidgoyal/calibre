@@ -323,7 +323,7 @@ class MobiReader(object):
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
             try:
                 root = soupparser.fromstring(self.processed_html)
-            except Exception, err:
+            except Exception:
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
                 self.processed_html = self.remove_random_bytes(self.processed_html)
                 root = soupparser.fromstring(self.processed_html)

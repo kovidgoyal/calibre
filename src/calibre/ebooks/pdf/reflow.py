@@ -103,7 +103,7 @@ def run(opts, pathtopdf, log):
     pdfreflow.reflow(data)
     index = os.path.join(os.getcwdu(), 'index.xml')
     xml = open(index, 'rb').read()
-    #pdfdoc = PDFDocument(xml, opts, log)
+    PDFDocument(xml, opts, log)
 
 def option_parser():
     from optparse import OptionParser

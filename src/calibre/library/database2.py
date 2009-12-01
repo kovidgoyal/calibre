@@ -889,10 +889,8 @@ class LibraryDatabase2(LibraryDatabase):
     def formats(self, index, index_is_id=False):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
         id = index if index_is_id else self.id(index)
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         try:
             formats = self.conn.get('SELECT format FROM data WHERE book=?', (id,))
-            name = self.conn.get('SELECT name FROM data WHERE book=?', (id,), all=False)
             formats = map(lambda x:x[0], formats)
         except:
             return None
@@ -910,7 +908,10 @@ class LibraryDatabase2(LibraryDatabase):
     def format_abspath(self, index, format, index_is_id=False):
         'Return absolute path to the ebook file of format `format`'
         id = index if index_is_id else self.id(index)
-        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
+        try:
+            name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
+        except:
+            return None
         if name:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
             format = ('.' + format.lower()) if format else ''
@@ -1813,11 +1814,9 @@ books_series_link      feeds
             else:
                 actual_formats = [x.lower() for x in actual_formats.split(',')]
 
-            mismatch = False
             for fmt in formats:
                 if fmt in actual_formats:
                     continue
-                mismatch = True
                 if id not in bad:
                     bad[id] = []
                 bad[id].append(fmt)

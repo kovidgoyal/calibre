@@ -606,7 +606,6 @@ class Device(DeviceConfig, DevicePlugin):
 
     def eject_linux(self):
         drives = self.find_device_nodes()
-        success = False
         for drive in drives:
             if drive:
                 cmd = 'calibre-mount-helper'
