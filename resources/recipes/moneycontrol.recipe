@@ -1,0 +1,57 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+#from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+
+class MoneyControlRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en_IN'
+    locale = 'en_IN'
+    encoding = 'iso-8859-1'
+    version = 1
+
+    title = u'Money Control'
+    publisher = u'moneycontrol.com'
+    category = u'News, Financial, India'
+    description = u'Financial news from India'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    use_embedded_content = False
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    feeds = []
+    feeds.append((u'Latest News', u'http://www.moneycontrol.com/rss/latestnews.xml'))
+    feeds.append((u'All Stories', u'http://www.moneycontrol.com/rss/allstories.xml'))
+
+    def print_version(self, url):
+        return url.replace('/stocksnews.php?', '/news_print.php?') + '&sr_no=0'
+
+    # The articles contain really horrible html. More than one <body> and <head> section, not properly closed tags, lots and lots of
+    # <font> tags and some weird <o:p></o:p> markup that crashes the conversion to ebook. Needs some drastic sanitizing
+    '''def preprocess_html(self, soup):
+        freshSoup = BeautifulSoup('<html><head></head><body></body></html>')
+
+        headline = soup.find('td', attrs = {'class': 'heading'})
+        if headline:
+            h1 = Tag(freshSoup, 'h1')
+            # Convert to string before adding it to the document!
+            h1.append(self.tag_to_string(headline))
+            freshSoup.body.append(h1)
+
+        for p in soup.findAll('p'):
+            if p.has_key('class'):
+                if p['class'] == 'MsoNormal':
+                    # We have some weird pagebreak marker here; it will not find all of them however
+                    continue
+
+            para = Tag(freshSoup, 'p')
+            # Convert to string; this will loose all formatting but also all illegal markup
+            para.append(self.tag_to_string(p))
+
+            freshSoup.body.append(para)
+
+        return freshSoup
+    '''
+
