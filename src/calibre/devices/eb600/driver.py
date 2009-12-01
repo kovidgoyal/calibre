@@ -92,7 +92,7 @@ class POCKETBOOK360(EB600):
 
     VENDOR_NAME = 'PHILIPS'
     WINDOWS_MAIN_MEM = 'MASS_STORGE'
-    WINDOWS_CARD_A_MEM = 'MASS_STORAGE'
+    WINDOWS_CARD_A_MEM = 'MASS_STORGE'
 
     OSX_MAIN_MEM   = 'Philips Mass Storge Media'
     OSX_CARD_A_MEM = 'Philips Mass Storge Media'
