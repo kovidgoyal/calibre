@@ -861,7 +861,6 @@ class Manifest(object):
                         data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
                                 data)
                         data = re.sub(r'<meta\s+[^>]+?>', '', data)
-                        open('/tmp/t.html', 'wb').write(data.encode('utf-8'))
                         data = data.replace(
                                 "<?xml version='1.0' encoding='utf-8'?><o:p></o:p>",
                                 '')
