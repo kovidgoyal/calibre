@@ -4,9 +4,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.ebooks.conversion.plumber import Plumber, DummyReporter
+from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
-from calibre.customize.conversion import OptionRecommendation
+from calibre.customize.conversion import OptionRecommendation, DummyReporter
 
 def gui_convert(input, output, recommendations, notification=DummyReporter(),
         abort_after_input_dump=False):
