@@ -43,7 +43,11 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.oeb.base import XLINK_NS
         NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
         log.debug('Parsing XML...')
-        doc = etree.fromstring(stream.read())
+        raw = stream.read()
+        try:
+            doc = etree.fromstring(raw)
+        except etree.XMLSyntaxError:
+            doc = etree.fromstring(raw.replace('& ', '&amp;'))
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
         ss = open(P('templates/fb2.xsl'), 'rb').read()
