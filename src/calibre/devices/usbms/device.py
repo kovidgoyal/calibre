@@ -211,8 +211,16 @@ class Device(DeviceConfig, DevicePlugin):
     def windows_match_device(self, drive, attr):
         pnp_id = str(drive.PNPDeviceID).upper()
         device_id = getattr(self, attr)
-        if device_id is None or \
-                'VEN_' + str(self.VENDOR_NAME).upper() not in pnp_id:
+
+        def test_vendor():
+            vendors = [self.VENDOR_NAME] if isinstance(self.VENDOR_NAME,
+                    basestring) else self.VENDOR_NAME
+            for v in vendors:
+                if 'VEN_'+str(v).upper() in pnp_id:
+                    return True
+            return False
+
+        if device_id is None or not test_vendor():
             return False
 
         if hasattr(device_id, 'search'):

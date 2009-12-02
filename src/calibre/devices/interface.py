@@ -8,6 +8,7 @@ a backend that implement the Device interface for the SONY PRS500 Reader.
 import os
 
 from calibre.customize import Plugin
+from calibre.constants import iswindows
 
 class DevicePlugin(Plugin):
     """
@@ -22,7 +23,14 @@ class DevicePlugin(Plugin):
 
     # Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
+    #: VENDOR_ID can be either an integer, a list of integers or a dictionary
+    #: If it is a dictionary, it must be a dictionary of dictionaries, of the form
+    #: {
+    #:  integer_vendor_id : { product_id : [list of BCDs], ... },
+    #:  ...
+    #: }
     VENDOR_ID   = 0x0000
+    #: An integer or a list of integers
     PRODUCT_ID  = 0x0000
     # BCD can be either None to not distinguish between devices based on BCD, or
     # it can be a list of the BCD numbers of all devices supported by this driver.
@@ -32,6 +40,85 @@ class DevicePlugin(Plugin):
     CAN_SET_METADATA = True
     #: Path separator for paths to books on device
     path_sep = os.sep
+
+    @classmethod
+    def test_bcd_windows(cls, device_id, bcd):
+        if bcd is None or len(bcd) == 0:
+            return True
+        for c in bcd:
+            # Bug in winutil.get_usb_devices converts a to :
+            rev = ('rev_%4.4x'%c).replace('a', ':')
+            if rev in device_id:
+                return True
+        return False
+
+    @classmethod
+    def is_usb_connected_windows(cls, devices_on_system):
+
+        def id_iterator():
+            if hasattr(cls.VENDOR_ID, 'keys'):
+                for vid in cls.VENDOR_ID:
+                    vend = cls.VENDOR_ID[vid]
+                    for pid in vend:
+                        bcd = vend[pid]
+                        yield vid, pid, bcd
+            else:
+                vendors = cls.VENDOR_ID if hasattr(cls.VENDOR_ID, '__len__') else [cls.VENDOR_ID]
+                products = cls.PRODUCT_ID if hasattr(cls.PRODUCT_ID, '__len__') else [cls.PRODUCT_ID]
+                for vid in vendors:
+                    for pid in products:
+                        yield vid, pid, cls.BCD
+
+        for vendor_id, product_id, bcd in id_iterator():
+            vid, pid = 'vid_%4.4x'%vendor_id, 'pid_%4.4x'%product_id
+            vidd, pidd = 'vid_%i'%vendor_id, 'pid_%i'%product_id
+            for device_id in devices_on_system:
+                if (vid in device_id or vidd in device_id) and (pid in device_id or pidd in device_id):
+                    if cls.test_bcd_windows(device_id, bcd) and cls.can_handle(device_id):
+                        return True
+        return False
+
+    @classmethod
+    def test_bcd(cls, bcdDevice, bcd):
+        if bcd is None or len(bcd) == 0:
+            return True
+        for c in bcd:
+            if c == bcdDevice:
+                return True
+        return False
+
+    @classmethod
+    def is_usb_connected(cls, devices_on_system):
+        '''
+        Return True if a device handled by this plugin is currently connected.
+
+        :param devices_on_system: List of devices currently connected
+        '''
+        if iswindows:
+            return cls.is_usb_connected_windows(devices_on_system)
+
+        vendors_on_system = set([x[0] for x in devices_on_system])
+        vendors = cls.VENDOR_ID if hasattr(cls.VENDOR_ID, '__len__') else [cls.VENDOR_ID]
+        if hasattr(cls.VENDOR_ID, 'keys'):
+            products = []
+            for ven in cls.VENDOR_ID:
+                products.extend(cls.VENDOR_ID[ven].keys())
+        else:
+            products = cls.PRODUCT_ID if hasattr(cls.PRODUCT_ID, '__len__') else [cls.PRODUCT_ID]
+
+        for vid in vendors:
+            if vid in vendors_on_system:
+                for cvid, pid, bcd in devices_on_system:
+                    if cvid == vid:
+                        if pid in products:
+                            if hasattr(cls.VENDOR_ID, 'keys'):
+                                cbcd = cls.VENDOR_ID[vid][pid]
+                            else:
+                                cbcd = cls.BCD
+                            if cls.test_bcd(bcd, cbcd) and cls.can_handle((vid,
+                                                            pid, bcd)):
+                                return True
+        return False
 
 
     def reset(self, key='-1', log_packets=False, report_progress=None) :
