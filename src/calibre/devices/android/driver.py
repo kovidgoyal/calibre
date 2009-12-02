@@ -17,23 +17,22 @@ class ANDROID(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['epub']
 
-    VENDOR_ID   = [
-            0x0bb4,
-            ]
-    PRODUCT_ID  = [0x0c02, 0x0c01]
-    BCD         = [0x100]
+    VENDOR_ID   = {
+            0x0bb4 : { 0x0c02 : [0x100], 0x0c01 : [0x100]},
+            0x22b8 : { 0x41d9 : [0x216]},
+            }
     EBOOK_DIR_MAIN = ['wordplayer/calibretransfer', 'eBooks/import', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
             'send e-books to on the device. The first one that exists will '
             'be used')
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
-    VENDOR_NAME      = 'HTC'
-    WINDOWS_MAIN_MEM = 'ANDROID_PHONE'
+    VENDOR_NAME      = ['HTC', 'MOTOROLA']
+    WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855']
 
     OSX_MAIN_MEM = 'HTC Android Phone Media'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Android Device Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Android Phone Internal Memory'
 
     SUPPORTS_SUB_DIRS = True
 
