@@ -19,13 +19,18 @@ class BusinessWeek(BasicNewsRecipe):
     max_articles_per_feed = 10
     no_stylesheets = True
 
-
+    recursions = 1
+    match_regexps = [r'http://www.businessweek.com/.*_page_[1-9].*']
     extra_css = '''
                 h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
-                h2{font-family :Arial,Helvetica,sans-serif; font-size:small;color:#666666;}
+                .news_story_title{font-family :Arial,Helvetica,sans-serif; font-size:large;font-weight:bold;}
+                h2{font-family :Arial,Helvetica,sans-serif; font-size:medium;color:#666666;}
+                h3{text-transform:uppercase;font-family :Arial,Helvetica,sans-serif; font-size:large;font-weight:bold;}
+                h4{font-family :Arial,Helvetica,sans-serif; font-size:small;font-weight:bold;}
                 p{font-family :Arial,Helvetica,sans-serif; }
                 #lede600{font-size:x-small;}
                 #storybody{font-size:x-small;}
+                p{font-family :Arial,Helvetica,sans-serif;}
                 .strap{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#064599;}
                 .byline{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
                 .postedBy{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#666666;}
@@ -34,9 +39,16 @@ class BusinessWeek(BasicNewsRecipe):
                 .wrapper{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
                 .photoCredit{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#666666;}
                 .tagline{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#666666;}
+                .pageCount{color:#666666;font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
+                .note{font-family :Arial,Helvetica,sans-serif; font-size:small;color:#666666;font-style:italic;}
+                .highlight{font-family :Arial,Helvetica,sans-serif; font-size:small;background-color:#FFF200;}
+                .annotation{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#666666;}                
                 '''
-
-    remove_tags = [  dict(name='div', attrs={'id':["bw2-header","column2","wrapper-bw2-footer","wrapper-mgh-footer","inset","commentForm","commentDisplay","bwExtras","bw2-umbrella","readerComments","pageNav","leg"]}),
+   
+    remove_tags = [  dict(name='div', attrs={'id':["log","feedback","footer","secondarynav","secondnavbar","header","email","bw2-header","column2","wrapper-bw2-footer","wrapper-mgh-footer","inset","commentForm","commentDisplay","bwExtras","bw2-umbrella","readerComments","leg","rightcol"]}),
+                    dict(name='div', attrs={'class':["menu",'sponsorbox smallertext',"TopNavTile","graybottom leaderboard"]}),
+                    dict(name='img', alt ="News"),
+                     dict(name='td', width ="1"),
                     ]
 
     feeds          = [
@@ -71,4 +83,11 @@ class BusinessWeek(BasicNewsRecipe):
 
         return url
 
+    def postprocess_html(self, soup, first):
+
+            for tag in soup.findAll(name=['ul','li','table','td','tr','span']):
+                tag.name = 'div'
+            for tag in soup.findAll(name= 'div',attrs={ 'id':'pageNav'}):                
+                tag.extract()
+            return soup
 
