@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-11-30 20:45+0000\n"
-"PO-Revision-Date: 2009-11-30 22:02+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-12-01 16:56+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-01 04:40+0000\n"
+"X-Launchpad-Export-Date: 2009-12-02 04:53+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -531,7 +531,7 @@ msgstr "Obteniendo la lista de libros en el dispositivo ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
 msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
-msgstr ""
+msgstr "Comunicar con el lector Sony PRS-300/505/500"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
@@ -3128,7 +3128,7 @@ msgstr "tamaño de la identación:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:122
 msgid " em"
-msgstr ""
+msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:123
 msgid "Insert &blank line"
@@ -7919,11 +7919,11 @@ msgstr "Inglés (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Neerlandés (NL)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "Dutch (BE)"
-msgstr ""
+msgstr "Neerlandés (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
