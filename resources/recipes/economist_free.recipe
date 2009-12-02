@@ -1,7 +1,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.threadpool import ThreadPool, makeRequests
 import time
 from datetime import datetime
 from lxml import html
+from urllib2 import urlopen
 
 class Economist(BasicNewsRecipe):
 
@@ -23,46 +25,55 @@ class Economist(BasicNewsRecipe):
                 'http://feeds.feedburner.com/economist/full_print_edition',
                 raw=True)
         entries = parse(raw).entries
-        feeds = {}
+        pool = ThreadPool(10)
+        self.feed_dict = {}
+        requests = []
         for i, item in enumerate(entries):
-            from calibre.web.feeds import Article
             published   = time.gmtime(item.get('timestamp', time.time()))
             title       = item.get('title', _('Untitled article'))
             link        = item.get('link', None)
             description = item.get('description', '')
             author      = item.get('author', '')
 
-            try:
-                feedtitle, link = self.process_eco_feed_article(link)
-                self.log('Found print version for article:', title)
-            except:
-                self.log.exception('Failed to process article:', title)
-                continue
+            requests.append([i, link, title, description, author, published])
+        requests = makeRequests(self.process_eco_feed_article, requests, self.eco_article_found,
+                self.eco_article_failed)
+        for r in requests: pool.putRequest(r)
+        pool.wait()
 
-            a = Article(i, title, link, author, description, published, '')
-            delta = datetime.utcnow() - a.utctime
-            if delta.days*24*3600 + delta.seconds > 24*3600*self.oldest_article:
-                self.log.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, a.localtime.strftime('%a, %d %b, %Y %H:%M'), title))
-                continue
+        return [(t, a) for t, a in self.feed_dict.items()]
 
-
-            article = dict(title=a.title, description=a.text_summary,
-                date=time.strftime(self.timefmt, a.date), author=a.author, url=a.url)
-            if feedtitle not in feeds:
-                feeds[feedtitle] = []
-            feeds[feedtitle].append(article)
-        return [(t, a) for t, a in feeds.items()]
-
-    def process_eco_feed_article(self, url):
-        ret = self.browser.open(url)
+    def process_eco_feed_article(self, args):
+        i, url, title, description, author, published = args
+        ret = urlopen(url)
         raw = ret.read()
-        url = self.browser.geturl().replace('displaystory', 'PrinterFriendly').strip()
+        url = ret.geturl().replace('displaystory', 'PrinterFriendly').strip()
         root = html.fromstring(raw)
         matches = root.xpath('//*[@class = "article-section"]')
         feedtitle = 'Miscellaneous'
         if matches:
             feedtitle = html.tostring(matches[0], method='text',
                     encoding=unicode)
-        return feedtitle, url
+        return (i, feedtitle, url, title, description, author, published)
+
+    def eco_article_found(self, req, result):
+        from calibre.web.feeds import Article
+        i, feedtitle, link, title, description, author, published = result
+        self.log('Found print version for article:', title)
+
+        a = Article(i, title, link, author, description, published, '')
+        delta = datetime.utcnow() - a.utctime
+        if delta.days*24*3600 + delta.seconds > 24*3600*self.oldest_article:
+            self.log.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, a.localtime.strftime('%a, %d %b, %Y %H:%M'), title))
+            return
 
 
+        article = dict(title=a.title, description=a.text_summary,
+            date=time.strftime(self.timefmt, a.date), author=a.author, url=a.url)
+        if feedtitle not in self.feed_dict:
+            self.feed_dict[feedtitle] = []
+        self.feed_dict[feedtitle].append(article)
+
+    def eco_article_failed(self, req, tb):
+        self.log.error('Failed to download %s with error:'%req.args[0][2])
+        self.log.debug(tb)

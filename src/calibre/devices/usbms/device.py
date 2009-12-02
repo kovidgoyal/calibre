@@ -211,8 +211,16 @@ class Device(DeviceConfig, DevicePlugin):
     def windows_match_device(self, drive, attr):
         pnp_id = str(drive.PNPDeviceID).upper()
         device_id = getattr(self, attr)
-        if device_id is None or \
-                'VEN_' + str(self.VENDOR_NAME).upper() not in pnp_id:
+
+        def test_vendor():
+            vendors = [self.VENDOR_NAME] if isinstance(self.VENDOR_NAME,
+                    basestring) else self.VENDOR_NAME
+            for v in vendors:
+                if 'VEN_'+str(v).upper() in pnp_id:
+                    return True
+            return False
+
+        if device_id is None or not test_vendor():
             return False
 
         if hasattr(device_id, 'search'):
@@ -606,7 +614,6 @@ class Device(DeviceConfig, DevicePlugin):
 
     def eject_linux(self):
         drives = self.find_device_nodes()
-        success = False
         for drive in drives:
             if drive:
                 cmd = 'calibre-mount-helper'
@@ -663,7 +670,8 @@ class Device(DeviceConfig, DevicePlugin):
                 traceback.print_exc()
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
-
+    def get_main_ebook_dir(self):
+        return self.EBOOK_DIR_MAIN
 
     def _sanity_check(self, on_card, files):
         if on_card == 'carda' and not self._card_a_prefix:
@@ -680,8 +688,15 @@ class Device(DeviceConfig, DevicePlugin):
             path = os.path.join(self._card_b_prefix,
                     *(self.EBOOK_DIR_CARD_B.split('/')))
         else:
-            path = os.path.join(self._main_prefix,
-                    *(self.EBOOK_DIR_MAIN.split('/')))
+            candidates = self.get_main_ebook_dir()
+            if isinstance(candidates, basestring):
+                candidates = [candidates]
+            candidates = [os.path.join(self._main_prefix, *(x.split('/'))) for x
+                    in candidates]
+            existing = [x for x in candidates if os.path.exists(x)]
+            if not existing:
+                existing = candidates[:1]
+            path = existing[0]
 
         def get_size(obj):
             if hasattr(obj, 'seek'):

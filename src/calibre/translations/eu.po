@@ -1,4 +1,4 @@
-# Latvian translation for calibre
+# Basque translation for calibre
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the calibre package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
@@ -8,20 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-30 20:45+0000\n"
-"PO-Revision-Date: 2009-11-30 22:04+0000\n"
+"PO-Revision-Date: 2009-11-30 22:07+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
-"Language-Team: Latvian <ivars_a@inbox.lv>\n"
+"Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-01 04:39+0000\n"
+"X-Launchpad-Export-Date: 2009-12-01 04:38+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-"X-Poedit-Country: LATVIA\n"
-"X-Poedit-Language: Latvian\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
-msgstr "Pilnīgi neko nedara"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:94
@@ -141,23 +139,23 @@ msgstr "Pilnīgi neko nedara"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:43
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 msgid "Unknown"
-msgstr "Nav zināms"
+msgstr "Ezezaguna"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:62
 msgid "Base"
-msgstr ""
+msgstr "Oinarria"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "File type"
-msgstr "Faila tips"
+msgstr "Fitxategi mota"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:182
 msgid "Metadata reader"
-msgstr "Metadatu lasītājs"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:213
 msgid "Metadata writer"
-msgstr "Metadatu rakstītājs"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:13
 msgid ""
@@ -174,7 +172,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:56
 msgid "Extract cover from comic files"
-msgstr "Izvilkt vāku no komiksu failiem"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:77
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:89
@@ -194,15 +192,15 @@ msgstr "Izvilkt vāku no komiksu failiem"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:246
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:256
 msgid "Read metadata from %s files"
-msgstr "Lasīt metadatus no %s failiem"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:215
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Lasīt metadatus no e-grāmatām RAR arhīvos"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:267
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Lasīt metadatus no e-grāmatām ZIP arhīvos"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:278
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:288
@@ -256,12 +254,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:229
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "Šis profils ir paredzēts Microsoft Reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:240
 msgid "This profile is intended for the Mobipocket books."
-msgstr "Šis profils ir paredzēts Mobipocket grāmatām"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:93
 msgid "This profile is intended for the Hanlin V3 and its clones."
@@ -280,7 +278,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:130
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:289
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "Šis profils ir paredzēts Amazon Kindle."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:142
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:322
@@ -319,11 +317,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:306
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "Šis profils ir paredzēts Amazon Kindle DX."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr "Uzstādītie spraudņi"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
@@ -335,7 +333,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr "Atspējotie spraudņi"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:76
 msgid "No valid plugin found in "
@@ -355,7 +353,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:400
 msgid "Add a plugin by specifying the path to the zip file containing it."
-msgstr "Pievienot spraudni, norādot zip failu, kurš to satur."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:402
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -385,15 +383,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
-msgstr "Komunicē ar BeBook e-grāmatu lasītāju."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:95
 msgid "Communicate with the BeBook Mini eBook reader."
-msgstr "Komunicē ar BeBook Mini e-grāmatu lasītāju."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:12
 msgid "Communicate with the Blackberry smart phone."
-msgstr "Komunicē ar Blackberry viedtelefonu."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:24
@@ -402,11 +400,11 @@ msgstr "Komunicē ar Blackberry viedtelefonu."
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:88
 msgid "Kovid Goyal"
-msgstr "Kovid Goyal"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:21
 msgid "Communicate with the Cybook Gen 3 eBook reader."
-msgstr "Komunicē ar Cybook Gen 3 e-grāmatu lasītāju."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:22
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:86
@@ -415,7 +413,7 @@ msgstr "Komunicē ar Cybook Gen 3 e-grāmatu lasītāju."
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:22
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:30
 msgid "John Schember"
-msgstr "John Schember"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:76
@@ -430,19 +428,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:85
 msgid "Communicate with the Cybook Opus eBook reader."
-msgstr "Komunicē ar Cybook Opus e-grāmatu lasītāju."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:23
 msgid "Communicate with the EB600 eBook reader."
-msgstr "Komunicē arEB600 e-grāmatu lasītāju"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "Komunicē arESlick e-grāmatu lasītāju."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr "Komunicē arIRex Iliad e-grāmatu lasītāju."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:21
 msgid "Device Interface"
@@ -462,7 +460,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:23
 msgid "James Ralston"
-msgstr "James Ralston"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:21
 msgid "Communicate with the Kindle eBook reader."
@@ -505,7 +503,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
 msgid "Kovid Goyal and John Schember"
-msgstr "Kovid Goyal un John Schember"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:164
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:171
@@ -571,11 +569,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1062
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1385
 msgid "News"
-msgstr "Ziņas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:11
 msgid "Configure Device"
-msgstr "Ierīces uzstādījumi"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:16
 msgid "settings for device drivers"
@@ -764,7 +762,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "List builtin recipes"
-msgstr "Parādīt iebūvētās receptes"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:251
 msgid "Output saved to"
@@ -1180,7 +1178,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "Veido LIT failu no EPUB..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:321
 msgid "\tBook Designer file detected."
@@ -1200,7 +1198,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:380
 msgid "Processing %s"
-msgstr "Apstrādā %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:394
 msgid "\tConverting to BBeB..."
@@ -1450,7 +1448,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:389
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1069
 msgid "Title"
-msgstr "Nosaukums"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:57
@@ -1458,7 +1456,7 @@ msgstr "Nosaukums"
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:394
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1070
 msgid "Author(s)"
-msgstr "Autors(i)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:59
@@ -1478,7 +1476,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:350
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:92
 msgid "Comments"
-msgstr "Komentāri"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:370
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:166
@@ -1488,7 +1486,7 @@ msgstr "Komentāri"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Tags"
-msgstr "Birkas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
@@ -1496,11 +1494,11 @@ msgstr "Birkas"
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Series"
-msgstr "Sērija"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:373
 msgid "Language"
-msgstr "Valoda"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1012
@@ -1511,7 +1509,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:163
 msgid "Published"
-msgstr "Publicēts"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
 msgid "Rights"
@@ -1584,23 +1582,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:144
 msgid "No file specified"
-msgstr "Nav norādīts fails"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:159
 msgid "Original metadata"
-msgstr "Oriģinālie metadati"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:176
 msgid "Changed metadata"
-msgstr "Izmainītie metadati"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:188
 msgid "OPF created in"
-msgstr "OPF izveidots"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:194
 msgid "Cover saved to"
-msgstr "Vāks saglabāts"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:196
 msgid "No cover found"
@@ -1664,19 +1662,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid "The author whose book to search for."
-msgstr "Meklējamās grāmatas autors."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
 msgid "The title of the book to search for."
-msgstr "Meklējamās grāmatas nosaukums."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:111
 msgid "The publisher of the book to search for."
-msgstr "Meklējamās grāmatas izdevējs."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:53
 msgid "LibraryThing.com timed out. Try again later."
-msgstr "Gaidot atbildi no LibraryThing.com iestājās noildze. Mēģiniet vēlāk."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:60
 msgid ""
@@ -1686,11 +1684,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:61
 msgid " not found."
-msgstr " nav atrasts."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:64
 msgid "LibraryThing.com server error. Try again later."
-msgstr "LibraryThing.com servera kļūda. Mēģiniet vēlāk."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:71
 msgid ""
@@ -1703,7 +1701,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1083
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
 msgid "Cover"
-msgstr "Vāks"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -1730,18 +1728,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:102
 msgid "All articles"
-msgstr "Visi raksti"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
 msgid "Title Page"
-msgstr "Titullapa"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
-msgstr "Satura rādītājs"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
 msgid "Index"
@@ -1757,7 +1755,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
 msgid "Bibliography"
-msgstr "Bibliogrāfija"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
 msgid "Colophon"
@@ -1777,19 +1775,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
 msgid "Foreword"
-msgstr "Priekšvārds"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
 msgid "List of Illustrations"
-msgstr "Ilustrāciju saraksts"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
 msgid "List of Tables"
-msgstr "Tabulu saraksts"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1331
 msgid "Notes"
-msgstr "Piezīmes"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1332
 msgid "Preface"
@@ -1829,7 +1827,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
-msgstr "Iestatījumi HTML satura rādītāja ģenerēšanai."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:108
 msgid "Book Jacket"
@@ -2001,7 +1999,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 msgid "Author"
-msgstr "Autors"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:47
 msgid "Subject"
@@ -2723,7 +2721,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:127
 msgid "Extra &CSS"
-msgstr "Papildus &CSS"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -2864,7 +2862,6 @@ msgid ""
 "Change the author(s) of this book. Multiple authors should be separated by a "
 "comma"
 msgstr ""
-"Mainīt šīs grāmatas autoru(s). Ja autori ir vairāki, tie jāatdala ar komatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:146
@@ -2898,7 +2895,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:373
 msgid "List of known series. You can add new series."
-msgstr "Zināmo sēriju saraksts. Jūs varat pievienot jaunas sērijas."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:378
@@ -3030,7 +3027,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "Open book"
-msgstr "Atvērt grāmatu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "~"
@@ -4489,7 +4486,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:117
 msgid "Need username and password"
-msgstr "Nepieciešams lietotājvārds un parole"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:118
 msgid "You must provide a username and/or password to use this news source."
@@ -4497,7 +4494,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:169
 msgid "Created by: "
-msgstr "Izveidoja: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:176
 msgid "Last downloaded: never"
@@ -4523,7 +4520,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:278
 msgid "Recipes"
-msgstr "Receptes"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:192
 msgid "Download all scheduled recipes at once"
@@ -4544,39 +4541,39 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Every "
-msgstr "Katru "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
 msgid "day"
-msgstr "dienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:198
 msgid "Monday"
-msgstr "pirmdienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:199
 msgid "Tuesday"
-msgstr "otrdienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:200
 msgid "Wednesday"
-msgstr "trešdienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:201
 msgid "Thursday"
-msgstr "ceturtdienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:202
 msgid "Friday"
-msgstr "piektdienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:203
 msgid "Saturday"
-msgstr "sestdienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Sunday"
-msgstr "svētdienu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:205
 msgid "at"
@@ -4652,7 +4649,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:88
 msgid "Advanced Search"
-msgstr "Paplašinātā meklēšana"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:89
 msgid "Find entries that have..."
@@ -4686,7 +4683,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:62
 msgid "Are your sure?"
-msgstr "Vai esat pārliecināts?"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:63
 msgid ""
@@ -4696,7 +4693,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:123
 msgid "Tag Editor"
-msgstr "Birku redaktors"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:124
 msgid "A&vailable tags"
@@ -5162,12 +5159,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:162
 msgid "Back"
-msgstr "Atpakaļ"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:163
 msgid "Forward"
-msgstr "Uz priekšu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
@@ -5176,7 +5173,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:170
 msgid "Open ebook"
-msgstr "Atvērt e-grāmatu"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
 msgid "Configure"
@@ -5224,15 +5221,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:245
 msgid "Download metadata and covers"
-msgstr "Lejupielādēt metadatus un vākus"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:246
 msgid "Download only metadata"
-msgstr "Lejupielādēt tikai metadatus"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:247
 msgid "Download only covers"
-msgstr "Lejupielādēt tikai vākus"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:248
 msgid "Download only social metadata"
@@ -5240,25 +5237,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:251
 msgid "Add books from a single directory"
-msgstr "Pievienot vienā katalogā esošas grāmatas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:252
 msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
-"Pievienot grāmatas no vairākiem katalogiem, ieskaitot apakškatalogus "
-"(Katalogā viena grāmata, katrs e-grāmatu fails tiek uzskatītas par vienu un "
-"to pašu grāmatu dažādos formātos)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:255
 msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
-"Pievienot grāmatas no vairākiem katalogiem, ieskaitot apakškatalogus "
-"(Vairākas grāmatas katalogā, atsevišķi e-grāmatu faili tiek uzskatīti par "
-"dažādām grāmatām)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:258
 msgid "Add Empty book. (Book entry with no formats)"
@@ -5281,7 +5272,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:360
 msgid "View"
-msgstr "Skatīt"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:309
 msgid "View specific format"
@@ -5301,7 +5292,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:385
 msgid "Similar books..."
-msgstr "Līdzīgas grāmatas..."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:445
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:446
@@ -5324,7 +5315,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:767
 msgid "Device: "
-msgstr "Ierīce: "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:769
 msgid " detected."
@@ -5711,7 +5702,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:346
 msgid "Add books"
-msgstr "Pievienot grāmatas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:347
 msgid "A"
@@ -5736,7 +5727,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:353
 msgid "Send to device"
-msgstr "Sūtīt uz ierīci"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:355
 msgid "S"
@@ -5752,7 +5743,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:358
 msgid "Convert E-books"
-msgstr "Pārveidot e-grāmatas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:359
 msgid "C"
@@ -5768,15 +5759,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:363
 msgid "Show book details"
-msgstr "Parādīt grāmatas detaļas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:364
 msgid "Books by same author"
-msgstr "Šī paša autora grāmatas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:365
 msgid "Books in this series"
-msgstr "Šīs sērijas grāmatas"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:366
 msgid "Books by this publisher"
@@ -5822,7 +5813,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:71
 msgid "Search"
-msgstr "Meklēt"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:149
 msgid "Jobs:"
@@ -5852,7 +5843,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Authors"
-msgstr "Autori"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Publishers"
@@ -6347,7 +6338,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:42
 msgid "Welcome to calibre"
-msgstr "Laipni lūdzam calibre"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:47

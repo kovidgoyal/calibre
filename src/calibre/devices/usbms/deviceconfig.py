@@ -9,14 +9,22 @@ from calibre.utils.config import Config, ConfigProxy
 class DeviceConfig(object):
 
     HELP_MESSAGE = _('Configure Device')
+    EXTRA_CUSTOMIZATION_MESSAGE = None
+    EXTRA_CUSTOMIZATION_DEFAULT = None
 
     @classmethod
     def _config(cls):
         klass = cls if isinstance(cls, type) else cls.__class__
         c = Config('device_drivers_%s' % klass.__name__, _('settings for device drivers'))
-        c.add_opt('format_map', default=cls.FORMATS,  help=_('Ordered list of formats the device will accept'))
-        c.add_opt('use_subdirs', default=True, help=_('Place files in sub directories if the device supports them'))
-        c.add_opt('read_metadata', default=True, help=_('Read metadata from files on device'))
+        c.add_opt('format_map', default=cls.FORMATS,
+                help=_('Ordered list of formats the device will accept'))
+        c.add_opt('use_subdirs', default=True,
+                help=_('Place files in sub directories if the device supports them'))
+        c.add_opt('read_metadata', default=True,
+                help=_('Read metadata from files on device'))
+        c.add_opt('extra_customization',
+                default=cls.EXTRA_CUSTOMIZATION_DEFAULT,
+                help=_('Extra customization'))
         return c
 
     @classmethod
@@ -27,16 +35,23 @@ class DeviceConfig(object):
     def config_widget(cls):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
-            cls.MUST_READ_METADATA)
+            cls.MUST_READ_METADATA, cls.EXTRA_CUSTOMIZATION_MESSAGE,
+            cls.EXTRA_CUSTOMIZATION_DEFAULT)
         return cw
 
     @classmethod
     def save_settings(cls, config_widget):
-        cls._configProxy()['format_map'] = config_widget.format_map()
+        proxy = cls._configProxy()
+        proxy['format_map'] = config_widget.format_map()
         if cls.SUPPORTS_SUB_DIRS:
-            cls._configProxy()['use_subdirs'] = config_widget.use_subdirs()
+            proxy['use_subdirs'] = config_widget.use_subdirs()
         if not cls.MUST_READ_METADATA:
-            cls._configProxy()['read_metadata'] = config_widget.read_metadata()
+            proxy['read_metadata'] = config_widget.read_metadata()
+        if cls.EXTRA_CUSTOMIZATION_MESSAGE:
+            ec = unicode(config_widget.opt_extra_customization.text()).strip()
+            if not ec:
+                ec = None
+            proxy['extra_customization'] = ec
 
     @classmethod
     def settings(cls):

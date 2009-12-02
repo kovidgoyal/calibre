@@ -247,7 +247,7 @@ class DeviceManager(Thread):
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = path.rpartition('/')[2]
+            name = path.rpartition(getattr(self.device, 'path_sep', '/'))[2]
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
                 f = open(dest, 'wb')
@@ -609,7 +609,6 @@ class DeviceGUI(object):
     def emails_sent(self, results, remove=[]):
         errors, good = [], []
         for jobname, exception, tb in results:
-            id = jobname.partition(':')[0]
             title = jobname.partition(':')[-1]
             if exception is not None:
                 errors.append([title, exception, tb])

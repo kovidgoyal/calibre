@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-26 20:00+0000\n"
-"PO-Revision-Date: 2009-11-26 21:31+0000\n"
-"Last-Translator: S. Dorscht <Unknown>\n"
+"POT-Creation-Date: 2009-11-30 20:45+0000\n"
+"PO-Revision-Date: 2009-11-30 22:02+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-27 04:47+0000\n"
+"X-Launchpad-Export-Date: 2009-12-01 04:39+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -69,9 +69,9 @@ msgstr "Macht absolut gar nichts"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:778
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:886
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:891
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:951
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:889
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:894
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:954
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:105
@@ -133,7 +133,7 @@ msgstr "Macht absolut gar nichts"
 #: /home/kovid/work/calibre/src/calibre/library/server.py:649
 #: /home/kovid/work/calibre/src/calibre/library/server.py:721
 #: /home/kovid/work/calibre/src/calibre/library/server.py:768
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -449,8 +449,8 @@ msgstr "John Schember"
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:76
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:76
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:78
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:130
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:132
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:131
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:133
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:109
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:111
 msgid "Transferring books to device..."
@@ -472,7 +472,7 @@ msgstr "Kommunikation mit dem ESlick eBook Reader."
 msgid "Communicate with the IRex Iliad eBook reader."
 msgstr "Kommunikation mit dem IRex Iliad eBook Reader."
 
-#: /home/kovid/work/calibre/src/calibre/devices/interface.py:20
+#: /home/kovid/work/calibre/src/calibre/devices/interface.py:21
 msgid "Device Interface"
 msgstr "Geräte-Schnittstellen"
 
@@ -513,10 +513,10 @@ msgid "Communicate with the Sony PRS-500 eBook reader."
 msgstr "Kommunikation mit dem Sony PRS-500 eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:150
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:93
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:96
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:99
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:110
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:97
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:100
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:111
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:49
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:52
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:55
@@ -527,22 +527,22 @@ msgid "Getting list of books on device..."
 msgstr "Die Liste der Bücher auf dem Gerät beziehen ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:26
-msgid "Communicate with the Sony PRS-300/505 eBook reader."
-msgstr "Kommunikation mit dem Sony PRS-300/505 eBook Reader."
+msgid "Communicate with the Sony PRS-300/505/500 eBook reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
 msgid "Kovid Goyal and John Schember"
 msgstr "Kovid Goyal und John Schember"
 
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:163
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:170
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:164
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:171
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:129
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
 msgid "Removing books from device..."
 msgstr "Bücher vom Gerät entfernen ..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:198
+#: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:199
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:159
 msgid "Sending metadata to device..."
 msgstr "Metadaten ans Gerät senden ..."
@@ -785,21 +785,21 @@ msgstr ""
 "input_file ist die Eingabe und output_file ist die Ausgabe. Beide müssen als "
 "die ersten zwei Argumente des Befehls angegeben werden.\n"
 "\n"
-"Das Ausgabe eBook Format wird aus der Dateiendung von output_file erraten. "
+"Das Ausgabe-eBook-Format wird aus der Dateiendung von output_file erraten. "
 "output_file kann auch das spezielle Format .EXT sein, wobei EXT die "
-"Dateiendung der Ausgabedatei ist. In diesem Fall wird der Name der "
-"Ausgabedatei von der Eingabedatei abgeleitet. Beachten Sie, dass die "
-"Dateinamen nicht mit einem Anführungszeichen beginnen dürfen. Schlussendlich "
-"wird eine Ausgabedatei ohne Dateiendung als ein Verzeichnis behandelt, in "
-"das ein \"open ebook\" (OEB) bestehend aus HTML Dateien geschrieben wird. "
-"Diese Dateien sind die Dateien, die normalerweise an das Ausgabe Plugin "
+"Dateiendung der Ausgabe-Datei ist. In diesem Fall wird der Name der Ausgabe-"
+"Datei von der Eingabe-Datei abgeleitet. Beachten Sie, dass die Dateinamen "
+"nicht mit einem Anführungszeichen beginnen dürfen. Schlussendlich wird eine "
+"Ausgabe-Datei ohne Dateiendung als ein Verzeichnis behandelt, in das ein "
+"\"open ebook\" (OEB) bestehend aus HTML-Dateien geschrieben wird. Diese "
+"Dateien sind die Dateien, die normalerweise an das Ausgabe-Plugin "
 "weitergereicht werden.\n"
 "\n"
-"Nach der Angabe von Eingabe- und Ausgabedatei kann die Konvertierung durch "
+"Nach der Angabe von Eingabe- und Ausgabe-Datei kann die Konvertierung durch "
 "die Angabe von verschiedenen Optionen angepasst werden. Die verfügbaren "
-"Optionen hängen ab von den Eingabe- und Ausgabedateitypen. Für eine Hilfe "
-"dazu geben Sie die Eingabe- und Ausgabedateien an und verwenden Sie dann die "
-"Otion -h.\n"
+"Optionen hängen ab von den Eingabe- und Ausgabe-Dateitypen. Für eine Hilfe "
+"dazu geben Sie die Eingabe- und Ausgabe-Dateien an und verwenden Sie dann "
+"die Option -h.\n"
 "\n"
 "Eine vollständige Dokumentation des Konvertierungssystems finden Sie unter\n"
 
@@ -888,9 +888,9 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
-"Geben Sie das Ausgabe Profil an. Das Ausgabe Profil schreibt der "
+"Geben Sie das Ausgabe-Profil an. Das Ausgabe-Profil schreibt der "
 "Konvertierung vor, wie sie das erstellte Dokument für das angegebene Gerät "
-"optimieren kann. In bestimmten Fällen ist ein Ausgabe Profil zur Erstellung "
+"optimieren kann. In bestimmten Fällen ist ein Ausgabe-Profil zur Erstellung "
 "einer auf dem Gerät funktionierenden Datei nötig. Zum Beispiel EPUB auf dem "
 "SONY Reader. Wählbar ist:"
 
@@ -904,7 +904,7 @@ msgstr ""
 "Die Bezugsschriftgröße in Punkt. Alle Schriftgrößen im erstellen eBook "
 "werden basieren auf dieser Größe skaliert. Mit einer größeren Schriftgröße "
 "erhalten Sie eine größere Schrift in der Ausgabe und umgekehrt. Laut "
-"Voreinstellung basiert die Bezugsschriftgröße auf dem gewählten Ausgabe "
+"Voreinstellung basiert die Bezugsschriftgröße auf dem gewählten Ausgabe-"
 "Profil."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:139
@@ -920,7 +920,7 @@ msgstr ""
 "für die Größen xx-small bis xx-large mit der letzten Größe für riesige "
 "Schriften. Der Schriftskalierungs-Algorithmus verwendet diese Größen für die "
 "intelligente Skalierung von Schriften. Voreinstellung ist die Verwendung "
-"einer Zuordnung auf der Grundlage des gewählten Ausgabe Profils."
+"einer Zuordnung auf der Grundlage des gewählten Ausgabe-Profils."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:151
 msgid "Disable all rescaling of font sizes."
@@ -1102,7 +1102,7 @@ msgid ""
 msgstr ""
 "Blocksatz in der Ausgabe nicht erzwingen. Ob der Text dann im Blocksatz "
 "angezeigt wird oder nicht, hängt davon ab, ob das eBook-Format oder der "
-"Reader-Blocksatz unterstützen."
+"Reader Blocksatz unterstützen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:308
 msgid ""
@@ -1319,12 +1319,12 @@ msgid ""
 "if your source file contains a very large number of page breaks, you should "
 "turn off splitting on page breaks."
 msgstr ""
-"Das Aufteilen bei Seitenwechseln ausschalten. Normalerweise werden "
-"eingehende Dateien automatisch bei jedem Seitenwechsel in zwei Dateien "
-"aufgeteilt. Damit erhält man in der Ausgabe ein eBook, das schneller mit "
-"weniger Resourcen analysiert werden kann. Das Aufteilen ist jedoch langsam "
-"und falls die Ausgangsdatei sehr viele Seitenwechsel enthält, sollten Sie "
-"das Aufteilen bei Seitenwechseln ausschalten."
+"Das Aufteilen bei Seitenwechseln ausschalten. Normalerweise werden Eingabe-"
+"Dateien automatisch bei jedem Seitenwechsel in zwei Dateien aufgeteilt. "
+"Damit erhält man in der Ausgabe ein eBook, das schneller mit weniger "
+"Resourcen analysiert werden kann. Das Aufteilen ist jedoch langsam und falls "
+"die Ausgangsdatei sehr viele Seitenwechsel enthält, sollten Sie das "
+"Aufteilen bei Seitenwechseln ausschalten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:74
 msgid ""
@@ -1343,7 +1343,7 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
-"Normalerweise wird, falls die Eingabe Datei kein Umschlagbild hat und Sie "
+"Normalerweise wird, falls die Eingabe-Datei kein Umschlagbild hat und Sie "
 "keines angeben, ein voreingestelltes Umschlagbild mit Titel, Autoren, usw. "
 "erstellt. Diese Einstellung schaltet die Erstellung dieses Umschlagbildes "
 "aus."
@@ -1392,7 +1392,7 @@ msgid ""
 "can result in various nasty side effects in the rest of of the conversion "
 "pipeline."
 msgstr ""
-"Normalerweise ordnet dieses Eingabe Plugin alle Eingabe Dateien in eine "
+"Normalerweise ordnet dieses Eingabe-Plugin alle Eingabe-Dateien in eine "
 "standardisierte Ordnerhierarchie um. Verwenden Sie diese Einstellung nur, "
 "wenn Sie wissen, was Sie tun, denn es kann verschiedene nervige "
 "Nebenwirkungen beim Rest des Konvertierungsprozesses zur Folge haben."
@@ -1508,7 +1508,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
-msgstr "Ausgabe LRS Datei"
+msgstr "Ausgabe-LRS-Datei"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
@@ -2011,7 +2011,7 @@ msgstr ""
 "abrufen\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1083
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1314
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
 msgid "Cover"
 msgstr "Umschlagbild"
 
@@ -2044,70 +2044,70 @@ msgstr "Komprimierung der Datei Inhalte ausschalten."
 msgid "All articles"
 msgstr "Alle Artikel"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1315
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
 msgid "Title Page"
 msgstr "Titelseite"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1316
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
 msgstr "Inhaltsverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1317
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
 msgid "Index"
 msgstr "Index"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1318
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1321
 msgid "Glossary"
 msgstr "Glossar"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1319
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1322
 msgid "Acknowledgements"
 msgstr "Danksagung"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1320
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
 msgid "Bibliography"
 msgstr "Literaturverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1321
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
 msgid "Colophon"
 msgstr "Schlussschrift"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1322
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
 msgid "Copyright"
 msgstr "Copyright"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
 msgid "Dedication"
 msgstr "Widmung"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
 msgid "Epigraph"
 msgstr "Epigraph"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
 msgid "Foreword"
 msgstr "Vorwort"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
 msgid "List of Illustrations"
 msgstr "Abbildungsverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
 msgid "List of Tables"
 msgstr "Tabellenverzeichnis"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1328
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1331
 msgid "Notes"
 msgstr "Anmerkungen"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1332
 msgid "Preface"
 msgstr "Vorwort"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1333
 msgid "Main Text"
 msgstr "Haupttext"
 
@@ -2122,11 +2122,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:62
 msgid "Output file. Default is derived from input filename."
-msgstr "Ausgabedatei. Voreinstellung stammt aus dem Namen der Eingabedatei."
+msgstr ""
+"Ausgabe-Datei. Die Voreinstellung stammt aus dem Namen der Eingabe-Datei."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:64
 msgid "Produce more human-readable XML output."
-msgstr "Erstelle besser menschlich-lesbare XML Ausgabe."
+msgstr "Erstelle besser menschlich lesbare XML-Ausgabe."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:66
 msgid "Useful for debugging."
@@ -2217,7 +2218,7 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
-"Geben Sie die Zeichenkodierung für das Ausgabe Dokument an. Die "
+"Geben Sie die Zeichenkodierung für das Ausgabe-Dokument an. Die "
 "Voreinstellung ist cp1252. Achtung: Diese Einstellung wird nicht von allen "
 "Formaten übernommen."
 
@@ -2276,7 +2277,7 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
-"Pfad zur Ausgabedatei. Die Datei wird im aktuellen Verzeichnis erstellt "
+"Pfad zur Ausgabe-Datei. Die Datei wird im aktuellen Verzeichnis erstellt "
 "(Voreinstellung)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
@@ -2473,8 +2474,8 @@ msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr ""
-"Größe der Seite. Diese Größe wird überschrieben, wenn ein Ausgabe Profil "
-"verwendet wird. Voreinstellung ist letter. Wählbar ist %s"
+"Größe der Seite. Diese Größe wird überschrieben, wenn ein Ausgabe-Profil "
+"verwendet wird. Voreinstellung ist Letter. Wählbar ist %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
@@ -2499,7 +2500,7 @@ msgstr ""
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
 msgstr ""
-"Geben Sie die Zeichenkodierung des Ausgabe Dokuments an. Voreinstellung ist "
+"Geben Sie die Zeichenkodierung des Ausgabe-Dokuments an. Voreinstellung ist "
 "cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:183
@@ -2514,7 +2515,7 @@ msgstr ""
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
 msgstr ""
-"Geben Sie die Zeichenkodierung für das Ausgabe Dokument an. Die "
+"Geben Sie die Zeichenkodierung für das Ausgabe-Dokument an. Die "
 "Voreinstellung ist utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:27
@@ -2532,7 +2533,7 @@ msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
 msgstr ""
-"Texteingabe durch die Markdown Vorverarbeitung laufen lassen. Mehr über "
+"Texteingabe durch die Markdown-Vorverarbeitung laufen lassen. Mehr über "
 "Markdown erfahren Sie unter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
@@ -2551,7 +2552,7 @@ msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
-"Geben Sie die Zeichenkodierung des Ausgabedokuments an. Die Voreinstellung "
+"Geben Sie die Zeichenkodierung des Ausgabe-Dokuments an. Die Voreinstellung "
 "ist utf-8. Achtung: Diese Einstellung wird nicht von allen Formaten "
 "übernommen."
 
@@ -2793,11 +2794,11 @@ msgstr "Auf einmal konvertieren"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
 msgid "Options specific to the output format."
-msgstr "Einstellungen für das Ausgabeformat."
+msgstr "Einstellungen für das Ausgabe-Format."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
-msgstr "Comic Eingabe"
+msgstr "Comic-Eingabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:16
@@ -2908,7 +2909,7 @@ msgstr "&Comic Verarbeitung ausschalten"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
 msgid "&Output format:"
-msgstr "Ausgabef&ormat:"
+msgstr "Ausgabe-F&ormat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -2991,7 +2992,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr "EPUB Ausgabe"
+msgstr "EPUB-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:15
@@ -3022,7 +3023,7 @@ msgstr "Kein voreingestelltes &Cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
-msgstr "FB2 Eingabe"
+msgstr "FB2-Eingabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:29
 msgid "Do not insert a &Table of Contents at the beginning of the book."
@@ -3030,7 +3031,7 @@ msgstr "Kein Inhal&tsverzeichnis am Anfang des Buches einfügen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
-msgstr "FB2 Ausgabe"
+msgstr "FB2-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:37
@@ -3060,15 +3061,15 @@ msgid ""
 "works.</p>"
 msgstr ""
 "<p>Dieser Assistent hilft, die richtige Schriftgröße für Ihre Bedürfnisse zu "
-"wählen. Geben Sie die Basis-Schriftgröße des Eingabe Dokuments an und geben "
-"eine Eingabe Schriftgröße an. Der Assistent zeigt durch den "
+"wählen. Geben Sie die Basis-Schriftgröße des Eingabe-Dokuments an und geben "
+"eine Eingabe-Schriftgröße an. Der Assistent zeigt durch den "
 "Schriftskalierungs-Algorithmus an, auf welche Schriftgröße sie abgebildet "
-"wird. Sie können den Algorithmus anpassen, indem Sie die Ausgabe Basis-"
+"wird. Sie können den Algorithmus anpassen, indem Sie die Ausgabe-Basis-"
 "Schriftgröße und den Schriftschlüssel unten verändern. Wenn die Werte für "
 "Sie passend sind, klicken Sie auf OK.</p>\n"
-"<p>Voreingestellt wird Calibre, falls die Ausgabe Basis-Schriftgröße gleich "
+"<p>Voreingestellt wird Calibre, falls die Ausgabe-Basis-Schriftgröße gleich "
 "null ist und/oder keine Schriftgrößenschlüssel angegeben wird, die Werte des "
-"aktuellen Ausgabe Profils verwenden. </p>\n"
+"aktuellen Ausgabe-Profils verwenden. </p>\n"
 "<p>Sehen Sie sich das englischsprachige <a "
 "href=\"http://calibre.kovidgoyal.net/user_manual/conversion.html#font-size-"
 "rescaling\">Benutzerhandbuch</a> für eine Diskussion, wie die Schriftgrößen-"
@@ -3076,7 +3077,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
 msgid "&Output document"
-msgstr "Ausgabe D&okument"
+msgstr "Ausgabe-D&okument"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
@@ -3151,7 +3152,7 @@ msgstr "Zeilen&höhe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:119
 msgid "Input character &encoding:"
-msgstr "Eingabe Z&eichenkodierung:"
+msgstr "Eingabe-Z&eichenkodierung:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "Remove &spacing between paragraphs"
@@ -3187,7 +3188,7 @@ msgstr "Extra &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
-msgstr "LRF Ausgabe"
+msgstr "LRF-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
@@ -3248,7 +3249,7 @@ msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
 msgstr ""
-"Metadaten eingeben. Die Ausgabedatei wird möglichst viel dieser Metadaten "
+"Metadaten eingeben. Die Ausgabe-Datei wird möglichst viel dieser Metadaten "
 "enthalten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:152
@@ -3373,7 +3374,7 @@ msgstr "Buch "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:15
 msgid "MOBI Output"
-msgstr "MOBI Ausgabe"
+msgstr "MOBI-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:45
 msgid "&Title for Table of Contents:"
@@ -3401,7 +3402,7 @@ msgstr "Seiteneinrichtung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:111
 msgid "&Output profile:"
-msgstr "Ausgabe Pr&ofil:"
+msgstr "Ausgabe-Pr&ofil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:112
 msgid "Profile description"
@@ -3433,7 +3434,7 @@ msgstr "&Unten:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input.py:12
 msgid "PDB Input"
-msgstr "PDB Eingabe"
+msgstr "PDB-Eingabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:39
@@ -3455,7 +3456,7 @@ msgstr "&Format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
-msgstr "PDF Eingabe"
+msgstr "PDF-Eingabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:39
 msgid "Line &Un-Wrapping Factor:"
@@ -3467,7 +3468,7 @@ msgstr "Keine B&ilder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:17
 msgid "PDF Output"
-msgstr "PDF Ausgabe"
+msgstr "PDF-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
 msgid "&Paper Size:"
@@ -3479,7 +3480,7 @@ msgstr "&Orientierung:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
-msgstr "RB Ausgabe"
+msgstr "RB-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1411
@@ -3522,7 +3523,7 @@ msgstr "Konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
-msgstr "Einstellungen für das Eingabeformat."
+msgstr "Einstellungen für das Eingabe-Format."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:61
@@ -3606,7 +3607,7 @@ msgstr "&Metadaten als erste Seite des Buchs einfügen"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:63
 msgid "&Preprocess input file to possibly improve structure detection"
 msgstr ""
-"Eingabedatei zur möglichen Verbesserung der Struktur Erkennung "
+"Eingabe-Datei zur möglichen Verbesserung der Struktur-Erkennung "
 "vorverar&beiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
@@ -3683,7 +3684,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
-msgstr "TXT Ausgabe"
+msgstr "TXT-Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:52
 msgid "&Line ending style:"
@@ -4439,7 +4440,7 @@ msgstr "Auftrags&priorität:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:507
 msgid "Preferred &output format:"
-msgstr "Bev&orzugtes Ausgabeformat:"
+msgstr "Bev&orzugtes Ausgabe-Format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:508
 msgid "Preferred &input format order:"
@@ -7396,7 +7397,7 @@ msgstr ""
 "eine durch Kommata getrennte Liste von Feldern sein.\n"
 "Verfügbare Felder: %s\n"
 "Voreinstellung: %%default. Das Feld \"all\" kann für die Auswahl aller "
-"Felder verwendet werden. Funktioniert nur mit dem Ausgabeformat Text."
+"Felder verwendet werden. Funktioniert nur mit dem Ausgabe-Format Text."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:211
 msgid ""
@@ -7892,7 +7893,7 @@ msgstr "Sprache, in der die Benutzer-Oberfläche dargestellt wird"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:639
 msgid "The default output format for ebook conversions."
-msgstr "Das voreingestellte Ausgabeformat für eBook Konvertierungen."
+msgstr "Das voreingestellte Ausgabe-Format für eBook Konvertierungen."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:643
 msgid "Ordered list of formats to prefer for input."
@@ -7958,6 +7959,14 @@ msgstr "Englisch (CA)"
 msgid "English (IND)"
 msgstr "Englisch (IND)"
 
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+msgid "Dutch (NL)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+msgid "Dutch (BE)"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
 msgstr "URL muss dem sftp Schema entsprechen"
@@ -8014,77 +8023,77 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr "Nachrichtenquelle unbekannt"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:507
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:510
 msgid "The \"%s\" recipe needs a username and password."
 msgstr ""
 "Das \"%s\" Downloadschema benötigt einen Benutzernamen und ein Passwort."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:590
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:593
 msgid "Download finished"
 msgstr "Download beendet"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:592
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:595
 msgid "Failed to download the following articles:"
 msgstr "Der Download der folgenden Artikel schlug fehl:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:598
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:601
 msgid "Failed to download parts of the following articles:"
 msgstr "Der Download von Teilen der folgenden Artikel schlug fehl:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:600
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:603
 msgid " from "
 msgstr " von "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:602
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:605
 msgid "\tFailed links:"
 msgstr "\tFehlgeschlagene Verknüpfungen:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:683
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:686
 msgid "Could not fetch article. Run with -vv to see the reason"
 msgstr ""
 "Konnte Artikel nicht abrufen. Mit -vv starten, um den Grund dafür zu sehen"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:704
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:707
 msgid "Fetching feeds..."
 msgstr "Rufe Feeds ab..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:709
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:712
 msgid "Got feeds from index page"
 msgstr "Feeds der Index-Seite erhalten"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:715
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:718
 msgid "Trying to download cover..."
 msgstr "Umschlagbild versuchen heruterzuladen ..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:769
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:776
 msgid "Starting download [%d thread(s)]..."
 msgstr "Download von [%d Thread(s)] starten ..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:785
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:792
 msgid "Feeds downloaded to %s"
 msgstr "Feeds wurden nach %s heruntergeladen"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:795
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:802
 msgid "Could not download cover: %s"
 msgstr "Umschlagbild konnte nicht heruntergeladen werden: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:802
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:809
 msgid "Downloading cover from %s"
 msgstr "Umschlagbild von %s herunterladen"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:928
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:935
 msgid "Untitled Article"
 msgstr "Artikel ohne Titel"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:999
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1006
 msgid "Article downloaded: %s"
 msgstr "Artikel heruntergeladen: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1010
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1017
 msgid "Article download failed: %s"
 msgstr "Herunterladen der Artikel schlug fehl: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1027
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1034
 msgid "Fetching feed"
 msgstr "Feed abrufen"
 
@@ -10274,3 +10283,6 @@ msgstr "Detaillierte Ausgabeinformation anzeigen. Hilfreich zur Fehlersuche."
 
 #~ msgid "sr-Latn-RS"
 #~ msgstr "sr-Latn-RS"
+
+#~ msgid "Communicate with the Sony PRS-300/505 eBook reader."
+#~ msgstr "Kommunikation mit dem Sony PRS-300/505 eBook Reader."

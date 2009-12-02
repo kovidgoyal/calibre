@@ -262,7 +262,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 shortname = shortname[:-2]
             id = '%s.%s' % (id, shortname)
         else:
-            id = descr = None
+            id = None
 
         if id:
             item = ' '*12 + '<keyword name="%s" id="%s" ref="%s"/>' % (

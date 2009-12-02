@@ -80,7 +80,6 @@ class GlasSrpske(BasicNewsRecipe):
             for item in soup.findAll('div', attrs={'class':'gl_rub'}):
                 atag    = item.find('a')
                 ptag    = item.find('p')
-                datetag = item.find('span')
                 url           = self.INDEX + atag['href']
                 title         = self.tag_to_string(atag)
                 description   = self.tag_to_string(ptag)

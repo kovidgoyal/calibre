@@ -11,7 +11,7 @@ from calibre.constants import iswindows
 
 def find_executable():
     name = 'sigil' + ('.exe' if iswindows else '')
-    path = find_executable_in_path(name)
+    find_executable_in_path(name)
     #if path is None and iswindows:
     #    path = search_program_files()
 

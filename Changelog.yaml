@@ -34,6 +34,9 @@
       tickets: [4040]
     
   bug fixes:
+    - title: "Fix bug that prevented saving of books from a connected device to your computer on windows, for non SONY devices"
+      tickets: [4080]
+
     - title: Reorganize Dutch language news sources into Belgium and Netherlands categories
       tickets: [4098]
 
@@ -46,12 +49,20 @@
 
     - title: Add PDF to list of supported formats for the Kindle 2
 
+    - title: Add 0x0c01 to the list of product ids for HTC Hero (Android) driver
+      tickets: [4088]
+
+    - title: "LIT Input: Remove more invalid markup present in LIT files created by Microsoft Word plugins"
+      tickets: [4087]
+
+    - title: "LRF Input: Workaround buggy LRF files with unbalanced closing tags"
+      tickets: [4108]
 
   new recipes:
     - title: The Economist (no subscription required)
       author: Kovid Goyal
 
-    - title: Sports Illustrated1
+    - title: Sports Illustrated
       author: kwetal
 
     - title: Levante
@@ -59,6 +70,9 @@
 
     - title: ncrnext
       author: kwetal
+
+    - title: Gulli
+      author: posativ
 
   improved recipes:
     - The Philadelphia Inquirer

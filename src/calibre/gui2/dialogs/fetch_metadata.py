@@ -135,7 +135,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             set_isbndb_key(key)
         else:
             key = None
-        title = author = publisher = isbn = pubdate = None
+        title = author = publisher = isbn = None
         if self.isbn:
             isbn = self.isbn
         if self.title:

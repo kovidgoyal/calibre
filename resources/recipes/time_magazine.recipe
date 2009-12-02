@@ -72,7 +72,6 @@ class Time(BasicNewsRecipe):
         return feeds
 
     def find_articles(self, seched):
-            articles = []
             for a in seched.findNextSiblings( attrs={'class':['toc_hed','rule2']}):
               if a.name in "div":
                   break

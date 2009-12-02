@@ -79,7 +79,6 @@ def save_soup(soup, target):
 
     html = unicode(soup)
     with open(target, 'wb') as f:
-        idx = html.find('hoping')
         f.write(html.encode('utf-8'))
 
 class response(str):
@@ -259,7 +258,7 @@ class RecursiveFetcher(object):
                         continue
                 try:
                     data = self.fetch_url(iurl)
-                except Exception, err:
+                except Exception:
                     self.log.exception('Could not fetch stylesheet %s'% iurl)
                     continue
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
@@ -282,7 +281,7 @@ class RecursiveFetcher(object):
                                 continue
                         try:
                             data = self.fetch_url(iurl)
-                        except Exception, err:
+                        except Exception:
                             self.log.exception('Could not fetch stylesheet %s'% iurl)
                             continue
                         c += 1
@@ -314,7 +313,7 @@ class RecursiveFetcher(object):
                     continue
             try:
                 data = self.fetch_url(iurl)
-            except Exception, err:
+            except Exception:
                 self.log.exception('Could not fetch image %s'% iurl)
                 continue
             c += 1
@@ -443,7 +442,7 @@ class RecursiveFetcher(object):
 
                     save_soup(soup, res)
                     self.localize_link(tag, 'href', res)
-                except Exception, err:
+                except Exception:
                     self.failed_links.append((iurl, traceback.format_exc()))
                     self.log.exception('Could not fetch link', iurl)
                 finally:

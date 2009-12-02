@@ -71,7 +71,6 @@ class ScientificAmerican(BasicNewsRecipe):
         feeds.append(('Features', features))
 
         section = []
-        found = []
         title = None
 
         for x in soup.find(id='magazine-main_col1').findAll(['div', 'a']):

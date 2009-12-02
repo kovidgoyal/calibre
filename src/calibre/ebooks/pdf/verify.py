@@ -20,7 +20,7 @@ def is_valid_pdf(pdf_path):
 
     try:
         with open(os.path.abspath(pdf_path), 'rb') as pdf_file:
-            pdf = PdfFileReader(pdf_file)
+            PdfFileReader(pdf_file)
     except:
         return False
     return True

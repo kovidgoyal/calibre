@@ -147,7 +147,6 @@ class NYTimes(BasicNewsRecipe):
         # Fetch the outer table
         table = soup.find('table')
         previousTable = table
-        contentTable = None
 
         # Find the deepest table containing the stories
         while True :

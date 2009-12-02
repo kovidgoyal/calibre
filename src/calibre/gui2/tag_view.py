@@ -141,6 +141,7 @@ class TagsModel(QAbstractItemModel):
                     data=self.categories[i], category_icon=self.cmap[i])
             for tag in data[r]:
                 t = TagTreeItem(parent=c, data=tag, icon_map=self.icon_map)
+                t
 
         self.db.add_listener(self.database_changed)
         self.connect(self, SIGNAL('need_refresh()'), self.refresh,
@@ -229,7 +230,6 @@ class TagsModel(QAbstractItemModel):
     def reset_all_states(self):
         for i in xrange(self.rowCount(QModelIndex())):
             category_index = self.index(i, 0, QModelIndex())
-            category_item = category_index.internalPointer()
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()

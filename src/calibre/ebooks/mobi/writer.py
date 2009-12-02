@@ -510,7 +510,7 @@ class MobiWriter(object):
                     self._oeb.log.warning('_generate_flat_indexed_navpoints: Failed to generate index')
                     # Zero out self._HTMLRecords, return False
                     self._HTMLRecords = []
-                    last_name = None
+                    #last_name = None
                     return False
 
             previousOffset = offset
@@ -545,7 +545,7 @@ class MobiWriter(object):
                 if self.opts.verbose > 3 : self._oeb.logger.info(" node %03d: %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, child.title if child.title.strip() > "" else "(missing)", myStartingRecord, myStartingRecord, offset, length) )
 
-            last_name = "%04X" % myIndex
+            #last_name = "%04X" % myIndex
             myIndex += 1
 
         # Successfully parsed the entries
@@ -625,7 +625,7 @@ class MobiWriter(object):
                     self._oeb.log.warning('_generate_indexed_navpoints: Failed to generate index')
                     # Zero out self._HTMLRecords, return False
                     self._HTMLRecords = []
-                    last_name = None
+                    #last_name = None
                     return False
 
             previousOffset = offset
@@ -659,7 +659,7 @@ class MobiWriter(object):
                 # *** This should check currentSectionNumber, because content could start late
                 if thisRecord > 0:
                     sectionChangesInThisRecord = True
-                    sectionChangesInRecordNumber = thisRecord
+                    #sectionChangesInRecordNumber = thisRecord
                     self._currentSectionIndex += 1
                     self._HTMLRecords[thisRecord].nextSectionNumber = self._currentSectionIndex
                     # The following node opens the nextSection
@@ -717,7 +717,7 @@ class MobiWriter(object):
                 if self.opts.verbose > 3 : self._oeb.logger.info("     node: %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, thisRecord, offset, length) )
 
-            last_name = "%04X" % myIndex
+            #last_name = "%04X" % myIndex
             myIndex += 1
 
         # Successfully parsed the entries
@@ -1999,7 +1999,7 @@ class MobiWriter(object):
         self._articleCount = 0
         self._chapterCount = 0
 
-        first = True
+        #first = True
 
         if self._conforming_periodical_toc :
             self._oeb.logger.info('Generating structured CTOC ...')
@@ -2007,7 +2007,7 @@ class MobiWriter(object):
                 if self.opts.verbose > 2 :
                     self._oeb.logger.info("  %s" % child)
                 self._add_structured_ctoc_node(child, self._ctoc)
-                first = False
+                #first = False
 
         else :
             self._oeb.logger.info('Generating flat CTOC ...')
@@ -2025,7 +2025,6 @@ class MobiWriter(object):
                     # Test to see if this child's offset is the same as the previous child's
                     # offset, skip it
                     h = child.href
-                    first = False
 
                     if h is None:
                         self._oeb.logger.warn('  Ignoring TOC entry with no href:',
@@ -2345,7 +2344,7 @@ class MobiWriter(object):
             self._oeb.logger.info( "Writing NCXEntries for mobiType 0x%03X" % myDoc.mobiType)
 
         sectionParent = myDoc.documentStructure.sectionParents[0]
-        articleCount = len(sectionParent.articles)
+        #articleCount = len(sectionParent.articles)
 
         # Write opening periodical 0xDF entry
         index = 0
@@ -2361,7 +2360,7 @@ class MobiWriter(object):
         while sectionCount <= lastSection :
             # section
             sectionParent = myDoc.documentStructure.sectionParents[sectionCount - 1]
-            articleCount = len(sectionParent.articles)
+            #articleCount = len(sectionParent.articles)
             #index += 1
             offset = sectionParent.startAddress
             length = sectionParent.sectionLength

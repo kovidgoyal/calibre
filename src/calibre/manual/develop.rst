@@ -94,11 +94,8 @@ the previously checked out calibre code directory, for example::
 
     cd C:\Users\kovid\work\calibre
 
-calibre is the directory that contains the src and resources sub directories. Then, run the following command::
+calibre is the directory that contains the src and resources sub directories. 
 
-    calibre-debug --develop-from src
-
-This assumes that the location of the calibre install (typically ``C:\Program Files\calibre``) is in your PATH. 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path to the src directory.
 So, following the example above, it would be ``C:\Users\kovid\work\calibre\src``. A short
 `guide <http://docs.python.org/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
@@ -117,8 +114,6 @@ in your favorite editor and add the line::
     print "Hello, world!"
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
-Note that if you make changes to any .ui files (these files define the |app| Graphical User Interface), you have to re-run the
-``calibre-debug --develop-from src`` command, which  will compile the .ui files, so that your changes show up. 
 
 OS X development environment
 ------------------------------
@@ -128,11 +123,8 @@ the previously checked out calibre code directory, for example::
 
     cd /Users/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub directories. Then, run the following command::
+calibre is the directory that contains the src and resources sub directories. Ensure you have installed the |app| commandline tools via Preferences->Advanced in the |app| GUI.
 
-    calibre-debug --develop-from src
-
-This assumes that you have installed the |app| command line tools. This can be done via Preferences->Advanced in the |app| GUI. 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path to the src directory.
 So, following the example above, it would be ``/Users/kovid/work/calibre/src``. Apple 
 `documentation <http://developer.apple.com/mac/library/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html#//apple_ref/doc/uid/20002093-BCIJIJBH>`_
@@ -151,8 +143,6 @@ in your favorite editor and add the line::
     print "Hello, world!"
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
-Note that if you make changes to any .ui files (these files define the |app| Graphical User Interface), you have to re-run the
-``calibre-debug --develop-from src`` command, which  will compile the .ui files, so that your changes show up. 
 
 Linux development environment
 ------------------------------
@@ -166,9 +156,7 @@ Install the |app| using the binary installer. The opena  terminal and change to 
 
     cd /home/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub directories. Then, run the following command::
-
-    calibre-debug --develop-from src
+calibre is the directory that contains the src and resources sub directories. 
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path to the src directory.
 So, following the example above, it would be ``/home/kovid/work/calibre/src``. How to set environment variables depends on
@@ -187,7 +175,4 @@ in your favorite editor and add the line::
     print "Hello, world!"
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
-Note that if you make changes to any .ui files (these files define the |app| Graphical User Interface), you have to re-run the
-``calibre-debug --develop-from src`` command, which will compile the .ui files, so that your changes show up. 
-
 

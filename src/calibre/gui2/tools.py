@@ -95,10 +95,6 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
     return jobs, changed, bad
 
 def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
-    changed = False
-    jobs = []
-    bad = []
-
     total = len(book_ids)
     if total == 0:
         return None, None, None

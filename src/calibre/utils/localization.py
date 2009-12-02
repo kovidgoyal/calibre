@@ -65,7 +65,6 @@ def set_translators():
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
     if lang:
-        translations = available_translations()
         buf = iso639 = None
         if os.access(lang+'.po', os.R_OK):
             from calibre.translations.msgfmt import make

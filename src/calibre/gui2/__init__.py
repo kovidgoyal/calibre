@@ -596,3 +596,6 @@ def build_forms(srcdir, info=None):
 
             open(compiled_form, 'wb').write(dat)
 
+_df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+if _df and os.path.exists(_df):
+    build_forms(_df)

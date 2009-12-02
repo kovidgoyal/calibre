@@ -168,7 +168,6 @@ class OEBReader(object):
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())
-        bad = []
         while unchecked:
             new = set()
             for item in unchecked:

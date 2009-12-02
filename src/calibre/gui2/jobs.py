@@ -125,7 +125,6 @@ class JobManager(QAbstractTableModel):
 
     def _update(self):
         # Update running time
-        rows = set([])
         for i, j in enumerate(self.jobs):
             if j.run_state == j.RUNNING:
                 idx = self.index(i, 3)

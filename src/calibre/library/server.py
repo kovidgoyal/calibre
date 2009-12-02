@@ -636,10 +636,6 @@ class LibraryServer(object):
             'type="application/atom+xml" href="/stanza/?%s"/>\n'
             ) % '&amp;'.join(q)
 
-        author_list=[]
-        tag_list=[]
-        series_list=[]
-
         for record in nrecord_list:
             r = record[FIELD_MAP['formats']]
             r = r.upper() if r else ''
