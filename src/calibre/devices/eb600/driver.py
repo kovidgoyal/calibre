@@ -88,7 +88,7 @@ class POCKETBOOK360(EB600):
 
     gui_name = 'PocketBook 360'
 
-    FORMATS = ['epub', 'fb2', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
     VENDOR_NAME = 'PHILIPS'
     WINDOWS_MAIN_MEM = 'MASS_STORGE'
