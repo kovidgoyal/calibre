@@ -11,14 +11,15 @@ from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
-        must_read_metadata):
+        must_read_metadata, extra_customization_message,
+        extra_customization_value):
 
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
         self.setupUi(self)
-        
+
         self.settings = settings
-        
+
         format_map = settings.format_map
         disabled_formats = list(set(all_formats).difference(format_map))
         for format in format_map + disabled_formats:
@@ -38,6 +39,14 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.opt_read_metadata.setChecked(self.settings.read_metadata)
         else:
             self.opt_read_metadata.hide()
+        if extra_customization_message:
+            self.extra_customization_label.setText(extra_customization_message)
+            if extra_customization_value:
+                self.opt_extra_customization.setText(extra_customization_value)
+        else:
+            self.extra_customization_label.setVisible(False)
+            self.opt_extra_customization.setVisible(False)
+
 
     def up_column(self):
         idx = self.columns.currentRow()
