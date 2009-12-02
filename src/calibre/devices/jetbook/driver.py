@@ -53,7 +53,7 @@ class JETBOOK(USBMS):
     def upload_books(self, files, names, on_card=False, end_session=True,
                     metadata=None):
 
-        path = self._sanity_check(on_card, files)
+        base_path = self._sanity_check(on_card, files)
 
         paths = []
         names = iter(names)
@@ -61,7 +61,7 @@ class JETBOOK(USBMS):
 
         for i, infile in enumerate(files):
             mdata, fname = metadata.next(), names.next()
-            path = os.path.dirname(self.create_upload_path(path, mdata, fname))
+            path = os.path.dirname(self.create_upload_path(base_path, mdata, fname))
 
             author = sanitize(mdata.get('authors','Unknown')).replace(' ', '_')
             title = sanitize(mdata.get('title', 'Unknown')).replace(' ', '_')
