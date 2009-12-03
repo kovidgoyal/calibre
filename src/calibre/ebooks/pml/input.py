@@ -1,3 +1,4 @@
+import os.path
 # -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
@@ -56,6 +57,32 @@ class PMLInput(InputFormatPlugin):
 
         return hizer.get_toc()
 
+    def get_images(self, stream, tdir, top_level=False):
+        images = []
+        imgs = []
+
+        if top_level:
+            imgs = glob.glob(os.path.join(tdir, '*.png'))
+        # Images not in top level try bookname_img directory because
+        # that's where Dropbook likes to see them.
+        if not imgs:
+            if hasattr(stream, 'name'):
+                imgs = glob.glob(os.path.join(os.path.join(tdir, os.path.splitext(os.path.basename(stream.name))[0] + '_img'), '*.png'))
+        # No images in Dropbook location try generic images directory
+        if not imgs:
+            imgs = glob.glob(os.path.join(os.path.join(tdir, 'images'), '*.png'))
+        if imgs:
+            os.makedirs(os.path.join(os.getcwd(), 'images'))
+        for img in imgs:
+            pimg_name = os.path.basename(img)
+            pimg_path = os.path.join(os.getcwd(), 'images', pimg_name)
+
+            images.append('images/' + pimg_name)
+
+            shutil.copy(img, pimg_path)
+
+        return images
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.options = options
@@ -78,22 +105,13 @@ class PMLInput(InputFormatPlugin):
                     log.debug('Processing PML item %s...' % pml)
                     ttoc = self.process_pml(pml, html_path)
                     toc += ttoc
-                    
-                imgs = glob.glob(os.path.join(tdir, '*.png'))
-                if len(imgs) > 0:
-                    os.makedirs(os.path.join(os.getcwd(), 'images'))
-                for img in imgs:
-                    pimg_name = os.path.basename(img)
-                    pimg_path = os.path.join(os.getcwd(), 'images', pimg_name)
-                    
-                    images.append('images/' + pimg_name)
-                    
-                    shutil.move(img, pimg_path)
+                images = self.get_images(stream, tdir, True)
         else:
             toc = self.process_pml(stream, 'index.html')
-
             pages.append('index.html')
-            images = []
+
+            if hasattr(stream, 'name'):
+                images = self.get_images(stream, os.path.abspath(os.path.dirname(stream.name)))
 
         # We want pages to be orded alphabetically.
         pages.sort()
