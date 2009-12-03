@@ -67,7 +67,7 @@ class PMLInput(InputFormatPlugin):
         # that's where Dropbook likes to see them.
         if not imgs:
             if hasattr(stream, 'name'):
-                imgs = glob.glob(os.path.join(os.path.join(tdir, os.path.splitext(os.path.basename(stream.name))[0] + '_img'), '*.png'))
+                imgs = glob.glob(os.path.join(tdir, os.path.splitext(os.path.basename(stream.name))[0] + '_img', '*.png'))
         # No images in Dropbook location try generic images directory
         if not imgs:
             imgs = glob.glob(os.path.join(os.path.join(tdir, 'images'), '*.png'))

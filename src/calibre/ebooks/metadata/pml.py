@@ -28,8 +28,12 @@ def get_metadata(stream, extract_cover=True):
             for p in pmls:
                 with open(p, 'r+b') as p_stream:
                     pml += p_stream.read()
+            if extract_cover:
+                mi.cover_data = get_cover(os.path.splitext(os.path.basename(stream.name))[0], tdir, True)
     else:
         pml = stream.read()
+        if extract_cover:
+            mi.cover_data = get_cover(os.path.splitext(os.path.basename(stream.name))[0], os.path.abspath(os.path.dirname(stream.name)))
 
     for comment in re.findall(r'(?mus)\\v.*?\\v', pml):
         m = re.search(r'TITLE="(.*?)"', comment)
@@ -51,3 +55,22 @@ def get_metadata(stream, extract_cover=True):
             mi.isbn = m.group(1).strip().decode('cp1252', 'replace')
 
     return mi
+
+def get_cover(name, tdir, top_level=False):
+    cover_path = []
+    cover_data = None
+
+    if top_level:
+        cover_path = glob.glob(os.path.join(tdir, 'cover.png'))
+    # Images not in top level try bookname_img directory because
+    # that's where Dropbook likes to see them.
+    if not cover_path:
+        cover_path = glob.glob(os.path.join(tdir, name + '_img', 'cover.png'))
+    # No images in Dropbook location try generic images directory
+    if not cover_path:
+        cover_path = glob.glob(os.path.join(os.path.join(tdir, 'images'), 'cover.png'))
+    if cover_path:
+        with open(cover_path[0], 'r+b') as cstream:
+            cover_data = cstream.read()
+
+    return ('png', cover_data)

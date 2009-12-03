@@ -13,6 +13,7 @@ import re
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.pdb.ereader import image_name
+from calibre.ebooks.pml import unipmlcode
 from calibre import entity_to_unicode
 
 TAG_MAP = {
@@ -163,8 +164,9 @@ class PMLMLizer(object):
             mo = re.search('(%s)' % entity[1:-1], text)
             text = text.replace(entity, entity_to_unicode(mo))
 
-        # Turn all unicode characters into their PML hex equivelent
-        text = re.sub('[^\x00-\x7f]', lambda x: '\\U%04x' % ord(x.group()), text)
+        # Turn all characters that cannot be represented by themself into their
+        # PML code equivelent
+        text = re.sub('[^\x00-\x7f]', lambda x: unipmlcode(x.group()), text)
 
         # Remove excess spaces at beginning and end of lines
         text = re.sub('(?m)^[ ]+', '', text)
