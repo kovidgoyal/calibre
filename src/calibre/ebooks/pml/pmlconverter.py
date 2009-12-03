@@ -13,7 +13,6 @@ import StringIO
 
 from calibre import my_unichr, prepare_string_for_xml
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.pdb.ereader import image_name
 
 class PML_HTMLizer(object):
 
@@ -445,7 +444,7 @@ class PML_HTMLizer(object):
                     elif c == 'm':
                         empty = False
                         src = self.code_value(line)
-                        text = '<img src="images/%s" />' % image_name(src).strip('\x00')
+                        text = '<img src="images/%s" />' % src
                     elif c == 'Q':
                         empty = False
                         id = self.code_value(line)
