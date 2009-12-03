@@ -18,7 +18,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
                      QToolButton, QDialog, QDesktopServices, QFileDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                     QMessageBox, QStackedLayout, QHelpEvent
+                     QMessageBox, QStackedLayout, QHelpEvent, QInputDialog
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import  prints, patheq
@@ -869,9 +869,13 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         Add an empty book item to the library. This does not import any formats
         from a book file.
         '''
-        from calibre.ebooks.metadata import MetaInformation
-        self.library_view.model().db.import_book(MetaInformation(None), [])
-        self.library_view.model().books_added(1)
+        num, ok = QInputDialog.getInt(self, _('How many empty books?'),
+                _('How many empty boks should be added?'), 1, 1, 100)
+        if ok:
+            from calibre.ebooks.metadata import MetaInformation
+            for x in xrange(num):
+                self.library_view.model().db.import_book(MetaInformation(None), [])
+            self.library_view.model().books_added(num)
 
     def files_dropped(self, paths):
         to_device = self.stack.currentIndex() != 0
