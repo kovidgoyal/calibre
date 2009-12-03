@@ -123,6 +123,8 @@ class PMLInput(InputFormatPlugin):
         from calibre.ebooks.metadata.meta import get_metadata
         log.debug('Reading metadata from input file...')
         mi = get_metadata(stream, 'pml')
+        if 'images/cover.png' in images:
+            mi.cover = 'images/cover.png'
         opf = OPFCreator(os.getcwd(), mi)
         log.debug('Generating manifest...')
         opf.create_manifest(manifest_items)
