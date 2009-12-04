@@ -51,7 +51,7 @@ every time you add an HTML file to the library.\
 
 
 class PML2PMLZ(FileTypePlugin):
-    name = 'PML to ZIP'
+    name = 'PML to PMLZ'
     author = 'John Schember'
     description = textwrap.dedent(_('''\
 Create a PMLZ archive containging the PML file \
