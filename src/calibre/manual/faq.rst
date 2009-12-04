@@ -204,7 +204,7 @@ Now this makes it very easy to find for example all science fiction books by Isa
 
     ReadStatus -> Genre -> Author -> Series
 
-In |app|, you would instead use tags to mark genre and read status and then just use a simple search query like "tag:scifi and not tag:read". |app| even has a nice graphical interface, so you don't need to learn its search language. 
+In |app|, you would instead use tags to mark genre and read status and then just use a simple search query like ``tag:scifi and not tag:read``. |app| even has a nice graphical interface, so you don't need to learn its search language instead you can just click on tags to include or exclude them from the search. 
 
 Why doesn't |app| have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,7 +242,7 @@ If you are reasonably proficient with computers, you can teach |app| to download
 Otherwise, you can register a request for a particular news site by adding a comment `here <http://bugs.calibre-ebook.com/ticket/405>`_.
 
 Can I use web2disk to download an arbitrary website?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``web2disk http://mywebsite.com``
 
 Miscellaneous
