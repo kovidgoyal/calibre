@@ -55,9 +55,9 @@ class PML2PMLZ(FileTypePlugin):
     author = 'John Schember'
     description = textwrap.dedent(_('''\
 Create a PMLZ archive containing the PML file \
-and all images in the directory pmlname_img or images \
-file containing all linked files. This plugin is run \
-every time you add an PML file to the library.\
+and all images in the directory pmlname_img or \
+images. This plugin is run every time you add \
+a PML file to the library. \
     '''))
     version = numeric_version
     file_types = set(['pml'])
