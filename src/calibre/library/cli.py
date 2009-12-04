@@ -9,6 +9,7 @@ Command line interface to the calibre database.
 
 import sys, os, cStringIO
 from textwrap import TextWrapper
+from urllib import quote
 
 from calibre import terminal_controller, preferred_encoding, prints
 from calibre.utils.config import OptionParser, prefs
@@ -187,8 +188,6 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
         template = MarkupTemplate(XML_TEMPLATE)
         return template.generate(data=data, os=os).render('xml')
     elif output_format == 'stanza':
-        def quote(raw):
-            return raw.replace('"', r'\"')
         data = [i for i in data if i.has_key('fmt_epub')]
         for x in data:
             if isinstance(x['fmt_epub'], unicode):

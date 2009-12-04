@@ -12,7 +12,6 @@ from calibre.gui2 import ORG_NAME, APP_UID, initialize_file_icon_provider, \
     Application
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.utils.config import prefs, dynamic
-from calibre.gui2.ui import Main
 
 def option_parser():
     parser = _option_parser('''\
@@ -32,6 +31,7 @@ path_to_ebook to the database.
     return parser
 
 def init_qt(args):
+    from calibre.gui2.ui import Main
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if opts.with_library is not None and os.path.isdir(opts.with_library):
@@ -45,6 +45,7 @@ def init_qt(args):
     return app, opts, args, actions
 
 def run_gui(opts, args, actions, listener, app):
+    from calibre.gui2.ui import Main
     initialize_file_icon_provider()
     if not dynamic.get('welcome_wizard_was_run', False):
         from calibre.gui2.wizard import wizard
