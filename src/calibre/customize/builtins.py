@@ -54,10 +54,10 @@ class PML2PMLZ(FileTypePlugin):
     name = 'PML to PMLZ'
     author = 'John Schember'
     description = textwrap.dedent(_('''\
-        Create a PMLZ archive containing the PML file \
-        and all images in the directory pmlname_img or images \
-        file containing all linked files. This plugin is run \
-        every time you add an PML file to the library.\
+Create a PMLZ archive containing the PML file \
+and all images in the directory pmlname_img or images \
+file containing all linked files. This plugin is run \
+every time you add an PML file to the library.\
     '''))
     version = numeric_version
     file_types = set(['pml'])
@@ -66,25 +66,20 @@ class PML2PMLZ(FileTypePlugin):
 
     def run(self, pmlfile):
         import zipfile
-        from calibre.ptempfile import TemporaryDirectory
 
-        with TemporaryDirectory('_plugin_pml2pmlz') as tdir:
-            name = os.path.join(tdir, '_plugin_pml2pmlz.pmlz')
-            pmlz = zipfile.ZipFile(name, 'w')
-            pmlz.write(pmlfile)
+        of = self.temporary_file('_plugin_pml2pmlz.pmlz')
+        pmlz = zipfile.ZipFile(of.name, 'w')
+        pmlz.write(pmlfile, os.path.basename(pmlfile))
 
-            pml_img = os.path.basename(pmlfile)[0] + '_img'
-            img_dir = pml_img if os.path.exists(pml_img) else 'images' if \
+        pml_img = os.path.basename(pmlfile)[0] + '_img'
+        img_dir = pml_img if os.path.exists(pml_img) else 'images' if \
             os.path.exists('images') else ''
-            if img_dir:
-                for image in glob.glob(os.path.join(img_dir, '*.png')):
-                    pmlz.write(image)
-            pmlz.close()
+        if img_dir:
+            for image in glob.glob(os.path.join(img_dir, '*.png')):
+                pmlz.write(image, os.path.join('images', (os.path.basename(image))))
+        pmlz.close()
 
-        return name
-
-    def customization_help(self, gui=False):
-        return _('Character encoding for the input PML files. Should ways be: cp1252.')
+        return of.name
 
 
 class ComicMetadataReader(MetadataReaderPlugin):
