@@ -16,6 +16,18 @@ from calibre.ebooks.pdb.ereader.reader132 import HeaderRecord
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pdb.header import PdbHeaderReader
 
+def get_cover(pheader, eheader):
+    cover_data = None
+
+    for i in range(eheader.image_count):
+        raw = pheader.section_data(eheader.image_data_offset + i)
+
+        if raw[4:4 + 32].strip('\x00') == 'cover.png':
+            cover_data = raw[62:]
+            break
+
+    return ('png', cover_data)
+
 def get_metadata(stream, extract_cover=True):
     """
     Return metadata as a L{MetaInfo} object
@@ -29,7 +41,7 @@ def get_metadata(stream, extract_cover=True):
     if len(pheader.section_data(0)) == 132:
         hr = HeaderRecord(pheader.section_data(0))
 
-        if hr.version in (2, 10) and hr.has_metadata == 1:
+        if hr.compression in (2, 10) and hr.has_metadata == 1:
             try:
                 mdata = pheader.section_data(hr.metadata_offset)
 
@@ -40,6 +52,9 @@ def get_metadata(stream, extract_cover=True):
                 mi.isbn = mdata[4]
             except:
                 pass
+
+            if extract_cover:
+                mi.cover_data = get_cover(pheader, hr)
 
     if not mi.title:
         mi.title = pheader.title if pheader.title else _('Unknown')
@@ -56,7 +71,7 @@ def set_metadata(stream, mi):
     sections = [pheader.section_data(x) for x in range(0, pheader.section_count())]
     hr = HeaderRecord(sections[0])
 
-    if hr.version not in (2, 10):
+    if hr.compression not in (2, 10):
         return
 
     # Create a metadata record for the file if one does not alreay exist
