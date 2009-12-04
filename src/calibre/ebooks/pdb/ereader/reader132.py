@@ -29,12 +29,19 @@ class HeaderRecord(object):
     '''
 
     def __init__(self, raw):
-        self.version, = struct.unpack('>H', raw[0:2])
+        self.compression, = struct.unpack('>H', raw[0:2])
         self.non_text_offset, = struct.unpack('>H', raw[12:14])
+        self.chapter_count, = struct.unpack('>H', raw[14:16])
+        self.image_count, = struct.unpack('>H', raw[20:22])
+        self.link_count, = struct.unpack('>H', raw[22:24])
         self.has_metadata, = struct.unpack('>H', raw[24:26])
-        self.footnote_rec, = struct.unpack('>H', raw[28:30])
-        self.sidebar_rec, = struct.unpack('>H', raw[30:32])
+        self.footnote_count, = struct.unpack('>H', raw[28:30])
+        self.sidebar_count, = struct.unpack('>H', raw[30:32])
+        self.chapter_offset, = struct.unpack('>H', raw[32:34])
+        self.small_font_page_offset, = struct.unpack('>H', raw[36:38])
+        self.large_font_page_offset, = struct.unpack('>H', raw[38:40])
         self.image_data_offset, = struct.unpack('>H', raw[40:42])
+        self.link_offset, = struct.unpack('>H', raw[42:44])
         self.metadata_offset, = struct.unpack('>H', raw[44:46])
         self.footnote_offset, = struct.unpack('>H', raw[48:50])
         self.sidebar_offset, = struct.unpack('>H', raw[50:52])
@@ -58,11 +65,11 @@ class Reader132(FormatReader):
 
         self.header_record = HeaderRecord(self.section_data(0))
 
-        if self.header_record.version not in (2, 10):
-            if self.header_record.version in (260, 272):
+        if self.header_record.compression not in (2, 10):
+            if self.header_record.compression in (260, 272):
                 raise DRMError('eReader DRM is not supported.')
             else:
-                raise EreaderError('Unknown book version %i.' % self.header_record.version)
+                raise EreaderError('Unknown book compression %i.' % self.header_record.compression)
 
         from calibre.ebooks.metadata.pdb import get_metadata
         self.mi = get_metadata(stream, False)
@@ -71,9 +78,9 @@ class Reader132(FormatReader):
         return self.sections[number]
 
     def decompress_text(self, number):
-        if self.header_record.version == 2:
+        if self.header_record.compression == 2:
             return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
-        if self.header_record.version == 10:
+        if self.header_record.compression == 10:
             return zlib.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
     def get_image(self, number):
@@ -115,19 +122,19 @@ class Reader132(FormatReader):
             pml += self.get_text_page(i)
         html += pml_to_html(pml)
 
-        if self.header_record.footnote_rec > 0:
+        if self.header_record.footnote_count > 0:
             html += '<br /><h1>%s</h1>' % _('Footnotes')
             footnoteids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.footnote_offset).decode('cp1252' if self.encoding is None else self.encoding))
-            for fid, i in enumerate(range(self.header_record.footnote_offset + 1, self.header_record.footnote_offset + self.header_record.footnote_rec)):
+            for fid, i in enumerate(range(self.header_record.footnote_offset + 1, self.header_record.footnote_offset + self.header_record.footnote_count)):
                 self.log.debug('Extracting footnote page %i' % i)
                 html += '<dl>'
                 html += footnote_sidebar_to_html(footnoteids[fid], self.decompress_text(i))
                 html += '</dl>'
 
-        if self.header_record.sidebar_rec > 0:
+        if self.header_record.sidebar_count > 0:
             html += '<br /><h1>%s</h1>' % _('Sidebar')
             sidebarids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.sidebar_offset).decode('cp1252' if self.encoding is None else self.encoding))
-            for sid, i in enumerate(range(self.header_record.sidebar_offset + 1, self.header_record.sidebar_offset + self.header_record.sidebar_rec)):
+            for sid, i in enumerate(range(self.header_record.sidebar_offset + 1, self.header_record.sidebar_offset + self.header_record.sidebar_count)):
                 self.log.debug('Extracting sidebar page %i' % i)
                 html += '<dl>'
                 html += footnote_sidebar_to_html(sidebarids[sid], self.decompress_text(i))

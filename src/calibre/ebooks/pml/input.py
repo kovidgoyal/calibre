@@ -27,20 +27,20 @@ class PMLInput(InputFormatPlugin):
     def process_pml(self, pml_path, html_path, close_all=False):
         pclose = False
         hclose = False
-    
+
         if not hasattr(pml_path, 'read'):
             pml_stream = open(pml_path, 'rb')
             pclose = True
         else:
             pml_stream = pml_path
             pml_stream.seek(0)
-            
+
         if not hasattr(html_path, 'write'):
             html_stream = open(html_path, 'wb')
             hclose = True
         else:
             html_stream = html_path
-        
+
         ienc = pml_stream.encoding if pml_stream.encoding else 'cp1252'
         if self.options.input_encoding:
             ienc = self.options.input_encoding
@@ -95,12 +95,12 @@ class PMLInput(InputFormatPlugin):
             with TemporaryDirectory('_unpmlz') as tdir:
                 zf = ZipFile(stream)
                 zf.extractall(tdir)
-            
+
                 pmls = glob.glob(os.path.join(tdir, '*.pml'))
                 for pml in pmls:
                     html_name = os.path.splitext(os.path.basename(pml))[0]+'.html'
                     html_path = os.path.join(os.getcwd(), html_name)
-                    
+
                     pages.append(html_name)
                     log.debug('Processing PML item %s...' % pml)
                     ttoc = self.process_pml(pml, html_path)
@@ -119,7 +119,7 @@ class PMLInput(InputFormatPlugin):
         manifest_items = []
         for item in pages+images:
             manifest_items.append((item, None))
-        
+
         from calibre.ebooks.metadata.meta import get_metadata
         log.debug('Reading metadata from input file...')
         mi = get_metadata(stream, 'pml')
@@ -133,5 +133,5 @@ class PMLInput(InputFormatPlugin):
         with open('metadata.opf', 'wb') as opffile:
             with open('toc.ncx', 'wb') as tocfile:
                 opf.render(opffile, tocfile, 'toc.ncx')
-        
+
         return os.path.join(os.getcwd(), 'metadata.opf')
