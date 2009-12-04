@@ -5,6 +5,73 @@
 # Also, each release can have new and improved recipes.
 
 - version: 0.6.25
+  date: 2009-12-04
+
+  new features:
+
+    - title: "Adroid devices: Allow user to customize the directory for sending books"
+      description: >
+                Now the user can choose what directory on the device calibre will send 
+                books to. This allows calibre to support different reading software on Android devices
+                apart from just WordPlayer. 
+      tickets: [3392]
+
+    - title: "LIT Input: Handle LIT files that are really TXT files"
+      description: >
+                Some poorly created LIT files are really just one big block of text. Now calibre
+                will automatically convert that TXT into paragraphs based on blank lines. This
+                will prevent errors when trying to convert the LIT files to EPUB.
+
+    - title: Device support for Motorola Droid (windows and linux)
+
+    - title: Various improvements to metadata reading for eReader and PML books
+
+    - title: Allow adding of multiple empty books at once
+
+    - title: "Device drivers: Allow one driver to handle devices from multiple vendors. Also allow device interface plugins to override the USB device detection code"
+
+    - title: "calibre-debug: Remove --develop-from option as it is no longer needed"
+
+  bug fixes:
+    - title: "Content server: Fix password protected access from Adroid devices"
+      tickets: [3952]
+
+    - title: "calibredb with output format stanza once again escapes URLs"
+      tickets: [4084]
+
+    - title: Implement work around for a CSS bug in Adobe Digital Editions that causes it to crash
+      description: >
+            If the CSS contains the declaration font-size: medium instead of font-size: normal
+            Adobe Digital Editions will crash. calibre will now automatically replace medium with
+            normal.
+
+    - title: "PML Output: Only create \\a and \\U tags for supported characters."
+
+    - title: "PML Input: Allow for images in top-level bookname_image and images directories"
+
+    - title: Allow sending of MOBI files to the PocketBook 360
+      tickets: [4118]
+
+    - title: "JetBook driver: Don't incorrectly nest folders when uploading books by the same author"
+      tickets: [4120]
+
+    - title: Speed up download of the free Economist recipe
+
+    - title: "FB2 Input: Workaround for unescaped amerpsands"
+
+  new recipes:
+    - title: Money Control
+      author: kwetal
+
+    - title: Vrij Nederland
+      author: kwetal
+
+  improved recipes:
+    - Times Online
+    - Endgadget
+    - Business Week
+
+- version: 0.6.25
   date: 2009-11-30
 
   new features:

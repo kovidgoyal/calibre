@@ -229,6 +229,8 @@ class CSSFlattener(object):
         if 'bgcolor' in node.attrib:
             cssdict['background-color'] = node.attrib['bgcolor']
             del node.attrib['bgcolor']
+        if cssdict.get('font-weight', '').lower() == 'medium':
+            cssdict['font-weight'] = 'normal' # ADE chokes on font-weight medium
         if not self.context.disable_font_rescaling:
             _sbase = self.sbase if self.sbase is not None else \
                 self.context.source.fbase

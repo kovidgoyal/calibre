@@ -9,10 +9,12 @@ from calibre.utils.logging import Log
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 
 def gui_convert(input, output, recommendations, notification=DummyReporter(),
-        abort_after_input_dump=False):
+        abort_after_input_dump=False, log=None):
     recommendations = list(recommendations)
     recommendations.append(('verbose', 2, OptionRecommendation.HIGH))
-    plumber = Plumber(input, output, Log(), report_progress=notification,
+    if log is None:
+        log = Log()
+    plumber = Plumber(input, output, log, report_progress=notification,
             abort_after_input_dump=abort_after_input_dump)
     plumber.merge_ui_recommendations(recommendations)
 
