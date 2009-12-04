@@ -75,7 +75,7 @@ MD5_SESS = "MD5-sess"
 AUTH = "auth"
 AUTH_INT = "auth-int"
 
-SUPPORTED_ALGORITHM = (MD5, MD5_SESS)
+SUPPORTED_ALGORITHM = ('md5', MD5, MD5_SESS)
 SUPPORTED_QOP = (AUTH, AUTH_INT)
 
 ################################################################################
