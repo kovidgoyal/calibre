@@ -11,7 +11,7 @@ from calibre.ebooks.BeautifulSoup import Tag
 
 class Timesonline(BasicNewsRecipe):
     title                  = 'The Times Online'
-    __author__             = 'Darko Miletic'
+    __author__             = 'Darko Miletic and Sujata Raman'
     description            = 'UK news'
     publisher              = 'timesonline.co.uk'
     category               = 'news, politics, UK'
@@ -20,21 +20,43 @@ class Timesonline(BasicNewsRecipe):
     no_stylesheets         = True
     use_embedded_content   = False
     simultaneous_downloads = 1
-    encoding               = 'cp1252'
+    encoding               = 'ISO-8859-1'
     lang                   = 'en-UK'
+    remove_javascript = True
     language = 'en'
+    recursions = 9
+    match_regexps = [r'http://www.timesonline.co.uk/.*page=[2-9]']
 
-
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
+    keep_only_tags =  [
+                        dict(name='div', attrs= {'id':['region-column1and2-layout2']}),
+                        {'class' : ['subheading']},
+                        dict(name='div', attrs= {'id':['dynamic-image-holder']}),
+                        dict(name='div', attrs= {'class':['article-author']}),
+                        dict(name='div', attrs= {'id':['related-article-links']}),
                         ]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+    remove_tags        = [
+                          dict(name=['embed','object','form','iframe']),
+                          dict(name='span', attrs = {'class':'float-left padding-left-8 padding-top-2'}),
+                          dict(name='div', attrs= {'id':['region-footer','region-column2-layout2','grid-column4','login-status','comment-sort-order']}),
+                          dict(name='div', attrs= {'class': ['debate-quote-container','clear','your-comment','float-left related-attachements-container','float-left padding-bottom-5 padding-top-8','puff-top']}),
+                          dict(name='span', attrs = {'id': ['comment-count']}),
+                          dict(name='ul',attrs = {'id': 'read-all-comments'}),
+                          dict(name='a', attrs = {'class':'reg-bold'}),
+                          ]
 
-    remove_tags        = [dict(name=['embed','object'])]
-    remove_tags_after  = dict(name='div', attrs={'class':'bg-666'})
+
+    extra_css = '''
+                .small{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
+                .byline{font-family :Arial,Helvetica,sans-serif; font-size:x-small; background:#F8F1D8;}
+                .color-666{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666; }
+                h1{font-family:Georgia,Times New Roman,Times,serif;font-size:large; }
+                .color-999 {color:#999999;}
+                .x-small {font-size:x-small;}
+                #related-article-links{font-family :Arial,Helvetica,sans-serif; font-size:small;}
+                h2{color:#333333;font-family :Georgia,Times New Roman,Times,serif; font-size:small;}
+                p{font-family :Arial,Helvetica,sans-serif; font-size:small;}
+                '''
 
     feeds          = [
                         (u'Top stories from Times Online', u'http://www.timesonline.co.uk/tol/feeds/rss/topstories.xml'     ),
@@ -49,18 +71,32 @@ class Timesonline(BasicNewsRecipe):
                         ('Literary Supplement', 'http://www.timesonline.co.uk/tol/feeds/rss/thetls.xml'),
                      ]
 
-    def print_version(self, url):
-        return url + '?print=yes'
+    def get_cover_url(self):
+        cover_url = None
+        index = 'http://www.timesonline.co.uk/tol/newspapers/'
+        soup = self.index_to_soup(index)
+        link_item = soup.find(name = 'div',attrs ={'class': "float-left margin-right-15"})
+        if link_item:
+           cover_url = 'http://www.timesonline.co.uk' + link_item.img['src']
+           print cover_url
+        return cover_url
 
     def get_article_url(self, article):
         return article.get('guid',  None)
+
 
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang']     = self.lang
         mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
+        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=ISO-8859-1")])
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         return self.adeify_images(soup)
+
+    def postprocess_html(self,soup,first):
+        for tag in soup.findAll(text = ['Previous Page','Next Page']):
+            tag.extract()
+        return soup
+
 
