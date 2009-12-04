@@ -84,8 +84,8 @@ class UploadToGoogleCode(Command):
         check_call(['scp', t.name, 'divok:'+self.GPATHS])
         self.br = self.login_to_gmail()
         self.delete_old_files()
-        if len(self.get_files_hosted_by_google_code()) > len(installers()):
-            self.warn('Some old files were not deleted from Google Code')
+        #if len(self.get_files_hosted_by_google_code()) > len(installers()):
+        #    self.warn('Some old files were not deleted from Google Code')
 
     def login_to_gmail(self):
         import mechanize
@@ -98,7 +98,7 @@ class UploadToGoogleCode(Command):
         br.select_form(nr=0)
         br.form['Email'] = self.USERNAME
         br.form['Passwd'] = pw
-        res = br.submit()
+        br.submit()
         return br
 
     def get_files_hosted_by_google_code(self):
@@ -121,13 +121,8 @@ class UploadToGoogleCode(Command):
             self.info('\tDeleting', fname)
             self.br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%fname)
             self.br.select_form(predicate=lambda x: 'delete.do' in x.action)
-            submit = self.br.form.find_control(name='delete')
-            res = self.br.submit(name='delete')
-            #from calibre import ipython
-            #ipython({'br':self.br, 'res':res})
-            #return
-
-
+            self.br.form.find_control(name='delete')
+            self.br.submit(name='delete')
 
     def encode_upload_request(self, fields, file_path):
         BOUNDARY = '----------Googlecode_boundary_reindeer_flotilla'
