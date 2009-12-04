@@ -164,12 +164,15 @@ class Reader132(FormatReader):
 
     def create_opf(self, output_dir, images):
         with CurrentDir(output_dir):
+            if 'cover.png' in images:
+                self.mi.cover = os.path.join('images', 'cover.png')
+
             opf = OPFCreator(output_dir, self.mi)
 
             manifest = [('index.html', None)]
 
             for i in images:
-                manifest.append((os.path.join('images/', i), None))
+                manifest.append((os.path.join('images', i), None))
 
             opf.create_manifest(manifest)
             opf.create_spine(['index.html'])
