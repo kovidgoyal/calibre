@@ -39,6 +39,12 @@
     - title: "calibredb with output format stanza once again escapes URLs"
       tickets: [4084]
 
+    - title: Implement work around for a CSS bug in Adobe Digital Editions that causes it to crash
+      description: >
+            If the CSS contains the declaration font-size: medium instead of font-size: normal
+            Adobe Digital Editions will crash. calibre will now automatically replace medium with
+            normal.
+
     - title: "PML Output: Only create \\a and \\U tags for supported characters."
 
     - title: "PML Input: Allow for images in top-level bookname_image and images directories"

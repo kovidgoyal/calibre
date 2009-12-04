@@ -780,6 +780,8 @@ class Manifest(object):
             # In particular, it causes tostring to insert xmlns
             # declarations, which messes up the coercing logic
             idx = data.find('<html')
+            if idx == -1:
+                idx = data.find('<HTML')
             if idx > -1:
                 pre = data[:idx]
                 data = data[idx:]
