@@ -53,12 +53,10 @@ every time you add an HTML file to the library.\
 class PML2PMLZ(FileTypePlugin):
     name = 'PML to PMLZ'
     author = 'John Schember'
-    description = textwrap.dedent(_('''\
-Create a PMLZ archive containing the PML file \
-and all images in the directory pmlname_img or \
-images. This plugin is run every time you add \
-a PML file to the library. \
-    '''))
+    description = _('Create a PMLZ archive containing the PML file '
+        'and all images in the directory pmlname_img or images. '
+        'This plugin is run every time you add '
+        'a PML file to the library.')
     version = numeric_version
     file_types = set(['pml'])
     supported_platforms = ['windows', 'osx', 'linux']
