@@ -870,7 +870,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         from a book file.
         '''
         num, ok = QInputDialog.getInt(self, _('How many empty books?'),
-                _('How many empty boks should be added?'), 1, 1, 100)
+                _('How many empty books should be added?'), 1, 1, 100)
         if ok:
             from calibre.ebooks.metadata import MetaInformation
             for x in xrange(num):
