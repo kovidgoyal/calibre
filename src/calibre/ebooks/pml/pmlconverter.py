@@ -45,12 +45,12 @@ class PML_HTMLizer(object):
     STATES_VALUE_REQ = [
         'a',
         'T',
+        'FN',
+        'SB',
     ]
 
     STATES_VALUE_REQ_2 = [
         'ra',
-        'FN',
-        'SB',
     ]
 
     STATES_CLOSE_VALUE_REQ = [
@@ -79,8 +79,8 @@ class PML_HTMLizer(object):
         'b': ('<span style="font-weight: bold;">', '</span>'),
         'l': ('<span style="font-size: 150%;">', '</span>'),
         'k': ('<span style="font-size: 75%;">', '</span>'),
-        'FN': ('<br /><br style="page-break-after: always;" /><div id="fn-%s"><dl><dt>%s</dt><dd><p>', '</p></dd></dl><small><a href="#rfn-%s">return</a></small></div>'),
-        'SB': ('<br /><br style="page-break-after: always;" /><div id="sb-%s"><dl><dt><dt>%s</dt><dd><p>', '</p></dd></dl><small><a href="#rsb-%s">return</a></small></div>'),
+        'FN': ('<br /><br style="page-break-after: always;" /><div id="fn-%s"><p>', '</p><<small><a href="#rfn-%s">return</a></small></div>'),
+        'SB': ('<br /><br style="page-break-after: always;" /><div id="sb-%s"><p>', '</p><small><a href="#rsb-%s">return</a></small></div>'),
     }
 
     CODE_STATES = {
@@ -561,7 +561,7 @@ def pml_to_html(pml):
 
 def footnote_sidebar_to_html(pre_id, id, pml):
     id = id.strip('\x01')
-    html = '<br /><br style="page-break-after: always;" /><div id="%s-%s"><dl><dt>%s</dt><dd><p>%s</p></dd></dl><small><a href="#r%s-%s">return</a></small></div>' % (pre_id, id, id, pml_to_html(pml), pre_id, id)
+    html = '<br /><br style="page-break-after: always;" /><div id="%s-%s"><p>%s</p><small><a href="#r%s-%s">return</a></small></div>' % (pre_id, id, pml_to_html(pml), pre_id, id)
     return html
 
 def footnote_to_html(id, pml):
