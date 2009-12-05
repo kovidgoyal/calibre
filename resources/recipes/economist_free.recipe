@@ -3,7 +3,6 @@ from calibre.utils.threadpool import ThreadPool, makeRequests
 import time
 from datetime import datetime
 from lxml import html
-from urllib2 import urlopen
 
 class Economist(BasicNewsRecipe):
 
@@ -45,10 +44,12 @@ class Economist(BasicNewsRecipe):
         return [(t, a) for t, a in self.feed_dict.items()]
 
     def process_eco_feed_article(self, args):
+        from calibre import browser
         i, url, title, description, author, published = args
-        ret = urlopen(url)
+        br = browser()
+        ret = br.open(url)
         raw = ret.read()
-        url = ret.geturl().replace('displaystory', 'PrinterFriendly').strip()
+        url = br.geturl().replace('displaystory', 'PrinterFriendly').strip()
         root = html.fromstring(raw)
         matches = root.xpath('//*[@class = "article-section"]')
         feedtitle = 'Miscellaneous'
