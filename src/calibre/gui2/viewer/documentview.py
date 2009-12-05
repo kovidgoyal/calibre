@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 '''
 import os, math, re, glob
-from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
+from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
                      QColor, QPoint, QImage, QRegion, QVariant, \
                      QFont, QObject, QApplication, pyqtSignature
@@ -343,6 +343,8 @@ class Document(QWebPage):
     def width(self):
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
+    def load_finished(self, ok):
+        self.javascript('$("body").css("padding-bottom: 0px")')
 
 class EntityDeclarationProcessor(object):
 
@@ -361,7 +363,7 @@ class DocumentView(QWebView):
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
     def __init__(self, *args):
-        QWidget.__init__(self, *args)
+        QWebView.__init__(self, *args)
         self.debug_javascript = False
         self.self_closing_pat = re.compile(r'<([a-z]+)\s+([^>]+)/>',
                 re.IGNORECASE)
@@ -374,8 +376,8 @@ class DocumentView(QWebView):
         self.manager = None
         self._reference_mode = False
         self._ignore_scrollbar_signals = False
-        self.connect(self.document, SIGNAL('loadStarted()'), self.load_started)
-        self.connect(self.document, SIGNAL('loadFinished(bool)'), self.load_finished)
+        self.loading_url = None
+        self.loadFinished.connect(self.load_finished)
         self.connect(self.document, SIGNAL('linkClicked(QUrl)'), self.link_clicked)
         self.connect(self.document, SIGNAL('linkHovered(QString,QString,QString)'), self.link_hovered)
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
@@ -473,13 +475,12 @@ class DocumentView(QWebView):
         html = EntityDeclarationProcessor(html).processed_html
         if 'xhtml' in mt:
             html = self.self_closing_pat.sub(self.self_closing_sub, html)
-        #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
-        self.setHtml(html, QUrl.fromLocalFile(path))
-        self.turn_off_internal_scrollbars()
-
-    def load_started(self):
         if self.manager is not None:
             self.manager.load_started()
+        self.loading_url = QUrl.fromLocalFile(path)
+        #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
+        self.setHtml(html, self.loading_url)
+        self.turn_off_internal_scrollbars()
 
     def initialize_scrollbar(self):
         if getattr(self, 'scrollbar', None) is not None:
@@ -497,6 +498,11 @@ class DocumentView(QWebView):
 
 
     def load_finished(self, ok):
+        if self.loading_url is None:
+            # An <iframe> finished loading
+            return
+        self.loading_url = None
+        self.document.load_finished(ok)
         self._size_hint = self.document.mainFrame().contentsSize()
         scrolled = False
         if self.to_bottom:
