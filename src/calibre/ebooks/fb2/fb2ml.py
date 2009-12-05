@@ -46,6 +46,10 @@ TAG_LINKS = [
     'a',
 ]
 
+TAG_TITLE = [
+    'h1',
+]
+
 STYLES = [
     ('font-weight', {'bold'   : 'strong', 'bolder' : 'strong'}),
     ('font-style', {'italic' : 'emphasis'}),
@@ -196,7 +200,6 @@ class FB2MLizer(object):
             return [u'']
 
         tag = barename(elem.tag)
-        tag_count = 0
 
         if tag in TAG_IMAGES:
             if elem.attrib.get('src', None):
@@ -218,7 +221,6 @@ class FB2MLizer(object):
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
                     href = self.link_hrefs[href]
                     fb2_text.append('<a xlink:href="#%s">' % href)
-                tag_count += 1
                 tag_stack.append('a')
 
         # Anchor ids
@@ -226,11 +228,20 @@ class FB2MLizer(object):
         if id_name:
             fb2_text.append(self.get_anchor(page, id_name))
 
+        if tag in TAG_TITLE:
+            if 'p' in tag_stack:
+                ctag = []
+                ctag.append(tag_stack.pop())
+                while ctag[-1] != 'p':
+                    ctag.append(tag_stack.pop())
+                fb2_text += self.close_tags(ctag)
+            fb2_text.append('</section><section><title><p>')
+            tag_stack.append('title')
+            tag_stack.append('p')
+
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag:
-            if fb2_tag not in tag_stack:
-                tag_count += 1
-            else:
+            if fb2_tag in tag_stack:
                 tag_stack.reverse()
                 tag_stack.remove(fb2_tag)
                 tag_stack.reverse()
@@ -242,7 +253,6 @@ class FB2MLizer(object):
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
             if style_tag:
-                tag_count += 1
                 fb2_text.append('<%s>' % style_tag)
                 tag_stack.append(style_tag)
 
@@ -260,7 +270,7 @@ class FB2MLizer(object):
             fb2_text += self.dump_text(item, stylizer, page, tag_stack)
 
         close_tag_list = []
-        for i in range(0, tag_count):
+        for i in range(0, len(tag_stack)):
             close_tag_list.insert(0, tag_stack.pop())
         fb2_text += self.close_tags(close_tag_list)
 
