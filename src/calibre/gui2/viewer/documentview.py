@@ -343,8 +343,9 @@ class Document(QWebPage):
     def width(self):
         return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
 
-    def load_finished(self, ok):
-        self.javascript('$("body").css("padding-bottom: 0px")')
+    def set_bottom_padding(self, amount):
+        self.javascript('$("body").css("padding-bottom", "%dpx")' % amount)
+
 
 class EntityDeclarationProcessor(object):
 
@@ -502,7 +503,7 @@ class DocumentView(QWebView):
             # An <iframe> finished loading
             return
         self.loading_url = None
-        self.document.load_finished(ok)
+        self.document.set_bottom_padding(0)
         self._size_hint = self.document.mainFrame().contentsSize()
         scrolled = False
         if self.to_bottom:
@@ -573,8 +574,12 @@ class DocumentView(QWebView):
             if self.manager is not None:
                 self.manager.next_document()
         else:
+            self.document.set_bottom_padding(0)
             opos = self.document.ypos
             lower_limit = opos + delta_y
+            max_y = self.document.height - window_height
+            if max_y < lower_limit:
+                self.document.set_bottom_padding(lower_limit - max_y)
             max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
             if lower_limit > opos:
