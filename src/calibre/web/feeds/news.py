@@ -572,6 +572,9 @@ class BasicNewsRecipe(Recipe):
         if self.remove_javascript:
             for script in list(soup.findAll('script')):
                 script.extract()
+            for o in soup.findAll(onload=True):
+                del o['onload']
+
         for script in list(soup.findAll('noscript')):
                 script.extract()
         for attr in self.remove_attributes:
