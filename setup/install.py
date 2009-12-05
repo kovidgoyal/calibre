@@ -26,6 +26,7 @@ sys.path.insert(0, path)
 
 sys.resources_location = os.environ.get('CALIBRE_RESOURCES_PATH', {resources!r})
 sys.extensions_location = os.environ.get('CALIBRE_EXTENSIONS_PATH', {extensions!r})
+sys.executables_location = os.environ.get('CALIBRE_EXECUTABLES_PATH', {executables!r})
 
 '''
 
@@ -184,6 +185,7 @@ class Develop(Command):
         script = template.format(
                 module=mod, func=func,
                 path=self.libdir, resources=self.sharedir,
+                executables=self.staging_bindir,
                 extensions=self.j(self.libdir, 'calibre', 'plugins'))
         path = self.j(self.staging_bindir, name)
         if not os.path.exists(self.staging_bindir):
