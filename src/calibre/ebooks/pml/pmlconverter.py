@@ -30,6 +30,7 @@ class PML_HTMLizer(object):
         'h5',
         'h6',
         'a',
+        'ra',
         'c',
         'r',
         't',
@@ -37,15 +38,24 @@ class PML_HTMLizer(object):
         'l',
         'k',
         'T',
-        'Fn',
-        'Sd',
-        'FS'
+        'FN',
+        'SB',
     ]
 
     STATES_VALUE_REQ = [
         'a',
         'T',
-        'FS'
+        'FN',
+        'SB',
+    ]
+
+    STATES_VALUE_REQ_2 = [
+        'ra',
+    ]
+
+    STATES_CLOSE_VALUE_REQ = [
+        'FN',
+        'SB',
     ]
 
     STATES_TAGS = {
@@ -57,7 +67,8 @@ class PML_HTMLizer(object):
         'h6': ('<h6>', '</h6>'),
         'sp': ('<sup>', '</sup>'),
         'sb': ('<sub>', '</sub>'),
-        'a': ('<a href="%s">', '</a>'),
+        'a': ('<a href="#%s">', '</a>'),
+        'ra': ('<span id="r%s"></span><a href="#%s">', '</a>'),
         'c': ('<div style="text-align: center; margin: auto;">', '</div>'),
         'r': ('<div style="text-align: right;">', '</div>'),
         't': ('<div style="margin-left: 5%;">', '</div>'),
@@ -68,7 +79,8 @@ class PML_HTMLizer(object):
         'b': ('<span style="font-weight: bold;">', '</span>'),
         'l': ('<span style="font-size: 150%;">', '</span>'),
         'k': ('<span style="font-size: 75%;">', '</span>'),
-        'FS': ('<div id="%s">', '</div>'),
+        'FN': ('<br /><br style="page-break-after: always;" /><div id="fn-%s"><p>', '</p><<small><a href="#rfn-%s">return</a></small></div>'),
+        'SB': ('<br /><br style="page-break-after: always;" /><div id="sb-%s"><p>', '</p><small><a href="#rsb-%s">return</a></small></div>'),
     }
 
     CODE_STATES = {
@@ -93,14 +105,20 @@ class PML_HTMLizer(object):
         'B': 'b',
         'l': 'l',
         'k': 'k',
-        'Fn': 'a',
-        'Sd': 'a',
-        'FN': 'FS',
-        'SB': 'FS',
+        'Fn': 'ra',
+        'Sd': 'ra',
+        'FN': 'FN',
+        'SB': 'SB',
     }
+
+    LINK_STATES = [
+        'a',
+        'ra',
+    ]
 
     BLOCK_STATES = [
         'a',
+        'ra',
         'h1',
         'h2',
         'h3',
@@ -116,7 +134,8 @@ class PML_HTMLizer(object):
         'r',
         't',
         'T',
-        'FS',
+        'FN',
+        'SB',
     ]
 
     SPAN_STATES = [
@@ -144,8 +163,8 @@ class PML_HTMLizer(object):
         pml = re.sub(r'(?mus)^[ ]*$', '', pml)
 
         # Footnotes and Sidebars
-        pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="fns-%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
-        pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="fns-%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
+        pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
+        pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
 
         # Convert &'s into entities so &amp; in the text doesn't get turned into
         # &. It will display as &amp;
@@ -181,10 +200,12 @@ class PML_HTMLizer(object):
 
         for key, val in self.state.items():
             if val[0]:
-                if key not in self.STATES_VALUE_REQ:
-                    start += self.STATES_TAGS[key][0]
-                else:
+                if key in self.STATES_VALUE_REQ:
                     start += self.STATES_TAGS[key][0] % val[1]
+                elif key in self.STATES_VALUE_REQ_2:
+                    start += self.STATES_TAGS[key][0] % (val[1], val[1])
+                else:
+                    start += self.STATES_TAGS[key][0]
 
         return u'<p>%s' % start
 
@@ -206,7 +227,10 @@ class PML_HTMLizer(object):
                 else:
                     other.append(key)
         for key in span+div+other:
-            end += self.STATES_TAGS[key][1]
+            if key in self.STATES_CLOSE_VALUE_REQ:
+                end += self.STATES_TAGS[key][1] % self.state[key][1]
+            else:
+                end += self.STATES_TAGS[key][1]
 
         return u'%s</p>' % end
 
@@ -239,11 +263,17 @@ class PML_HTMLizer(object):
         text = u''
 
         if self.state[code][0]:
-            text = self.STATES_TAGS[code][1]
+            if code in self.STATES_CLOSE_VALUE_REQ:
+                text = self.STATES_TAGS[code][1] % self.state[code][1]
+            else:
+                text = self.STATES_TAGS[code][1]
         else:
-            if code in self.STATES_VALUE_REQ:
+            if code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
                 val = self.code_value(stream)
-                text += self.STATES_TAGS[code][0] % val
+                if code in self.STATES_VALUE_REQ:
+                    text = self.STATES_TAGS[code][0] % val
+                else:
+                    text = self.STATES_TAGS[code][0] % (val, val)
                 self.state[code][1] = val
             else:
                 text = self.STATES_TAGS[code][0]
@@ -258,7 +288,10 @@ class PML_HTMLizer(object):
             # Close all.
             for c in self.SPAN_STATES+self.DIV_STATES:
                 if self.state[c][0]:
-                    text += self.STATES_TAGS[c][1]
+                    if c in self.STATES_CLOSE_VALUE_REQ:
+                        text += self.STATES_TAGS[c][1] % self.state[c][1]
+                    else:
+                        text += self.STATES_TAGS[c][1]
             # Reopen the based on state.
             for c in self.DIV_STATES+self.SPAN_STATES:
                 if code == c:
@@ -266,6 +299,8 @@ class PML_HTMLizer(object):
                 if self.state[c][0]:
                     if c in self.STATES_VALUE_REQ:
                         text += self.STATES_TAGS[self.CODE_STATES[c]][0] % self.state[c][1]
+                    elif c in self.STATES_VALUE_REQ_2:
+                        text += self.STATES_TAGS[self.CODE_STATES[c]][0] % (self.state[c][1], self.state[c][1])
                     else:
                         text += self.STATES_TAGS[c][0]
         # Open code.
@@ -273,11 +308,17 @@ class PML_HTMLizer(object):
             # Close all spans.
             for c in self.SPAN_STATES:
                 if self.state[c][0]:
-                    text += self.STATES_TAGS[c][1]
+                    if c in self.STATES_CLOSE_VALUE_REQ:
+                        text += self.STATES_TAGS[c][1] % self.state[c][1]
+                    else:
+                        text += self.STATES_TAGS[c][1]
             # Process the code
-            if code in self.STATES_VALUE_REQ:
+            if code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
                 val = self.code_value(stream)
-                text += self.STATES_TAGS[code][0] % val
+                if code in self.STATES_VALUE_REQ:
+                    text += self.STATES_TAGS[code][0] % val
+                else:
+                    text += self.STATES_TAGS[code][0] % (val, val)
                 self.state[code][1] = val
             else:
                 text += self.STATES_TAGS[code][0]
@@ -286,6 +327,8 @@ class PML_HTMLizer(object):
                 if self.state[c][0]:
                     if c in self.STATES_VALUE_REQ:
                         text += self.STATES_TAGS[self.CODE_STATES[c]][0] % self.state[c][1]
+                    elif c in self.STATES_VALUE_REQ_2:
+                        text += self.STATES_TAGS[self.CODE_STATES[c]][0] % (self.state[c][1], self.state[c][1])
                     else:
                         text += self.STATES_TAGS[c][0]
 
@@ -299,7 +342,10 @@ class PML_HTMLizer(object):
             # Close all spans
             for c in self.SPAN_STATES:
                 if self.state[c][0]:
-                    text += self.STATES_TAGS[c][1]
+                    if c in self.STATES_CLOSE_VALUE_REQ:
+                        text += self.STATES_TAGS[c][1] % self.state[c][1]
+                    else:
+                        text += self.STATES_TAGS[c][1]
             # Re-open the spans based on state except for code which will be
             # left closed.
             for c in self.SPAN_STATES:
@@ -308,13 +354,18 @@ class PML_HTMLizer(object):
                 if self.state[c][0]:
                     if c in self.STATES_VALUE_REQ:
                         text += self.STATES_TAGS[code][0] % self.state[c][1]
+                    elif c in self.STATES_VALUE_REQ_2:
+                        text += self.STATES_TAGS[code][0] % (self.state[c][1], self.state[c][1])
                     else:
                         text += self.STATES_TAGS[c][0]
         # Open code.
         else:
-            if code in self.STATES_VALUE_REQ:
+            if code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
                 val = self.code_value(stream)
-                text += self.STATES_TAGS[code][0] % val
+                if code in self.STATES_VALUE_REQ:
+                    text += self.STATES_TAGS[code][0] % val
+                else:
+                    text += self.STATES_TAGS[code][0] % (val, val)
                 self.state[code][1] = val
             else:
                 text += self.STATES_TAGS[code][0]
@@ -327,19 +378,29 @@ class PML_HTMLizer(object):
         # Close all spans
         for c in self.SPAN_STATES:
             if self.state[c][0]:
-                text += self.STATES_TAGS[c][1]
-
+                if c in self.STATES_CLOSE_VALUE_REQ:
+                    text += self.STATES_TAGS[c][1] % self.state[c][1]
+                else:
+                    text += self.STATES_TAGS[c][1]
         # Process the code
         if self.state[code][0]:
             # Close tag
-            text += self.STATES_TAGS[code][1]
+            if code in self.STATES_CLOSE_VALUE_REQ:
+                text += self.STATES_TAGS[code][1] % self.state[code][1]
+            else:
+                text += self.STATES_TAGS[code][1]
         else:
             # Open tag
-            if code in self.STATES_VALUE_REQ:
+            if code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
                 val = self.code_value(stream)
+                if code in self.LINK_STATES:
+                    val = val.lstrip('#')
                 if pre:
-                    val = '#%s-%s' % (pre, val)
-                text += self.STATES_TAGS[code][0] % val
+                    val = '%s-%s' % (pre, val)
+                if code in self.STATES_VALUE_REQ:
+                    text += self.STATES_TAGS[code][0] % val
+                else:
+                    text += self.STATES_TAGS[code][0] % (val, val)
                 self.state[code][1] = val
             else:
                 text += self.STATES_TAGS[code][0]
@@ -349,6 +410,8 @@ class PML_HTMLizer(object):
             if self.state[c][0]:
                 if c in self.STATES_VALUE_REQ:
                     text += self.STATES_TAGS[code][0] % self.state[c][1]
+                elif c in self.STATES_VALUE_REQ_2:
+                    text += self.STATES_TAGS[code][0] % (self.state[c][1], self.state[c][1])
                 else:
                     text += self.STATES_TAGS[c][0]
 
@@ -432,13 +495,13 @@ class PML_HTMLizer(object):
                     elif c in 'FSX':
                         l = line.read(1)
                         if '%s%s' % (c, l) == 'Fn':
-                            text = self.process_code('Fn', line, 'fns')
+                            text = self.process_code('Fn', line, 'fn')
                         elif '%s%s' % (c, l) == 'FN':
                             text = self.process_code('FN', line)
                         elif '%s%s' % (c, l) == 'SB':
                             text = self.process_code('SB', line)
                         elif '%s%s' % (c, l) == 'Sd':
-                            text = self.process_code('Sd', line, 'fns')
+                            text = self.process_code('Sd', line, 'sb')
                         else:
                             text = self.process_code('%s%s' % (c, l), line)
                     elif c == 'm':
@@ -496,8 +559,13 @@ def pml_to_html(pml):
     hizer = PML_HTMLizer()
     return hizer.parse_pml(pml)
 
-def footnote_sidebar_to_html(id, pml):
-    if id.startswith('\x01'):
-        id = id[2:]
-    html = '<div id="fns-%s"><dt>%s</dt></div><dd>%s</dd>' % (id, id, pml_to_html(pml))
+def footnote_sidebar_to_html(pre_id, id, pml):
+    id = id.strip('\x01')
+    html = '<br /><br style="page-break-after: always;" /><div id="%s-%s"><p>%s</p><small><a href="#r%s-%s">return</a></small></div>' % (pre_id, id, pml_to_html(pml), pre_id, id)
     return html
+
+def footnote_to_html(id, pml):
+    return footnote_sidebar_to_html('fn', id, pml)
+
+def sidebar_to_html(id, pml):
+    return footnote_sidebar_to_html('sb', id, pml)
