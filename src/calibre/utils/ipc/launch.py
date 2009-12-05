@@ -54,9 +54,14 @@ class Worker(object):
                     'console.app', 'Contents')
             return os.path.join(contents, 'MacOS', self.osx_interpreter)
 
-        return os.path.join(getattr(sys, 'frozen_path'), 'calibre-parallel') \
-                            if isfrozen else \
-               os.path.join(sys.executables_location, 'calibre-parallel')
+        if isfrozen:
+            return os.path.join(getattr(sys, 'frozen_path'), 'calibre-parallel')
+
+        c = os.path.join(sys.executables_location, 'calibre-parallel')
+        if os.access(c, os.X_OK):
+            return c
+        return 'calibre-parallel'
+
 
     @property
     def gui_executable(self):
