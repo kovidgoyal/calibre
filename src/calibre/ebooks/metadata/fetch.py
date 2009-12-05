@@ -128,6 +128,8 @@ class MetadataSource(Plugin):
             from calibre.customize.ui import customize_plugin
             customize_plugin(self, sc)
 
+    def customization_help(self):
+        return 'This plugin can only be customized using the GUI'
 
 class GoogleBooks(MetadataSource):
 
