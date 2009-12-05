@@ -4,7 +4,7 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-- version: 0.6.25
+- version: 0.6.26
   date: 2009-12-04
 
   new features:
