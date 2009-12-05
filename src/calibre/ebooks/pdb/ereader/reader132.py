@@ -103,7 +103,7 @@ class Reader132(FormatReader):
         return self.decompress_text(number)
 
     def extract_content(self, output_dir):
-        from calibre.ebooks.pml.pmlconverter import footnote_sidebar_to_html
+        from calibre.ebooks.pml.pmlconverter import footnote_to_html, sidebar_to_html
         from calibre.ebooks.pml.pmlconverter import pml_to_html
 
         output_dir = os.path.abspath(output_dir)
@@ -127,18 +127,14 @@ class Reader132(FormatReader):
             footnoteids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.footnote_offset).decode('cp1252' if self.encoding is None else self.encoding))
             for fid, i in enumerate(range(self.header_record.footnote_offset + 1, self.header_record.footnote_offset + self.header_record.footnote_count)):
                 self.log.debug('Extracting footnote page %i' % i)
-                html += '<dl>'
-                html += footnote_sidebar_to_html(footnoteids[fid], self.decompress_text(i))
-                html += '</dl>'
+                html += footnote_to_html(footnoteids[fid], self.decompress_text(i))
 
         if self.header_record.sidebar_count > 0:
             html += '<br /><h1>%s</h1>' % _('Sidebar')
             sidebarids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.sidebar_offset).decode('cp1252' if self.encoding is None else self.encoding))
             for sid, i in enumerate(range(self.header_record.sidebar_offset + 1, self.header_record.sidebar_offset + self.header_record.sidebar_count)):
                 self.log.debug('Extracting sidebar page %i' % i)
-                html += '<dl>'
-                html += footnote_sidebar_to_html(sidebarids[sid], self.decompress_text(i))
-                html += '</dl>'
+                html += sidebar_to_html(sidebarids[sid], self.decompress_text(i))
 
         html += '</body></html>'
 
