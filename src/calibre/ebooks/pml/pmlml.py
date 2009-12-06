@@ -14,7 +14,6 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml import unipmlcode
-from calibre import entity_to_unicode
 
 TAG_MAP = {
     'b'       : 'B',
