@@ -1,0 +1,134 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, Comment
+import re
+
+class HuffingtonPostRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en'
+    version = 1
+
+    title = u'The Huffington Post'
+    publisher = u'huffingtonpost.com'
+    category = u'News, Politics'
+    description = u'Political Blog'
+
+    oldest_article = 1.5
+    max_articles_per_feed = 100
+    use_embedded_content = False
+
+    no_stylesheets = True
+    remove_javascript = True
+    # Seems to work best, but YMMV
+    simultaneous_downloads = 1
+
+    feeds = []
+    feeds.append((u'Latest News', u'http://feeds.huffingtonpost.com/huffingtonpost/LatestNews'))
+    # Works, but appears to be a subset of the politics-blog feed
+    #feeds.append((u'Politics', u'http://www.huffingtonpost.com/feeds/verticals/politics/index.xml'))
+    feeds.append((u'Politics', u'http://www.huffingtonpost.com/feeds/verticals/politics/blog.xml'))
+    # Does not work
+    #feeds.append((u'Politics: News', u'http://www.huffingtonpost.com/feeds/verticals/politics/news.xml'))
+    # Works, but appears to be a subset of the media-blog feed
+    #feeds.append((u'Media', u'http://www.huffingtonpost.com/feeds/verticals/media/index.xml'))
+    feeds.append((u'Media', u'http://www.huffingtonpost.com/feeds/verticals/media/blog.xml'))
+    # Does not work
+    #feeds.append((u'Media: News', u'http://www.huffingtonpost.com/feeds/verticals/media/news.xml'))
+    # Works, but appears to be a subset of the business-blog feed
+    #feeds.append((u'Business', u'http://www.huffingtonpost.com/feeds/verticals/business/index.xml'))
+    feeds.append((u'Business', u'http://www.huffingtonpost.com/feeds/verticals/business/blog.xml'))
+    # Does not work
+    #feeds.append((u'Business: News', u'http://www.huffingtonpost.com/feeds/verticals/business/news.xml'))
+    feeds.append((u'Original Reporting', u'http://www.huffingtonpost.com/tag/huffpolitics/feed'))
+    feeds.append((u'Original Posts', u'http://www.huffingtonpost.com/feeds/original_posts/index.xml'))
+
+    keep_only_tags = []
+    # For reporters posts
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'about_reporter_name'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'entry'}))
+    # For blog posts
+    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'blog_author_info'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'blog_title'}))
+
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'contin_below'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'adver_cont_below'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'blogger_menu_content'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'chicklets'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'google-searcG-blogp'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'forma_email'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'new_share_module'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'cse-branding-right'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'clear'}))
+    remove_tags.append(dict(name = 'div', attrs = {'style' : re.compile('clear:both;*')}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : re.compile('facebookvote_reaction_blog.*')}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : re.compile('read_more.*')}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : re.compile('facebookvote_v2.*')}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : re.compile('facebookvote_reaction.*')}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'slideshow_poll'}))
+
+    remove_attributes = ['style']
+
+    extra_css = 'a[href] {color: blue; text-decoration: none; cursor: pointer;}'
+
+    def preprocess_html(self, soup):
+        # Condens the soup.
+        soup = self.unComment(self.nukeHead(soup))
+
+        # Don't want the picture of the author
+        blogAuthor = soup.find('div', attrs = {'id': 'blog_author_info'})
+        if blogAuthor:
+            for img in blogAuthor.findAll('img'):
+                img.extract()
+
+        byline = soup.find('h2')
+        if byline:
+            h2 = Tag(soup, 'h2')
+            raw = self.tag_to_string(byline)
+            h2.append(raw)
+            byline.replaceWith(h2)
+        else:
+            byline = soup.find('div', attrs = {'class': re.compile('about_*reporter_*name')})
+            if byline:
+                h2 = Tag(soup, 'h2')
+                raw = self.tag_to_string(byline)
+                h2.append(raw.strip())
+                byline.replaceWith(h2)
+
+        headline = soup.find('h1')
+        if headline:
+            h1 = Tag(soup, 'h1')
+            raw = self.tag_to_string(headline)
+            h1.append(raw)
+            headline.replaceWith(h1)
+
+        return soup
+
+    def postprocess_html(self, soup, first):
+        # Get rid of those pesky <br /> tags
+        html = re.sub(r'\n<br />\n', '', str(soup))
+        newSoup = BeautifulSoup(html)
+
+        return newSoup
+
+    def nukeHead(self, soup):
+        titleStr = ''
+        newHead = Tag(soup, 'head')
+        newTitle = Tag(soup, 'title')
+        newHead.append(newTitle)
+        head = soup.head
+        if head:
+            title = head.title
+            if title:
+                titleStr = self.tag_to_string(title)
+            newTitle.append(titleStr)
+            head.replaceWith(newHead)
+        else:
+            soup.insert(0, newHead)
+        return soup
+
+    def unComment(self, soup):
+        comments = soup.findAll(text = lambda text: isinstance(text, Comment))
+        [comment.extract() for comment in comments]
+        return soup
+
