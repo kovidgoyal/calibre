@@ -158,12 +158,6 @@ class PMLMLizer(object):
         text = text.replace(u'\xc2', '')
         text = text.replace(u'\xa0', ' ')
 
-        # Turn all html entities into unicode. This should not be necessary as
-        # lxml should have already done this but we want to be sure it happens.
-        for entity in set(re.findall('&.+?;', text)):
-            mo = re.search('(%s)' % entity[1:-1], text)
-            text = text.replace(entity, entity_to_unicode(mo))
-
         # Turn all characters that cannot be represented by themself into their
         # PML code equivelent
         text = re.sub('[^\x00-\x7f]', lambda x: unipmlcode(x.group()), text)
