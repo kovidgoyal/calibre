@@ -1,0 +1,20 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ZamanRecipe(BasicNewsRecipe):
+    title          = u'Zaman'
+    __author__ = u'Deniz Og\xfcz'
+    language = 'tr'
+    oldest_article = 1
+    max_articles_per_feed = 10
+
+    cover_url = 'http://medya.zaman.com.tr/zamantryeni/pics/zamanonline.gif'
+    feeds          = [(u'Gundem', u'http://www.zaman.com.tr/gundem.rss'),
+                      (u'Son Dakika', u'http://www.zaman.com.tr/sondakika.rss'),
+                      (u'Spor', u'http://www.zaman.com.tr/spor.rss'),
+                      (u'Ekonomi', u'http://www.zaman.com.tr/ekonomi.rss'),
+                      (u'Politika', u'http://www.zaman.com.tr/politika.rss'),
+                      (u'D\u0131\u015f Haberler', u'http://www.zaman.com.tr/dishaberler.rss'),
+                      (u'Yazarlar', u'http://www.zaman.com.tr/yazarlar.rss'),]
+
+    def print_version(self, url):
+        return url.replace('www.zaman.com.tr/haber.do?', 'www.zaman.com.tr/yazdir.do?')

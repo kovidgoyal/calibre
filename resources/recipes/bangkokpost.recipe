@@ -1,0 +1,45 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BangkokPostRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en_TH'
+    version = 1
+
+    title = u'Bangkok Post'
+    publisher = u'Post Publishing PCL'
+    category = u'News'
+    description = u'The world\'s window to Thailand'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    no_stylesheets = True
+    remove_javascript = True
+    use_embedded_content = False
+
+    # Feeds from: http://www.bangkokpost.com/rss/
+    feeds = []
+    feeds.append((u'Breaking News', u'http://www.bangkokpost.com/rss/data/breakingnews.xml'))
+    feeds.append((u'Top Stories', u'http://www.bangkokpost.com/rss/data/topstories.xml'))
+    feeds.append((u'News', u'http://www.bangkokpost.com/rss/data/news.xml'))
+    feeds.append((u'Business', u'http://www.bangkokpost.com/rss/data/business.xml'))
+    feeds.append((u'Opinion', u'http://www.bangkokpost.com/rss/data/opinion.xml'))
+    feeds.append((u'Travel', u'http://www.bangkokpost.com/rss/data/travel.xml'))
+    feeds.append((u'Leisure', u'http://www.bangkokpost.com/rss/data/leisure.xml'))
+    feeds.append((u'Entertainment', u'http://www.bangkokpost.com/rss/data/entertainment.xml'))
+    feeds.append((u'Auto', u'http://www.bangkokpost.com/rss/data/auto.xml'))
+    feeds.append((u'Life', u'http://www.bangkokpost.com/rss/data/life.xml'))
+    feeds.append((u'Tech', u'http://www.bangkokpost.com/rss/data/tect.xml'))
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'entry'}))
+
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'article-features'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'socialBookmark'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id': 'main-sns'}))
+    # Their YouTube movies are displayed in an iframe, if you want those you will have to parse the articles by hand.
+    # Setting self.recursion to 1, which might resolve this, makes calibre downloading a lot of PDF files, which will cause a very, very very, long download time
+    remove_tags.append(dict(name = 'iframe'))
+

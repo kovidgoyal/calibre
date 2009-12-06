@@ -7,7 +7,7 @@ import re, os, traceback
 from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QPixmap, QMovie, QPalette, QTimer, QDialog, \
+                        QPixmap, QPalette, QTimer, QDialog, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, \
                         QRegExp, QSettings, QSize, QModelIndex, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
@@ -22,17 +22,14 @@ from calibre.utils.fonts import fontconfig
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
+from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 
 class ProgressIndicator(QWidget):
 
     def __init__(self, *args):
         QWidget.__init__(self, *args)
         self.setGeometry(0, 0, 300, 350)
-        self.movie = QMovie(I('jobs-animated.mng'))
-        self.ml = QLabel(self)
-        self.ml.setMovie(self.movie)
-        self.movie.start()
-        self.movie.setPaused(True)
+        self.pi = _ProgressIndicator(self)
         self.status = QLabel(self)
         self.status.setWordWrap(True)
         self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
@@ -43,18 +40,17 @@ class ProgressIndicator(QWidget):
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
         self.move(0, (pheight-self.size().height())/2.)
-        self.ml.resize(self.ml.sizeHint())
-        self.ml.move(int((self.size().width()-self.ml.size().width())/2.), 0)
-        self.status.resize(self.size().width(), self.size().height()-self.ml.size().height()-10)
-        self.status.move(0, self.ml.size().height()+10)
+        self.pi.resize(self.pi.sizeHint())
+        self.pi.move(int((self.size().width()-self.pi.size().width())/2.), 0)
+        self.status.resize(self.size().width(), self.size().height()-self.pi.size().height()-10)
+        self.status.move(0, self.pi.size().height()+10)
         self.status.setText('<h1>'+msg+'</h1>')
         self.setVisible(True)
-        self.movie.setPaused(False)
+        self.pi.startAnimation()
 
     def stop(self):
-        if self.movie.state() == self.movie.Running:
-            self.movie.setPaused(True)
-            self.setVisible(False)
+        self.pi.stopAnimation()
+        self.setVisible(False)
 
 class FilenamePattern(QWidget, Ui_Form):
 

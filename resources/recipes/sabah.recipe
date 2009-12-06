@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1253477125(BasicNewsRecipe):
+    title          = u'Sabah'
+    __author__ = u'Deniz O\u011fuz'
+    language = 'tr'
+    oldest_article = 1
+    max_articles_per_feed = 20
+    cover_url = 'http://www.sabah.com.tr/c/sb/i/sabah_logo.gif'
+    no_stylesheets = True
+    remove_tags = [dict(name='div', attrs={'style':['width: 200px', 'border-top: #d8d8d8 1px dotted', 'width: 200px; margin-right: 5px', 'padding-top: 1px']})]
+    keep_only_tags = [dict(name='div', attrs={'class':['haber line_height_def', 'haber haber_renk line_height_def']})]
+    extra_css      = '''
+                        body{font-family:Arial,Helvetica,sans-serif; font-size:small; align:left}
+                        h1{font-size:large;}
+                        .sh{font-size:large; font-weight:bold}
+                        .cap{font-size:xx-small; }
+                        .lu{font-size:xx-small; }
+                        .ds{font-size:xx-small; }
+                        .mvb{font-size:xx-small;}
+                        .by1{font-size:x-small;  color:#666666}
+                        .byd{font-size:x-small;}
+                     '''
+    feeds          = [(u'Son 24 Saat', u'http://www.sabah.com.tr/rss/Son24Saat.xml'),
+                      (u'Ekonomi', u'http://www.sabah.com.tr/rss/Ekonomi.xml'),
+                      (u'G\xfcndem', u'http://www.sabah.com.tr/rss/Gundem.xml'),
+                      (u'Siyaset', u'http://www.sabah.com.tr/rss/Siyaset.xml'),
+                      (u'Yazarlar', u'http://www.sabah.com.tr/rss/Yazarlar.xml'),
+                      (u'D\xfcnya', u'http://www.sabah.com.tr/rss/Dunya.xml'),
+                      (u'Teknoloji', u'http://www.sabah.com.tr/rss/Teknoloji.xml'),
+                      (u'Spor', u'http://www.sabah.com.tr/rss/Spor.xml'),
+                      (u'G\xfcn\xfcn \u0130\xe7inden', u'http://www.sabah.com.tr/rss/gununicinden.xml'),
+                      (u'Emlak', u'http://www.sabah.com.tr/rss/Emlak.xml'),]
