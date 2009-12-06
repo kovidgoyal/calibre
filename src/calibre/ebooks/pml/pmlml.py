@@ -14,7 +14,6 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml import unipmlcode
-from calibre import entity_to_unicode
 
 TAG_MAP = {
     'b'       : 'B',
@@ -157,12 +156,6 @@ class PMLMLizer(object):
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
         text = text.replace(u'\xa0', ' ')
-
-        # Turn all html entities into unicode. This should not be necessary as
-        # lxml should have already done this but we want to be sure it happens.
-        for entity in set(re.findall('&.+?;', text)):
-            mo = re.search('(%s)' % entity[1:-1], text)
-            text = text.replace(entity, entity_to_unicode(mo))
 
         # Turn all characters that cannot be represented by themself into their
         # PML code equivelent
