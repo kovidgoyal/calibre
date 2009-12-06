@@ -2,12 +2,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, collections
 
-from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QWidget, QHBoxLayout, QPixmap, \
+from PyQt4.QtGui import QStatusBar, QLabel, QWidget, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon, QScrollArea, QFrame
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
 from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import qstring_to_unicode, config
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
+from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
 
 class BookInfoDisplay(QWidget):
@@ -138,14 +139,12 @@ class BookInfoDisplay(QWidget):
         self.setVisible(True)
 
 class MovieButton(QFrame):
-    def __init__(self, movie, jobs_dialog):
+
+    def __init__(self, jobs_dialog):
         QFrame.__init__(self)
-        movie.setCacheMode(QMovie.CacheAll)
         self.setLayout(QVBoxLayout())
-        self.movie_widget = QLabel()
-        self.movie_widget.setMovie(movie)
-        self.movie = movie
-        self.layout().addWidget(self.movie_widget)
+        self.pi = ProgressIndicator(self)
+        self.layout().addWidget(self.pi)
         self.jobs = QLabel('<b>'+_('Jobs:')+' 0')
         self.jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)
         self.layout().addWidget(self.jobs)
@@ -156,10 +155,7 @@ class MovieButton(QFrame):
         self.jobs_dialog = jobs_dialog
         self.setCursor(Qt.PointingHandCursor)
         self.setToolTip(_('Click to see list of active jobs.'))
-        movie.start()
-        movie.setPaused(True)
         self.jobs_dialog.jobs_view.restore_column_widths()
-
 
     def mouseReleaseEvent(self, event):
         if self.jobs_dialog.isVisible():
@@ -169,6 +165,17 @@ class MovieButton(QFrame):
             self.jobs_dialog.jobs_view.read_settings()
             self.jobs_dialog.show()
             self.jobs_dialog.jobs_view.restore_column_widths()
+
+    @property
+    def is_running(self):
+        return self.pi.isAnimated()
+
+    def start(self):
+        self.pi.startAnimation()
+
+    def stop(self):
+        self.pi.stopAnimation()
+
 
 class CoverFlowButton(QToolButton):
 
@@ -211,7 +218,7 @@ class StatusBar(QStatusBar):
     def __init__(self, jobs_dialog, systray=None):
         QStatusBar.__init__(self)
         self.systray = systray
-        self.movie_button = MovieButton(QMovie(I('jobs-animated.mng')), jobs_dialog)
+        self.movie_button = MovieButton(jobs_dialog)
         self.cover_flow_button = CoverFlowButton()
         self.tag_view_button = TagViewButton()
         self.addPermanentWidget(self.cover_flow_button)
@@ -262,8 +269,7 @@ class StatusBar(QStatusBar):
         num = self.jobs()
         text = src.replace(str(num), str(nnum))
         jobs.setText(text)
-        if self.movie_button.movie.state() == QMovie.Paused:
-            self.movie_button.movie.setPaused(False)
+        self.movie_button.start()
 
     def job_done(self, nnum):
         jobs = self.movie_button.jobs
@@ -275,49 +281,8 @@ class StatusBar(QStatusBar):
             self.no_more_jobs()
 
     def no_more_jobs(self):
-        if self.movie_button.movie.state() == QMovie.Running:
-            self.movie_button.movie.jumpToFrame(0)
-            self.movie_button.movie.setPaused(True)
+        if self.movie_button.is_running:
+            self.movie_button.stop()
             QCoreApplication.instance().alert(self, 5000)
 
-if __name__ == '__main__':
-    # Used to create the animated status icon
-    from PyQt4.Qt import QPainter, QSvgRenderer, QColor
-    from subprocess import check_call
-    from calibre.gui2 import is_ok_to_use_qt
-    is_ok_to_use_qt()
-
-    def create_pixmaps(path, size=16, delta=20):
-        r = QSvgRenderer(path)
-        if not r.isValid():
-            raise Exception(path + ' not valid svg')
-        pixmaps = []
-        for angle in range(0, 360+delta, delta):
-            pm = QPixmap(size, size)
-            pm.fill(QColor(0,0,0,0))
-            p = QPainter(pm)
-            p.translate(size/2., size/2.)
-            p.rotate(angle)
-            p.translate(-size/2., -size/2.)
-            r.render(p)
-            p.end()
-            pixmaps.append(pm)
-        return pixmaps
-
-    def create_mng(path='', size=64, angle=5, delay=5):
-        pixmaps = create_pixmaps(path, size, angle)
-        filesl = []
-        for i in range(len(pixmaps)):
-            name = 'a%s.png'%(i,)
-            filesl.append(name)
-            pixmaps[i].save(name, 'PNG')
-            filesc = ' '.join(filesl)
-        cmd = 'convert -dispose Background -delay '+str(delay)+ ' ' + filesc + ' -loop 0 animated.gif'
-        try:
-            check_call(cmd, shell=True)
-        finally:
-            for file in filesl:
-                os.remove(file)
-    import sys
-    create_mng(sys.argv[1])
 

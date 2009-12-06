@@ -5,7 +5,7 @@ import traceback, os, sys, functools, collections, re
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import QMovie, QApplication, Qt, QIcon, QTimer, QWidget, SIGNAL, \
+from PyQt4.Qt import QApplication, Qt, QIcon, QTimer, SIGNAL, \
                      QDesktopServices, QDoubleSpinBox, QLabel, QTextBrowser, \
                      QPainter, QBrush, QColor, QStandardItemModel, QPalette, \
                      QStandardItem, QUrl, QRegExpValidator, QRegExp, QLineEdit, \
@@ -14,6 +14,7 @@ from PyQt4.Qt import QMovie, QApplication, Qt, QIcon, QTimer, QWidget, SIGNAL, \
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
 from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
+from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
                          info_dialog, error_dialog
@@ -61,39 +62,6 @@ class Worker(Thread):
         except Exception as err:
             self.exception = err
             self.traceback = traceback.format_exc()
-
-class ProgressIndicator(QWidget):
-
-    def __init__(self, *args):
-        QWidget.__init__(self, *args)
-        self.setGeometry(0, 0, 300, 500)
-        self.movie = QMovie(I('jobs-animated.mng'))
-        self.ml = QLabel(self)
-        self.ml.setMovie(self.movie)
-        self.movie.start()
-        self.movie.setPaused(True)
-        self.status = QLabel(self)
-        self.status.setWordWrap(True)
-        self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
-        self.setVisible(False)
-
-    def start(self, msg=''):
-        view = self.parent()
-        pwidth, pheight = view.size().width(), view.size().height()
-        self.resize(pwidth, min(pheight, 250))
-        self.move(0, (pheight-self.size().height())/2.)
-        self.ml.resize(self.ml.sizeHint())
-        self.ml.move(int((self.size().width()-self.ml.size().width())/2.), 0)
-        self.status.resize(self.size().width(), self.size().height()-self.ml.size().height()-10)
-        self.status.move(0, self.ml.size().height()+10)
-        self.status.setText('<h1>'+msg+'</h1>')
-        self.setVisible(True)
-        self.movie.setPaused(False)
-
-    def stop(self):
-        if self.movie.state() == self.movie.Running:
-            self.movie.setPaused(True)
-            self.setVisible(False)
 
 class History(collections.deque):
 

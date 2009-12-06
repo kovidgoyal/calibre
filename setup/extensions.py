@@ -112,6 +112,13 @@ extensions = [
                 sip_files = ['calibre/gui2/pictureflow/pictureflow.sip']
                 ),
 
+    Extension('progress_indicator',
+                ['calibre/gui2/progress_indicator/QProgressIndicator.cpp'],
+                inc_dirs = ['calibre/gui2/progress_indicator'],
+                headers = ['calibre/gui2/progress_indicator/QProgressIndicator.h'],
+                sip_files = ['calibre/gui2/progress_indicator/QProgressIndicator.sip']
+                ),
+
     ]
 
 

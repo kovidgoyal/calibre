@@ -433,7 +433,7 @@ settings (if any) or the defaults.
 
 .. note::
 
-    You can see the actual settings used during any conversion by clicking the rotating hourglass 
+    You can see the actual settings used during any conversion by clicking the rotating icon in the lower right corner 
     and then double clicking the individual conversion job. This will bring up a conversion log
     that will contain the actual settings used, near the top. 
 
