@@ -13,6 +13,7 @@ from calibre.devices.usbms.driver import USBMS
 class NOOK(USBMS):
 
     name           = 'Nook Device Interface'
+    gui_name       = _('The Nook')
     description    = _('Communicate with the Nook eBook reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'linux', 'osx']

@@ -784,8 +784,9 @@ class DeviceGUI(object):
         if _auto_ids != []:
             for id in _auto_ids:
                 if specific_format == None:
-                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
-                    formats = formats if formats != None else []
+                    formats = self.library_view.model().db.formats(id, index_is_id=True)
+                    formats = formats.split(',') if formats is not None else []
+                    formats = [f.lower().strip() for f in formats]
                     if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
                         auto.append(id)
                     else:
