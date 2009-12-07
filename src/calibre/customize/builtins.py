@@ -409,6 +409,7 @@ from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
+from calibre.devices.nook.driver import NOOK
 from calibre.devices.prs500.driver import PRS500
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prs700.driver import PRS700
@@ -464,6 +465,7 @@ plugins += [
     KINDLE,
     KINDLE2,
     KINDLE_DX,
+    NOOK,
     PRS505,
     PRS700,
     PRS500,
