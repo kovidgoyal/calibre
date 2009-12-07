@@ -31,7 +31,8 @@ class NOOK(USBMS):
 
     #OSX_MAIN_MEM = ''
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'BN Nook Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Nook Main Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'Nook Storage Card'
 
     EBOOK_DIR_MAIN = 'my documents'
     SUPPORTS_SUB_DIRS = True

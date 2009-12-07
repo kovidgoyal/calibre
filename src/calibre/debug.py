@@ -71,7 +71,7 @@ def debug_device_driver():
         drives = []
         print 'Drives detected:'
         print '\t', '(ID, Partitions, Drive letter)'
-        for drive in wmi.WMI().Win32_DiskDrive():
+        for drive in wmi.WMI(find_classes=False).Win32_DiskDrive():
             if drive.Partitions == 0:
                 continue
             try:

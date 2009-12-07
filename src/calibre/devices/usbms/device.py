@@ -209,7 +209,8 @@ class Device(DeviceConfig, DevicePlugin):
         return (msz, casz, cbsz)
 
     def windows_match_device(self, drive, attr):
-        pnp_id = str(drive.PNPDeviceID).upper()
+        pnp_id = (str(drive.PNPDeviceID) if not isinstance(drive, basestring)
+                else str(drive)).upper()
         device_id = getattr(self, attr)
 
         def test_vendor():
