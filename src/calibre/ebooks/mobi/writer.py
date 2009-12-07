@@ -243,7 +243,7 @@ class Serializer(object):
         buffer = self.buffer
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
-        self.id_offsets[item.href] = buffer.tell()
+        self.id_offsets[urlnormalize(item.href)] = buffer.tell()
         # Kindle periodical articles are contained in a <div> tag
         buffer.write('<div>')
         for elem in item.data.find(XHTML('body')):
@@ -265,7 +265,7 @@ class Serializer(object):
         if id is not None:
             href = '#'.join((item.href, id))
             offset = self.anchor_offset or buffer.tell()
-            self.id_offsets[href] = offset
+            self.id_offsets[urlnormalize(href)] = offset
         if self.anchor_offset is not None and \
             tag == 'a' and not elem.attrib and \
             not len(elem) and not elem.text:
