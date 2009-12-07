@@ -112,7 +112,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if hasattr(mi.pubdate, 'timetuple'):
-        format_args['timestamp'] = strftime(timefmt, mi.pubdate.timetuple())
+        format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
     format_args['id'] = str(id)
     components = [x.strip() for x in template.split('/') if x.strip()]
     components = [x.format(**format_args).strip() for x in components]
