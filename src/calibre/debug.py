@@ -71,7 +71,7 @@ def debug_device_driver():
         drives = []
         print 'Drives detected:'
         print '\t', '(ID, Partitions, Drive letter)'
-        for drive in wmi.WMI().Win32_DiskDrive():
+        for drive in wmi.WMI(find_classes=False).Win32_DiskDrive():
             if drive.Partitions == 0:
                 continue
             try:
@@ -98,7 +98,7 @@ def debug_device_driver():
     errors = {}
     success = False
     for dev in connected_devices:
-        print 'Device possibly connected:', dev
+        print 'Device possibly connected:', dev.__class__.name
         print 'Trying to open device...',
         try:
             dev.open()

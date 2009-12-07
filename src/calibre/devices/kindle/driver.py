@@ -19,7 +19,7 @@ class KINDLE(USBMS):
     name           = 'Kindle Device Interface'
     gui_name       = 'Amazon Kindle'
     description    = _('Communicate with the Kindle eBook reader.')
-    author         = _('John Schember')
+    author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats

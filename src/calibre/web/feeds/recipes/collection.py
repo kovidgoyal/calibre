@@ -14,6 +14,8 @@ from lxml import etree
 from lxml.builder import ElementMaker
 from dateutil import parser
 
+from calibre import browser
+
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
 
@@ -88,10 +90,27 @@ def get_custom_recipe_collection(db):
 def get_builtin_recipe_titles():
     return [r.get('title') for r in get_builtin_recipe_collection()]
 
-def get_builtin_recipe_by_title(title, log=None):
+def download_builtin_recipe(urn):
+    br = browser()
+    return br.open('http://status.calibre-ebook.com/recipe/'+urn).read()
+
+
+def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
     for x in get_builtin_recipe_collection():
         if x.get('title') == title:
             urn = x.get('id')[8:]
+            if download_recipe:
+                try:
+                    if log is not None:
+                        log('Trying to get latest version of recipe:', urn)
+                    return download_builtin_recipe(urn)
+                except:
+                    if log is None:
+                        import traceback
+                        traceback.print_exc()
+                    else:
+                        log.exception(
+                        'Failed to download recipe, using builtin version')
             return P('recipes/%s.recipe'%urn, data=True)
 
 class SchedulerConfig(object):

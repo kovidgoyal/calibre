@@ -12,13 +12,13 @@ from calibre.devices.usbms.driver import USBMS
 
 class NOOK(USBMS):
 
-    name           = 'Nook Iliad Device Interface'
-    description    = _('Communicate with the Barns and Noble Nook eBook reader.')
-    author         = _('John Schember')
-    supported_platforms = ['windows', 'linux']
+    name           = 'Nook Device Interface'
+    gui_name       = _('The Nook')
+    description    = _('Communicate with the Nook eBook reader.')
+    author         = 'John Schember'
+    supported_platforms = ['windows', 'linux', 'osx']
 
     # Ordered list of supported formats
-    # Be sure these have an entry in calibre.devices.mime
     FORMATS     = ['epub', 'pdb', 'pdf']
 
     VENDOR_ID   = [0x2080]
@@ -31,7 +31,8 @@ class NOOK(USBMS):
 
     #OSX_MAIN_MEM = ''
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'BN Nook Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Nook Main Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'Nook Storage Card'
 
     EBOOK_DIR_MAIN = 'my documents'
     SUPPORTS_SUB_DIRS = True
@@ -43,4 +44,9 @@ class NOOK(USBMS):
             drives['main'] = card
             drives['carda'] = main
 
+        return drives
+
+    def windows_open_callback(self, drives):
+        if 'main' not in drives and 'carda' in drives:
+            drives['main'] = drives.pop('carda')
         return drives

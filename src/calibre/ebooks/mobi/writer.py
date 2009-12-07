@@ -105,12 +105,10 @@ def decint(value, direction):
         bytes[-1] |= 0x80
     return ''.join(chr(b) for b in reversed(bytes))
 
-
 def align_block(raw, multiple=4, pad='\0'):
     extra = len(raw) % multiple
     if extra == 0: return raw
     return raw + pad*(multiple - extra)
-
 
 def rescale_image(data, maxsizeb, dimen=None):
     image = Image.open(StringIO(data))
@@ -154,7 +152,6 @@ def rescale_image(data, maxsizeb, dimen=None):
             return data
     # Well, we tried?
     return data
-
 
 class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
@@ -246,7 +243,7 @@ class Serializer(object):
         buffer = self.buffer
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
-        self.id_offsets[item.href] = buffer.tell()
+        self.id_offsets[urlnormalize(item.href)] = buffer.tell()
         # Kindle periodical articles are contained in a <div> tag
         buffer.write('<div>')
         for elem in item.data.find(XHTML('body')):
@@ -268,7 +265,7 @@ class Serializer(object):
         if id is not None:
             href = '#'.join((item.href, id))
             offset = self.anchor_offset or buffer.tell()
-            self.id_offsets[href] = offset
+            self.id_offsets[urlnormalize(href)] = offset
         if self.anchor_offset is not None and \
             tag == 'a' and not elem.attrib and \
             not len(elem) and not elem.text:
@@ -328,8 +325,6 @@ class Serializer(object):
             for hoff in hoffs:
                 buffer.seek(hoff)
                 buffer.write('%010d' % ioff)
-
-
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -545,7 +540,6 @@ class MobiWriter(object):
                 if self.opts.verbose > 3 : self._oeb.logger.info(" node %03d: %-15.15s... spans HTML records %03d - %03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, child.title if child.title.strip() > "" else "(missing)", myStartingRecord, myStartingRecord, offset, length) )
 
-            #last_name = "%04X" % myIndex
             myIndex += 1
 
         # Successfully parsed the entries
@@ -717,12 +711,10 @@ class MobiWriter(object):
                 if self.opts.verbose > 3 : self._oeb.logger.info("     node: %03d %-10.10s %-15.15s... spans HTML records %03d-%03d \t offset: 0x%06X length: 0x%06X" % \
                     (myIndex, self._ctoc_map[i]['klass'], child.title if child.title.strip() > "" else "(missing)", thisRecord, thisRecord, offset, length) )
 
-            #last_name = "%04X" % myIndex
             myIndex += 1
 
         # Successfully parsed the entries
         return True
-
 
     def _generate_tbs_book(self, nrecords, lastrecord):
         if self.opts.verbose > 3 :self._oeb.logger.info("Assembling TBS for Book: HTML record %03d of %03d" % \
@@ -786,7 +778,6 @@ class MobiWriter(object):
             tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)
 
         self._tbSequence = tbSequence
-
 
     def _generate_tbs_flat_periodical(self, nrecords, lastrecord):
         # Flat periodicals <0x102> have a single section for all articles
@@ -928,7 +919,6 @@ class MobiWriter(object):
                 tbSequence += decint(arg3, DECINT_FORWARD)                              # arg3
 
                 # Structured periodicals don't count periodical, section in nodeCount
-                #tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount - 2)  # nodeCount
                 tbSequence += chr(self._HTMLRecords[nrecords].currentSectionNodeCount)  # nodeCount
                 tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
         else :
@@ -1222,7 +1212,6 @@ class MobiWriter(object):
         self._oeb.logger.info("%s" % "  TOC structure conforms" if toc_conforms else "  TOC structure non-conforming")
         return toc_conforms
 
-
     def _generate_text(self):
         self._oeb.logger.info('Serializing markup content...')
         serializer = Serializer(self._oeb, self._images,
@@ -1326,7 +1315,6 @@ class MobiWriter(object):
             self._records.append('\0'*(4-extra))
             nrecords += 1
         self._text_nrecords = nrecords
-
 
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
@@ -1717,8 +1705,8 @@ class MobiWriter(object):
         # 0x30 - 0x33 : Number of LIGT entries
         header.write('\0'*4)
 
-        # 0x34 - 0x37 : Unknown
-        header.write(pack('>I', 1))
+        # 0x34 - 0x37 : Number of ctoc[] blocks
+        header.write(pack('>I', len(self._ctoc_records)))
 
         # 0x38 - 0xb3 : Unknown (pad?)
         header.write('\0'*124)
@@ -1740,7 +1728,6 @@ class MobiWriter(object):
         self._primary_index_record = len(self._records)
 
         # GR: handle multiple ctoc records
-        # self._records.extend([indx0, indx1, self._ctoc])
         self._records.extend([indx0, indx1 ])
         for (i,ctoc_record) in enumerate(self._ctoc_records):
             self._records.append(ctoc_record)
@@ -1814,11 +1801,11 @@ class MobiWriter(object):
         # Is there enough room for this string in the current ctoc record?
         if 0xfbf8 - self._ctoc.tell() < 2 + len(ctoc_str):
             # flush this ctoc, start a new one
-            print "closing ctoc_record at 0x%X" % self._ctoc.tell()
-            print "starting new ctoc with '%-50.50s ...'" % ctoc_str
+            # print "closing ctoc_record at 0x%X" % self._ctoc.tell()
+            # print "starting new ctoc with '%-50.50s ...'" % ctoc_str
             # pad with 00
             pad = 0xfbf8 - self._ctoc.tell()
-            print "padding %d bytes of 00" % pad
+            # print "padding %d bytes of 00" % pad
             self._ctoc.write('\0' * (pad))
             self._ctoc_records.append(self._ctoc.getvalue())
             self._ctoc.truncate(0)
@@ -1828,7 +1815,6 @@ class MobiWriter(object):
         offset = self._ctoc.tell() + record_offset
         self._ctoc.write(decint(len(ctoc_str), DECINT_FORWARD) + ctoc_str)
         return offset
-
 
     def _add_flat_ctoc_node(self, node, ctoc, title=None):
         # Process 'chapter' or 'article' nodes only, force either to 'chapter'
@@ -1846,8 +1832,6 @@ class MobiWriter(object):
             ctoc_name_map['klass'] = node.klass
 
         # Add title offset to name map
-#         ctoc_name_map['titleOffset'] = ctoc.tell()
-#         ctoc.write(decint(len(t), DECINT_FORWARD)+t)
         ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
         self._chapterCount += 1
 
@@ -1855,7 +1839,6 @@ class MobiWriter(object):
         self._ctoc_map.append(ctoc_name_map)
 
         return
-
 
     def _add_structured_ctoc_node(self, node, ctoc, title=None):
         # Process 'periodical', 'section' and 'article'
@@ -1875,15 +1858,11 @@ class MobiWriter(object):
 
         if node.klass == 'chapter':
             # Add title offset to name map
-#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
-#             ctoc.write(decint(len(t), DECINT_FORWARD)+t)
             ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
             self._chapterCount += 1
 
         elif node.klass == 'periodical' :
             # Add title offset
-#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
-#             ctoc.write( decint(len(t), DECINT_FORWARD) + t )
             ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
 
             # Look for existing class entry 'periodical' in _ctoc_map
@@ -1896,16 +1875,12 @@ class MobiWriter(object):
                     continue
             else:
                 # class names should always be in CNCX 0 - no offset
-#                 ctoc_name_map['classOffset'] = ctoc.tell()
-#                 ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
                 ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
 
             self._periodicalCount += 1
 
         elif node.klass == 'section' :
             # Add title offset
-#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
-#             ctoc.write(decint(len(t), DECINT_FORWARD)+t)
             ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
 
             # Look for existing class entry 'section' in _ctoc_map
@@ -1918,16 +1893,12 @@ class MobiWriter(object):
                     continue
             else:
                 # class names should always be in CNCX 0 - no offset
-#                 ctoc_name_map['classOffset'] = ctoc.tell()
-#                 ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
                 ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
 
             self._sectionCount += 1
 
         elif node.klass == 'article' :
             # Add title offset/title
-#             ctoc_name_map['titleOffset'] = ctoc.tell() + ctoc_offset
-#             ctoc.write(decint(len(t), DECINT_FORWARD)+t)
             ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
 
             # Look for existing class entry 'article' in _ctoc_map
@@ -1939,15 +1910,11 @@ class MobiWriter(object):
                     continue
             else:
                 # class names should always be in CNCX 0 - no offset
-#                 ctoc_name_map['classOffset'] = ctoc.tell()
-#                 ctoc.write(decint(len(node.klass), DECINT_FORWARD)+node.klass)
                 ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
 
             # Add description offset/description
             if node.description :
                 d = self._clean_text_value(node.description)
-#                 ctoc_name_map['descriptionOffset'] = ctoc.tell() + ctoc_offset
-#                 ctoc.write(decint(len(d), DECINT_FORWARD)+d)
                 ctoc_name_map['descriptionOffset'] = self._add_to_ctoc(d, self._ctoc_offset)
             else :
                 ctoc_name_map['descriptionOffset'] = None
@@ -1955,8 +1922,6 @@ class MobiWriter(object):
             # Add author offset/attribution
             if node.author :
                 a = self._clean_text_value(node.author)
-#                 ctoc_name_map['authorOffset'] = ctoc.tell() + ctoc_offset
-#                 ctoc.write(decint(len(a), DECINT_FORWARD)+a)
                 ctoc_name_map['authorOffset'] = self._add_to_ctoc(a, self._ctoc_offset)
             else :
                 ctoc_name_map['authorOffset'] = None
@@ -1970,7 +1935,6 @@ class MobiWriter(object):
 
         # append this node's name_map to map
         self._ctoc_map.append(ctoc_name_map)
-
 
     def _generate_ctoc(self):
         # Generate the compiled TOC strings
@@ -2261,7 +2225,6 @@ class MobiWriter(object):
                     self._oeb.logger.info( " Unrecognized class %s in structured document" % section.klass)
         return sectionIndices, sectionParents
 
-
     def _generate_section_article_indices(self, i, section, entries, sectionIndices, sectionParents):
                 sectionArticles = list(section.iter())[1:]
                 # Iterate over the section's articles
@@ -2279,7 +2242,6 @@ class MobiWriter(object):
                     mySectionParent = sectionParents[sectionIndices[i-1]]
                     myNewArticle = MobiArticle(mySectionParent, offset, length, ctoc_map_index )
                     mySectionParent.addArticle( myNewArticle )
-
 
     def _add_book_chapters(self, myDoc, indxt, indices):
         chapterCount = myDoc.documentStructure.chapterCount()
