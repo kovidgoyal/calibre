@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-04 21:05+0000\n"
-"PO-Revision-Date: 2009-12-04 20:16+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2009-12-05 16:18+0000\n"
+"PO-Revision-Date: 2009-12-06 22:56+0000\n"
+"Last-Translator: oishi56 <oishi56@me.com>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-05 04:36+0000\n"
+"X-Launchpad-Export-Date: 2009-12-07 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -179,57 +179,52 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:56
 msgid ""
-"        Create a PMLZ archive containing the PML file         and all images "
-"in the directory pmlname_img or images         file containing all linked "
-"files. This plugin is run         every time you add an PML file to the "
-"library.    "
+"Create a PMLZ archive containing the PML file and all images in the "
+"directory pmlname_img or images. This plugin is run every time you add a PML "
+"file to the library."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:87
-msgid "Character encoding for the input PML files. Should ways be: cp1252."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
 msgid "Extract cover from comic files"
 msgstr "Estrae le copertine dai file dei fumetti"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:115
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:137
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:147
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:158
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:178
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:188
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:198
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:208
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:219
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:230
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:242
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:263
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:274
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:284
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:294
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:108
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:130
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:140
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:151
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:161
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:171
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:181
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:191
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:201
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:212
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:223
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:235
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:256
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:267
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:277
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:287
 msgid "Read metadata from %s files"
 msgstr "Legge i metadati da file %s"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:253
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:246
 msgid "Read metadata from ebooks in RAR archives"
 msgstr "Leggi i metadati dai libri negli archivi RAR"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:305
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:298
 msgid "Read metadata from ebooks in ZIP archives"
 msgstr "Leggi i metadati dai libri negli archivi ZIP"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:316
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:326
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:336
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:358
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:369
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:319
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:329
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:351
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:362
 msgid "Set metadata in %s files"
 msgstr "Organizza i metadati in %s file"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:347
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
 msgid "Set metadata from %s files"
 msgstr "imposta metadati da %s file"
 
@@ -1318,7 +1313,7 @@ msgstr ""
 "specificata una, viene generata una copertina di default con il titolo, "
 "l'autore, etc. Questa opzione disabilita la generazione di questa copertina."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:126
+#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:130
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:114
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
@@ -1869,21 +1864,21 @@ msgstr ""
 msgid "Download %s from %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:137
 msgid "Downloads metadata from Google Books"
 msgstr "Scarica i metadati da Google Books"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:151
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Downloads metadata from isbndb.com"
 msgstr "Scarica i metadati da isbndb.com"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:179
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:187
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:189
 msgid "Downloads social metadata from amazon.com"
 msgstr ""
 
@@ -5966,7 +5961,7 @@ msgid "How many empty books?"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:873
-msgid "How many empty boks should be added?"
+msgid "How many empty books should be added?"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:917
