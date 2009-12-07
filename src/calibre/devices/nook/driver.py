@@ -27,6 +27,7 @@ class NOOK(USBMS):
 
     VENDOR_NAME = 'B&N'
     WINDOWS_MAIN_MEM = 'NOOK'
+    WINDOWS_CARD_A_MEM = 'NOOK'
 
     #OSX_MAIN_MEM = ''
 
@@ -34,3 +35,12 @@ class NOOK(USBMS):
 
     EBOOK_DIR_MAIN = 'my documents'
     SUPPORTS_SUB_DIRS = True
+
+    def windows_sort_drives(self, drives):
+        main = drives.get('main', None)
+        card = drives.get('carda', None)
+        if card and main and card < main:
+            drives['main'] = card
+            drives['carda'] = main
+
+        return drives
