@@ -45,3 +45,8 @@ class NOOK(USBMS):
             drives['carda'] = main
 
         return drives
+
+    def windows_open_callback(self, drives):
+        if 'main' not in drives and 'carda' in drives:
+            drives['main'] = drives.pop('carda')
+        return drives
