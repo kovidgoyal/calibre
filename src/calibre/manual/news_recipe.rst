@@ -109,6 +109,8 @@ Pre/post processing of downloaded HTML
 
 .. automember:: BasicNewsRecipe.template_css
 
+.. automember:: BasicNewsRecipe.remove_javascript
+
 .. automethod:: BasicNewsRecipe.preprocess_html
 
 .. automethod:: BasicNewsRecipe.postprocess_html
@@ -126,6 +128,12 @@ Convenience methods
 .. automethod:: BasicNewsRecipe.sort_index_by
 
 .. automethod:: BasicNewsRecipe.tag_to_string
+
+
+Miscellaneous
+~~~~~~~~~~~~~~~~~~
+
+.. automember:: BasicNewsRecipe.requires_version
 
 
 CustomIndexRecipe

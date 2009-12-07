@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.constants import numeric_version
 
 class RecipeInput(InputFormatPlugin):
 
@@ -51,7 +52,25 @@ class RecipeInput(InputFormatPlugin):
         else:
             title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
             title = os.path.basename(title).rpartition('.')[0]
-            recipe = compile_recipe(get_builtin_recipe_by_title(title, log))
+            raw = get_builtin_recipe_by_title(title, log=log, download_recipe=True)
+            builtin = False
+            try:
+                recipe = compile_recipe(raw)
+                if recipe.requires_version > numeric_version:
+                    log.warn(
+                    'Downloaded recipe needs calibre version at least: %s' % \
+                    recipe.requires_version)
+                builtin = True
+            except:
+                log.exception('Failed to compile downloaded recipe. Falling '
+                        'back to builtin one')
+                builtin = True
+            if builtin:
+                raw = get_builtin_recipe_by_title(title, log=log,
+                        download_recipe=False)
+                recipe = compile_recipe(raw)
+
+
 
         if recipe is None:
             raise ValueError('%r is not a valid recipe file or builtin recipe' %

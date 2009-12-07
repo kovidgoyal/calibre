@@ -46,6 +46,9 @@ class BasicNewsRecipe(Recipe):
     #: The author of this recipe
     __author__             = __appname__
 
+    #: Minimum calibre version needed to use this recipe
+    requires_version = (0, 6, 0)
+
     #: The language that the news is in. Must be an ISO-639 code either
     #: two or three characters long
     language               = 'und'
