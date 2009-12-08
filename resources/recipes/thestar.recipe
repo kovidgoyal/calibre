@@ -32,14 +32,14 @@ class TheTorontoStar(BasicNewsRecipe):
     remove_tags_before = dict(name='div',attrs={'id':'ts-article_header'})
 
     feeds          = [
-                        (u'News'         , u'http://www.thestar.com/rss/0?searchMode=Query&categories=296'    )
-                       ,(u'Opinions'     , u'http://www.thestar.com/rss/0?searchMode=Query&categories=311'    )
-                       ,(u'Business'     , u'http://www.thestar.com/rss/0?searchMode=Query&categories=294'    )
-                       ,(u'Sports'       , u'http://www.thestar.com/rss/0?searchMode=Query&categories=295'    )
-                       ,(u'Entertainment', u'http://www.thestar.com/rss/0?searchMode=Query&categories=296'    )
-                       ,(u'Living'       , u'http://www.thestar.com/rss/0?searchMode=Query&categories=296'    )
-                       ,(u'Travel'       , u'http://www.thestar.com/rss/82858?searchMode=Lineup'              )
-                       ,(u'Science'      , u'http://www.thestar.com/rss/82848?searchMode=Query&categories=300')
+                        (u'News'         , u'http://www.thestar.com/rss/82672?'    )
+                       ,(u'Opinion'     ,  u'http://www.thestar.com/rss/82863?'    )
+                       ,(u'Business'     , u'http://www.thestar.com/rss/82796?'    )
+                       ,(u'Sports'       , u'http://www.thestar.com/rss/82758?'    )
+                       ,(u'Entertainment', u'http://www.thestar.com/rss/117741?'    )
+                       ,(u'Living'       , u'http://www.thestar.com/rss/82839?'    )
+                       ,(u'Travel'       , u'http://www.thestar.com/rss/82858?'              )
+                       ,(u'Science'      , u'http://www.thestar.com/rss/82848?')
                      ]
 
     def print_version(self, url):
