@@ -92,6 +92,11 @@ class Sony505(Sony500):
     name = 'SONY Reader Pocket/Touch Edition'
     id = 'prs505'
 
+class Nook(Sony505):
+    id = 'nook'
+    name = 'Nook'
+    manufacturer = 'Barnes & Noble'
+
 class CybookG3(Device):
 
     name = 'Cybook Gen 3'
