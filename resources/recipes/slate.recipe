@@ -14,7 +14,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
     # Method variables for customizing downloads
     title                   = 'Slate'
     description             = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
-    __author__              = 'GRiker'
+    __author__              = 'GRiker and Sujata Raman'
     max_articles_per_feed   = 20
     oldest_article          = 7.0
     recursions              = 0
@@ -50,8 +50,7 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
     # The second entry is for 'Big Money', which comes from a different site, uses different markup
     remove_tags             = [dict(attrs={   'id':['toolbox','recommend_tab','insider_ad_wrapper',
-                                                    'article_bottom_tools_cntr','fray_article_discussion',
-                                                    'fray_article_links','bottom_sponsored_links','author_bio',
+                                                    'article_bottom_tools_cntr','fray_article_discussion',                                                    'fray_article_links','bottom_sponsored_links','author_bio',
                                                     'bizbox_links_bottom','ris_links_wrapper','BOXXLE']}),
                                dict(attrs={    'id':['content-top','service-links-bottom','hed']})   ]
 
@@ -60,18 +59,20 @@ class PeriodicalNameHere(BasicNewsRecipe):
     excludedAuthorKeywords =        []
     excludedContentKeywords =       ['http://twitter.com/Slate']
 
-    extra_css = '.headline      {text-align:left;}\n\
-                 .byline        {font-family:   monospace; \
-                                 text-align:    left;\
-                                 margin-bottom: 0px;}\n\
-                 .dateline      {text-align:    left; \
-                                 font-size:     smaller;\
-                                 height:        0pt;}\n\
-                 .imagewrapper  {text-align:    center;}\n\
-                 .source        {text-align:    left;}\n\
-                 .credit        {text-align:    right;\
-                                 font-size:     smaller;}\n\
-                 .article_body  {text-align:    left;}\n'
+    extra_css = '''
+                  .h1_subhead{font-family:Arial; font-size:small; }
+                   h1{font-family:Verdana; font-size:large; }
+                 .byline        {font-family:Georgia;   margin-bottom: 0px; color: #660033;}
+                 .dateline      {font-family:Arial;  font-size: smaller; height: 0pt; color:#666666;}
+                 .imagewrapper  {font-family:Verdana;font-size:x-small; }
+                 .source        {font-family:Verdana; font-size:x-small;}
+                 .credit        {font-family:Verdana; font-size:     smaller;}
+                 #article_body  {font-family:Verdana; }
+                 #content  {font-family:Arial; }
+                 .caption{font-family:Verdana;font-style:italic; font-size:x-small;}
+                 h3{font-family:Arial; color:#666666; font-size:small}
+                  a{color:#0066CC;}
+                  '''
 
     # Local variables to extend class
     baseURL = 'http://slate.com'
@@ -339,6 +340,9 @@ class PeriodicalNameHere(BasicNewsRecipe):
 
         # Change <h1> to <h2>
         headline = soup.find("h1")
+        tag = headline.find("span")
+        tag.name = 'div'
+
         if headline is not None :
             h2tag = Tag(soup, "h2")
             h2tag['class'] = "headline"
@@ -348,8 +352,8 @@ class PeriodicalNameHere(BasicNewsRecipe):
                 result += substr
                 if i < len(strs) -1 :
                     result += '<br />'
-            h2tag.insert(0, result)
-            headline.replaceWith(h2tag)
+            #h2tag.insert(0, result)
+            #headline.replaceWith(h2tag)
 
         # Fix up the concatenated byline and dateline
         byline = soup.find(True,attrs={'class':'byline'})
