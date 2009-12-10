@@ -4,6 +4,99 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.27
+  date: 2009-12-11
+
+  new features:
+
+    - title: "Support for the Barnes & Noble Nook"
+      description: >
+        calibre can now connect to the Barnes & Noble Nook on Windows, OS X and Linux. It can also
+        convert to/from EPUB and PDB, the two e-book formats supported by the Nook.
+      type: major
+      tickets: [4145]
+
+    - title: "Download latest version of recipes from the calibre server automatically."
+      description: >
+        Now calibre will automatically check for updated versions of the recipes used to
+        download the builting news sources. As a result, there is no need to upgrade calibre
+        just for recipe fixes. Note that you stil have to upgrade to get access to new 
+        news sources.
+      type: major
+
+    - title: "FB2 Output: Support creation of TOC from <h1> tags"
+
+    - title: "E-book viewer: Make keyboard shortcuts customizable"
+      tickets: [3793]
+
+    - title: "E-book viewer: Add keyboard shortcuts for next section and previous section"
+
+    - title: "E-book viewer: Scroll past page-break to maintain reading flow"
+      tickets: [3328]
+
+  bug fixes:
+
+    - title: "LRF Viewer: Handle LRF files with corrupted end-of-stream tags"
+      tickets: [4151]
+
+    - title: "LRF Viewer: Don't concatenate books when opening multiple files in the same viewer instance"
+      tickets: [4139]
+
+    - title: "SONY device drivers: Ensure that calibre ignores the launcher partition on windows"
+
+    - title: "Fix regression introduced in the Android device drivers in 0.6.26"
+      tickets: [4152]
+
+    - title: "MOBI Output: Fix handling of links with URL unsafe characters"
+      tickets: [4091]
+
+    - title: "MOBI Output: Handle large descriptions when generating indexed files"
+
+    - title: "Save to disk: Fix {pubdate} format string in template being ignored"
+      tickets: [4140]
+
+    - title: Replace rotating hourglass with a more efficient bust indicator
+
+    - title: "PML Input: Make footnotes and sidebars display better"
+
+    - title: "E-book viewer: Properly handle <iframe>s"
+
+    - title: "News download: Remove onload attributes when removing javascript"
+
+    - title: "Linux source install: Write path to bin dir into launcher scripts to make IPC more robust"
+
+  new recipes:
+
+    - title: Rzeczpospolita OnLine
+      author: kwetal
+
+    - title: The Huffington Post
+      author: kwetal
+
+    - title: Glenn Beck
+      author: kwetal
+
+    - title: The Bangkok Post
+      author: kwetal
+
+    - title: RIA Novosti in English and Spanish
+      author: Darko Miletic
+
+    - title: Sabah
+      author: Deniz Oguz
+
+    - title: Zaman
+      author: Deniz Oguz
+
+  improved recipes:
+    - The Hindu
+    - Slate
+    - The Toronto Star
+    - Soldiers Magazine
+    - The Economist
+    - Arizona Daily Star
+
+
 - version: 0.6.26
   date: 2009-12-04
 
