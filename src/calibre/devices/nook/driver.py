@@ -29,7 +29,8 @@ class NOOK(USBMS):
     WINDOWS_MAIN_MEM = 'NOOK'
     WINDOWS_CARD_A_MEM = 'NOOK'
 
-    #OSX_MAIN_MEM = ''
+    OSX_MAIN_MEM = 'B&N nook Media'
+    OSX_CARD_A_MEM = OSX_MAIN_MEM
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Nook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Nook Storage Card'
@@ -50,3 +51,5 @@ class NOOK(USBMS):
         if 'main' not in drives and 'carda' in drives:
             drives['main'] = drives.pop('carda')
         return drives
+
+
