@@ -288,8 +288,9 @@ be printed to it. If the debug output contains a line that looks like::
 
     Qt: internal: -108: Error ATSUMeasureTextImage text/qfontengine_mac.mm
 
-then the problem is a corrupted font cache. You can clear the cache by following these
-`instructions <http://www.macworld.com/article/139383/2009/03/fontcacheclear.html>`_.
+then the problem is probably a corrupted font cache. You can clear the cache by following these
+`instructions <http://www.macworld.com/article/139383/2009/03/fontcacheclear.html>`_. If that doesn't
+solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like.
 
 
 My antivirus program claims |app| is a virus/trojan?

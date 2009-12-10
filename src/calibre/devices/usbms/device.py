@@ -208,6 +208,9 @@ class Device(DeviceConfig, DevicePlugin):
 
         return (msz, casz, cbsz)
 
+    def windows_filter_pnp_id(self, pnp_id):
+        return False
+
     def windows_match_device(self, drive, attr):
         pnp_id = (str(drive.PNPDeviceID) if not isinstance(drive, basestring)
                 else str(drive)).upper()
@@ -222,6 +225,9 @@ class Device(DeviceConfig, DevicePlugin):
             return False
 
         if device_id is None or not test_vendor():
+            return False
+
+        if self.windows_filter_pnp_id(pnp_id):
             return False
 
         if hasattr(device_id, 'search'):
