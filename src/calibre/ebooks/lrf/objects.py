@@ -177,7 +177,7 @@ class LRFStream(LRFObject):
             if len(self.stream) != decomp_size:
                 raise LRFParseError("Stream decompressed size is wrong!")
         if stream.read(2) != '\x06\xF5':
-            print "Warning: corrupted end-of-stream tag at %08X; skipping it"%stream.tell()-2
+            print "Warning: corrupted end-of-stream tag at %08X; skipping it"%(stream.tell()-2)
         self.end_stream(None, None)
 
 
