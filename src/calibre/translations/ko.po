@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-12-05 16:18+0000\n"
-"PO-Revision-Date: 2009-12-08 14:40+0000\n"
+"PO-Revision-Date: 2009-12-09 07:26+0000\n"
 "Last-Translator: Elex <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-09 04:31+0000\n"
+"X-Launchpad-Export-Date: 2009-12-10 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -168,7 +168,8 @@ msgstr "HTML파일에 있는 모든 링크들을 ZIP파일로 만든다. 이 부
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
-msgstr "입력된 HTML파일의 문자 인코딩. 일반적으로 cp1252, latin1, iso-8859-1 and utf-8."
+msgstr ""
+"입력된 HTML파일의 문자 인코딩. 일반적으로 cp1252, latin1, iso-8859-1 그리고 utf-8이 포함된다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:56
 msgid ""
@@ -201,15 +202,15 @@ msgstr "만화파일로 부터 표지를 추출한다."
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:277
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:287
 msgid "Read metadata from %s files"
-msgstr "%s 파일들로부터 메타데이터 읽기"
+msgstr "%s 파일들로부터 메타데이터 읽습니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:246
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "RAR 형식으로 압축된 전자책으로부터 메타데이터 읽기"
+msgstr "RAR 형식으로 압축된 전자책으로부터 메타데이터 읽습니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:298
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "ZIP 형식으로 압축된 전자책으로부터 메타데이터 읽기"
+msgstr "ZIP 형식으로 압축된 전자책으로부터 메타데이터 읽습니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:319
@@ -217,11 +218,11 @@ msgstr "ZIP 형식으로 압축된 전자책으로부터 메타데이터 읽기"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:351
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:362
 msgid "Set metadata in %s files"
-msgstr "%s 파일에 메타데이터를 지정하기"
+msgstr "%s 파일에 메타데이터를 지정합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "%s 파일로부터 메타데이터를 지정합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:99
 msgid "Conversion Input"
@@ -234,6 +235,8 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
+"입력 문서의 문자 인코딩을 지정합니다. 이 옵션이 설정되면 문서 자체에 선언된 인코딩은 무시됩니다. 인코딩 선언이 없거나 인코딩 선언에 "
+"오류가 있는 문서에서 특히 유용합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:225
 msgid "Conversion Output"
@@ -259,46 +262,46 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:56
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 msgid "This profile is intended for the SONY PRS line. The 500/505/700 etc."
-msgstr ""
+msgstr "이 프로파일은 SONY PRS 시리즈에 사용됩니다. 500/505/700 등."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:229
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "이 프로파일은 Microsoft Reader에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:240
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "이 프로파일은 Mobipocket books에 상용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:93
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "이 프로파일은 Hanlin V3와 클론에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:105
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:265
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "이 프로파일은 Cybook G3에 상용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:118
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "이 프로파일은 Cybook Opus에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:130
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:289
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "이 프로파일은 Amazon Kindle에서 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:142
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:322
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "이 프로파일은 Irex Illiad에 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:154
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:335
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "이 프로파일은 IRex Digital Reader 1000에서 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:172
 msgid "Output profile"
@@ -313,13 +316,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:206
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "이 프로파일은 5-inch JetBook에서 상용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:217
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
-msgstr ""
+msgstr "이 프로파일은 SONY PRS 시리즈에서 사용됩니다. 500/505/700 등의 가로화면 모드. 만화보기에 적합합니다."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:253
 msgid "This profile is intended for the Hanlin V3/V5 and its clones."
@@ -360,10 +363,14 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    %prog 옵션\n"
+"\n"
+"    외부 플러그인을 로드해서 칼리버를 설정합니다.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:400
 msgid "Add a plugin by specifying the path to the zip file containing it."
-msgstr "플러그인을 포함하고 있는 압축 파일의 경로르르 지정하여 플러그인을 추가합니다"
+msgstr "플러그인을 포함하고 있는 압축 파일의 경로를 지정하여 플러그인을 추가합니다"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:402
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -395,7 +402,7 @@ msgstr "안드로이드폰과 통신합니다."
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
-msgstr ""
+msgstr "콤마로 구분된, 전자책을 전송할 장치의 디렉토리 리스트. 맨 먼저 존재하는 디렉토리가 사용됩니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
@@ -416,7 +423,7 @@ msgstr "블랙베리 스마트폰과 통신합니다"
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:88
 msgid "Kovid Goyal"
-msgstr ""
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:21
 msgid "Communicate with the Cybook Gen 3 eBook reader."
@@ -429,7 +436,7 @@ msgstr "Cybook Gen 3 전자책 리더와 통신합니다"
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:22
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:30
 msgid "John Schember"
-msgstr ""
+msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:76
@@ -444,7 +451,7 @@ msgstr "책을 장치로 전송합니다"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:85
 msgid "Communicate with the Cybook Opus eBook reader."
-msgstr "Cybook Gen 3"
+msgstr "Cybook Opus 전자책 릳와 통신합니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:23
 msgid "Communicate with the EB600 eBook reader."
@@ -476,7 +483,7 @@ msgstr "JetBook 전자책 리더와 통신합니다"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:23
 msgid "James Ralston"
-msgstr ""
+msgstr "James Ralston"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:21
 msgid "Communicate with the Kindle eBook reader."
@@ -519,7 +526,7 @@ msgstr "Sony PRS-300/505/500 전자책 리더와 통신합니다"
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:27
 #: /home/kovid/work/calibre/src/calibre/devices/prs700/driver.py:18
 msgid "Kovid Goyal and John Schember"
-msgstr ""
+msgstr "Kovid Goyal과 John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:164
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:171
@@ -606,12 +613,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:71
 msgid "Read metadata from files on device"
-msgstr ""
+msgstr "장치에 있는 파일로부터 메타데이터를 읽습니다."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:73
 msgid "Extra customization"
-msgstr ""
+msgstr "추가 설정"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:29
 msgid "Communicate with an eBook reader."
@@ -637,7 +644,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:199
 msgid "Failed %s"
-msgstr ""
+msgstr "%s 실패함"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:256
 msgid ""
@@ -660,11 +667,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:281
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
-msgstr ""
+msgstr "이미지의 종횐비를 유지합니다. 기본값은 화면 채움입니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
 msgid "Disable sharpening."
-msgstr ""
+msgstr "날카롭게하기를 끕니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:285
 msgid ""
@@ -714,7 +721,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:434
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:445
 msgid "Page"
-msgstr ""
+msgstr "페이지"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:19
 msgid ""
@@ -744,7 +751,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:97
 msgid "INPUT OPTIONS"
-msgstr ""
+msgstr "입력 옵션"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:98
 msgid "Options to control the processing of the input %s file"
@@ -752,7 +759,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:104
 msgid "OUTPUT OPTIONS"
-msgstr ""
+msgstr "출력 옵션"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:105
 msgid "Options to control the processing of the output %s"
@@ -764,7 +771,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:135
 msgid "Control auto-detection of document structure."
-msgstr ""
+msgstr "문서 구조의 자동 검출을 제어합니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:145
 msgid ""
@@ -1038,7 +1045,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:408
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:37
 msgid "Set the title."
-msgstr ""
+msgstr "제목을 지정합니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:412
 msgid "Set the authors. Multiple authors should be separated by ampersands."
@@ -1055,7 +1062,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:425
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:51
 msgid "Set the cover to the specified file."
-msgstr ""
+msgstr "해당 파일에 커버를 지정합니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:429
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:53
@@ -1120,7 +1127,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:840
 msgid "Creating"
-msgstr ""
+msgstr "생성 중"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:57
 msgid ""
@@ -1156,7 +1163,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
 msgid "Table of Contents:"
-msgstr ""
+msgstr "목차:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
@@ -1168,7 +1175,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:35
 msgid "Add Table of Contents to beginning of the book."
-msgstr ""
+msgstr "책의 시작 부분에 목차를 추가합니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:243
 msgid ""
@@ -1219,7 +1226,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:380
 msgid "Processing %s"
-msgstr ""
+msgstr "%s 처리중"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:394
 msgid "\tConverting to BBeB..."
@@ -1232,7 +1239,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:545
 msgid "%s is an empty file"
-msgstr ""
+msgstr "%s는 빈 파일입니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:565
 msgid "Failed to parse link %s %s"
@@ -1303,7 +1310,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
 msgid "Creating XML..."
-msgstr ""
+msgstr "XML 생성중 ..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
 msgid "LRS written to "
@@ -1355,7 +1362,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr ""
+msgstr "저자를 지정"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
@@ -1380,7 +1387,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr ""
+msgstr "출판사를 지정"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
@@ -1388,7 +1395,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:610
 msgid "Set the book creator"
-msgstr ""
+msgstr "생성자를 지정"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set the book producer"
@@ -1446,19 +1453,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
 msgid "The serif family of fonts to embed"
-msgstr ""
+msgstr "포함될 세리프 글꼴"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:124
 msgid "The sans-serif family of fonts to embed"
-msgstr ""
+msgstr "포함될 산세리프 글꼴"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:127
 msgid "The monospace family of fonts to embed"
-msgstr ""
+msgstr "포함될 고정폭 글꼴"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:152
 msgid "Comic"
-msgstr ""
+msgstr "만화"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:358
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
@@ -1469,7 +1476,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:389
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1069
 msgid "Title"
-msgstr ""
+msgstr "제목"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:57
@@ -1477,18 +1484,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:394
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1070
 msgid "Author(s)"
-msgstr ""
+msgstr "저자"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:360
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:165
 msgid "Publisher"
-msgstr ""
+msgstr "출판사"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:361
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
 msgid "Producer"
-msgstr ""
+msgstr "제작자"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:362
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:183
@@ -1497,7 +1504,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:350
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:92
 msgid "Comments"
-msgstr ""
+msgstr "설명"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:370
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:166
@@ -1507,7 +1514,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Tags"
-msgstr ""
+msgstr "꼬리표"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:167
@@ -1515,34 +1522,34 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Series"
-msgstr ""
+msgstr "시리즈"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:373
 msgid "Language"
-msgstr ""
+msgstr "언어"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:375
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:1012
 msgid "Timestamp"
-msgstr ""
+msgstr "시간 정보"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:163
 msgid "Published"
-msgstr ""
+msgstr "출판"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:379
 msgid "Rights"
-msgstr ""
+msgstr "권리"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:77
 msgid "EDITORIAL REVIEW"
-msgstr ""
+msgstr "편집자 리뷰"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:19
 msgid "options"
-msgstr ""
+msgstr "설정"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:20
 msgid ""
@@ -1603,15 +1610,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:144
 msgid "No file specified"
-msgstr ""
+msgstr "파일이 지정되지 않음."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:159
 msgid "Original metadata"
-msgstr ""
+msgstr "원본 메타데이터"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:176
 msgid "Changed metadata"
-msgstr ""
+msgstr "변경된 메타데이터"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:188
 msgid "OPF created in"
@@ -1623,23 +1630,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:196
 msgid "No cover found"
-msgstr ""
+msgstr "표지 그림을 찾지 못했습니다"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:34
 msgid "Metadata download"
-msgstr ""
+msgstr "메타데이터 내려받기"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "ratings"
-msgstr ""
+msgstr "별점"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "tags"
-msgstr ""
+msgstr "태그"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:112
 msgid "description/reviews"
-msgstr ""
+msgstr "설명/리뷰"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:113
 msgid "Download %s from %s"
@@ -1647,11 +1654,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:137
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Google Books에서 메타데이터를 다운로드합니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "isbndb.com에서 메타데이터를 다운로드합니다."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 msgid ""
@@ -1683,15 +1690,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid "The author whose book to search for."
-msgstr ""
+msgstr "찾으려는 책의 저자"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:109
 msgid "The title of the book to search for."
-msgstr ""
+msgstr "찾으려는 책의 제목"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:111
 msgid "The publisher of the book to search for."
-msgstr ""
+msgstr "찾으려는 책의 출판사"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:53
 msgid "LibraryThing.com timed out. Try again later."
@@ -1705,11 +1712,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:61
 msgid " not found."
-msgstr ""
+msgstr " 찾을 수 없음."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:64
 msgid "LibraryThing.com server error. Try again later."
-msgstr ""
+msgstr "LibraryThing.com 서버 오류. 다음에 다시 시도하세요."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:71
 msgid ""
@@ -1722,7 +1729,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1083
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1323
 msgid "Cover"
-msgstr ""
+msgstr "표지"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -1753,18 +1760,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1324
 msgid "Title Page"
-msgstr ""
+msgstr "제목 페이지"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1325
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:168
 msgid "Table of Contents"
-msgstr ""
+msgstr "목차"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1326
 msgid "Index"
-msgstr ""
+msgstr "색인"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1327
 msgid "Glossary"
@@ -1776,19 +1783,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
 msgid "Bibliography"
-msgstr ""
+msgstr "참고 문헌"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1330
 msgid "Colophon"
-msgstr ""
+msgstr "출판 정보"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1331
 msgid "Copyright"
-msgstr ""
+msgstr "저작권"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1332
 msgid "Dedication"
-msgstr ""
+msgstr "바치는 글"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1333
 msgid "Epigraph"
@@ -1796,11 +1803,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1334
 msgid "Foreword"
-msgstr ""
+msgstr "서문"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1335
 msgid "List of Illustrations"
-msgstr ""
+msgstr "그림 차례"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1336
 msgid "List of Tables"
@@ -1808,15 +1815,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1337
 msgid "Notes"
-msgstr ""
+msgstr "노트"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1338
 msgid "Preface"
-msgstr ""
+msgstr "서문"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1339
 msgid "Main Text"
-msgstr ""
+msgstr "본문"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:53
 msgid "Options to control e-book conversion."
@@ -1824,11 +1831,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:60
 msgid "Character encoding for input. Default is to auto detect."
-msgstr ""
+msgstr "입력받을 문자 인코딩. 기본값은 자동 검출."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:62
 msgid "Output file. Default is derived from input filename."
-msgstr ""
+msgstr "출력 파일. 기본값은 입력 파일명."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:64
 msgid "Produce more human-readable XML output."
@@ -1836,7 +1843,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:66
 msgid "Useful for debugging."
-msgstr ""
+msgstr "디버깅에 유용함."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:71
 msgid "Usage: ebook-convert INFILE OUTFILE [OPTIONS..]"
@@ -1861,7 +1868,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
 msgid "Unnamed"
-msgstr ""
+msgstr "제목 없음"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -1878,11 +1885,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:126
 msgid "Footnotes"
-msgstr ""
+msgstr "각주"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:135
 msgid "Sidebar"
-msgstr ""
+msgstr "사이드 바"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:23

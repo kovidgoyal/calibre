@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-04 21:05+0000\n"
-"PO-Revision-Date: 2009-12-04 20:00+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2009-12-05 16:18+0000\n"
+"PO-Revision-Date: 2009-12-09 22:26+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-05 04:36+0000\n"
+"X-Launchpad-Export-Date: 2009-12-10 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -178,57 +178,52 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:56
 msgid ""
-"        Create a PMLZ archive containing the PML file         and all images "
-"in the directory pmlname_img or images         file containing all linked "
-"files. This plugin is run         every time you add an PML file to the "
-"library.    "
+"Create a PMLZ archive containing the PML file and all images in the "
+"directory pmlname_img or images. This plugin is run every time you add a PML "
+"file to the library."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:87
-msgid "Character encoding for the input PML files. Should ways be: cp1252."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:94
 msgid "Extract cover from comic files"
 msgstr "Umschlagbild aus Comic-Dateien extrahieren"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:115
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:137
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:147
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:158
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:178
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:188
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:198
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:208
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:219
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:230
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:242
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:263
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:274
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:284
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:294
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:108
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:120
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:130
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:140
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:151
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:161
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:171
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:181
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:191
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:201
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:212
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:223
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:235
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:256
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:267
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:277
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:287
 msgid "Read metadata from %s files"
 msgstr "Metadaten aus %s Dateien lesen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:253
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:246
 msgid "Read metadata from ebooks in RAR archives"
 msgstr "Metadaten von eBooks in RAR-Archiven lesen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:305
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:298
 msgid "Read metadata from ebooks in ZIP archives"
 msgstr "Metadaten aus Büchern in ZIP-Archiven lesen"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:316
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:326
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:336
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:358
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:369
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:309
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:319
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:329
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:351
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:362
 msgid "Set metadata in %s files"
 msgstr "Geben Sie die Metadaten in %s-Dateien an"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:347
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
 msgid "Set metadata from %s files"
 msgstr "Geben Sie die Metadaten von %s-Dateien an"
 
@@ -428,6 +423,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
+"Durch Kommata getrennte Liste von Verzeichnissen an die eBooks auf das Gerät "
+"gesendet werden. Das erste vorhandene wird benutzt"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
@@ -647,7 +644,7 @@ msgstr "Metadaten aus Dateien auf dem Gerät lesen"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:73
 msgid "Extra customization"
-msgstr ""
+msgstr "Besondere Anpassung"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:29
 msgid "Communicate with an eBook reader."
@@ -1371,7 +1368,7 @@ msgstr ""
 "erstellt. Diese Einstellung schaltet die Erstellung dieses Umschlagbildes "
 "aus."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:126
+#: /home/kovid/work/calibre/src/calibre/ebooks/fb2/fb2ml.py:130
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/pmlml.py:114
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:77
@@ -1939,15 +1936,15 @@ msgstr "Beschreibung/Bewertungen"
 msgid "Download %s from %s"
 msgstr "Lade %s von %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:135
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:137
 msgid "Downloads metadata from Google Books"
 msgstr "Lädt Metadaten von Google Books"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:151
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Downloads metadata from isbndb.com"
 msgstr "Lädt Metadaten von isbndb.com"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:179
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
@@ -1955,7 +1952,7 @@ msgstr ""
 "Zur Verwendung von isbndb.com müssen Sie einen %skostenlosen Account%s "
 "erstellen und Ihren Zugangsschlüssel unten eingeben."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:187
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:189
 msgid "Downloads social metadata from amazon.com"
 msgstr "Lädt soziale Metadaten von amazon.com"
 
@@ -3176,6 +3173,10 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"<p>Wenn Calibre den Abstand zwischen Paragraphen entfernt, erstellt es "
+"automatisch eine Einrückung des Paragraphen, damit diese leicht "
+"unterschieden werden können. Diese Option stellt die Weite der Einrückung "
+"ein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid " em"
@@ -5277,6 +5278,9 @@ msgid ""
 "See the <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
+"Schauen Sie sich die englischsprachige <a href=\"http://calibre-"
+"ebook.com/user_manual/gui.html#the-search-"
+"interface\">Bedienungsanleitung</a> für weitere Hilfe an"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:62
 msgid "Are your sure?"
@@ -6300,11 +6304,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:872
 msgid "How many empty books?"
-msgstr ""
+msgstr "Wie viele leere Bücher?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:873
-msgid "How many empty boks should be added?"
-msgstr ""
+msgid "How many empty books should be added?"
+msgstr "Wie viele leere Bücher sollen hinzugefügt werden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:917
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:960
@@ -7095,7 +7099,7 @@ msgstr "Willkommen zu Calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:43
 msgid "The one stop solution to all your e-book needs."
-msgstr "Die Eine-für-Alles-Lösung für Ihre eBook Bedürfnisse."
+msgstr "Die Lösung aus einer Hand für Ihre eBook Bedürfnisse."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:51
 msgid ""
@@ -7133,12 +7137,17 @@ msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
+"<h2>Video Anleitungen</h2>Videos, die die verschiedenen Eigenschaften von "
+"Calibre veranschaulichen, finen Sie <a href=\"http://calibre-"
+"ebook.com/demo\">online</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
 "ebook.com/user_manual\">online</a>."
 msgstr ""
+"<h2>Bedienungsanleitung</h2>Eine Bedienungsanleitung gibt es ebenso <a "
+"href=\"http://calibre-ebook.com/user_manual\">online</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:44
 msgid ""
