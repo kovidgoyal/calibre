@@ -678,17 +678,15 @@ class DocumentView(QWebView):
         elif key == 'Previous Page':
             self.previous_page()
         elif key == 'Section Top':
-            if event.modifiers() & Qt.ControlModifier:
-                if self.manager is not None:
-                    self.manager.goto_start()
-            else:
-                self.scroll_to(0)
+            self.scroll_to(0)
+        elif key == 'Document Top':
+            if self.manager is not None:
+                self.manager.goto_start()
         elif key == 'Section Bottom':
-            if event.modifiers() & Qt.ControlModifier:
-                if self.manager is not None:
-                    self.manager.goto_end()
-            else:
-                self.scroll_to(1)
+            self.scroll_to(1)
+        elif key == 'Document Bottom':
+            if self.manager is not None:
+                self.manager.goto_end()
         elif key == 'Down':
             self.scroll_by(y=15)
         elif key == 'Up':
