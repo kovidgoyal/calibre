@@ -21,7 +21,7 @@ from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.devices.mime import mime_type_ext
 
-# CLI must come before Device as it implments the CLI functions that
+# CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
 
@@ -56,7 +56,9 @@ class USBMS(CLI, Device):
             return bl
 
         prefix = self._card_a_prefix if oncard == 'carda' else self._card_b_prefix if oncard == 'cardb' else self._main_prefix
-        ebook_dir = self.EBOOK_DIR_CARD_A if oncard == 'carda' else self.EBOOK_DIR_CARD_B if oncard == 'cardb' else self.EBOOK_DIR_MAIN
+        ebook_dir = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
+            self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
+            self.get_main_ebook_dir()
 
         # Get all books in the ebook_dir directory
         if self.SUPPORTS_SUB_DIRS:

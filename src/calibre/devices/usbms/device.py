@@ -578,7 +578,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 self.open_windows()
             except DeviceError:
-                time.sleep(5)
+                time.sleep(7)
                 self.open_windows()
         if isosx:
             try:
@@ -586,6 +586,11 @@ class Device(DeviceConfig, DevicePlugin):
             except DeviceError:
                 time.sleep(7)
                 self.open_osx()
+
+        self.post_open_callback()
+
+    def post_open_callback(self):
+        pass
 
     def eject_windows(self):
         from calibre.constants import plugins
