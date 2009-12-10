@@ -695,6 +695,12 @@ class DocumentView(QWebView):
             self.scroll_by(x=-15)
         elif key == 'Right':
             self.scroll_by(x=15)
+        elif key == 'Next Section':
+            if self.manager is not None:
+                self.manager.goto_next_section()
+        elif key == 'Previous Section':
+            if self.manager is not None:
+                self.manager.goto_previous_section()
         else:
             return QWebView.keyPressEvent(self, event)
 

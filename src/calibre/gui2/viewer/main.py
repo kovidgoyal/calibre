@@ -453,6 +453,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.pending_bookmark = None
         return self.current_index
 
+    def goto_next_section(self):
+        nindex = (self.current_index + 1)%len(self.iterator.spine)
+        self.load_path(self.iterator.spine[nindex])
+
+    def goto_previous_section(self):
+        pindex = (self.current_index - 1 + len(self.iterator.spine)) \
+                % len(self.iterator.spine)
+        self.load_path(self.iterator.spine[pindex])
+
     def load_path(self, path, pos=0.0):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
         self.view.load_path(path, pos=pos)
