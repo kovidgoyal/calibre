@@ -97,4 +97,9 @@ class POCKETBOOK360(EB600):
     OSX_MAIN_MEM   = 'Philips Mass Storge Media'
     OSX_CARD_A_MEM = 'Philips Mass Storge Media'
 
+    def windows_open_callback(self, drives):
+        if 'main' not in drives and 'carda' in drives:
+            drives['main'] = drives.pop('carda')
+        return drives
+
 
