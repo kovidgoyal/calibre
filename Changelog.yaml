@@ -43,6 +43,9 @@
       tickets: [3328]
 
     - title: "Linux device detection: Switch to using libusb1 to enumerate devices on system."
+      description: >
+        "If you are building for source, the libusb1 headers and library are now required at
+        compile time."
 
   bug fixes:
 
@@ -65,7 +68,7 @@
     - title: "Save to disk: Fix {pubdate} format string in template being ignored"
       tickets: [4140]
 
-    - title: Replace rotating hourglass with a more efficient bust indicator
+    - title: "Replace rotating hourglass with a more efficient busy indicator."
 
     - title: "PML Input: Make footnotes and sidebars display better"
 
@@ -77,6 +80,9 @@
 
     - title: "Fix PocketBook 360 driver on windows when no SD card is inserted"
       tickets: [4182]
+
+    - title: "Fix stopping of a recipe download would prevent it from being re-downloaded until a calibre restart"
+      tickets: [4007, 4158]
 
   new recipes:
 

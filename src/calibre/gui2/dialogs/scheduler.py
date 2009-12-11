@@ -287,6 +287,14 @@ class Scheduler(QObject):
         finally:
             self.lock.unlock()
 
+    def recipe_download_failed(self, arg):
+        self.lock.lock()
+        try:
+            self.download_queue.remove(arg['urn'])
+        finally:
+            self.lock.unlock()
+
+
     def download_clicked(self, urn):
         if urn is not None:
             return self.download(urn)

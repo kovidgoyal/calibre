@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.constants import plugins
 
-libusb, libusb_err = plugins['libusb']
+libusb, libusb_err = plugins.get('libusb', (None, 'Wrong platform'))
 
 def scan():
     if libusb_err:
