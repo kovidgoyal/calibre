@@ -19,7 +19,7 @@
     - title: "Download latest version of recipes from the calibre server automatically."
       description: >
         Now calibre will automatically check for updated versions of the recipes used to
-        download the builting news sources. As a result, there is no need to upgrade calibre
+        download the built in news sources. As a result, there is no need to upgrade calibre
         just for recipe fixes. Note that you still have to upgrade to get access to new 
         news sources.
       type: major
@@ -111,7 +111,7 @@
 
   new features:
 
-    - title: "Adroid devices: Allow user to customize the directory for sending books"
+    - title: "Android devices: Allow user to customize the directory for sending books"
       description: >
                 Now the user can choose what directory on the device calibre will send 
                 books to. This allows calibre to support different reading software on Android devices
@@ -135,7 +135,7 @@
     - title: "calibre-debug: Remove --develop-from option as it is no longer needed"
 
   bug fixes:
-    - title: "Content server: Fix password protected access from Adroid devices"
+    - title: "Content server: Fix password protected access from Android devices"
       tickets: [3952]
 
     - title: "calibredb with output format stanza once again escapes URLs"
@@ -159,7 +159,7 @@
 
     - title: Speed up download of the free Economist recipe
 
-    - title: "FB2 Input: Workaround for unescaped amerpsands"
+    - title: "FB2 Input: Workaround for unescaped ampersands"
 
   new recipes:
     - title: Money Control
@@ -196,7 +196,7 @@
 
     - title: "Conversion pipeline: Add option to control the inserted paragraph indent when using the remove blank line between paragraphs option"
 
-    - title: When reading metadata from PDf files, look for the ISBN in the file text.
+    - title: When reading metadata from PDF files, look for the ISBN in the file text.
       tickets: [3013]
 
     - title: Periodically check for updates to calibre instead of just at startup
@@ -290,7 +290,7 @@
 
     - title: Restore all sections to Guardian newspaper download
 
-    - title: "Social metadata download: If the user specifies that they dont want social metadata, don't get tags from the basic metadata sources either"
+    - title: "Social metadata download: If the user specifies that they don't want social metadata, don't get tags from the basic metadata sources either"
 
 
   new recipes:
