@@ -24,6 +24,12 @@
         news sources.
       type: major
 
+    - title: "Speed up download of news"
+      description: >
+        Speed up download of news by allowing the downlaod to happen in multiple threads
+        (default 5). This may break some recipes, so please report any breakage you notice.
+      type: major
+
     - title: "FB2 Output: Support creation of TOC from <h1> tags"
 
     - title: "E-book viewer: Make keyboard shortcuts customizable"
@@ -95,6 +101,7 @@
     - Soldiers Magazine
     - The Economist
     - Arizona Daily Star
+    - ESPN
 
 
 - version: 0.6.26

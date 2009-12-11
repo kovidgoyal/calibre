@@ -9,7 +9,6 @@ UTF-8 encoding with any charset declarations removed.
 '''
 import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback
 from urllib import url2pathname, quote
-from threading import RLock
 from httplib import responses
 from PIL import Image
 from cStringIO import StringIO
@@ -39,7 +38,6 @@ class closing(object):
         except Exception:
             pass
 
-_browser_lock = RLock()
 
 bad_url_counter = 0
 def basename(url):
@@ -125,7 +123,6 @@ class RecursiveFetcher(object):
         self.imagemap_lock = threading.RLock()
         self.stylemap = css_map
         self.image_url_processor = None
-        self.browser_lock = _browser_lock
         self.stylemap_lock = threading.RLock()
         self.downloaded_paths = []
         self.current_dir = self.base_dir
@@ -196,26 +193,25 @@ class RecursiveFetcher(object):
             for i in range(2, 6):
                 purl[i] = quote(purl[i])
             url = urlparse.urlunparse(purl)
-        with self.browser_lock:
-            try:
+        try:
+            with closing(self.browser.open_novisit(url, timeout=self.timeout)) as f:
+                data = response(f.read()+f.read())
+                data.newurl = f.geturl()
+        except urllib2.URLError, err:
+            if hasattr(err, 'code') and responses.has_key(err.code):
+                raise FetchError, responses[err.code]
+            if getattr(err, 'reason', [0])[0] == 104 or \
+                getattr(getattr(err, 'args', [None])[0], 'errno', None) == -2: # Connection reset by peer or Name or service not know
+                self.log.debug('Temporary error, retrying in 1 second')
+                time.sleep(1)
                 with closing(self.browser.open(url, timeout=self.timeout)) as f:
                     data = response(f.read()+f.read())
                     data.newurl = f.geturl()
-            except urllib2.URLError, err:
-                if hasattr(err, 'code') and responses.has_key(err.code):
-                    raise FetchError, responses[err.code]
-                if getattr(err, 'reason', [0])[0] == 104 or \
-                    getattr(getattr(err, 'args', [None])[0], 'errno', None) == -2: # Connection reset by peer or Name or service not know
-                    self.log.debug('Temporary error, retrying in 1 second')
-                    time.sleep(1)
-                    with closing(self.browser.open(url, timeout=self.timeout)) as f:
-                        data = response(f.read()+f.read())
-                        data.newurl = f.geturl()
-                else:
-                    raise err
-            finally:
-                self.last_fetch_at = time.time()
-            return data
+            else:
+                raise err
+        finally:
+            self.last_fetch_at = time.time()
+        return data
 
 
     def start_fetch(self, url):
