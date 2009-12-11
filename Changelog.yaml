@@ -42,6 +42,8 @@
     - title: "E-book viewer: Scroll past page-break to maintain reading flow"
       tickets: [3328]
 
+    - title: "Linux device detection: Switch to using libusb1 to enumerate devices on system."
+
   bug fixes:
 
     - title: "LRF Viewer: Handle LRF files with corrupted end-of-stream tags"
@@ -72,6 +74,9 @@
     - title: "News download: Remove onload attributes when removing javascript"
 
     - title: "Linux source install: Write path to bin dir into launcher scripts to make IPC more robust"
+
+    - title: "Fix PocketBook 360 driver on windows when no SD card is inserted"
+      tickets: [4182]
 
   new recipes:
 

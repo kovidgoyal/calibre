@@ -295,9 +295,12 @@ class Device(DeviceConfig, DevicePlugin):
 
         # This is typically needed when the device has the same
         # WINDOWS_MAIN_MEM and WINDOWS_CARD_A_MEM in which case
-        # if teh devices is connected without a crad, the above
+        # if the devices is connected without a crad, the above
         # will incorrectly identify the main mem as carda
         # See for example the driver for the Nook
+        if 'main' not in drives and 'carda' in drives:
+            drives['main'] = drives.pop('carda')
+
         drives = self.windows_open_callback(drives)
 
         if drives.get('main', None) is None:

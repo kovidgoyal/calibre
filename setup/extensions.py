@@ -136,6 +136,10 @@ if isosx:
                 ['calibre/devices/usbobserver/usbobserver.c'],
                 ldflags=['-framework', 'IOKit'])
             )
+if islinux:
+    extensions.append(Extension('libusb',
+        ['calibre/devices/libusb.c'],
+        ldflags=['-lusb-1.0']))
 
 
 if isunix:

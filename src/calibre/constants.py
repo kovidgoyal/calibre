@@ -57,6 +57,7 @@ if plugins is None:
         for plugin in ['pictureflow', 'lzx', 'msdes', 'podofo', 'cPalmdoc',
             'fontconfig', 'pdfreflow', 'progress_indicator'] + \
                     (['winutil'] if iswindows else []) + \
+                    (['libusb'] if islinux else []) + \
                     (['usbobserver'] if isosx else []):
             try:
                 p, err = __import__(plugin), ''
