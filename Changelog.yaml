@@ -26,8 +26,10 @@
 
     - title: "Speed up download of news"
       description: >
-        Speed up download of news by allowing the downlaod to happen in multiple threads
+        "Speed up download of news by allowing the download to happen in multiple threads
         (default 5). This may break some recipes, so please report any breakage you notice.
+        If a news server doesn't like the parallel connection, set simultaneous_downloads
+        to 1 in the recipe."
       type: major
 
     - title: "FB2 Output: Support creation of TOC from <h1> tags"
