@@ -13,14 +13,32 @@ class ESPN(BasicNewsRecipe):
 
     title       = 'ESPN'
     description = 'Sports news'
-    __author__  = 'Kovid Goyal'
+    __author__  = 'Kovid Goyal and Sujata Raman'
     language = 'en'
+    no_stylesheets = True
 
-
+    use_embedded_content = False
+    remove_javascript     = True
     needs_subscription = True
-    remove_tags = [dict(name='font', attrs={'class':'footer'}), dict(name='hr', noshade='noshade')]
+    encoding= 'ISO-8859-1'
+
     remove_tags_before = dict(name='font', attrs={'class':'date'})
     center_navbar = False
+    remove_tags = [
+                    dict(name='font', attrs={'class':'footer'}), dict(name='hr', noshade='noshade'),
+                    dict(name = 'img', src ='/winnercomm/horseracing/DRF.jpg')
+                   ]
+
+
+    extra_css = '''
+                body{font-family:Verdana,Arial,Helvetica,sans-serif; font-size:x-small; font-weight:normal;}
+                .subhead{color:#666666;font-family:Verdana,sans-serif; font-size:x-small; font-weight:bold;}
+                .clearfix{font-family:Verdana,sans-serif; font-size:xx-small; }
+                .date{ font-family:Verdana,Arial,Helvetica,sans-serif ; font-size:xx-small;color:#7A7A7A;}
+                .byline{ font-family:Verdana,Arial,Helvetica,sans-serif ; font-size:xx-small;color:#666666;}
+                .headline{font-family:Verdana,Arial,Helvetica,sans-serif ; font-size:large; font-weight:bold;}
+                '''
+
 
     feeds = [('Top Headlines', 'http://sports.espn.go.com/espn/rss/news'),
              'http://sports.espn.go.com/espn/rss/nfl/news',
@@ -36,30 +54,11 @@ class ESPN(BasicNewsRecipe):
              'http://sports.espn.go.com/espn/rss/ncf/news',
              'http://sports.espn.go.com/espn/rss/ncaa/news',
              'http://sports.espn.go.com/espn/rss/outdoors/news',
-             'http://sports.espn.go.com/espn/rss/bassmaster/news',
+             #'http://sports.espn.go.com/espn/rss/bassmaster/news',
              'http://sports.espn.go.com/espn/rss/oly/news',
-             'http://sports.espn.go.com/espn/rss/horse/news']
+             'http://sports.espn.go.com/espn/rss/horse/news'
+             ]
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
-        br.set_handle_refresh(False)
-        if self.username is not None and self.password is not None:
-            br.open('http://espn.com')
-            br.select_form(nr=1)
-            br.form.find_control(name='username', type='text').value = self.username
-            br.form['password'] = self.password
-            br.submit()
-        br.set_handle_refresh(True)
-        return br
-
-    def print_version(self, url):
-        if 'eticket' in url:
-            return url.partition('&')[0].replace('story?', 'print?')
-        match = re.search(r'story\?(id=\d+)', url)
-        if match:
-            return 'http://sports.espn.go.com/espn/print?'+match.group(1)+'&type=story'
-
-        return None
 
     def preprocess_html(self, soup):
         for div in soup.findAll('div'):
@@ -71,5 +70,42 @@ class ESPN(BasicNewsRecipe):
     def postprocess_html(self, soup, first_fetch):
         for div in soup.findAll('div', style=True):
             div['style'] = div['style'].replace('center', 'left')
+
         return soup
+
+
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.set_handle_refresh(False)
+        if self.username is not None and self.password is not None:
+            br.open('http://espn.com')#('http://espn.go.com/#myespn')
+            br.select_form(nr=1)
+            br.form.find_control(name='username', type='text').value = self.username
+            br.form['password'] = self.password
+            br.submit()
+        br.set_handle_refresh(True)
+        return br
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
+    def print_version(self, url):
+
+        if 'eticket' in url:
+            return url.partition('&')[0].replace('story?', 'print?')
+        match = re.search(r'story\?(id=\d+)', url)
+
+        if match and 'soccernet'  not in url and 'bassmaster' not in url:
+            return 'http://sports.espn.go.com/espn/print?'+match.group(1)+'&type=story'
+        else:
+            if match and 'soccernet' in url:
+                splitlist = url.split("&", 5)
+                newurl =  'http://soccernet.espn.go.com/print?'+match.group(1)+'&type=story' + '&' + str(splitlist[2] )
+                return newurl
+            #else:
+            #    if 'bassmaster' in url:
+            #        return url
+
+        return None
 
