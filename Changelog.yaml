@@ -20,7 +20,7 @@
       description: >
         Now calibre will automatically check for updated versions of the recipes used to
         download the builting news sources. As a result, there is no need to upgrade calibre
-        just for recipe fixes. Note that you stil have to upgrade to get access to new 
+        just for recipe fixes. Note that you still have to upgrade to get access to new 
         news sources.
       type: major
 

@@ -344,7 +344,10 @@ class Document(QWebPage):
 
     @property
     def height(self):
-        return self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
+        ans = self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
+        if ans == 0:
+            ans = self.mainFrame().contentsSize().height()
+        return ans
 
     @property
     def width(self):
@@ -489,6 +492,7 @@ class DocumentView(QWebView):
             self.manager.load_started()
         self.loading_url = QUrl.fromLocalFile(path)
         #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
+        #open('/tmp/t.html', 'wb').write(html.encode(path.encoding))
         self.setHtml(html, self.loading_url)
         self.turn_off_internal_scrollbars()
 
@@ -585,8 +589,8 @@ class DocumentView(QWebView):
         else:
             self.document.set_bottom_padding(0)
             opos = self.document.ypos
-            lower_limit = opos + delta_y
-            max_y = self.document.height - window_height
+            lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
+            max_y = self.document.height - window_height # The maximum possible top y co-ord
             if max_y < lower_limit:
                 self.document.set_bottom_padding(lower_limit - max_y)
             max_y = self.document.height - window_height
