@@ -18,8 +18,6 @@ class Font(object):
 
 class Text(object):
 
-    A = etree.XPath('descendant::a[@href]')
-
     def __init__(self, text, font_map, opts, log):
         self.opts, self.log = opts, log
         self.font_map = font_map
