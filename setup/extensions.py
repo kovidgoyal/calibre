@@ -375,9 +375,9 @@ class Build(Command):
             for x in (dest, dest+'.manifest'):
                 if os.path.exists(x):
                     os.remove(x)
-        shutil.rmtree(self.j(self.d(self.SRC), 'build'))
-
-
+        build_dir = self.j(self.d(self.SRC), 'build')
+        if os.path.exists(build_dir):
+            shutil.rmtree(build_dir)
 
 
 class BuildPDF2XML(Command):

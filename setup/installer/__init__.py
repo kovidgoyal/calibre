@@ -126,5 +126,5 @@ class VMInstaller(Command):
 
     def clean(self):
         installer = self.installer()
-        if os.patyh.exists(installer):
+        if os.path.exists(installer):
             os.remove(installer)

@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 
 import struct
 
-from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.txt.txtml import TXTMLizer
@@ -25,6 +24,8 @@ class Writer(FormatWriter):
         self.log = log
 
     def write_content(self, oeb_book, out_stream, metadata=None):
+        from calibre.ebooks.compression.palmdoc import compress_doc
+
         title = self.opts.title if self.opts.title else oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown')
 
         txt_records, txt_length = self._generate_text(oeb_book)
