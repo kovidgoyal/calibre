@@ -12,7 +12,6 @@ import struct
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
 
@@ -55,7 +54,8 @@ class Reader202(FormatReader):
         return self.sections[number]
 
     def decompress_text(self, number):
-            return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
+        from calibre.ebooks.compression.palmdoc import decompress_doc
+        return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
     def get_image(self, number):
         name = None

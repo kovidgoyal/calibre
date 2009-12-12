@@ -11,7 +11,6 @@ __docformat__ = 'restructuredtext en'
 import os
 import struct
 
-from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.txt.processor import convert_basic, opf_writer, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted
@@ -51,6 +50,7 @@ class Reader(FormatReader):
         if self.header_record.compression == 1:
             return self.section_data(number).decode('cp1252' if self.encoding is None else self.encoding)
         if self.header_record.compression == 2:
+            from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         return ''
 

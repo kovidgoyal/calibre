@@ -15,7 +15,6 @@ import zlib
 
 from calibre import CurrentDir
 from calibre.ebooks import DRMError
-from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
@@ -79,6 +78,7 @@ class Reader132(FormatReader):
 
     def decompress_text(self, number):
         if self.header_record.compression == 2:
+            from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
         if self.header_record.compression == 10:
             return zlib.decompress(self.section_data(number)).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
