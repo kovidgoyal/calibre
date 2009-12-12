@@ -1,0 +1,53 @@
+__license__   = 'GPL v3'
+__copyright__ = '2009, Rob Hankel <from outerspace.com>'
+'''
+nu.nl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Nu(BasicNewsRecipe):
+    title                 = u'Nu.nl'
+    __author__            = u'Rob Hankel'
+
+    publisher             = 'nu.nl'
+    description           = u'Dutch News'
+    category              = 'news'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    remove_javascript     = True
+    language              = 'nl'
+
+    keep_only_tags    = [dict(name='div' , attrs={'id':['leadarticle']})]
+
+    feeds          = [(u'binnenland', u'http://www.nu.nl/feeds/rss/binnenland.rss'),
+    					(u'Algemeen nieuws', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Algemeen'),
+    					(u'Economie', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Economie'),
+    					(u'Internet', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Internet'),
+    					(u'Sport', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Sport'),
+    					(u'Achterklap', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Achterklap'),
+    					(u'Opmerkelijk', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Opmerkelijk'),
+    					(u'Muziek', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Muziek'),
+    					(u'DVD', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=DVD'),
+    					(u'Film', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Film'),
+    					(u'Boek', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Boek'),
+    					(u'Games', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Games'),
+    					(u'Columns', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Columns'),
+    					(u'Cartoon', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Cartoon'),
+    					(u'Lifehacking', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Lifehacking'),
+    					(u'Jurryt', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Jurryt'),
+    					(u'Formule 1', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Formule1'),
+    					(u'Plugged', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Plugged'),
+    					(u'Auto', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Auto'),
+    					(u'Wetenschap', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Wetenschap'),
+    					(u'Gezondheid', u'http://www.nu.nl/deeplink_rss2/index.jsp?r=Gezondheid'),
+    					(u'Dagelijkse tv-tips', u'http://www.nu.nl/tvgids/rss/tips'),
+    					(u'Podcast Algemeen nieuws', u'http://www.nu.nl/podcast.php')]
+
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
