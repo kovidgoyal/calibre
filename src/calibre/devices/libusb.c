@@ -65,18 +65,22 @@ py_libusb_scan(PyObject *self, PyObject *args) {
 
 PyObject*
 py_libusb_info(PyObject *self, PyObject *args) {
-    unsigned long idVendor, idProduct, bcdDevice;
+    uint16_t idVendor, idProduct, bcdDevice;
     ssize_t ret = 0, i = 0; int err = 0, n;
     libusb_device **list = NULL;
     libusb_device_handle *handle = NULL;
     struct libusb_device_descriptor dev;
-    PyObject *ans, *t;
+    PyObject *ans, *t, *t1 = NULL, *t2 = NULL, *t3 = NULL;
     unsigned char data[1000];
 
     if (ctxt == NULL) return PyErr_NoMemory();
 
-    if (!PyArg_ParseTuple(args, "LLL", &idVendor, &idProduct, &bcdDevice))
+    if (!PyArg_ParseTuple(args, "OOO", &t1, &t2, &t3))
 		return NULL;
+
+    idVendor  = (uint16_t)PyInt_AsSsize_t(t1);
+    idProduct = (uint16_t)PyInt_AsSsize_t(t2);
+    bcdDevice = (uint16_t)PyInt_AsSsize_t(t3);
 
     ret = libusb_get_device_list(ctxt, &list);
     if (ret == LIBUSB_ERROR_NO_MEM) return PyErr_NoMemory();
