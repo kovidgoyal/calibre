@@ -8,7 +8,8 @@ a backend that implement the Device interface for the SONY PRS500 Reader.
 import os
 
 from calibre.customize import Plugin
-from calibre.constants import iswindows
+from calibre.constants import iswindows, islinux
+from calibre.devices.libusb1 import info
 
 class DevicePlugin(Plugin):
     """
@@ -88,7 +89,7 @@ class DevicePlugin(Plugin):
         return False
 
     @classmethod
-    def is_usb_connected(cls, devices_on_system):
+    def is_usb_connected(cls, devices_on_system, debug=False):
         '''
         Return True if a device handled by this plugin is currently connected.
 
@@ -116,7 +117,8 @@ class DevicePlugin(Plugin):
                             else:
                                 cbcd = cls.BCD
                             if cls.test_bcd(bcd, cbcd) and cls.can_handle((vid,
-                                                            pid, bcd)):
+                                                            pid, bcd),
+                                                            debug=debug):
                                 return True
         return False
 
@@ -138,7 +140,7 @@ class DevicePlugin(Plugin):
         return ''
 
     @classmethod
-    def can_handle(cls, device_info):
+    def can_handle(cls, device_info, debug=False):
         '''
         Optional method to perform further checks on a device to see if this driver
         is capable of handling it. If it is not it should return False. This method
@@ -149,6 +151,14 @@ class DevicePlugin(Plugin):
         :param device_info: On windows a device ID string. On Unix a tuple of
         ``(vendor_id, product_id, bcd)``.
         '''
+        if islinux:
+            try:
+                if debug:
+                    dev = info(*device_info)
+                    print '\t', repr(dev)
+            except:
+                import traceback
+                traceback.print_exc()
         return True
 
     def open(self):

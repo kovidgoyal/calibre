@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 class DeGentenaarOnline(BasicNewsRecipe):
-    title                 = 'De Gentenaar Online'
+    title                 = 'De Gentenaar'
     __author__            = 'Darko Miletic'
     description           = 'News from Belgium in Dutch'
     publisher             = 'De Gentenaar'

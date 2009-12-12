@@ -10,17 +10,21 @@ class TheHindu(BasicNewsRecipe):
     language = 'en_IN'
 
     oldest_article        = 7
-    __author__            = _('Kovid Goyal')
+    __author__            = 'Kovid Goyal and Sujata Raman'
     max_articles_per_feed = 100
+    no_stylesheets = True
 
     remove_tags_before = {'name':'font', 'class':'storyhead'}
     preprocess_regexps = [
                 (re.compile(r'<!-- story ends -->.*', re.DOTALL),
                  lambda match: '</body></html>'),
                           ]
-
+    extra_css = '''
+                .storyhead{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#000099;}
+                body{font-family:Verdana,Arial,Helvetica,sans-serif; font-size:x-small; text-align:left;}
+                '''
     feeds          = [
-      (u'Main - Font Page', u'http://www.hindu.com/rss/01hdline.xml'),
+      (u'Main - Front Page', u'http://www.hindu.com/rss/01hdline.xml'),
       (u'Main - National', u'http://www.hindu.com/rss/02hdline.xml'),
       (u'Main - International', u'http://www.hindu.com/rss/03hdline.xml'),
       (u'Main - Opinion', u'http://www.hindu.com/rss/05hdline.xml'),
@@ -43,6 +47,8 @@ class TheHindu(BasicNewsRecipe):
       ]
 
     def postprocess_html(self, soup, first_fetch):
-        for t in soup.findAll(['table', 'tr', 'td']):
+        for t in soup.findAll(['table', 'tr', 'td','center']):
             t.name = 'div'
+
+
         return soup

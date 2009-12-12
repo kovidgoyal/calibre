@@ -56,6 +56,12 @@ class Config(QDialog, Ui_ViewerConfig):
 
 class Main(MainWindow, Ui_MainWindow):
 
+    def create_document(self):
+        self.document = Document(self.logger, self.opts)
+        QObject.connect(self.document, SIGNAL('chapter_rendered(int)'), self.chapter_rendered)
+        QObject.connect(self.document, SIGNAL('page_changed(PyQt_PyObject)'), self.page_changed)
+
+
     def __init__(self, logger, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
         Ui_MainWindow.__init__(self)
@@ -65,8 +71,7 @@ class Main(MainWindow, Ui_MainWindow):
 
         self.logger = logger
         self.opts = opts
-        self.document = None
-        self.document = Document(self.logger, self.opts)
+        self.create_document()
         self.spin_box_action = self.spin_box = QSpinBox()
         self.tool_bar.addWidget(self.spin_box)
         self.tool_bar.addSeparator()
@@ -76,9 +81,6 @@ class Main(MainWindow, Ui_MainWindow):
         self.search = SearchBox2(self)
         self.search.initialize('lrf_viewer_search_history')
         self.search_action = self.tool_bar.addWidget(self.search)
-        QObject.connect(self.document, SIGNAL('chapter_rendered(int)'), self.chapter_rendered)
-        QObject.connect(self.document, SIGNAL('page_changed(PyQt_PyObject)'), self.page_changed)
-
         QObject.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self.find)
 
         self.action_next_page.setShortcuts([QKeySequence.MoveToNextPage, QKeySequence(Qt.Key_Space)])
@@ -118,6 +120,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(0)
         self.progress_bar.setValue(0)
+        self.create_document()
 
         if stream is not None:
             self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''

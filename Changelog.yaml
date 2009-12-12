@@ -4,12 +4,125 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.27
+  date: 2009-12-11
+
+  new features:
+
+    - title: "Support for the Barnes & Noble Nook"
+      description: >
+        calibre can now connect to the Barnes & Noble Nook on Windows, OS X and Linux. It can also
+        convert to/from EPUB and PDB, the two e-book formats supported by the Nook.
+      type: major
+      tickets: [4145]
+
+    - title: "Download latest version of recipes from the calibre server automatically."
+      description: >
+        Now calibre will automatically check for updated versions of the recipes used to
+        download the built in news sources. As a result, there is no need to upgrade calibre
+        just for recipe fixes. Note that you still have to upgrade to get access to new 
+        news sources.
+      type: major
+
+    - title: "Speed up download of news"
+      description: >
+        "Speed up download of news by allowing the download to happen in multiple threads
+        (default 5). This may break some recipes, so please report any breakage you notice.
+        If a news server doesn't like the parallel connection, set simultaneous_downloads
+        to 1 in the recipe."
+      type: major
+
+    - title: "FB2 Output: Support creation of TOC from <h1> tags"
+
+    - title: "E-book viewer: Make keyboard shortcuts customizable"
+      tickets: [3793]
+
+    - title: "E-book viewer: Add keyboard shortcuts for next section and previous section"
+
+    - title: "E-book viewer: Scroll past page-break to maintain reading flow"
+      tickets: [3328]
+
+    - title: "Linux device detection: Switch to using libusb1 to enumerate devices on system."
+      description: >
+        "If you are building for source, the libusb1 headers and library are now required at
+        compile time."
+
+  bug fixes:
+
+    - title: "LRF Viewer: Handle LRF files with corrupted end-of-stream tags"
+      tickets: [4151]
+
+    - title: "LRF Viewer: Don't concatenate books when opening multiple files in the same viewer instance"
+      tickets: [4139]
+
+    - title: "SONY device drivers: Ensure that calibre ignores the launcher partition on windows"
+
+    - title: "Fix regression introduced in the Android device drivers in 0.6.26"
+      tickets: [4152]
+
+    - title: "MOBI Output: Fix handling of links with URL unsafe characters"
+      tickets: [4091]
+
+    - title: "MOBI Output: Handle large descriptions when generating indexed files"
+
+    - title: "Save to disk: Fix {pubdate} format string in template being ignored"
+      tickets: [4140]
+
+    - title: "Replace rotating hourglass with a more efficient busy indicator."
+
+    - title: "PML Input: Make footnotes and sidebars display better"
+
+    - title: "E-book viewer: Properly handle <iframe>s"
+
+    - title: "News download: Remove onload attributes when removing javascript"
+
+    - title: "Linux source install: Write path to bin dir into launcher scripts to make IPC more robust"
+
+    - title: "Fix PocketBook 360 driver on windows when no SD card is inserted"
+      tickets: [4182]
+
+    - title: "Fix stopping of a recipe download would prevent it from being re-downloaded until a calibre restart"
+      tickets: [4007, 4158]
+
+  new recipes:
+
+    - title: Rzeczpospolita OnLine
+      author: kwetal
+
+    - title: The Huffington Post
+      author: kwetal
+
+    - title: Glenn Beck
+      author: kwetal
+
+    - title: The Bangkok Post
+      author: kwetal
+
+    - title: RIA Novosti in English and Spanish
+      author: Darko Miletic
+
+    - title: Sabah
+      author: Deniz Oguz
+
+    - title: Zaman
+      author: Deniz Oguz
+
+  improved recipes:
+    - The Hindu
+    - Slate
+    - The Toronto Star
+    - Soldiers Magazine
+    - The Economist
+    - Arizona Daily Star
+    - ESPN
+
+
 - version: 0.6.26
   date: 2009-12-04
 
   new features:
 
-    - title: "Adroid devices: Allow user to customize the directory for sending books"
+    - title: "Android devices: Allow user to customize the directory for sending books"
       description: >
                 Now the user can choose what directory on the device calibre will send 
                 books to. This allows calibre to support different reading software on Android devices
@@ -33,7 +146,7 @@
     - title: "calibre-debug: Remove --develop-from option as it is no longer needed"
 
   bug fixes:
-    - title: "Content server: Fix password protected access from Adroid devices"
+    - title: "Content server: Fix password protected access from Android devices"
       tickets: [3952]
 
     - title: "calibredb with output format stanza once again escapes URLs"
@@ -57,7 +170,7 @@
 
     - title: Speed up download of the free Economist recipe
 
-    - title: "FB2 Input: Workaround for unescaped amerpsands"
+    - title: "FB2 Input: Workaround for unescaped ampersands"
 
   new recipes:
     - title: Money Control
@@ -94,7 +207,7 @@
 
     - title: "Conversion pipeline: Add option to control the inserted paragraph indent when using the remove blank line between paragraphs option"
 
-    - title: When reading metadata from PDf files, look for the ISBN in the file text.
+    - title: When reading metadata from PDF files, look for the ISBN in the file text.
       tickets: [3013]
 
     - title: Periodically check for updates to calibre instead of just at startup
@@ -188,7 +301,7 @@
 
     - title: Restore all sections to Guardian newspaper download
 
-    - title: "Social metadata download: If the user specifies that they dont want social metadata, don't get tags from the basic metadata sources either"
+    - title: "Social metadata download: If the user specifies that they don't want social metadata, don't get tags from the basic metadata sources either"
 
 
   new recipes:

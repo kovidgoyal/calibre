@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Embedded console for debugging.
 '''
 
-import sys, os
+import sys, os, pprint
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows, isosx
 from calibre import prints
@@ -65,7 +65,7 @@ def debug_device_driver():
     from calibre.devices.scanner import DeviceScanner
     s = DeviceScanner()
     s.scan()
-    print 'USB devices on system:', repr(s.devices)
+    print 'USB devices on system:\n', pprint.pprint(s.devices)
     if iswindows:
         wmi = __import__('wmi', globals(), locals(), [], -1)
         drives = []
@@ -91,7 +91,7 @@ def debug_device_driver():
     connected_devices = []
     for dev in device_plugins():
         print 'Looking for', dev.__class__.__name__
-        connected = s.is_device_connected(dev)
+        connected = s.is_device_connected(dev, debug=True)
         if connected:
             connected_devices.append(dev)
 

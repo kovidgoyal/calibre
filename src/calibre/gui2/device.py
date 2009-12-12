@@ -105,10 +105,11 @@ class DeviceManager(Thread):
                 self.device       = dev
                 self.device_class = dev.__class__
                 self.connected_slot(True)
-                break
+                return True
         finally:
             if iswindows:
                 pythoncom.CoUninitialize()
+        return False
 
 
     def detect_device(self):
@@ -137,7 +138,11 @@ class DeviceManager(Thread):
                 self.connected_slot(False)
                 device[1] ^= True
         if connected_devices:
-            self.do_connect(connected_devices)
+            if not self.do_connect(connected_devices):
+                print 'Connect to device failed, retying in 5 seconds...'
+                time.sleep(5)
+                if not self.do_connect(connected_devices):
+                    print 'Device connect failed again, giving up'
 
     def umount_device(self):
         if self.device is not None:

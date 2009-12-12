@@ -55,6 +55,9 @@ class PRS505(CLI, Device):
     MUST_READ_METADATA = True
     EBOOK_DIR_MAIN = 'database/media/books'
 
+    def windows_filter_pnp_id(self, pnp_id):
+        return '_LAUNCHER' in pnp_id
+
     def open(self):
         self.report_progress = lambda x, y: x
         Device.open(self)

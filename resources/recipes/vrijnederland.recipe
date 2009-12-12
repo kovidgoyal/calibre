@@ -4,8 +4,8 @@ from calibre.ebooks.BeautifulSoup import Tag
 class VrijNederlandRecipe(BasicNewsRecipe) :
     __license__   = 'GPL v3'
     __author__ = 'kwetal'
-    language = 'nl_NL'
-    locale = 'nl_NL'
+    language = 'nl'
+    locale = 'nl'
     version = 1
 
     title = u'Vrij Nederland'

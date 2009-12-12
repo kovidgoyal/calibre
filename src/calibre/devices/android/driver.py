@@ -36,12 +36,12 @@ class ANDROID(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
-    def get_main_ebook_dir(self):
+    def post_open_callback(self):
         opts = self.settings()
         dirs = opts.extra_customization
         if not dirs:
             dirs = self.EBOOK_DIR_MAIN
         else:
             dirs = [x.strip() for x in dirs.split(',')]
-        return dirs
+        self.EBOOK_DIR_MAIN = dirs
 

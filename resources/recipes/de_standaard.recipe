@@ -11,7 +11,7 @@ class DeStandaard(BasicNewsRecipe):
     __author__            = u'Darko Miletic'
     language = 'nl_BE'
 
-    description           = u'News from Belgium'
+    description           = u'News from Belgium in Dutch'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True

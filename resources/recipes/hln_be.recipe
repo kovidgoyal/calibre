@@ -9,9 +9,9 @@ www.hln.be
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class HLN_be(BasicNewsRecipe):
-    title                 = 'HLN Belgium'
+    title                 = 'Het Laatste Nieuws'
     __author__            = 'Darko Miletic'
-    description           = 'Belgium news'
+    description           = 'News from Belgium in Dutch'
     publisher             = 'HLN'
     category              = 'news, politics, Belgium'
     oldest_article        = 2

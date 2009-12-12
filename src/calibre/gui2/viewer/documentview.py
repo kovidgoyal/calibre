@@ -15,9 +15,11 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
+from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import iswindows
 from calibre import prints, guess_type
+from calibre.gui2.viewer.keys import SHORTCUTS
 
 bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = hyphenator = None
 
@@ -73,8 +75,8 @@ class PythonJS(QObject):
 
 class ConfigDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, *args):
-        QDialog.__init__(self, *args)
+    def __init__(self, shortcuts, parent=None):
+        QDialog.__init__(self, parent)
         self.setupUi(self)
 
         opts = config().parse()
@@ -104,6 +106,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.hyphenate_default_lang.setCurrentIndex(idx)
         self.hyphenate.setChecked(opts.hyphenate)
         self.hyphenate_default_lang.setEnabled(opts.hyphenate)
+        self.shortcuts = shortcuts
+        self.shortcut_config = ShortcutConfig(shortcuts, parent=self)
+        p = self.tabs.widget(1)
+        p.layout().addWidget(self.shortcut_config)
 
 
     def accept(self, *args):
@@ -139,15 +145,15 @@ class Document(QWebPage):
         settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
 
     def do_config(self, parent=None):
-        d = ConfigDialog(parent)
+        d = ConfigDialog(self.shortcuts, parent)
         if d.exec_() == QDialog.Accepted:
             self.set_font_settings()
             self.set_user_stylesheet()
             self.misc_config()
             self.triggerAction(QWebPage.Reload)
 
-    def __init__(self, *args):
-        QWebPage.__init__(self, *args)
+    def __init__(self, shortcuts, parent=None):
+        QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
         self.debug_javascript = False
         self.current_language = None
@@ -155,6 +161,7 @@ class Document(QWebPage):
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
+        self.shortcuts = shortcuts
         pal = self.palette()
         pal.setBrush(QPalette.Background, QColor(0xee, 0xee, 0xee))
         self.setPalette(pal)
@@ -337,7 +344,10 @@ class Document(QWebPage):
 
     @property
     def height(self):
-        return self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
+        ans = self.javascript('document.body.offsetHeight', 'int') # contentsSize gives inaccurate results
+        if ans == 0:
+            ans = self.mainFrame().contentsSize().height()
+        return ans
 
     @property
     def width(self):
@@ -366,13 +376,14 @@ class DocumentView(QWebView):
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.debug_javascript = False
+        self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
         self.self_closing_pat = re.compile(r'<([a-z]+)\s+([^>]+)/>',
                 re.IGNORECASE)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._size_hint = QSize(510, 680)
         self.initial_pos = 0.0
         self.to_bottom = False
-        self.document = Document(self)
+        self.document = Document(self.shortcuts, parent=self)
         self.setPage(self.document)
         self.manager = None
         self._reference_mode = False
@@ -407,6 +418,7 @@ class DocumentView(QWebView):
         self.document.do_config(parent)
         if self.manager is not None:
             self.manager.set_max_width()
+        self.setFocus(Qt.OtherFocusReason)
 
     def bookmark(self):
         return self.document.bookmark()
@@ -480,6 +492,7 @@ class DocumentView(QWebView):
             self.manager.load_started()
         self.loading_url = QUrl.fromLocalFile(path)
         #self.setContent(QByteArray(html.encode(path.encoding)), mt, QUrl.fromLocalFile(path))
+        #open('/tmp/t.html', 'wb').write(html.encode(path.encoding))
         self.setHtml(html, self.loading_url)
         self.turn_off_internal_scrollbars()
 
@@ -576,8 +589,8 @@ class DocumentView(QWebView):
         else:
             self.document.set_bottom_padding(0)
             opos = self.document.ypos
-            lower_limit = opos + delta_y
-            max_y = self.document.height - window_height
+            lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
+            max_y = self.document.height - window_height # The maximum possible top y co-ord
             if max_y < lower_limit:
                 self.document.set_bottom_padding(lower_limit - max_y)
             max_y = self.document.height - window_height
@@ -663,31 +676,35 @@ class DocumentView(QWebView):
         return ret
 
     def keyPressEvent(self, event):
-        key = event.key()
-        if key in [Qt.Key_PageDown, Qt.Key_Space, Qt.Key_Down]:
+        key = self.shortcuts.get_match(event)
+        if key == 'Next Page':
             self.next_page()
-        elif key in [Qt.Key_PageUp, Qt.Key_Backspace, Qt.Key_Up]:
+        elif key == 'Previous Page':
             self.previous_page()
-        elif key in [Qt.Key_Home]:
-            if event.modifiers() & Qt.ControlModifier:
-                if self.manager is not None:
-                    self.manager.goto_start()
-            else:
-                self.scroll_to(0)
-        elif key in [Qt.Key_End]:
-            if event.modifiers() & Qt.ControlModifier:
-                if self.manager is not None:
-                    self.manager.goto_end()
-            else:
-                self.scroll_to(1)
-        elif key in [Qt.Key_J]:
+        elif key == 'Section Top':
+            self.scroll_to(0)
+        elif key == 'Document Top':
+            if self.manager is not None:
+                self.manager.goto_start()
+        elif key == 'Section Bottom':
+            self.scroll_to(1)
+        elif key == 'Document Bottom':
+            if self.manager is not None:
+                self.manager.goto_end()
+        elif key == 'Down':
             self.scroll_by(y=15)
-        elif key in [Qt.Key_K]:
+        elif key == 'Up':
             self.scroll_by(y=-15)
-        elif key in [Qt.Key_H]:
+        elif key == 'Left':
             self.scroll_by(x=-15)
-        elif key in [Qt.Key_L]:
+        elif key == 'Right':
             self.scroll_by(x=15)
+        elif key == 'Next Section':
+            if self.manager is not None:
+                self.manager.goto_next_section()
+        elif key == 'Previous Section':
+            if self.manager is not None:
+                self.manager.goto_previous_section()
         else:
             return QWebView.keyPressEvent(self, event)
 

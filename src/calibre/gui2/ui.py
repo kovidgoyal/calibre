@@ -354,7 +354,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         pm = QMenu()
         ap = self.action_preferences
         pm.addAction(ap.icon(), ap.text())
-        pm.addAction(_('Run welcome wizard'))
+        pm.addAction(QIcon(I('wizard.svg')), _('Run welcome wizard'))
         self.connect(pm.actions()[0], SIGNAL('triggered(bool)'),
                 self.do_config)
         self.connect(pm.actions()[1], SIGNAL('triggered(bool)'),
@@ -1224,6 +1224,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         temp_files, fmt, arg = self.conversion_jobs.pop(job)
         pt = temp_files[0]
         if job.failed:
+            self.scheduler.recipe_download_failed(arg)
             return self.job_exception(job)
         id = self.library_view.model().add_news(pt.name, arg)
         self.library_view.model().reset()

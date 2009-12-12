@@ -208,6 +208,9 @@ class Device(DeviceConfig, DevicePlugin):
 
         return (msz, casz, cbsz)
 
+    def windows_filter_pnp_id(self, pnp_id):
+        return False
+
     def windows_match_device(self, drive, attr):
         pnp_id = (str(drive.PNPDeviceID) if not isinstance(drive, basestring)
                 else str(drive)).upper()
@@ -222,6 +225,9 @@ class Device(DeviceConfig, DevicePlugin):
             return False
 
         if device_id is None or not test_vendor():
+            return False
+
+        if self.windows_filter_pnp_id(pnp_id):
             return False
 
         if hasattr(device_id, 'search'):
@@ -289,9 +295,12 @@ class Device(DeviceConfig, DevicePlugin):
 
         # This is typically needed when the device has the same
         # WINDOWS_MAIN_MEM and WINDOWS_CARD_A_MEM in which case
-        # if teh devices is connected without a crad, the above
+        # if the devices is connected without a crad, the above
         # will incorrectly identify the main mem as carda
         # See for example the driver for the Nook
+        if 'main' not in drives and 'carda' in drives:
+            drives['main'] = drives.pop('carda')
+
         drives = self.windows_open_callback(drives)
 
         if drives.get('main', None) is None:
@@ -578,7 +587,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 self.open_windows()
             except DeviceError:
-                time.sleep(5)
+                time.sleep(7)
                 self.open_windows()
         if isosx:
             try:
@@ -586,6 +595,11 @@ class Device(DeviceConfig, DevicePlugin):
             except DeviceError:
                 time.sleep(7)
                 self.open_osx()
+
+        self.post_open_callback()
+
+    def post_open_callback(self):
+        pass
 
     def eject_windows(self):
         from calibre.constants import plugins

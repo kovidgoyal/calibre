@@ -9,6 +9,8 @@ import os
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.pdf.pdftohtml import pdftohtml
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.constants import plugins
+pdfreflow, pdfreflow_err = plugins['pdfreflow']
 
 class PDFInput(InputFormatPlugin):
 
@@ -24,12 +26,27 @@ class PDFInput(InputFormatPlugin):
             help=_('Scale used to determine the length at which a line should '
             'be unwrapped. Valid values are a decimal between 0 and 1. The '
             'default is 0.5, this is the median line length.')),
+        OptionRecommendation(name='new_pdf_engine', recommended_value=False,
+            help=_('Use the new PDF conversion engine.'))
     ])
+
+    def convert_new(self, stream, accelerators):
+        from calibre.ebooks.pdf.reflow import PDFDocument
+        if pdfreflow_err:
+            raise RuntimeError('Failed to load pdfreflow: ' + pdfreflow_err)
+        pdfreflow.reflow(stream.read())
+        xml = open('index.xml', 'rb').read()
+        PDFDocument(xml, self.opts, self.log)
+        return os.path.join(os.getcwd(), 'metadata.opf')
+
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         log.debug('Converting file to html...')
         # The main html file will be named index.html
+        self.opts, self.log = options, log
+        if options.new_pdf_engine:
+            return self.convert_new(stream, accelerators)
         pdftohtml(os.getcwd(), stream.name, options.no_images)
 
         from calibre.ebooks.metadata.meta import get_metadata

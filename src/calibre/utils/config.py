@@ -608,6 +608,10 @@ class XMLConfig(dict):
     def set(self, key, val):
         self.__setitem__(key, val)
 
+    def __delitem__(self, key):
+        dict.__delitem__(self, key)
+        self.commit()
+
     def commit(self):
         if hasattr(self, 'file_path') and self.file_path:
             dpath = os.path.dirname(self.file_path)
