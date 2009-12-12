@@ -126,7 +126,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         if not title or not src:
             error_dialog(self, _('No recipe selected'), _('No recipe selected')).exec_()
             return
-        pt = PersistentTemporaryFile(suffix='.py')
+        pt = PersistentTemporaryFile(suffix='.recipe')
         pt.write(src.encode('utf-8'))
         pt.close()
         body = _('The attached file: %s is a recipe to download %s.')%(os.path.basename(pt.name), title)
