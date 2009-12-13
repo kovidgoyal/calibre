@@ -356,7 +356,10 @@ class MobiMLizer(object):
                     if value == getattr(self.profile, prop):
                         result = '100%'
                     else:
-                        ems = int(round(value / self.profile.fbase))
+                        try:
+                            ems = int(round(float(value) / self.profile.fbase))
+                        except:
+                            continue
                         result = "%dem" % ems
                     istate.attrib[prop] = result
         elif tag == 'hr' and asfloat(style['width']) > 0:
