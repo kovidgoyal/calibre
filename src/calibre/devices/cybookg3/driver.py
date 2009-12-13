@@ -20,7 +20,7 @@ class CYBOOKG3(USBMS):
     name           = 'Cybook Gen 3 Device Interface'
     gui_name       = 'Cybook Gen 3'
     description    = _('Communicate with the Cybook Gen 3 eBook reader.')
-    author         = _('John Schember')
+    author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
