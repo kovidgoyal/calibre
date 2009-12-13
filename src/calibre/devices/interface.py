@@ -8,8 +8,7 @@ a backend that implement the Device interface for the SONY PRS500 Reader.
 import os
 
 from calibre.customize import Plugin
-from calibre.constants import iswindows, islinux
-from calibre.devices.libusb1 import info
+from calibre.constants import iswindows
 
 class DevicePlugin(Plugin):
     """
@@ -109,15 +108,15 @@ class DevicePlugin(Plugin):
 
         for vid in vendors:
             if vid in vendors_on_system:
-                for cvid, pid, bcd in devices_on_system:
+                for dev in devices_on_system:
+                    cvid, pid, bcd = dev[:3]
                     if cvid == vid:
                         if pid in products:
                             if hasattr(cls.VENDOR_ID, 'keys'):
                                 cbcd = cls.VENDOR_ID[vid][pid]
                             else:
                                 cbcd = cls.BCD
-                            if cls.test_bcd(bcd, cbcd) and cls.can_handle((vid,
-                                                            pid, bcd),
+                            if cls.test_bcd(bcd, cbcd) and cls.can_handle(dev,
                                                             debug=debug):
                                 return True
         return False
@@ -151,14 +150,12 @@ class DevicePlugin(Plugin):
         :param device_info: On windows a device ID string. On Unix a tuple of
         ``(vendor_id, product_id, bcd)``.
         '''
-        if islinux:
-            try:
-                if debug:
-                    dev = info(*device_info)
-                    print '\t', repr(dev)
-            except:
-                import traceback
-                traceback.print_exc()
+        try:
+            if debug:
+                print '\t', repr(device_info)
+        except:
+            import traceback
+            traceback.print_exc()
         return True
 
     def open(self):
