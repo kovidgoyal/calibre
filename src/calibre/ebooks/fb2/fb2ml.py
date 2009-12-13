@@ -10,6 +10,7 @@ Transform OEB content into FB2 markup
 
 import cStringIO
 from base64 import b64encode
+import re
 
 try:
     from PIL import Image
@@ -30,13 +31,14 @@ TAG_MAP = {
     'i' : 'emphasis',
     'p' : 'p',
     'li' : 'p',
-    'br' : 'p',
+    'div': 'p',
 }
 
-TAG_SPACE = [
-    'div',
+TAG_FORCE_P = [
     'br',
 ]
+
+TAG_SPACE = []
 
 TAG_IMAGES = [
     'img',
@@ -79,7 +81,13 @@ class FB2MLizer(object):
         output.append(self.fb2mlize_images())
         output.append(self.fb2_footer())
         output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
+        output = self.clean_text(output)
         return u'<?xml version="1.0" encoding="UTF-8"?>\n%s' % etree.tostring(etree.fromstring(output), encoding=unicode, pretty_print=True)
+
+    def clean_text(self, text):
+        text = re.sub('<p>[ ]*</p>', '', text)
+
+        return text
 
     def fb2_header(self):
         author_first = u''
@@ -124,7 +132,7 @@ class FB2MLizer(object):
         return output
 
     def get_toc(self):
-        toc = [u'']
+        toc = []
         if self.opts.inline_toc:
             self.log.debug('Generating table of contents...')
             toc.append(u'<p>%s</p>' % _('Table of Contents:'))
@@ -136,7 +144,7 @@ class FB2MLizer(object):
         return ''.join(toc)
 
     def get_text(self):
-        text = [u'']
+        text = []
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to FictionBook2 XML' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts.output_profile)
@@ -162,7 +170,7 @@ class FB2MLizer(object):
         return '<a id="%s" />' % aid
 
     def fb2mlize_images(self):
-        images = [u'']
+        images = []
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
@@ -190,14 +198,15 @@ class FB2MLizer(object):
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
-            return [u'']
+            return []
 
-        fb2_text = [u'']
         style = stylizer.style(elem)
-
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
-            return [u'']
+            return []
+
+        fb2_text = []
+        tags = []
 
         tag = barename(elem.tag)
 
@@ -221,14 +230,32 @@ class FB2MLizer(object):
                         self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
                     href = self.link_hrefs[href]
                     fb2_text.append('<a xlink:href="#%s">' % href)
-                tag_stack.append('a')
+                tags.append('a')
 
         # Anchor ids
         id_name = elem.get('id')
         if id_name:
             fb2_text.append(self.get_anchor(page, id_name))
 
-        if tag in TAG_TITLE:
+        if tag in TAG_FORCE_P:
+            if 'p' in tag_stack+tags:
+                # Close all up to p. Close p. Reopen all closed tags including p.
+                all_tags = tag_stack+tags
+                closed_tags = []
+                all_tags.reverse()
+                for t in all_tags:
+                    fb2_text.append('</%s>' % t)
+                    closed_tags.append(t)
+                    if t == 'p':
+                        break
+                closed_tags.reverse()
+                for t in closed_tags:
+                    fb2_text.append('<%s>' % t)
+            else:
+                fb2_text.append('<p>')
+                tags.append('p')
+
+        '''if tag in TAG_TITLE:
             if 'p' in tag_stack:
                 ctag = []
                 ctag.append(tag_stack.pop())
@@ -237,42 +264,35 @@ class FB2MLizer(object):
                 fb2_text += self.close_tags(ctag)
             fb2_text.append('</section><section><title><p>')
             tag_stack.append('title')
-            tag_stack.append('p')
+            tag_stack.append('p')'''
 
         fb2_tag = TAG_MAP.get(tag, None)
-        if fb2_tag:
-            if fb2_tag in tag_stack:
-                tag_stack.reverse()
-                tag_stack.remove(fb2_tag)
-                tag_stack.reverse()
-                fb2_text.append('</%s>' % fb2_tag)
+        if fb2_tag and fb2_tag not in tag_stack+tags:
             fb2_text.append('<%s>' % fb2_tag)
-            tag_stack.append(fb2_tag)
+            tags.append(fb2_tag)
 
         # Processes style information
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
-            if style_tag:
+            if style_tag and style_tag not in tag_stack+tags:
                 fb2_text.append('<%s>' % style_tag)
-                tag_stack.append(style_tag)
+                tags.append(style_tag)
 
         if tag in TAG_SPACE:
-            if not fb2_text or fb2_text[-1] != ' ':
+            if not fb2_text or fb2_text[-1] != ' ' or not fb2_text[-1].endswith(' '):
                 fb2_text.append(' ')
 
         if hasattr(elem, 'text') and elem.text:
-            if 'p' not in tag_stack:
+            if 'p' not in tag_stack+tags:
                 fb2_text.append('<p>%s</p>' % prepare_string_for_xml(elem.text))
             else:
                 fb2_text.append(prepare_string_for_xml(elem.text))
 
         for item in elem:
-            fb2_text += self.dump_text(item, stylizer, page, tag_stack)
+            fb2_text += self.dump_text(item, stylizer, page, tag_stack+tags)
 
-        close_tag_list = []
-        for i in range(0, len(tag_stack)):
-            close_tag_list.insert(0, tag_stack.pop())
-        fb2_text += self.close_tags(close_tag_list)
+        tags.reverse()
+        fb2_text += self.close_tags(tags)
 
         if hasattr(elem, 'tail') and elem.tail:
             if 'p' not in tag_stack:
@@ -280,12 +300,12 @@ class FB2MLizer(object):
             else:
                 fb2_text.append(prepare_string_for_xml(elem.tail))
 
+        #print fb2_text
         return fb2_text
 
     def close_tags(self, tags):
-        fb2_text = [u'']
-        for i in range(0, len(tags)):
-            fb2_tag = tags.pop()
-            fb2_text.append('</%s>' % fb2_tag)
+        text = []
+        for tag in tags:
+            text.append('</%s>' % tag)
 
-        return fb2_text
+        return text
