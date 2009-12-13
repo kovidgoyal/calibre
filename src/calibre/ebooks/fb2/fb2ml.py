@@ -48,10 +48,6 @@ TAG_LINKS = [
     'a',
 ]
 
-TAG_TITLE = [
-    'h1',
-]
-
 STYLES = [
     ('font-weight', {'bold'   : 'strong', 'bolder' : 'strong'}),
     ('font-style', {'italic' : 'emphasis'}),
@@ -254,17 +250,6 @@ class FB2MLizer(object):
             else:
                 fb2_text.append('<p>')
                 tags.append('p')
-
-        '''if tag in TAG_TITLE:
-            if 'p' in tag_stack:
-                ctag = []
-                ctag.append(tag_stack.pop())
-                while ctag[-1] != 'p':
-                    ctag.append(tag_stack.pop())
-                fb2_text += self.close_tags(ctag)
-            fb2_text.append('</section><section><title><p>')
-            tag_stack.append('title')
-            tag_stack.append('p')'''
 
         fb2_tag = TAG_MAP.get(tag, None)
         if fb2_tag and fb2_tag not in tag_stack+tags:
