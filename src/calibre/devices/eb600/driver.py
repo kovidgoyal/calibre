@@ -21,7 +21,7 @@ class EB600(USBMS):
 
     name           = 'Netronix EB600 Device Interface'
     description    = _('Communicate with the EB600 eBook reader.')
-    author         = _('Kovid Goyal')
+    author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
@@ -97,3 +97,18 @@ class POCKETBOOK360(EB600):
     OSX_MAIN_MEM   = 'Philips Mass Storge Media'
     OSX_CARD_A_MEM = 'Philips Mass Storge Media'
 
+class GER2(EB600):
+
+    name = 'Ganaxa GeR2 Device Interface'
+    gui_name = 'Ganaxa GeR2'
+    supported_platforms = ['windows']
+
+    FORMATS = ['pdf']
+
+    VENDOR_ID   = [0xbda]
+    PRODUCT_ID  = [0x703]
+    BCD         = [0x132]
+
+    VENDOR_NAME = 'GANAXA'
+    WINDOWS_MAIN_MEN = 'GER2_________-FD'
+    WINDOWS_CARD_A_MEM = 'GER2_________-SD'
