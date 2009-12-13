@@ -60,6 +60,16 @@ class USBMS(CLI, Device):
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
+        candidates = ebook_dir
+        if isinstance(candidates, basestring):
+            candidates = [candidates]
+        for x in candidates:
+            if os.path.exists(os.path.join(prefix, *(x.split('/')))):
+                ebook_dir = x
+                break
+        if not isinstance(ebook_dir, basestring):
+            ebook_dir = ebook_dir[0]
+
         # Get all books in the ebook_dir directory
         if self.SUPPORTS_SUB_DIRS:
             for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
