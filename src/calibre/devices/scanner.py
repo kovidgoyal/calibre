@@ -65,8 +65,10 @@ class LinuxScanner(object):
             ans.add(tuple(dev))
         return ans
 
+linux_scanner = None
 
-linux_scanner = LinuxScanner()
+if islinux:
+    linux_scanner = LinuxScanner()
 
 class DeviceScanner(object):
 
