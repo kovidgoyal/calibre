@@ -54,6 +54,13 @@ STYLES = [
 ]
 
 class FB2MLizer(object):
+    '''
+    Todo: * Ensure all style tags are inside of the p tags.
+          * Include more FB2 specific tags in the conversion.
+          * Handle reopening of a tag properly.
+          * Figure out some way to turn oeb_book.toc items into <section><title>
+            <p> to allow for readers to generate toc from the document.
+    '''
 
     def __init__(self, log):
         self.log = log
@@ -285,7 +292,6 @@ class FB2MLizer(object):
             else:
                 fb2_text.append(prepare_string_for_xml(elem.tail))
 
-        #print fb2_text
         return fb2_text
 
     def close_tags(self, tags):
