@@ -101,7 +101,7 @@ class GER2(EB600):
 
     name = 'Ganaxa GeR2 Device Interface'
     gui_name = 'Ganaxa GeR2'
-    supported_platforms = ['windows']
+    supported_platforms = ['windows', 'linux']
 
     FORMATS = ['pdf']
 
