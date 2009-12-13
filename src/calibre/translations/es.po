@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-11 23:27+0000\n"
-"PO-Revision-Date: 2009-12-11 23:47+0000\n"
+"PO-Revision-Date: 2009-12-12 12:59+0000\n"
 "Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-12 04:41+0000\n"
+"X-Launchpad-Export-Date: 2009-12-13 04:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -526,11 +526,11 @@ msgstr "Comunicarse con el lector Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:16
 msgid "The Nook"
-msgstr ""
+msgstr "El Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:17
 msgid "Communicate with the Nook eBook reader."
-msgstr ""
+msgstr "Comunicar con el lector de libros electrónicos Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -2241,7 +2241,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Usar el nuevo motor de conversión a PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -6049,59 +6049,59 @@ msgstr "Buscar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:57
 msgid "Press a key..."
-msgstr ""
+msgstr "Pulse una tecla..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:78
 msgid "Already assigned"
-msgstr ""
+msgstr "Ya asignado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
 msgid "already assigned to"
-msgstr ""
+msgstr "ya está asignado a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:215
 msgid " or "
-msgstr ""
+msgstr " o "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:68
 msgid "&Default"
-msgstr ""
+msgstr "&Predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:125
 msgid "Customize shortcuts for"
-msgstr ""
+msgstr "Personalizar atajos para"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:217
 msgid "Double click to change"
-msgstr ""
+msgstr "Pulse dos veces para cambiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:67
 msgid "Frame"
-msgstr ""
+msgstr "Marco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:69
 msgid "&Custom"
-msgstr ""
+msgstr "&Personalizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:70
 msgid "&Shortcut:"
-msgstr ""
+msgstr "&Atajo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
 msgid "Click to change"
-msgstr ""
+msgstr "Pulse para cambiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
 msgid "Clear"
-msgstr ""
+msgstr "Limpiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Alternate shortcut:"
-msgstr ""
+msgstr "&Atajo alternativo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:148
 msgid "Jobs:"
@@ -6794,15 +6794,15 @@ msgstr "Estilos de &usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:171
 msgid "&General"
-msgstr ""
+msgstr "&General"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Double click to change a keyborad shortcut"
-msgstr ""
+msgstr "Pulse dos veces para cambiar el atajo de teclado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Keyboard shortcuts"
-msgstr ""
+msgstr "&Atajos de teclado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:33
 msgid "Options to customize the ebook viewer"
@@ -6896,19 +6896,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr ""
+msgstr "Bajar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr ""
+msgstr "Subir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr ""
+msgstr "Moverse a la izquierda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
-msgstr ""
+msgstr "Moverse a la derecha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:114
 msgid "Book format"
@@ -8088,7 +8088,7 @@ msgstr "Inglés (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (TH)"
-msgstr ""
+msgstr "Inglés (TH)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "Dutch (NL)"
