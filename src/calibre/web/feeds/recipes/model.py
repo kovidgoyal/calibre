@@ -16,7 +16,7 @@ from calibre.gui2 import NONE
 from calibre.utils.localization import get_language
 from calibre.web.feeds.recipes.collection import \
         get_builtin_recipe_collection, get_custom_recipe_collection, \
-        SchedulerConfig
+        SchedulerConfig, download_builtin_recipe
 from calibre.utils.pyparsing import ParseException
 
 class NewsTreeItem(object):
@@ -129,13 +129,22 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.scheduler_config = SchedulerConfig()
         self.do_refresh()
 
-    def get_recipe(self, urn):
+    def get_builtin_recipe(self, urn, download=True):
+        if download:
+            try:
+                return download_builtin_recipe(urn)
+            except:
+                import traceback
+                traceback.print_exc()
+        return P('recipes/%s.recipe'%urn, data=True)
+
+    def get_recipe(self, urn, download=True):
         coll = self.custom_recipe_collection if urn.startswith('custom:') \
                 else self.builtin_recipe_collection
         for recipe in coll:
             if recipe.get('id', False) == urn:
                 if coll is self.builtin_recipe_collection:
-                    return P('recipes/%s.recipe'%urn[8:], data=True)
+                    return self.get_builtin_recipe(urn[8:], download=download)
                 return self.db.get_feed(int(urn[len('custom:'):]))
 
     def update_custom_recipe(self, urn, title, script):
@@ -332,7 +341,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
 
     def get_to_be_downloaded_recipes(self):
         ans = self.scheduler_config.get_to_be_downloaded_recipes()
-        ans2 = [x for x in ans if self.get_recipe(x) is not None]
+        ans2 = [x for x in ans if self.get_recipe(x, download=False) is not None]
         for x in set(ans) - set(ans2):
             self.un_schedule_recipe(x)
         return ans2
