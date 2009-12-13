@@ -290,6 +290,7 @@ class Scheduler(QObject):
     def recipe_download_failed(self, arg):
         self.lock.lock()
         try:
+            self.recipe_model.update_last_downloaded(arg['urn'])
             self.download_queue.remove(arg['urn'])
         finally:
             self.lock.unlock()
