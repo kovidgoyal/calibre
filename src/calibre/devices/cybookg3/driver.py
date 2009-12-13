@@ -78,6 +78,14 @@ class CYBOOKG3(USBMS):
 
         return zip(paths, cycle([on_card]))
 
+    @classmethod
+    def can_handle(cls, device_info, debug=False):
+        USBMS.can_handle(device_info, debug)
+        if islinux:
+            if device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Gen3':
+                return True
+        return False
+
 
 class CYBOOK_OPUS(CYBOOKG3):
 
@@ -103,3 +111,11 @@ class CYBOOK_OPUS(CYBOOKG3):
     EBOOK_DIR_MAIN = 'eBooks'
     EBOOK_DIR_CARD_A = 'eBooks'
     SUPPORTS_SUB_DIRS = True
+
+    @classmethod
+    def can_handle(cls, device_info, debug=False):
+        USBMS.can_handle(device_info, debug)
+        if islinux:
+            if device_info[3] == 'Bookeen':
+                return True
+        return False
