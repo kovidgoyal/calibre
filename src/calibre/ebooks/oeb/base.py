@@ -759,6 +759,7 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _parse_xml(self, data):
+            data = xml_to_unicode(data, strip_encoding_pats=True)[0]
             parser = etree.XMLParser(recover=True)
             try:
                 return etree.fromstring(data, parser=parser)
