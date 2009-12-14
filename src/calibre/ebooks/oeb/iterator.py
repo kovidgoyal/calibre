@@ -195,7 +195,10 @@ class EbookIterator(object):
                 mt = self.opf.manifest.type_for_id(i.idref)
             if mt is None:
                 mt = guess_type(spath)[0]
-            self.spine.append(SpineItem(spath, mime_type=mt))
+            try:
+                self.spine.append(SpineItem(spath, mime_type=mt))
+            except:
+                self.log.warn('Missing spine item:', repr(spath))
 
         cover = self.opf.cover
         if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
