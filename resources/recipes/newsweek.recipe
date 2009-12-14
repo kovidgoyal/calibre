@@ -33,19 +33,21 @@ class Newsweek(BasicNewsRecipe):
     language = 'en'
 
     remove_tags = [
-            {'class':['fwArticle noHr','fwArticle','subinfo','hdlBulletItem','head-content','navbar','link', 'ad', 'sponsorLinksArticle', 'mm-content',
+            {'class':['fwArticle noHr','fwArticle','hdlBulletItem','head-content','navbar','link', 'ad', 'sponsorLinksArticle', 'mm-content',
                 'inline-social-links-wrapper', 'email-article','ToolBox',
+                'inline-promo-link', 'sponsorship',
                 'inlineComponentRight',
                 'comments-and-social-links-wrapper', 'EmailArticleBlock']},
             {'id' : ['footer', 'ticker-data', 'topTenVertical',
-                'digg-top-five', 'mesothorax', 'nw-comments',
+                'digg-top-five', 'mesothorax', 'nw-comments', 'my-take-landing',
                 'ToolBox', 'EmailMain']},
             {'class': re.compile('related-cloud')},
             dict(name='li', attrs={'id':['slug_bigbox']})
             ]
 
 
-    keep_only_tags = [{'class':['article HorizontalHeader', 'articlecontent','photoBox']}, ]
+    keep_only_tags = [{'class':['article HorizontalHeader',
+        'articlecontent','photoBox', 'article columnist first']}, ]
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
 
