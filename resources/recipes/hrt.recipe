@@ -11,6 +11,8 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
+adfad
+
 class HRT(BasicNewsRecipe):
     title                 = 'HRT: Vesti'
     __author__            = 'Darko Miletic'
@@ -23,7 +25,14 @@ class HRT(BasicNewsRecipe):
     language = 'hr'
 
     lang                  = 'hr-HR'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
+    extra_css = '''@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                    body{font-family: serif1, serif} .article_description{font-family: serif1, serif}
+                   .news-single-timedata{color:#20558A; font-size:x-small;}
+                   .nsTitle{color:#20558A; font-size:large; font-weight:bold;}
+                   a{color:#20558A;}
+                   .external-link-new-window{color:#20558A;}
+
+                '''
 
     conversion_options = {
                           'comment'          : description
@@ -35,6 +44,7 @@ class HRT(BasicNewsRecipe):
 
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
 
     keep_only_tags     = [dict(name='div', attrs={'class':'bigVijest'})]
 
