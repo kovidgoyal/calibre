@@ -16,7 +16,7 @@ class Guardian(BasicNewsRecipe):
     language = 'en_GB'
 
     oldest_article = 7
-    max_articles_per_feed = 25
+    max_articles_per_feed = 50
     remove_javascript = True
 
     timefmt = ' [%a, %d %b %Y]'
