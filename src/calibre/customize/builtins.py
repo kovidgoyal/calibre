@@ -404,7 +404,7 @@ from calibre.devices.bebook.driver import BEBOOK, BEBOOK_MINI
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybookg3.driver import CYBOOKG3, CYBOOK_OPUS
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
-                POCKETBOOK360, GER2
+                POCKETBOOK360, GER2, ITALICA
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
@@ -458,7 +458,6 @@ plugins += [
     BEBOOK_MINI,
     BLACKBERRY,
     CYBOOKG3,
-    EB600,
     ILIAD,
     IREXDR1000,
     JETBOOK,
@@ -473,12 +472,14 @@ plugins += [
     N770,
     CYBOOK_OPUS,
     COOL_ER,
-    SHINEBOOK,
     ESLICK,
     NUUT2,
     IRIVER_STORY,
     POCKETBOOK360,
     GER2,
+    ITALICA,
+    SHINEBOOK,
+    EB600,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
