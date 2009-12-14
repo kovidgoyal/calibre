@@ -123,6 +123,7 @@ def debug_device_driver():
         print
         print
         print "Don't forget to send the file /tmp/ioreg.txt as well"
+        print "You can view it by typing the command: open /tmp/ioreg.txt"
 
     if iswindows:
         raw_input('Press Enter to continue...')

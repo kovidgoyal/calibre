@@ -15,7 +15,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../../resources/images.qrc">
+   <iconset resource="../../../../work/calibre/resources/images.qrc">
     <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
   <layout class="QGridLayout">
@@ -90,7 +90,7 @@
           <x>0</x>
           <y>0</y>
           <width>524</width>
-          <height>680</height>
+          <height>683</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
@@ -148,7 +148,7 @@
                     <string>...</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../../../../resources/images.qrc">
+                    <iconset resource="../../../../work/calibre/resources/images.qrc">
                      <normaloff>:/images/mimetypes/dir.svg</normaloff>:/images/mimetypes/dir.svg</iconset>
                    </property>
                   </widget>
@@ -285,7 +285,7 @@
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset resource="../../../../../resources/images.qrc">
+                       <iconset resource="../../../../work/calibre/resources/images.qrc">
                         <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                       </property>
                      </widget>
@@ -309,7 +309,7 @@
                        <string>...</string>
                       </property>
                       <property name="icon">
-                       <iconset resource="../../../../../resources/images.qrc">
+                       <iconset resource="../../../../work/calibre/resources/images.qrc">
                         <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                       </property>
                      </widget>
@@ -473,7 +473,7 @@
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../../../../../resources/images.qrc">
+                         <iconset resource="../../../../work/calibre/resources/images.qrc">
                           <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                         </property>
                        </widget>
@@ -497,7 +497,7 @@
                          <string>...</string>
                         </property>
                         <property name="icon">
-                         <iconset resource="../../../../../resources/images.qrc">
+                         <iconset resource="../../../../work/calibre/resources/images.qrc">
                           <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                         </property>
                        </widget>
@@ -557,7 +557,7 @@
                     <string>&amp;Add email</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../../../../resources/images.qrc">
+                    <iconset resource="../../../../work/calibre/resources/images.qrc">
                      <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                    </property>
                    <property name="iconSize">
@@ -584,7 +584,7 @@
                     <string>&amp;Remove email</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../../../../resources/images.qrc">
+                    <iconset resource="../../../../work/calibre/resources/images.qrc">
                      <normaloff>:/images/minus.svg</normaloff>:/images/minus.svg</iconset>
                    </property>
                    <property name="iconSize">
@@ -649,24 +649,31 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0" colspan="2">
+             <item row="2" column="0" colspan="2">
               <widget class="QPushButton" name="compact_button">
                <property name="text">
                 <string>&amp;Check database integrity</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0" colspan="2">
+             <item row="4" column="0" colspan="2">
               <widget class="QPushButton" name="button_osx_symlinks">
                <property name="text">
                 <string>&amp;Install command line tools</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0" colspan="2">
+             <item row="3" column="0" colspan="2">
               <widget class="QPushButton" name="button_open_config_dir">
                <property name="text">
                 <string>Open calibre &amp;configuration directory</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QCheckBox" name="opt_enforce_cpu_limit">
+               <property name="text">
+                <string>Limit the max. simultaneous jobs to the available CPU &amp;cores</string>
                </property>
               </widget>
              </item>
@@ -959,7 +966,7 @@
                      <string>...</string>
                     </property>
                     <property name="icon">
-                     <iconset resource="../../../../../resources/images.qrc">
+                     <iconset resource="../../../../work/calibre/resources/images.qrc">
                       <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
                     </property>
                    </widget>
@@ -1030,7 +1037,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../../resources/images.qrc"/>
+  <include location="../../../../work/calibre/resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

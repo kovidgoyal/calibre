@@ -701,6 +701,7 @@ class MobiReader(object):
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
         self.mobi_html = self.mobi_html.replace('\0', '')
+        self.mobi_html = self.mobi_html.replace('\x1e', '') # record separator
         return processed_records
 
 

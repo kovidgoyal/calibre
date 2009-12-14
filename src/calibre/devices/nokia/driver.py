@@ -16,7 +16,7 @@ class N770(USBMS):
     gui_name       = 'Nokia 770'
     description    = _('Communicate with the Nokia Nokia 770 internet tablet.')
     author         = 'John Schember'
-    supported_platforms = ['windows', 'linux']
+    supported_platforms = ['windows', 'linux', 'osx']
 
     # Ordered list of supported formats
     FORMATS     = ['mobi', 'prc', 'epub', 'html', 'zip', 'fb2', 'chm', 'pdb',

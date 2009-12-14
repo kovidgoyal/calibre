@@ -759,6 +759,7 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _parse_xml(self, data):
+            data = xml_to_unicode(data, strip_encoding_pats=True)[0]
             parser = etree.XMLParser(recover=True)
             try:
                 return etree.fromstring(data, parser=parser)
@@ -1205,8 +1206,12 @@ class Manifest(object):
         return elem
 
     def to_opf2(self, parent=None):
+
+        def sort(x, y):
+            return cmp(x.href, y.href)
+
         elem = element(parent, OPF('manifest'))
-        for item in self.items:
+        for item in sorted(self.items, cmp=sort):
             media_type = item.media_type
             if media_type in OEB_DOCS:
                 media_type = XHTML_MIME
@@ -1434,7 +1439,6 @@ class Guide(object):
         return elem
 
 
-# TODO: This needs beefing up to support the interface of toc.TOC
 class TOC(object):
     """Represents a hierarchical table of contents or navigation tree for
     accessing arbitrary semantic sections within an OEB data model book.

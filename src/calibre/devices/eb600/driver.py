@@ -101,7 +101,6 @@ class GER2(EB600):
 
     name = 'Ganaxa GeR2 Device Interface'
     gui_name = 'Ganaxa GeR2'
-    supported_platforms = ['windows', 'linux']
 
     FORMATS = ['pdf']
 
@@ -112,3 +111,15 @@ class GER2(EB600):
     VENDOR_NAME = 'GANAXA'
     WINDOWS_MAIN_MEN = 'GER2_________-FD'
     WINDOWS_CARD_A_MEM = 'GER2_________-SD'
+
+class ITALICA(EB600):
+
+    name = 'Italica Device Interface'
+    gui_name = 'Italica'
+
+    FORMATS = ['epub', 'pdf', 'txt']
+
+    VENDOR_NAME = 'ITALICA'
+    WINDOWS_MAIN_MEM = 'EREADER'
+
+    OSX_MAIN_MEM = 'Italica eReader Media'

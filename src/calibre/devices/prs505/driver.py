@@ -24,7 +24,7 @@ class PRS505(CLI, Device):
     name           = 'PRS-300/505 Device Interface'
     gui_name       = 'SONY Pocket Edition'
     description    = _('Communicate with the Sony PRS-300/505/500 eBook reader.')
-    author         = _('Kovid Goyal and John Schember')
+    author         = 'Kovid Goyal and John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
 
@@ -202,5 +202,24 @@ class PRS505(CLI, Device):
         write_card_prefix(self._card_b_prefix, 2)
 
         self.report_progress(1.0, _('Sending metadata to device...'))
+
+
+class PRS700(PRS505):
+
+    name           = 'PRS-600/700 Device Interface'
+    description    = _('Communicate with the Sony PRS-600/700 eBook reader.')
+    author         = 'Kovid Goyal and John Schember'
+    gui_name       = 'SONY Touch edition'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    BCD          = [0x31a]
+
+    WINDOWS_MAIN_MEM = re.compile('PRS-((700/)|(600&))')
+    WINDOWS_CARD_A_MEM = re.compile(r'PRS-((700/\S+:)|(600_))MS')
+    WINDOWS_CARD_B_MEM = re.compile(r'PRS-((700/\S+:)|(600_))SD')
+
+    OSX_MAIN_MEM   = re.compile(r'Sony PRS-((700/[^:]+)|(600)) Media')
+    OSX_CARD_A_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|(600 ))MS Media')
+    OSX_CARD_B_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|(600 ))SD Media')
 
 

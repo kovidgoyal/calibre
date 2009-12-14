@@ -456,6 +456,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         self.connect(self.button_open_config_dir, SIGNAL('clicked()'),
                 self.open_config_dir)
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
+        self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
 
     def open_config_dir(self):
         from calibre.utils.config import config_dir
@@ -742,6 +743,7 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
         config['upload_news_to_device'] = self.sync_news.isChecked()
         config['search_as_you_type'] = self.search_as_you_type.isChecked()
         config['get_social_metadata'] = self.opt_get_social_metadata.isChecked()
+        config['enforce_cpu_limit'] = bool(self.opt_enforce_cpu_limit.isChecked())
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:

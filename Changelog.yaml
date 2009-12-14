@@ -4,6 +4,66 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.28
+  date: 2009-12-14
+
+  new features:
+
+    - title: "Download latest version of recipes from the calibre server automatically."
+      description: >
+        Now calibre will automatically check for updated versions of the recipes used to
+        download the built in news sources. As a result, there is no need to upgrade calibre
+        just for recipe fixes. Note that you still have to upgrade to get access to new 
+        news sources.
+      type: major
+
+    - title: "Add a setting to control whether calibre will limit the max number of simultaneous jobs to the CPU count or not"
+      tickets: [4213]
+
+    - title: "Device drivers: Allow looking for books in multiple root directories on the device. Currently only the Android driver uses this."
+
+    - title: "Support for the Nokia N770 and the Ganaxa Ger 2"
+
+    - title: "FB2 Output: Various improvements"
+
+    - title: "Linux device detection: Drop dependency on libusb in favor of using SYSFS directly"
+
+  bug fixes:
+    
+    - title: "Conversion pipeline: Decoding of XML files made more fault tolerant"
+
+    - title: "ebook-viewer: Ignore missing items in the spine, instead of erroring out"
+
+    - title: "Fixed Time magazine recipe to handle end-of-year special issue"
+
+    - title: "More fixes in the Android driver"
+
+    - title: "Failed recipe downloads should also update the last downloaded time to prevent excessive re-downloading"
+
+    - title: "MOBI Output: Handle invalid width and height settings in <img> tags"
+
+    - title: "MOBI Input: Add suport for files that use the 'record separator' ASCII character code"
+
+  new recipes:
+    - title: Golem
+      author: Kovid Goyal
+
+    - title: Netzpolitik
+      author: Kovid Goyal
+
+    - title: Nu.nl
+      author: Rob Hankel
+
+
+  improved recipes:
+    - "HRT: Vesti"
+    - Guardian
+    - Clarin
+    - Pagina 12
+    - Joel on Software
+
+
+
 - version: 0.6.27
   date: 2009-12-11
 
@@ -15,14 +75,6 @@
         convert to/from EPUB and PDB, the two e-book formats supported by the Nook.
       type: major
       tickets: [4145]
-
-    - title: "Download latest version of recipes from the calibre server automatically."
-      description: >
-        Now calibre will automatically check for updated versions of the recipes used to
-        download the built in news sources. As a result, there is no need to upgrade calibre
-        just for recipe fixes. Note that you still have to upgrade to get access to new 
-        news sources.
-      type: major
 
     - title: "Speed up download of news"
       description: >

@@ -31,7 +31,8 @@ class JobManager(QAbstractTableModel):
 
         self.jobs          = []
         self.add_job       = Dispatcher(self._add_job)
-        self.server        = Server(limit=int(config['worker_limit']/2.0))
+        self.server        = Server(limit=int(config['worker_limit']/2.0),
+                                enforce_cpu_limit=config['enforce_cpu_limit'])
         self.changed_queue = Queue()
 
         self.timer         = QTimer(self)

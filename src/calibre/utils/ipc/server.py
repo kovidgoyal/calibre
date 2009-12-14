@@ -84,14 +84,15 @@ class CriticalError(Exception):
 class Server(Thread):
 
     def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
-            limit=sys.maxint):
+            limit=sys.maxint, enforce_cpu_limit=True):
         Thread.__init__(self)
         self.daemon = True
         global _counter
         self.id = _counter+1
         _counter += 1
 
-        limit = min(limit, cpu_count())
+        if enforce_cpu_limit:
+            limit = min(limit, cpu_count())
         self.pool_size = limit if pool_size is None else pool_size
         self.notify_on_job_done = notify_on_job_done
         self.auth_key = os.urandom(32)

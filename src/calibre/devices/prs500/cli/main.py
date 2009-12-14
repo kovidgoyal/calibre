@@ -240,8 +240,10 @@ def main():
             print "Books in main memory:"
             for book in dev.books():
                 print book
-            print "\nBooks on storage card:"
-            for book in dev.books(oncard=True): print book
+            print "\nBooks on storage carda:"
+            for book in dev.books(oncard='carda'): print book
+            print "\nBooks on storage cardb:"
+            for book in dev.books(oncard='cardb'): print book
         elif command == "mkdir":
             parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a directory on the device\n\npath must begin with / or card:/")
             if len(args) != 1:

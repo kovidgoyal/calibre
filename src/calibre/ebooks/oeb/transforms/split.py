@@ -167,7 +167,7 @@ class FlowSplitter(object):
         self.csp_counter    = 0
 
         base, ext = os.path.splitext(self.base)
-        self.base = base.replace('%', '%%')+'_split_%d'+ext
+        self.base = base.replace('%', '%%')+'_split_%.3d'+ext
 
         self.trees = [self.item.data.getroottree()]
         self.splitting_on_page_breaks = True

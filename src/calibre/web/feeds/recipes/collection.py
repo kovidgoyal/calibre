@@ -92,7 +92,7 @@ def get_builtin_recipe_titles():
 
 def download_builtin_recipe(urn):
     br = browser()
-    return br.open('http://status.calibre-ebook.com/recipe/'+urn).read()
+    return br.open_novisit('http://status.calibre-ebook.com/recipe/'+urn).read()
 
 
 def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
