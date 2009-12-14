@@ -56,46 +56,40 @@ class USBMS(CLI, Device):
             return bl
 
         prefix = self._card_a_prefix if oncard == 'carda' else self._card_b_prefix if oncard == 'cardb' else self._main_prefix
-        ebook_dir = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
+        ebook_dirs = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
-        candidates = ebook_dir
-        if isinstance(candidates, basestring):
-            candidates = [candidates]
-        for x in candidates:
-            if os.path.exists(os.path.join(prefix, *(x.split('/')))):
-                ebook_dir = x
-                break
-        if not isinstance(ebook_dir, basestring):
-            ebook_dir = ebook_dir[0]
-
-        # Get all books in the ebook_dir directory
-        if self.SUPPORTS_SUB_DIRS:
-            for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
-                # Filter out anything that isn't in the list of supported ebook types
-                for book_type in self.FORMATS:
-                    match = fnmatch.filter(files, '*.%s' % (book_type))
-                    for i, filename in enumerate(match):
-                        self.report_progress((i+1) / float(len(match)), _('Getting list of books on device...'))
+        if isinstance(ebook_dirs, basestring):
+            ebook_dirs = [ebook_dirs]
+        for ebook_dir in ebook_dirs:
+            ebook_dir = os.path.join(prefix, *(ebook_dir.split('/')))
+            if not os.path.exists(ebook_dir): continue
+            # Get all books in the ebook_dir directory
+            if self.SUPPORTS_SUB_DIRS:
+                for path, dirs, files in os.walk(ebook_dir):
+                    # Filter out anything that isn't in the list of supported ebook types
+                    for book_type in self.FORMATS:
+                        match = fnmatch.filter(files, '*.%s' % (book_type))
+                        for i, filename in enumerate(match):
+                            self.report_progress((i+1) / float(len(match)), _('Getting list of books on device...'))
+                            try:
+                                bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
+                            except: # Probably a filename encoding error
+                                import traceback
+                                traceback.print_exc()
+                                continue
+            else:
+                paths = os.listdir(ebook_dir)
+                for i, filename in enumerate(paths):
+                    self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
+                    if path_to_ext(filename) in self.FORMATS:
                         try:
-                            bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
-                        except: # Probably a filename encoding error
+                            bl.append(self.__class__.book_from_path(os.path.join(ebook_dir, filename)))
+                        except: # Probably a file name encoding error
                             import traceback
                             traceback.print_exc()
                             continue
-        else:
-            path = os.path.join(prefix, ebook_dir)
-            paths = os.listdir(path)
-            for i, filename in enumerate(paths):
-                self.report_progress((i+1) / float(len(paths)), _('Getting list of books on device...'))
-                if path_to_ext(filename) in self.FORMATS:
-                    try:
-                        bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
-                    except: # Probably a file name encoding error
-                        import traceback
-                        traceback.print_exc()
-                        continue
 
         self.report_progress(1.0, _('Getting list of books on device...'))
 
