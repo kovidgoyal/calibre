@@ -21,6 +21,7 @@ class FinancialTimes(BasicNewsRecipe):
     needs_subscription    = True
     simultaneous_downloads= 1
     delay                 = 1
+    
     LOGIN = 'https://registration.ft.com/registration/barrier/login'
     
     def get_browser(self):
@@ -38,7 +39,16 @@ class FinancialTimes(BasicNewsRecipe):
     remove_tags = [
                      dict(name='div', attrs={'id':'floating-con'})
                   ]
-    
+
+    extra_css = '''
+                body{font-family:Arial,Helvetica,sans-serif;}
+                h2(font-size:large;}
+                .ft-story-header(font-size:xx-small;}
+                .ft-story-body(font-size:small;}
+                a{color:#003399;}
+                .container{font-size:x-small;}
+                h3{font-size:x-small;color:#003399;}
+                ''' 
     feeds = [ 
                (u'UK'         , u'http://www.ft.com/rss/home/uk'        ) 
               ,(u'US'         , u'http://www.ft.com/rss/home/us'        ) 
