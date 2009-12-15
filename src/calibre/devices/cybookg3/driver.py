@@ -82,9 +82,8 @@ class CYBOOKG3(USBMS):
     def can_handle(cls, device_info, debug=False):
         USBMS.can_handle(device_info, debug)
         if islinux:
-            if device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Gen3':
-                return True
-        return False
+            return device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Gen3'
+        return True
 
 
 class CYBOOK_OPUS(CYBOOKG3):
@@ -92,7 +91,7 @@ class CYBOOK_OPUS(CYBOOKG3):
     name           = 'Cybook Opus Device Interface'
     gui_name       = 'Cybook Opus'
     description    = _('Communicate with the Cybook Opus eBook reader.')
-    author         = _('John Schember')
+    author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
     FORMATS = ['epub', 'pdf', 'txt']
@@ -116,6 +115,5 @@ class CYBOOK_OPUS(CYBOOKG3):
     def can_handle(cls, device_info, debug=False):
         USBMS.can_handle(device_info, debug)
         if islinux:
-            if device_info[3] == 'Bookeen':
-                return True
-        return False
+            return device_info[3] == 'Bookeen'
+        return True
