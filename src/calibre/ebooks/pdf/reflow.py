@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import sys
+
 from lxml import etree
 
 class Font(object):
@@ -24,6 +26,7 @@ class Text(object):
         self.top, self.left, self.width, self.height = map(float, map(text.get,
             ('top', 'left', 'width', 'height')))
         self.bottom  = self.top + self.height
+        self.right = self.left + self.width
         self.font = self.font_map[text.get('font')]
         self.font_size = self.font.size
         self.color = self.font.color
@@ -43,6 +46,46 @@ class FontSizeStats(dict):
                 self.most_common_size, self.chars_at_most_common_size = sz, chars
             self[sz] = chars/total
 
+class Interval(object):
+
+    def __init__(self, left, right):
+        self.left, self.right = left, right
+        self.width = right - left
+
+    def intersection(self, other):
+        left = max(self.left, other.left)
+        right = min(self.right, other.right)
+        return Interval(left, right)
+
+    def __nonzero__(self):
+        return self.width > 0
+
+    def __eq__(self, other):
+        return self.left == other.left and self.right == other.right
+
+    def __hash__(self):
+        return hash('(%f,%f)'%self.left, self.right)
+
+
+class HorizontalBox(object):
+
+    def __init__(self, base_text):
+        self.texts = [base_text]
+        self.bottom = base_text.bottom
+        self.number_of_columns = None
+        self.column_map = {}
+
+    def append(self, t):
+        self.texts.append(t)
+
+    def sort(self):
+        self.texts.sort(cmp=lambda x,y: cmp(x.left, y.left))
+        self.top, self.bottom = sys.maxint, 0
+        for t in self.texts:
+            self.top = min(self.top, t.top)
+            self.bottom = max(self.bottom, t.bottom)
+        self.left = self.texts[0].left
+        self.right = self.texts[-1].right
 
 class Page(object):
 
@@ -55,9 +98,14 @@ class Page(object):
         self.id = 'page%d'%self.number
 
         self.texts = []
+        self.left_margin, self.right_margin = self.width, 0
 
         for text in page.xpath('descendant::text'):
             self.texts.append(Text(text, self.font_map, self.opts, self.log))
+            self.left_margin = min(text.left, self.left_margin)
+            self.right_margin = max(text.right, self.right_margin)
+
+        self.textwidth = self.right_margin - self.left_margin
 
         self.font_size_stats = {}
         for t in self.texts:
@@ -66,6 +114,43 @@ class Page(object):
             self.font_size_stats[t.font_size] += len(t.text_as_string)
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
+
+        self.identify_columns()
+
+    def sort_into_horizontal_boxes(self, document_font_size_stats):
+        self.horizontal_boxes = []
+
+        def find_closest_match(text):
+            'Return horizontal box whose bottom is closest to text or None'
+            min, ans = 3.1, None
+            for hb in self.horizontal_boxes:
+                diff = abs(text.bottom - hb.bottom)
+                if diff < min:
+                    diff, ans = min, hb
+            return ans
+
+        for t in self.texts:
+            hb = find_closest_match(t)
+            if hb is None:
+                self.horizontal_boxes.append(HorizontalBox(t))
+            else:
+                hb.append(t)
+
+
+        for hb in self.horizontal_boxes:
+            hb.sort()
+
+        self.horizontal_boxes.sort(cmp=lambda x,y: cmp(x.bottom, y.bottom))
+
+    def identify_columns(self):
+
+        def neighborhood(i):
+            if i == 0:
+                return self.horizontal_boxes[1:3]
+            return (self.horizontal_boxes[i-1], self.horizontal_boxes[i+1])
+
+        for i, hbox in enumerate(self.horizontal_boxes):
+            pass
 
 
 
@@ -92,6 +177,9 @@ class PDFDocument(object):
             self.pages.append(page)
 
         self.collect_font_statistics()
+
+        for page in self.pages:
+            page.sort_into_horizontal_boxes(self.font_size_stats)
 
     def collect_font_statistics(self):
         self.font_size_stats = {}
