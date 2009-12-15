@@ -104,8 +104,8 @@ class GER2(EB600):
 
     FORMATS = ['pdf']
 
-    VENDOR_ID   = [0xbda]
-    PRODUCT_ID  = [0x703]
+    VENDOR_ID   = [0x3034]
+    PRODUCT_ID  = [0x1795]
     BCD         = [0x132]
 
     VENDOR_NAME = 'GANAXA'
