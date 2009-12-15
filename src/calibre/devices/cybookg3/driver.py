@@ -85,7 +85,8 @@ class CYBOOKG3(USBMS):
         if islinux:
             if device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Gen3':
                 return True
-        return False
+            return False
+        return True
 
 
 class CYBOOK_OPUS(CYBOOKG3):
@@ -119,4 +120,5 @@ class CYBOOK_OPUS(CYBOOKG3):
         if islinux:
             if device_info[3] == 'Bookeen':
                 return True
-        return False
+            return False
+        return True
