@@ -42,8 +42,8 @@ class Writer(FormatWriter):
         pml = unicode(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 
         text, text_sizes = self._text(pml)
-        chapter_index = self._chapter_index(pml)
-        link_index = self._link_index(pml)
+        chapter_index = self._index_item(r'(?s)\\C(?P<val>\d)="(?P<text>.+?)"', pml)
+        link_index = self._index_item(r'(?s)\\Q="(?P<text>.+?)"', pml)
         images = self._images(oeb_book.manifest, pmlmlizer.image_hrefs)
         metadata = [self._metadata(metadata)]
         hr = [self._header_record(len(text), len(chapter_index), len(link_index), len(images))]
@@ -101,38 +101,24 @@ class Writer(FormatWriter):
 
         return pml_pages, text_sizes
 
-    def _index_item(self, mo):
-        index = ''
-        if 'text' in mo.groupdict().keys():
-            index += struct.pack('>L', mo.start())
-            text = mo.group('text')
-            # Strip all PML tags from text
-            text = re.sub(r'\\U[0-9a-z]{4}', '', text)
-            text = re.sub(r'\\a\d{3}', '', text)
-            text = re.sub(r'\\.', '', text)
-            # Add appropriate spacing to denote the various levels of headings
-            if 'val' in mo.groupdict().keys():
-                text = '%s%s' % (' ' * 4 * int(mo.group('val')), text)
-            index += text
-            index += '\x00'
-        return index
-
-    def _chapter_index(self, pml):
-        chapter_marks = [
-            r'(?s)\\x(?P<text>.+?)\\x',
-            r'(?s)\\X(?P<val>[0-4])(?P<text>.*?)\\X[0-4]',
-            r'(?s)\\C(?P<val>\d)="(?P<text>.+?)"',
-        ]
+    def _index_item(self, regex, pml):
         index = []
-        for chapter_mark in chapter_marks:
-            for mo in re.finditer(chapter_mark, pml):
-                index.append(self._index_item(mo))
-        return index
-
-    def _link_index(self, pml):
-        index = []
-        for mo in re.finditer(r'(?s)\\Q="(?P<text>.+?)"', pml):
-            index.append(self._index_item(mo))
+        for mo in re.finditer(regex, pml):
+            item = ''
+            if 'text' in mo.groupdict().keys():
+                item += struct.pack('>L', mo.start())
+                text = mo.group('text')
+                # Strip all PML tags from text
+                text = re.sub(r'\\U[0-9a-z]{4}', '', text)
+                text = re.sub(r'\\a\d{3}', '', text)
+                text = re.sub(r'\\.', '', text)
+                # Add appropriate spacing to denote the various levels of headings
+                if 'val' in mo.groupdict().keys():
+                    text = '%s%s' % (' ' * 4 * int(mo.group('val')), text)
+                item += text
+                item += '\x00'
+            if item:
+                index.append(item)
         return index
 
     def _images(self, manifest, image_hrefs):
