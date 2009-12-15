@@ -79,6 +79,16 @@ class PMLMLizer(object):
         self.log.info('Converting XHTML to PML markup...')
         self.oeb_book = oeb_book
         self.opts = opts
+
+        # This is used for adding \CX tags chapter markers. This is separate
+        # from the optional inline toc.
+        self.toc = {}
+        for item in oeb_book.toc:
+            page, mid, id = item.href.partition('#')
+            if not self.toc.get(page, None):
+                self.toc[page] = {}
+            self.toc[page][id] = item.title
+
         return self.pmlmlize_spine()
 
     def pmlmlize_spine(self):
@@ -107,7 +117,11 @@ class PMLMLizer(object):
         return output
 
     def get_toc(self):
-        toc = [u'']
+        '''
+        Generation of inline TOC
+        '''
+
+        toc = []
         if self.opts.inline_toc:
             self.log.debug('Generating table of contents...')
             toc.append(u'\\X0%s\\X0\n\n' % _('Table of Contents:'))
@@ -177,14 +191,14 @@ class PMLMLizer(object):
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
-            return [u'']
+            return []
 
-        text = [u'']
+        text = []
         style = stylizer.style(elem)
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
-            return [u'']
+            return []
 
         tag = barename(elem.tag)
         tag_count = 0
@@ -213,6 +227,12 @@ class PMLMLizer(object):
             else:
                 w += '="50%"'
             text.append(w)
+        toc_id = elem.attrib.get('id', None)
+        if toc_id:
+            if self.toc.get(page.href, None):
+                toc_title = self.toc[page.href].get(toc_id, None)
+                if toc_title:
+                    text.append('\\C1="%s"' % toc_title)
 
         # Process style information that needs holds a single tag
         # Commented out because every page in an OEB book starts with this style
@@ -287,4 +307,3 @@ class PMLMLizer(object):
             if tag != 'block':
                 text.append('\\%s' % tag)
         return text
-
