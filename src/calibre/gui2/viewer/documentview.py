@@ -587,20 +587,32 @@ class DocumentView(QWebView):
             if self.manager is not None:
                 self.manager.next_document()
         else:
+            oopos = self.document.ypos
+            #print '\nOriginal position:', oopos
             self.document.set_bottom_padding(0)
             opos = self.document.ypos
+            #print 'After set padding=0:', self.document.ypos
+            if opos < oopos:
+                if self.manager is not None:
+                    self.manager.next_document()
+                return
             lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
             max_y = self.document.height - window_height # The maximum possible top y co-ord
             if max_y < lower_limit:
+                #print 'Setting padding to:', lower_limit - max_y
                 self.document.set_bottom_padding(lower_limit - max_y)
             max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
+            #print 'Scroll to:', lower_limit
             if lower_limit > opos:
                 self.document.scroll_to(self.document.xpos, lower_limit)
             actually_scrolled = self.document.ypos - opos
+            #print 'After scroll pos:', self.document.ypos
             self.find_next_blank_line(window_height - actually_scrolled)
+            #print 'After blank line pos:', self.document.ypos
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
+            #print 'After all:', self.document.ypos
 
     def scroll_by(self, x=0, y=0, notify=True):
         old_pos = self.document.ypos
