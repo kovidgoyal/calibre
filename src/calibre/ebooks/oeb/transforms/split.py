@@ -91,7 +91,6 @@ class Split(object):
                             False))
                 except:
                     pass
-
         page_breaks = set([])
         for selector, before in self.page_break_selectors:
             body = item.data.xpath('//h:body', namespaces=NAMESPACES)
@@ -382,6 +381,7 @@ class FlowSplitter(object):
                 p[i:i+1] = new_pres
 
         split_point, before = self.find_split_point(root)
+        self.log.debug('\t\t\tSplit point:', split_point.tag, tree.getpath(split_point))
         if split_point is None:
             raise SplitError(self.item.href, root)
 
@@ -396,6 +396,9 @@ class FlowSplitter(object):
                     '\t\t\tCommitted sub-tree #%d (%d KB)'%(
                                len(self.split_trees), size/1024.))
             else:
+                self.log.debug(
+                        '\t\t\tSplit tree still too large: %d KB' % \
+                                (size/1024.))
                 self.split_to_size(t)
 
     def find_split_point(self, root):
