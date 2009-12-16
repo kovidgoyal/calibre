@@ -16,10 +16,16 @@ class MOBIInput(InputFormatPlugin):
                 accelerators):
         from calibre.ebooks.mobi.reader import MobiReader
         from lxml import html
-        mr = MobiReader(stream, log, options.input_encoding,
-                        options.debug_pipeline)
         parse_cache = {}
-        mr.extract_content('.', parse_cache)
+        try:
+            mr = MobiReader(stream, log, options.input_encoding,
+                        options.debug_pipeline)
+            mr.extract_content('.', parse_cache)
+        except:
+            mr = MobiReader(stream, log, options.input_encoding,
+                        options.debug_pipeline, try_extra_data_fix=True)
+            mr.extract_content('.', parse_cache)
+
         raw = parse_cache.pop('calibre_raw_mobi_markup', False)
         if raw:
             if isinstance(raw, unicode):
