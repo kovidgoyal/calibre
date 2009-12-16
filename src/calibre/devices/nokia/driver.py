@@ -22,9 +22,9 @@ class N770(USBMS):
     FORMATS     = ['mobi', 'prc', 'epub', 'html', 'zip', 'fb2', 'chm', 'pdb',
         'tcr', 'txt', 'rtf']
 
-    VENDOR_ID   = [0x111]
-    PRODUCT_ID  = [0x1af]
-    BCD         = [0x134]
+    VENDOR_ID   = [0x421]
+    PRODUCT_ID  = [0x431]
+    BCD         = [0x308]
 
     VENDOR_NAME      = 'NOKIA'
     WINDOWS_MAIN_MEM = '770'
@@ -33,3 +33,15 @@ class N770(USBMS):
 
     EBOOK_DIR_MAIN = 'My Ebooks'
     SUPPORTS_SUB_DIRS = True
+
+class N810(N770):
+    name           = 'Nokia 810 Device Interface'
+    gui_name       = 'Nokia 810'
+    description    = _('Communicate with the Nokia Nokia 810 internet tablet.')
+
+    PRODUCT_ID = [0x96]
+    BCD        = [0x316]
+
+    WINDOWS_MAIN_MEM = 'N810'
+
+    MAIN_MEMORY_VOLUME_LABEL = 'N810 Main Memory'
