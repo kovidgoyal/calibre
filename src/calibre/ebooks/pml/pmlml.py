@@ -232,7 +232,7 @@ class PMLMLizer(object):
             if self.toc.get(page.href, None):
                 toc_title = self.toc[page.href].get(toc_id, None)
                 if toc_title:
-                    text.append('\\C1="%s"' % toc_title)
+                    text.append('\\C0="%s"' % toc_title)
 
         # Process style information that needs holds a single tag
         # Commented out because every page in an OEB book starts with this style
