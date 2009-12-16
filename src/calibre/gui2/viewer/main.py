@@ -228,7 +228,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_bookmark, SIGNAL('triggered(bool)'), self.bookmark)
         self.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
         self.connect(self.action_preferences, SIGNAL('triggered(bool)'), lambda x: self.view.config(self))
-        self.connect(self.pos, SIGNAL('valueChanged(double)'), self.goto_page)
+        self.pos.editingFinished.connect(self.goto_page_num)
         self.connect(self.vertical_scrollbar, SIGNAL('valueChanged(int)'),
                      lambda x: self.goto_page(x/100.))
         self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self.find)
@@ -319,6 +319,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if pos is not None:
             self.goto_page(pos)
 
+    def goto_page_num(self):
+        num = self.pos.value()
+        self.goto_page(num)
 
     def forward(self, x):
         pos = self.history.forward()
