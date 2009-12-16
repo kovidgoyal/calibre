@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-14 21:54+0000\n"
-"PO-Revision-Date: 2009-12-14 20:40+0000\n"
-"Last-Translator: Fabian Affolter <Unknown>\n"
+"PO-Revision-Date: 2009-12-15 22:17+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-15 04:58+0000\n"
+"X-Launchpad-Export-Date: 2009-12-16 04:59+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -518,7 +518,7 @@ msgstr "Kommunikation mit dem Kindle DX eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia Nokia 770 internet tablet."
-msgstr ""
+msgstr "Kommunikation mit dem Nokia Nokia 770 Internet Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:16
 msgid "The Nook"
@@ -925,8 +925,8 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
-"Die Bezugsschriftgröße in Punkten. Alle Schriftgrößen im erstellen eBook "
-"werden basieren auf dieser Größe skaliert. Mit einer größeren Schriftgröße "
+"Die Bezugsschriftgröße in Punkt. Alle Schriftgrößen im erstellten eBook "
+"werden basierend auf dieser Größe skaliert. Mit einer größeren Schriftgröße "
 "erhalten Sie eine größere Schrift in der Ausgabe und umgekehrt. Laut "
 "Voreinstellung basiert die Bezugsschriftgröße auf dem gewählten Ausgabe-"
 "Profil."
@@ -1101,22 +1101,22 @@ msgstr ""
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Unteren Rand der Seite in Punkten eingeben. Die Voreinstellung ist %default. "
-"Anmerkung: 72 Punkt sind 1 Zoll"
+"Unteren Rand der Seite in Punkt eingeben. Die Voreinstellung ist %default. "
+"Anmerkung: 72 Punkt sind 1 Inch"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:291
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Linken Rand der Seite in Punkten eingeben. Die Voreinstellung ist %default. "
-"Anmerkung: 72 Punkt sind 1 Zoll"
+"Linken Rand der Seite in Punkt eingeben. Die Voreinstellung ist %default. "
+"Anmerkung: 72 Punkt sind 1 Inch"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:296
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Rechten Rand der Seite in Punkten eingeben. Die Voreinstellung ist %default. "
-"Anmerkung: 72 Punkt sind 1 Zoll"
+"Rechten Rand der Seite in Punkt eingeben. Die Voreinstellung ist %default. "
+"Anmerkung: 72 Punkt sind 1 Inch"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:301
 msgid ""
@@ -1452,7 +1452,7 @@ msgstr "Vorverarbeitetes HTML gespeichert unter "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:380
 msgid "Processing %s"
-msgstr "%s wird bearbeitet"
+msgstr "%s wird verarbeitet"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:394
 msgid "\tConverting to BBeB..."
@@ -1578,7 +1578,7 @@ msgstr "Konvertierung von LRS zu LRS, hilfreich bei der Fehlersuche."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
-msgstr "Ungültige LRF-Datei. Metadaten konnten nicht festlegen."
+msgstr "Ungültige LRF-Datei. Konnte Metadaten nicht festlegen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
@@ -1668,7 +1668,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 msgid "Set the space between words in pts. Default is %default"
 msgstr ""
-"Wählen Sie den Abstand in Punkten zwischen einzelnen Wörtern. Die "
+"Wählen Sie den Abstand in Punkt zwischen einzelnen Wörtern. Die "
 "Voreinstellung ist %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
@@ -1695,7 +1695,7 @@ msgid ""
 "pts. Default: %default"
 msgstr ""
 "Mindest-Zeileneinzug von Paragraphen (Zeileneinzug der ersten Zeile eines "
-"Paragraphen) in Punkten. Voreinstellung: %default"
+"Paragraphen) in Punkt. Voreinstellung: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
@@ -2214,7 +2214,7 @@ msgid ""
 "Normally calibre treats blank lines as paragraph markers. With this option "
 "it will assume that every line represents a paragraph instead."
 msgstr ""
-"Normalerweise behandelt Calibre-Leerzeilen als Absatz-Marker. Mit dieser "
+"Normalerweise behandelt Calibre Leerzeilen als Absatz-Marker. Mit dieser "
 "Einstellung wird dagegen davon ausgegangen, dass jede Zeile einen Absatz "
 "darstellt."
 
@@ -2227,7 +2227,7 @@ msgid ""
 "spaces) represents a paragraph. Paragraphs end when the next line that "
 "starts with an indent is reached."
 msgstr ""
-"Normalerweise behandelt Calibre-Leerzeilen als Markierung für Paragraphen. "
+"Normalerweise behandelt Calibre Leerzeilen als Markierung für Paragraphen. "
 "Mit dieser Einstellung geht es davon aus, dass jede Zeile mit Einrückung "
 "(entweder durch Tabulator oder mindestens zwei Leerzeichen) einen "
 "Paragraphen darstellt. Paragraphen enden mit der nächsten Zeile, die mit "
@@ -2262,7 +2262,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Die neue PDF-Konvertierung benutzen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2720,6 +2720,7 @@ msgstr "Soziale Metadaten (Etikettierung/Bewertung/etc.) laden"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:89
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr ""
+"Maximale Anzahl gleichzeitiger Aufträge auf die Anzahl der CPUs beschränken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:403
@@ -4579,6 +4580,8 @@ msgstr "&Calibre Einstellungsverzeichnis öffnen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:541
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
+"Die maximale Anzahl gleichzeitiger Aufträge auf die Anzahl der &CPU Kerne "
+"beschränken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:542
 msgid ""
