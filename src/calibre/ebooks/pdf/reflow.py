@@ -78,7 +78,7 @@ class HorizontalBox(object):
     def append(self, t):
         self.texts.append(t)
 
-    def sort(self):
+    def sort(self, left_margin, right_margin):
         self.texts.sort(cmp=lambda x,y: cmp(x.left, y.left))
         self.top, self.bottom = sys.maxint, 0
         for t in self.texts:
@@ -86,6 +86,27 @@ class HorizontalBox(object):
             self.bottom = max(self.bottom, t.bottom)
         self.left = self.texts[0].left
         self.right = self.texts[-1].right
+        self.gaps = []
+        for i, t in enumerate(self.texts[1:]):
+            gap = Interval(self.texts[i].right, t.left)
+            if gap.width > 3:
+                self.gaps.append(gap)
+        left = Interval(left_margin, self.texts[0].left)
+        if left.width > 3:
+            self.gaps.insert(0, left)
+        right = Interval(self.texts[-1].right, right_margin)
+        if right.width > 3:
+            self.gaps.append(right)
+
+    def has_intersection_with(self, gap):
+        for g in self.gaps:
+            if g.intersection(gap):
+                return True
+        return False
+
+    def identify_columns(self, column_gaps):
+        self.number_of_columns = len(column_gaps) + 1
+
 
 class Page(object):
 
@@ -138,19 +159,24 @@ class Page(object):
 
 
         for hb in self.horizontal_boxes:
-            hb.sort()
+            hb.sort(self.left_margin, self.right_margin)
 
         self.horizontal_boxes.sort(cmp=lambda x,y: cmp(x.bottom, y.bottom))
 
     def identify_columns(self):
 
         def neighborhood(i):
-            if i == 0:
-                return self.horizontal_boxes[1:3]
-            return (self.horizontal_boxes[i-1], self.horizontal_boxes[i+1])
+            if i == len(self.horizontal_boxes)-1:
+                return self.horizontal_boxes[i-2:i]
+            if i == len(self.horizontal_boxes)-2:
+                return (self.horizontal_boxes[i-1], self.horizontal_boxes[i+1])
+            return self.horizontal_boxes[i+1], self.horizontal_boxes[i+2]
 
         for i, hbox in enumerate(self.horizontal_boxes):
-            pass
+            n1, n2 = neighborhood(i)
+            for gap in hbox.gaps:
+                gap.is_column_gap =  n1.has_intersection_with(gap) and \
+                    n2.has_intersection_with(gap)
 
 
 
