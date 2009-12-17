@@ -46,7 +46,7 @@ def debug():
             devices = [list(x) for x in devices]
             for d in devices:
                 for i in range(3):
-                    d[i] = hex(i)
+                    d[i] = hex(d[i])
         out('USB devices on system:')
         out(pprint.pformat(devices))
         if iswindows:
