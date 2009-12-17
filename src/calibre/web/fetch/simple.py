@@ -194,7 +194,8 @@ class RecursiveFetcher(object):
                 purl[i] = quote(purl[i])
             url = urlparse.urlunparse(purl)
         try:
-            with closing(self.browser.open_novisit(url, timeout=self.timeout)) as f:
+            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+            with closing(open_func(url, timeout=self.timeout)) as f:
                 data = response(f.read()+f.read())
                 data.newurl = f.geturl()
         except urllib2.URLError, err:
