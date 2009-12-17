@@ -804,6 +804,11 @@ OptionRecommendation(name='language',
         if line_height < 1e-4:
             line_height = None
 
+        if self.opts.linearize_tables and \
+                self.output_plugin.file_type not in ('mobi', 'lrf'):
+            from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
+            LinearizeTables()(self.oeb, self.opts)
+
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
                 untable=self.output_plugin.file_type in ('mobi','lit'),
@@ -812,10 +817,6 @@ OptionRecommendation(name='language',
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps
 
-        if self.opts.linearize_tables and \
-                self.output_plugin.file_type not in ('mobi', 'lrf'):
-            from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
-            LinearizeTables()(self.oeb, self.opts)
         pr(0.9)
         self.flush()
 
