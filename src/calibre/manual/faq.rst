@@ -81,7 +81,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS 300/500/505/600/700, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Netronix EB600, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS 300/500/505/600/700, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle 1/2/DX, Netronix EB600, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, various Android phones and the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -91,17 +91,14 @@ We just need some information from you:
 
   * What e-book formats does your device support?
   * Is there a special directory on the device in which all e-book files should be placed?
-  * We also need the output from running the following command in a terminal, both with the device
-    connected and without::
+  * We also need information about your device that |app| will collect automatically. First, if your
+    device supports SD cards, insert them. Then connect your device. In calibre go to Preferences->Advanced
+    and click the "Debug device detection" button. This will create some debug output. Copy it to a file
+    and repeat the process, this time with your device disconnected.
+  * Send both the above outputs to us with the other information and we will write a device driver for your 
+    device.
 
-        calibre-debug -d
-
-  * If your device supports SD cards, run the above command with the cards inserted.
-
-To run the above command, on Windows you should use the full path to calibre-debug.exe
-On OSX, you should go to Preferences->Advanced and click "Install command line tools".
-
-Once you send us the output for a particular operating system, support for the device
+Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of |app|.
 
 

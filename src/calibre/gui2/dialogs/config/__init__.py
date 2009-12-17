@@ -457,6 +457,12 @@ class ConfigDialog(ResizableDialog, Ui_Dialog):
                 self.open_config_dir)
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
         self.opt_enforce_cpu_limit.setChecked(config['enforce_cpu_limit'])
+        self.device_detection_button.clicked.connect(self.debug_device_detection)
+
+    def debug_device_detection(self):
+        from calibre.gui2.dialogs.config.device_debug import DebugDevice
+        d = DebugDevice(self)
+        d.exec_()
 
     def open_config_dir(self):
         from calibre.utils.config import config_dir
