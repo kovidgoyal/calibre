@@ -41,7 +41,7 @@ class BusinessStandard(BasicNewsRecipe):
         return url + '?mode=PF'
 
     def get_article_url(self, article):
-        rawarticle = article.get('origlink', None)
+        rawarticle = article.get('pheedo_origlink', None)
         artls, sep, rsep = rawarticle.rpartition('/?')
         if artls == '':
            artls = rawarticle.rpartition('?')[0]
