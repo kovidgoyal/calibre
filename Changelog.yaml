@@ -25,7 +25,7 @@
 
     - title: "Driver for Nokia N810 (windows and linux)"
 
-    - title: "PML/PDB Output: Use \\CX tags to generate chapter index"
+    - title: "PML/PDB Output: Use CX tags to generate chapter index"
 
     - title: "EPUB Output: Manifest entries are now sorted alphabetically on href"
       tickets: [4214]
@@ -40,9 +40,9 @@
     - title: "FB2 Input: Handle composite titles correctly when converting"
       tickets: [4215]
 
-    - title: "MOBI Input: Ignore \\x02 bytes in data stream for cp1252 encoded files"
+    - title: "MOBI Input: Ignore x02 bytes in data stream for cp1252 encoded files"
 
-    - title: "PML Output: Change \\C1 to \\C0"
+    - title: "PML Output: Change C1 to C0"
 
     - title: "E-book viewer: Fix typing position to go to a page would not allow more than one character to be typed"
       tickets: [4220]
