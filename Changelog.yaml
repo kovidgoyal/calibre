@@ -4,6 +4,78 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.29
+  date: 2009-12-18
+
+  new features:
+    - title: "By default the calibre system tray icon is now disabled"
+      description: >
+            Now, by default, on new calibre installs, the system tray icon is disabled. 
+            This means that when you close calibre it will quit completely instead of minimizing
+            to system tray. You can enable the system tray icon via Preferences->Interface
+
+    - title: "Add support for the eClicto reader"
+
+    - title: "Keep a history of recently used XPath expressions"
+      tickets: [4238]
+
+    - title: "Add button to debug device detection to Preferences->Advanced"
+
+    - title: "Linux: Preferentially use desktop specific notification daemons"
+
+    - title: "Driver for Nokia N810 (windows and linux)"
+
+    - title: "PML/PDB Output: Use \CX tags to generate chapter index"
+
+    - title: "EPUB Output: Manifest entries are now sorted alphabetically on href"
+      tickets: [4214]
+
+  bug fixes:
+    - title: "Fix a bug in the Save to disk function that could cause saving of multiple books to fail on multi-core machines"
+
+    - title: "Update eSlick supported formats for 2.0 firmware"
+
+    - title: "Conversion pipeline: Fix --linearize-tables option not removing all table related style information"
+
+    - title: "FB2 Input: Handle composite titles correctly when converting"
+      tickets: [4215]
+
+    - title: "MOBI Input: Ignore \x02 bytes in data stream for cp1252 encoded files"
+
+    - title: "PML Output: Change \C1 to \C0"
+
+    - title: "E-book viewer: Fix typing position to go to a page would not allow more than one character to be typed"
+      tickets: [4220]
+
+    - title: "Fix regression that broke device detection for Cybook devices in 0.6.28 on windows and os x"
+
+    - title: "E-book viewer: Fix regression that could cause the next page action to sometime have no effect at the end of a section"
+
+    - title: "MOBI Input: Fix conversion of some MOBI files with headers of length 0xE4"
+      tickets: [4230]
+
+  new recipes:
+    - title: Alberto Montt en dosis
+      author: Darko Miletic
+
+    - title: boston.com
+      author: Darko Miletic
+
+    - title: Prague Daily Monitor
+      author: Darko Miletic
+
+    - title: The Clarion Ledger
+      author: cr4zyd
+
+  improved recipes:
+    - The Economist
+    - Google reader
+    - London Review of Books
+    - El Mundo
+    - Welt Online
+    - Financial Times
+    - Newsweek
+
 - version: 0.6.28
   date: 2009-12-14
 
