@@ -29,18 +29,18 @@ class Starbulletin(BasicNewsRecipe):
                         , '--category'      , category
                         , '--publisher'     , publisher
                         ]
-    
+
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-    
+
     keep_only_tags = [ dict(name='div', attrs={'id':'storyColoumn'}) ]
 
     remove_tags = [
                     dict(name=['object','link'])
                    ,dict(name='span', attrs={'id':'printdesc'})
                    ,dict(name='div' , attrs={'class':'lightGreyBox storyTools clearAll'})
-                   ,dict(name='div' , attrs={'id':'breadcrumbs'})                    
+                   ,dict(name='div' , attrs={'id':'breadcrumbs'})
                   ]
-                        
+
     feeds = [
               (u'Headlines', u'http://www.starbulletin.com/starbulletin_headlines.rss' )
              ,(u'News', u'http://www.starbulletin.com/news/index.rss' )
@@ -57,4 +57,4 @@ class Starbulletin(BasicNewsRecipe):
         mtag = '\n<meta http-equiv="Content-Language" content="en"/>\n'
         soup.head.insert(0,mtag)
         return soup
-        
+
