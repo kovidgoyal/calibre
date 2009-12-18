@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>422</width>
     <height>64</height>
    </rect>
   </property>
@@ -30,7 +30,20 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="edit"/>
+      <widget class="HistoryLineEdit" name="edit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>100</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>350</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -54,8 +67,28 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HistoryLineEdit</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>

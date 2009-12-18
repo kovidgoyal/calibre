@@ -11,7 +11,7 @@ from PyQt4.Qt import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, \
                         QRegExp, QSettings, QSize, QModelIndex, \
                         QAbstractButton, QPainter, QLineEdit, QComboBox, \
-                        QMenu, QStringListModel, QCompleter
+                        QMenu, QStringListModel, QCompleter, QStringList
 
 from calibre.gui2 import human_readable, NONE, TableView, \
                          qstring_to_unicode, error_dialog
@@ -21,8 +21,10 @@ from calibre import fit_image
 from calibre.utils.fonts import fontconfig
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
+
+history = XMLConfig('history')
 
 class ProgressIndicator(QWidget):
 
@@ -506,16 +508,16 @@ class LineEditECM(object):
         menu.exec_(event.globalPos())
 
     def upper_case(self):
-        self.setText(qstring_to_unicode(self.text()).upper())
+        self.setText(unicode(self.text()).upper())
 
     def lower_case(self):
-        self.setText(qstring_to_unicode(self.text()).lower())
+        self.setText(unicode(self.text()).lower())
 
     def swap_case(self):
-        self.setText(qstring_to_unicode(self.text()).swapcase())
+        self.setText(unicode(self.text()).swapcase())
 
     def title_case(self):
-        self.setText(qstring_to_unicode(self.text()).title())
+        self.setText(unicode(self.text()).title())
 
 
 class EnLineEdit(LineEditECM, QLineEdit):
@@ -620,7 +622,7 @@ class EnComboBox(QComboBox):
         self.setLineEdit(EnLineEdit(self))
 
     def text(self):
-        return qstring_to_unicode(self.currentText())
+        return unicode(self.currentText())
 
     def setText(self, text):
         idx = self.findText(text, Qt.MatchFixedString)
@@ -628,6 +630,43 @@ class EnComboBox(QComboBox):
             self.insertItem(0, text)
             idx = 0
         self.setCurrentIndex(idx)
+
+class HistoryLineEdit(QComboBox):
+
+    def __init__(self, *args):
+        QComboBox.__init__(self, *args)
+        self.setEditable(True)
+        self.setInsertPolicy(self.NoInsert)
+        self.setMaxCount(10)
+
+    @property
+    def store_name(self):
+        return 'lineedit_history_'+self._name
+
+    def initialize(self, name):
+        self._name = name
+        self.addItems(QStringList(history.get(self.store_name, [])))
+        self.setEditText('')
+        self.lineEdit().editingFinished.connect(self.save_history)
+
+    def save_history(self):
+        items = []
+        ct = unicode(self.currentText())
+        if ct:
+            items.append(ct)
+        for i in range(self.count()):
+            item = unicode(self.itemText(i))
+            if item not in items:
+                items.append(item)
+
+        history.set(self.store_name, items)
+
+    def setText(self, t):
+        self.setEditText(t)
+        self.lineEdit().setCursorPosition(0)
+
+    def text(self):
+        return self.currentText()
 
 class PythonHighlighter(QSyntaxHighlighter):
 
