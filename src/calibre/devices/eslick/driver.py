@@ -14,7 +14,7 @@ class ESLICK(USBMS):
     name           = 'ESlick Device Interface'
     gui_name       = 'Foxit ESlick'
     description    = _('Communicate with the ESlick eBook reader.')
-    author         = _('Kovid Goyal')
+    author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats

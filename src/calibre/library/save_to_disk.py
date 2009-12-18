@@ -153,8 +153,14 @@ def save_book_to_disk(id, db, root, opts, length):
     base_path = os.path.join(root, *components)
     base_name = os.path.basename(base_path)
     dirpath = os.path.dirname(base_path)
-    if not os.path.exists(dirpath):
+    # Don't test for existence first are the test could fail but
+    # another worker process could create the directory before
+    # the call to makedirs
+    try:
         os.makedirs(dirpath)
+    except BaseException:
+        if not os.path.exists(dirpath):
+            raise
 
     cdata = db.cover(id, index_is_id=True)
     if opts.save_cover:
