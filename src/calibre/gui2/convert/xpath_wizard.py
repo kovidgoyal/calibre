@@ -81,7 +81,7 @@ class XPathEdit(QWidget, Ui_Edit):
 
     @property
     def text(self):
-        return unicode(self.edit.currentText())
+        return unicode(self.edit.text())
 
     @property
     def xpath(self):
@@ -107,3 +107,4 @@ if __name__ == '__main__':
     w.setObjectName('test')
     w.show()
     app.exec_()
+    print w.xpath
