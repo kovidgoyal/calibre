@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-12-14 21:54+0000\n"
-"PO-Revision-Date: 2009-12-15 19:44+0000\n"
-"Last-Translator: Marco van Raaij <marco@datarek.nl>\n"
+"PO-Revision-Date: 2009-12-17 19:18+0000\n"
+"Last-Translator: Robert <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-16 04:59+0000\n"
+"X-Launchpad-Export-Date: 2009-12-18 04:31+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -4840,7 +4840,7 @@ msgstr "Tag-bewerker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:124
 msgid "A&vailable tags"
-msgstr "&Beschikbare tags"
+msgstr "&Beschikbare labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:125
 msgid ""
@@ -4856,7 +4856,7 @@ msgstr "Pas tag toe aan het huidige boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:129
 msgid "A&pplied tags"
-msgstr "Toege&paste tags"
+msgstr "Toege&paste labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:130
 msgid "Unapply (remove) tag from current book"
@@ -4871,13 +4871,13 @@ msgid ""
 "If the tag you want is not in the available list, you can add it here. "
 "Accepts a comma separated list of tags."
 msgstr ""
-"Als de tag die wilt gebruiken niet in de beschikbare lijst voorkomt, dan kun "
-"je hem hier toevoegen als lijst gescheiden met komma's."
+"Als het label die wilt gebruiken niet in de beschikbare lijst voorkomt, dan "
+"kun je hem hier toevoegen als lijst gescheiden met komma's."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:134
 msgid "Add tag to available tags and apply it to current book"
 msgstr ""
-"Voeg een tag toe aan de beschikbare lijst, evenals aan het huidige boek"
+"Voeg een label toe aan de beschikbare lijst, evenals aan het huidige boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:50
 msgid "Test email settings"
@@ -5417,6 +5417,8 @@ msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
+"<p>Zoek door de boekenlijst gesorteerd op titek, auteur, uitgever, labels, "
+"commentaar, enz.<br><br>Woorden gescheiden door spaties worden samengevoegd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:341
 msgid "Reset Quick Search"
@@ -5519,7 +5521,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:367
 msgid "Books with the same tags"
-msgstr ""
+msgstr "Boeken met dezelfde labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:369
 msgid "Configure calibre"
@@ -5643,15 +5645,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:208
 msgid "Click to browse books by tags"
-msgstr ""
+msgstr "Klik voor boeken gegroepeerd per label"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Authors"
-msgstr ""
+msgstr "Auteurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 msgid "Publishers"
-msgstr ""
+msgstr "Uitgevers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:182
@@ -7232,7 +7234,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:25
 msgid "The tags"
-msgstr ""
+msgstr "De labels"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:26
 msgid "The series"
@@ -7635,7 +7637,7 @@ msgid ""
 "href> tags. Default is %default"
 msgstr ""
 "Het maximum aantal bestanden te downloaden. Dit is alleen van toepassing op "
-"bestanden in <a href> tags. Standaard is %default"
+"bestanden in <a href> labels. Standaard is %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:467
 msgid ""
