@@ -18,7 +18,7 @@ class ESLICK(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['pdf', 'txt']
+    FORMATS     = ['epub', 'pdb', 'pdf', 'txt']
 
     VENDOR_ID   = [0x04cc]
     PRODUCT_ID  = [0x1a64]
