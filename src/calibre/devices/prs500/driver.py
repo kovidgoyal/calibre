@@ -166,7 +166,7 @@ class PRS500(DeviceConfig, DevicePlugin):
             try:
                 if not dev.handle:
                     dev.open()
-                if not dev.in_session:
+                if not getattr(dev, 'in_session', False):
                     dev.send_validated_command(BeginEndSession(end=False))
                     dev.in_session = True
                 res = func(*args, **kwargs)

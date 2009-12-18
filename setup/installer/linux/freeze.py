@@ -108,7 +108,7 @@ class LinuxFreeze(Command):
                     'glib', 'gobject']
 
         packages = ['calibre', 'encodings', 'cherrypy', 'cssutils', 'xdg',
-                    'dateutil', 'dns', 'email']
+                    'dateutil', 'dns', 'email', 'dbus']
 
         includes += ['calibre.gui2.convert.'+x.split('/')[-1].rpartition('.')[0] for x in \
                 glob.glob('src/calibre/gui2/convert/*.py')]

@@ -117,9 +117,15 @@ class ITALICA(EB600):
     name = 'Italica Device Interface'
     gui_name = 'Italica'
 
-    FORMATS = ['epub', 'pdf', 'txt']
+    FORMATS = ['epub', 'rtf', 'fb2', 'html', 'prc', 'mobi', 'pdf', 'txt']
 
     VENDOR_NAME = 'ITALICA'
     WINDOWS_MAIN_MEM = 'EREADER'
+    WINDOWS_CARD_A_MEM = WINDOWS_MAIN_MEM
 
     OSX_MAIN_MEM = 'Italica eReader Media'
+    OSX_CARD_A_MEM = OSX_MAIN_MEM
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'Italica Main Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'Italica Storage Card'
+

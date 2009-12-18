@@ -32,6 +32,6 @@ class GoogleReader(BasicNewsRecipe):
         soup = self.index_to_soup('http://www.google.com/reader/api/0/tag/list')
         for id in soup.findAll(True, attrs={'name':['id']}):
             url = id.contents[0]
-            feeds.append((re.search('/([^/]*)$', url).group(1), 
+            feeds.append((re.search('/([^/]*)$', url).group(1),
                           self.base_url + urllib.quote(url.encode('utf-8')) + self.get_options))
         return feeds

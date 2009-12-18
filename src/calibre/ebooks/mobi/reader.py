@@ -108,7 +108,7 @@ class EXTHHeader(object):
 
 class BookHeader(object):
 
-    def __init__(self, raw, ident, user_encoding, log):
+    def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False):
         self.log = log
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
@@ -141,7 +141,8 @@ class BookHeader(object):
                 self.codec = 'cp1252' if user_encoding is None else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
-            if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length:
+            if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length \
+                or (try_extra_data_fix and self.length == 0xE4):
                 self.extra_flags = 0
             else:
                 self.extra_flags, = struct.unpack('>H', raw[0xF2:0xF4])
@@ -229,7 +230,8 @@ class MobiReader(object):
     PAGE_BREAK_PAT = re.compile(r'(<[/]{0,1}mbp:pagebreak\s*[/]{0,1}>)+', re.IGNORECASE)
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
 
-    def __init__(self, filename_or_stream, log, user_encoding=None, debug=None):
+    def __init__(self, filename_or_stream, log, user_encoding=None, debug=None,
+            try_extra_data_fix=False):
         self.log = log
         self.debug = debug
         self.embedded_mi = None
@@ -284,7 +286,7 @@ class MobiReader(object):
 
 
         self.book_header = BookHeader(self.sections[0][0], self.ident,
-            user_encoding, self.log)
+            user_encoding, self.log, try_extra_data_fix=try_extra_data_fix)
         self.name = self.name.decode(self.book_header.codec, 'replace')
 
     def extract_content(self, output_dir, parse_cache):
@@ -701,7 +703,9 @@ class MobiReader(object):
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
         self.mobi_html = self.mobi_html.replace('\0', '')
-        self.mobi_html = self.mobi_html.replace('\x1e', '') # record separator
+        if self.book_header.codec == 'cp1252':
+            self.mobi_html = self.mobi_html.replace('\x1e', '') # record separator
+            self.mobi_html = self.mobi_html.replace('\x02', '') # start of text
         return processed_records
 
 

@@ -711,7 +711,9 @@ class Device(DeviceConfig, DevicePlugin):
             candidates = self.get_main_ebook_dir()
             if isinstance(candidates, basestring):
                 candidates = [candidates]
-            candidates = [os.path.join(self._main_prefix, *(x.split('/'))) for x
+            candidates = [
+                    ((os.path.join(self._main_prefix, *(x.split('/')))) if x else
+                    self._main_prefix) for x
                     in candidates]
             existing = [x for x in candidates if os.path.exists(x)]
             if not existing:

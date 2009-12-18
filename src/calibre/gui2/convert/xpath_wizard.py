@@ -70,6 +70,11 @@ class XPathEdit(QWidget, Ui_Edit):
         if wiz.exec_() == wiz.Accepted:
             self.edit.setText(wiz.xpath)
 
+    def setObjectName(self, *args):
+        QWidget.setObjectName(self, *args)
+        if hasattr(self, 'edit'):
+            self.edit.initialize('xpath_edit_'+unicode(self.objectName()))
+
 
     def set_msg(self, msg):
         self.msg.setText(msg)
@@ -95,4 +100,11 @@ class XPathEdit(QWidget, Ui_Edit):
         return True
 
 
-
+if __name__ == '__main__':
+    from PyQt4.Qt import QApplication
+    app = QApplication([])
+    w = XPathEdit()
+    w.setObjectName('test')
+    w.show()
+    app.exec_()
+    print w.xpath

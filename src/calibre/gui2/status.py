@@ -9,6 +9,7 @@ from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import qstring_to_unicode, config
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.notify import get_notifier
 from calibre.ebooks import BOOK_EXTENSIONS
 
 class BookInfoDisplay(QWidget):
@@ -218,6 +219,7 @@ class StatusBar(QStatusBar):
     def __init__(self, jobs_dialog, systray=None):
         QStatusBar.__init__(self)
         self.systray = systray
+        self.notifier = get_notifier(systray)
         self.movie_button = MovieButton(jobs_dialog)
         self.cover_flow_button = CoverFlowButton()
         self.tag_view_button = TagViewButton()
@@ -247,13 +249,13 @@ class StatusBar(QStatusBar):
 
     def showMessage(self, msg, timeout=0):
         ret = QStatusBar.showMessage(self, msg, timeout)
-        if self.systray is not None and not config['disable_tray_notification']:
+        if self.notifier is not None and not config['disable_tray_notification']:
             if isosx and isinstance(msg, unicode):
                 try:
                     msg = msg.encode(preferred_encoding)
                 except UnicodeEncodeError:
                     msg = msg.encode('utf-8')
-            self.systray.showMessage('calibre', msg, self.systray.Information, 10000)
+            self.notifier(msg)
         return ret
 
     def jobs(self):

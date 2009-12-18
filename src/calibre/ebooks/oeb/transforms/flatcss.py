@@ -194,7 +194,7 @@ class CSSFlattener(object):
     def flatten_node(self, node, stylizer, names, styles, psize, left=0):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
-            return
+               return
         tag = barename(node.tag)
         style = stylizer.style(node)
         cssdict = style.cssdict()

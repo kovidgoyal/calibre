@@ -15,12 +15,13 @@ class weltDe(BasicNewsRecipe):
     __author__ = 'Oliver Niesner'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
-    max_articles_per_feed = 15 # reduced to this value to prevent too many articles (suggested by Gregory Riker
+    max_articles_per_feed = 15
+    linearize_tables = True
     no_stylesheets = True
     remove_stylesheets = True
     remove_javascript = True
-    language = 'de'
     encoding = 'iso-8859-1'
+    BasicNewsRecipe.summary_length = 200
 
 
     remove_tags = [dict(id='jumplinks'),
@@ -43,10 +44,14 @@ class weltDe(BasicNewsRecipe):
 		   dict(id='servicesBox'),
 		   dict(id='toggleAdvancedSearch'),
 		   dict(id='mainNav'),
-		   dict(id='ratingBox5136466_1'),
-		   dict(id='ratingBox5136466_2'),
 		   dict(id='articleInlineMediaBox0'),
 		   dict(id='sectionSponsor'),
+		   dict(id='sprucharea'),
+		   dict(id='xmsg_recommendEmail'),
+		   dict(id='xmsg_recommendSms'),
+		   dict(id='xmsg_comment'),
+		   dict(id='additionalNavWrapper'),
+		   dict(id='imagebox'),
 		   #dict(id=''),
                    dict(name='span'),
 		   dict(name='div', attrs={'class':'printURL'}),
@@ -65,9 +70,20 @@ class weltDe(BasicNewsRecipe):
 		   dict(name='ul', attrs={'class':'optionsSubNav clear'}),
 		   dict(name='li', attrs={'class':'next'}),
 		   dict(name='li', attrs={'class':'prev'}),
+		   dict(name='li', attrs={'class':'last'}),
+		   dict(name='table', attrs={'class':'textGallery'}),
 		   dict(name='li', attrs={'class':'active'})]
 
     remove_tags_after = [dict(id='tw_link_widget')]
+
+    extra_css = '''
+                    h2{font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #003399;}
+                    a{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-style:italic;}
+                    .dachzeile p{font-family:Arial,Helvetica,sans-serif; font-size: x-small; }
+                    h1{ font-family:Arial,Helvetica,sans-serif;  font-size:x-large; font-weight:bold;}
+                    .artikelTeaser{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-weight:bold; }
+                    body{font-family:Arial,Helvetica,sans-serif; }
+                    .photo {font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #666666;}                 '''
 
     feeds =  [ ('Politik', 'http://welt.de/politik/?service=Rss'),
 	       ('Deutsche Dinge', 'http://www.welt.de/deutsche-dinge/?service=Rss'),

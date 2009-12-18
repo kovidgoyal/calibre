@@ -63,7 +63,7 @@ class USBMS(CLI, Device):
         if isinstance(ebook_dirs, basestring):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
-            ebook_dir = os.path.join(prefix, *(ebook_dir.split('/')))
+            ebook_dir = os.path.join(prefix, *(ebook_dir.split('/'))) if ebook_dir else prefix
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
             if self.SUPPORTS_SUB_DIRS:

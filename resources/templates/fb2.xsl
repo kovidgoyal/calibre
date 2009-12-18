@@ -187,7 +187,7 @@
 	<!-- section/title -->
 	<xsl:template match="fb:body/fb:title">
         <xsl:element name="h1">
-            <xsl:apply-templates mode="title"/>
+            <xsl:apply-templates />
         </xsl:element>
 	</xsl:template>
 
