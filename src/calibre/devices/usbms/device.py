@@ -302,13 +302,13 @@ class Device(DeviceConfig, DevicePlugin):
             drives['main'] = drives.pop('carda')
 
         drives = self.windows_open_callback(drives)
+        drives = self.windows_sort_drives(drives)
 
         if drives.get('main', None) is None:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
                 self.__class__.__name__)
 
-        drives = self.windows_sort_drives(drives)
         self._main_prefix = drives.get('main')
         self._card_a_prefix = drives.get('carda', None)
         self._card_b_prefix = drives.get('cardb', None)

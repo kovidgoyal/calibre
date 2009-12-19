@@ -13,7 +13,7 @@ class IRIVER_STORY(USBMS):
     name           = 'Iriver Story Device Interface'
     gui_name       = 'Iriver Story'
     description    = _('Communicate with the Iriver Story reader.')
-    author         = _('Kovid Goyal')
+    author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
