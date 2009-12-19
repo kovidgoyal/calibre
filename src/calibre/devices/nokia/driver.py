@@ -14,7 +14,7 @@ class N770(USBMS):
 
     name           = 'Nokia 770 Device Interface'
     gui_name       = 'Nokia 770'
-    description    = _('Communicate with the Nokia Nokia 770 internet tablet.')
+    description    = _('Communicate with the Nokia 770 internet tablet.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'linux', 'osx']
 
@@ -37,7 +37,7 @@ class N770(USBMS):
 class N810(N770):
     name           = 'Nokia 810 Device Interface'
     gui_name       = 'Nokia 810'
-    description    = _('Communicate with the Nokia Nokia 810 internet tablet.')
+    description    = _('Communicate with the Nokia 810 internet tablet.')
 
     PRODUCT_ID = [0x96]
     BCD        = [0x316]

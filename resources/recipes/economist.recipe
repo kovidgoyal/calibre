@@ -8,7 +8,7 @@ economist.com
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
-import mechanize, string, urllib
+import mechanize, string, urllib, time
 
 class Economist(BasicNewsRecipe):
 
@@ -48,6 +48,16 @@ class Economist(BasicNewsRecipe):
         return br
 
     def parse_index(self):
+        try:
+            return self.economist_parse_index()
+        except:
+            raise
+            self.log.warn(
+                'Initial attempt to parse index failed, retrying in 30 seconds')
+            time.sleep(30)
+            return self.economist_parse_index()
+
+    def economist_parse_index(self):
         soup = BeautifulSoup(self.browser.open(self.INDEX).read(),
                              convertEntities=BeautifulSoup.HTML_ENTITIES)
         index_started = False
@@ -59,7 +69,7 @@ class Economist(BasicNewsRecipe):
             if tag.name == 'h1':
                 if 'Classified ads' in text:
                     break
-                if 'The world this week' in text:
+                if 'The world this week' in text or 'The world this year' in text:
                     index_started = True
                 if not index_started:
                     continue

@@ -65,7 +65,14 @@ def debug_device_driver():
     from calibre.devices.scanner import DeviceScanner
     s = DeviceScanner()
     s.scan()
-    print 'USB devices on system:\n', pprint.pprint(s.devices)
+    devices = s.devices
+    if not iswindows:
+        devices = [list(x) for x in devices]
+        for d in devices:
+            for i in range(3):
+                d[i] = hex(d[i])
+
+    print 'USB devices on system:\n', pprint.pprint(devices)
     if iswindows:
         wmi = __import__('wmi', globals(), locals(), [], -1)
         drives = []

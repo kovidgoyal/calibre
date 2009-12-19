@@ -129,3 +129,19 @@ class ITALICA(EB600):
     MAIN_MEMORY_VOLUME_LABEL  = 'Italica Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Italica Storage Card'
 
+
+class ECLICTO(EB600):
+
+    name = 'eClicto device interface'
+    gui_name = 'eClicto'
+
+    FORMATS = ['epub', 'pdf', 'txt']
+
+    VENDOR_NAME = 'ECLICTO'
+    WINDOWS_MAIN_MEM = 'EBOOK'
+    WINDOWS_CARD_A_MEM = 'EBOOK'
+
+    EBOOK_DIR_MAIN = 'Text'
+    EBOOK_DIR_CARD_A = ''
+
+
