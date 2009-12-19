@@ -223,17 +223,18 @@ class DeviceManager(Thread):
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
 
-    def _upload_books(self, files, metadata, ids, on_card=None):
+    def _upload_books(self, files, names, on_card=None, metadata=None):
         '''Upload books to device: '''
-        return self.device.upload_books(files, metadata, ids, on_card,
-                                        end_session=False)
+        return self.device.upload_books(files, names, on_card,
+                                        metadata=metadata, end_session=False)
 
-    def upload_books(self, done, files, metadata, ids, on_card=None, titles=None):
-        desc = _('Upload %d books to device')%len(files)
+    def upload_books(self, done, files, names, on_card=None, titles=None,
+                     metadata=None):
+        desc = _('Upload %d books to device')%len(names)
         if titles:
             desc += u':' + u', '.join(titles)
-        return self.create_job(self._upload_books, done, args=[files, metadata, ids],
-                kwargs={'on_card':on_card}, description=desc)
+        return self.create_job(self._upload_books, done, args=[files, names],
+                kwargs={'on_card':on_card,'metadata':metadata}, description=desc)
 
     def add_books_to_metadata(self, locations, metadata, booklists):
         self.device.add_books_to_metadata(locations, metadata, booklists)
@@ -707,18 +708,18 @@ class DeviceGUI(object):
                 dynamic.set('news_to_be_synced', set([]))
                 return
             metadata = self.library_view.model().get_metadata(ids,
-                    rows_are_ids=True, full_metadata=True)[1]
+                    rows_are_ids=True)
             names = []
             for mi in metadata:
-                prefix = ascii_filename(mi.title)
+                prefix = ascii_filename(mi['title'])
                 if not isinstance(prefix, unicode):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
                     os.path.splitext(f.name)[1]))
-                cdata = mi.cover
+                cdata = mi['cover']
                 if cdata:
-                    mi.cover = self.cover_to_thumbnail(cdata)
+                    mi['cover'] = self.cover_to_thumbnail(cdata)
             dynamic.set('news_to_be_synced', set([]))
             if config['upload_news_to_device'] and files:
                 remove = ids if \
@@ -727,7 +728,8 @@ class DeviceGUI(object):
                     self.location_view.model().free[1] : 'carda',
                     self.location_view.model().free[2] : 'cardb' }
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
-                self.upload_books(files, metadata, ids, on_card=on_card,
+                self.upload_books(files, names, metadata,
+                        on_card=on_card,
                         memory=[[f.name for f in files], remove])
                 self.status_bar.showMessage(_('Sending news to device.'), 5000)
 
@@ -749,28 +751,38 @@ class DeviceGUI(object):
         else:
             _auto_ids = []
 
-        metadata = self.library_view.model().get_metadata(ids, True, full_metadata=True)[1]
+        metadata = self.library_view.model().get_metadata(ids, True)
         ids = iter(ids)
         for mi in metadata:
-            cdata = mi.cover
+            cdata = mi['cover']
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
 
         files = [getattr(f, 'name', None) for f in _files]
-        bad, mdata, gf, fids, remove_ids = [], [], [], [], []
+        bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
             mi = metadata.next()
             id = ids.next()
             if f is None:
-                bad.append(mi.title)
+                bad.append(mi['title'])
             else:
                 remove_ids.append(id)
+                good.append(mi)
                 gf.append(f)
-                mdata.append(mi)
-                fids.append(id)
+                t = mi['title']
+                if not t:
+                    t = _('Unknown')
+                a = mi['authors']
+                if not a:
+                    a = _('Unknown')
+                prefix = ascii_filename(t+' - '+a)
+                if not isinstance(prefix, unicode):
+                    prefix = prefix.decode(preferred_encoding, 'replace')
+                prefix = ascii_filename(prefix)
+                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
         remove = remove_ids if delete_from_library else []
-        self.upload_books(gf, mdata, fids, on_card, memory=(_files, remove))
+        self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
 
         auto = []
@@ -833,15 +845,17 @@ class DeviceGUI(object):
         cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
 
-    def upload_books(self, files, metadata, ids, on_card=None, memory=None):
+    def upload_books(self, files, names, metadata, on_card=None, memory=None):
         '''
         Upload books to device.
         :param files: List of either paths to files or file like objects
         '''
-        titles = [i.title for i in metadata]
+        titles = [i['title'] for i in metadata]
         job = self.device_manager.upload_books(
                 Dispatcher(self.books_uploaded),
-                files, metadata, ids, on_card=on_card, titles=titles)
+                files, names, on_card=on_card,
+                metadata=metadata, titles=titles
+              )
         self.upload_memory[job] = (metadata, on_card, memory, files)
 
     def books_uploaded(self, job):
@@ -854,7 +868,7 @@ class DeviceGUI(object):
             if isinstance(job.exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(job.exception) \
                         else 'on the storage card.'
-                titles = '\n'.join(['<li>'+mi.title+'</li>' \
+                titles = '\n'.join(['<li>'+mi['title']+'</li>' \
                                     for mi in metadata])
                 d = error_dialog(self, _('No space on device'),
                                  _('<p>Cannot upload books to device there '

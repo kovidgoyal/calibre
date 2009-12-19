@@ -8,7 +8,7 @@ import xml.dom.minidom as dom
 from base64 import b64decode as decode
 from base64 import b64encode as encode
 
-from calibre.ebooks.metadata import authors_to_string
+
 from calibre.devices.interface import BookList as _BookList
 from calibre.devices import strftime as _strftime
 from calibre.devices import strptime
@@ -194,9 +194,9 @@ class BookList(_BookList):
         except:
             sourceid = '1'
         attrs = {
-                 "title"  : info.title,
-                 'titleSorter' : sortable_title(info.title),
-                 "author" : authors_to_string(info.authors),
+                 "title"  : info["title"],
+                 'titleSorter' : sortable_title(info['title']),
+                 "author" : info["authors"] if info['authors'] else _('Unknown'),
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
                  "mime":mime, "path":name, "size":str(size)
@@ -205,7 +205,7 @@ class BookList(_BookList):
             node.setAttributeNode(self.document.createAttribute(attr))
             node.setAttribute(attr, attrs[attr])
         try:
-            w, h, data = info.cover
+            w, h, data = info["cover"]
         except TypeError:
             w, h, data = None, None, None
 
@@ -221,7 +221,10 @@ class BookList(_BookList):
         book = Book(node, self.mountpath, [], prefix=self.prefix)
         book.datetime = ctime
         self.append(book)
-        self.set_tags(book, info.tags)
+        if info.has_key('tags'):
+            if info.has_key('tag order'):
+                self.tag_order.update(info['tag order'])
+            self.set_tags(book, info['tags'])
 
     def _delete_book(self, node):
         nid = node.getAttribute('id')

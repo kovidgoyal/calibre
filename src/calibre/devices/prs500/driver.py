@@ -867,14 +867,14 @@ class PRS500(DeviceConfig, DevicePlugin):
             self.upload_book_list(booklists[1], end_session=False)
 
     @safe
-    def upload_books(self, files, metadatas, ids, on_card=None,
-                     end_session=True):
+    def upload_books(self, files, names, on_card=False, end_session=True,
+                     metadata=None):
         card = self.card(end_session=False)
         prefix = card + '/' + self.CARD_PATH_PREFIX +'/' if on_card else '/Data/media/books/'
         if on_card and not self._exists(prefix)[0]:
             self.mkdir(prefix[:-1], False)
         paths, ctimes = [], []
-        names = iter([m.title for m in metatdatas])
+        names = iter(names)
         infiles = [file if hasattr(file, 'read') else open(file, 'rb') for file in files]
         for f in infiles: f.seek(0, 2)
         sizes = [f.tell() for f in infiles]

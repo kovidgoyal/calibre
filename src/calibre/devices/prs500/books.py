@@ -9,7 +9,6 @@ from base64 import b64decode as decode
 from base64 import b64encode as encode
 import re
 
-from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.interface import BookList as _BookList
 from calibre.devices import strftime, strptime
 
@@ -263,9 +262,9 @@ class BookList(_BookList):
         cid = self.max_id()+1
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {
-                 "title"  : info.title,
-                 'titleSorter' : sortable_title(info.title),
-                 "author" : authors_to_string(info.authors), \
+                 "title"  : info["title"],
+                 'titleSorter' : sortable_title(info['title']),
+                 "author" : info["authors"] if info['authors'] else 'Unknown', \
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
                  "mime":mime, "path":name, "size":str(size)
@@ -274,7 +273,7 @@ class BookList(_BookList):
             node.setAttributeNode(self.document.createAttribute(attr))
             node.setAttribute(attr, attrs[attr])
         try:
-            w, h, data = info.cover
+            w, h, data = info["cover"]
         except TypeError:
             w, h, data = None, None, None
 
@@ -291,7 +290,10 @@ class BookList(_BookList):
         book.datetime = ctime
         self.append(book)
         self.set_next_id(cid+1)
-        self.set_playlists(book.id, info.tags)
+        if self.prefix and info.has_key('tags'): # Playlists only supportted in main memory
+            if info.has_key('tag order'):
+                self.tag_order.update(info['tag order'])
+            self.set_playlists(book.id, info['tags'])
 
 
     def playlist_by_title(self, title):

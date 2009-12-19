@@ -23,7 +23,7 @@ from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre import iswindows, islinux, isosx, __appname__
-from calibre.utils.filenames import shorten_components_to
+from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 
 class Device(DeviceConfig, DevicePlugin):
 
@@ -295,20 +295,20 @@ class Device(DeviceConfig, DevicePlugin):
 
         # This is typically needed when the device has the same
         # WINDOWS_MAIN_MEM and WINDOWS_CARD_A_MEM in which case
-        # if the devices is connected without a crad, the above
+        # if the devices is connected without a card, the above
         # will incorrectly identify the main mem as carda
         # See for example the driver for the Nook
         if 'main' not in drives and 'carda' in drives:
             drives['main'] = drives.pop('carda')
 
         drives = self.windows_open_callback(drives)
-        drives = self.windows_sort_drives(drives)
 
         if drives.get('main', None) is None:
             raise DeviceError(
                 _('Unable to detect the %s disk drive. Try rebooting.') %
                 self.__class__.__name__)
 
+        drives = self.windows_sort_drives(drives)
         self._main_prefix = drives.get('main')
         self._card_a_prefix = drives.get('carda', None)
         self._card_b_prefix = drives.get('cardb', None)
@@ -739,18 +739,54 @@ class Device(DeviceConfig, DevicePlugin):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
-    def create_upload_path(self, root, mdata, ext, id):
-        from calibre.library.save_to_disk import config, get_components
-        opts = config().parse()
-        components = get_components(opts.template, mdata, id, opts.timefmt, 250)
-        components = [str(x) for x in components]
-        components = shorten_components_to(250 - len(root), components)
-        filepath = '%s%s' % (os.path.join(root, *components), ext)
+    def create_upload_path(self, path, mdata, fname):
+        path = os.path.abspath(path)
+        newpath = path
+        extra_components = []
+
+        if self.SUPPORTS_SUB_DIRS and self.settings().use_subdirs:
+            if 'tags' in mdata.keys():
+                for tag in mdata['tags']:
+                    if tag.startswith(_('News')):
+                        extra_components.append('news')
+                        c = sanitize(mdata.get('title', ''))
+                        if c:
+                            extra_components.append(c)
+                        c = sanitize(mdata.get('timestamp', ''))
+                        if c:
+                            extra_components.append(c)
+                        break
+                    elif tag.startswith('/'):
+                        for c in tag.split('/'):
+                            c = sanitize(c)
+                            if not c: continue
+                            extra_components.append(c)
+                        break
+
+            if not extra_components:
+                c = sanitize(mdata.get('authors', _('Unknown')))
+                if c:
+                    extra_components.append(c)
+                c = sanitize(mdata.get('title', _('Unknown')))
+                if c:
+                    extra_components.append(c)
+                    newpath = os.path.join(newpath, c)
+
+        fname = sanitize(fname)
+        extra_components.append(fname)
+        extra_components = [str(x) for x in extra_components]
+        def remove_trailing_periods(x):
+            ans = x
+            while ans.endswith('.'):
+                ans = ans[:-1]
+            if not ans:
+                ans = 'x'
+            return ans
+        extra_components = list(map(remove_trailing_periods, extra_components))
+        components = shorten_components_to(250 - len(path), extra_components)
+        filepath = os.path.join(path, *components)
         filedir = os.path.dirname(filepath)
 
-        if not self.SUPPORTS_SUB_DIRS or not self.settings().use_subdirs:
-            filedir = root
-            filepath = os.path.join(root, os.path.basename(filepath))
 
         if not os.path.exists(filedir):
             os.makedirs(filedir)

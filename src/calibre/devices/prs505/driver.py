@@ -114,22 +114,20 @@ class PRS505(CLI, Device):
         self.report_progress(1.0, _('Getting list of books on device...'))
         return bl
 
-    def upload_books(self, files, metadatas, ids, on_card=None,
-                     end_session=True):
+    def upload_books(self, files, names, on_card=None, end_session=True,
+                     metadata=None):
 
         path = self._sanity_check(on_card, files)
 
-        paths = []
-        metadatas = iter(metadatas)
-        ids = iter(ids)
-
+        paths, ctimes, sizes = [], [], []
+        names = iter(names)
+        metadata = iter(metadata)
         for i, infile in enumerate(files):
-            mdata, id = metadatas.next(), ids.next()
-            ext = os.path.splitext(infile)[1]
-            filepath = self.create_upload_path(path, mdata, ext, id)
-            paths.append(filepath)
+            mdata, fname = metadata.next(), names.next()
+            filepath = self.create_upload_path(path, mdata, fname)
 
-            self.put_file(infile, filepath, replace_file=True)
+            paths.append(filepath)
+            self.put_file(infile, paths[-1], replace_file=True)
             ctimes.append(os.path.getctime(paths[-1]))
             sizes.append(os.stat(paths[-1]).st_size)
 

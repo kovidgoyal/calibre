@@ -497,6 +497,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
 
 
 Convert PDF documents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PDF documents are one of the worst formats to convert from. They are a fixed page size and text placement format.
 Meaning, it is very difficult to determine where one paragraph ends and another begins. |app| will try to unwrap

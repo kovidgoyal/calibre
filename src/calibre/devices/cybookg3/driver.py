@@ -47,25 +47,24 @@ class CYBOOKG3(USBMS):
     DELETE_EXTS = ['.mbp', '.dat', '_6090.t2b']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_books(self, files, metadatas, ids, on_card=None,
-                     end_session=True):
+    def upload_books(self, files, names, on_card=None, end_session=True,
+                     metadata=None):
 
         path = self._sanity_check(on_card, files)
 
         paths = []
-        metadatas = iter(metadatas)
-        ids = iter(ids)
+        names = iter(names)
+        metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            mdata, id = metadatas.next(), ids.next()
-            ext = os.path.splitext(infile)[1]
-            filepath = self.create_upload_path(path, mdata, ext, id)
+            mdata, fname = metadata.next(), names.next()
+            filepath = self.create_upload_path(path, mdata, fname)
             paths.append(filepath)
 
             self.put_file(infile, filepath, replace_file=True)
 
             coverdata = None
-            cover = mdata.cover
+            cover = mdata.get('cover', None)
             if cover:
                 coverdata = cover[2]
 

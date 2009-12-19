@@ -15,7 +15,7 @@ from itertools import cycle
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.filenames import ascii_filename as sanitize
-from calibre.ebooks.metadata import authors_to_string, string_to_authors
+from calibre.ebooks.metadata import string_to_authors
 
 class JETBOOK(USBMS):
     name           = 'Ectaco JetBook Device Interface'
@@ -50,22 +50,23 @@ class JETBOOK(USBMS):
             r'(?P<authors>.+)#(?P<title>.+)'
             )
 
-    def upload_books(self, files, metadatas, ids, on_card=None,
-                     end_session=True):
-        path = self._sanity_check(on_card, files)
+    def upload_books(self, files, names, on_card=False, end_session=True,
+                    metadata=None):
+
+        base_path = self._sanity_check(on_card, files)
 
         paths = []
-        metadatas = iter(metadatas)
-        ids = iter(ids)
+        names = iter(names)
+        metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            mdata, id = metadatas.next(), ids.next()
-            ext = os.path.splitext(infile)[1]
-            path = self.create_upload_path(path, mdata, ext, id)
+            mdata, fname = metadata.next(), names.next()
+            path = os.path.dirname(self.create_upload_path(base_path, mdata, fname))
 
-            author = sanitize(authors_to_string(mdata.authors)).replace(' ', '_')
-            title = sanitize(mdata.title).replace(' ', '_')
-            fname = '%s#%s%s' % (author, title, ext)
+            author = sanitize(mdata.get('authors','Unknown')).replace(' ', '_')
+            title = sanitize(mdata.get('title', 'Unknown')).replace(' ', '_')
+            fileext = os.path.splitext(os.path.basename(fname))[1]
+            fname = '%s#%s%s' % (author, title, fileext)
 
             filepath = os.path.join(path, fname)
             paths.append(filepath)
