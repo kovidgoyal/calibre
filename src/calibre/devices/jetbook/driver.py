@@ -20,13 +20,13 @@ from calibre.ebooks.metadata import string_to_authors
 class JETBOOK(USBMS):
     name           = 'Ectaco JetBook Device Interface'
     description    = _('Communicate with the JetBook eBook reader.')
-    author         = _('James Ralston')
+    author         = 'James Ralston'
     supported_platforms = ['windows', 'osx', 'linux']
 
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
-    FORMATS     = ['epub', 'mobi', 'prc', 'txt', 'rtf', 'pdf']
+    FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'rtf', 'pdf']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
