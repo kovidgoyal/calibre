@@ -47,36 +47,9 @@ class CYBOOKG3(USBMS):
     DELETE_EXTS = ['.mbp', '.dat', '_6090.t2b']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_books(self, files, names, on_card=None, end_session=True,
-                     metadata=None):
-
-        path = self._sanity_check(on_card, files)
-
-        paths = []
-        names = iter(names)
-        metadata = iter(metadata)
-
-        for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
-            filepath = self.create_upload_path(path, mdata, fname)
-            paths.append(filepath)
-
-            self.put_file(infile, filepath, replace_file=True)
-
-            coverdata = None
-            cover = mdata.get('cover', None)
-            if cover:
-                coverdata = cover[2]
-
-            t2bfile = open('%s_6090.t2b' % (os.path.splitext(filepath)[0]), 'wb')
+    def upload_cover(self, path, name, coverdata):
+        with open('%s_6090.t2b' % os.path.join(path, name), 'wb') as t2bfile:
             t2b.write_t2b(t2bfile, coverdata)
-            t2bfile.close()
-
-            self.report_progress(i / float(len(files)), _('Transferring books to device...'))
-
-        self.report_progress(1.0, _('Transferring books to device...'))
-
-        return zip(paths, cycle([on_card]))
 
     @classmethod
     def can_handle(cls, device_info, debug=False):

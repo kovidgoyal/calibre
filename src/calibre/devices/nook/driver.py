@@ -38,6 +38,11 @@ class NOOK(USBMS):
     EBOOK_DIR_MAIN = 'my documents'
     SUPPORTS_SUB_DIRS = True
 
+    def upload_cover(self, path, name, coverdata):
+        if coverdata:
+            with open('%s.jpg' % os.path.join(path, name), 'wb') as coverfile:
+                coverfile.write(coverdata)
+
     def windows_sort_drives(self, drives):
         main = drives.get('main', None)
         card = drives.get('carda', None)
