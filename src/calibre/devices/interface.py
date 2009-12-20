@@ -40,6 +40,8 @@ class DevicePlugin(Plugin):
     CAN_SET_METADATA = True
     #: Path separator for paths to books on device
     path_sep = os.sep
+    #: Icon for this device
+    icon = I('reader.svg')
 
     @classmethod
     def test_bcd_windows(cls, device_id, bcd):

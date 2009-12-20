@@ -116,6 +116,7 @@ class ITALICA(EB600):
 
     name = 'Italica Device Interface'
     gui_name = 'Italica'
+    icon = I('devices/italica.png')
 
     FORMATS = ['epub', 'rtf', 'fb2', 'html', 'prc', 'mobi', 'pdf', 'txt']
 
