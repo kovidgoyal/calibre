@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-18 20:18+0000\n"
-"PO-Revision-Date: 2009-12-18 20:03+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2009-12-19 17:50+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-19 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-12-20 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -522,11 +522,11 @@ msgstr "Comunicarse con el lector Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Comunicarse son la tableta de internet Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr ""
+msgstr "Comunicarse son la tableta de internet Nokia 810."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:16
 msgid "The Nook"
@@ -4572,7 +4572,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:545
 msgid "Debug &device detection"
-msgstr ""
+msgstr "Depurar detección de &dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid ""
@@ -4704,15 +4704,15 @@ msgstr "&Añadir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:21
 msgid "Getting debug information"
-msgstr ""
+msgstr "Obteniendo información de depuración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:22
 msgid "Copy to &clipboard"
-msgstr ""
+msgstr "&Copiar al portapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Depurar detección de dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/social.py:34
 msgid "Downloading social metadata, please wait..."

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-18 20:18+0000\n"
-"PO-Revision-Date: 2009-12-18 20:02+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-12-19 20:34+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-19 04:31+0000\n"
+"X-Launchpad-Export-Date: 2009-12-20 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -519,11 +519,11 @@ msgstr "Kommunikation mit dem Kindle DX eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Kommunikation mit dem Nokia 770 Internet Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr ""
+msgstr "Kommunikation mit dem Nokia 810 Internet Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:16
 msgid "The Nook"
@@ -3025,7 +3025,7 @@ msgid ""
 "of the conversion process. This HTML can sometimes serve as a good starting "
 "point for hand editing a conversion."
 msgstr ""
-"Der Prozess der Fehlersuche gibt die zwischenzeitlich erstellten HTML Daten "
+"Der Prozess der Fehlersuche gibt die zwischenzeitlich erstellten HTML-Daten "
 "der verschiedenen Stadien des Konvertierungsprozesses aus. Dieses HTML kann "
 "manchmal als guter Ausgangspunkt der händischen Bearbeitung der "
 "Konvertierung dienen."
@@ -4479,7 +4479,7 @@ msgstr "Bev&orzugtes Ausgabe-Format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:514
 msgid "Preferred &input format order:"
-msgstr "Bevorzugte Reihenfolge des E&ingabe Formats:"
+msgstr "Bevorzugte Reihenfolge des E&ingabe-Formats:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:517
 msgid "Use &Roman numerals for series number"
@@ -4597,7 +4597,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:545
 msgid "Debug &device detection"
-msgstr ""
+msgstr "Fehlersuche bei &der Geräteerkennung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid ""
@@ -4729,15 +4729,15 @@ msgstr "&Hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:21
 msgid "Getting debug information"
-msgstr ""
+msgstr "Erhalte Information zur Fehlersuche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:22
 msgid "Copy to &clipboard"
-msgstr ""
+msgstr "In die Zwis&chenablage kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Fehlersuche bei der Geräteerkennung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/social.py:34
 msgid "Downloading social metadata, please wait..."
@@ -5889,7 +5889,7 @@ msgstr "Minimiert im Systembereich der Kontrollleiste starten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:28
 msgid "Log debugging information to console"
-msgstr "Informationen zur Fehlersuche in Konsole aufzeichnen"
+msgstr "Information zur Fehlersuche auf die Konsole ausgeben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:30
 msgid "Do not check for updates"

@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-18 20:18+0000\n"
-"PO-Revision-Date: 2009-12-17 23:16+0000\n"
-"Last-Translator: Yannick Warnier <Unknown>\n"
+"PO-Revision-Date: 2009-12-19 12:26+0000\n"
+"Last-Translator: Vincent C. <Unknown>\n"
 "Language-Team: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-19 04:31+0000\n"
+"X-Launchpad-Export-Date: 2009-12-20 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -181,6 +181,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"Créer une archive PMLZ, contenant le fichier PML et toutes les images, dans "
+"le répertoire pmlname_img ou images. Ce plugin est lancé à chaque ajout d'un "
+"fichier PML dans la librairie."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:87
 msgid "Extract cover from comic files"
@@ -421,6 +424,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
+"Liste de répertoires séparés par des virgules utilisée pour envoyer les "
+"ebooks vers l'appareil. Le premier existant sera utilisé."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
@@ -512,19 +517,19 @@ msgstr "Communique avec le lecteur Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Communique avec la tablette internet Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr ""
+msgstr "Communique avec la tablette internet Nokia 810."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:16
 msgid "The Nook"
-msgstr ""
+msgstr "Le Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:17
 msgid "Communicate with the Nook eBook reader."
-msgstr ""
+msgstr "Communique avec le lecteur d'ebook Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -645,7 +650,7 @@ msgstr "Lire les métadonnées à partir des fichiers dans l'appareil"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:73
 msgid "Extra customization"
-msgstr ""
+msgstr "Personnalisation complémentaire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:29
 msgid "Communicate with an eBook reader."
@@ -1145,6 +1150,9 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"Quand calibre supprime l'espacement entre les paragraphes, une indentation "
+"du paragraphe est définie automatiquement, afin de garantir une bonne "
+"visibilité. Cette option contrôle la largeur de l'indentation."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:322
 msgid ""
@@ -1926,11 +1934,11 @@ msgstr "étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:112
 msgid "description/reviews"
-msgstr ""
+msgstr "Description/Commentaires"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:113
 msgid "Download %s from %s"
-msgstr ""
+msgstr "Téléchargement de %s sur %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:137
 msgid "Downloads metadata from Google Books"
@@ -2250,7 +2258,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Utiliser le nouveau moteur de conversion de PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2701,6 +2709,7 @@ msgstr "Télécharger les métadonnés sociales (étiquettes/classement/etc...)"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:89
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr ""
+"Limiter le nombre maximum de travaux simultanés au nombre de processeurs."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:403
@@ -3157,7 +3166,7 @@ msgstr "&Supprimer l'interligne entre les paragraphes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Indent size:"
-msgstr ""
+msgstr "Taille de l'indentation:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
 msgid ""
@@ -4557,7 +4566,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:545
 msgid "Debug &device detection"
-msgstr ""
+msgstr "Déboguer la &détection de l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid ""
@@ -4689,15 +4698,15 @@ msgstr "&Ajouter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:21
 msgid "Getting debug information"
-msgstr ""
+msgstr "Obtenir les informations de débogage."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:22
 msgid "Copy to &clipboard"
-msgstr ""
+msgstr "&Copier vers le presse-papier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Déboguer la détection de l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/social.py:34
 msgid "Downloading social metadata, please wait..."
@@ -5292,6 +5301,8 @@ msgid ""
 "See the <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
+"Consulter le <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-"
+"search-interface\">manuel utilisateur</a> pour avoir plus d'informations."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:62
 msgid "Are your sure?"
@@ -6063,55 +6074,55 @@ msgstr "Trouver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:57
 msgid "Press a key..."
-msgstr ""
+msgstr "Appuyer sur une touche..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:78
 msgid "Already assigned"
-msgstr ""
+msgstr "Déjà assigné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
 msgid "already assigned to"
-msgstr ""
+msgstr "Déjà assigné à"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:215
 msgid " or "
-msgstr ""
+msgstr " ou "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:68
 msgid "&Default"
-msgstr ""
+msgstr "Par d&éfaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:125
 msgid "Customize shortcuts for"
-msgstr ""
+msgstr "Personnaliser le raccourci clavier pour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:217
 msgid "Double click to change"
-msgstr ""
+msgstr "Double cliquer pour modifier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:67
 msgid "Frame"
-msgstr ""
+msgstr "Cadre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:69
 msgid "&Custom"
-msgstr ""
+msgstr "Personnaliser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:70
 msgid "&Shortcut:"
-msgstr ""
+msgstr "Raccourci clavier:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
 msgid "Click to change"
-msgstr ""
+msgstr "Cliquer pour modifier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
 msgid "Clear"
-msgstr ""
+msgstr "Effacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Alternate shortcut:"
@@ -6373,11 +6384,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:872
 msgid "How many empty books?"
-msgstr ""
+msgstr "Combien de livres vides?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:873
 msgid "How many empty books should be added?"
-msgstr ""
+msgstr "Combien de livres vides doivent être ajoutés?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:917
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:960
@@ -6669,6 +6680,9 @@ msgid ""
 "%s has been updated to version %s. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>. Visit the download page?"
 msgstr ""
+"La version %s a été mis à jour en %s. Consultez les <a href=\"http://calibre-"
+"ebook.com/whats-new\">nouvelles fonctionnalités</a>. Aller à la page des "
+"téléchargements?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -6806,15 +6820,15 @@ msgstr "Feuille de style &utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:171
 msgid "&General"
-msgstr ""
+msgstr "&Général"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Double click to change a keyborad shortcut"
-msgstr ""
+msgstr "Double cliquer pour modifier un raccourci clavier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Keyboard shortcuts"
-msgstr ""
+msgstr "&Raccourcis clavier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:33
 msgid "Options to customize the ebook viewer"
@@ -6876,51 +6890,51 @@ msgstr "Le type de police standard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
-msgstr ""
+msgstr "Faire défiler vers la page suivante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr ""
+msgstr "Faire défiler vers la page précédente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
-msgstr ""
+msgstr "Faire défiler vers la section suivante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:21
 msgid "Scroll to the previous section"
-msgstr ""
+msgstr "Faire défiler vers la section précédente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:24
 msgid "Scroll to the bottom of the section"
-msgstr ""
+msgstr "Faire défiler vers le bas de la section"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:27
 msgid "Scroll to the top of the section"
-msgstr ""
+msgstr "Faire défiler vers le haut de la section"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:30
 msgid "Scroll to the end of the document"
-msgstr ""
+msgstr "Faire défiler vers la fin du document"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:33
 msgid "Scroll to the start of the document"
-msgstr ""
+msgstr "Faire défiler vers le début du document"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr ""
+msgstr "Faire défiler vers le bas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr ""
+msgstr "Faire défiler vers le haut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr ""
+msgstr "Faire défiler vers la gauche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
-msgstr ""
+msgstr "Faire défiler vers la droite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:114
 msgid "Book format"
@@ -7270,6 +7284,8 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
 "ebook.com/user_manual\">online</a>."
 msgstr ""
+"<h2>Manuel utilisateur</h2> Un manuel utilisateur est aussi disponible <a "
+"href=\"http://calibre-ebook.com/user_manual\">en ligne</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:44
 msgid ""
@@ -8095,15 +8111,15 @@ msgstr "Anglais (IND)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (TH)"
-msgstr ""
+msgstr "Anglais (TH)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Néerlandais (NL)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "Dutch (BE)"
-msgstr ""
+msgstr "Flamand (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
