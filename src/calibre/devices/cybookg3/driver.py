@@ -47,8 +47,11 @@ class CYBOOKG3(USBMS):
     DELETE_EXTS = ['.mbp', '.dat', '_6090.t2b']
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, name, coverdata, metadata):
-        with open('%s_6090.t2b' % os.path.join(path, name), 'wb') as t2bfile:
+    def upload_cover(self, path, filename, metadata):
+        coverdata = metadata.get('cover', None)
+        if coverdata:
+            coverdata = coverdata[2]
+        with open('%s_6090.t2b' % os.path.join(path, filename), 'wb') as t2bfile:
             t2b.write_t2b(t2bfile, coverdata)
 
     @classmethod

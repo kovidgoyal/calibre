@@ -10,9 +10,8 @@ Device driver for Barns and Nobel's Nook
 
 try:
     from PIL import Image, ImageDraw
-    Image
 except ImportError:
-    import Image
+    import Image, ImageDraw
 
 import cStringIO
 
@@ -46,23 +45,30 @@ class NOOK(USBMS):
     EBOOK_DIR_MAIN = 'my documents'
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, name, coverdata, metadata):
-        if not coverdata:
+    def upload_cover(self, path, filename, metadata):
+        coverdata = metadata.get('cover', None)
+        if coverdata:
+            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+            cover.thumbnail((96, 144), Image.ANTIALIAS)
+        else:
             coverdata = open(I('library.png'), 'rb').read()
 
-        im = Image.open(cStringIO.StringIO(coverdata))
-        im.thumbnail((96, 144), Image.ANTIALIAS)
+            cover = Image.new('RGB', (96, 144), 'black')
+            im = Image.open(cStringIO.StringIO(coverdata))
+            im.thumbnail((96, 144), Image.ANTIALIAS)
 
-        if not coverdata:
-            draw = ImageDraw.Draw(im)
-            draw.text((0, 29), metadata.title)
-            draw.text((0, 115), ', '.join(metadata.authors))
+            x, y = im.size
+            cover.paste(im, ((96-x)/2, (144-y)/2))
+
+            draw = ImageDraw.Draw(cover)
+            draw.text((1, 15), metadata.title)
+            draw.text((1, 115), ', '.join(metadata.authors))
 
         data = cStringIO.StringIO()
-        im.save(data, 'JPG')
+        cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with open('%s.jpg' % os.path.join(path, name), 'wb') as coverfile:
+        with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
             coverfile.write(coverdata)
 
     def windows_sort_drives(self, drives):

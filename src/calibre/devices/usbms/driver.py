@@ -111,11 +111,7 @@ class USBMS(CLI, Device):
             paths.append(filepath)
 
             self.put_file(infile, filepath, replace_file=True)
-
-            coverdata = mdata.get('cover', None)
-            if coverdata:
-                coverdata = coverdata[2]
-            self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], coverdata, mdata)
+            self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], mdata)
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
@@ -123,11 +119,11 @@ class USBMS(CLI, Device):
 
         return zip(paths, cycle([on_card]))
 
-    def upload_cover(self, path, name, coverdata):
+    def upload_cover(self, path, filename, metadata):
         '''
         :path: the full path were the associated book is located.
-        :name: the name of the book file without the extension.
-        :coverdata: cover data in jpeg format.
+        :filename: the name of the book file without the extension.
+        :metatdata: metadata belonging to the book. metadata.cover[2] for coverdata.
         '''
         pass
 
