@@ -88,9 +88,9 @@ class MobipocketInput(InputProfile):
 
 class HanlinV3Input(InputProfile):
 
-    name        = 'Hanlin V3'
+    name        = 'Hanlin V3/V5'
     short_name  = 'hanlinv3'
-    description = _('This profile is intended for the Hanlin V3 and its clones.')
+    description = _('This profile is intended for the Hanlin V3/V5 and its clones.')
 
     # Screen size is a best guess
     screen_size               = (584, 754)
@@ -159,9 +159,23 @@ class IRexDR1000Input(InputProfile):
     fbase                     = 16
     fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
+
+class NookInput(InputProfile):
+
+    author      = 'John Schember'
+    name        = 'Nook'
+    short_name  = 'nook'
+    description = _('This profile is intended for the B&N Nook.')
+
+    # Screen size is a best guess
+    screen_size               = (600, 800)
+    dpi                       = 167
+    fbase                     = 16
+    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
 input_profiles = [InputProfile, SonyReaderInput, MSReaderInput,
         MobipocketInput, HanlinV3Input, CybookG3Input, CybookOpusInput, KindleInput,
-        IlliadInput, IRexDR1000Input]
+        IlliadInput, IRexDR1000Input, NookInput]
 
 
 class OutputProfile(Plugin):
@@ -248,7 +262,7 @@ class MobipocketOutput(OutputProfile):
 
 class HanlinV3Output(OutputProfile):
 
-    name        = 'Hanlin V3'
+    name        = 'Hanlin V3/V5'
     short_name  = 'hanlinv3'
     description = _('This profile is intended for the Hanlin V3/V5 and its clones.')
 
@@ -341,7 +355,20 @@ class IRexDR1000Output(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 14, 16, 18, 20, 22, 24]
 
+class NookOutput(OutputProfile):
+
+    author      = 'John Schember'
+    name        = 'Nook'
+    short_name  = 'nook'
+    description = _('This profile is intended for the B&N Nook.')
+
+    # Screen size is a best guess
+    screen_size               = (600, 800)
+    dpi                       = 167
+    fbase                     = 16
+    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
 output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
         MobipocketOutput, HanlinV3Output, CybookG3Output, CybookOpusOutput,
         KindleOutput, SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
-        IRexDR1000Output, JetBook5Output]
+        IRexDR1000Output, JetBook5Output, NookOutput]
