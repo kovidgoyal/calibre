@@ -775,6 +775,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         _(' detected.'), 3000)
             self.device_connected = True
             self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix())
+            self.location_view.model().device_connected(self.device_manager.device)
         else:
             self.save_device_view_settings()
             self.device_connected = False

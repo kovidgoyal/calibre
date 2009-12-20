@@ -295,7 +295,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         # This is typically needed when the device has the same
         # WINDOWS_MAIN_MEM and WINDOWS_CARD_A_MEM in which case
-        # if the devices is connected without a card, the above
+        # if the device is connected without a card, the above
         # will incorrectly identify the main mem as carda
         # See for example the driver for the Nook
         if 'main' not in drives and 'carda' in drives:

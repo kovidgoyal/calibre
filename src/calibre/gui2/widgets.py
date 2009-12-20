@@ -242,6 +242,10 @@ class LocationModel(QAbstractListModel):
 
         return data
 
+    def device_connected(self, dev):
+        self.icons[1] = QIcon(dev.icon)
+        self.dataChanged.emit(self.index(1), self.index(1))
+
     def headerData(self, section, orientation, role):
         return NONE
 
