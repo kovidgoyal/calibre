@@ -115,7 +115,7 @@ class USBMS(CLI, Device):
             coverdata = mdata.get('cover', None)
             if coverdata:
                 coverdata = coverdata[2]
-            self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], coverdata)
+            self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], coverdata, mdata)
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 

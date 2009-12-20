@@ -8,6 +8,14 @@ __docformat__ = 'restructuredtext en'
 Device driver for Barns and Nobel's Nook
 '''
 
+try:
+    from PIL import Image, ImageDraw
+    Image
+except ImportError:
+    import Image
+
+import cStringIO
+
 from calibre.devices.usbms.driver import USBMS
 
 class NOOK(USBMS):
@@ -38,10 +46,24 @@ class NOOK(USBMS):
     EBOOK_DIR_MAIN = 'my documents'
     SUPPORTS_SUB_DIRS = True
 
-    def upload_cover(self, path, name, coverdata):
-        if coverdata:
-            with open('%s.jpg' % os.path.join(path, name), 'wb') as coverfile:
-                coverfile.write(coverdata)
+    def upload_cover(self, path, name, coverdata, metadata):
+        if not coverdata:
+            coverdata = open(I('library.png'), 'rb').read()
+
+        im = Image.open(cStringIO.StringIO(coverdata))
+        im.thumbnail((96, 144), Image.ANTIALIAS)
+
+        if not coverdata:
+            draw = ImageDraw.Draw(im)
+            draw.text((0, 29), metadata.title)
+            draw.text((0, 115), ', '.join(metadata.authors))
+
+        data = cStringIO.StringIO()
+        im.save(data, 'JPG')
+        coverdata = data.getvalue()
+
+        with open('%s.jpg' % os.path.join(path, name), 'wb') as coverfile:
+            coverfile.write(coverdata)
 
     def windows_sort_drives(self, drives):
         main = drives.get('main', None)
