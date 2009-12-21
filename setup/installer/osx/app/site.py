@@ -11,11 +11,15 @@ def makepath(*paths):
     dir = os.path.abspath(os.path.join(*paths))
     return dir, os.path.normcase(dir)
 
-for m in sys.modules.values():
-    f = getattr(m, '__file__', None)
-    if isinstance(f, basestring) and os.path.exists(f):
-        m.__file__ = os.path.abspath(m.__file__)
-del m
+def abs__file__():
+    """Set all module __file__ attribute to an absolute path"""
+    for m in sys.modules.values():
+        if hasattr(m, '__loader__'):
+            continue   # don't mess with a PEP 302-supplied __file__
+        try:
+            m.__file__ = os.path.abspath(m.__file__)
+        except AttributeError:
+            continue
 
 # This ensures that the initial path provided by the interpreter contains
 # only absolute pathnames, even if we're running from the build directory.
@@ -104,3 +108,42 @@ sys.setdefaultencoding('utf-8')
 #
 if hasattr(sys, "setdefaultencoding"):
     del sys.setdefaultencoding
+
+def run_entry_point():
+    bname, mod, func = sys.calibre_basename, sys.calibre_module, sys.calibre_function
+    sys.argv[0] = bname
+    pmod = __import__(mod, fromlist=[1], level=0)
+    return getattr(pmod, func)()
+
+def add_calibre_vars(base):
+    sys.frameworks_dir = os.path.join(os.path.dirname(base), 'Frameworks')
+    sys.resources_location = os.path.abspath(os.path.join(base, 'resources'))
+    sys.extensions_location = os.path.join(sys.frameworks_dir, 'plugins')
+    sys.binaries_path = os.path.join(os.path.dirname(base), 'MacOS')
+    sys.console_binaries_path = os.path.join(os.path.dirname(base),
+        'console.app', 'Contents', 'MacOS')
+
+    dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+    if dv and os.path.exists(dv):
+        sys.path.insert(0, os.path.abspath(dv))
+
+
+def main():
+    global __file__
+    base = sys.resourcepath
+
+    sys.frozen = 'macosx_app'
+    sys.new_app_bundle = True
+    abs__file__()
+
+    add_calibre_vars(base)
+    addsitedir(sys.site_packages)
+
+
+    for arg in list(sys.argv[1:]):
+        if arg.startswith('-psn'):
+            sys.argv.remove(arg)
+
+    return run_entry_point()
+
+

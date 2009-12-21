@@ -10,33 +10,58 @@ import sys, os, shutil, plistlib, subprocess, glob, zipfile, tempfile, \
     py_compile, stat, operator
 abspath, join, basename = os.path.abspath, os.path.join, os.path.basename
 
-#TODO: WMF support in ImageMagick
-
-l = {}
-exec open('setup.py').read() in l
-VERSION = l['VERSION']
-APPNAME = l['APPNAME']
-scripts = l['scripts']
-basenames = l['basenames']
-main_functions = l['main_functions']
-main_modules = l['main_modules']
+from setup import __version__ as VERSION, __appname__ as APPNAME, basenames, \
+        modules as main_modules, Command, SRC, functions as main_functions
 LICENSE = open('LICENSE', 'rb').read()
 ENV = dict(
-        PYTHONPATH='@executable_path/../Resources/Python/site-packages',
-        PYTHONHOME='@executable_path/../Resources/Python',
         FC_CONFIG_DIR='@executable_path/../Resources/fonts',
         MAGICK_HOME='@executable_path/../Frameworks/ImageMagick',
         QT_PLUGIN_PATH='@executable_path/../MacOS',
-        PYTHONDONTWRITEBYTECODE='1',
-        PYTHONIOENCODING='utf-8:replace',
-        PYTHONOPTIMIZE='2',
+        PYTHONIOENCODING='UTF-8',
         )
 
 SW = os.environ.get('SW', '/sw')
 
-def compile_launchers(contents_dir, xprograms):
+info = warn = None
+
+class OSX32_Freeze(Command):
+
+    description = 'Freeze OSX calibre installation'
+
+    def add_options(self, parser):
+        parser.add_option('--test-launchers', default=False,
+                action='store_true',
+                help='Only build launchers')
+
+
+    def run(self, opts):
+        global info, warn
+        info, warn = self.info, self.warn
+        main(opts.test_launchers)
+
+def compile_launcher_lib(contents_dir, gcc, base):
+    info('\tCompiling calibre_launcher.dylib')
+    fd = join(contents_dir, 'Frameworks')
+    dest = join(fd, 'calibre-launcher.dylib')
+    src = join(base, 'util.c')
+    cmd = [gcc] + '-Wall -arch i386 -arch ppc -dynamiclib -std=gnu99'.split() + [src] + \
+            ['-I'+base] + \
+            ['-I%s/python/Python.framework/Headers'%SW] + \
+            '-current_version 1.0 -compatibility_version 1.0'.split() + \
+            '-fvisibility=hidden -o'.split() + [dest, '-F%s/python'%SW] + \
+            ['-install_name',
+                '@executable_path/../Frameworks/'+os.path.basename(dest)] + \
+            ['-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
+    info('\t'+' '.join(cmd))
+    sys.stdout.flush()
+    subprocess.check_call(cmd)
+    return dest
+
+
+def compile_launchers(contents_dir, xprograms, pyver):
     gcc = os.environ.get('CC', 'gcc')
     base = os.path.dirname(__file__)
+    lib = compile_launcher_lib(contents_dir, gcc, base)
     src = open(join(base, 'launcher.c'), 'rb').read()
     env, env_vals = [], []
     for key, val in ENV.items():
@@ -46,22 +71,23 @@ def compile_launchers(contents_dir, xprograms):
     env_vals = ', '.join(env_vals)+', '
     src = src.replace('/*ENV_VARS*/', env)
     src = src.replace('/*ENV_VAR_VALS*/', env_vals)
-    programs = []
-    for program, module in xprograms.items():
-        print '\tCompiling', program
+    programs = [lib]
+    for program, x in xprograms.items():
+        module, func = x
+        info('\tCompiling', program)
         out = join(contents_dir, 'MacOS', program)
         programs.append(out)
         psrc = src.replace('**PROGRAM**', program)
         psrc = psrc.replace('**MODULE**', module)
+        psrc = psrc.replace('**FUNCTION**', func)
+        psrc = psrc.replace('**PYVER**', pyver)
         fsrc = '/tmp/%s.c'%program
         with open(fsrc, 'wb') as f:
             f.write(psrc)
-        cmd = [gcc, '-Wall', '-arch', 'x86_64',
-            '-I%s/python/Python.framework/Headers'%SW,
-            fsrc, '-o', out, '-F%s/python'%SW,
-            '-framework', 'Python', '-framework', 'CoreFoundation',
+        cmd = [gcc, '-Wall', '-arch', 'ppc', '-arch', 'i386',
+                '-I'+base, fsrc, lib, '-o', out,
             '-headerpad_max_install_names']
-        print ' '.join(cmd)
+        info('\t'+' '.join(cmd))
         sys.stdout.flush()
         subprocess.check_call(cmd)
     return programs
@@ -81,7 +107,7 @@ def flipwritable(fn, mode=None):
 def thin(path):
     try:
         subprocess.check_call(['lipo', path, '-verify_arch', 'ppc64'])
-        print '\tThinning', path
+        info('\tThinning', path)
     except:
         return
     else:
@@ -92,7 +118,7 @@ def strip_files(files, argv_max=(256 * 1024)):
     """
     Strip a list of files
     """
-    tostrip = [(fn, flipwritable(fn)) for fn in files]
+    tostrip = [(fn, flipwritable(fn)) for fn in files if os.path.exists(fn)]
     while tostrip:
         cmd = list(STRIPCMD)
         flips = []
@@ -125,61 +151,66 @@ class Py2App(object):
 
     FID = '@executable_path/../Frameworks'
 
-    def __init__(self, build_dir):
+    def __init__(self, build_dir, test_launchers=False):
         self.build_dir = build_dir
         self.contents_dir = join(self.build_dir, 'Contents')
         self.resources_dir = join(self.contents_dir, 'Resources')
         self.frameworks_dir = join(self.contents_dir, 'Frameworks')
         self.version_info = '.'.join(map(str, sys.version_info[:2]))
+        self.site_packages = join(self.resources_dir, 'Python', 'site-packages')
         self.to_strip = []
         self.warnings = []
 
+        self.run(test_launchers)
+
     def warn(self, *args):
-        self.warnings.append(args)
-        prefix = '' if args and args[0].startswith('WARNING:') else 'WARNING: '
-        sys.stdout.write(prefix+' '.join(args)+'\n')
-        sys.stdout.flush()
+        warn(*args)
 
+    def run(self, test_launchers):
+        ret = 0
+        if not test_launchers:
+            if os.path.exists(self.build_dir):
+                shutil.rmtree(self.build_dir)
+            os.makedirs(self.build_dir)
+            self.create_skeleton()
+            self.create_plist()
 
-    def run(self):
-        self.create_skeleton()
-        self.create_plist()
+            self.add_python_framework()
+            self.add_qt_frameworks()
+            self.add_calibre_plugins()
+            self.add_podofo()
+            self.add_poppler()
+            self.add_libjpeg()
+            self.add_libpng()
+            self.add_fontconfig()
+            self.add_imagemagick()
+            self.add_misc_libraries()
 
-        self.add_python_framework()
-        self.add_qt_frameworks()
-        self.add_calibre_plugins()
-        self.add_podofo()
-        self.add_poppler()
-        self.add_libjpeg()
-        self.add_libpng()
-        self.add_fontconfig()
-        self.add_imagemagick()
-        self.add_misc_libraries()
+            self.add_site_packages()
+            self.add_stdlib()
+            self.add_resources()
+            self.compile_py_modules()
 
-        self.add_site_packages()
-        self.add_stdlib()
-        self.compile_py_modules()
+            self.create_console_app()
 
-        self.create_console_app()
-
-        self.copy_launcher_and_site()
+        self.copy_site()
         self.create_exe()
-        self.thin_to_x86_64()
-        self.strip_files()
+        if not test_launchers:
+            #self.thin_to_x86_64()
+            self.strip_files()
 
-        ret = self.makedmg(self.build_dir, APPNAME+'-'+VERSION+'-x86_64')
-        sys.stdout.flush()
-        sys.stderr.flush()
+        ret = self.makedmg(self.build_dir, APPNAME+'-'+VERSION)
 
-        print '\nThere were', len(self.warnings), 'warnings'
-        for w in list(self.warnings):
-            print
-            self.warn(*w)
         return ret
 
     @flush
+    def add_resources(self):
+        shutil.copytree('resources', os.path.join(self.resources_dir,
+            'resources'))
+
+    @flush
     def thin_to_x86_64(self):
-        print '\nThinning to x86_64'
+        info('\nThinning to x86_64')
         for y in (self.frameworks_dir, join(self.resources_dir, 'Python')):
             for x in os.walk(y):
                 for f in x[-1]:
@@ -192,24 +223,22 @@ class Py2App(object):
 
     @flush
     def strip_files(self):
-        print '\nStripping files...'
+        info('\nStripping files...')
         strip_files(self.to_strip)
 
     @flush
     def create_exe(self):
-        print '\nCreating launchers'
+        info('\nCreating launchers')
         programs = {}
-        for program, module in zip(basenames['console'],
-                main_modules['console'])+zip(basenames['gui'],
-                main_modules['gui']):
-            programs[program] = module
-        programs = compile_launchers(self.contents_dir, programs)
+        progs = []
+        for x in ('console', 'gui'):
+            progs += list(zip(basenames[x], main_modules[x], main_functions[x]))
+        for program, module, func in progs:
+            programs[program] = (module, func)
+        programs = compile_launchers(self.contents_dir, programs,
+                self.version_info)
         for out in programs:
             self.fix_dependencies_in_lib(out)
-        for module in main_modules['console'] + main_modules['gui']:
-            base = join(*module.split('.'))+'.py'
-            shutil.copy2(join('src', base),
-                    join(self.resources_dir, 'Python', 'site-packages', base))
 
     @flush
     def set_id(self, path_to_lib, new_id):
@@ -233,20 +262,20 @@ class Py2App(object):
     def get_local_dependencies(self, path_to_lib):
         for x in self.get_dependencies(path_to_lib):
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
-                    SW+'/python/'):
+                    SW+'/python/', SW+'/freetype/lib/'):
                 if x.startswith(y):
                     yield x, x[len(y):]
                     break
 
     @flush
     def change_dep(self, old_dep, new_dep, path_to_lib):
-        print '\tResolving dependency %s to'%old_dep, new_dep
+        info('\tResolving dependency %s to'%old_dep, new_dep)
         subprocess.check_call(['install_name_tool', '-change', old_dep, new_dep,
             path_to_lib])
 
     @flush
     def fix_dependencies_in_lib(self, path_to_lib):
-        print '\nFixing dependencies in', path_to_lib
+        info('\nFixing dependencies in', path_to_lib)
         self.to_strip.append(path_to_lib)
         old_mode = flipwritable(path_to_lib)
         for dep, bname in self.get_local_dependencies(path_to_lib):
@@ -259,7 +288,7 @@ class Py2App(object):
 
     @flush
     def add_python_framework(self):
-        print '\nAdding Python framework'
+        info('\nAdding Python framework')
         src = join(SW, 'python', 'Python.framework')
         x = join(self.frameworks_dir, 'Python.framework')
         curr = os.path.realpath(join(src, 'Versions', 'Current'))
@@ -274,7 +303,7 @@ class Py2App(object):
     @flush
     def add_qt_frameworks(self):
         for f in ('QtCore', 'QtGui', 'QtXml', 'QtNetwork', 'QtSvg', 'QtWebkit',
-                'phonon'):
+                'QtXmlPatterns', 'phonon'):
             self.add_qt_framework(f)
         for d in glob.glob(join(SW, 'qt', 'plugins', '*')):
             shutil.copytree(d, join(self.contents_dir, 'MacOS', basename(d)))
@@ -353,30 +382,30 @@ class Py2App(object):
 
     @flush
     def add_podofo(self):
-        print '\nAdding PoDoFo'
+        info('\nAdding PoDoFo')
         pdf = join(SW, 'lib', 'libpodofo.0.6.99.dylib')
         self.install_dylib(pdf)
 
     @flush
     def add_poppler(self):
-        print '\nAdding poppler'
-        for x in ('libpoppler.4.dylib', 'libpoppler-qt4.3.dylib'):
+        info('\nAdding poppler')
+        for x in ('libpoppler.5.dylib', 'libpoppler-qt4.3.dylib'):
             self.install_dylib(os.path.join(SW, 'lib', x))
         self.install_dylib(os.path.join(SW, 'bin', 'pdftohtml'), False)
 
     @flush
     def add_libjpeg(self):
-        print '\nAdding libjpeg'
+        info('\nAdding libjpeg')
         self.install_dylib(os.path.join(SW, 'lib', 'libjpeg.7.dylib'))
 
     @flush
     def add_libpng(self):
-        print '\nAdding libpng'
+        info('\nAdding libpng')
         self.install_dylib(os.path.join(SW, 'lib', 'libpng12.0.dylib'))
 
     @flush
     def add_fontconfig(self):
-        print '\nAdding fontconfig'
+        info('\nAdding fontconfig')
         for x in ('fontconfig.1', 'freetype.6', 'expat.1'):
             src = os.path.join(SW, 'lib', 'lib'+x+'.dylib')
             self.install_dylib(src)
@@ -400,7 +429,7 @@ class Py2App(object):
 
     @flush
     def add_imagemagick(self):
-        print '\nAdding ImageMagick'
+        info('\nAdding ImageMagick')
         for x in ('Wand', 'Core'):
             self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.2.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
@@ -419,16 +448,15 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
-        for x in ('usb', 'unrar', 'readline.6.0'):
-            print '\nAdding', x
+        for x in ('usb', 'unrar', 'readline.6.0', 'wmflite-0.2.7'):
+            info('\nAdding', x)
             x = 'lib%s.dylib'%x
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
             self.set_id(join(self.frameworks_dir, x), self.FID+'/'+x)
 
     @flush
     def add_site_packages(self):
-        print '\nAdding site-packages'
-        self.site_packages = join(self.resources_dir, 'Python', 'site-packages')
+        info('\nAdding site-packages')
         os.makedirs(self.site_packages)
         paths = reversed(map(abspath, [x for x in sys.path if x.startswith('/')]))
         upaths = []
@@ -455,12 +483,12 @@ class Py2App(object):
             finally:
                 if tdir is not None:
                     shutil.rmtree(tdir)
+        shutil.rmtree(os.path.join(self.site_packages, 'calibre', 'plugins'))
         self.remove_bytecode(join(self.resources_dir, 'Python', 'site-packages'))
 
     @flush
     def add_modules_from_dir(self, src):
         for x in glob.glob(join(src, '*.py'))+glob.glob(join(src, '*.so')):
-            dest = join(self.site_packages, basename(x))
             shutil.copy2(x, self.site_packages)
             if x.endswith('.so'):
                 self.fix_dependencies_in_lib(x)
@@ -507,7 +535,7 @@ class Py2App(object):
 
     @flush
     def add_stdlib(self):
-        print '\nAdding python stdlib'
+        info('\nAdding python stdlib')
         src = join(SW, 'python/Python.framework/Versions/Current/lib/python')
         src += self.version_info
         dest = join(self.resources_dir, 'Python', 'lib', 'python')
@@ -537,7 +565,7 @@ class Py2App(object):
 
     @flush
     def compile_py_modules(self):
-        print '\nCompiling Python modules'
+        info( '\nCompiling Python modules')
         base = join(self.resources_dir, 'Python')
         for x in os.walk(base):
             root = x[0]
@@ -553,7 +581,7 @@ class Py2App(object):
 
     @flush
     def create_console_app(self):
-        print '\nCreating console.app'
+        info( '\nCreating console.app')
         cc_dir = os.path.join(self.contents_dir, 'console.app', 'Contents')
         os.makedirs(cc_dir)
         for x in os.listdir(self.contents_dir):
@@ -568,9 +596,8 @@ class Py2App(object):
                            join(cc_dir, x))
 
     @flush
-    def copy_launcher_and_site(self):
+    def copy_site(self):
         base = os.path.dirname(__file__)
-        shutil.copy2(join(base, 'launcher.py'), self.resources_dir)
         shutil.copy2(join(base, 'site.py'), join(self.resources_dir, 'Python',
             'lib', 'python'+self.version_info))
 
@@ -581,7 +608,7 @@ class Py2App(object):
                 internet_enable=True,
                 format='UDBZ'):
         ''' Copy a directory d into a dmg named volname '''
-        print '\nCreating dmg'
+        info('\nCreating dmg')
         sys.stdout.flush()
         if not os.path.exists(destdir):
             os.makedirs(destdir)
@@ -593,7 +620,7 @@ class Py2App(object):
         if internet_enable:
            subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
         size = os.stat(dmg).st_size/(1024*1024.)
-        print '\nInstaller size: %.2fMB\n'%size
+        info('\nInstaller size: %.2fMB\n'%size)
         return dmg
 
 def test_exe():
@@ -603,15 +630,11 @@ def test_exe():
     return 0
 
 
-def main():
+def main(test=False):
     if 'test_exe' in sys.argv:
         return test_exe()
-    build_dir = abspath(join('build', APPNAME+'.app'))
-    if os.path.exists(build_dir):
-        shutil.rmtree(build_dir)
-    os.makedirs(build_dir)
-    py2app = Py2App(build_dir)
-    py2app.run()
+    build_dir = abspath(join(os.path.dirname(SRC), 'build', APPNAME+'.app'))
+    Py2App(build_dir, test_launchers=test)
     return 0
 
 
