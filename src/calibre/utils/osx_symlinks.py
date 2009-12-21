@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, cPickle
+from calibre.constants import isnewosx
 
 AUTHTOOL="""#!/usr/bin/python
 import os
@@ -27,7 +28,7 @@ for s, l in zip(scripts, links):
 DEST_PATH = '/usr/bin'
 
 def create_symlinks():
-    return create_symlinks_new() if getattr(sys, 'new_app_bundle', False) else create_symlinks_old()
+    return create_symlinks_new() if isnewosx else create_symlinks_old()
 
 def get_scripts():
     return cPickle.load(open(P('scripts.pickle'), 'rb'))

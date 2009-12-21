@@ -46,7 +46,10 @@ class PersistentTemporaryFile(object):
         self.close()
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except:
+            pass
 
 
 def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):

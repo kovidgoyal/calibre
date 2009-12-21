@@ -11,8 +11,6 @@ from math import floor
 warnings.simplefilter('ignore', DeprecationWarning)
 
 
-from PyQt4.QtCore import QUrl
-from PyQt4.QtGui  import QDesktopServices
 from calibre.startup import plugins, winutil, winutilerror
 from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               terminal_controller, preferred_encoding, \
@@ -139,9 +137,6 @@ def prints(*args, **kwargs):
 
 class CommandLineError(Exception):
     pass
-
-
-
 
 def setup_cli_handlers(logger, level):
     if os.environ.get('CALIBRE_WORKER', None) is not None and logger.handlers:
@@ -347,6 +342,8 @@ def detect_ncpus():
 
 
 def launch(path_or_url):
+    from PyQt4.QtCore import QUrl
+    from PyQt4.QtGui  import QDesktopServices
     if os.path.exists(path_or_url):
         path_or_url = 'file:'+path_or_url
     QDesktopServices.openUrl(QUrl(path_or_url))
@@ -456,6 +453,60 @@ def ipython(user_ns=None):
     from calibre.utils.config import config_dir
     ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
     os.environ['IPYTHONDIR'] = ipydir
+    if not os.path.exists(ipydir):
+        os.makedirs(ipydir)
+    rc = os.path.join(ipydir, 'ipythonrc')
+    if not os.path.exists(rc):
+        open(rc, 'wb').write(' ')
+    UC = '''
+import IPython.ipapi
+ip = IPython.ipapi.get()
+
+# You probably want to uncomment this if you did %upgrade -nolegacy
+import ipy_defaults
+
+import os, re, sys
+
+def main():
+    # Handy tab-completers for %cd, %run, import etc.
+    # Try commenting this out if you have completion problems/slowness
+    import ipy_stock_completers
+
+    # uncomment if you want to get ipython -p sh behaviour
+    # without having to use command line switches
+
+    import ipy_profile_sh
+
+
+    # Configure your favourite editor?
+    # Good idea e.g. for %edit os.path.isfile
+
+    import ipy_editors
+
+    # Choose one of these:
+
+    #ipy_editors.scite()
+    #ipy_editors.scite('c:/opt/scite/scite.exe')
+    #ipy_editors.komodo()
+    #ipy_editors.idle()
+    # ... or many others, try 'ipy_editors??' after import to see them
+
+    # Or roll your own:
+    #ipy_editors.install_editor("c:/opt/jed +$line $file")
+
+    ipy_editors.kate()
+
+    o = ip.options
+    # An example on how to set options
+    #o.autocall = 1
+    o.system_verbose = 0
+    o.confirm_exit = 0
+
+main()
+    '''
+    uc = os.path.join(ipydir, 'ipy_user_conf.py')
+    if not os.path.exists(uc):
+        open(uc, 'wb').write(UC)
     from IPython.Shell import IPShellEmbed
     ipshell = IPShellEmbed(user_ns=user_ns)
     ipshell()

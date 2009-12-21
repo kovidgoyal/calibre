@@ -1,0 +1,96 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class WatchingAmericaRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en'
+    version = 1
+
+    title = u'Watching America'
+    publisher = u'watchingamerica.com'
+    category = u'News'
+    description = u'Global opinion about the United States'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    use_embedded_content = False
+
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['style']
+
+    extra_css = '''
+                    body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}
+                    .main_content em {font-size: x-small; font-style: italic; color: #696969;}
+                    .main_content span strong {font-size: x-large; font-weight: bold;}
+                    .insideitro {font-size: xx-small; font-style: italic; color: #666666;}
+                    span {padding: 0em; margin 0em;}
+                '''
+
+    INDEX = u'http://watchingamerica.com/News/'
+
+    def parse_index(self):
+        answer = []
+
+        soup = self.index_to_soup(self.INDEX)
+
+        articles = []
+        feature = soup.find('div', attrs = {'id': 'headzone'})
+        if feature:
+            link = feature.find('a', attrs = {'class': 'feature'})
+            url = link.get('href', None)
+            title = self.tag_to_string(link)
+            description = self.tag_to_string(feature.find('h1', attrs = {'class': 'pull'}))
+            article = {'title': title, 'date': u'', 'url': url, 'description': description}
+            articles.append(article)
+            answer.append(('Feature', articles))
+
+        feed_titles = ['Translations from the West', 'Translations from the East']
+        for i in range(1, 3):
+            articles = []
+            div = soup.find('div', attrs = {'class': 'newscol' + str(i)})
+            if div:
+                for link in div.findAll('a', attrs = {'class': 'headline'}):
+                    url = link.get('href', None)
+                    title = self.tag_to_string(link)
+
+                    description = None
+                    h3 = link.findNextSibling('h3')
+                    if h3:
+                        description = self.tag_to_string(h3)
+
+                    article = {'title': title, 'date': u'', 'url': url, 'description': description}
+                    articles.append(article)
+            answer.append((feed_titles[i - 1], articles))
+
+        return answer
+
+    def preprocess_html(self, soup):
+        freshSoup = self.get_fresh_soup(soup)
+        article = soup.find('p', attrs = {'class': 'MsoNormal'}).parent
+        if article:
+            article.name = 'div'
+            del article['width']
+            article['class'] = 'main_content'
+            org = article.find('a', attrs = {'href': '?SHOW_ORIGINAL_TEXT'})
+            if org:
+                org.parent.extract()
+
+            intro = article.find('span', attrs = {'class': 'insideitro'})
+            if intro:
+                for el in intro.findAll(['strong', 'em', 'br']):
+                    if el.name == 'br':
+                        el.extract()
+                    else:
+                        el.name = 'div'
+
+            freshSoup.body.append(article)
+
+        return freshSoup
+
+    def get_fresh_soup(self, oldSoup):
+        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
+        if oldSoup.head.title:
+            freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
+        return freshSoup

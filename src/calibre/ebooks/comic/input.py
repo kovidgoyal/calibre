@@ -8,6 +8,7 @@ Based on ideas from comiclrf created by FangornUK.
 '''
 
 import os, shutil, traceback, textwrap, time
+from ctypes import byref
 from Queue import Empty
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
@@ -75,7 +76,10 @@ class PageProcessor(list):
         if img < 0:
             raise RuntimeError('Cannot create wand.')
         if not pw.MagickReadImage(img, self.path_to_page):
-            raise IOError('Failed to read image from: %'%self.path_to_page)
+            severity = pw.ExceptionType(0)
+            msg = pw.MagickGetException(img, byref(severity))
+            raise IOError('Failed to read image from: %s: %s'
+                    %(self.path_to_page, msg))
         width  = pw.MagickGetImageWidth(img)
         height = pw.MagickGetImageHeight(img)
         if self.num == 0: # First image so create a thumbnail from it
@@ -363,14 +367,14 @@ class ComicInput(InputFormatPlugin):
         else:
             new_pages, failures = process_pages(new_pages, self.opts,
                     self.report_progress, tdir2)
-            if not new_pages:
-                raise ValueError('Could not find any valid pages in comic: %s'
-                        % comic)
             if failures:
                 self.log.warning('Could not process the following pages '
                 '(run with --verbose to see why):')
                 for f in failures:
                     self.log.warning('\t', f)
+            if not new_pages:
+                raise ValueError('Could not find any valid pages in comic: %s'
+                        % comic)
             thumbnail = os.path.join(tdir2,
                     'thumbnail.'+self.opts.output_format.lower())
             if not os.access(thumbnail, os.R_OK):
