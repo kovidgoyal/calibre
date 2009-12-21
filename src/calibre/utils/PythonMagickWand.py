@@ -828,7 +828,7 @@ else:
     IsMagickWand = _magick.IsMagickWand
 #   MagickGetException
 try:
-    _magick.MagickGetException.restype = ctypes.POINTER(ctypes.c_char)
+    _magick.MagickGetException.restype = ctypes.c_char_p
     _magick.MagickGetException.argtypes = (MagickWand,ctypes.POINTER(ExceptionType))
 except AttributeError,e:
     pass
