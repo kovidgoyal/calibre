@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-18 20:18+0000\n"
-"PO-Revision-Date: 2009-12-18 20:18+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-12-20 20:45+0000\n"
+"Last-Translator: Andrew V. Skvortsov <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-19 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-12-21 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -185,6 +185,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"Создать PMLZ-архив, содержащий  PML-файл и все изображения в директорях "
+"pmlname_img либо images. Этот плагин запускается каждый раз когда в "
+"библиотеку добавляется  PML-файл."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:87
 msgid "Extract cover from comic files"
@@ -342,7 +345,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:253
 msgid "This profile is intended for the Hanlin V3/V5 and its clones."
-msgstr "Этот профиль предназначен для Hanlin V3/V5 и его клонов."
+msgstr "Этот профиль предназначен для формата Hanlin V3/V5 и её клонов."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:306
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -513,15 +516,15 @@ msgstr "Соединяться с Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Подключен к Nokia 770 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr ""
+msgstr "Подключен к Nokia 810 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:16
 msgid "The Nook"
-msgstr ""
+msgstr "Укромный уголок"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:17
 msgid "Communicate with the Nook eBook reader."
@@ -645,7 +648,7 @@ msgstr "Получить метаданные из файлов на устро�
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:73
 msgid "Extra customization"
-msgstr ""
+msgstr "Дополнительная настройка"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:29
 msgid "Communicate with an eBook reader."
@@ -759,9 +762,8 @@ msgid ""
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr ""
-"Формат, в который конвертируются картинки для книги. Вы можете "
-"поэкспериментировать, чтобы увидеть, какой формат дает оптимальный размер и "
-"вид на вашем устройстве."
+"Формат картинок в созданной книге. Вы можете подбирать нужный Вам формат с "
+"оптимальным размером и отображением на вашем устройстве."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:308
 msgid "Apply no processing to the image"
@@ -1384,6 +1386,10 @@ msgid ""
 "can result in various nasty side effects in the rest of of the conversion "
 "pipeline."
 msgstr ""
+"Обычно этот плагин ввода перераспределяет все входные файлы по стандартной "
+"иерархии папок. Используйте эту опцию только в том случае, если Вы уверены в "
+"том, что делаете, иначе она может привести к непредсказуемым побочным "
+"эффектам."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:267
 msgid ""
@@ -1762,7 +1768,7 @@ msgstr "Права"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazon.py:77
 msgid "EDITORIAL REVIEW"
-msgstr ""
+msgstr "ПРОСМОТР РЕДАКТИРОВАНИЯ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:19
 msgid "options"
@@ -1781,6 +1787,18 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Прочитать/Записать метаданные из/в файл книги.\n"
+"\n"
+"Поддерживаемые форматы для чтения метаданных: %s\n"
+"\n"
+"Поддерживаемые форматы для записи метаданных: %s\n"
+"\n"
+"Разные типы файлов поддерживают разные поля метаданных. Если Вы пробуете "
+"установить\n"
+"некоторые метаданные в файл типа которые не поддерживается им, то такие "
+"метаданные будут\n"
+"проигнорированы.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:39
 msgid ""
@@ -1849,11 +1867,11 @@ msgstr "Обложка сохранена"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:196
 msgid "No cover found"
-msgstr ""
+msgstr "Обложка отсутствует"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:34
 msgid "Metadata download"
-msgstr ""
+msgstr "Загрузка метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:111
 msgid "ratings"
@@ -1869,25 +1887,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:113
 msgid "Download %s from %s"
-msgstr ""
+msgstr "Загрузка %s из %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:137
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Загрузка метаданных из Книг Google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Загрузка метаданных из isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
 msgstr ""
+"Для использования isbndb.com вы должны подписаться %sfree account%s и ввести "
+"перед этим ваш ключ доступа."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:189
 msgid "Downloads social metadata from amazon.com"
-msgstr ""
+msgstr "Загрузить общедоступные метаданные из amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:94
 msgid ""
@@ -1963,7 +1983,7 @@ msgstr "Модифицировать картинки согласно огра�
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr ""
+msgstr "Если имеется поле сортировки по автору, используйте его как автор."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
@@ -1978,11 +1998,11 @@ msgstr "Заголовок для любых сгенерированных in-l
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
-msgstr ""
+msgstr "Отказаться от сжатия содержимого файла."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:102
 msgid "All articles"
-msgstr ""
+msgstr "Все статьи"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1329
 msgid "Title Page"
@@ -2053,11 +2073,12 @@ msgstr "Основной текст"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:53
 msgid "Options to control e-book conversion."
-msgstr ""
+msgstr "Опции контроля преобразования книги."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:60
 msgid "Character encoding for input. Default is to auto detect."
 msgstr ""
+"Кодировка входных символов. По умолчанию используется автоопределение."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/factory.py:62
 msgid "Output file. Default is derived from input filename."
@@ -2085,7 +2106,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:108
 msgid "Book Jacket"
-msgstr ""
+msgstr "Переплет книги"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/split.py:34
 msgid ""
@@ -2095,7 +2116,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
 msgid "Unnamed"
-msgstr ""
+msgstr "Не названо"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -2112,11 +2133,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:126
 msgid "Footnotes"
-msgstr ""
+msgstr "Примечания"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:133
 msgid "Sidebar"
-msgstr ""
+msgstr "Врезка"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/input.py:22
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/input.py:23
@@ -2217,7 +2238,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
-msgstr ""
+msgstr "Опции обрезки:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
@@ -2260,27 +2281,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 msgid "Author"
-msgstr ""
+msgstr "Автор"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:47
 msgid "Subject"
-msgstr ""
+msgstr "Тема"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:48
 msgid "Creator"
-msgstr ""
+msgstr "Автор"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:50
 msgid "Pages"
-msgstr ""
+msgstr "Страницы"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:51
 msgid "File Size"
-msgstr ""
+msgstr "Размер файла"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 msgid "PDF Version"
-msgstr ""
+msgstr "Версия PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:25
 msgid ""
@@ -2293,7 +2314,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
-msgstr ""
+msgstr "Опции объедения:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:25
 msgid ""
@@ -2304,7 +2325,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 msgid "Reverse Options:"
-msgstr ""
+msgstr "Опции возврата:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:24
 msgid ""
@@ -2315,7 +2336,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
-msgstr ""
+msgstr "Опции чередования:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:25
 msgid ""
@@ -2334,7 +2355,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
-msgstr ""
+msgstr "Опции дробления:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
@@ -2347,6 +2368,8 @@ msgid ""
 "The size of the paper. This size will be overridden when an output profile "
 "is used. Default is letter. Choices are %s"
 msgstr ""
+"Размер страницы. Этот размер будет заходить друг на друга  если используется "
+"выходной профайл. По умолчанию формат letter. Выбрано %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
 msgid ""
@@ -2356,7 +2379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
 msgid "The orientation of the page. Default is portrait. Choices are %s"
-msgstr ""
+msgstr "Орентация страницы. По умолчанию портретный. Выбрано %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:52
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -7720,6 +7743,8 @@ msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
+"Полезно при обработке доставки. Устанавливает max_articles_per_feed равным 2 "
+"и загружает максимум 2 подписки."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:36
 msgid "Username for sites that require a login to access content."

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-12-18 20:18+0000\n"
-"PO-Revision-Date: 2009-12-20 01:29+0000\n"
+"PO-Revision-Date: 2009-12-21 01:25+0000\n"
 "Last-Translator: Marc van den Dikkenberg <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-20 04:35+0000\n"
+"X-Launchpad-Export-Date: 2009-12-21 04:42+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
@@ -2399,12 +2399,17 @@ msgid ""
 "compression but the fastest and 10 being the highest compression but the "
 "slowest."
 msgstr ""
+"Specificeer welke comprimeer ratio gebruikt dient te worden. Schaal 1 - 10. "
+"1 is de minste compressie maar het snelst, 10 de hoogste compressie maar het "
+"langzaamst."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:32
 msgid ""
 "Run the text input through the markdown pre-processor. To learn more about "
 "markdown see"
 msgstr ""
+"Voer de text invoer door de markdown pre-processor. Om meer over de markdown "
+"te leren, zie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:24
 msgid ""
@@ -2412,17 +2417,23 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
+"Nieuwe regel type te gebruiken. Opties zijn %s. Standaard is 'system'. "
+"Gebruik 'old_mac' voor compatibiliteit met Mac OS 9 en ouder. Voor Mac OS X "
+"gebruik 'unix'. 'system' zal standaard het nieuwe regel type gebruiken dat "
+"standaard is op dit besturings systeem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8. "
 "Note: This option is not honored by all formats."
 msgstr ""
+"Specificeer de karakter codering van het uitvoer document. De standaard is "
+"utf-8. Deze optie word niet door alle formaten nageleefd."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:54
 msgid "Do not add a blank line between paragraphs."
-msgstr ""
+msgstr "Voeg geen blanco regel in tussen paragrafen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:41
 msgid ""
@@ -2431,20 +2442,30 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
+"Het maximale aantal karakters per regel. Dit splitst op de eerste spatie "
+"voor de betreffende waarde. Als egeen spatie word gevonden, dan zal de regel "
+"worden afgebroken bij de spatie hierna, en zal groter zijn dan de opgegeven "
+"waarde. Er is een minimum van 25 tekens. Gebruik 0 om de regel splitsing uit "
+"te schakelen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:48
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
+"Forceer splitsen op de maximale regel lengte wanneer er geen spatie is. Dit "
+"staat ook toe een maximale regel lengthe te gebruiken die onder de minimum "
+"waarde ligt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:52
 msgid "Add a tab at the beginning of each paragraph."
-msgstr ""
+msgstr "Voeg een tab toe aan het begin van iedere paragraaf."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:27
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
+"Stuur bestand standaard naar de externe opslag ruimte in plaats van het "
+"hoofd geheugen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:29
 msgid "Confirm before deleting"
@@ -2472,7 +2493,7 @@ msgstr "Gebruik Romeinse nummers voor serie nummers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:41
 msgid "Sort tags list by popularity"
-msgstr ""
+msgstr "Sorteer tag lijst by populariteit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:43
 msgid "Number of covers to show in the cover browsing mode"
@@ -2519,10 +2540,12 @@ msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
 msgstr ""
+"Laat de omslag afbeelding in een apart window zien in plaats van calibre's "
+"hoofdscherm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:63
 msgid "Disable notifications from the system tray icon"
-msgstr ""
+msgstr "Schakel notificaties in systeem tray uit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:65
 msgid "Default action to perform when send to device button is clicked"
@@ -2530,44 +2553,45 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:85
 msgid "Maximum number of waiting worker processes"
-msgstr ""
+msgstr "Maximum aantal wachtende werk processen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:87
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr ""
+msgstr "Download sociale metadata (tags/waarderingen/etc.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:89
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr ""
+"Limiteer maximum aantal tegelijktijdige processen tot het aantal CPU's"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:403
 msgid "Copied"
-msgstr ""
+msgstr "Gekopieerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:161
 msgid "Copy"
-msgstr ""
+msgstr "Kopieer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:161
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "Kopieer naar het Klembord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:391
 msgid "Choose Files"
-msgstr ""
+msgstr "Kies bestanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:53
 msgid "Searching in"
-msgstr ""
+msgstr "Zoek in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:164
 msgid "Adding..."
-msgstr ""
+msgstr "Toevoegen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:177
 msgid "Searching in all sub-directories..."
-msgstr ""
+msgstr "Zoeken in alle subfolders..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:190
 msgid "Path error"
@@ -2575,30 +2599,33 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:191
 msgid "The specified directory could not be processed."
-msgstr ""
+msgstr "De geselecteerde folder kan niet worden bewerkt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:491
 msgid "No books"
-msgstr ""
+msgstr "Geen boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:196
 msgid "No books found"
-msgstr ""
+msgstr "Geen boeken gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:262
 msgid "Added"
-msgstr ""
+msgstr "Toegevoegd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:275
 msgid "Adding failed"
-msgstr ""
+msgstr "Toevoegen mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:276
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr ""
+"Het proces om boeken toe te voegen antwoord niet meer. Probeer calibre "
+"opnieuw op te starten, en voeg daarna boeken toe in kleinere aantallen "
+"totdat je het probleem boek hebt gevonden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:288
 msgid "Duplicates found!"
@@ -2609,18 +2636,20 @@ msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
 msgstr ""
+"Boeken met dezelfde titel als de volgende bestaan al in de database. "
+"Nogmaals toevoegen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:292
 msgid "Adding duplicates..."
-msgstr ""
+msgstr "Toevoegen duplicaten..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:353
 msgid "Saving..."
-msgstr ""
+msgstr "Opslaan..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:406
 msgid "Saved"
-msgstr ""
+msgstr "Opgeslagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:36
 msgid ""
@@ -2628,19 +2657,23 @@ msgid ""
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
 msgstr ""
+"Voor instellingen die niet gemaakt kunnen worden in dit dialoog venster, "
+"gebruik de waarden die opgeslagen zijn tijdens een voormalige conversie "
+"(indien deze bestaan) in plaats van de standaard waarden die zijn opgegeven "
+"onder de voorkeursinstellingen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:67
 msgid "Bulk Convert"
-msgstr ""
+msgstr "Massa conversie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:185
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "Opties specifiek voor het uitvoer formaat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
-msgstr ""
+msgstr "Strip invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:16
@@ -2656,7 +2689,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "Options specific to"
-msgstr ""
+msgstr "Opties specifiek voor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:13
@@ -2664,7 +2697,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:13
 msgid "input"
-msgstr ""
+msgstr "invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:49
@@ -2717,7 +2750,7 @@ msgstr "Schakel ver&scherping uit"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:104
 msgid "Disable &Trimming"
-msgstr ""
+msgstr "Schakel &Trimming uit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:103
@@ -2746,33 +2779,33 @@ msgstr "Ont&spikkel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:95
 msgid "&Disable comic processing"
-msgstr ""
+msgstr "Schakel strip verwerking uit: &D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:111
 msgid "&Output format:"
-msgstr ""
+msgstr "Uitv&oer formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
-msgstr ""
+msgstr "Foutopsporing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:21
 msgid "Debug the conversion process."
-msgstr ""
+msgstr "Zoeken fouten in conversie proces"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:51
 msgid "Choose debug folder"
-msgstr ""
+msgstr "Kies fout opsporings folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:57
 msgid "Invalid debug directory"
-msgstr ""
+msgstr "ongeldige folder voor fout opsporing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:58
 msgid "Failed to create debug directory"
-msgstr ""
+msgstr "fout opsporings folder kan niet worden aangemaakt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:50
 msgid ""
@@ -2781,6 +2814,10 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
+"Kies de folder om de fout opsporings informatie in op te slaan. Als je een "
+"folder kiest, dan zal calibre hier veel informatie naar toe schrijven. Dit "
+"kan handig zijn om het conversie proces te begrijpen, en correcte waarden te "
+"achterhalen voor de inhoudsopgave en hoofdstuk informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:53
@@ -2838,27 +2875,27 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:17
 msgid "output"
-msgstr ""
+msgstr "uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:42
 msgid "Do not &split on page breaks"
-msgstr ""
+msgstr "&Splits niet op pagina einden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:43
 msgid "Split files &larger than:"
-msgstr ""
+msgstr "Splits bestanden groter dan: &l"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:44
 msgid " KB"
-msgstr ""
+msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:45
 msgid "No default &cover"
-msgstr ""
+msgstr "Geen standaard omslag afbeelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
-msgstr ""
+msgstr "FB2 invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:29
 msgid "Do not insert a &Table of Contents at the beginning of the book."
@@ -2866,14 +2903,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
-msgstr ""
+msgstr "FB2 uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:53
 msgid "&Inline TOC"
-msgstr ""
+msgstr "&Inline inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:99
 msgid "Font rescaling wizard"
@@ -2897,17 +2934,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:103
 msgid "&Output document"
-msgstr ""
+msgstr "Uitvoer d&ocument"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 msgid "&Base font size:"
-msgstr ""
+msgstr "&Basis letter grootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:122
 msgid "Font size &key:"
-msgstr ""
+msgstr "Letter grootte toets:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
@@ -2922,27 +2959,27 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:122
 msgid " pt"
-msgstr ""
+msgstr " pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:107
 msgid "Use &default values"
-msgstr ""
+msgstr "Gebruik standaar&d waarden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Input document"
-msgstr ""
+msgstr "&Invoer document"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 msgid "&Font size: "
-msgstr ""
+msgstr "Letter grootte: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:113
 msgid " will map to size: "
-msgstr ""
+msgstr " zal naar grootte schakelen: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
 msgid "0.0 pt"
-msgstr ""
+msgstr "0.0 pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -2950,11 +2987,11 @@ msgstr "Uiterlijk & gedrag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:18
 msgid "Control the look and feel of the output"
-msgstr ""
+msgstr "Beheers de visualisatie van de uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:119
 msgid "&Disable font size rescaling"
-msgstr ""
+msgstr "Annuleer letter grootte instelling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:120
 msgid "Base &font size:"
@@ -2989,39 +3026,39 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:131
 msgid " em"
-msgstr ""
+msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
 msgid "Insert &blank line"
-msgstr ""
+msgstr "Voeg lege regel toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:133
 msgid "No text &justification"
-msgstr ""
+msgstr "Geen tekst uitlijning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:134
 msgid "&Linearize tables"
-msgstr ""
+msgstr "Split tabellen in regels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:135
 msgid "&Transliterate unicode characters to ASCII."
-msgstr ""
+msgstr "Converteer unicode karakters naar ASCII"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:136
 msgid "Extra &CSS"
-msgstr ""
+msgstr "Extra CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
-msgstr ""
+msgstr "LRF Uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:116
 msgid "Enable &autorotation of wide images"
-msgstr ""
+msgstr "Activeer &autorotatie van brede afbeeldingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:117
 msgid "&Wordspace:"
-msgstr ""
+msgstr "&Woordruimte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:119
 msgid "Minimum para. &indent:"
@@ -3029,11 +3066,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Render &tables as images"
-msgstr ""
+msgstr "Geef &tabellen weer als afbeelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "Text size multiplier for text in rendered tables:"
-msgstr ""
+msgstr "Tekst grootte vermenigvuldiger voor gegenereerde tabellen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:123
 msgid "Add &header"
@@ -3041,27 +3078,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Header &separation:"
-msgstr ""
+msgstr "Koptekst scheiding:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:126
 msgid "Header &format:"
-msgstr ""
+msgstr "Koptekst &formaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:127
 msgid "&Embed fonts"
-msgstr ""
+msgstr "Voeg l&ettertypen toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:128
 msgid "&Serif font family:"
-msgstr ""
+msgstr "&Serief lettertype:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:129
 msgid "S&ans-serif font family:"
-msgstr ""
+msgstr "S&ans-Serief lettertype:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:130
 msgid "&Monospaced font family:"
-msgstr ""
+msgstr "Proportioneel lettertype:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:113
@@ -3197,27 +3234,27 @@ msgstr "Boek "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:15
 msgid "MOBI Output"
-msgstr ""
+msgstr "MOBI uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:45
 msgid "&Title for Table of Contents:"
-msgstr ""
+msgstr "&Titel voor inhoudsopgave:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:46
 msgid "Rescale images for &Palm devices"
-msgstr ""
+msgstr "Afbeeldingen herschalen voor &Palm apparatuur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:47
 msgid "Use author &sort for author"
-msgstr ""
+msgstr "Gebruik auteur &sortering als auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:48
 msgid "Disable compression of the file contents"
-msgstr ""
+msgstr "Gebruik geen compressie van bestand onderdelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:49
 msgid "Do not add Table of Contents to book"
-msgstr ""
+msgstr "Voeg geen inhoudsopgave toe aan het boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -3225,35 +3262,35 @@ msgstr "Pagina Instellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:111
 msgid "&Output profile:"
-msgstr ""
+msgstr "&Uitvoer profiel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:112
 msgid "Profile description"
-msgstr ""
+msgstr "Profiel omschrijving"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:113
 msgid "&Input profile:"
-msgstr ""
+msgstr "&Invoer profiel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:114
 msgid "Margins"
-msgstr ""
+msgstr "Marges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:115
 msgid "&Left:"
-msgstr ""
+msgstr "&Links:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:117
 msgid "&Top:"
-msgstr ""
+msgstr "&Boven:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:119
 msgid "&Right:"
-msgstr ""
+msgstr "&Rechts:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:121
 msgid "&Bottom:"
-msgstr ""
+msgstr "&Onder:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input.py:12
 msgid "PDB Input"
@@ -3295,7 +3332,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
 msgid "&Paper Size:"
-msgstr ""
+msgstr "&Papier Grootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:41
 msgid "&Orientation:"
