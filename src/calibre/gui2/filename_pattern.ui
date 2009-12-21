@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>335</width>
-    <height>540</height>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,104 +84,123 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Title:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" colspan="2">
-         <widget class="QLineEdit" name="title">
-          <property name="toolTip">
-           <string>Regular expression (?P&amp;lt;title&amp;gt;)</string>
-          </property>
-          <property name="text">
-           <string>No match</string>
-          </property>
-          <property name="readOnly">
+        <item row="0" column="0" colspan="2">
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
            <bool>true</bool>
           </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Authors:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1" colspan="2">
-         <widget class="QLineEdit" name="authors">
-          <property name="toolTip">
-           <string>Regular expression (?P&lt;author&gt;)</string>
-          </property>
-          <property name="text">
-           <string>No match</string>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Series:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1" colspan="2">
-         <widget class="QLineEdit" name="series">
-          <property name="toolTip">
-           <string>Regular expression (?P&lt;series&gt;)</string>
-          </property>
-          <property name="text">
-           <string>No match</string>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" rowspan="2">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Series index:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1" rowspan="2" colspan="2">
-         <widget class="QLineEdit" name="series_index">
-          <property name="toolTip">
-           <string>Regular expression (?P&lt;series_index&gt;)</string>
-          </property>
-          <property name="text">
-           <string>No match</string>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>ISBN:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="isbn">
-          <property name="toolTip">
-           <string>Regular expression (?P&lt;isbn&gt;)</string>
-          </property>
-          <property name="text">
-           <string>No match</string>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>301</width>
+             <height>234</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Title:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="title">
+              <property name="toolTip">
+               <string>Regular expression (?P&amp;lt;title&amp;gt;)</string>
+              </property>
+              <property name="text">
+               <string>No match</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Authors:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="authors">
+              <property name="toolTip">
+               <string>Regular expression (?P&lt;author&gt;)</string>
+              </property>
+              <property name="text">
+               <string>No match</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Series:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="series">
+              <property name="toolTip">
+               <string>Regular expression (?P&lt;series&gt;)</string>
+              </property>
+              <property name="text">
+               <string>No match</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Series index:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="series_index">
+              <property name="toolTip">
+               <string>Regular expression (?P&lt;series_index&gt;)</string>
+              </property>
+              <property name="text">
+               <string>No match</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>ISBN:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="isbn">
+              <property name="toolTip">
+               <string>Regular expression (?P&lt;isbn&gt;)</string>
+              </property>
+              <property name="text">
+               <string>No match</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
