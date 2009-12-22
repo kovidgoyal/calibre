@@ -103,6 +103,9 @@ class WallStreetJournal(BasicNewsRecipe):
                     current_articles.append({'title': title, 'url':url,
                         'description':desc, 'date':''})
 
+            if current_articles and current_section:
+                feeds.append((current_section, current_articles))
+
             return feeds
 
         def cleanup(self):
