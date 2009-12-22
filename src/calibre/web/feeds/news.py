@@ -1063,7 +1063,7 @@ class BasicNewsRecipe(Recipe):
         return parsed_feeds
 
     @classmethod
-    def tag_to_string(self, tag, use_alt=True):
+    def tag_to_string(self, tag, use_alt=True, normalize_whitespace=True):
         '''
         Convenience method to take a
         `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
@@ -1090,7 +1090,10 @@ class BasicNewsRecipe(Recipe):
                     strings.append(res)
                 elif use_alt and item.has_key('alt'):
                     strings.append(item['alt'])
-        return u''.join(strings)
+        ans = u''.join(strings)
+        if normalize_whitespace:
+            ans = re.sub(r'\s+', ' ', ans)
+        return ans
 
     @classmethod
     def soup(cls, raw):
