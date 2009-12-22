@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-12-18 20:18+0000\n"
-"PO-Revision-Date: 2009-12-21 01:25+0000\n"
-"Last-Translator: Marc van den Dikkenberg <Unknown>\n"
+"PO-Revision-Date: 2009-12-21 13:36+0000\n"
+"Last-Translator: Robert <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-21 04:42+0000\n"
+"X-Launchpad-Export-Date: 2009-12-22 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
@@ -389,6 +389,9 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    %prog opties\n"
+"    Pas Calible aan door laden van externe plugins\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:400
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -399,7 +402,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:402
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
-"Verwijder een optionale plugin by naam. Heeft geen effect op ingebouwde "
+"Verwijder een optionele plugin op naam. Heeft geen effect op ingebouwde "
 "plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:404
@@ -432,7 +435,7 @@ msgid ""
 "first one that exists will be used"
 msgstr ""
 "Komma-gescheiden lijst van folders om e-boeken naar toe te sturen op het "
-"apparaat. De eerste die word gevonden zal worden gebruikt."
+"apparaat. De eerste die wordt gevonden zal worden gebruikt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
@@ -861,6 +864,7 @@ msgstr "Uitvoer opgeslagen op"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:91
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
 msgstr ""
+"Niveau van informatie. Speficeer meerdere malen voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:98
 msgid ""
@@ -2529,11 +2533,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:57
 msgid "Upload downloaded news to device"
-msgstr ""
+msgstr "Upload gedownload nieuws naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:59
 msgid "Delete books from library after uploading to device"
-msgstr ""
+msgstr "Verwijder boeken van bibliotheek na uploaden naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:61
 msgid ""
@@ -2550,6 +2554,7 @@ msgstr "Schakel notificaties in systeem tray uit"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:65
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
+"Standaard actie te ondernemen wanneer zend naar apparaat knop is aangeklikt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:85
 msgid "Maximum number of waiting worker processes"
@@ -2595,7 +2600,7 @@ msgstr "Zoeken in alle subfolders..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:190
 msgid "Path error"
-msgstr ""
+msgstr "Pad fout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:191
 msgid "The specified directory could not be processed."
@@ -2864,7 +2869,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr ""
+msgstr "EPUB Uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:15
@@ -3003,19 +3008,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:125
 msgid "Line &height:"
-msgstr ""
+msgstr "regel &hoogte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:127
 msgid "Input character &encoding:"
-msgstr ""
+msgstr "Invoer karakter &encodering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:128
 msgid "Remove &spacing between paragraphs"
-msgstr ""
+msgstr "Verwijder %spaties tussen paragrafen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Indent size:"
-msgstr ""
+msgstr "Indentatie grootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:130
 msgid ""
@@ -3062,7 +3067,7 @@ msgstr "&Woordruimte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:119
 msgid "Minimum para. &indent:"
-msgstr ""
+msgstr "Minimum para. &indentatie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Render &tables as images"
@@ -3074,7 +3079,7 @@ msgstr "Tekst grootte vermenigvuldiger voor gegenereerde tabellen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:123
 msgid "Add &header"
-msgstr ""
+msgstr "Voeg &koptekst toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Header &separation:"
@@ -3111,6 +3116,8 @@ msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
 msgstr ""
+"Stel de metadata in. Het uitvoer bestand zal zoveel metadata bevatten als "
+"mogelijk is."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:98
@@ -3294,41 +3301,41 @@ msgstr "&Onder:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input.py:12
 msgid "PDB Input"
-msgstr ""
+msgstr "PDB Invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:39
 msgid "Treat each &line as a paragraph"
-msgstr ""
+msgstr "Behandel iedere regel als een paragraaf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:42
 msgid "Assume print formatting"
-msgstr ""
+msgstr "Neem print formatering aan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output.py:16
 msgid "PDB Output"
-msgstr ""
+msgstr "PDB Uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:36
 msgid "&Format:"
-msgstr ""
+msgstr "&Formaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
-msgstr ""
+msgstr "PDF invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:39
 msgid "Line &Un-Wrapping Factor:"
-msgstr ""
+msgstr "Regel uitpak factor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:40
 msgid "No &Images"
-msgstr ""
+msgstr "Geen &Afbeeldingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:17
 msgid "PDF Output"
-msgstr ""
+msgstr "PDf Uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:40
 msgid "&Paper Size:"
@@ -3336,11 +3343,11 @@ msgstr "&Papier Grootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:41
 msgid "&Orientation:"
-msgstr ""
+msgstr "&Orientatie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/rb_output.py:14
 msgid "RB Output"
-msgstr ""
+msgstr "RB Uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1421
@@ -3349,39 +3356,39 @@ msgstr "Kies het te bekijken formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "Cannot build regex using the GUI builder without a book."
-msgstr ""
+msgstr "Kan geen reguliere expressie maken met de Regex Maker zonder boek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:83
 msgid "No formats available"
-msgstr ""
+msgstr "Gene formaten beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "Open book"
-msgstr ""
+msgstr "Open boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:99
 msgid "~"
-msgstr ""
+msgstr "~"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:46
 msgid "Regex Builder"
-msgstr ""
+msgstr "Regex Maker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:47
 msgid "Preview"
-msgstr ""
+msgstr "Vooraf bekijken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:48
 msgid "Regex:"
-msgstr ""
+msgstr "Regex:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:171
 msgid "Convert"
-msgstr ""
+msgstr "Converteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:196
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "Op[ties specifiek voor het invoer formaat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:61
@@ -3392,38 +3399,41 @@ msgstr "Dialoogvenster"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:109
 msgid "&Input format:"
-msgstr ""
+msgstr "&Invoer formaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:110
 msgid "Use &saved conversion settings for individual books"
-msgstr ""
+msgstr "Gebruik opge&slagen conversie instellingen voor individuele boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
 "Structure\n"
 "Detection"
 msgstr ""
+"Structuur\n"
+"Detectie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:19
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
 msgstr ""
+"Werk met de detectie van hoofdstuk kopteksten en andere document structuur."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:34
 msgid "Detect chapters at (XPath expression):"
-msgstr ""
+msgstr "Detecteer hoofdstukken op (XPath expressie):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:35
 msgid "Insert page breaks before (XPath expression):"
-msgstr ""
+msgstr "Voeg pagina einden in voor (XPath expressie):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:37
 msgid "Header regular expression:"
-msgstr ""
+msgstr "Koptekst reguliere expressie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:40
 msgid "Footer regular expression:"
-msgstr ""
+msgstr "Voetnoot reguliere expressie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:71
@@ -3438,82 +3448,82 @@ msgstr "Ongeldige reguliere expressie: %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:38
 msgid "Invalid XPath"
-msgstr ""
+msgstr "Ongelding XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
 msgid "The XPath expression %s is invalid."
-msgstr ""
+msgstr "De XPath expressie %s is ongeldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
-msgstr ""
+msgstr "Hoofdstuk &markering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
-msgstr ""
+msgstr "Verwijder eerste &afbeelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
-msgstr ""
+msgstr "Voer &metadata toe als pagina aan het begin van het boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:63
 msgid "&Preprocess input file to possibly improve structure detection"
-msgstr ""
+msgstr "&Voorbewerk invoer bestand voor mogelijk betere structuur detectie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove F&ooter"
-msgstr ""
+msgstr "Verwijder &Voetnoot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:65
 msgid "Remove H&eader"
-msgstr ""
+msgstr "Verwijder &Koptekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
 "Table of\n"
 "Contents"
-msgstr ""
+msgstr "Inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
-msgstr ""
+msgstr "Instellingen voor de creatie/conversie van de inhoudsopgave."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:29
 msgid "Level &1 TOC (XPath expression):"
-msgstr ""
+msgstr "Niveau &1 Inhoudsopgave (XPath expressie):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &2 TOC (XPath expression):"
-msgstr ""
+msgstr "Niveau &2 Inhoudsopgave (XPath expressie):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &3 TOC (XPath expression):"
-msgstr ""
+msgstr "Niveau &3 Inhoudsopgave (XPath expressie):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:63
 msgid "Do not add &detected chapters to the Table of Contents"
-msgstr ""
+msgstr "Voeg ge&detecteerde hoofdstukken niet toe aan de inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:64
 msgid "Number of &links to add to Table of Contents"
-msgstr ""
+msgstr "Aantal &links toe te voegen aan de inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:65
 msgid "Chapter &threshold"
-msgstr ""
+msgstr "Hoofdstuk &drempel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:66
 msgid "&Force use of auto-generated Table of Contents"
-msgstr ""
+msgstr "&Forceer gebruik van auto-gegenereerde inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:67
 msgid "TOC &Filter:"
-msgstr ""
+msgstr "Inhoudsopgave &Filter:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
-msgstr ""
+msgstr "TXT Invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:40
 msgid "Process using markdown"
@@ -3528,23 +3538,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:16
 msgid "TXT Output"
-msgstr ""
+msgstr "TXT Uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:52
 msgid "&Line ending style:"
-msgstr ""
+msgstr "&Regel einde stijl:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:55
 msgid "Add a tab at the beginning of each paragraph"
-msgstr ""
+msgstr "Voerg een tab toe aan het begin van iedere paragraaf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:56
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "&Maximum regel lengte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:57
 msgid "Force maximum line lenght"
-msgstr ""
+msgstr "forceer maximum regel lengte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:62
@@ -3559,71 +3569,71 @@ msgstr "TekstLabel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:51
 msgid "Use a wizard to help construct the XPath expression"
-msgstr ""
+msgstr "Gebruik een wizard om te helpen een XPath expressie te construeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:68
 msgid "Match HTML &tags with tag name:"
-msgstr ""
+msgstr "Match HTML &tags met tag naam:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:69
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:70
 msgid "a"
-msgstr ""
+msgstr "a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:71
 msgid "br"
-msgstr ""
+msgstr "br"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:72
 msgid "div"
-msgstr ""
+msgstr "div"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "h1"
-msgstr ""
+msgstr "h1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:74
 msgid "h2"
-msgstr ""
+msgstr "h2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:75
 msgid "h3"
-msgstr ""
+msgstr "h3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:76
 msgid "h4"
-msgstr ""
+msgstr "h4"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:77
 msgid "h5"
-msgstr ""
+msgstr "h5"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:78
 msgid "h6"
-msgstr ""
+msgstr "h6"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:79
 msgid "hr"
-msgstr ""
+msgstr "hr"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:80
 msgid "span"
-msgstr ""
+msgstr "span"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:81
 msgid "Having the &attribute:"
-msgstr ""
+msgstr "Heeft &attribuut:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:82
 msgid "With &value:"
-msgstr ""
+msgstr "Met &waarde:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:83
 msgid "(A regular expression)"
-msgstr ""
+msgstr "(Een reguliere expressie)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:84
 msgid ""
@@ -3638,7 +3648,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:39
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:130
 msgid "No details available."
-msgstr ""
+msgstr "Geen details beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:129
 msgid "Device no longer connected."
@@ -3678,14 +3688,14 @@ msgstr "en verwijder uit bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:303
 msgid "Set default send to device action"
-msgstr ""
+msgstr "Stel standaard stuur naar apparaat actie in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:319
 msgid "Email to"
-msgstr ""
+msgstr "Email naar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:330
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:337
@@ -3695,71 +3705,71 @@ msgstr "Stuur naar hoofdgeheugen"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:332
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:339
 msgid "Send to storage card A"
-msgstr ""
+msgstr "Zend naar opslag kaart A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:334
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:341
 msgid "Send to storage card B"
-msgstr ""
+msgstr "Zend naar opslag kaart B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:344
 msgid "Send specific format to main memory"
-msgstr ""
+msgstr "Zend specifiek formaat naar hoofdgeheugen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:346
 msgid "Send specific format to storage card A"
-msgstr ""
+msgstr "Zend specifiek formaat naar opslag kaart A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:348
 msgid "Send specific format to storage card B"
-msgstr ""
+msgstr "Zend specifiek formaat naar opslag kaart B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:492
 msgid "selected to send"
-msgstr ""
+msgstr "Geselecteerd om te versturen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:497
 msgid "Choose format to send to device"
-msgstr ""
+msgstr "Kies formaat om naar apparaat te versturen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:504
 msgid "No device"
-msgstr ""
+msgstr "Geen apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:505
 msgid "Cannot send: No device is connected"
-msgstr ""
+msgstr "Kan niet zenden: geen apparaat beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:508
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:512
 msgid "No card"
-msgstr ""
+msgstr "Geen kaart aanwezig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:509
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:513
 msgid "Cannot send: Device has no storage card"
-msgstr ""
+msgstr "Kan niet versturen: Apparaat heeft geen opslag kaart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:555
 msgid "E-book:"
-msgstr ""
+msgstr "E-Boek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:558
 msgid "Attached, you will find the e-book"
-msgstr ""
+msgstr "Aangesloten, je zult het e-boek vinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:177
 msgid "by"
-msgstr ""
+msgstr "door"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:560
 msgid "in the %s format."
-msgstr ""
+msgstr "in het %s formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:573
 msgid "Sending email to"
-msgstr ""
+msgstr "Versturen van email naar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:603
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:610
@@ -3772,23 +3782,26 @@ msgstr "Geen geschikte formaten"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:604
 msgid "Auto convert the following books before sending via email?"
 msgstr ""
+"Auto-converteer de volgende boeken alvorens ze via email te versturen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:611
 msgid ""
 "Could not email the following books as no suitable formats were found:"
 msgstr ""
+"De voilgende boeken konden niet worden ge-emailed omdat geen beschikbare "
+"formaten zijn gevonden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:629
 msgid "Failed to email books"
-msgstr ""
+msgstr "Boeken konden niet worden ge-emailed."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:630
 msgid "Failed to email the following books:"
-msgstr ""
+msgstr "De volgende boeken konden niet worden ge-emailed:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:634
 msgid "Sent by email:"
-msgstr ""
+msgstr "Verstuurd via email:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:661
 msgid "News:"
@@ -7761,7 +7774,7 @@ msgstr "\tMislukte links:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:692
 msgid "Could not fetch article. Run with -vv to see the reason"
-msgstr ""
+msgstr "Kan artikel niet ophalen. Voer uit met optie -vv om oorzaak te zien"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:713
 msgid "Fetching feeds..."
