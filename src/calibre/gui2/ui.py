@@ -552,6 +552,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.scheduler,
                 SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
                 self.download_scheduled_recipe, Qt.QueuedConnection)
+        self.library_view.verticalHeader().sectionClicked.connect(self.view_specific_book)
+
+        for view in ('library', 'memory', 'card_a', 'card_b'):
+            view = getattr(self, view+'_view')
+            view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
@@ -1442,7 +1447,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()
+        self._view_books(rows)
 
+    def view_specific_book(self, index):
+        self._view_books([index])
+
+    def _view_books(self, rows):
         if not rows or len(rows) == 0:
             self._launch_viewer()
             return
@@ -1458,7 +1468,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         if self.current_view() is self.library_view:
             for row in rows:
-                row = row.row()
+                if hasattr(row, 'row'):
+                    row = row.row()
 
                 formats = self.library_view.model().db.formats(row)
                 title   = self.library_view.model().db.title(row)
