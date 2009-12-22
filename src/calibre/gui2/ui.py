@@ -926,8 +926,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Add books from the local filesystem to either the library or the device.
         '''
-        books = choose_files(self, 'add books dialog dir', 'Select books',
-                             filters=[
+        filters = [
                         (_('Books'), BOOK_EXTENSIONS),
                         (_('EPUB Books'), ['epub']),
                         (_('LRF Books'), ['lrf']),
@@ -938,10 +937,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         (_('PDF Books'), ['pdf']),
                         (_('Comics'), ['cbz', 'cbr', 'cbc']),
                         (_('Archives'), ['zip', 'rar']),
-                        ])
+                        ]
+        to_device = self.stack.currentIndex() != 0
+        if to_device:
+            filters = [(_('Supported books'), self.device_manager.device.FORMATS)]
+
+        books = choose_files(self, 'add books dialog dir', 'Select books',
+                             filters=filters)
         if not books:
             return
-        to_device = self.stack.currentIndex() != 0
         self._add_books(books, to_device)
 
 
