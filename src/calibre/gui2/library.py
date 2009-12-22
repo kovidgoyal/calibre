@@ -695,6 +695,7 @@ class BooksView(TableView):
                 self.columns_sorted, Qt.QueuedConnection)
         hv = self.verticalHeader()
         hv.setClickable(True)
+        hv.setCursor(Qt.PointingHandCursor)
 
     def columns_sorted(self):
         for i in range(self.model().columnCount(None)):
