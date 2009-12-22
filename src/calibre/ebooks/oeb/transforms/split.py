@@ -381,9 +381,9 @@ class FlowSplitter(object):
                 p[i:i+1] = new_pres
 
         split_point, before = self.find_split_point(root)
-        self.log.debug('\t\t\tSplit point:', split_point.tag, tree.getpath(split_point))
         if split_point is None:
             raise SplitError(self.item.href, root)
+        self.log.debug('\t\t\tSplit point:', split_point.tag, tree.getpath(split_point))
 
         for t in self.do_split(tree, split_point, before):
             r = t.getroot()

@@ -83,7 +83,7 @@ linux_freeze2 = LinuxFreeze2()
 from setup.installer.osx import OSX, OSX32
 osx = OSX()
 osx32 = OSX32()
-from setup.installer.osx.freeze import OSX32_Freeze
+from setup.installer.osx.app.main import OSX32_Freeze
 osx32_freeze = OSX32_Freeze()
 
 from setup.installer.windows import Win, Win32

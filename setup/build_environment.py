@@ -13,12 +13,9 @@ from PyQt4 import pyqtconfig
 
 from setup import isosx, iswindows, islinux
 
-OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
-if not os.path.exists(OSX_SDK):
-    OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
-leopard_build = '10.5' in OSX_SDK
+OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
 
-os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5' if leopard_build else '10.4'
+os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.4'
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = None
 if iswindows:
@@ -117,24 +114,24 @@ if iswindows:
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
-    fc_inc = '/Users/kovid/fontconfig/include/fontconfig'
-    fc_lib = '/Users/kovid/fontconfig/lib'
+    fc_inc = '/sw/include/fontconfig'
+    fc_lib = '/sw/lib'
     poppler_inc_dirs = consolidate('POPPLER_INC_DIR',
-            '/Volumes/sw/build/poppler-0.12.0/poppler:/Volumes/sw/build/poppler-0.12.0')
+            '/sw/build/poppler-0.12.2/poppler:/sw/build/poppler-0.12.2')
     popplerqt4_inc_dirs = poppler_inc_dirs + [poppler_inc_dirs[0]+'/qt4']
     poppler_lib_dirs = consolidate('POPPLER_LIB_DIR',
-            '/Volumes/sw/lib')
+            '/sw/lib')
     popplerqt4_lib_dirs = poppler_lib_dirs
     poppler_libs     = popplerqt4_libs = ['poppler']
-    podofo_inc = '/usr/local/include/podofo'
-    podofo_lib = '/usr/local/lib'
+    podofo_inc = '/sw/podofo'
+    podofo_lib = '/sw/lib'
     magick_inc_dirs = consolidate('MAGICK_INC',
-        '/Users/kovid/ImageMagick/include/ImageMagick')
+        '/sw/include/ImageMagick')
     magick_lib_dirs = consolidate('MAGICK_LIB',
-        '/Users/kovid/ImageMagick/lib')
+        '/sw/lib')
     magick_libs = ['MagickWand', 'MagickCore']
-    png_inc_dirs = consolidate('PNG_INC_DIR', '/usr/local/include')
-    png_lib_dirs = consolidate('PNG_LIB_DIR', '/usr/local/lib')
+    png_inc_dirs = consolidate('PNG_INC_DIR', '/sw/include')
+    png_lib_dirs = consolidate('PNG_LIB_DIR', '/sw/lib')
     png_libs = ['png12']
 else:
     # Include directories

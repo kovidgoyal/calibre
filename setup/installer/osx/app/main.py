@@ -13,9 +13,13 @@ abspath, join, basename = os.path.abspath, os.path.join, os.path.basename
 from setup import __version__ as VERSION, __appname__ as APPNAME, basenames, \
         modules as main_modules, Command, SRC, functions as main_functions
 LICENSE = open('LICENSE', 'rb').read()
+MAGICK_HOME='@executable_path/../Frameworks/ImageMagick'
 ENV = dict(
         FC_CONFIG_DIR='@executable_path/../Resources/fonts',
-        MAGICK_HOME='@executable_path/../Frameworks/ImageMagick',
+        FC_CONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
+        MAGICK_CONFIGURE_PATH=MAGICK_HOME+'/config',
+        MAGICK_CODER_MODULE_PATH=MAGICK_HOME+'/modules-Q16/coders',
+        MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filter',
         QT_PLUGIN_PATH='@executable_path/../MacOS',
         PYTHONIOENCODING='UTF-8',
         )
@@ -46,9 +50,9 @@ def compile_launcher_lib(contents_dir, gcc, base):
     src = join(base, 'util.c')
     cmd = [gcc] + '-Wall -arch i386 -arch ppc -dynamiclib -std=gnu99'.split() + [src] + \
             ['-I'+base] + \
-            ['-I%s/python/Python.framework/Headers'%SW] + \
+            ['-I/Library/Frameworks/Python.framework/Versions/Current/Headers'] + \
             '-current_version 1.0 -compatibility_version 1.0'.split() + \
-            '-fvisibility=hidden -o'.split() + [dest, '-F%s/python'%SW] + \
+            '-fvisibility=hidden -o'.split() + [dest] + \
             ['-install_name',
                 '@executable_path/../Frameworks/'+os.path.basename(dest)] + \
             ['-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
@@ -176,6 +180,8 @@ class Py2App(object):
             self.create_plist()
 
             self.add_python_framework()
+            self.add_site_packages()
+            self.add_stdlib()
             self.add_qt_frameworks()
             self.add_calibre_plugins()
             self.add_podofo()
@@ -186,8 +192,6 @@ class Py2App(object):
             self.add_imagemagick()
             self.add_misc_libraries()
 
-            self.add_site_packages()
-            self.add_stdlib()
             self.add_resources()
             self.compile_py_modules()
 
@@ -262,8 +266,10 @@ class Py2App(object):
     def get_local_dependencies(self, path_to_lib):
         for x in self.get_dependencies(path_to_lib):
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
-                    SW+'/python/', SW+'/freetype/lib/'):
+                    '/Library/Frameworks/Python.framework/', SW+'/freetype/lib/'):
                 if x.startswith(y):
+                    if y == '/Library/Frameworks/Python.framework/':
+                        y = '/Library/Frameworks/'
                     yield x, x[len(y):]
                     break
 
@@ -289,7 +295,7 @@ class Py2App(object):
     @flush
     def add_python_framework(self):
         info('\nAdding Python framework')
-        src = join(SW, 'python', 'Python.framework')
+        src = join('/Library/Frameworks', 'Python.framework')
         x = join(self.frameworks_dir, 'Python.framework')
         curr = os.path.realpath(join(src, 'Versions', 'Current'))
         currd = join(x, 'Versions', basename(curr))
@@ -302,6 +308,7 @@ class Py2App(object):
 
     @flush
     def add_qt_frameworks(self):
+        info('\nAdding Qt Framework')
         for f in ('QtCore', 'QtGui', 'QtXml', 'QtNetwork', 'QtSvg', 'QtWebkit',
                 'QtXmlPatterns', 'phonon'):
             self.add_qt_framework(f)
@@ -360,7 +367,7 @@ class Py2App(object):
                 CFBundlePackageType='APPL',
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
-                LSMinimumSystemVersion='10.5.2',
+                LSMinimumSystemVersion='10.4.2',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
                 NSHumanReadableCopyright='Copyright 2008, Kovid Goyal',
@@ -433,10 +440,7 @@ class Py2App(object):
         for x in ('Wand', 'Core'):
             self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.2.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
-        dest = os.path.join(self.frameworks_dir, 'ImageMagick', 'lib')
-        if not os.path.exists(dest):
-            os.makedirs(dest)
-        dest = os.path.join(dest, os.path.basename(idir))
+        dest = os.path.join(self.frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
             shutil.rmtree(dest)
         shutil.copytree(idir, dest, True)
@@ -461,12 +465,12 @@ class Py2App(object):
         paths = reversed(map(abspath, [x for x in sys.path if x.startswith('/')]))
         upaths = []
         for x in paths:
-            if x.endswith('/PIL') or 'site-packages' not in x:
-                continue
-            if x not in upaths:
+            if x not in upaths and (x.endswith('.egg') or
+                    x.endswith('/site-packages')):
                 upaths.append(x)
         upaths.append(os.path.expanduser('~/build/calibre/src'))
         for x in upaths:
+            info('\t', x)
             tdir = None
             try:
                 if not os.path.isdir(x):
@@ -536,7 +540,7 @@ class Py2App(object):
     @flush
     def add_stdlib(self):
         info('\nAdding python stdlib')
-        src = join(SW, 'python/Python.framework/Versions/Current/lib/python')
+        src = '/Library/Frameworks/Python.framework/Versions/Current/lib/python'
         src += self.version_info
         dest = join(self.resources_dir, 'Python', 'lib', 'python')
         dest += self.version_info
