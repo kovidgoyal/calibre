@@ -1,0 +1,66 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class HoustonChronicle(BasicNewsRecipe):
+
+    title          = u'The Houston Chronicle'
+    description    = 'News from Houston, Texas'
+    __author__	   = 'Kovid Goyal'
+    language       = 'US'
+    timefmt        = ' [%a, %d %b, %Y]'
+    no_stylesheets = True
+
+    keep_only_tags = [dict(id=['story-head', 'story'])]
+    remove_tags = [dict(id=['share-module', 'resource-box',
+        'resource-box-header'])]
+
+    def parse_index(self):
+        soup = self.index_to_soup('http://www.chron.com/news/')
+        container = soup.find('table', attrs={'class':'body-columns'})
+
+        feeds = []
+        current_section = 'Top Stories'
+        current_articles = []
+
+        self.log('\tFound section:', current_section)
+
+        for div in container.findAll('div'):
+            if div.get('class', None) == 'module-mast':
+                t = self.tag_to_string(div).replace(u'\xbb', '').strip()
+                if t and 'interactives' not in t:
+                    if current_section and current_articles:
+                        feeds.append((current_section, current_articles))
+                    current_section = t
+                    current_articles = []
+                    self.log('\tFound section:', current_section)
+            elif div.get('storyid', False):
+                a = div.find('a', href=True)
+                if a:
+                    title = self.tag_to_string(a)
+                    url = a.get('href')
+                    if title and url:
+                        if url.startswith('/'):
+                            url = 'http://www.chron.com'+url
+                        self.log('\t\tFound article:', title)
+                        self.log('\t\t\t', url)
+                        current_articles.append({'title':title, 'url':url,
+                            'date':'', 'description':''})
+            elif div.get('class', None) == 'columnbox' and \
+                    'special' in current_section.lower():
+                a = div.find('a')
+                if a:
+                    title = self.tag_to_string(a)
+                    url = a.get('href')
+                    if title and url:
+                        if not url.startswith('/'): continue
+                        url = 'http://www.chron.com'+url
+                        self.log('\t\tFound article:', title)
+                        self.log('\t\t\t', url)
+                        a.extract()
+                        desc = self.tag_to_string(div)
+                        current_articles.append({'title':title, 'url':url,
+                            'date':'', 'description':desc})
+
+        if current_section and current_articles:
+            feeds.append((current_section, current_articles))
+        return feeds
+
