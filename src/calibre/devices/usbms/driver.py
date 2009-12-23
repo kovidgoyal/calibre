@@ -111,12 +111,25 @@ class USBMS(CLI, Device):
             paths.append(filepath)
 
             self.put_file(infile, filepath, replace_file=True)
+            try:
+                self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], mdata)
+            except: # Failure to upload cover is not catastrophic
+                import traceback
+                traceback.print_exc()
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
 
         return zip(paths, cycle([on_card]))
+
+    def upload_cover(self, path, filename, metadata):
+        '''
+        :path: the full path were the associated book is located.
+        :filename: the name of the book file without the extension.
+        :metatdata: metadata belonging to the book. metadata.cover[2] for coverdata.
+        '''
+        pass
 
     def add_books_to_metadata(self, locations, metadata, booklists):
         for i, location in enumerate(locations):
