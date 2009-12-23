@@ -23,7 +23,8 @@ from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
+from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, \
+        authors_to_string, check_isbn
 from calibre.ebooks.metadata.library_thing import cover_from_isbn
 from calibre import islinux
 from calibre.ebooks.metadata.meta import get_metadata
@@ -336,6 +337,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         isbn = db.isbn(self.id, index_is_id=True)
         if not isbn:
             isbn = ''
+        self.isbn.textChanged.connect(self.validate_isbn)
         self.isbn.setText(isbn)
         aus = self.db.author_sort(row)
         self.author_sort.setText(aus if aus else '')
@@ -393,6 +395,20 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if not pm.isNull():
                 self.cover.setPixmap(pm)
             self.cover_data = cover
+
+    def validate_isbn(self, isbn):
+        isbn = unicode(isbn).strip()
+        if not isbn:
+            self.isbn.setStyleSheet('QLineEdit { background-color: rgba(0,255,0,0%) }')
+            self.isbn.setToolTip(_('This ISBN number is valid'))
+            return
+
+        if check_isbn(isbn):
+            self.isbn.setStyleSheet('QLineEdit { background-color: rgba(0,255,0,20%) }')
+            self.isbn.setToolTip(_('This ISBN number is valid'))
+        else:
+            self.isbn.setStyleSheet('QLineEdit { background-color: rgba(255,0,0,20%) }')
+            self.isbn.setToolTip(_('This ISBN number is invalid'))
 
     def show_format(self, item, *args):
         fmt = item.ext
