@@ -38,6 +38,9 @@ class RecipeInput(InputFormatPlugin):
         OptionRecommendation(name='password', recommended_value=None,
             help=_('Password for sites that require a login to access '
                 'content.')),
+        OptionRecommendation(name='dont_download_recipe',
+            recommended_value=False,
+            help=_('Download latest version of builtin recipes')),
         OptionRecommendation(name='lrf', recommended_value=False,
             help='Optimize fetching for subsequent conversion to LRF.'),
         ])
@@ -52,7 +55,8 @@ class RecipeInput(InputFormatPlugin):
         else:
             title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
             title = os.path.basename(title).rpartition('.')[0]
-            raw = get_builtin_recipe_by_title(title, log=log, download_recipe=True)
+            raw = get_builtin_recipe_by_title(title, log=log,
+                    download_recipe=not opts.dont_download_recipe)
             builtin = False
             try:
                 recipe = compile_recipe(raw)
