@@ -15,6 +15,7 @@ class IrishIndependent(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_tags_before = dict(id='article')
     remove_tags_after  = [dict(name='div', attrs={'class':'toolsBottom'})]
+    no_stylesheets = True
     remove_tags    = [
 	        dict(name='div',attrs={'class':'toolsBottom'}),
 	        dict(name='div',attrs={'class':'toolsTop'}),

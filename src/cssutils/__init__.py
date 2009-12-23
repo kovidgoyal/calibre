@@ -17,7 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-A Python package to parse and build CSS Cascading Style Sheets. DOM only, not any rendering facilities!
+A Python package to parse and build CSS Cascading Style Sheets. DOM only, not
+any rendering facilities!
 
 Based upon and partly implementing the following specifications :
 
@@ -26,30 +27,47 @@ Based upon and partly implementing the following specifications :
 `CSS 2.1 Errata  <http://www.w3.org/Style/css2-updates/CR-CSS21-20070719-errata.html>`__
     A few errata, mainly the definition of CHARSET_SYM tokens
 `CSS3 Module: Syntax <http://www.w3.org/TR/css3-syntax/>`__
-    Used in parts since cssutils 0.9.4. cssutils tries to use the features from CSS 2.1 and CSS 3 with preference to CSS3 but as this is not final yet some parts are from CSS 2.1
+    Used in parts since cssutils 0.9.4. cssutils tries to use the features from
+    CSS 2.1 and CSS 3 with preference to CSS3 but as this is not final yet some
+    parts are from CSS 2.1
 `MediaQueries <http://www.w3.org/TR/css3-mediaqueries/>`__
-    MediaQueries are part of ``stylesheets.MediaList`` since v0.9.4, used in @import and @media rules.
+    MediaQueries are part of ``stylesheets.MediaList`` since v0.9.4, used in
+    @import and @media rules.
 `Namespaces <http://dev.w3.org/csswg/css3-namespace/>`__
-    Added in v0.9.1, updated to definition in CSSOM in v0.9.4, updated in 0.9.5 for dev version
+    Added in v0.9.1, updated to definition in CSSOM in v0.9.4, updated in 0.9.5
+    for dev version
 `Selectors <http://www.w3.org/TR/css3-selectors/>`__
-    The selector syntax defined here (and not in CSS 2.1) should be parsable with cssutils (*should* mind though ;) )
+    The selector syntax defined here (and not in CSS 2.1) should be parsable
+    with cssutils (*should* mind though ;) )
 
 `DOM Level 2 Style CSS <http://www.w3.org/TR/DOM-Level-2-Style/css.html>`__
     DOM for package css
 `DOM Level 2 Style Stylesheets <http://www.w3.org/TR/DOM-Level-2-Style/stylesheets.html>`__
     DOM for package stylesheets
 `CSSOM <http://dev.w3.org/csswg/cssom/>`__
-    A few details (mainly the NamespaceRule DOM) is taken from here. Plan is to move implementation to the stuff defined here which is newer but still no REC so might change anytime...
+    A few details (mainly the NamespaceRule DOM) is taken from here. Plan is
+    to move implementation to the stuff defined here which is newer but still
+    no REC so might change anytime...
 
 
-The cssutils tokenizer is a customized implementation of `CSS3 Module: Syntax (W3C Working Draft 13 August 2003) <http://www.w3.org/TR/css3-syntax/>`__ which itself is based on the CSS 2.1 tokenizer. It tries to be as compliant as possible but uses some (helpful) parts of the CSS 2.1 tokenizer.
+The cssutils tokenizer is a customized implementation of `CSS3 Module: Syntax
+(W3C Working Draft 13 August 2003) <http://www.w3.org/TR/css3-syntax/>`__ which
+itself is based on the CSS 2.1 tokenizer. It tries to be as compliant as
+possible but uses some (helpful) parts of the CSS 2.1 tokenizer.
 
-I guess cssutils is neither CSS 2.1 nor CSS 3 compliant but tries to at least be able to parse both grammars including some more real world cases (some CSS hacks are actually parsed and serialized). Both official grammars are not final nor bugfree but still feasible. cssutils aim is not to be fully compliant to any CSS specification (the specifications seem to be in a constant flow anyway) but cssutils *should* be able to read and write as many as possible CSS stylesheets "in the wild" while at the same time implement the official APIs which are well documented. Some minor extensions are provided as well.
+I guess cssutils is neither CSS 2.1 nor CSS 3 compliant but tries to at least
+be able to parse both grammars including some more real world cases (some CSS
+hacks are actually parsed and serialized). Both official grammars are not final
+nor bugfree but still feasible. cssutils aim is not to be fully compliant to
+any CSS specification (the specifications seem to be in a constant flow anyway)
+but cssutils *should* be able to read and write as many as possible CSS
+stylesheets "in the wild" while at the same time implement the official APIs
+which are well documented. Some minor extensions are provided as well.
 
 Please visit http://cthedot.de/cssutils/ for more details.
 
 
-Tested with Python 2.5 on Windows Vista mainly.
+Tested with Python 2.6 on Windows 7 mainly.
 
 
 This library may be used ``from cssutils import *`` which
@@ -70,13 +88,16 @@ Usage may be::
 __all__ = ['css', 'stylesheets', 'CSSParser', 'CSSSerializer']
 __docformat__ = 'restructuredtext'
 __author__ = 'Christof Hoeke with contributions by Walter Doerwald'
-__date__ = '$LastChangedDate:: 2009-10-17 15:12:28 -0600 #$:'
+__date__ = '$LastChangedDate:: 2009-11-26 16:31:32 -0700 #$:'
 
 VERSION = '0.9.7a1'
 
-__version__ = '%s $Id: __init__.py 1877 2009-10-17 21:12:28Z cthedot $' % VERSION
+__version__ = '%s $Id: __init__.py 1892 2009-11-26 23:31:32Z cthedot $' % VERSION
 
 import codec
+import os.path
+import urllib
+import urlparse
 import xml.dom
 
 # order of imports is important (partly circular)
@@ -230,19 +251,22 @@ def getUrls(sheet):
                 if u is not None:
                     yield u
 
-def replaceUrls(sheet, replacer):
+def replaceUrls(sheet, replacer, ignoreImportRules=False):
     """Replace all URLs in :class:`cssutils.css.CSSImportRule` or
     :class:`cssutils.css.CSSValue` objects of given `sheet`.
 
     :param sheet:
         :class:`cssutils.css.CSSStyleSheet` which is changed
     :param replacer:
-        a function which is called with a single argument `urlstring` which is
-        the current value of each url() excluding ``url(`` and ``)`` and
+        a function which is called with a single argument `urlstring` which 
+        is the current value of each url() excluding ``url(`` and ``)`` and
         surrounding single or double quotes.
+    :param ignoreImportRules:
+        if ``True`` does not call `replacer` with URLs from @import rules.
     """
-    for importrule in (r for r in sheet if r.type == r.IMPORT_RULE):
-        importrule.href = replacer(importrule.href)
+    if not ignoreImportRules:
+        for importrule in (r for r in sheet if r.type == r.IMPORT_RULE):
+            importrule.href = replacer(importrule.href)
 
     def setProperty(v):
         if v.CSS_PRIMITIVE_VALUE == v.cssValueType and\
@@ -273,7 +297,7 @@ def resolveImports(sheet, target=None):
     @import rules which use media information are tried to be wrapped into
     @media rules so keeping the media information. This may not work in 
     all instances (if e.g. an @import rule itself contains an @import rule
-    with different media infos or if it is contains rules which may not be 
+    with different media infos or if it contains rules which may not be 
     used inside an @media block like @namespace rules.). In these cases
     the @import rule is kept as in the original sheet and a WARNING is issued.
 
@@ -281,43 +305,110 @@ def resolveImports(sheet, target=None):
         in this given :class:`cssutils.css.CSSStyleSheet` all import rules are
         resolved and added to a resulting *flat* sheet.
     :param target:
-        A :class:`cssutils.css.CSSStyleSheet` object which will be the resulting
-        *flat* sheet if given
-    :returns: given `target` or a new :class:`cssutils.css.CSSStyleSheet` object
+        A :class:`cssutils.css.CSSStyleSheet` object which will be the
+        resulting *flat* sheet if given
+    :returns: given `target` or a new :class:`cssutils.css.CSSStyleSheet` 
+        object
     """
     if not target:
-        target = css.CSSStyleSheet()
+        target = css.CSSStyleSheet(href=sheet.href, 
+                                   media=sheet.media, 
+                                   title=sheet.title)
 
-    #target.add(css.CSSComment(cssText=u'/* START %s */' % sheet.href))
+    def getReplacer(targetbase):
+        "Return a replacer which uses base to return adjusted URLs"
+        basesch, baseloc, basepath, basequery, basefrag = urlparse.urlsplit(targetbase)
+        basepath, basepathfilename = os.path.split(basepath)
+
+        def replacer(url):
+            scheme, location, path, query, fragment = urlparse.urlsplit(url)
+            if not scheme and not location and not path.startswith(u'/'):
+                # relative
+                path, filename = os.path.split(path)
+                combined = os.path.normpath(os.path.join(basepath, path, filename))
+                return urllib.pathname2url(combined)
+            else:
+                # keep anything absolute
+                return url
+        
+        return replacer
+
     for rule in sheet.cssRules:
         if rule.type == rule.CHARSET_RULE:
             pass
         elif rule.type == rule.IMPORT_RULE:
             log.info(u'Processing @import %r' % rule.href, neverraise=True)
+            
             if rule.styleSheet:
-                target.add(css.CSSComment(cssText=u'/* START @import "%s" */' % rule.href))
-                if rule.media.mediaText == 'all':
-                    t = target
-                else:
-                    log.info(u'Replacing @import media with @media: %s' % 
-                             rule.media.mediaText, neverraise=True)
-                    t = css.CSSMediaRule(rule.media.mediaText)
+                # add all rules of @import to current sheet        
+                target.add(css.CSSComment(cssText=u'/* START @import "%s" */'
+                                          % rule.href))
+
                 try:
-                    resolveImports(rule.styleSheet, t)
+                    # nested imports
+                    importedSheet = resolveImports(rule.styleSheet)
                 except xml.dom.HierarchyRequestErr, e:
-                    log.warn(u'Cannot resolve @import: %s' % 
-                             e, neverraise=True)
+                    log.warn(u'@import: Cannot resolve target, keeping rule: %s'
+                             % e, neverraise=True)
                     target.add(rule)
                 else:
-                    if t != target:
-                        target.add(t)
-                    t.add(css.CSSComment(cssText=u'/* END "%s" */' % rule.href))
+                    # adjust relative URI references 
+                    log.info(u'@import: Adjusting paths for %r' % rule.href, 
+                             neverraise=True)
+                    replaceUrls(importedSheet, 
+                                getReplacer(rule.href), 
+                                ignoreImportRules=True)
+                    
+                    # might have to wrap rules in @media if media given
+                    if rule.media.mediaText == u'all':
+                        mediaproxy = None
+                    else:
+                        keepimport = False
+                        for r in importedSheet:
+                            # check if rules present which may not be 
+                            # combined with media
+                            if r.type not in (r.COMMENT, 
+                                              r.STYLE_RULE, 
+                                              r.IMPORT_RULE):
+                                keepimport = True
+                                break
+                        if keepimport:
+                            log.warn(u'Cannot combine imported sheet with'
+                                     u' given media as other rules then'
+                                     u' comments or stylerules found %r,'
+                                     u' keeping %r' % (r,
+                                                       rule.cssText), 
+                                     neverraise=True)
+                            target.add(rule)
+                            continue
+                             
+                        # wrap in @media if media is not `all`
+                        log.info(u'@import: Wrapping some rules in @media '
+                                 u' to keep media: %s' 
+                                 % rule.media.mediaText, neverraise=True)
+                        mediaproxy = css.CSSMediaRule(rule.media.mediaText)
+                        
+                    for r in importedSheet:
+                        if mediaproxy:
+                            mediaproxy.add(r)
+                        else:
+                            # add to top sheet directly but are difficult anyway
+                            target.add(r)
+                            
+                    if mediaproxy:
+                        target.add(mediaproxy)
+                        
             else:
-                log.error(u'Cannot get referenced stylesheet %r' %
-                          rule.href, neverraise=True)
+                # keep @import as it is
+                log.error(u'Cannot get referenced stylesheet %r, keeping rule'
+                          % rule.href, neverraise=True)
                 target.add(rule)
+                
+                
+
         else:
             target.add(rule)
+    
     return target
 
 

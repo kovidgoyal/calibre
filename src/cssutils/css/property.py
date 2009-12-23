@@ -1,7 +1,7 @@
 """Property is a single CSS property in a CSSStyleDeclaration."""
 __all__ = ['Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: property.py 1868 2009-10-17 19:36:54Z cthedot $'
+__version__ = '$Id: property.py 1878 2009-11-17 20:16:26Z cthedot $'
 
 from cssutils.helper import Deprecated
 from cssvalue import CSSValue
@@ -43,7 +43,7 @@ class Property(cssutils.util.Base):
           ;
 
     """
-    def __init__(self, name=None, value=None, priority=u'', 
+    def __init__(self, name=None, value=None, priority=u'',
                  _mediaQuery=False, parent=None):
         """
         :param name:
@@ -56,7 +56,7 @@ class Property(cssutils.util.Base):
         :param _mediaQuery:
             if ``True`` value is optional (used by MediaQuery)
         :param parent:
-            the parent object, normally a 
+            the parent object, normally a
             :class:`cssutils.css.CSSStyleDeclaration`
         """
         super(Property, self).__init__()
@@ -68,19 +68,16 @@ class Property(cssutils.util.Base):
         self.__nametoken = None
         self._name = u''
         self._literalname = u''
+        self.seqs[1] = CSSValue(parent=self)
         if name:
             self.name = name
-
-        if value:
             self.cssValue = value
-        else:
-            self.seqs[1] = CSSValue(parent=self)
 
         self._priority = u''
         self._literalpriority = u''
         if priority:
             self.priority = priority
-            
+
     def __repr__(self):
         return "cssutils.css.%s(name=%r, value=%r, priority=%r)" % (
                 self.__class__.__name__,
@@ -143,12 +140,12 @@ class Property(cssutils.util.Base):
                 self._log.error(u'Property: No property value found: %r.' %
                                 self._valuestr(cssText), colontoken)
 
-            if wellformed:                
+            if wellformed:
                 self.wellformed = True
                 self.name = nametokens
                 self.cssValue = valuetokens
                 self.priority = prioritytokens
-                
+
                 # also invalid values are set!
                 self.validate()
 
@@ -161,7 +158,7 @@ class Property(cssutils.util.Base):
 
     def _setName(self, name):
         """
-        :exceptions:    
+        :exceptions:
             - :exc:`~xml.dom.SyntaxErr`:
               Raised if the specified name has a syntax error and is
               unparsable.
@@ -223,7 +220,7 @@ class Property(cssutils.util.Base):
 
     name = property(lambda self: self._name, _setName,
                     doc="Name of this property.")
-    
+
     literalname = property(lambda self: self._literalname,
                            doc="Readonly literal (not normalized) name "
                                "of this property")
@@ -246,14 +243,14 @@ class Property(cssutils.util.Base):
         if self._mediaQuery and not cssText:
             self.seqs[1] = CSSValue(parent=self)
         else:
-            #if not self.seqs[1]:
-            #    self.seqs[1] = CSSValue(parent=self)
-
-            self.seqs[1] = CSSValue(parent=self)
+            oldvalue = self.seqs[1].cssText
+            try:
+                self.seqs[1].cssText = cssText
+            except:
+                self.seqs[1].cssText = oldvalue
+                raise
             
-            self.seqs[1].cssText = cssText
             self.wellformed = self.wellformed and self.seqs[1].wellformed
-            # self.valid = self.valid and self.cssValue.valid
 
     cssValue = property(_getCSSValue, _setCSSValue,
         doc="(cssutils) CSSValue object of this property")
@@ -368,11 +365,11 @@ class Property(cssutils.util.Base):
 
     def validate(self):
         """Validate value against `profiles` which are checked dynamically.
-        properties in e.g. @font-face rules are checked against 
-        ``cssutils.profile.CSS3_FONT_FACE`` only. 
-        
+        properties in e.g. @font-face rules are checked against
+        ``cssutils.profile.CSS3_FONT_FACE`` only.
+
         For each of the following cases a message is reported:
-        
+
         - INVALID (so the property is known but not valid)
             ``ERROR    Property: Invalid value for "{PROFILE-1[/PROFILE-2...]"
             property: ...``
@@ -385,46 +382,46 @@ class Property(cssutils.util.Base):
             ``DEBUG    Found valid "{PROFILE-1[/PROFILE-2...]" property...``
 
         - UNKNOWN property
-            ``WARNING    Unknown Property name...`` is issued            
-            
+            ``WARNING    Unknown Property name...`` is issued
+
         so for example::
-        
+
             cssutils.log.setLevel(logging.DEBUG)
             parser = cssutils.CSSParser()
-            s = parser.parseString('''body { 
+            s = parser.parseString('''body {
                 unknown-property: x;
                 color: 4;
                 color: rgba(1,2,3,4);
-                color: red 
+                color: red
             }''')
 
             # Log output:
-            
+
             WARNING Property: Unknown Property name. [2:9: unknown-property]
             ERROR   Property: Invalid value for "CSS Color Module Level 3/CSS Level 2.1" property: 4 [3:9: color]
             DEBUG   Property: Found valid "CSS Color Module Level 3" value: rgba(1, 2, 3, 4) [4:9: color]
             DEBUG   Property: Found valid "CSS Level 2.1" value: red [5:9: color]
-        
+
 
         and when setting an explicit default profile::
 
             cssutils.profile.defaultProfiles = cssutils.profile.CSS_LEVEL_2
-            s = parser.parseString('''body { 
+            s = parser.parseString('''body {
                 unknown-property: x;
                 color: 4;
                 color: rgba(1,2,3,4);
-                color: red 
+                color: red
             }''')
 
             # Log output:
-            
+
             WARNING Property: Unknown Property name. [2:9: unknown-property]
             ERROR   Property: Invalid value for "CSS Color Module Level 3/CSS Level 2.1" property: 4 [3:9: color]
             WARNING Property: Not valid for profile "CSS Level 2.1" but valid "CSS Color Module Level 3" value: rgba(1, 2, 3, 4)  [4:9: color]
-            DEBUG   Property: Found valid "CSS Level 2.1" value: red [5:9: color]            
+            DEBUG   Property: Found valid "CSS Level 2.1" value: red [5:9: color]
         """
         valid = False
-        
+
         profiles = None
         try:
             # if @font-face use that profile
@@ -434,7 +431,7 @@ class Property(cssutils.util.Base):
             #TODO: same for @page
         except AttributeError:
             pass
-        
+
         if self.name and self.value:
 
             if self.name in cssutils.profile.knownNames:
@@ -443,14 +440,14 @@ class Property(cssutils.util.Base):
                     cssutils.profile.validateWithProfile(self.name,
                                                          self.value,
                                                          profiles)
-                
+
                 if not valid:
                     self._log.error(u'Property: Invalid value for '
                                     u'"%s" property: %s'
                                     % (u'/'.join(validprofiles), self.value),
                                     token=self.__nametoken,
                                     neverraise=True)
-                    
+
                 # TODO: remove logic to profiles!
                 elif valid and not matching:#(profiles and profiles not in validprofiles):
                     if not profiles:
@@ -464,13 +461,13 @@ class Property(cssutils.util.Base):
                                    token = self.__nametoken,
                                    neverraise=True)
                     valid = False
-                                
+
                 elif valid:
                     self._log.debug(u'Property: Found valid "%s" value: %s'
                                    % (u'/'.join(validprofiles), self.value),
                                    token = self.__nametoken,
                                    neverraise=True)
-                    
+
         if self._priority not in (u'', u'important'):
             valid = False
 

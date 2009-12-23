@@ -51,7 +51,7 @@ TODO:
 """
 __all__ = ['CSSStyleDeclaration', 'Property']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstyledeclaration.py 1870 2009-10-17 19:56:59Z cthedot $'
+__version__ = '$Id: cssstyledeclaration.py 1879 2009-11-17 20:35:04Z cthedot $'
 
 from cssproperties import CSS2Properties
 from property import Property
@@ -581,6 +581,9 @@ class CSSStyleDeclaration(CSS2Properties, cssutils.util.Base2):
         if isinstance(name, Property):
             newp = name 
             name = newp.literalname
+        elif not value:
+            # empty string or None effectively removed property
+            return self.removeProperty(name)
         else:
             newp = Property(name, value, priority)
         if not newp.wellformed:
