@@ -323,8 +323,14 @@ class Device(DeviceConfig, DevicePlugin):
         ioreg = '/usr/sbin/ioreg'
         if not os.access(ioreg, os.X_OK):
             ioreg = 'ioreg'
-        return subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
-                                stdout=subprocess.PIPE).communicate()[0]
+        cmd = (ioreg+' -w 0 -S -c IOMedia').split()
+        for i in range(3):
+            try:
+                return subprocess.Popen(cmd,
+                                    stdout=subprocess.PIPE).communicate()[0]
+            except IOError: # Probably an interrupted system call
+                pass
+
 
     def osx_sort_names(self, names):
         return names
