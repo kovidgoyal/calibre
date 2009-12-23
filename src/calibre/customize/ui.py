@@ -255,6 +255,7 @@ def initialize_plugin(plugin, path_to_zip_file):
     try:
         p = plugin(path_to_zip_file)
         p.initialize()
+        return p
     except Exception:
         print 'Failed to initialize plugin:', plugin.name, plugin.version
         tb = traceback.format_exc()
