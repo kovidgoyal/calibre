@@ -329,7 +329,8 @@ class Device(DeviceConfig, DevicePlugin):
                 return subprocess.Popen(cmd,
                                     stdout=subprocess.PIPE).communicate()[0]
             except IOError: # Probably an interrupted system call
-                pass
+                if i == 2:
+                    raise
             time.sleep(2)
 
 
