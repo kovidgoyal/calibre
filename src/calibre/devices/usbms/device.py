@@ -330,6 +330,7 @@ class Device(DeviceConfig, DevicePlugin):
                                     stdout=subprocess.PIPE).communicate()[0]
             except IOError: # Probably an interrupted system call
                 pass
+            time.sleep(2)
 
 
     def osx_sort_names(self, names):
