@@ -24,6 +24,7 @@ class DuplicatesAdder(QThread):
     def run(self):
         count = 1
         for mi, cover, formats in self.duplicates:
+            formats = [f for f in formats if not f.lower().endswith('.opf')]
             id = self.db.create_book_entry(mi, cover=cover,
                     add_duplicates=True)
             self.db_adder.add_formats(id, formats)
@@ -139,6 +140,7 @@ class DBAdder(Thread):
             if id is None:
                 self.duplicates.append((mi, cover, formats))
             else:
+                formats = [f for f in formats if not f.lower().endswith('.opf')]
                 self.add_formats(id, formats)
         else:
             self.names.append(name)
