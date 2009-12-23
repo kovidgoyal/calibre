@@ -121,6 +121,7 @@ def metadata_from_filename(name, pat=None):
     mi = MetaInformation(None, None)
     if pat is None:
         pat = re.compile(prefs.get('filename_pattern'))
+    name = name.replace('_', ' ')
     match = pat.search(name)
     if match:
         try:
