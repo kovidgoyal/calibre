@@ -253,7 +253,8 @@ run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
 
 def initialize_plugin(plugin, path_to_zip_file):
     try:
-        return plugin(path_to_zip_file)
+        p = plugin(path_to_zip_file)
+        p.initialize()
     except Exception:
         print 'Failed to initialize plugin:', plugin.name, plugin.version
         tb = traceback.format_exc()
