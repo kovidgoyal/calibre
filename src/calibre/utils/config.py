@@ -11,7 +11,6 @@ from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
-from PyQt4.QtCore import QString
 from calibre.constants import terminal_controller, iswindows, isosx, \
                               __appname__, __version__, __author__, plugins
 from calibre.utils.lock import LockError, ExclusiveFile
@@ -365,6 +364,7 @@ class OptionSet(object):
         if val is val is True or val is False or val is None or \
            isinstance(val, (int, float, long, basestring)):
             return repr(val)
+        from PyQt4.QtCore import QString
         if isinstance(val, QString):
             return repr(unicode(val))
         pickle = cPickle.dumps(val, -1)
@@ -722,26 +722,4 @@ def migrate():
     p.set('migrated', True)
 
 
-if __name__ == '__main__':
-    import subprocess
-    from PyQt4.Qt import QByteArray
-    c = Config('test', 'test config')
-
-    c.add_opt('one', ['-1', '--one'], help="This is option #1")
-    c.set('one', u'345')
-
-    c.add_opt('two', help="This is option #2")
-    c.set('two', 345)
-
-    c.add_opt('three', help="This is option #3")
-    c.set('three', QString(u'aflatoon'))
-
-    c.add_opt('four', help="This is option #4")
-    c.set('four', QByteArray('binary aflatoon'))
-
-    subprocess.call(['pygmentize', os.path.expanduser('~/.config/calibre/test.py')])
-
-    opts = c.parse()
-    for i in ('one', 'two', 'three', 'four'):
-        print i, repr(getattr(opts, i))
 

@@ -96,6 +96,7 @@ class Nook(Sony505):
     id = 'nook'
     name = 'Nook'
     manufacturer = 'Barnes & Noble'
+    output_profile = 'nook'
 
 class CybookG3(Device):
 

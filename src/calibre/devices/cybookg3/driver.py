@@ -9,7 +9,6 @@ Device driver for Bookeen's Cybook Gen 3
 '''
 
 import os
-from itertools import cycle
 
 from calibre import islinux
 from calibre.devices.usbms.driver import USBMS

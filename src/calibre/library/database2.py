@@ -473,7 +473,7 @@ class LibraryDatabase2(LibraryDatabase):
     def upgrade_version_2(self):
         ''' Fix Foreign key constraints for deleting from link tables. '''
         script = textwrap.dedent('''\
-        DROP TRIGGER fkc_delete_books_%(ltable)s_link;
+        DROP TRIGGER IF EXISTS fkc_delete_books_%(ltable)s_link;
         CREATE TRIGGER fkc_delete_on_%(table)s
         BEFORE DELETE ON %(table)s
         BEGIN

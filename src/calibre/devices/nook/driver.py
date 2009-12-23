@@ -8,10 +8,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for Barns and Nobel's Nook
 '''
 
-try:
-    from PIL import Image, ImageDraw
-except ImportError:
-    import Image, ImageDraw
+import os
 
 import cStringIO
 
@@ -47,6 +44,13 @@ class NOOK(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     def upload_cover(self, path, filename, metadata):
+        try:
+            from PIL import Image, ImageDraw
+            Image, ImageDraw
+        except ImportError:
+            import Image, ImageDraw
+
+
         coverdata = metadata.get('cover', None)
         if coverdata:
             cover = Image.open(cStringIO.StringIO(coverdata[2]))

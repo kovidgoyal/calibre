@@ -111,7 +111,11 @@ class USBMS(CLI, Device):
             paths.append(filepath)
 
             self.put_file(infile, filepath, replace_file=True)
-            self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], mdata)
+            try:
+                self.upload_cover(os.path.dirname(filepath), os.path.splitext(os.path.basename(filepath))[0], mdata)
+            except: # Failure to upload cover is not catastrophic
+                import traceback
+                traceback.print_exc()
 
             self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
 

@@ -363,7 +363,7 @@ class NookOutput(OutputProfile):
     description = _('This profile is intended for the B&N Nook.')
 
     # Screen size is a best guess
-    screen_size               = (600, 800)
+    screen_size               = (600, 770)
     dpi                       = 167
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]

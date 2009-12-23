@@ -552,6 +552,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.connect(self.scheduler,
                 SIGNAL('start_recipe_fetch(PyQt_PyObject)'),
                 self.download_scheduled_recipe, Qt.QueuedConnection)
+        self.library_view.verticalHeader().sectionClicked.connect(self.view_specific_book)
+
+        for view in ('library', 'memory', 'card_a', 'card_b'):
+            view = getattr(self, view+'_view')
+            view.verticalHeader().sectionDoubleClicked.connect(self.view_specific_book)
 
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
 
@@ -921,8 +926,7 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         '''
         Add books from the local filesystem to either the library or the device.
         '''
-        books = choose_files(self, 'add books dialog dir', 'Select books',
-                             filters=[
+        filters = [
                         (_('Books'), BOOK_EXTENSIONS),
                         (_('EPUB Books'), ['epub']),
                         (_('LRF Books'), ['lrf']),
@@ -933,10 +937,15 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                         (_('PDF Books'), ['pdf']),
                         (_('Comics'), ['cbz', 'cbr', 'cbc']),
                         (_('Archives'), ['zip', 'rar']),
-                        ])
+                        ]
+        to_device = self.stack.currentIndex() != 0
+        if to_device:
+            filters = [(_('Supported books'), self.device_manager.device.FORMATS)]
+
+        books = choose_files(self, 'add books dialog dir', 'Select books',
+                             filters=filters)
         if not books:
             return
-        to_device = self.stack.currentIndex() != 0
         self._add_books(books, to_device)
 
 
@@ -1442,7 +1451,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()
+        self._view_books(rows)
 
+    def view_specific_book(self, index):
+        self._view_books([index])
+
+    def _view_books(self, rows):
         if not rows or len(rows) == 0:
             self._launch_viewer()
             return
@@ -1458,7 +1472,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
 
         if self.current_view() is self.library_view:
             for row in rows:
-                row = row.row()
+                if hasattr(row, 'row'):
+                    row = row.row()
 
                 formats = self.library_view.model().db.formats(row)
                 title   = self.library_view.model().db.title(row)

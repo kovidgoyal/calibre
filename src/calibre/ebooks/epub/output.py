@@ -155,17 +155,19 @@ class EPUBOutput(OutputFormatPlugin):
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
 
+        self.workaround_ade_quirks()
+        self.workaround_webkit_quirks()
+        self.workaround_sony_quirks()
+        from calibre.ebooks.oeb.transforms.rescale import RescaleImages
+        RescaleImages()(oeb, opts)
+
+
         from calibre.ebooks.oeb.transforms.split import Split
         split = Split(not self.opts.dont_split_on_page_breaks,
                 max_flow_size=self.opts.flow_size*1024
                 )
         split(self.oeb, self.opts)
 
-        self.workaround_ade_quirks()
-        self.workaround_webkit_quirks()
-        self.workaround_sony_quirks()
-        from calibre.ebooks.oeb.transforms.rescale import RescaleImages
-        RescaleImages()(oeb, opts)
         self.insert_cover()
 
         with TemporaryDirectory('_epub_output') as tdir:

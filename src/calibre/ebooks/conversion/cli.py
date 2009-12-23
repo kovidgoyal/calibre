@@ -203,9 +203,10 @@ def create_option_parser(args, log):
         log('Created by:', __author__)
         raise SystemExit(0)
     if '--list-recipes' in args:
-        from calibre.web.feeds.recipes import titles
+        from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
         log('Available recipes:')
-        for title in sorted(titles):
+        titles = sorted(get_builtin_recipe_titles())
+        for title in titles:
             try:
                 log('\t'+title)
             except:

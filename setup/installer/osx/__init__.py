@@ -25,8 +25,9 @@ class OSX32(VMInstaller):
     description = 'Build 32 bit OS X binary installer'
 
     INSTALLER_EXT = 'dmg'
-    VM_NAME = 'tiger_build'
+    VM_NAME = 'leopard_build'
     VM = '/vmware/bin/%s'%VM_NAME
+    FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command}'
     FREEZE_COMMAND = 'osx32_freeze'
     BUILD_PREFIX = VMInstaller.BUILD_PREFIX + ['source ~/.profile']
     SHUTDOWN_CMD = ['sudo', 'halt']

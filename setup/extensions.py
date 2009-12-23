@@ -15,7 +15,7 @@ from setup import Command, islinux, isosx, SRC, iswindows
 from setup.build_environment import fc_inc, fc_lib, \
         fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
-        leopard_build, QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, \
+        QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, jpg_lib_dirs
 MT
@@ -156,7 +156,7 @@ if islinux:
 
 
 if isosx:
-    x, p = ('x86_64', 'ppc64') if leopard_build else ('i386', 'ppc')
+    x, p = ('i386', 'ppc')
     archs = ['-arch', x, '-arch', p, '-isysroot',
                 OSX_SDK]
     cflags.append('-D_OSX')
@@ -305,7 +305,7 @@ class Build(Command):
         obj_pat = 'release\\*.obj' if iswindows else '*.o'
         objects = glob.glob(obj_pat)
         if not objects or self.newer(objects, ext.sources+ext.headers):
-            archs = 'x86_64 ppc64' if leopard_build else 'x86 ppc'
+            archs = 'x86 ppc'
             pro = textwrap.dedent('''\
                 TARGET   = %s
                 TEMPLATE = lib
@@ -316,9 +316,6 @@ class Build(Command):
             ''')%(ext.name, ' '.join(ext.headers), ' '.join(ext.sources), archs)
             open(ext.name+'.pro', 'wb').write(pro)
             subprocess.check_call([QMAKE, '-o', 'Makefile', ext.name+'.pro'])
-            if leopard_build:
-                raw = open('Makefile', 'rb').read()
-                open('Makefile', 'wb').write(raw.replace('ppc64', 'x86_64'))
             subprocess.check_call([make, '-f', 'Makefile'])
             objects = glob.glob(obj_pat)
         return list(map(self.a, objects))
@@ -354,12 +351,6 @@ class Build(Command):
             makefile.extra_lflags = qt_objects
             makefile.extra_include_dirs = ext.inc_dirs
             makefile.generate()
-            if leopard_build:
-                raw = open(mf, 'rb').read()
-                raw = raw.replace('ppc64 x86_64', 'x86_64')
-                for x in ('ppc64', 'ppc', 'i386'):
-                    raw = raw.replace(x, 'x86_64')
-                open(mf, 'wb').write(raw)
 
             subprocess.check_call([make, '-f', mf], cwd=src_dir)
             shutil.copy2(module, dest)
