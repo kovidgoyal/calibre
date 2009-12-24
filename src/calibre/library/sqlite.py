@@ -8,7 +8,7 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 import sqlite3 as sqlite, traceback, time, uuid
-from sqlite3 import IntegrityError
+from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
 from Queue import Queue
 from threading import RLock
@@ -139,7 +139,16 @@ class DBThread(Thread):
                 else:
                     func = getattr(self.conn, func)
                     try:
-                        ok, res = True, func(*args, **kwargs)
+                        for i in range(3):
+                            try:
+                                ok, res = True, func(*args, **kwargs)
+                                break
+                            except OperationalError, err:
+                                # Retry if unable to open db file
+                                if 'unable to open' not in str(err) or i == 2:
+                                    raise
+                                traceback.print_exc()
+                            time.sleep(0.5)
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())
                 self.results.put((ok, res))
