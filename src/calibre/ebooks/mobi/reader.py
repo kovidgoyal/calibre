@@ -602,7 +602,7 @@ class MobiReader(object):
                 * opf.cover.split('/'))):
                 opf.cover = None
 
-        manifest = [(htmlfile, 'text/x-oeb1-document'),
+        manifest = [(htmlfile, 'application/xhtml+xml'),
             (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
         for i in getattr(self, 'image_names', []):
