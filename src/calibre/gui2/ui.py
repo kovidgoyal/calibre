@@ -1591,7 +1591,6 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                     view.resizeColumnsToContents()
                 view.resize_on_select = False
         self.status_bar.reset_info()
-        self.current_view().clearSelection()
         if location == 'library':
             self.action_edit.setEnabled(True)
             self.action_convert.setEnabled(True)
