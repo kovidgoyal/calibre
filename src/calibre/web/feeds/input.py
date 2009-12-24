@@ -72,6 +72,8 @@ class RecipeInput(InputFormatPlugin):
             if builtin:
                 raw = get_builtin_recipe_by_title(title, log=log,
                         download_recipe=False)
+                if raw is None:
+                    raise ValueError('Failed to find builtin recipe: '+title)
                 recipe = compile_recipe(raw)
 
 

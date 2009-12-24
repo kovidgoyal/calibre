@@ -29,7 +29,7 @@ class LinuxFreeze(Command):
 
         QTDIR          = '/usr/lib/qt4'
         QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml',
-                'QtWebKit', 'QtDBus')
+                'QtWebKit', 'QtDBus', 'QtXmlPatterns')
 
         binary_excludes = ['libGLcore*', 'libGL*', 'libnvidia*']
 

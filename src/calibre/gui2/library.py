@@ -636,12 +636,16 @@ class BooksModel(QAbstractTableModel):
                 val *= 2
                 self.db.set_rating(id, val)
             elif column == 'series':
+                val = val.strip()
                 pat = re.compile(r'\[([.0-9]+)\]')
                 match = pat.search(val)
                 if match is not None:
                     self.db.set_series_index(id, float(match.group(1)))
                     val = pat.sub('', val)
-                val = val.strip()
+                elif val:
+                    ni = self.db.get_next_series_num_for(val)
+                    if ni != 1:
+                        self.db.set_series_index(id, ni)
                 if val:
                     self.db.set_series(id, val)
             elif column == 'timestamp':
