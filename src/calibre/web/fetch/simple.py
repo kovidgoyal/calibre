@@ -188,11 +188,12 @@ class RecursiveFetcher(object):
         delta = time.time() - self.last_fetch_at
         if  delta < self.delay:
             time.sleep(delta)
-        if re.search(r'\s+|,', url) is not None:
-            purl = list(urlparse.urlparse(url))
-            for i in range(2, 6):
-                purl[i] = quote(purl[i])
-            url = urlparse.urlunparse(purl)
+        if isinstance(url, unicode):
+            url = url.encode('utf-8')
+        purl = list(urlparse.urlparse(url))
+        for i in range(2, 6):
+            purl[i] = quote(purl[i])
+        url = urlparse.urlunparse(purl)
         try:
             open_func = getattr(self.browser, 'open_novisit', self.browser.open)
             with closing(open_func(url, timeout=self.timeout)) as f:
