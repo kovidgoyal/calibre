@@ -11,7 +11,7 @@ from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QPen, QStyle, QPainter, \
                         QImage, QApplication, QMenu, \
                         QStyledItemDelegate, QCompleter
-from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, \
+from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, pyqtSignal, \
                          SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
@@ -155,6 +155,10 @@ class TagsDelegate(QStyledItemDelegate):
         return editor
 
 class BooksModel(QAbstractTableModel):
+
+    about_to_be_sorted = pyqtSignal(object, name='aboutToBeSorted')
+    sorting_done       = pyqtSignal(object, name='sortingDone')
+
     headers = {
                         'title'     : _("Title"),
                         'authors'   : _("Author(s)"),
@@ -285,13 +289,14 @@ class BooksModel(QAbstractTableModel):
     def sort(self, col, order, reset=True):
         if not self.db:
             return
+        self.about_to_be_sorted.emit(self.db.id)
         ascending = order == Qt.AscendingOrder
         self.db.sort(self.column_map[col], ascending)
         if reset:
             self.clear_caches()
             self.reset()
         self.sorted_on = (self.column_map[col], order)
-
+        self.sorting_done.emit(self.db.index)
 
     def refresh(self, reset=True):
         try:
@@ -696,6 +701,22 @@ class BooksView(TableView):
         hv = self.verticalHeader()
         hv.setClickable(True)
         hv.setCursor(Qt.PointingHandCursor)
+        self.selected_ids = []
+        self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
+        self._model.sorting_done.connect(self.sorting_done)
+
+    def about_to_be_sorted(self, idc):
+        selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
+        self.selected_ids = [idc(r) for r in selected_rows]
+
+    def sorting_done(self, indexc):
+        if self.selected_ids:
+            indices = [self.model().index(indexc(i), 0) for i in
+                    self.selected_ids]
+            sm = self.selectionModel()
+            for idx in indices:
+                sm.select(idx, sm.Select|sm.Rows)
+        self.selected_ids = []
 
     def columns_sorted(self):
         for i in range(self.model().columnCount(None)):
