@@ -382,6 +382,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.series_index.setValue(1.0)
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
+        self.series.lineEdit().editingFinished.connect(self.increment_series_index)
 
         self.show()
         height_of_rest = self.frameGeometry().height() - self.cover.height()
@@ -596,6 +597,16 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
     def enable_series_index(self, *args):
         self.series_index.setEnabled(True)
+
+    def increment_series_index(self):
+        if self.db is not None:
+            try:
+                series = unicode(self.series.text())
+                if series:
+                    ns = self.db.get_next_series_num_for(series)
+                    self.series_index.setValue(ns)
+            except:
+                traceback.print_exc()
 
     def remove_unused_series(self):
         self.db.remove_unused_series()

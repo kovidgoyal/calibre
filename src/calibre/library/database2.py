@@ -10,6 +10,7 @@ import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
        itertools, functools, traceback
 from itertools import repeat
 from datetime import datetime
+from math import floor
 
 from PyQt4.QtCore import QThread, QReadWriteLock
 try:
@@ -1080,7 +1081,18 @@ class LibraryDatabase2(LibraryDatabase):
                     if tags and tag in tags.lower():
                         yield r[FIELD_MAP['id']]
 
-
+    def get_next_series_num_for(self, series):
+        series_id = self.conn.get('SELECT id from series WHERE name=?',
+                (series,), all=False)
+        if series_id is None:
+            return 1.0
+        series_num = self.conn.get(
+            ('SELECT MAX(series_index) FROM books WHERE id IN '
+            '(SELECT book FROM books_series_link where series=?)'),
+            (series_id,), all=False)
+        if series_num is None:
+            return 1.0
+        return floor(series_num+1)
 
     def set(self, row, column, val):
         '''
