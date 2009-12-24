@@ -20,7 +20,7 @@ NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
 
 def iterate_over_builtin_recipe_files():
-    exclude = ['craigslist', 'iht', 'le_temps', 'outlook_india', 'toronto_sun']
+    exclude = ['craigslist', 'iht', 'outlook_india', 'toronto_sun']
     d = os.path.dirname
     base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'resources', 'recipes')
     for x in os.walk(base):
@@ -65,9 +65,9 @@ def serialize_builtin_recipes():
     from calibre.web.feeds.recipes import compile_recipe
     recipe_mapping = {}
     for rid, f in iterate_over_builtin_recipe_files():
-            recipe_class = compile_recipe(open(f, 'rb').read())
-            if recipe_class is not None:
-                recipe_mapping['builtin:'+rid] = recipe_class
+        recipe_class = compile_recipe(open(f, 'rb').read())
+        if recipe_class is not None:
+            recipe_mapping['builtin:'+rid] = recipe_class
 
     return serialize_collection(recipe_mapping)
 
