@@ -13,8 +13,8 @@ from setup import Command, modules, functions, basenames, __version__, \
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
-QT_DIR = 'C:\\Qt\\4.5.2'
-QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'phonon']
+QT_DIR = 'C:\\Qt\\4.6.0'
+QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns', 'phonon']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
@@ -347,7 +347,6 @@ class Win32Freeze(Command, WixMixIn):
                     cmd = [msvc.cc] + xflags + ['/Tc'+src, '/Fo'+dest]
                     self.run_builder(cmd)
                 exe = self.j(self.base, bname+'.exe')
-                manifest = exe+'.manifest'
                 lib = dll.replace('.dll', '.lib')
                 if self.newer(exe, [dest, lib, self.rc_template, __file__]):
                     self.info('Linking', bname)
