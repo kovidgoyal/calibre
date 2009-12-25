@@ -2261,7 +2261,7 @@ msgstr ""
 "commando can een van de volgenden zijn:\n"
 "[%%commands]\n"
 "\n"
-"Gebruik %prog commando -help om meer informatie over een specifiek commando "
+"Gebruik %prog commando --help om meer informatie over een specifiek commando "
 "te verkrijgen\n"
 "\n"
 "Manipuleer een PDF.\n"
@@ -3158,7 +3158,7 @@ msgstr "Invoer karakter &encodering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:128
 msgid "Remove &spacing between paragraphs"
-msgstr "Verwijder %spaties tussen paragrafen"
+msgstr "Verwijder &spaties tussen paragrafen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:129
 msgid "Indent size:"
@@ -7957,7 +7957,7 @@ msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
 msgstr ""
-"Het formaat voor de datum weergave. %s - dag. %b - maand. %Y - jaar. "
+"Het formaat voor de datum weergave. %d - dag. %b - maand. %Y - jaar. "
 "Standaard: %b, %Y"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
