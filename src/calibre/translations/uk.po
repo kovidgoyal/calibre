@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-12-23 10:46+0000\n"
-"PO-Revision-Date: 2009-12-24 04:36+0000\n"
+"PO-Revision-Date: 2009-12-24 04:53+0000\n"
 "Last-Translator: Yar Bondarenko <info@pocketbookreader.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-24 04:38+0000\n"
+"X-Launchpad-Export-Date: 2009-12-25 04:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -305,12 +305,12 @@ msgstr "Цей профіль призначено для Amazon Kindle."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:142
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:336
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "Цей профіль призначено для Irex Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:154
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:349
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "Цей профіль призначено для IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:363
@@ -360,7 +360,7 @@ msgstr "Незапущені плагіни"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:76
 msgid "No valid plugin found in "
-msgstr "Не знайдено олагіна в "
+msgstr "Не знайдено плагіна в "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:260
 msgid "Initialization of plugin %s failed with traceback:"
@@ -382,6 +382,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:400
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
+"Додайте плагін, вказавши місцезнаходження zip-файла, який його містить"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:402
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -392,18 +393,20 @@ msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
+"Налаштуйте плагін під себе. Вкажіть назву плагіну та рядок налаштування, "
+"розділені комою."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:406
 msgid "List all installed plugins"
-msgstr "Список всіх встановлених плагінів."
+msgstr "Перерахуйте всі встановлені плагіни"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:408
 msgid "Enable the named plugin"
-msgstr "Включити вибраний плагін"
+msgstr "Ввімкніть вибраний плагін"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:410
 msgid "Disable the named plugin"
-msgstr "Виключити вибраний плагін"
+msgstr "Вимкніть вибраний плагін"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -417,11 +420,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
 msgid "Communicate with the BeBook eBook reader."
-msgstr ""
+msgstr "Зв'язок з пристроєм BeBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:95
 msgid "Communicate with the BeBook Mini eBook reader."
-msgstr ""
+msgstr "Зв'язок з пристроєм BeBook Mini"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:12
 msgid "Communicate with the Blackberry smart phone."
