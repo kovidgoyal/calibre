@@ -314,6 +314,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.view_menu.addAction(_('View'))
         self.view_menu.addAction(_('View specific format'))
         self.action_view.setMenu(self.view_menu)
+
+        self.delete_menu = QMenu()
+        self.delete_menu.addAction(_('Remove selected books'))
+        self.delete_menu.addAction(
+                _('Remove files of a specific format from selected books..'))
+        self.delete_menu.addAction(
+                _('Remove all formats from selected books, except...'))
+        self.delete_menu.addAction(
+                _('Remove covers from selected books'))
+        self.action_del.setMenu(self.delete_menu)
         QObject.connect(self.action_save, SIGNAL("triggered(bool)"),
                 self.save_to_disk)
         QObject.connect(self.save_menu.actions()[0], SIGNAL("triggered(bool)"),
@@ -330,6 +340,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 SIGNAL("triggered(bool)"), self.view_specific_format)
         self.connect(self.action_open_containing_folder,
                 SIGNAL('triggered(bool)'), self.view_folder)
+        self.delete_menu.actions()[0].triggered.connect(self.delete_books)
+        self.delete_menu.actions()[1].triggered.connect(self.delete_selected_formats)
+        self.delete_menu.actions()[2].triggered.connect(self.delete_all_but_selected_formats)
+        self.delete_menu.actions()[3].triggered.connect(self.delete_covers)
+
         self.action_open_containing_folder.setShortcut(Qt.Key_O)
         self.addAction(self.action_open_containing_folder)
         self.action_sync.setShortcut(Qt.Key_D)
@@ -375,6 +390,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.tool_bar.widgetForAction(self.action_add).\
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_view).\
+                setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_del).\
                 setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_preferences).\
                 setPopupMode(QToolButton.MenuButtonPopup)
@@ -987,7 +1004,72 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     ############################################################################
 
     ############################### Delete books ###############################
-    def delete_books(self, checked):
+
+    def _get_selected_formats(self, msg):
+        from calibre.gui2.dialogs.select_formats import SelectFormats
+        fmts = self.library_view.model().db.all_formats()
+        d = SelectFormats([x.lower() for x in fmts], msg, parent=self)
+        if d.exec_() != d.Accepted:
+            return None
+        return d.selected_formats
+
+    def _get_selected_ids(self, err_title=_('Cannot delete')):
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, err_title, _('No book selected'))
+            d.exec_()
+            return set([])
+        return set(map(self.library_view.model().id, rows))
+
+    def delete_selected_formats(self, *args):
+        ids = self._get_selected_ids()
+        if not ids:
+            return
+        fmts = self._get_selected_formats(
+            _('Choose formats to be deleted'))
+        if not fmts:
+            return
+        for id in ids:
+            for fmt in fmts:
+                self.library_view.model().db.remove_format(id, fmt,
+                        index_is_id=True, notify=False)
+        self.library_view.model().refresh_ids(ids)
+        self.library_view.model().current_changed(self.library_view.currentIndex(),
+                self.library_view.currentIndex())
+
+    def delete_all_but_selected_formats(self, *args):
+        ids = self._get_selected_ids()
+        if not ids:
+            return
+        fmts = self._get_selected_formats(
+            '<p>'+_('Choose formats <b>not</b> to be deleted'))
+        if fmts is None:
+            return
+        for id in ids:
+            bfmts = self.library_view.model().db.formats(id, index_is_id=True)
+            if bfmts is None:
+                continue
+            bfmts = set([x.lower() for x in bfmts.split(',')])
+            rfmts = bfmts - set(fmts)
+            for fmt in rfmts:
+                self.library_view.model().db.remove_format(id, fmt,
+                        index_is_id=True, notify=False)
+        self.library_view.model().refresh_ids(ids)
+        self.library_view.model().current_changed(self.library_view.currentIndex(),
+                self.library_view.currentIndex())
+
+
+    def delete_covers(self, *args):
+        ids = self._get_selected_ids()
+        if not ids:
+            return
+        for id in ids:
+            self.library_view.model().db.remove_cover(id)
+        self.library_view.model().refresh_ids(ids)
+        self.library_view.model().current_changed(self.library_view.currentIndex(),
+                self.library_view.currentIndex())
+
+    def delete_books(self, *args):
         '''
         Delete selected books from device or library.
         '''
@@ -1599,6 +1681,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.action_sync.setEnabled(True)
             self.status_bar.tag_view_button.setEnabled(True)
             self.status_bar.cover_flow_button.setEnabled(True)
+            for action in list(self.delete_menu.actions())[1:]:
+                action.setEnabled(True)
         else:
             self.action_edit.setEnabled(False)
             self.action_convert.setEnabled(False)
@@ -1607,6 +1691,8 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             self.action_sync.setEnabled(False)
             self.status_bar.tag_view_button.setEnabled(False)
             self.status_bar.cover_flow_button.setEnabled(False)
+            for action in list(self.delete_menu.actions())[1:]:
+                action.setEnabled(False)
 
 
     def device_job_exception(self, job):

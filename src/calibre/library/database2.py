@@ -865,6 +865,11 @@ class LibraryDatabase2(LibraryDatabase):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         return os.access(path, os.R_OK)
 
+    def remove_cover(self, id):
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        if os.path.exists(path):
+            os.remove(path)
+
     def set_cover(self, id, data):
         '''
         Set the cover for this book.

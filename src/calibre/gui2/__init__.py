@@ -385,6 +385,7 @@ def initialize_file_icon_provider():
 
 def file_icon_provider():
     global _file_icon_provider
+    initialize_file_icon_provider()
     return _file_icon_provider
 
 class FileDialog(QObject):
