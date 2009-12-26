@@ -204,20 +204,20 @@ class PRS505(CLI, Device):
 
 class PRS700(PRS505):
 
-    name           = 'PRS-600/700 Device Interface'
-    description    = _('Communicate with the Sony PRS-600/700 eBook reader.')
+    name           = 'PRS-600/700/900 Device Interface'
+    description    = _('Communicate with the Sony PRS-600/700/900 eBook reader.')
     author         = 'Kovid Goyal and John Schember'
-    gui_name       = 'SONY Touch edition'
+    gui_name       = 'SONY Touch/Daily edition'
     supported_platforms = ['windows', 'osx', 'linux']
 
     BCD          = [0x31a]
 
-    WINDOWS_MAIN_MEM = re.compile('PRS-((700/)|(600&))')
-    WINDOWS_CARD_A_MEM = re.compile(r'PRS-((700/\S+:)|(600_))MS')
-    WINDOWS_CARD_B_MEM = re.compile(r'PRS-((700/\S+:)|(600_))SD')
+    WINDOWS_MAIN_MEM = re.compile('PRS-((700/)|((6|9)00&))')
+    WINDOWS_CARD_A_MEM = re.compile(r'PRS-((700/\S+:)|((6|9)00_))MS')
+    WINDOWS_CARD_B_MEM = re.compile(r'PRS-((700/\S+:)|((6|9)00_))SD')
 
-    OSX_MAIN_MEM   = re.compile(r'Sony PRS-((700/[^:]+)|(600)) Media')
-    OSX_CARD_A_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|(600 ))MS Media')
-    OSX_CARD_B_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|(600 ))SD Media')
+    OSX_MAIN_MEM   = re.compile(r'Sony PRS-((700/[^:]+)|((6|9)00)) Media')
+    OSX_CARD_A_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|((6|9)00 ))MS Media')
+    OSX_CARD_B_MEM = re.compile(r'Sony PRS-((700/[^:]+:)|((6|9)00 ))SD Media')
 
 
