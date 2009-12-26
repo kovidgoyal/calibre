@@ -61,6 +61,17 @@ class SonyReaderInput(InputProfile):
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
+class SonyReader900Input(InputProfile):
+
+    author      = 'John Schember'
+    name        = 'Sony Reader 900'
+    short_name  = 'sony'
+    description = _('This profile is intended for the SONY PRS-900.')
+
+    screen_size               = (600, 1024)
+    dpi                       = 167
+    fbase                     = 12
+    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
 class MSReaderInput(InputProfile):
 
@@ -173,9 +184,9 @@ class NookInput(InputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
-input_profiles = [InputProfile, SonyReaderInput, MSReaderInput,
-        MobipocketInput, HanlinV3Input, CybookG3Input, CybookOpusInput, KindleInput,
-        IlliadInput, IRexDR1000Input, NookInput]
+input_profiles = [InputProfile, SonyReaderInput, SonyReader900Input,
+        MSReaderInput, MobipocketInput, HanlinV3Input, CybookG3Input,
+        CybookOpusInput, KindleInput, IlliadInput, IRexDR1000Input, NookInput]
 
 
 class OutputProfile(Plugin):
@@ -210,6 +221,18 @@ class SonyReaderOutput(OutputProfile):
 
     screen_size               = (600, 775)
     dpi                       = 168.451
+    fbase                     = 12
+    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+
+class SonyReader900Output(OutputProfile):
+
+    author      = 'John Schember'
+    name        = 'Sony Reader 900'
+    short_name  = 'sony'
+    description = _('This profile is intended for the SONY PRS-900.')
+
+    screen_size               = (600, 1024)
+    dpi                       = 167
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
@@ -368,7 +391,8 @@ class NookOutput(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
-output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
-        MobipocketOutput, HanlinV3Output, CybookG3Output, CybookOpusOutput,
-        KindleOutput, SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
-        IRexDR1000Output, JetBook5Output, NookOutput]
+output_profiles = [OutputProfile, SonyReaderOutput, SonyReader900Output,
+        MSReaderOutput, MobipocketOutput, HanlinV3Output, CybookG3Output,
+        CybookOpusOutput, KindleOutput, SonyReaderLandscapeOutput,
+        KindleDXOutput, IlliadOutput, IRexDR1000Output, JetBook5Output,
+        NookOutput]
