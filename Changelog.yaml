@@ -68,6 +68,12 @@
 
   new recipes:
 
+    - title: Cyprus News Live
+      author: kwetal
+
+    - title: Kleine Zeitung
+      author: kwetal
+
     - title: Business Week Magazine
       author: Darko Mieltic
 
