@@ -18,7 +18,7 @@ from calibre.ebooks.pml import unipmlcode
 TAG_MAP = {
     'b'       : 'B',
     'strong'  : 'B',
-    'i'       : 'I',
+    'i'       : 'i',
     'small'   : 'k',
     'sub'     : 'Sb',
     'sup'     : 'Sp',
@@ -35,7 +35,7 @@ TAG_MAP = {
 
 STYLES = [
     ('font-weight', {'bold' : 'B', 'bolder' : 'B'}),
-    ('font-style', {'italic' : 'I'}),
+    ('font-style', {'italic' : 'i'}),
     ('text-decoration', {'underline' : 'u'}),
     ('text-align', {'right' : 'r', 'center' : 'c'}),
 ]
