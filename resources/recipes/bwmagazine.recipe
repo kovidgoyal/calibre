@@ -1,0 +1,64 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+http://www.businessweek.com/magazine/news/articles/business_news.htm
+'''
+
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BWmagazine(BasicNewsRecipe):
+    title                 = 'BusinessWeek Magazine'
+    __author__            = 'Darko Miletic'
+    description           = 'Stay up to date with BusinessWeek magazine articles. Read news on international business, personal finances & the economy in the BusinessWeek online magazine.'
+    publisher             = 'Bloomberg L.P.'
+    category              = 'news, International Business News, current news in international business,international business articles, personal business, business week magazine, business week magazine articles, business week magazine online, business week online magazine'
+    oldest_article        = 10
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    use_embedded_content  = False
+    language              = 'en'
+    INDEX                 = 'http://www.businessweek.com/magazine/news/articles/business_news.htm'
+    cover_url             = 'http://images.businessweek.com/mz/covers/current_120x160.jpg'
+
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        }
+
+
+    def parse_index(self):
+        articles = []
+        soup = self.index_to_soup(self.INDEX)
+        ditem = soup.find('div',attrs={'id':'column2'})
+        if ditem:
+            for item in ditem.findAll('h3'):
+                title_prefix = ''
+                description = ''
+                feed_link = item.find('a')
+                if feed_link and feed_link.has_key('href'):
+                    url   = 'http://www.businessweek.com/magazine/' + feed_link['href'].partition('../../')[2]
+                    title = title_prefix + self.tag_to_string(feed_link)
+                    date  = strftime(self.timefmt)
+                    articles.append({
+                                      'title'      :title
+                                     ,'date'       :date
+                                     ,'url'        :url
+                                     ,'description':description
+                                    })
+        return [(soup.head.title.string, articles)]
+
+    keep_only_tags = dict(name='div', attrs={'id':'storyBody'})
+
+    def print_version(self, url):
+        rurl = url.rpartition('?')[0]
+        if rurl == '':
+           rurl = url
+        return rurl.replace('.com/magazine/','.com/print/magazine/')
+
+

@@ -23,13 +23,13 @@ class LinuxFreeze(Command):
 
         is64bit = platform.architecture()[0] == '64bit'
         arch = 'x86_64' if is64bit else 'i686'
-        ffi = '/usr/lib/libffi.so.5' if is64bit else '/usr/lib/gcc/i686-pc-linux-gnu/4.4.1/libffi.so.4'
+        ffi = '/usr/lib/gcc/x86_64-pc-linux-gnu/4.4.2/libffi.so.4' if is64bit else '/usr/lib/gcc/i686-pc-linux-gnu/4.4.1/libffi.so.4'
         stdcpp = '/usr/lib/gcc/%s-pc-linux-gnu/%s/libstdc++.so.6'%(arch, '4.4.2'
                 if is64bit else '4.4.1')
 
         QTDIR          = '/usr/lib/qt4'
         QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml',
-                'QtWebKit', 'QtDBus')
+                'QtWebKit', 'QtDBus', 'QtXmlPatterns')
 
         binary_excludes = ['libGLcore*', 'libGL*', 'libnvidia*']
 

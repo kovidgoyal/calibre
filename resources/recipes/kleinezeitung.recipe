@@ -1,0 +1,53 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class KleineZeitungRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'de_AT'
+    version = 1
+
+    title = u'Kleine Zeitung'
+    publisher = u'Kleine Zeitung GmbH & Co KG'
+    category = u'News, Newspaper'
+    description = u'Nachrichten aus \u00D6sterreich'
+
+    use_embedded_content = False
+    remove_empty_feeds = True
+    oldest_article = 2
+    max_articles_per_feed = 100
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    # Feeds from http://www.kleinezeitung.at/allgemein/multimedia/102434/wichtige-news-immer-sofort-ueber-rss-feed-abrufen.story
+    feeds = []
+    feeds.append((u'Chronik', u'http://www.kleinezeitung.at/klon/rss/nachrichten'))
+    feeds.append((u'Wirtschaft', u'http://www.kleinezeitung.at/klon/rss/wirtschaft'))
+    feeds.append((u'Leute', u'http://www.kleinezeitung.at/klon/rss/leute'))
+    feeds.append((u'Sport', u'http://www.kleinezeitung.at/klon/rss/sport'))
+    feeds.append((u'Nachrichten aus der Steiermark', u'http://www.kleinezeitung.at/klon/rss/steiermark'))
+    feeds.append((u'Nachrichten aus Kaernten', u'http://www.kleinezeitung.at/klon/rss/kaernten'))
+    feeds.append((u'Multimedia-News', u'http://www.kleinezeitung.at/klon/rss/multimedia'))
+    feeds.append((u'Kino, Events & Tickets', u'http://www.kleinezeitung.at/klon/rss/events'))
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'article_body'}))
+
+    remove_tags = []
+    remove_tags.append(dict(name = 'a', attrs = {'id': 'comment_count'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class': re.compile('adv[0-9]+')}))
+    remove_tags.append(dict(name = 'div', attrs = {'class': 'art_info'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id': re.compile('grafikoverlay_.*')}))
+    remove_tags.append(dict(name = 'a', attrs = {'class': 'zoom'}))
+
+    extra_css = '''
+                body {font-family:verdana,arial,helvetica,geneva,sans-serif ;}
+                h1 {text-align: left;}
+                span {margin-left: 0.1em; margin-right: 0.1em;}
+                span.update {font-size: x-small; color: #666666}
+                span.update strong {font-weight: normal;}
+                p.intro {font-size: large;}
+                div.art_foto_big, div.art_foto {font-size: xx-small; color: #696969; margin-bottom: 0.5em;}
+                div.art_foto_big span.src {float: right;}
+                '''

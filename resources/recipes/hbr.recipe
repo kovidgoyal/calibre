@@ -11,17 +11,15 @@ class HBR(BasicNewsRecipe):
     language = 'en'
     no_stylesheets = True
 
-    LOGIN_URL = 'http://hbr.harvardbusiness.org/login?request_url=/'
-    INDEX = 'http://hbr.harvardbusiness.org/current'
+    LOGIN_URL = 'http://hbr.org/login?request_url=/'
+    INDEX = 'http://hbr.org/current'
 
-    keep_only_tags = [dict(name='div', id='content')]
-    remove_tags = [
-            dict(id=['articleDate', 'subscriptionModule', 'errorArea',
-                'feedbackForm', 'relatedModule', 'articleSecondaryModule',
-                'contentRight', 'summaryLink']),
-            dict(name='form'),
-            ]
-
+    keep_only_tags = [dict(name='div', id='pageContainer')]
+    remove_tags = [dict(id=['mastheadContainer', 'magazineHeadline',
+        'articleToolbarTopRD', 'pageRightSubColumn', 'pageRightColumn',
+        'todayOnHBRListWidget', 'mostWidget', 'keepUpWithHBR',
+        'mailingListTout', 'partnerCenter', 'pageFooter']),
+        dict(name='iframe')]
     extra_css = '''
                 a {font-family:Georgia,"Times New Roman",Times,serif; font-style:italic; color:#000000; }
                 .article{font-family:Georgia,"Times New Roman",Times,serif; font-size: xx-small;}
@@ -34,14 +32,14 @@ class HBR(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN_URL)
-        br.select_form(nr=0)
-        br['ssousername'] = self.username
-        br['password'] = self.password
+        br.select_form(name='signInForm')
+        br['signInForm:username'] = self.username
+        br['signInForm:password'] = self.password
         raw = br.submit().read()
         if 'My Account' not in raw:
             raise Exception('Failed to login, are you sure your username and password are correct?')
         self.logout_url = None
-        link = br.find_link(text='(sign out)')
+        link = br.find_link(text='Sign out')
         if link:
             self.logout_url = link.absolute_url
         return br
@@ -54,56 +52,70 @@ class HBR(BasicNewsRecipe):
         if url.endswith('/ar/1'):
             return url[:-1]+'pr'
 
-    def get_features(self, soup):
-        div = soup.find('div', id='issueFeatures')
-        for li in div.findAll('li'):
-            a = li.find('a', href=True)
-            url = 'http://hbr.harvardbusiness.org'+a['href']
-            url = self.map_url(url)
-            if not url:
-                continue
-            title = self.tag_to_string(a)
-            p = li.find('p')
-            desc = ''
-            if p is not None:
-                desc = self.tag_to_string(p)
-            yield {'title':title, 'url':url, 'description':desc}
 
-    def get_departments(self, soup):
-        div = soup.find('div', id='issueDepartmentsContent')
-        for h4 in div.findAll('h4'):
-            feed = self.tag_to_string(h4)
-            articles = []
-            ul = h4.findNextSibling('ul')
-            for li in ul.findAll('li'):
-                a = li.find('a', href=True)
-                url = 'http://hbr.harvardbusiness.org'+a['href']
-                url = self.map_url(url)
-                if not url:
-                    continue
-                title = self.tag_to_string(a)
-                p = li.find('p')
-                desc = ''
-                if p is not None:
-                    desc = self.tag_to_string(p)
-                articles.append({'title':title, 'url':url, 'description':desc})
-            yield [feed, articles]
+    def hbr_get_toc(self):
+        soup = self.index_to_soup(self.INDEX)
+        url = soup.find('a', text=lambda t:'Full Table of Contents' in t).parent.get('href')
+        return self.index_to_soup('http://hbr.org'+url)
+
+    def hbr_parse_section(self, container, feeds):
+        current_section = None
+        current_articles = []
+        for x in container.findAll(name=['li', 'h3', 'h4']):
+            if x.name in ['h3', 'h4'] and not x.findAll(True):
+                if current_section and current_articles:
+                    feeds.append((current_section, current_articles))
+                current_section = self.tag_to_string(x)
+                current_articles = []
+                self.log('\tFound section:', current_section)
+            if x.name == 'li':
+                a = x.find('a', href=True)
+                if a is not None:
+                    title = self.tag_to_string(a)
+                    url = a.get('href')
+                    if '/ar/' not in url:
+                        continue
+                    if url.startswith('/'):
+                        url = 'http://hbr.org'+url
+                    url = self.map_url(url)
+                    p = x.find('p')
+                    desc = ''
+                    if p is not None:
+                        desc = self.tag_to_string(p)
+                    if not title or not url:
+                        continue
+                    self.log('\t\tFound article:', title)
+                    self.log('\t\t\t', url)
+                    self.log('\t\t\t', desc)
+                    current_articles.append({'title':title, 'url':url,
+                        'description':desc, 'date':''})
+        if current_section and current_articles:
+            feeds.append((current_section, current_articles))
+
+
+
+    def hbr_parse_toc(self, soup):
+        feeds = []
+        features = soup.find(id='issueFeaturesContent')
+        self.hbr_parse_section(features, feeds)
+        departments = soup.find(id='issueDepartments')
+        self.hbr_parse_section(departments, feeds)
+        return feeds
+
 
     def parse_index(self):
-        soup = self.index_to_soup(self.INDEX)
-        feeds = []
-        feeds.append(('Features', list(self.get_features(soup))))
-        feeds.extend(self.get_departments(soup))
+        soup = self.hbr_get_toc()
+        feeds = self.hbr_parse_toc(soup)
         return feeds
 
     def get_cover_url(self):
         cover_url = None
-        index = 'http://hbr.harvardbusiness.org/current'
+        index = 'http://hbr.org/current'
         soup = self.index_to_soup(index)
-        link_item = soup.find('img', alt=re.compile("HBR Cover Image"), src=True)
+        link_item = soup.find('img', alt=re.compile("Current Issue"), src=True)
 
         if link_item:
-           cover_url = 'http://hbr.harvardbusiness.org' + link_item['src']
+           cover_url = 'http://hbr.org' + link_item['src']
 
         return cover_url
 

@@ -6,9 +6,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Embedded console for debugging.
 '''
 
-import sys, os, pprint
+import sys, os
 from calibre.utils.config import OptionParser
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows
 from calibre import prints
 
 def option_parser():
@@ -61,77 +61,8 @@ def migrate(old, new):
     print 'Database migrated to', os.path.abspath(new)
 
 def debug_device_driver():
-    from calibre.customize.ui import device_plugins
-    from calibre.devices.scanner import DeviceScanner
-    s = DeviceScanner()
-    s.scan()
-    devices = s.devices
-    if not iswindows:
-        devices = [list(x) for x in devices]
-        for d in devices:
-            for i in range(3):
-                d[i] = hex(d[i])
-
-    print 'USB devices on system:\n', pprint.pprint(devices)
-    if iswindows:
-        wmi = __import__('wmi', globals(), locals(), [], -1)
-        drives = []
-        print 'Drives detected:'
-        print '\t', '(ID, Partitions, Drive letter)'
-        for drive in wmi.WMI(find_classes=False).Win32_DiskDrive():
-            if drive.Partitions == 0:
-                continue
-            try:
-                partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
-                logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
-                prefix = logical_disk.DeviceID+os.sep
-                drives.append((str(drive.PNPDeviceID), drive.Index, prefix))
-            except IndexError:
-                drives.append((str(drive.PNPDeviceID), 'No mount points found'))
-        for drive in drives:
-            print '\t', drive
-    if isosx:
-        from calibre.devices.usbms.device import Device
-        raw = Device.run_ioreg()
-        open('/tmp/ioreg.txt', 'wb').write(raw)
-        print 'ioreg output saved to /tmp/ioreg.txt'
-    connected_devices = []
-    for dev in device_plugins():
-        print 'Looking for', dev.__class__.__name__
-        connected = s.is_device_connected(dev, debug=True)
-        if connected:
-            connected_devices.append(dev)
-
-    errors = {}
-    success = False
-    for dev in connected_devices:
-        print 'Device possibly connected:', dev.__class__.name
-        print 'Trying to open device...',
-        try:
-            dev.open()
-            print 'OK'
-        except:
-            import traceback
-            errors[dev] = traceback.format_exc()
-            print 'failed'
-            continue
-        success = True
-        if hasattr(dev, '_main_prefix'):
-            print 'Main memory:', repr(dev._main_prefix)
-        print 'Total space:', dev.total_space()
-        break
-    if not success and errors:
-        print 'Opening of the following devices failed'
-        for dev,msg in errors.items():
-            print dev
-            print msg
-            print
-    if isosx and os.path.exists('/tmp/ioreg.txt'):
-        print
-        print
-        print "Don't forget to send the file /tmp/ioreg.txt as well"
-        print "You can view it by typing the command: open /tmp/ioreg.txt"
-
+    from calibre.devices import debug
+    print debug()
     if iswindows:
         raw_input('Press Enter to continue...')
 

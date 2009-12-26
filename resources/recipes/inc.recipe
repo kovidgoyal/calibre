@@ -1,0 +1,71 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class IncMagazineRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en'
+    version = 1
+
+    title = u'Inc Magazine'
+    publisher = u'Mansueto Ventures LLC'
+    category = u'News, Business'
+    description = u'Handbook of the American Entrepeneur'
+
+    use_embedded_content = False
+    remove_empty_feeds = True
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    INDEX = 'http://www.inc.com/magazine'
+
+    remove_tags = []
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'advt'}))
+
+    extra_css = '''
+                body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}
+                div#deck {font-weight: bold;}
+                div.byline {font-size: x-small; color: #696969; margin-top: 0.4em;}
+                '''
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+
+        url = self.browser.geturl()
+        date = url.rpartition('/')[0].rpartition('/')[2]
+        self.title = self.title + ' ' + date[4:6] + ', ' + date[0:4]
+
+        answer = []
+
+        for feature in soup.findAll('div', attrs = {'class': re.compile('magazinesection.*')}):
+            h2 = feature.find('h2')
+            if h2:
+                feedTitle = self.tag_to_string(h2)
+            else:
+                img = feature.find('img', attrs = {'class': 'howtohead'})
+                if img:
+                    feedTitle = img['alt']
+                else:
+                    feedTitle = 'Unknown Feature'
+
+            articles = []
+            for div in feature.findAll('div', attrs = {'class': re.compile('article.*|column.*')}):
+                h3 = div.find('h3')
+                title = self.tag_to_string(h3)
+                href = h3.a['href'].replace('.html', '_Printer_Friendly.html')
+                p = div.find('p', attrs = {'class': 'deck'})
+                description = self.tag_to_string(p)
+
+                articles.append({'title': title, 'date': u'', 'url': href, 'description': description})
+
+            answer.append((feedTitle, articles))
+
+        return answer
+
+    def preprocess_html(self, soup):
+        img = soup.find('img', attrs = {'src': 'http://images.inc.com/nav/lofi_logo.gif'})
+        if img:
+            img.parent.extract()
+
+        return soup

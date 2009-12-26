@@ -4,6 +4,116 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.30
+  date: 2009-12-26
+
+  new features:
+
+    - title: "Update graphical toolkit to Qt 4.6 for better integration with Windows 7 and OS X Snow Leopard."
+      description: >
+        "The library calibre uses to draw its user interface, Qt, has been updated in all binary builds to 
+        version 4.6. This provides better support for Windows 7 and OS X Snow Leopard,a s well as various
+        speed ups in the user interface and e-book viewer rendering. Note that calibre will still run with
+        Qt 4.5"
+
+    - title: "Device drivers: Support for device specific icons"
+
+    - title: "Add menu options to delete specific formats/covers from the library"
+      tickets: [3509]
+
+    - title: "Metadata dialog: Auto-increment the series number when editing the series and validate the input ISBN based on the check digit"
+      tickets: [4285]
+
+    - title: "Add option to swap author first and last names when reading metadata from a file name"
+
+    - title: "Replace underscores with spaces when reading metadata"
+
+    - title: "Nook driver: Upload covers when sending to device. Also add Output Profile for the Nook"
+
+    - title: "Clicking on row numbers in the book list will now open the book in the viewer"
+      tickets: [4266]
+
+    - title: "Driver for the Boox reader"
+
+
+  bug fixes:
+    - title: "MOBI Metadata reader: Correctly handle non ASCII characters when reading embedded metadata."
+      tickets: [4223]
+
+    - title: "LRF Output: Set category metadata in generated LRF file based on tags"
+      tickets: [4286]
+
+    - title: "News download: Correctly handle URLs with non ASCII characters in them"
+
+    - title: "Fix windows only crash when vieweing MOBI files"
+      tickets: [4259]
+
+    - title: "Remeber selection when sorting and switching between library and device views"
+      tickets: [4279, 4274]
+
+    - title: "Add a retry loop when querying database to workaround intermittent database access problems in windows"
+      tickets: [4264]
+
+    - title: "When adding books, do not add OPF as a separate format"
+
+    - title: "Fix initialize method of plugins not being called"
+
+    - title: "Handle interrupted system calls duriong device detection on OS X"
+      tickets: [4278]
+
+    - title: "EPUB Output: Make splitting to size more accurate by moving it after the workarounds"
+
+    - title: "When adding books via the add books button to the device, restrict to formats supported by device"
+    
+
+  new recipes:
+
+    - title: Cyprus News Live
+      author: kwetal
+
+    - title: Kleine Zeitung
+      author: kwetal
+
+    - title: Business Week Magazine
+      author: Darko Mieltic
+
+    - title: CNET News
+      author: Darko Miletic
+
+    - title: Dilbert
+      author: Darko Miletic
+
+    - title: Le Temps
+      author: Sujata Raman
+
+    - title: Inc magazine
+      author: kwetal
+
+    - title: SME
+      author: kwetal
+
+    - title: Pravda
+      author: kwetal
+
+    - title: Houston Chronicle
+      author: Kovid Goyal
+
+    - title: Strategy and Business
+      author: kwetal
+
+    - title: Watching America
+      author: kwetal
+
+    - title: Aftenposten
+      author: davotibarna
+
+  improved recipes:
+    - Sueddeutsche
+    - Irish Independent
+    - The Straits Times
+    - Harvard Business Review
+    - Wall Street Journal
+
 - version: 0.6.29
   date: 2009-12-18
 

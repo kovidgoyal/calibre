@@ -649,6 +649,8 @@ def _prefs():
               help=_('Read metadata from files'))
     c.add_opt('worker_process_priority', default='normal',
               help=_('The priority of worker processes'))
+    c.add_opt('swap_author_names', default=False,
+            help=_('Swap author first and last names when reading metadata'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c

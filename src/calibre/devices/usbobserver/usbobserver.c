@@ -26,28 +26,34 @@
 
 #include <IOKit/usb/IOUSBLib.h>
 #include <IOKit/IOCFPlugIn.h>
+#include <IOKit/IOKitLib.h>
 #include <mach/mach.h>
+
+CFStringRef USB_PROPS[3] = { CFSTR("USB Vendor Name"), CFSTR("USB Product Name"), CFSTR("USB Serial Number") };
+
+static PyObject*
+get_iokit_string_property(io_service_t dev, int prop) {
+  CFTypeRef PropRef;
+  char buf[500];
+
+  PropRef = IORegistryEntryCreateCFProperty(dev, USB_PROPS[prop], kCFAllocatorDefault, 0);
+  if (PropRef) {
+      if(!CFStringGetCString(PropRef, buf, 500, kCFStringEncodingUTF8)) buf[0] = '\0';
+  } else buf[0] = '\0';
+
+  return PyUnicode_DecodeUTF8(buf, strlen(buf), "replace");
+}
 
 static PyObject *
 usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
   
-  mach_port_t masterPort;
   CFMutableDictionaryRef matchingDict;
   kern_return_t kr;
 
-  /* Create a master port for communication with IOKit */
-  kr = IOMasterPort(MACH_PORT_NULL, &masterPort);
-
-  if (kr || !masterPort) {
-    PyErr_SetString(PyExc_RuntimeError, "Couldn't create master IOKit port");
-    return NULL;
-  }
-  
   //Set up matching dictionary for class IOUSBDevice and its subclasses
   matchingDict = IOServiceMatching(kIOUSBDeviceClassName);
   if (!matchingDict) {
     PyErr_SetString(PyExc_RuntimeError, "Couldn't create a USB matching dictionary");
-    mach_port_deallocate(mach_task_self(), masterPort);
     return NULL;
   }
 
@@ -58,12 +64,12 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
   SInt32 score;
   IOUSBDeviceInterface182 **dev = NULL;
   UInt16 vendor, product, bcd;
+  PyObject *manufacturer, *productn, *serial;
 
   PyObject *devices, *device;
   devices = PyList_New(0);
   if (devices == NULL) {
       PyErr_NoMemory();
-      mach_port_deallocate(mach_task_self(), masterPort);
       return NULL;
   }
 
@@ -85,7 +91,15 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
     kr = (*dev)->GetDeviceVendor(dev, &vendor);
     kr = (*dev)->GetDeviceProduct(dev, &product);
     kr = (*dev)->GetDeviceReleaseNumber(dev, &bcd);
-    device = Py_BuildValue("(iii)", vendor, product, bcd);
+
+    manufacturer = get_iokit_string_property(usbDevice, 0);
+    if (manufacturer == NULL) manufacturer = Py_None;
+    productn = get_iokit_string_property(usbDevice, 1);
+    if (productn == NULL) productn = Py_None;
+    serial = get_iokit_string_property(usbDevice, 2);
+    if (serial == NULL) serial = Py_None;
+
+    device = Py_BuildValue("(iiiNNN)", vendor, product, bcd, manufacturer, productn, serial);
     if (device == NULL) {
       IOObjectRelease(usbDevice);
       (*plugInInterface)->Release(plugInInterface);
@@ -109,11 +123,7 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
     Py_DECREF(device);
   }
     
-
-  //Finished with master port
-  mach_port_deallocate(mach_task_self(), masterPort);
-  
-  return Py_BuildValue("N", devices);
+  return devices;
 }
 
 static PyMethodDef usbobserver_methods[] = {

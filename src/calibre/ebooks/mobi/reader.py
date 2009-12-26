@@ -435,7 +435,8 @@ class MobiReader(object):
                 open(os.path.splitext(htmlfile)[0] + '.ncx', 'wb').write(ncx)
 
     def read_embedded_metadata(self, root, elem, guide):
-        raw = '<package>' + html.tostring(elem, encoding='utf-8') + '</package>'
+        raw = '<?xml version="1.0" encoding="utf-8" ?>\n<package>' + \
+                html.tostring(elem, encoding='utf-8') + '</package>'
         stream = cStringIO.StringIO(raw)
         opf = OPF(stream)
         self.embedded_mi = MetaInformation(opf)
@@ -602,7 +603,7 @@ class MobiReader(object):
                 * opf.cover.split('/'))):
                 opf.cover = None
 
-        manifest = [(htmlfile, 'text/x-oeb1-document'),
+        manifest = [(htmlfile, 'application/xhtml+xml'),
             (os.path.abspath('styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
         for i in getattr(self, 'image_names', []):

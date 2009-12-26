@@ -55,7 +55,15 @@ class DevicePlugin(Plugin):
         return False
 
     @classmethod
-    def is_usb_connected_windows(cls, devices_on_system):
+    def print_usb_device_info(cls, info):
+        try:
+            print '\t', repr(info)
+        except:
+            import traceback
+            traceback.print_exc()
+
+    @classmethod
+    def is_usb_connected_windows(cls, devices_on_system, debug=False):
 
         def id_iterator():
             if hasattr(cls.VENDOR_ID, 'keys'):
@@ -75,9 +83,13 @@ class DevicePlugin(Plugin):
             vid, pid = 'vid_%4.4x'%vendor_id, 'pid_%4.4x'%product_id
             vidd, pidd = 'vid_%i'%vendor_id, 'pid_%i'%product_id
             for device_id in devices_on_system:
-                if (vid in device_id or vidd in device_id) and (pid in device_id or pidd in device_id):
-                    if cls.test_bcd_windows(device_id, bcd) and cls.can_handle(device_id):
-                        return True
+                if (vid in device_id or vidd in device_id) and \
+                   (pid in device_id or pidd in device_id) and \
+                   cls.test_bcd_windows(device_id, bcd):
+                       if debug:
+                           cls.print_usb_device_info(device_id)
+                       if cls.can_handle(device_id):
+                           return True
         return False
 
     @classmethod
@@ -97,7 +109,7 @@ class DevicePlugin(Plugin):
         :param devices_on_system: List of devices currently connected
         '''
         if iswindows:
-            return cls.is_usb_connected_windows(devices_on_system)
+            return cls.is_usb_connected_windows(devices_on_system, debug=debug)
 
         vendors_on_system = set([x[0] for x in devices_on_system])
         vendors = cls.VENDOR_ID if hasattr(cls.VENDOR_ID, '__len__') else [cls.VENDOR_ID]
@@ -118,9 +130,11 @@ class DevicePlugin(Plugin):
                                 cbcd = cls.VENDOR_ID[vid][pid]
                             else:
                                 cbcd = cls.BCD
-                            if cls.test_bcd(bcd, cbcd) and cls.can_handle(dev,
-                                                            debug=debug):
-                                return True
+                            if cls.test_bcd(bcd, cbcd):
+                                if debug:
+                                    cls.print_usb_device_info(dev)
+                                if cls.can_handle(dev, debug=debug):
+                                    return True
         return False
 
 
@@ -152,12 +166,6 @@ class DevicePlugin(Plugin):
         :param device_info: On windows a device ID string. On Unix a tuple of
         ``(vendor_id, product_id, bcd)``.
         '''
-        try:
-            if debug:
-                print '\t', repr(device_info)
-        except:
-            import traceback
-            traceback.print_exc()
         return True
 
     def open(self):

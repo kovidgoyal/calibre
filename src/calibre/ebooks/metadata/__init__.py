@@ -386,3 +386,36 @@ class MetaInformation(object):
 
     def __nonzero__(self):
         return bool(self.title or self.author or self.comments or self.tags)
+
+def check_isbn10(isbn):
+    try:
+        digits = map(int, isbn[:9])
+        products = [(i+1)*digits[i] for i in range(9)]
+        check = sum(products)%11
+        if (check == 10 and isbn[9] == 'X') or check == int(isbn[9]):
+            return isbn
+    except:
+        pass
+    return None
+
+def check_isbn13(isbn):
+    try:
+        digits = map(int, isbn[:12])
+        products = [(1 if i%2 ==0 else 3)*digits[i] for i in range(12)]
+        check = 10 - (sum(products)%10)
+        if check == 10:
+            check = 0
+        if str(check) == isbn[12]:
+            return isbn
+    except:
+        pass
+    return None
+
+def check_isbn(isbn):
+    isbn = re.sub(r'[^0-9X]', '', isbn.upper())
+    if len(isbn) == 10:
+        return check_isbn10(isbn)
+    if len(isbn) == 13:
+        return check_isbn13(isbn)
+    return None
+

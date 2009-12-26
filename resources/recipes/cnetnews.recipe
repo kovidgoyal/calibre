@@ -1,0 +1,37 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+news.cnet.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CnetNews(BasicNewsRecipe):
+    title                 = 'CNET News'
+    __author__            = 'Darko Miletic'
+    description           = 'Tech news and business reports by CNET News. Focused on information technology, core topics include computers, hardware, software, networking, and Internet media.'
+    publisher             = 'CNET'
+    category              = 'news, IT, USA'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'en'
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                    dict(name='div', attrs={'id':'tweetmemeAndFacebook'})
+                    ,dict(name='ul', attrs={'class':'contentTools'})
+                  ]
+    keep_only_tags = dict(name='div', attrs={'class':'txtWrap'})
+
+    feeds = [(u'News', u'http://news.cnet.com/2547-1_3-0-20.xml')]
+

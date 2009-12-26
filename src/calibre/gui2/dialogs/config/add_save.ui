@@ -20,8 +20,8 @@
    <attribute name="title">
     <string>&amp;Adding books</string>
    </attribute>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="0" column="0" colspan="2">
      <widget class="QLabel" name="label_6">
       <property name="text">
        <string>Here you can control how calibre will read metadata from the files you add to it. calibre can either read metadata from the contents of the file, or from the filename.</string>
@@ -31,14 +31,24 @@
       </property>
      </widget>
     </item>
-    <item>
+    <item row="1" column="0">
      <widget class="QCheckBox" name="opt_read_metadata_from_filename">
       <property name="text">
        <string>Read metadata only from &amp;file name</string>
       </property>
      </widget>
     </item>
-    <item>
+    <item row="1" column="1">
+     <widget class="QCheckBox" name="opt_swap_author_names">
+      <property name="toolTip">
+       <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
+      </property>
+      <property name="text">
+       <string>&amp;Swap author firstname and lastname</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
      <widget class="QGroupBox" name="metadata_box">
       <property name="title">
        <string>&amp;Configure metadata from file name</string>

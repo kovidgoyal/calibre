@@ -323,8 +323,16 @@ class Device(DeviceConfig, DevicePlugin):
         ioreg = '/usr/sbin/ioreg'
         if not os.access(ioreg, os.X_OK):
             ioreg = 'ioreg'
-        return subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
-                                stdout=subprocess.PIPE).communicate()[0]
+        cmd = (ioreg+' -w 0 -S -c IOMedia').split()
+        for i in range(3):
+            try:
+                return subprocess.Popen(cmd,
+                                    stdout=subprocess.PIPE).communicate()[0]
+            except IOError: # Probably an interrupted system call
+                if i == 2:
+                    raise
+            time.sleep(2)
+
 
     def osx_sort_names(self, names):
         return names
@@ -372,14 +380,28 @@ class Device(DeviceConfig, DevicePlugin):
                 break
         return self.osx_sort_names(names)
 
+    @classmethod
+    def osx_run_mount(cls):
+        for i in range(3):
+            try:
+                return subprocess.Popen('mount',
+                                    stdout=subprocess.PIPE).communicate()[0]
+            except IOError: # Probably an interrupted system call
+                if i == 2:
+                    raise
+            time.sleep(2)
+
     def open_osx(self):
-        mount = subprocess.Popen('mount', shell=True,  stdout=subprocess.PIPE).stdout.read()
+        mount = self.osx_run_mount()
         names = self.get_osx_mountpoints()
         dev_pat = r'/dev/%s(\w*)\s+on\s+([^\(]+)\s+'
         if 'main' not in names.keys():
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
         main_pat = dev_pat % names['main']
-        self._main_prefix = re.search(main_pat, mount).group(2) + os.sep
+        main_match = re.search(main_pat, mount)
+        if main_match is None:
+            raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
+        self._main_prefix = main_match.group(2) + os.sep
         card_a_pat = names['carda'] if 'carda' in names.keys() else None
         card_b_pat = names['cardb'] if 'cardb' in names.keys() else None
 

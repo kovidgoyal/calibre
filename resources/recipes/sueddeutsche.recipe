@@ -22,18 +22,24 @@ class Sueddeutsche(BasicNewsRecipe):
     encoding = 'iso-8859-15'
     remove_javascript = True
 
-    keep_only_tags = [
-                        dict(name='div', attrs={'id':["artikel","contentTable"]}) ,
-                         ]
+    
     remove_tags = [ dict(name='link'), dict(name='iframe'),
-                    dict(name='div', attrs={'id':["themenbox","artikelfoot","CAD_AD","SKY_AD","NT1_AD","rechteSpalte"]}),
-                    dict(name='div', attrs={'class':["similar-article-box","artikelliste","nteaser301bg","pages closed"]}),
-                    dict(name='div', attrs={'class':["listHeader","listHeader2","hr2","item","videoBigButton"]}),
-                    dict(name='p', attrs={'class':["ressortartikeln",]}),
+                    dict(name='div', attrs={'id':["bookmarking","themenbox","artikelfoot","CAD_AD",
+						  "SKY_AD","NT1_AD","navbar1","sdesiteheader"]}),
+
+                    dict(name='div', attrs={'class':["similar-article-box","artikelliste","nteaser301bg",
+					             "pages closed","basebox right narrow"]}),
+
+                    dict(name='div', attrs={'class':["articleDistractor","listHeader","listHeader2","hr2",
+						     "item","videoBigButton","articlefooter full-column",
+                                                     "bildbanderolle full-column","footerCopy padleft5"]}),
+
+                    dict(name='p', attrs={'class':["ressortartikeln","artikelFliestext","entry-summary"]}),
                     dict(name='div', attrs={'style':["position:relative;"]}),
-                    dict(name='span', attrs={'class':["nlinkheaderteaserschwarz",]}),
-                    dict(name='table', attrs={'class':["kommentare","footer","pageBoxBot","pageAktiv","bgcontent"]}),
-                    dict(name='ul', attrs={'class':["breadcrumb","articles","activities"]}),
+                    dict(name='span', attrs={'class':["nlinkheaderteaserschwarz","artikelLink","r10000000"]}),
+                    dict(name='table', attrs={'class':["stoerBS","kommentare","footer","pageBoxBot","pageAktiv","bgcontent"]}),
+                    dict(name='ul', attrs={'class':["breadcrumb","articles","activities","sitenav"]}),
+                    dict(name='td', attrs={'class':["artikelDruckenRight"]}),
                     dict(name='p', text = "ANZEIGE")
                      ]
 
@@ -64,8 +70,8 @@ class Sueddeutsche(BasicNewsRecipe):
              (u'Reise', u'http://suche.sueddeutsche.de/query/reise/nav/%C2%A7ressort%3AReise/sort/-docdatetime?output=rss')
              ]
 
-   # def print_version(self, url):
-   #     return url.replace('/text/', '/text/print.html')
+    def print_version(self, url):
+        return url.replace('/text/', '/text/print.html')
 
 
 

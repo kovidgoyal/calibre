@@ -568,8 +568,8 @@ class DocumentView(QWebView):
         delta_y = self.document.window_height - 25
         if self.document.at_top:
             if self.manager is not None:
-                self.manager.previous_document()
                 self.to_bottom = True
+                self.manager.previous_document()
         else:
             opos = self.document.ypos
             upper_limit = opos - delta_y

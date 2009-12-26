@@ -76,7 +76,9 @@ def debug():
         ioreg = None
         if isosx:
             from calibre.devices.usbms.device import Device
+            mount = repr(Device.osx_run_mount())
             ioreg = Device.run_ioreg()
+            ioreg = 'Output from mount:\n\n'+mount+'\n\n'+ioreg
         connected_devices = []
         for dev in device_plugins():
             out('Looking for', dev.__class__.__name__)

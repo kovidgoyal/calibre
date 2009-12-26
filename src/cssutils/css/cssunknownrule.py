@@ -1,7 +1,7 @@
 """CSSUnknownRule implements DOM Level 2 CSS CSSUnknownRule."""
 __all__ = ['CSSUnknownRule']
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: cssunknownrule.py 1638 2009-01-13 20:39:33Z cthedot $'
+__version__ = '$Id: cssunknownrule.py 1897 2009-12-17 22:09:06Z cthedot $'
 
 import cssrule
 import cssutils
@@ -98,6 +98,20 @@ class CSSUnknownRule(cssrule.CSSRule):
                         token=token)
                     return expected
 
+            def FUNCTION(expected, seq, token, tokenizer=None):
+                # handled as opening (
+                type_, val, line, col = token
+                val = self._tokenvalue(token)
+                if expected != 'EOF':
+                    new['nesting'].append(u'(')
+                    seq.append(val, type_, line=line, col=col)
+                    return expected
+                else:
+                    new['wellformed'] = False
+                    self._log.error(u'CSSUnknownRule: Expected end of rule.',
+                        token=token)
+                    return expected                
+
             def EOF(expected, seq, token, tokenizer=None):
                 "close all blocks and return 'EOF'"
                 for x in reversed(new['nesting']):
@@ -154,6 +168,7 @@ class CSSUnknownRule(cssrule.CSSRule):
                 seq=newseq, tokenizer=tokenizer,
                 productions={'CHAR': CHAR,
                              'EOF': EOF,
+                             'FUNCTION': FUNCTION,
                              'INVALID': INVALID,
                              'STRING': STRING,
                              'URI': URI,

@@ -33,7 +33,7 @@ class LRFOptions(object):
             if unicode(x.file_as):
                 self.title_sort = unicode(x.file_as)
         self.freetext = f2s(m.description)
-        self.category = f2s(m.tags)
+        self.category = f2s(m.subject)
         self.cover = None
         self.use_metadata_cover = True
         self.output = output

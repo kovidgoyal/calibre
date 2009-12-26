@@ -56,6 +56,7 @@ class AddSave(QTabWidget, Ui_TabWidget):
         self.opt_read_metadata_from_filename.setChecked(not prefs['read_file_metadata'])
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
+        self.opt_swap_author_names.setChecked(prefs['swap_author_names'])
 
     def validate(self):
         tmpl = preprocess_template(self.opt_template.text())
@@ -87,6 +88,7 @@ class AddSave(QTabWidget, Ui_TabWidget):
         prefs['read_file_metadata'] = not bool(self.opt_read_metadata_from_filename.isChecked())
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
+        prefs['swap_author_names'] = bool(self.opt_swap_author_names.isChecked())
 
         return True
 

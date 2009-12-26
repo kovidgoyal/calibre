@@ -55,7 +55,6 @@ class CYBOOKG3(USBMS):
 
     @classmethod
     def can_handle(cls, device_info, debug=False):
-        USBMS.can_handle(device_info, debug)
         if islinux:
             return device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Gen3'
         return True
@@ -88,7 +87,6 @@ class CYBOOK_OPUS(CYBOOKG3):
 
     @classmethod
     def can_handle(cls, device_info, debug=False):
-        USBMS.can_handle(device_info, debug)
         if islinux:
             return device_info[3] == 'Bookeen'
         return True

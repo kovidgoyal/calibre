@@ -121,6 +121,7 @@ def metadata_from_filename(name, pat=None):
     mi = MetaInformation(None, None)
     if pat is None:
         pat = re.compile(prefs.get('filename_pattern'))
+    name = name.replace('_', ' ')
     match = pat.search(name)
     if match:
         try:
@@ -131,6 +132,15 @@ def metadata_from_filename(name, pat=None):
             au = match.group('author')
             aus = string_to_authors(au)
             mi.authors = aus
+            if prefs['swap_author_names'] and mi.authors:
+                def swap(a):
+                    parts = a.split()
+                    if len(parts) > 1:
+                        t = parts[-1]
+                        parts = parts[:-1]
+                        parts.insert(0, t)
+                    return ' '.join(parts)
+                mi.authors = [swap(x) for x in mi.authors]
         except (IndexError, ValueError):
             pass
         try:

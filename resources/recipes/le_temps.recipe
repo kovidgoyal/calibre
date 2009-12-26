@@ -14,75 +14,77 @@ class LeTemps(BasicNewsRecipe):
      title          = u'Le Temps'
      oldest_article = 7
      max_articles_per_feed = 100
+     __author__ = 'Sujata Raman'
      no_stylesheets = True
-     remove_tags    = [dict(name='div', attrs={'id':'footer'})]
-     remove_tags    = [dict(name='div', attrs={'class':'box links'})]
-     remove_tags    = [dict(name='script')]
-     extra_css      = '''.heading {font-size: 13px; line-height: 15px;
- margin: 20px 0;} \n h2 {font-size: 24px; line-height: 25px; margin-bottom:
- 14px;} \n .author {font-size: 11px; margin: 0 0 5px 0;} \n .lead {font-
- weight: 700; margin: 10px 0;} \n p {margin: 0 0 10px 0;}'''
+     remove_javascript = True
+     recursions = 1
+     encoding = 'UTF-8'
+     match_regexps = [r'http://www.letemps.ch/Page/Uuid/[-0-9a-f]+\|[1-9]']
+     lang = 'fr'
+
+     keep_only_tags = [dict(name='div', attrs={'id':'content'}),
+                        dict(name='div', attrs={'class':'story'})
+                      ]
+     remove_tags    = [dict(name='div', attrs={'id':['footer','sub']}),
+                       dict(name='div', attrs={'class':['box additional','box function','right','box links','follow']})]
+
+
+     extra_css      = '''h1{font-family:"Georgia","Times New Roman",Times,serif;font-size:large;}
+                         .headline{font-family:"Georgia","Times New Roman",Times,serif;font-size:large;color:#990000;}
+                         .summary_gal{color:#777777;font-family:"Georgia","Times New Roman",Times,serif;font-size:x-small;}
+                         #capt{color:#1B1B1B;font-family:"Georgia","Times New Roman",Times,serif;font-size:x-small;}
+                         #content{font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
+                         h2 {font-size: 24px; line-height: 25px; margin-bottom: 14px; text-transform:uppercase;}
+                         .author {font-size:x-small; margin: 0 0 5px 0; color:#797971; font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
+                         .lead {font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;font-weight: bold; margin: 10px 0;font-size:small;}
+                         p {margin: 0 0 10px 0;}
+                         h3{font-size:small;font-weight:bold;}
+                         .heading{color:#940026;font-size:x-small;}
+                         .description{font-size:x-small;font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;color:#797971; }
+                         a {color:#1B1B1B; font-size:small;}
+                         .linkbox{font-size:x-small;color:#1B1B1B;font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;} '''
 
      feeds          = [
-                              ('Actualité',
- 'http://www.letemps.ch/rss/site/'),
-                              ('Monde',
- 'http://www.letemps.ch/rss/site/actualite/monde'),
-                              ('Suisse & Régions',
- 'http://www.letemps.ch/rss/site/actualite/suisse_regions'),
-                              ('Sciences & Environnement',
- 'http://www.letemps.ch/rss/site/actualite/sciences_environnement'),
-                              ('Société',
- 'http://www.letemps.ch/rss/site/actualite/societe'),
-                              ('Economie & Finance',
- 'http://www.letemps.ch/rss/site/economie_finance'),
-                              ('Economie & Finance - Finance',
- 'http://www.letemps.ch/rss/site/economie_finance/finance'),
-                              ('Economie & Finance - Fonds de placement',
- 'http://www.letemps.ch/rss/site/economie_finance/fonds_placement'),
-                              ('Economie & Finance - Carrières',
- 'http://www.letemps.ch/rss/site/economie_finance/carrieres'),
-                             ('Culture',
- 'http://www.letemps.ch/rss/site/culture'),
-                              ('Culture - Cinéma',
- 'http://www.letemps.ch/rss/site/culture/cinema'),
-                              ('Culture - Musiques',
- 'http://www.letemps.ch/rss/site/culture/musiques'),
-                              ('Culture - Scènes',
- 'http://www.letemps.ch/rss/site/culture/scenes'),
-                              ('Culture - Arts plastiques',
- 'http://www.letemps.ch/rss/site/culture/arts_plastiques'),
-                              ('Livres',
- 'http://www.letemps.ch/rss/site/culture/livres'),
-                              ('Opinions',
- 'http://www.letemps.ch/rss/site/opinions'),
-                              ('Opinions - Editoriaux',
- 'http://www.letemps.ch/rss/site/opinions/editoriaux'),
-                              ('Opinions - Invités',
- 'http://www.letemps.ch/rss/site/opinions/invites'),
-                              ('Opinions - Chroniques',
- 'http://www.letemps.ch/rss/site/opinions/chroniques'),
-                              ('LifeStyle',
- 'http://www.letemps.ch/rss/site/lifestyle'),
-                              ('LifeStyle - Luxe',
- 'http://www.letemps.ch/rss/site/lifestyle/luxe'),
-                              ('LifeStyle - Horlogerie & Joaillerie',
- 'http://www.letemps.ch/rss/site/lifestyle/horlogerie_joaillerie'),
-                              ('LifeStyle - Design',
- 'http://www.letemps.ch/rss/site/lifestyle/design'),
-                              ('LifeStyle - Voyages',
- 'http://www.letemps.ch/rss/site/lifestyle/voyages'),
-                              ('LifeStyle - Gastronomie',
- 'http://www.letemps.ch/rss/site/lifestyle/gastronomie'),
-                              ('LifeStyle - Architecture & Immobilier',
- 'http://www.letemps.ch/rss/site/lifestyle/architecture_immobilier'),
-                              ('LifeStyle - Automobile',
- 'http://www.letemps.ch/rss/site/lifestyle/automobile'),
-                              ('Sports',
- 'http://www.letemps.ch/rss/site/actualite/sports'),
+                              (u'Actualit\xe9', 'http://www.letemps.ch/rss/site/'),
+                              ('Monde', 'http://www.letemps.ch/rss/site/actualite/monde'),
+                              (u'Suisse & R\xe9gions', 'http://www.letemps.ch/rss/site/actualite/suisse_regions'),
+                              ('Sciences & Environnement', 'http://www.letemps.ch/rss/site/actualite/sciences_environnement'),
+                              (u'Soci\xe9t\xe9', 'http://www.letemps.ch/rss/site/actualite/societe'),
+                              ('Economie & Finance', 'http://www.letemps.ch/rss/site/economie_finance'),
+                              ('Economie & Finance - Finance', 'http://www.letemps.ch/rss/site/economie_finance/finance'),
+                              ('Economie & Finance - Fonds de placement', 'http://www.letemps.ch/rss/site/economie_finance/fonds_placement'),
+                              (u'Economie & Finance - Carri\xe9res', 'http://www.letemps.ch/rss/site/economie_finance/carrieres'),
+                              ('Culture', 'http://www.letemps.ch/rss/site/culture'),
+                              (u'Culture - Cin\xe9ma', 'http://www.letemps.ch/rss/site/culture/cinema'),
+                              ('Culture - Musiques', 'http://www.letemps.ch/rss/site/culture/musiques'),
+                              (u'Culture - Sc\xe9nes', 'http://www.letemps.ch/rss/site/culture/scenes'),
+                              ('Culture - Arts plastiques', 'http://www.letemps.ch/rss/site/culture/arts_plastiques'),
+                              ('Livres', 'http://www.letemps.ch/rss/site/culture/livres'),
+                              ('Opinions', 'http://www.letemps.ch/rss/site/opinions'),
+                              ('Opinions - Editoriaux', 'http://www.letemps.ch/rss/site/opinions/editoriaux'),
+                              (u'Opinions - Invit\xe9s', 'http://www.letemps.ch/rss/site/opinions/invites'),
+                              ('Opinions - Chroniques', 'http://www.letemps.ch/rss/site/opinions/chroniques'),
+                              ('LifeStyle', 'http://www.letemps.ch/rss/site/lifestyle'),
+                              ('LifeStyle - Luxe', 'http://www.letemps.ch/rss/site/lifestyle/luxe'),
+                              ('LifeStyle - Horlogerie & Joaillerie', 'http://www.letemps.ch/rss/site/lifestyle/horlogerie_joaillerie'),
+                              ('LifeStyle - Design', 'http://www.letemps.ch/rss/site/lifestyle/design'),
+                              ('LifeStyle - Voyages', 'http://www.letemps.ch/rss/site/lifestyle/voyages'),
+                              ('LifeStyle - Gastronomie', 'http://www.letemps.ch/rss/site/lifestyle/gastronomie'),
+                              ('LifeStyle - Architecture & Immobilier', 'http://www.letemps.ch/rss/site/lifestyle/architecture_immobilier'),
+                              ('LifeStyle - Automobile', 'http://www.letemps.ch/rss/site/lifestyle/automobile'),
+                              ('Sports', 'http://www.letemps.ch/rss/site/actualite/sports'),
                              ]
 
-     def print_version(self, url):
-            return url.replace('Page', 'Facet/print')
+     def postprocess_html(self, soup, first):
+        for tag in soup.findAll('div', attrs = {'class':'box pagination'}):
+            tag.extract()
+        if not first:
+            h = soup.find('h1')
+            if h is not None:
+                h.extract()
+        return soup
+
+   #  def print_version(self, url):
+   #         return url.replace('Page', 'Facet/print')
 
 
