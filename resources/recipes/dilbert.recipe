@@ -1,0 +1,41 @@
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+http://www.dilbert.com
+'''
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class DosisDiarias(BasicNewsRecipe):
+    title                  = 'Dilbert'
+    __author__             = 'Darko Miletic'
+    description            = 'Dilbert'
+    oldest_article         = 5
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = True
+    encoding               = 'utf-8'
+    publisher              = 'UNITED FEATURE SYNDICATE, INC.'
+    category               = 'comic'
+    language               = 'en'
+
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                         }
+
+    feeds = [(u'Dilbert', u'http://feeds.dilbert.com/DilbertDailyStrip' )]
+
+    def get_article_url(self, article):
+        return article.get('feedburner_origlink', None)
+
+    def preprocess_html(self, soup):
+       for tag in soup.findAll(name='a'):
+           if tag['href'].find('http://feedads') >= 0:
+              tag.extract()
+       return soup
+
+
+

@@ -4,10 +4,17 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-- version: 0.6.29
-  date: 2009-12-25
+- version: 0.6.30
+  date: 2009-12-26
 
   new features:
+
+    - title: "Update graphical toolkit to Qt 4.6 for better integration with Windows 7 and OS X Snow Leopard."
+      description: >
+        "The library calibre uses to draw its user interface, Qt, has been updated in all binary builds to 
+        version 4.6. This provides better support for Windows 7 and OS X Snow Leopard,a s well as various
+        speed ups in the user interface and e-book viewer rendering. Note that calibre will still run with
+        Qt 4.5"
 
     - title: "Device drivers: Support for device specific icons"
 
@@ -23,7 +30,7 @@
 
     - title: "Nook driver: Upload covers when sending to device. Also add Output Profile for the Nook"
 
-    - title: "Double clicking on row numbers will now open the book in the viewer"
+    - title: "Clicking on row numbers in the book list will now open the book in the viewer"
       tickets: [4266]
 
     - title: "Driver for the Boox reader"
@@ -60,6 +67,15 @@
     
 
   new recipes:
+
+    - title: Business Week Magazine
+      author: Darko Mieltic
+
+    - title: CNET News
+      author: Darko Miletic
+
+    - title: Dilbert
+      author: Darko Miletic
 
     - title: Le Temps
       author: Sujata Raman
