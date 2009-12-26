@@ -99,7 +99,7 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
     serial = get_iokit_string_property(usbDevice, 2);
     if (serial == NULL) serial = Py_None;
 
-    device = Py_BuildValue("(iiiOOO)", vendor, product, bcd, manufacturer, productn, serial);
+    device = Py_BuildValue("(iiiNNN)", vendor, product, bcd, manufacturer, productn, serial);
     if (device == NULL) {
       IOObjectRelease(usbDevice);
       (*plugInInterface)->Release(plugInInterface);

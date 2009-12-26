@@ -40,6 +40,7 @@ class LinuxScanner(object):
             prod = os.path.join(base, 'idProduct')
             bcd = os.path.join(base, 'bcdDevice')
             man = os.path.join(base, 'manufacturer')
+            serial = os.path.join(base, 'serial')
             prod_string = os.path.join(base, 'product')
             dev = []
             try:
@@ -62,6 +63,11 @@ class LinuxScanner(object):
                 dev.append(open(prod_string).read().strip())
             except:
                 dev.append('')
+            try:
+                dev.append(open(serial).read().strip())
+            except:
+                dev.append('')
+
             ans.add(tuple(dev))
         return ans
 
