@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.6.29\n"
-"POT-Creation-Date: 2009-12-24 21:39+MST\n"
-"PO-Revision-Date: 2009-12-24 21:39+MST\n"
+"Project-Id-Version: calibre 0.6.30\n"
+"POT-Creation-Date: 2009-12-26 08:36+MST\n"
+"PO-Revision-Date: 2009-12-26 08:36+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -62,8 +62,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:121
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:155
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:593
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:783
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:594
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:784
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:896
@@ -130,7 +130,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -6814,10 +6814,18 @@ msgid "English (TH)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
-msgid "Dutch (NL)"
+msgid "English (CY)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+msgid "German (AT)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+msgid "Dutch (NL)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "Dutch (BE)"
 msgstr ""
 

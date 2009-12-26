@@ -100,6 +100,8 @@ _extra_lang_codes = {
         'en_CA' : _('English (CA)'),
         'en_IN' : _('English (IND)'),
         'en_TH' : _('English (TH)'),
+        'en_CY' : _('English (CY)'),
+        'de_AT' : _('German (AT)'),
         'nl'    : _('Dutch (NL)'),
         'nl_BE' : _('Dutch (BE)'),
         'und'   : _('Unknown')

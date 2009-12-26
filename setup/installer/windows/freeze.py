@@ -14,7 +14,7 @@ from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
 QT_DIR = 'C:\\Qt\\4.6.0'
-QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns', 'phonon']
+QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
