@@ -460,9 +460,9 @@ class Device(DeviceConfig, DevicePlugin):
 
         matches.sort(cmp=dcmp)
         drives = {'main':matches[0]}
-        if len(matches > 1):
+        if len(matches) > 1:
             drives['carda'] = matches[1]
-        if len(matches > 2):
+        if len(matches) > 2:
             drives['cardb'] = matches[2]
 
         return drives
@@ -476,11 +476,13 @@ class Device(DeviceConfig, DevicePlugin):
 
     def open_osx(self):
         drives = self.osx_bsd_names()
+        bsd_drives = dict(**drives)
         drives = self.osx_sort_names(drives)
         mount_map = usbobserver.get_mounted_filesystems()
         for k, v in drives.items():
-            drives[k] = mount_map.get(k, None)
+            drives[k] = mount_map.get(v, None)
         if drives['main'] is None:
+            print bsd_drives, mount_map, drives
             raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
         self._main_prefix = drives['main']+os.sep
         def get_card_prefix(c):
