@@ -72,7 +72,7 @@ class Translations(POT):
             if os.path.exists(pycountry):
                 iso639 = self.j(pycountry, 'iso639.mo')
                 dest = self.j(self.d(dest), self.b(iso639))
-                if self.newer(dest, iso639):
+                if self.newer(dest, iso639) and os.path.exists(iso639):
                     self.info('\tCopying ISO 639 translations')
                     shutil.copy2(iso639, dest)
             else:
