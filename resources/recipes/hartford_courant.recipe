@@ -37,18 +37,22 @@ class ChicagoTribune(BasicNewsRecipe):
                     .maincontentcontainer{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     .story-body{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-        '''
+		'''
     feeds = [
              ('Breaking News', 'http://feeds.feedburner.com/courant-breaking-news/'),
+             ('Nation/World News', 'http://feeds.feedburner.com/courant-nation-world/'),
              ('Connecticut News', 'http://feeds.feedburner.com/courant-connecticut-news/'),
              ('Hartford News', 'http://feeds.feedburner.com/courant-hartford/'),
              ('West Hartford News', 'http://feeds.feedburner.com/courant-west-hartford/'),
+             ('Bristol', 'http://feeds.feedburner.com/courant-bristol/'),
              ('Politics', 'http://feeds.feedburner.com/courant-politics/'),
              ('Opinion', 'http://feeds.feedburner.com/courant-opinion/'),
              ('Editorials', 'http://feeds.feedburner.com/courant-editorials/'),
              ('Letters', 'http://feeds.feedburner.com/courant-letters/'),
              ('Bob Englehart', 'http://feeds2.feedburner.com/BobEnglehartEnglehartsView'),
              ('Business', 'http://feeds.feedburner.com/courant-business/'),
+             ('Sports', 'http://feeds.feedburner.com/courant-sports/'),
+             ('Features', 'http://feeds.feedburner.com/courant-features/'),
              ('Consumer', 'http://feeds.feedburner.com/courant-consumer/'),
              ('Shopping', 'http://feeds.feedburner.com/courant-shopping/'),
              ('Arts & Theater', 'http://feeds.feedburner.com/courant-entertainment/'),
@@ -59,6 +63,7 @@ class ChicagoTribune(BasicNewsRecipe):
              #('Metromix headlines', 'http://feeds.feedburner.com/metromix/topheadlines/'),
              #('Metromix events', 'http://feeds.feedburner.com/metromix/events/'),
              #('Metromix restaurants', 'http://feeds.feedburner.com/metromix/restaurants/'),
+             ('Outdoors', 'http://feeds.feedburner.com/courant-outdoors/'),
              ('Peter Marteka', 'http://feeds.feedburner.com/courant-marteka-column/'),
              ('Susan Campbell', 'http://feeds.feedburner.com/courant-campbell-column/'),
              ('Helen Ubinas', 'http://feeds.feedburner.com/courant-helen-ubinas-column/'),
