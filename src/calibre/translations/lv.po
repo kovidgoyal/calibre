@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-12-25 04:54+0000\n"
-"PO-Revision-Date: 2009-12-25 19:14+0000\n"
+"POT-Creation-Date: 2009-12-26 16:57+0000\n"
+"PO-Revision-Date: 2009-12-26 16:50+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Latvian <ivars_a@inbox.lv>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-26 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-12-27 04:31+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: LATVIA\n"
 "X-Poedit-Language: Latvian\n"
@@ -66,8 +66,8 @@ msgstr "Pilnīgi neko nedara"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:121
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:155
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:593
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:783
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:594
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:784
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:896
@@ -134,7 +134,7 @@ msgstr "Pilnīgi neko nedara"
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -7354,10 +7354,18 @@ msgid "English (TH)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
-msgid "Dutch (NL)"
+msgid "English (CY)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+msgid "German (AT)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+msgid "Dutch (NL)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "Dutch (BE)"
 msgstr ""
 
