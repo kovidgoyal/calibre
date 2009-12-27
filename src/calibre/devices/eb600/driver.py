@@ -133,7 +133,7 @@ class ITALICA(EB600):
 
 class ECLICTO(EB600):
 
-    name = 'eClicto device interface'
+    name = 'eClicto Device Interface'
     gui_name = 'eClicto'
 
     FORMATS = ['epub', 'pdf', 'txt']
@@ -145,4 +145,13 @@ class ECLICTO(EB600):
     EBOOK_DIR_MAIN = 'Text'
     EBOOK_DIR_CARD_A = ''
 
+class Dbook(EB600):
 
+    name = 'Airis Dbook Device Interface'
+    gui_name = 'Airis Dbook'
+
+    FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'html', 'pdf', 'rtf', 'txt']
+
+    VENDOR_NAME = 'INFINITY'
+    WINDOWS_MAIN_MEM = 'AIRIS_DBOOK'
+    WINDOWS_CARD_A_MEM = 'AIRIS_DBOOK'
