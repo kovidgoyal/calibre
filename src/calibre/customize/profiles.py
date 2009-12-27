@@ -54,13 +54,29 @@ class SonyReaderInput(InputProfile):
     name        = 'Sony Reader'
     short_name  = 'sony'
     description = _('This profile is intended for the SONY PRS line. '
-                    'The 500/505/700 etc.')
+                    'The 500/505/600/700 etc.')
 
     screen_size               = (584, 754)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
 
+class SonyReader300Input(SonyReaderInput):
+
+    name        = 'Sony Reader 300'
+    short_name  = 'sony300'
+    description = _('This profile is intended for the SONY PRS 300.')
+
+    dpi                       = 200
+
+class SonyReader900Input(SonyReaderInput):
+
+    author      = 'John Schember'
+    name        = 'Sony Reader 900'
+    short_name  = 'sony900'
+    description = _('This profile is intended for the SONY PRS-900.')
+
+    screen_size               = (584, 978)
 
 class MSReaderInput(InputProfile):
 
@@ -88,15 +104,25 @@ class MobipocketInput(InputProfile):
 
 class HanlinV3Input(InputProfile):
 
-    name        = 'Hanlin V3/V5'
+    name        = 'Hanlin V3'
     short_name  = 'hanlinv3'
-    description = _('This profile is intended for the Hanlin V3/V5 and its clones.')
+    description = _('This profile is intended for the Hanlin V3 and its clones.')
 
     # Screen size is a best guess
     screen_size               = (584, 754)
     dpi                       = 168.451
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
+class HanlinV5Input(HanlinV3Input):
+
+    name        = 'Hanlin V5'
+    short_name  = 'hanlinv5'
+    description = _('This profile is intended for the Hanlin V5 and its clones.')
+
+    # Screen size is a best guess
+    screen_size               = (584, 754)
+    dpi                       = 200
 
 class CybookG3Input(InputProfile):
 
@@ -173,9 +199,10 @@ class NookInput(InputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
-input_profiles = [InputProfile, SonyReaderInput, MSReaderInput,
-        MobipocketInput, HanlinV3Input, CybookG3Input, CybookOpusInput, KindleInput,
-        IlliadInput, IRexDR1000Input, NookInput]
+input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
+        SonyReader900Input, MSReaderInput, MobipocketInput, HanlinV3Input,
+        HanlinV5Input, CybookG3Input, CybookOpusInput, KindleInput, IlliadInput,
+        IRexDR1000Input, NookInput]
 
 
 class OutputProfile(Plugin):
@@ -206,12 +233,31 @@ class SonyReaderOutput(OutputProfile):
     name        = 'Sony Reader'
     short_name  = 'sony'
     description = _('This profile is intended for the SONY PRS line. '
-                    'The 500/505/700 etc.')
+                    'The 500/505/600/700 etc.')
 
     screen_size               = (600, 775)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+
+class SonyReader300Output(SonyReaderOutput):
+
+    author      = 'John Schember'
+    name        = 'Sony Reader 300'
+    short_name  = 'sony300'
+    description = _('This profile is intended for the SONY PRS-300.')
+
+    dpi                       = 200
+
+class SonyReader900Output(SonyReaderOutput):
+
+    author      = 'John Schember'
+    name        = 'Sony Reader 900'
+    short_name  = 'sony900'
+    description = _('This profile is intended for the SONY PRS-900.')
+
+    screen_size               = (600, 999)
+    comic_screen_size = screen_size
 
 class JetBook5Output(OutputProfile):
 
@@ -221,8 +267,6 @@ class JetBook5Output(OutputProfile):
 
     screen_size               = (480, 640)
     dpi                       = 168.451
-
-
 
 class SonyReaderLandscapeOutput(SonyReaderOutput):
 
@@ -262,15 +306,23 @@ class MobipocketOutput(OutputProfile):
 
 class HanlinV3Output(OutputProfile):
 
-    name        = 'Hanlin V3/V5'
+    name        = 'Hanlin V3'
     short_name  = 'hanlinv3'
-    description = _('This profile is intended for the Hanlin V3/V5 and its clones.')
+    description = _('This profile is intended for the Hanlin V3 and its clones.')
 
     # Screen size is a best guess
     screen_size               = (584, 754)
     dpi                       = 168.451
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+
+class HanlinV5Output(HanlinV3Output):
+
+    name        = 'Hanlin V5'
+    short_name  = 'hanlinv5'
+    description = _('This profile is intended for the Hanlin V5 and its clones.')
+
+    dpi                       = 200
 
 class CybookG3Output(OutputProfile):
 
@@ -368,7 +420,8 @@ class NookOutput(OutputProfile):
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
 
-output_profiles = [OutputProfile, SonyReaderOutput, MSReaderOutput,
-        MobipocketOutput, HanlinV3Output, CybookG3Output, CybookOpusOutput,
-        KindleOutput, SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
+output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
+        SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
+        HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
+        SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, JetBook5Output, NookOutput]

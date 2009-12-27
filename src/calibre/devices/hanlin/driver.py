@@ -5,23 +5,23 @@ __copyright__ = '2009, Tijmen Ruizendaal <tijmen at mybebook.com>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Device driver for BeBook
+Device driver for Hanlin
 '''
 
 import re
 
 from calibre.devices.usbms.driver import USBMS
 
-class BEBOOK(USBMS):
+class HANLINV3(USBMS):
 
-    name           = 'BeBook driver'
-    gui_name       = 'BeBook'
-    description    = _('Communicate with the BeBook eBook reader.')
+    name           = 'Hanlin V3 driver'
+    gui_name       = 'Hanlin V3'
+    description    = _('Communicate with Hanlin V3 eBook readers.')
     author         = 'Tijmen Ruizendaal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['mobi', 'epub', 'fb2', 'lit', 'prc', 'pdf', 'rtf', 'txt']
+    FORMATS     = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'pdf', 'rtf', 'txt']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0x8803, 0x6803]
@@ -34,8 +34,8 @@ class BEBOOK(USBMS):
     OSX_MAIN_MEM = 'Linux File-Stor Gadget Media'
     OSX_CARD_A_MEM = 'Linux File-Stor Gadget Media'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'BeBook Internal Memory'
-    STORAGE_CARD_VOLUME_LABEL = 'BeBook Storage Card'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Hanlin V3 Internal Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'Hanlin V3 Storage Card'
 
     SUPPORTS_SUB_DIRS = True
 
@@ -89,18 +89,40 @@ class BEBOOK(USBMS):
         return tuple(drives)
 
 
-class BEBOOK_MINI(BEBOOK):
-    name           = 'BeBook Mini driver'
-    gui_name       = 'BeBook Mini'
-    description    = _('Communicate with the BeBook Mini eBook reader.')
+class HANLINV5(HANLINV3):
+    name           = 'Hanlin V5 driver'
+    gui_name       = 'Hanlin V5'
+    description    = _('Communicate with Hanlin V5 eBook readers.')
 
 
     VENDOR_ID	= [0x0492]
     PRODUCT_ID	= [0x8813]
     BCD         = [0x319]
 
-    OSX_MAIN_MEM = 'BeBook Mini Internal Memory'
-    OSX_CARD_MEM = 'BeBook Mini Storage Card'
+    OSX_MAIN_MEM = 'Hanlin V5 Internal Memory'
+    OSX_CARD_MEM = 'Hanlin V5 Storage Card'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'BeBook Mini Internal Memory'
-    STORAGE_CARD_VOLUME_LABEL = 'BeBook Mini Storage Card'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Hanlin V5 Internal Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'Hanlin V5 Storage Card'
+
+
+class BOOX(HANLINV3):
+
+    name           = 'BOOX driver'
+    gui_name       = 'BOOX'
+    description    = _('Communicate with the BOOX eBook reader.')
+    author         = 'Jesus Manuel Marinho Valcarce'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['ebub', 'pdf', 'html', 'txt', 'rtf', 'mobi', 'prc', 'chm']
+
+    VENDOR_ID   = [0x0525]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = [0x322]
+
+    MAIN_MEMORY_VOLUME_LABEL  = 'BOOX Internal Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'BOOX Storage Card'
+
+    EBOOK_DIR_MAIN = 'MyBooks'
+    EBOOK_DIR_CARD_A = 'MyBooks'
