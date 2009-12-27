@@ -54,7 +54,7 @@ class SonyReaderInput(InputProfile):
     name        = 'Sony Reader'
     short_name  = 'sony'
     description = _('This profile is intended for the SONY PRS line. '
-                    'The 500/505/700 etc.')
+                    'The 500/505/600/700 etc.')
 
     screen_size               = (584, 754)
     dpi                       = 168.451
@@ -233,7 +233,7 @@ class SonyReaderOutput(OutputProfile):
     name        = 'Sony Reader'
     short_name  = 'sony'
     description = _('This profile is intended for the SONY PRS line. '
-                    'The 500/505/700 etc.')
+                    'The 500/505/600/700 etc.')
 
     screen_size               = (600, 775)
     dpi                       = 168.451
