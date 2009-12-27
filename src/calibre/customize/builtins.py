@@ -400,7 +400,7 @@ from calibre.ebooks.txt.output import TXTOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 
-from calibre.devices.bebook.driver import BEBOOK, BEBOOK_MINI
+from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybookg3.driver import CYBOOKG3, CYBOOK_OPUS
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
@@ -417,7 +417,6 @@ from calibre.devices.nokia.driver import N770, N810
 from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
-from calibre.devices.boox.driver import BOOX
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon]
@@ -455,8 +454,8 @@ plugins += [
     TXTOutput,
 ]
 plugins += [
-    BEBOOK,
-    BEBOOK_MINI,
+    HANLINV3,
+    HANLINV5,
     BLACKBERRY,
     CYBOOKG3,
     ILIAD,
