@@ -245,7 +245,7 @@ class SonyReader300Output(SonyReaderOutput):
     author      = 'John Schember'
     name        = 'Sony Reader 300'
     short_name  = 'sony300'
-    description = _('This profile is intended for the SONY PRS-900.')
+    description = _('This profile is intended for the SONY PRS-300.')
 
     dpi                       = 200
 
