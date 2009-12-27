@@ -24,6 +24,7 @@ isosx     = 'darwin' in sys.platform.lower()
 isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
 islinux   = not(iswindows or isosx)
 isfrozen  = hasattr(sys, 'frozen')
+isunix = isosx or islinux
 
 try:
     preferred_encoding = locale.getpreferredencoding()

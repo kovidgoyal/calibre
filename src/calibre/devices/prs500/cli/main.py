@@ -206,9 +206,10 @@ def main():
     scanner.scan()
     connected_devices = []
     for d in device_plugins():
-        if scanner.is_device_connected(d):
+        ok, det = scanner.is_device_connected(d)
+        if ok:
             dev = d
-            dev.reset(log_packets=options.log_packets)
+            dev.reset(log_packets=options.log_packets, detected_device=det)
             connected_devices.append(dev)
 
     if dev is None:

@@ -190,10 +190,14 @@ class RecursiveFetcher(object):
             time.sleep(delta)
         if isinstance(url, unicode):
             url = url.encode('utf-8')
-        purl = list(urlparse.urlparse(url))
-        for i in range(2, 6):
-            purl[i] = quote(purl[i])
-        url = urlparse.urlunparse(purl)
+        # Not sure is this is really needed as I think mechanize
+        # handles quoting automatically, but leaving it in
+        # in case it breaks something
+        if re.search(r'\s+|,', url) is not None:
+            purl = list(urlparse.urlparse(url))
+            for i in range(2, 6):
+                purl[i] = quote(purl[i])
+            url = urlparse.urlunparse(purl)
         try:
             open_func = getattr(self.browser, 'open_novisit', self.browser.open)
             with closing(open_func(url, timeout=self.timeout)) as f:

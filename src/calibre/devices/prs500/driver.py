@@ -194,7 +194,8 @@ class PRS500(DeviceConfig, DevicePlugin):
 
         return run_session
 
-    def reset(self, key='-1', log_packets=False, report_progress=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None,
+            detected_device=None) :
         """
         @param key: The key to unlock the device
         @param log_packets: If true the packet stream to/from the device is logged

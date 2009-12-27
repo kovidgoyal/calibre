@@ -268,7 +268,7 @@ usbobserver_get_mounted_filesystems(PyObject *self, PyObject *args) {
     buf = (struct statfs*)calloc(num, sizeof(struct statfs));
     if (buf == NULL) return PyErr_NoMemory();
 
-    num = getfsstat(buf, num*sizeof(struct statfs), MNT_WAIT);
+    num = getfsstat(buf, num*sizeof(struct statfs), MNT_NOWAIT);
     if (num == -1) {
         PyErr_SetString(PyExc_RuntimeError, "Call to getfsstat failed");
         return NULL;

@@ -22,8 +22,31 @@ from itertools import repeat
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre import iswindows, islinux, isosx, __appname__
+from calibre.constants import iswindows, islinux, isosx, __appname__, plugins
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
+
+if isosx:
+    usbobserver, usbobserver_err = plugins['usbobserver']
+
+class USBDevice:
+
+    def __init__(self, dev):
+        self.idVendor = dev[0]
+        self.idProduct = dev[1]
+        self.bcdDevice = dev[2]
+        self.manufacturer = dev[3]
+        self.product = dev[4]
+        self.serial = dev[5]
+
+    def match_serial(self, serial):
+        return self.serial and self.serial == serial
+
+    def match_numbers(self, vid, pid, bcd):
+        return self.idVendor == vid and self.idProduct == pid and self.bcdDevice == bcd
+
+    def match_strings(self, vid, pid, bcd, man, prod):
+        return self.match_numbers(vid, pid, bcd) and \
+                self.manufacturer == man and self.product == prod
 
 class Device(DeviceConfig, DevicePlugin):
 
@@ -108,8 +131,10 @@ class Device(DeviceConfig, DevicePlugin):
     FDI_LUNS = {'lun0':0, 'lun1':1, 'lun2':2}
     FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
 
-    def reset(self, key='-1', log_packets=False, report_progress=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None,
+            detected_device=None):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+        self.detected_device = USBDevice(detected_device)
 
     @classmethod
     def get_gui_name(cls):
@@ -391,29 +416,80 @@ class Device(DeviceConfig, DevicePlugin):
                     raise
             time.sleep(2)
 
-    def open_osx(self):
-        mount = self.osx_run_mount()
-        names = self.get_osx_mountpoints()
-        dev_pat = r'/dev/%s(\w*)\s+on\s+([^\(]+)\s+'
-        if 'main' not in names.keys():
-            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
-        main_pat = dev_pat % names['main']
-        main_match = re.search(main_pat, mount)
-        if main_match is None:
-            raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
-        self._main_prefix = main_match.group(2) + os.sep
-        card_a_pat = names['carda'] if 'carda' in names.keys() else None
-        card_b_pat = names['cardb'] if 'cardb' in names.keys() else None
-
-        def get_card_prefix(pat):
-            if pat is not None:
-                pat = dev_pat % pat
-                return re.search(pat, mount).group(2) + os.sep
+    def _osx_bsd_names(self):
+        if usbobserver_err:
+            raise RuntimeError('Failed to load usbobserver: '+usbobserver_err)
+        drives = usbobserver.get_usb_drives()
+        matches = []
+        d = self.detected_device
+        if d.serial:
+            for path, vid, pid, bcd, ven, prod, serial in drives:
+                if d.match_serial(serial):
+                    matches.append(path)
+        if not matches:
+            if d.manufacturer and d.product:
+                for path, vid, pid, bcd, man, prod, serial in drives:
+                    if d.match_strings(vid, pid, bcd, man, prod):
+                        matches.append(path)
             else:
-                return None
+                for path, vid, pid, bcd, man, prod, serial in drives:
+                    if d.match_numbers(vid, pid, bcd):
+                        matches.append(path)
+        if not matches:
+            raise DeviceError(
+             'Could not detect BSD names for %s. Try rebooting.' % self.name)
 
-        self._card_a_prefix = get_card_prefix(card_a_pat)
-        self._card_b_prefix = get_card_prefix(card_b_pat)
+        pat = re.compile(r'(?P<m>\d+)([a-z]+(?P<p>\d+)){0,1}')
+        def nums(x):
+            m = pat.search(x)
+            if m is None:
+                return (10000, 0)
+            g = m.groupdict()
+            if g['p'] is None:
+                g['p'] = 0
+            return map(int, (g.get('m'), g.get('p')))
+
+        def dcmp(x, y):
+            x = x.rpartition('/')[-1]
+            y = y.rpartition('/')[-1]
+            x, y = nums(x), nums(y)
+            ans = cmp(x[0], y[0])
+            if ans == 0:
+                ans = cmp(x[1], y[1])
+            return ans
+
+        matches.sort(cmp=dcmp)
+        drives = {'main':matches[0]}
+        if len(matches > 1):
+            drives['carda'] = matches[1]
+        if len(matches > 2):
+            drives['cardb'] = matches[2]
+
+        return drives
+
+    def osx_bsd_names(self):
+        try:
+            return self._osx_bsd_names()
+        except:
+            time.sleep(2)
+        return self._osx_bsd_names()
+
+    def open_osx(self):
+        drives = self.osx_bsd_names()
+        drives = self.osx_sort_names(drives)
+        mount_map = usbobserver.get_mounted_filesystems()
+        for k, v in drives.items():
+            drives[k] = mount_map.get(k, None)
+        if drives['main'] is None:
+            raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
+        self._main_prefix = drives['main']+os.sep
+        def get_card_prefix(c):
+            ans = drives.get(c, None)
+            if ans is not None:
+                ans += os.sep
+            return ans
+        self._card_a_prefix = get_card_prefix('carda')
+        self._card_b_prefix = get_card_prefix('cardb')
 
     def find_device_nodes(self):
 
