@@ -41,6 +41,8 @@ class NOOK(USBMS):
     STORAGE_CARD_VOLUME_LABEL = 'Nook Storage Card'
 
     EBOOK_DIR_MAIN = 'my documents'
+    THUMBNAIL_HEIGHT = 144
+    DELETE_EXTS = ['.jpg']
     SUPPORTS_SUB_DIRS = True
 
     def upload_cover(self, path, filename, metadata):
@@ -54,7 +56,6 @@ class NOOK(USBMS):
         coverdata = metadata.get('cover', None)
         if coverdata:
             cover = Image.open(cStringIO.StringIO(coverdata[2]))
-            cover.thumbnail((96, 144), Image.ANTIALIAS)
         else:
             coverdata = open(I('library.png'), 'rb').read()
 
@@ -66,8 +67,8 @@ class NOOK(USBMS):
             cover.paste(im, ((96-x)/2, (144-y)/2))
 
             draw = ImageDraw.Draw(cover)
-            draw.text((1, 15), metadata.title)
-            draw.text((1, 115), ', '.join(metadata.authors))
+            draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
+            draw.text((1, 115), metadata.get('authors', _('Unknown')).encode('ascii', 'ignore'))
 
         data = cStringIO.StringIO()
         cover.save(data, 'JPEG')
