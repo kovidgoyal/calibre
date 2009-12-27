@@ -4,6 +4,41 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+- version: 0.6.31
+  date: 2009-12-27
+
+  new features:
+    - title: "Support for the SONY PRS 900 and the Airis dBook"
+      type: major
+
+    - title: "Device detection on OS X now directly queries the IOKit registry instead of parsing the output of the ioreg command."
+      description: >
+        "The logic for device detection in OS X is very similar to that in linux. This means that if a windows driver
+        for a device is written, it should work with no modification on both OS X and Linux."
+
+  bug fixes:
+    - title: "Fix a major regression in the 0.6.30 news download system that caused a lot of recipes to fail"
+
+    - title: "Make PRS 500 driver thread safe."
+      tickets: [4307]
+
+    - title: "Fix ebook viewer not working when launched as standalone program to view PDF files on windows"
+
+    - title: "PDB Output: Fix italics"
+
+
+  new recipes:
+
+    - title: The Hartford Courant
+      author: Being
+
+    - title: National Post
+      author: Nick Redding
+
+    - title: The Columbus Dispatch
+      author: kwetal
+
+
 - version: 0.6.30
   date: 2009-12-26
 
