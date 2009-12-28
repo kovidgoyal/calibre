@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-12-25 04:54+0000\n"
-"PO-Revision-Date: 2009-12-25 19:16+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2009-12-27 23:41+0000\n"
+"PO-Revision-Date: 2009-12-27 09:43+0000\n"
+"Last-Translator: Marc van den Dikkenberg <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-26 04:31+0000\n"
+"X-Launchpad-Export-Date: 2009-12-28 04:49+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:340
@@ -28,11 +28,13 @@ msgstr "Doet absoluut niets."
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:94
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:54
+#: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
+#: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:58
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/books.py:199
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:789
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:792
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:206
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:870
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:873
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:202
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:414
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:67
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:69
@@ -68,8 +70,8 @@ msgstr "Doet absoluut niets."
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:121
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:155
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:593
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:783
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:594
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:784
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:896
@@ -136,7 +138,7 @@ msgstr "Doet absoluut niets."
 #: /home/kovid/work/calibre/src/calibre/library/server.py:645
 #: /home/kovid/work/calibre/src/calibre/library/server.py:717
 #: /home/kovid/work/calibre/src/calibre/library/server.py:764
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:45
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:63
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:77
@@ -271,60 +273,75 @@ msgstr ""
 "als u niets over het invoer document weet."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:56
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
-msgid "This profile is intended for the SONY PRS line. The 500/505/700 etc."
-msgstr "Dit profiel is bedoeld voor de SONY PRS lijn. De 300/600 etc."
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:235
+msgid ""
+"This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:69
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:243
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:68
+msgid "This profile is intended for the SONY PRS 300."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:77
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:257
+msgid "This profile is intended for the SONY PRS-900."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:85
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:287
 msgid "This profile is intended for the Microsoft Reader."
 msgstr "Dit profiel is bedoeld voor de de Microsoft Reader."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:254
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:96
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:298
 msgid "This profile is intended for the Mobipocket books."
 msgstr "Dit profiel is bedoeld voor de Mobipocket boeken."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:93
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:267
-msgid "This profile is intended for the Hanlin V3/V5 and its clones."
-msgstr "Dit profiel is voor de Hanlin V3/V5 en klonen."
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:109
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:311
+msgid "This profile is intended for the Hanlin V3 and its clones."
+msgstr "Dit profiel is bedoeld voor de Hanlin V3 en zijn klonen."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:105
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:279
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:121
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:323
+msgid "This profile is intended for the Hanlin V5 and its clones."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:131
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:331
 msgid "This profile is intended for the Cybook G3."
 msgstr "Dit profiel is bedoeld voor de Cybook G3."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:118
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:292
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:144
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:344
 msgid "This profile is intended for the Cybook Opus."
 msgstr "Dit profiel is bedoeld voor de Cybook Opus."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:130
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:303
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:156
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:355
 msgid "This profile is intended for the Amazon Kindle."
 msgstr "Dit profiel is bedoeld voor de Amazon Kindle."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:142
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:336
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:168
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:388
 msgid "This profile is intended for the Irex Illiad."
 msgstr "Dit profiel is bedoeld voor de Irex Illiad."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:154
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:349
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:180
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:401
 msgid "This profile is intended for the IRex Digital Reader 1000."
 msgstr "Dit profiel is bedoeld voor de IRex Digital Reader 1000."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:168
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:363
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:415
 msgid "This profile is intended for the B&N Nook."
 msgstr "Dit profiel is bedoeld voor de B&N Nook."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:186
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:213
 msgid "Output profile"
 msgstr "Uitvoer profiel"
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:190
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:217
 msgid ""
 "This profile tries to provide sane defaults and is useful if you want to "
 "produce a document intended to be read at a computer or on a range of "
@@ -334,11 +351,15 @@ msgstr ""
 "een document wilt produceren om op een computer or serie van devices te "
 "lezen."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:220
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
+msgid "This profile is intended for the SONY PRS-300."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:266
 msgid "This profile is intended for the 5-inch JetBook."
 msgstr "Dit profiel is bedoeld voor de 5-inch JetBook."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:231
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:275
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
@@ -346,7 +367,7 @@ msgstr ""
 "Dit profiel is bedoeld voor de SONY PRS lijn. De 300/600 etc, in landschap "
 "mode. Vooral handig voor stripboeken."
 
-#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:320
+#: /home/kovid/work/calibre/src/calibre/customize/profiles.py:372
 msgid "This profile is intended for the Amazon Kindle DX."
 msgstr "Dit profiel is bedoeld voor de Amazon Kindle DX."
 
@@ -429,33 +450,21 @@ msgstr ""
 "Komma-gescheiden lijst van folders om e-boeken naar toe te sturen op het "
 "apparaat. De eerste die wordt gevonden zal worden gebruikt."
 
-#: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:19
-msgid "Communicate with the BeBook eBook reader."
-msgstr "Communiceer met de BeBook e-boek lezer."
-
-#: /home/kovid/work/calibre/src/calibre/devices/bebook/driver.py:95
-msgid "Communicate with the BeBook Mini eBook reader."
-msgstr "Communiceer met de BeBook Mini e-boek lezer."
-
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:12
 msgid "Communicate with the Blackberry smart phone."
 msgstr "Communiceer met de Blackberry smart phone."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
-#: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:88
+#: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
-
-#: /home/kovid/work/calibre/src/calibre/devices/boox/driver.py:17
-msgid "Communicate with the BOOX eBook reader."
-msgstr "Communiceer met de BOOX eBoek lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:21
 msgid "Communicate with the Cybook Gen 3 eBook reader."
 msgstr "Communiceer met de Cybook Gen 3 e-boek lezer."
 
-#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:68
+#: /home/kovid/work/calibre/src/calibre/devices/cybookg3/driver.py:67
 msgid "Communicate with the Cybook Opus eBook reader."
 msgstr "Communiceer met de Cybook Opus e-boek lezer."
 
@@ -466,6 +475,18 @@ msgstr "Communiceer met de EB600 e-boek lezer."
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
 msgstr "Communiceer met de ESlick e-boek lezer."
+
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
+msgid "Communicate with Hanlin V3 eBook readers."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
+msgid "Communicate with Hanlin V5 eBook readers."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:113
+msgid "Communicate with the BOOX eBook reader."
+msgstr "Communiceer met de BOOX eBoek lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -497,8 +518,8 @@ msgstr "Communiceer met de JetBook e-boek lezer."
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:78
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:134
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:136
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:122
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:116
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:118
 msgid "Transferring books to device..."
 msgstr "Bezig om de boeken naar het aparaat over te zetten..."
 
@@ -534,7 +555,7 @@ msgstr "Communiceer met de Nook eBook lezer."
 msgid "Communicate with the Nuut2 eBook reader."
 msgstr "Communiceer met de Nuut2 eBook lezer."
 
-#: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:87
+#: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
 msgstr "Communiceer met de Sony PRS-500 e-boek lezer."
 
@@ -543,12 +564,12 @@ msgstr "Communiceer met de Sony PRS-500 e-boek lezer."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:103
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:114
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:49
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:52
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:55
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:75
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:85
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:94
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:45
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:48
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:51
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:71
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:81
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:90
 msgid "Getting list of books on device..."
 msgstr "Bezig met het ophalen van boeken van het apparaat..."
 
@@ -558,38 +579,37 @@ msgstr "Communiceer met de Sony PRS-300/505/500 eBoek lezer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:167
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:174
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:148
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:163
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:159
 msgid "Removing books from device..."
 msgstr "Bezig om boeken te verwijderen van apparaat..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:202
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:178
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:174
 msgid "Sending metadata to device..."
 msgstr "Versturen van metadata naar apparaat..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:208
-msgid "Communicate with the Sony PRS-600/700 eBook reader."
-msgstr "Communiceer met de Sony PRS-600/700 e-boek lezer."
+msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:308
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:399
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:336
 msgid "Unable to detect the %s disk drive. Try rebooting."
 msgstr "Schijf %s is niet gevonden. Probeer te herstarten."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:403
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:489
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr ""
+msgstr "Kan mount punt %s niet vinden. Probeer een herstart."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:470
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:551
 msgid "Unable to detect the %s disk drive."
 msgstr "Schijf %s niet gevonden"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:563
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:644
 msgid "Could not find mount helper: %s."
 msgstr "Mount helper: %s niet gevonden."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:575
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:656
 msgid ""
 "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 "deprecated version of SYSFS."
@@ -597,29 +617,29 @@ msgstr ""
 "Schijf %s kan niet worden gevonden. Uw kernel gebruikt waarschijnlijk een "
 "verouderde versie van SYSFS"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:583
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:664
 msgid "Unable to mount main memory (Error code: %d)"
 msgstr "Niet mogelijk om met hoofdgeheugen te verbinden (Error code: %d)"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:720
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:722
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:801
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:803
 msgid "The reader has no storage card in this slot."
 msgstr "De lezer heeft geen opslag kaart in dit slot."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:724
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:805
 msgid "Selected slot: %s is not supported."
 msgstr "Geselecteerd slot: %s is niet ondersteund."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:757
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:838
 msgid "There is insufficient free space in main memory"
 msgstr "Er is onvoldoende vrije ruimte in het hoofdgeheugen."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:759
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:761
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:840
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:842
 msgid "There is insufficient free space on the storage card"
 msgstr "Er is onvoldoende vrije plaats op de geheugenkaart"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:772
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:853
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:125
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1065
@@ -658,17 +678,17 @@ msgstr "Extra Persoonlijke instellingen"
 msgid "Communicate with an eBook reader."
 msgstr "Communiceer met een e-boek lezer."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:37
 msgid "Get device information..."
 msgstr "Haal lezer informatie op..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:136
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:132
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:140
 msgid "Adding books to device metadata listing..."
 msgstr "Toevoegen boeken aan apparaat metadata lijst..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:167
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:172
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:163
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:168
 msgid "Removing books from device metadata listing..."
 msgstr "Verwijderen boeken van apparaat metadata lijst..."
 
@@ -2500,7 +2520,7 @@ msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr ""
 "De orientatie van de pagina. Standaard is Portrait (Staand). Keuzes zijn %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:52
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
 msgstr ""
 "Pdftohtml kon niet worden gevonden, controleer of het in je zoekpad zit."
@@ -2699,7 +2719,7 @@ msgstr ""
 "Limiteer maximum aantal tegelijktijdige processen tot het aantal CPU's"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:404
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:410
 msgid "Copied"
 msgstr "Gekopieerd"
 
@@ -4223,7 +4243,7 @@ msgid "Failed to start content server"
 msgstr "Content server kon niet worden gestart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/__init__.py:698
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:514
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:520
 msgid "Select location for books"
 msgstr "Selecteer de locatie voor boeken"
 
@@ -5311,7 +5331,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr ""
+msgstr "Kies formaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:62
 msgid "Are your sure?"
@@ -6310,19 +6330,20 @@ msgstr "Bekijk specifiek formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:319
 msgid "Remove selected books"
-msgstr ""
+msgstr "Verwijder geselecteerde boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:321
 msgid "Remove files of a specific format from selected books.."
 msgstr ""
+"Verwijder bestanden in een specifiek formaat van de geselecteerde boeken.."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:323
 msgid "Remove all formats from selected books, except..."
-msgstr ""
+msgstr "Verwijder alle formaten van de geselecterde boeken, behalve..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:325
 msgid "Remove covers from selected books"
-msgstr ""
+msgstr "Verwijder omslagen van de geselecteerde boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:356
 msgid "Convert individually"
@@ -6346,7 +6367,7 @@ msgid "Bad database location"
 msgstr "Ongeldige database locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:471
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:528
 msgid "Calibre Library"
 msgstr "Calibre Bibliotheek"
 
@@ -6467,7 +6488,7 @@ msgstr "Metadata kon niet worden gelezen van de volgende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1016
 msgid "Cannot delete"
-msgstr ""
+msgstr "Kan niet verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1019
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1507
@@ -6477,11 +6498,11 @@ msgstr "Geen boek geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1029
 msgid "Choose formats to be deleted"
-msgstr ""
+msgstr "Kies formaten om te verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1045
 msgid "Choose formats <b>not</b> to be deleted"
-msgstr ""
+msgstr "Kies formaten die <b>niet</b> moeten worden verwijderd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1081
 msgid ""
@@ -7199,7 +7220,7 @@ msgstr "Lettervorm Wijzigen"
 msgid "Title Case"
 msgstr "Elk Woord Met Hoofdletter"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:295
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:301
 msgid ""
 "If you use the WordPlayer e-book app on your Android phone, you can access "
 "your calibre book collection directly on the device. To do this you have to "
@@ -7209,7 +7230,7 @@ msgstr ""
 "kun je de calibre boek collectie direct op je telefoon bekijken. Om dit te "
 "doen zul je de content server moeten inschakelen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:299
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:305
 msgid ""
 "Remember to leave calibre running as the server only runs as long as calibre "
 "is running."
@@ -7217,7 +7238,7 @@ msgstr ""
 "Denk er aan om calibre open te laten, aangezien de server alleen werkt "
 "zolang calibre draait"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:301
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:307
 msgid ""
 "You have to add the URL http://myhostname:8080 as your calibre library in "
 "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
@@ -7227,20 +7248,20 @@ msgstr ""
 "bibliotheek. myhostname is de volledige hostname of het IP address van de "
 "computer waar calibre op draait."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:384
 msgid "Moving library..."
 msgstr "Verplaatsen bibliotheek..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:394
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:395
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:400
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:401
 msgid "Failed to move library"
 msgstr "Bibliotheek kon niet worden verplaatst"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:449
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:455
 msgid "Invalid database"
 msgstr "ongeldige database"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:450
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:456
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
@@ -7248,11 +7269,11 @@ msgstr ""
 "<p>Een ongeldige bibliotheek bestaat at in %s, verwijder deze alvorens "
 "nogmaals te proberen de bestaande bibliotheek te verplaatsen.<br>Fout: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:461
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:467
 msgid "Could not move library"
 msgstr "Bibliotheek kon niet worden verplaatst"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:589
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:595
 msgid "welcome wizard"
 msgstr "Welkom Wizard"
 
@@ -8143,10 +8164,18 @@ msgid "English (TH)"
 msgstr "Engels (TH)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+msgid "English (CY)"
+msgstr "Engels (CY)"
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+msgid "German (AT)"
+msgstr "Duits (AT)"
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "Dutch (NL)"
 msgstr "Nederlands (NL)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "Dutch (BE)"
 msgstr "Nederlands (BE)"
 
@@ -8295,7 +8324,7 @@ msgstr "Gepland"
 msgid "Custom"
 msgstr "Aangepast"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:455
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:459
 msgid ""
 "%prog URL\n"
 "\n"
@@ -8305,12 +8334,12 @@ msgstr ""
 "\n"
 "Waar URL is bijvoorbeeld http://google.com"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:458
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:462
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr ""
 "Basis map waar de URL naar toe wordt geschreven. Standaard is %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:461
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:465
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
@@ -8318,7 +8347,7 @@ msgstr ""
 "Timeout in seconden om te wachten op een antwoord van de server. Standaard: "
 "%default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:464
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:468
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
@@ -8326,7 +8355,7 @@ msgstr ""
 "Maximum aantal niveaus om recursief te zoeken -- de diepte van de te volgen "
 "links. Standaard %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:467
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:471
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
@@ -8334,7 +8363,7 @@ msgstr ""
 "Het maximum aantal bestanden te downloaden. Dit is alleen van toepassing op "
 "bestanden in <a href> labels. Standaard is %default"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:469
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
@@ -8342,7 +8371,7 @@ msgstr ""
 "Minimum inteval in seconden tussen aaneensluitende downloads. Standaard is "
 "%default s"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:471
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
@@ -8350,7 +8379,7 @@ msgstr ""
 "De karakter codering voor de websites die je probeert te downloaden. "
 "Standaard zal er worden geprobeerd om de codering te raden."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:473
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
@@ -8361,7 +8390,7 @@ msgstr ""
 "link zal worden gevolgd als deze overeenkomt met ten minste een reguliere "
 "expressie. Standaard zullen alle links worden gevolgd."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:475
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid ""
 "Any link that matches this regular expression will be ignored. This option "
 "can be specified multiple times, in which case as long as any regexp matches "
@@ -8375,11 +8404,11 @@ msgstr ""
 "geen enkele link overgeslagen.  indien zowel --filter-regexp en --match-"
 "regexp worden gebruikt, dan zal --filter-regexp allereerst worden toegepast."
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:477
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:481
 msgid "Do not download CSS stylesheets."
 msgstr "Download geen CSS stylesheets"
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:478
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
 "Laat gedetailleerde output informatie zien. Handig bij het opsporen van "
@@ -9391,8 +9420,14 @@ msgstr ""
 #~ msgid "Skipping duplicated article: %s"
 #~ msgstr "Dubbel artikel wordt overgeslagen: %s"
 
-#~ msgid "This profile is intended for the Hanlin V3 and its clones."
-#~ msgstr "Dit profiel is bedoeld voor de Hanlin V3 en zijn klonen."
+#~ msgid "This profile is intended for the SONY PRS line. The 500/505/700 etc."
+#~ msgstr "Dit profiel is bedoeld voor de SONY PRS lijn. De 300/600 etc."
+
+#~ msgid "Communicate with the BeBook Mini eBook reader."
+#~ msgstr "Communiceer met de BeBook Mini e-boek lezer."
+
+#~ msgid "Communicate with the BeBook eBook reader."
+#~ msgstr "Communiceer met de BeBook e-boek lezer."
 
 #~ msgid "Kovid Goyal and John Schember"
 #~ msgstr "Kovid Goyal en John Schember"
@@ -9400,8 +9435,14 @@ msgstr ""
 #~ msgid "James Ralston"
 #~ msgstr "James Ralston"
 
+#~ msgid "Communicate with the Sony PRS-600/700 eBook reader."
+#~ msgstr "Communiceer met de Sony PRS-600/700 e-boek lezer."
+
 #~ msgid "Communicate with the Sony PRS-300/505 eBook reader."
 #~ msgstr "Communiceer met de Sony PRS-300/505 e-boek lezer."
+
+#~ msgid "This profile is intended for the Hanlin V3/V5 and its clones."
+#~ msgstr "Dit profiel is voor de Hanlin V3/V5 en klonen."
 
 #~ msgid "Communicate with the Nokia Nokia 770 internet tablet."
 #~ msgstr "Communiceer met de Nokia Nokia 770 internet tablet."
