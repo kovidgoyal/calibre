@@ -404,7 +404,7 @@ from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybookg3.driver import CYBOOKG3, CYBOOK_OPUS
 from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
-                POCKETBOOK360, GER2, ITALICA, ECLICTO
+                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000
 from calibre.devices.jetbook.driver import JETBOOK
@@ -417,6 +417,7 @@ from calibre.devices.nokia.driver import N770, N810
 from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
+from calibre.devices.binatone.driver import README
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon]
@@ -481,8 +482,10 @@ plugins += [
     ITALICA,
     SHINEBOOK,
     ECLICTO,
+    DBOOK,
     BOOX,
     EB600,
+    README,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]

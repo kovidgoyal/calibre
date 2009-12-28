@@ -115,7 +115,7 @@ class BOOX(HANLINV3):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['ebub', 'pdf', 'html', 'txt', 'rtf', 'mobi', 'prc', 'chm']
+    FORMATS     = ['epub', 'pdf', 'html', 'txt', 'rtf', 'mobi', 'prc', 'chm']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]

@@ -89,8 +89,14 @@ class Sony500(Device):
 class Sony505(Sony500):
 
     output_format = 'EPUB'
-    name = 'SONY Reader Pocket/Touch Edition'
+    name = 'SONY Reader 6" and Touch Edition'
     id = 'prs505'
+
+class Sony300(Sony505):
+
+    name = 'SONY Reader Pocket Edition'
+    id = 'prs300'
+    output_profile = 'sony300'
 
 class Sony900(Sony505):
 
@@ -119,14 +125,6 @@ class CybookOpus(CybookG3):
     output_profile = 'cybook_opus'
     id = 'cybook_opus'
 
-class BeBook(Device):
-
-    name = 'BeBook or BeBook Mini'
-    output_format = 'EPUB'
-    output_profile = 'sony'
-    manufacturer = 'Endless Ideas'
-    id = 'bebook'
-
 class iPhone(Device):
 
     name = 'iPhone/iTouch + Stanza'
@@ -141,13 +139,44 @@ class Android(Device):
     manufacturer = 'Google/HTC'
     id = 'android'
 
-class Hanlin(Device):
+class HanlinV3(Device):
 
     name = 'Hanlin V3'
-    output_format = 'MOBI'
+    output_format = 'EPUB'
     output_profile = 'hanlinv3'
-    manufacturer = 'Hanlin'
+    manufacturer = 'Jinke'
     id = 'hanlinv3'
+
+class HanlinV5(HanlinV3):
+
+    name = 'Hanlin V5'
+    output_profile = 'hanlinv5'
+    id = 'hanlinv5'
+
+class BeBook(HanlinV3):
+
+    name = 'BeBook'
+    manufacturer = 'Endless Ideas'
+    id = 'bebook'
+
+class BeBookMini(HanlinV5):
+
+    name = 'BeBook Mini'
+    manufacturer = 'Endless Ideas'
+    id = 'bebook_mini'
+
+class EZReader(HanlinV3):
+
+    name = 'EZReader'
+    manufacturer = 'Astak'
+    id = 'ezreader'
+
+class EZReaderPP(HanlinV5):
+
+    name = 'EZReader Pocket Pro'
+    manufacturer = 'Astak'
+    id = 'ezreader_pp'
+
 
 def get_devices():
     for x in globals().values():

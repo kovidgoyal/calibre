@@ -17,7 +17,7 @@ class NYTimes(BasicNewsRecipe):
     language = 'en'
 
     description = 'Daily news from the New York Times (subscription version)'
-    timefmt = ''
+    timefmt  = ' [%a, %b %d, %Y]'
     needs_subscription = True
     remove_tags_before = dict(id='article')
     remove_tags_after  = dict(id='article')
@@ -43,6 +43,9 @@ class NYTimes(BasicNewsRecipe):
                 raise Exception('Your username and password are incorrect')
             #open('/t/log.html', 'wb').write(raw)
         return br
+
+    def short_title(self):
+        return 'NY Times'
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.nytimes.com/pages/todayspaper/index.html')

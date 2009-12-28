@@ -275,6 +275,9 @@ class BasicNewsRecipe(Recipe):
 
     # See the built-in profiles for examples of these settings.
 
+    def short_title(self):
+        return self.title
+
     def get_cover_url(self):
         '''
         Return a :term:`URL` to the cover image for this issue or `None`.
@@ -886,7 +889,7 @@ class BasicNewsRecipe(Recipe):
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        mi = MetaInformation(self.title + strftime(self.timefmt), [__appname__])
+        mi = MetaInformation(self.short_title() + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type

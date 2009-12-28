@@ -145,7 +145,7 @@ class ECLICTO(EB600):
     EBOOK_DIR_MAIN = 'Text'
     EBOOK_DIR_CARD_A = ''
 
-class Dbook(EB600):
+class DBOOK(EB600):
 
     name = 'Airis Dbook Device Interface'
     gui_name = 'Airis Dbook'
