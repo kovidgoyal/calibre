@@ -104,12 +104,12 @@ class DevicePlugin(Plugin):
     @classmethod
     def is_usb_connected(cls, devices_on_system, debug=False):
         '''
-        Return True if a device handled by this plugin is currently connected.
+        Return True, device_info if a device handled by this plugin is currently connected.
 
         :param devices_on_system: List of devices currently connected
         '''
         if iswindows:
-            return cls.is_usb_connected_windows(devices_on_system, debug=debug)
+            return cls.is_usb_connected_windows(devices_on_system, debug=debug), None
 
         vendors_on_system = set([x[0] for x in devices_on_system])
         vendors = cls.VENDOR_ID if hasattr(cls.VENDOR_ID, '__len__') else [cls.VENDOR_ID]
@@ -134,18 +134,20 @@ class DevicePlugin(Plugin):
                                 if debug:
                                     cls.print_usb_device_info(dev)
                                 if cls.can_handle(dev, debug=debug):
-                                    return True
-        return False
+                                    return True, dev
+        return False, None
 
 
-    def reset(self, key='-1', log_packets=False, report_progress=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None,
+            detected_device=None) :
         """
-        @param key: The key to unlock the device
-        @param log_packets: If true the packet stream to/from the device is logged
-        @param report_progress: Function that is called with a % progress
+        :key: The key to unlock the device
+        :log_packets: If true the packet stream to/from the device is logged
+        :report_progress: Function that is called with a % progress
                                 (number between 0 and 100) for various tasks
                                 If it is called with -1 that means that the
                                 task does not have any progress information
+        :detected_device: Device information from the device scanner
         """
         raise NotImplementedError()
 

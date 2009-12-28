@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.6.30'
+__version__   = '0.6.31'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 import re
@@ -24,6 +24,7 @@ isosx     = 'darwin' in sys.platform.lower()
 isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
 islinux   = not(iswindows or isosx)
 isfrozen  = hasattr(sys, 'frozen')
+isunix = isosx or islinux
 
 try:
     preferred_encoding = locale.getpreferredencoding()

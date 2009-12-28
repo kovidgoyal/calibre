@@ -33,10 +33,6 @@ class USBMS(CLI, Device):
     FORMATS = []
     CAN_SET_METADATA = False
 
-    def reset(self, key='-1', log_packets=False, report_progress=None):
-        Device.reset(self, key=key, log_packets=log_packets,
-                        report_progress=report_progress)
-
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
         return (self.__class__.__name__, '', '', '')

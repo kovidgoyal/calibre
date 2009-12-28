@@ -27,14 +27,15 @@ def strftime(epoch, zone=time.gmtime):
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
 
-def debug():
+def debug(ioreg_to_tmp=False, buf=None):
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner
     from calibre.constants import iswindows, isosx, __version__
     from calibre import prints
     oldo, olde = sys.stdout, sys.stderr
 
-    buf = StringIO()
+    if buf is None:
+        buf = StringIO()
     sys.stdout = sys.stderr = buf
     try:
         out = partial(prints, file=buf)
@@ -82,16 +83,17 @@ def debug():
         connected_devices = []
         for dev in device_plugins():
             out('Looking for', dev.__class__.__name__)
-            connected = s.is_device_connected(dev, debug=True)
+            connected, det = s.is_device_connected(dev, debug=True)
             if connected:
-                connected_devices.append(dev)
+                connected_devices.append((dev, det))
 
         errors = {}
         success = False
-        for dev in connected_devices:
+        for dev, det in connected_devices:
             out('Device possibly connected:', dev.__class__.name)
             out('Trying to open device...', end=' ')
             try:
+                dev.reset(detected_device=det)
                 dev.open()
                 out('OK')
             except:
@@ -112,11 +114,17 @@ def debug():
                 out(' ')
 
         if ioreg is not None:
+            ioreg = 'IOREG Output\n'+ioreg
             out(' ')
-            out('IOREG Output')
-            out(ioreg)
+            if ioreg_to_tmp:
+                open('/tmp/ioreg.txt', 'wb').write(ioreg)
+                out('Dont forget to send the contents of /tmp/ioreg.txt')
+                out('You can open it with the command: open /tmp/ioreg.txt')
+            else:
+                out(ioreg)
 
-        return buf.getvalue().decode('utf-8')
+        if hasattr(buf, 'getvalue'):
+            return buf.getvalue().decode('utf-8')
     finally:
         sys.stdout = oldo
         sys.stderr = olde

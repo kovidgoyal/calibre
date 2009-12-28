@@ -92,6 +92,12 @@ class Sony505(Sony500):
     name = 'SONY Reader Pocket/Touch Edition'
     id = 'prs505'
 
+class Sony900(Sony505):
+
+    name = 'SONY Reader Daily Edition'
+    id = 'prs900'
+    output_profile = 'sony900'
+
 class Nook(Sony505):
     id = 'nook'
     name = 'Nook'

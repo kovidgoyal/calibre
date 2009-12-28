@@ -1,0 +1,90 @@
+from __future__ import with_statement
+__license__ = 'GPL 3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ChicagoTribune(BasicNewsRecipe):
+
+    title       = 'The Hartford Courant'
+    __author__  = 'Being and Sujata Raman'
+    description = 'Politics, local and business news from Hartford'
+    language = 'en'
+
+    use_embedded_content    = False
+    no_stylesheets        = True
+    remove_javascript = True
+
+    keep_only_tags = [dict(name='div', attrs={'class':["story","entry-asset asset hentry"]}),
+                      dict(name='div', attrs={'id':["pagebody","story","maincontentcontainer"]}),
+                           ]
+    remove_tags_after = [    {'class':['photo_article',]} ]
+
+    remove_tags = [{'id':["moduleArticleTools","content-bottom","rail","articleRelates module","toolSet","relatedrailcontent","div-wrapper","beta","atp-comments","footer"]},
+                   {'class':["clearfix","relatedTitle","articleRelates module","asset-footer","tools","comments","featurePromo","featurePromo fp-topjobs brownBackground","clearfix fullSpan brownBackground","curvedContent"]},
+                   dict(name='font',attrs={'id':["cr-other-headlines"]})]
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    .byline {font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
+                    .date {font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    .copyright {font-family:Arial,Helvetica,sans-serif;font-size:xx-small;text-align:center}
+                    .story{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    .entry-asset asset hentry{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    .pagebody{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    .maincontentcontainer{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    .story-body{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
+    feeds = [
+             ('Breaking News', 'http://feeds.feedburner.com/courant-breaking-news/'),
+             ('Nation/World News', 'http://feeds.feedburner.com/courant-nation-world/'),
+             ('Connecticut News', 'http://feeds.feedburner.com/courant-connecticut-news/'),
+             ('Hartford News', 'http://feeds.feedburner.com/courant-hartford/'),
+             ('West Hartford News', 'http://feeds.feedburner.com/courant-west-hartford/'),
+             ('Bristol', 'http://feeds.feedburner.com/courant-bristol/'),
+             ('Politics', 'http://feeds.feedburner.com/courant-politics/'),
+             ('Opinion', 'http://feeds.feedburner.com/courant-opinion/'),
+             ('Editorials', 'http://feeds.feedburner.com/courant-editorials/'),
+             ('Letters', 'http://feeds.feedburner.com/courant-letters/'),
+             ('Bob Englehart', 'http://feeds2.feedburner.com/BobEnglehartEnglehartsView'),
+             ('Business', 'http://feeds.feedburner.com/courant-business/'),
+             ('Sports', 'http://feeds.feedburner.com/courant-sports/'),
+             ('Features', 'http://feeds.feedburner.com/courant-features/'),
+             ('Consumer', 'http://feeds.feedburner.com/courant-consumer/'),
+             ('Shopping', 'http://feeds.feedburner.com/courant-shopping/'),
+             ('Arts & Theater', 'http://feeds.feedburner.com/courant-entertainment/'),
+             ('Entertainment', 'http://feeds.feedburner.com/courant-stage/'),
+             ('Music', 'http://feeds.feedburner.com/courant-music/'),
+             ('TV', 'http://feeds.feedburner.com/courant-tv/'),
+             ('Movies', 'http://feeds.feedburner.com/courant-movies/'),
+             #('Metromix headlines', 'http://feeds.feedburner.com/metromix/topheadlines/'),
+             #('Metromix events', 'http://feeds.feedburner.com/metromix/events/'),
+             #('Metromix restaurants', 'http://feeds.feedburner.com/metromix/restaurants/'),
+             ('Outdoors', 'http://feeds.feedburner.com/courant-outdoors/'),
+             ('Peter Marteka', 'http://feeds.feedburner.com/courant-marteka-column/'),
+             ('Susan Campbell', 'http://feeds.feedburner.com/courant-campbell-column/'),
+             ('Helen Ubinas', 'http://feeds.feedburner.com/courant-helen-ubinas-column/'),
+             ('Jim Shea', 'http://feeds.feedburner.com/courant-jim-shea-column/'),
+             ('Tom Condon', 'http://feeds.feedburner.com/courant-tom-condon-column/'),
+             ('Colin McEnroe', 'http://feeds.feedburner.com/courant-colin-mcenroe-column/'),
+             ]
+
+
+    def get_article_url(self, article):
+        print article.get('feedburner_origlink', article.get('guid', article.get('link')))
+        return article.get('feedburner_origlink', article.get('guid', article.get('link')))
+
+
+    def postprocess_html(self, soup, first_fetch):
+        for t in soup.findAll(['table', 'tr', 'td']):
+            t.name = 'div'
+
+        for tag in soup.findAll('form', dict(attrs={'name':["comments_form"]})):
+            tag.extract()
+        for tag in soup.findAll('font', dict(attrs={'id':["cr-other-headlines"]})):
+            tag.extract()
+
+        return soup

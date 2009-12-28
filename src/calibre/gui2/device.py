@@ -94,8 +94,8 @@ class DeviceManager(Thread):
             import pythoncom
             pythoncom.CoInitialize()
         try:
-            for dev in connected_devices:
-                dev.reset()
+            for dev, detected_device in connected_devices:
+                dev.reset(detected_device=detected_device)
                 try:
                     dev.open()
                 except:
@@ -116,10 +116,10 @@ class DeviceManager(Thread):
         self.scanner.scan()
         connected_devices = []
         for device in self.devices:
-            connected = self.scanner.is_device_connected(device[0])
+            connected, detected_device = self.scanner.is_device_connected(device[0])
             if connected and not device[1] and not device[2]:
                 # If connected and not showing in GUI and not ejected
-                connected_devices.append(device[0])
+                connected_devices.append((device[0], detected_device))
                 device[1] = True
             elif not connected and device[1]:
                 # Disconnected but showing in GUI

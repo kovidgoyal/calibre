@@ -10,7 +10,7 @@ Device driver for Bookeen's Cybook Gen 3
 
 import os
 
-from calibre import islinux
+from calibre.constants import isunix
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
 
@@ -55,7 +55,7 @@ class CYBOOKG3(USBMS):
 
     @classmethod
     def can_handle(cls, device_info, debug=False):
-        if islinux:
+        if isunix:
             return device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Gen3'
         return True
 
@@ -87,6 +87,6 @@ class CYBOOK_OPUS(CYBOOKG3):
 
     @classmethod
     def can_handle(cls, device_info, debug=False):
-        if islinux:
+        if isunix:
             return device_info[3] == 'Bookeen'
         return True

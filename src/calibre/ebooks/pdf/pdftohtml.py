@@ -12,6 +12,7 @@ import subprocess
 from functools import partial
 
 from calibre.ebooks import ConversionError, DRMError
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre import isosx, iswindows, islinux
 from calibre import CurrentDir
 
@@ -45,8 +46,10 @@ def pdftohtml(output_dir, pdf_path, no_images):
         if no_images:
             cmd.append('-i')
 
+        logf = PersistentTemporaryFile('pdftohtml_log')
         try:
-            p = popen(cmd, stderr=subprocess.PIPE)
+            p = popen(cmd, stderr=logf._fd, stdout=logf._fd,
+                    stdin=subprocess.PIPE)
         except OSError, err:
             if err.errno == 2:
                 raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
@@ -62,10 +65,13 @@ def pdftohtml(output_dir, pdf_path, no_images):
                     continue
                 else:
                     raise
-
+        logf.flush()
+        logf.close()
+        out = open(logf.name, 'rb').read()
         if ret != 0:
-            err = p.stderr.read()
-            raise ConversionError(err)
+            raise ConversionError(out)
+        print "pdftohtml log:"
+        print out
         if not os.path.exists(index) or os.stat(index).st_size < 100:
             raise DRMError()
 

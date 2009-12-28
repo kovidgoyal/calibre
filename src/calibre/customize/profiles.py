@@ -257,6 +257,7 @@ class SonyReader900Output(SonyReaderOutput):
     description = _('This profile is intended for the SONY PRS-900.')
 
     screen_size               = (600, 999)
+    comic_screen_size = screen_size
 
 class JetBook5Output(OutputProfile):
 

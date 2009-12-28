@@ -62,7 +62,7 @@ def migrate(old, new):
 
 def debug_device_driver():
     from calibre.devices import debug
-    print debug()
+    debug(ioreg_to_tmp=True, buf=sys.stdout)
     if iswindows:
         raw_input('Press Enter to continue...')
 

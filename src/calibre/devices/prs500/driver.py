@@ -39,6 +39,7 @@ from tempfile import TemporaryFile
 from array import array
 from functools import wraps
 from StringIO import StringIO
+from threading import RLock
 
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.libusb import Error as USBError
@@ -52,6 +53,7 @@ from calibre.devices.usbms.deviceconfig import DeviceConfig
 # Protocol versions this driver has been tested with
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L]
 
+lock = RLock()
 
 class File(object):
     """
@@ -161,40 +163,44 @@ class PRS500(DeviceConfig, DevicePlugin):
         """
         @wraps(func)
         def run_session(*args, **kwargs):
-            dev = args[0]
-            res = None
-            try:
-                if not dev.handle:
-                    dev.open()
-                if not getattr(dev, 'in_session', False):
-                    dev.send_validated_command(BeginEndSession(end=False))
-                    dev.in_session = True
-                res = func(*args, **kwargs)
-            except ArgumentError:
+            with lock:
+                dev = args[0]
+                res = None
+                try:
+                    if not hasattr(dev, 'in_session'):
+                        dev.reset()
+                    if not dev.handle:
+                        dev.open()
+                    if not getattr(dev, 'in_session', False):
+                        dev.send_validated_command(BeginEndSession(end=False))
+                        dev.in_session = True
+                    res = func(*args, **kwargs)
+                except ArgumentError:
+                    if not kwargs.has_key("end_session") or kwargs["end_session"]:
+                        dev.send_validated_command(BeginEndSession(end=True))
+                        dev.in_session = False
+                    raise
+                except USBError, err:
+                    if "No such device" in str(err):
+                        raise DeviceError()
+                    elif "Connection timed out" in str(err):
+                        dev.close()
+                        raise TimeoutError(func.__name__)
+                    elif "Protocol error" in str(err):
+                        dev.close()
+                        raise ProtocolError("There was an unknown error in the"+\
+                                                    " protocol. Contact " + __author__)
+                    dev.close()
+                    raise
                 if not kwargs.has_key("end_session") or kwargs["end_session"]:
                     dev.send_validated_command(BeginEndSession(end=True))
                     dev.in_session = False
-                raise
-            except USBError, err:
-                if "No such device" in str(err):
-                    raise DeviceError()
-                elif "Connection timed out" in str(err):
-                    dev.close()
-                    raise TimeoutError(func.__name__)
-                elif "Protocol error" in str(err):
-                    dev.close()
-                    raise ProtocolError("There was an unknown error in the"+\
-                                                 " protocol. Contact " + __author__)
-                dev.close()
-                raise
-            if not kwargs.has_key("end_session") or kwargs["end_session"]:
-                dev.send_validated_command(BeginEndSession(end=True))
-                dev.in_session = False
-            return res
+                return res
 
         return run_session
 
-    def reset(self, key='-1', log_packets=False, report_progress=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None,
+            detected_device=None) :
         """
         @param key: The key to unlock the device
         @param log_packets: If true the packet stream to/from the device is logged
@@ -203,17 +209,18 @@ class PRS500(DeviceConfig, DevicePlugin):
                                 If it is called with -1 that means that the
                                 task does not have any progress information
         """
-        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)
-        # Handle that is used to communicate with device. Setup in L{open}
-        self.handle = None
-        self.in_session = False
-        self.log_packets = log_packets
-        self.report_progress = report_progress
-        if len(key) > 8:
-            key = key[:8]
-        elif len(key) < 8:
-            key += ''.join(['\0' for i in xrange(8 - len(key))])
-        self.key = key
+        with lock:
+            self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)
+            # Handle that is used to communicate with device. Setup in L{open}
+            self.handle = None
+            self.in_session = False
+            self.log_packets = log_packets
+            self.report_progress = report_progress
+            if len(key) > 8:
+                key = key[:8]
+            elif len(key) < 8:
+                key += ''.join(['\0' for i in xrange(8 - len(key))])
+            self.key = key
 
     def reconnect(self):
         """ Only recreates the device node and deleted the connection handle """
@@ -243,64 +250,66 @@ class PRS500(DeviceConfig, DevicePlugin):
         Also initialize the device.
         See the source code for the sequence of initialization commands.
         """
-        if not hasattr(self, 'key'):
-            self.key = '-1\0\0\0\0\0\0'
-        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)
-        if not self.device:
-            raise DeviceError()
-        configs = self.device.configurations
-        try:
-            self.handle = self.device.open()
-            config = configs[0]
+        with lock:
+            if not hasattr(self, 'key'):
+                self.reset()
+            self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)
+            if not self.device:
+                raise DeviceError()
+            configs = self.device.configurations
             try:
-                self.handle.set_configuration(configs[0])
-            except USBError:
-                self.handle.set_configuration(configs[1])
-                config = configs[1]
-            _id = config.interface.contents.altsetting.contents
-            ed1 = _id.endpoint[0]
-            ed2 = _id.endpoint[1]
-            if ed1.EndpointAddress == self.BULK_IN_EP:
-                red, wed = ed1, ed2
-            else:
-                red, wed = ed2, ed1
-            self.bulk_read_max_packet_size = red.MaxPacketSize
-            self.bulk_write_max_packet_size = wed.MaxPacketSize
-            self.handle.claim_interface(self.INTERFACE_ID)
-        except USBError, err:
-            raise DeviceBusy(str(err))
-        # Large timeout as device may still be initializing
-        res = self.send_validated_command(GetUSBProtocolVersion(), timeout=20000)
-        if res.code != 0:
-            raise ProtocolError("Unable to get USB Protocol version.")
-        version = self._bulk_read(24, data_type=USBProtocolVersion)[0].version
-        if version not in KNOWN_USB_PROTOCOL_VERSIONS:
-            print >> sys.stderr, "WARNING: Usb protocol version " + \
-                                hex(version) + " is unknown"
-        res = self.send_validated_command(SetBulkSize(\
-                          chunk_size = 512*self.bulk_read_max_packet_size, \
-                          unknown = 2))
-        if res.code != 0:
-            raise ProtocolError("Unable to set bulk size.")
-        res = self.send_validated_command(UnlockDevice(key=self.key))#0x312d))
-        if res.code != 0:
-            raise DeviceLocked()
-        res = self.send_validated_command(SetTime())
-        if res.code != 0:
-            raise ProtocolError("Could not set time on device")
+                self.handle = self.device.open()
+                config = configs[0]
+                try:
+                    self.handle.set_configuration(configs[0])
+                except USBError:
+                    self.handle.set_configuration(configs[1])
+                    config = configs[1]
+                _id = config.interface.contents.altsetting.contents
+                ed1 = _id.endpoint[0]
+                ed2 = _id.endpoint[1]
+                if ed1.EndpointAddress == self.BULK_IN_EP:
+                    red, wed = ed1, ed2
+                else:
+                    red, wed = ed2, ed1
+                self.bulk_read_max_packet_size = red.MaxPacketSize
+                self.bulk_write_max_packet_size = wed.MaxPacketSize
+                self.handle.claim_interface(self.INTERFACE_ID)
+            except USBError, err:
+                raise DeviceBusy(str(err))
+            # Large timeout as device may still be initializing
+            res = self.send_validated_command(GetUSBProtocolVersion(), timeout=20000)
+            if res.code != 0:
+                raise ProtocolError("Unable to get USB Protocol version.")
+            version = self._bulk_read(24, data_type=USBProtocolVersion)[0].version
+            if version not in KNOWN_USB_PROTOCOL_VERSIONS:
+                print >> sys.stderr, "WARNING: Usb protocol version " + \
+                                    hex(version) + " is unknown"
+            res = self.send_validated_command(SetBulkSize(\
+                            chunk_size = 512*self.bulk_read_max_packet_size, \
+                            unknown = 2))
+            if res.code != 0:
+                raise ProtocolError("Unable to set bulk size.")
+            res = self.send_validated_command(UnlockDevice(key=self.key))#0x312d))
+            if res.code != 0:
+                raise DeviceLocked()
+            res = self.send_validated_command(SetTime())
+            if res.code != 0:
+                raise ProtocolError("Could not set time on device")
 
     def eject(self):
         pass
 
     def close(self):
         """ Release device interface """
-        try:
-            self.handle.reset()
-            self.handle.release_interface(self.INTERFACE_ID)
-        except Exception, err:
-            print >> sys.stderr, err
-        self.handle, self.device = None, None
-        self.in_session = False
+        with lock:
+            try:
+                self.handle.reset()
+                self.handle.release_interface(self.INTERFACE_ID)
+            except Exception, err:
+                print >> sys.stderr, err
+            self.handle, self.device = None, None
+            self.in_session = False
 
     def _send_command(self, command, response_type=Response, timeout=1000):
         """
@@ -312,17 +321,18 @@ class PRS500(DeviceConfig, DevicePlugin):
         @param timeout:       The time to wait for a response from the
         device, in milliseconds. If there is no response, a L{usb.USBError} is raised.
         """
-        if self.log_packets:
-            self.log_packet(command, "Command")
-        bytes_sent = self.handle.control_msg(0x40, 0x80, command)
-        if bytes_sent != len(command):
-            raise ControlError(desc="Could not send control request to device\n"\
-                                + str(command))
-        response = response_type(self.handle.control_msg(0xc0, 0x81, \
-                                Response.SIZE, timeout=timeout))
-        if self.log_packets:
-            self.log_packet(response, "Response")
-        return response
+        with lock:
+            if self.log_packets:
+                self.log_packet(command, "Command")
+            bytes_sent = self.handle.control_msg(0x40, 0x80, command)
+            if bytes_sent != len(command):
+                raise ControlError(desc="Could not send control request to device\n"\
+                                    + str(command))
+            response = response_type(self.handle.control_msg(0xc0, 0x81, \
+                                    Response.SIZE, timeout=timeout))
+            if self.log_packets:
+                self.log_packet(response, "Response")
+            return response
 
     def send_validated_command(self, command, cnumber=None, \
                                response_type=Response, timeout=1000):
@@ -346,42 +356,43 @@ class PRS500(DeviceConfig, DevicePlugin):
         @param packet_size: Size of packets to be sent to device.
         C{data} is broken up into packets to be sent to device.
         """
-        def bulk_write_packet(packet):
-            self.handle.bulk_write(self.BULK_OUT_EP, packet)
-            if self.log_packets:
-                self.log_packet(Answer(packet), "Answer h->d")
+        with lock:
+            def bulk_write_packet(packet):
+                self.handle.bulk_write(self.BULK_OUT_EP, packet)
+                if self.log_packets:
+                    self.log_packet(Answer(packet), "Answer h->d")
 
-        bytes_left = len(data)
-        if bytes_left + 16 <= packet_size:
-            packet_size = bytes_left +16
-            first_packet = Answer(bytes_left+16)
-            first_packet[16:] = data
-            first_packet.length = len(data)
-        else:
-            first_packet = Answer(packet_size)
-            first_packet[16:] = data[0:packet_size-16]
-            first_packet.length = packet_size-16
-        first_packet.number = 0x10005
-        bulk_write_packet(first_packet)
-        pos = first_packet.length
-        bytes_left -= first_packet.length
-        while bytes_left > 0:
-            endpos = pos + packet_size if pos + packet_size <= len(data) \
-                                       else len(data)
-            bulk_write_packet(data[pos:endpos])
-            bytes_left -= endpos - pos
-            pos = endpos
-        res = Response(self.handle.control_msg(0xc0, 0x81, Response.SIZE, \
-                        timeout=5000))
-        if self.log_packets:
-            self.log_packet(res, "Response")
-        if res.rnumber != 0x10005 or res.code != 0:
-            raise ProtocolError("Sending via Bulk Transfer failed with response:\n"\
-                                +str(res))
-        if res.data_size != len(data):
-            raise ProtocolError("Unable to transfer all data to device. "+\
-                                "Response packet:\n"\
-                                +str(res))
+            bytes_left = len(data)
+            if bytes_left + 16 <= packet_size:
+                packet_size = bytes_left +16
+                first_packet = Answer(bytes_left+16)
+                first_packet[16:] = data
+                first_packet.length = len(data)
+            else:
+                first_packet = Answer(packet_size)
+                first_packet[16:] = data[0:packet_size-16]
+                first_packet.length = packet_size-16
+            first_packet.number = 0x10005
+            bulk_write_packet(first_packet)
+            pos = first_packet.length
+            bytes_left -= first_packet.length
+            while bytes_left > 0:
+                endpos = pos + packet_size if pos + packet_size <= len(data) \
+                                        else len(data)
+                bulk_write_packet(data[pos:endpos])
+                bytes_left -= endpos - pos
+                pos = endpos
+            res = Response(self.handle.control_msg(0xc0, 0x81, Response.SIZE, \
+                            timeout=5000))
+            if self.log_packets:
+                self.log_packet(res, "Response")
+            if res.rnumber != 0x10005 or res.code != 0:
+                raise ProtocolError("Sending via Bulk Transfer failed with response:\n"\
+                                    +str(res))
+            if res.data_size != len(data):
+                raise ProtocolError("Unable to transfer all data to device. "+\
+                                    "Response packet:\n"\
+                                    +str(res))
 
 
     def _bulk_read(self, bytes, command_number=0x00, packet_size=0x1000, \
@@ -394,31 +405,32 @@ class PRS500(DeviceConfig, DevicePlugin):
         @return: A list of packets read from the device.
         Each packet is of type data_type
         """
-        msize = self.bulk_read_max_packet_size
-        def bulk_read_packet(data_type=Answer, size=0x1000):
-            rsize = size
-            if size % msize:
-                rsize = size - size % msize + msize
-            data = data_type(self.handle.bulk_read(self.BULK_IN_EP, rsize))
-            if self.log_packets:
-                self.log_packet(data, "Answer d->h")
-            if len(data) != size:
-                raise ProtocolError("Unable to read " + str(size) + " bytes from "\
-                               "device. Read: " + str(len(data)) + " bytes")
-            return data
+        with lock:
+            msize = self.bulk_read_max_packet_size
+            def bulk_read_packet(data_type=Answer, size=0x1000):
+                rsize = size
+                if size % msize:
+                    rsize = size - size % msize + msize
+                data = data_type(self.handle.bulk_read(self.BULK_IN_EP, rsize))
+                if self.log_packets:
+                    self.log_packet(data, "Answer d->h")
+                if len(data) != size:
+                    raise ProtocolError("Unable to read " + str(size) + " bytes from "\
+                                "device. Read: " + str(len(data)) + " bytes")
+                return data
 
-        bytes_left = bytes
-        packets = []
-        while bytes_left > 0:
-            if packet_size > bytes_left:
-                packet_size = bytes_left
-            packet = bulk_read_packet(data_type=data_type, size=packet_size)
-            bytes_left -= len(packet)
-            packets.append(packet)
-        self.send_validated_command(\
-            AcknowledgeBulkRead(packets[0].number), \
-            cnumber=command_number)
-        return packets
+            bytes_left = bytes
+            packets = []
+            while bytes_left > 0:
+                if packet_size > bytes_left:
+                    packet_size = bytes_left
+                packet = bulk_read_packet(data_type=data_type, size=packet_size)
+                bytes_left -= len(packet)
+                packets.append(packet)
+            self.send_validated_command(\
+                AcknowledgeBulkRead(packets[0].number), \
+                cnumber=command_number)
+            return packets
 
     @safe
     def get_device_information(self, end_session=True):
