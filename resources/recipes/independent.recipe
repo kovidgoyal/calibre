@@ -1,0 +1,26 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Independent(BasicNewsRecipe):
+    title          = u'The Independent'
+    oldest_article = 1
+    language = 'en_UK'
+    __author__ = 'Jimmy Patrick'
+    max_articles_per_feed = 100
+
+    feeds          = [(u'UK', u'http://www.independent.co.uk/news/uk/rss'),
+                      (u'World', u'http://www.independent.co.uk/news/world/rss'),
+                      (u'Sport', u'http://www.independent.co.uk/sport/rss'),
+                      (u'Arts & Entertainment', u'http://www.independent.co.uk/arts-entertainment/rss'),
+                      (u'Life & Style',u'http://www.independent.co.uk/life-style/fashion/news/rss'),
+                      (u'Business',u'http://www.independent.co.uk/news/business/rss'),
+                      (u'Science',u'http://www.independent.co.uk/news/science/rss'),
+                      (u'Media',u'http://www.independent.co.uk/news/media/rss')
+                      ]
+
+    keep_only_tags = [dict(id=['article'])]
+    remove_tags = [dict(name='div', attrs={'class':'share-links'}),
+                   dict(name='ul', attrs={'class':'article-tools'}),
+                   dict(name='div', attrs={'class':'related-articles'})
+                  ]
+
+    extra_css = "body{color:black;}"

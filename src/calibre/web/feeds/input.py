@@ -40,7 +40,7 @@ class RecipeInput(InputFormatPlugin):
                 'content.')),
         OptionRecommendation(name='dont_download_recipe',
             recommended_value=False,
-            help=_('Download latest version of builtin recipes')),
+            help=_('Do not download latest version of builtin recipes from the calibre server')),
         OptionRecommendation(name='lrf', recommended_value=False,
             help='Optimize fetching for subsequent conversion to LRF.'),
         ])
