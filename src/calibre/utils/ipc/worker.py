@@ -73,6 +73,12 @@ def get_func(name):
     return func, notification
 
 def main():
+    from calibre.constants import isosx
+    if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ:
+        # On some OS X computers launchd apparently tries to
+        # launch the last run process from the bundle
+        from calibre.gui2.main import main as gui_main
+        return gui_main([])
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])
