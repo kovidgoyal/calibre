@@ -7,6 +7,9 @@ class Aftenposten(BasicNewsRecipe):
      language = 'no'
      oldest_article = 5
      max_articles_per_feed = 100
+     recipe_disabled = ('The recipe to download Aftenposten has been '
+             'temporarily disabled at the publisher\'s request, while '
+             'they finalize their digital strategy.')
      no_stylesheets = True
      encoding = 'ISO-8859-1'
 

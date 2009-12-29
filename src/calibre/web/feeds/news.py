@@ -270,7 +270,11 @@ class BasicNewsRecipe(Recipe):
             .navbar {
                 font-family:monospace;
             }
-'''
+    '''
+
+    #: Set to a non empty string to disable this recipe
+    #: The string will be used as the disabled message
+    recipe_disabled = None
 
 
     # See the built-in profiles for examples of these settings.

@@ -11,6 +11,9 @@ import os
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.constants import numeric_version
 
+class RecipeDisabled(Exception):
+    pass
+
 class RecipeInput(InputFormatPlugin):
 
     name        = 'Recipe Input'
@@ -83,6 +86,9 @@ class RecipeInput(InputFormatPlugin):
                     recipe_or_file)
 
         ro = recipe(opts, log, self.report_progress)
+        disabled = getattr(ro, 'recipe_disabled', None)
+        if disabled is not None:
+            raise RecipeDisabled(disabled)
         ro.download()
         self.recipe_object = ro
         for key, val in recipe.conversion_options.items():
