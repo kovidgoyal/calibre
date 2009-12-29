@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-27 23:41+0000\n"
-"PO-Revision-Date: 2009-12-27 23:37+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-12-28 20:18+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-28 04:49+0000\n"
+"X-Launchpad-Export-Date: 2009-12-29 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -277,15 +277,17 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"Dieses Profil ist geeignet für die SONY PRS Reihe. Das PRS 500/505/600/700 "
+"etc."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:68
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Dieses Profil ist geeignet für das SONY PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:77
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:257
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Dieses Profil ist geeignet für das SONY PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:85
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:287
@@ -305,7 +307,7 @@ msgstr "Dieses Profil ist geeignet für den Hanlin V3 und dessen Klone."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:323
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "Dieses Profil ist geeignet für den Hanlin V5 und dessen Klone."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:131
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:331
@@ -353,7 +355,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "Dieses Profil ist geeignet für das SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:266
 msgid "This profile is intended for the 5-inch JetBook."
@@ -479,11 +481,11 @@ msgstr "Kommunikation mit dem ESlick eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
+msgstr "Kommunikation mit Hanlin V3 eBook Readern."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
+msgstr "Kommunikation mit Hanlin V5 eBook Readern."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:113
 msgid "Communicate with the BOOX eBook reader."
@@ -592,7 +594,7 @@ msgstr "Metadaten ans Gerät senden ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:208
 msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
-msgstr ""
+msgstr "Kommunikation mit den Sony PRS-600/700/900 eBook Readern."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:336
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -602,6 +604,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:489
 msgid "Unable to detect the %s mount point. Try rebooting."
 msgstr ""
+"Konnte den %s Mount Point nicht finden. Versuchen Sie einen Neustart."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:551
 msgid "Unable to detect the %s disk drive."
