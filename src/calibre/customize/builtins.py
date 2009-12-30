@@ -418,6 +418,7 @@ from calibre.devices.eslick.driver import ESLICK
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
+from calibre.devices.hanvon.driver import N516
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon
 plugins = [HTML2ZIP, PML2PMLZ, GoogleBooks, ISBNDB, Amazon]
@@ -486,6 +487,7 @@ plugins += [
     BOOX,
     EB600,
     README,
+    N516,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
