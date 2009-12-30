@@ -116,7 +116,7 @@ class BookHeader(object):
         if ident == 'TEXTREAD':
             self.codepage = 1252
         if len(raw) <= 16:
-            self.codec = 'cp1251'
+            self.codec = 'cp1252'
             self.extra_flags = 0
             self.title = _('Unknown')
             self.language = 'ENGLISH'
