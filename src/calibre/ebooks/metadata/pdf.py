@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
 
-import re
+#import re
 from functools import partial
 
 from calibre import prints
@@ -12,15 +12,15 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors, authors_
 
 pdfreflow, pdfreflow_error = plugins['pdfreflow']
 
-_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
+#_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
 
 def get_metadata(stream, cover=True):
     if pdfreflow is None:
         raise RuntimeError(pdfreflow_error)
     raw = stream.read()
-    isbn = _isbn_pat.search(raw)
-    if isbn is not None:
-        isbn = isbn.group(1).replace('-', '').replace(' ', '')
+    #isbn = _isbn_pat.search(raw)
+    #if isbn is not None:
+    #    isbn = isbn.group(1).replace('-', '').replace(' ', '')
     info = pdfreflow.get_metadata(raw, cover)
     title = info.get('Title', None)
     au = info.get('Author', None)
@@ -29,8 +29,8 @@ def get_metadata(stream, cover=True):
     else:
         au = string_to_authors(au)
     mi = MetaInformation(title, au)
-    if isbn is not None:
-        mi.isbn = isbn
+    #if isbn is not None:
+    #    mi.isbn = isbn
 
     creator = info.get('Creator', None)
     if creator:
