@@ -11,6 +11,9 @@ import os
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.constants import numeric_version
 
+class RecipeDisabled(Exception):
+    pass
+
 class RecipeInput(InputFormatPlugin):
 
     name        = 'Recipe Input'
@@ -40,7 +43,7 @@ class RecipeInput(InputFormatPlugin):
                 'content.')),
         OptionRecommendation(name='dont_download_recipe',
             recommended_value=False,
-            help=_('Download latest version of builtin recipes')),
+            help=_('Do not download latest version of builtin recipes from the calibre server')),
         OptionRecommendation(name='lrf', recommended_value=False,
             help='Optimize fetching for subsequent conversion to LRF.'),
         ])
@@ -83,6 +86,9 @@ class RecipeInput(InputFormatPlugin):
                     recipe_or_file)
 
         ro = recipe(opts, log, self.report_progress)
+        disabled = getattr(ro, 'recipe_disabled', None)
+        if disabled is not None:
+            raise RecipeDisabled(disabled)
         ro.download()
         self.recipe_object = ro
         for key, val in recipe.conversion_options.items():

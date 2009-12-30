@@ -1,0 +1,74 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+'''
+theatlantic.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NewYorkMagazine(BasicNewsRecipe):
+
+    title       = 'New York Magazine'
+    __author__  = 'Kovid Goyal'
+    description = 'Food, culture, arts and entertainment in New York'
+    language    = 'en'
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'iso-8859-1'
+    recursions = 1
+    match_regexps = [r'http://nymag.com/.+/index[0-9]{1,2}.html$']
+    keep_only_tags = [dict(id='main')]
+    remove_tags = [
+            dict(attrs={'class':['start-discussion']}),
+            dict(id=['minibrowserbox', 'article-related', 'article-tools'])
+            ]
+
+    PREFIX = 'http://nymag.com'
+
+    def nymag_get_index(self):
+        return self.index_to_soup('http://nymag.com/includes/tableofcontents.htm')
+
+    def parse_index(self):
+        soup = self.nymag_get_index()
+        self.cover_url = soup.find(attrs={'class':'cover'}).find('img',
+                src=True).get('src')
+        feeds = []
+        current_section = 'Cover Story'
+        current_articles = []
+        for h in soup.findAll(['h4', 'h5']):
+            if h.name == 'h4':
+                if current_section and current_articles:
+                    feeds.append((current_section, current_articles))
+                current_section = self.tag_to_string(h)
+                self.log('\tFound section:', current_section)
+                current_articles = []
+            elif h.name == 'h5':
+                title = self.tag_to_string(h)
+                a = h.find('a', href=True)
+                if a is not None:
+                    url = a.get('href')
+                    if url.startswith('/'):
+                        url = self.PREFIX + url
+                    if title and url:
+                        self.log('\t\tFound article:', title)
+                        self.log('\t\t\t', url)
+                        desc = ''
+                        p = h.findNextSibling('p')
+                        if p is not None:
+                            desc = self.tag_to_string(p)
+                            self.log('\t\t\t', desc)
+                        current_articles.append({'title':title, 'url':url,
+                            'date':'', 'description':desc})
+        return feeds
+
+    def postprocess_html(self, soup, first):
+        for x in soup.findAll(attrs={'class':'page-navigation'}):
+            x.extract()
+        if not first:
+            for x in soup.findAll(attrs={'class':'header-spacing'}):
+                x.extract()
+        return soup
+
+
+

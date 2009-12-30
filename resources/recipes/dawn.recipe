@@ -1,0 +1,92 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+
+class DawnRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en_PK'
+    version = 1
+
+    title = u'Dawn'
+    publisher = u'Dawn Media Group'
+    category = u'News, Pakistan'
+    description = u'Leading English Newspaper of Pakistan covering national & international news'
+
+    use_embedded_content = False
+    remove_empty_feeds = True
+    oldest_article = 2
+    max_articles_per_feed = 100
+
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+
+    # Feeds from http://www.dawn.com/wps/wcm/connect/dawn-content-library/dawn/services/rss
+    feeds = []
+    feeds.append((u'Latest News', u'http://feedproxy.google.com/Dawn-All-News'))
+    feeds.append((u'Pakistan News', u'http://feeds2.feedburner.com/dawn/news/pakistan'))
+    feeds.append((u'World News', u'http://feeds2.feedburner.com/dawn/news/world'))
+    feeds.append((u'Business News', u'http://feeds2.feedburner.com/dawn/news/business'))
+    feeds.append((u'Sport News', u'http://feeds2.feedburner.com/dawn/news/sport'))
+    feeds.append((u'Cricket News', u'http://feeds2.feedburner.com/dawn/news/cricket'))
+    feeds.append((u'Sci-tech News', u'http://feeds2.feedburner.com/dawn/news/technology'))
+    feeds.append((u'Entertainment News', u'http://feeds2.feedburner.com/dawn/news/entertainment'))
+    feeds.append((u'Columnists', u'http://feeds2.feedburner.com/dawn/news/columnists'))
+    #feeds.append((u'', u''))
+
+    conversion_options = {'comments': description, 'tags': category, 'language': 'en',
+                          'publisher': publisher}
+
+    extra_css = '''
+                body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
+                center {font-size: xx-small; color: #666666;}
+                strong {font-size: small; font-weight: bold;}
+                span.news_headline {font-size: xx-large; font-weight: bold; margin: 0em; padding: 0em}
+                span.news_byline {font-size: x-small; color: #696969; margin-top: 1em;}
+                '''
+
+    def print_version(self, url):
+        return url + '?pagedesign=Dawn_PrintlyFriendlyPage'
+
+    def preprocess_html(self, soup):
+        newBody = Tag(soup, 'body')
+
+        for cl in ['page_title', 'news_headline', 'news_byline']:
+            tag = soup.find('span', attrs = {'class': cl})
+            if tag:
+                # They like their <br> tags; I don't: does not work well on small screens.
+                if tag['class'] == 'news_byline':
+                    for br in tag.findAll('br'):
+                        br.extract()
+
+                newBody.append(tag)
+
+        table = soup.find('table', attrs = {'id': 'body table'})
+        if table:
+            for td in table.findAll('td', attrs = {'class': 'news_story'}):
+                for tag in td.findAll(True):
+                    if tag.has_key('id') and tag['id'] == 'banner-img_slide':
+                        tag.extract()
+                    elif tag.has_key('style'):
+                        del tag['style']
+                    elif tag.name == 'script':
+                        tag.extract()
+
+                # They like their <br> tags; I don't: does not work well on small screens.
+                center = td.find('center')
+                if center:
+                    for br in center.findNextSiblings('br'):
+                        br.extract()
+                    for br in center.findPreviousSiblings('br'):
+                        br.extract()
+
+                for attr in ['align', 'valign']:
+                    if td.has_key(attr):
+                        del td[attr]
+
+                td.name = 'div'
+                newBody.append(td)
+
+            soup.body.replaceWith(newBody)
+
+            return soup

@@ -245,7 +245,7 @@ class LinuxFreeze(Command):
             export MAGICK_CONFIGURE_PATH=$base/ImageMagick/config
             export MAGICK_CODER_MODULE_PATH=$base/ImageMagick/modules-Q16/coders
             export MAGICK_CODER_FILTER_PATH=$base/ImageMagick/modules-Q16/filter
-            export QT_PLUGIN_PATH=$base/qtplugins
+            export QT_PLUGIN_PATH=$base/qtplugins:$QT_PLUGIN_PATH
             $loader "$@"
             ''')%exe)
             os.chmod(path, 0755)

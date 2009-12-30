@@ -270,10 +270,17 @@ class BasicNewsRecipe(Recipe):
             .navbar {
                 font-family:monospace;
             }
-'''
+    '''
+
+    #: Set to a non empty string to disable this recipe
+    #: The string will be used as the disabled message
+    recipe_disabled = None
 
 
     # See the built-in profiles for examples of these settings.
+
+    def short_title(self):
+        return self.title
 
     def get_cover_url(self):
         '''
@@ -886,7 +893,7 @@ class BasicNewsRecipe(Recipe):
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        mi = MetaInformation(self.title + strftime(self.timefmt), [__appname__])
+        mi = MetaInformation(self.short_title() + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type

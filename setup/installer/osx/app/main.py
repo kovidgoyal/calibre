@@ -309,7 +309,7 @@ class Py2App(object):
     @flush
     def add_qt_frameworks(self):
         info('\nAdding Qt Framework')
-        for f in ('QtCore', 'QtGui', 'QtXml', 'QtNetwork', 'QtSvg', 'QtWebkit',
+        for f in ('QtCore', 'QtGui', 'QtXml', 'QtNetwork', 'QtSvg', 'QtWebKit',
                 'QtXmlPatterns', 'phonon'):
             self.add_qt_framework(f)
         for d in glob.glob(join(SW, 'qt', 'plugins', '*')):

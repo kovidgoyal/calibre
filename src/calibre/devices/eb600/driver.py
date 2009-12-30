@@ -16,6 +16,7 @@ Windows PNP strings:
 '''
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.constants import iswindows
 
 class EB600(USBMS):
 
@@ -81,6 +82,19 @@ class SHINEBOOK(EB600):
 
     VENDOR_NAME      = 'LONGSHIN'
     WINDOWS_MAIN_MEM = 'ESHINEBOOK'
+    MAIN_MEMORY_VOLUME_LABEL  = 'ShineBook Main Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'ShineBook Storage Card'
+
+
+    @classmethod
+    def can_handle(cls, dev, debug=False):
+        try:
+            if not iswindows:
+                return dev[4] == 'ShineBook'
+        except:
+            return True
+
+
 
 class POCKETBOOK360(EB600):
 

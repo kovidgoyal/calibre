@@ -1736,6 +1736,16 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
                 d.show()
                 self._modeless_dialogs.append(d)
                 return
+            if 'calibre.web.feeds.input.RecipeDisabled' in job.details:
+                msg = job.details
+                msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:'):]
+                msg = msg.partition(':')[-1]
+                d = error_dialog(self, _('Recipe Disabled'),
+                    '<p>%s</p>'%msg)
+                d.setModal(False)
+                d.show()
+                self._modeless_dialogs.append(d)
+                return
         except:
             pass
         if job.killed:
