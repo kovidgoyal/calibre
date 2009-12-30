@@ -1,0 +1,28 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class BigGovernmentRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en_US'
+    version = 1
+
+    title = u'Big Government'
+    publisher = u'Andrew Breitbart'
+    category = u'Political blog'
+    description = u'Political news from the USA'
+
+    oldest_article = 30
+    max_articles_per_feed = 100
+    use_embedded_content = True
+
+    feeds = [(u'Big Government', u'http://feeds.feedburner.com/BigGovernment')]
+
+    conversion_options = {'comments': description, 'tags': category, 'language': 'en',
+                          'publisher': publisher}
+
+    extra_css = '''
+                body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
+                img {float: left; margin-right: 0.5em;}
+                '''
+
