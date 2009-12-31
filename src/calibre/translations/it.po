@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-27 23:41+0000\n"
-"PO-Revision-Date: 2009-12-27 23:37+0000\n"
-"Last-Translator: lorenzov <l.vigentini@ed.ac.uk>\n"
+"PO-Revision-Date: 2009-12-30 18:46+0000\n"
+"Last-Translator: Filippo <pippo75@alice.it>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-29 04:33+0000\n"
+"X-Launchpad-Export-Date: 2009-12-31 04:57+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -279,15 +279,17 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"Questo profilo è adatto per la linea SONY PRS.(ad esempio: 500/505/600/700 "
+"ecc)."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:68
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Questo profilo è adatto per il Sony PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:77
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:257
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Questo profilo è adatto per il Sony PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:85
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:287
@@ -307,7 +309,7 @@ msgstr "Questo profilo è stato creato per l'Hanlin V3 ed i suoi cloni."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:121
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:323
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "Questo profilo è adatto per Hanlin V5 e i suoi modelli cloni."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:131
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:331
@@ -337,7 +339,7 @@ msgstr "Questo profilo è stato creato per l'IRex Digital Reader 1000."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:194
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:415
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "Questo profilo è adatto per il Nook B&N."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:213
 msgid "Output profile"
@@ -355,7 +357,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:248
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "Questo profilo è adatto per il Sony PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:266
 msgid "This profile is intended for the 5-inch JetBook."
@@ -479,15 +481,15 @@ msgstr "Comunica con l'ESlick eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
+msgstr "Comunica con i lettori Hanlin V3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:95
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
+msgstr "Comunica con i lettori Hanlin V5."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:113
 msgid "Communicate with the BOOX eBook reader."
-msgstr ""
+msgstr "Comunica con i lettori BOOX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -538,19 +540,19 @@ msgstr "Comunicazione in corso con in Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Comunica con il Nokia 770 Internet Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810 internet tablet."
-msgstr ""
+msgstr "Comunica con il Nokia 810 internet Tablet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
-msgstr ""
+msgstr "Il lettore Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr ""
+msgstr "Comunica con il Nook Ebook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -593,7 +595,7 @@ msgstr "Invio dei metadata al dispositivo di lettura in corso..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:208
 msgid "Communicate with the Sony PRS-600/700/900 eBook reader."
-msgstr ""
+msgstr "Comunica con il Sony PRS-600/700/900 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:336
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -602,6 +604,7 @@ msgstr "Impossibile individuare il disco %s. Provare a riavviare."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:489
 msgid "Unable to detect the %s mount point. Try rebooting."
 msgstr ""
+"Impossibile individuare il %s mount Point. Provo ad effettuare un reboot"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:551
 msgid "Unable to detect the %s disk drive."
@@ -2289,7 +2292,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Usa il nuovo motore di conversione PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
@@ -2752,7 +2755,7 @@ msgstr "Scaricare metadati sociali (categorie/valutazioni/etc.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:89
 msgid "Limit max simultaneous jobs to number of CPUs"
-msgstr ""
+msgstr "Limita il massimo numero di job simultanei al numero delle CPU."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:410
@@ -4377,10 +4380,12 @@ msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
+"Inverti Nome e Cognome dell'autore. Impatta esclusivamente solo i metadata "
+"letti dai nomi dei files."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:107
 msgid "&Swap author firstname and lastname"
-msgstr ""
+msgstr "&Inverti i nomi e i cognomi dell'autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/add_save_ui.py:108
 msgid "&Configure metadata from file name"
@@ -4641,10 +4646,12 @@ msgstr "Apri la cartella per la &configuration di Calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:544
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
+"Limita il massimo numero di job simultanei al numero dei &Core disponibili "
+"della CPU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:545
 msgid "Debug &device detection"
-msgstr ""
+msgstr "&Debug e riconoscimento dei dispositivi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/config_ui.py:546
 msgid ""
@@ -4777,15 +4784,15 @@ msgstr "&Aggiungi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:21
 msgid "Getting debug information"
-msgstr ""
+msgstr "Ottieni le informazioni di debug"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:22
 msgid "Copy to &clipboard"
-msgstr ""
+msgstr "&Copia negli appunti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "Debug riconoscimento dispositivi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config/social.py:34
 msgid "Downloading social metadata, please wait..."
@@ -5028,11 +5035,11 @@ msgstr "Interrompere la modifica di tutti i libri rimanenti"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:404
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:409
 msgid "This ISBN number is valid"
-msgstr ""
+msgstr "Questo  numero ISBN è valido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:412
 msgid "This ISBN number is invalid"
-msgstr ""
+msgstr "Questo  numero ISBN è valido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:508
 msgid "Downloading cover..."
@@ -5386,7 +5393,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr ""
+msgstr "Seleziona i formati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:62
 msgid "Are your sure?"
@@ -6152,37 +6159,37 @@ msgstr "Cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:57
 msgid "Press a key..."
-msgstr ""
+msgstr "Premi un tasto..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:78
 msgid "Already assigned"
-msgstr ""
+msgstr "Già assegnato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
 msgid "already assigned to"
-msgstr ""
+msgstr "già assegnato a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:215
 msgid " or "
-msgstr ""
+msgstr " oppure "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:68
 msgid "&Default"
-msgstr ""
+msgstr "Pre&definito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:125
 msgid "Customize shortcuts for"
-msgstr ""
+msgstr "Personalizza scorciatoie per"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:217
 msgid "Double click to change"
-msgstr ""
+msgstr "Doppio click per cambiare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:67
 msgid "Frame"
-msgstr ""
+msgstr "Frame"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:69
 msgid "&Custom"
@@ -6190,12 +6197,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:70
 msgid "&Shortcut:"
-msgstr ""
+msgstr "&Scorciatoia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
 msgid "Click to change"
-msgstr ""
+msgstr "Clicca per cambiare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
@@ -6204,7 +6211,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Alternate shortcut:"
-msgstr ""
+msgstr "Scorciatoia &alternativa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:149
 msgid "Jobs:"
@@ -6383,19 +6390,19 @@ msgstr "Leggi uno specifico formato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:319
 msgid "Remove selected books"
-msgstr ""
+msgstr "Rimuovi i libri selezionati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:321
 msgid "Remove files of a specific format from selected books.."
-msgstr ""
+msgstr "Rimuovi i file di un formato specifico dai libri selezionati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:323
 msgid "Remove all formats from selected books, except..."
-msgstr ""
+msgstr "Rimuovi tutti i formati dai libri selezionati, tranne..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:325
 msgid "Remove covers from selected books"
-msgstr ""
+msgstr "Rimuovi le copertine dai libri selezionati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:356
 msgid "Convert individually"
@@ -6528,7 +6535,7 @@ msgstr "Archivi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:960
 msgid "Supported books"
-msgstr ""
+msgstr "Libri supportati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:996
 msgid "Failed to read metadata"
@@ -6540,7 +6547,7 @@ msgstr "Non é stato possibile leggere i metadati dai seguenti:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1016
 msgid "Cannot delete"
-msgstr ""
+msgstr "Non si può cancellare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1019
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1507
@@ -6550,11 +6557,11 @@ msgstr "Nessun libro selezionato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1029
 msgid "Choose formats to be deleted"
-msgstr ""
+msgstr "Seleziona i formati da cancellare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1045
 msgid "Choose formats <b>not</b> to be deleted"
-msgstr ""
+msgstr "Seleziona i formati da <b>non</b> cancellare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:1081
 msgid ""
@@ -6932,11 +6939,11 @@ msgstr "&Fogli di stile dell'utente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:171
 msgid "&General"
-msgstr ""
+msgstr "&Generale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:172
 msgid "Double click to change a keyborad shortcut"
-msgstr ""
+msgstr "Doppio click per cambiare una scorciatoia da tastiera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:173
 msgid "&Keyboard shortcuts"
@@ -7002,51 +7009,51 @@ msgstr "Il tipo di carattere predefinito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
-msgstr ""
+msgstr "Scorri alla prossima pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr ""
+msgstr "Scorri alla pagina precedente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
-msgstr ""
+msgstr "Scorri alla prossima sezione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:21
 msgid "Scroll to the previous section"
-msgstr ""
+msgstr "Scorri alla sezione precedente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:24
 msgid "Scroll to the bottom of the section"
-msgstr ""
+msgstr "Scorri alla fine della sezione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:27
 msgid "Scroll to the top of the section"
-msgstr ""
+msgstr "Scorri all'inizio della sezione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:30
 msgid "Scroll to the end of the document"
-msgstr ""
+msgstr "Scorri alla fine del documento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:33
 msgid "Scroll to the start of the document"
-msgstr ""
+msgstr "Scorri all'inizio del documento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr ""
+msgstr "Scorri in basso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr ""
+msgstr "Scorri in alto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr ""
+msgstr "Scorri a sinistra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
-msgstr ""
+msgstr "Scorri a destra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:114
 msgid "Book format"
@@ -8175,7 +8182,7 @@ msgstr "La priorità dei processi di lavoro"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:653
 msgid "Swap author first and last names when reading metadata"
-msgstr ""
+msgstr "Inverti  nome e Cognome dell'autore durante la lettura dei metadata"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -8231,15 +8238,15 @@ msgstr "Inglese (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (TH)"
-msgstr ""
+msgstr "Inglese (TH)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English (CY)"
-msgstr ""
+msgstr "Inglese (CY)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "German (AT)"
-msgstr ""
+msgstr "Tedesco (AT)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "Dutch (NL)"
