@@ -1,5 +1,5 @@
+
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class ProPublicaRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
@@ -57,4 +57,4 @@ class ProPublicaRecipe(BasicNewsRecipe):
                 div.cat {font-size: x-small; color: #666666; margin-bottom: 0.1em;}
                 div.info {font-size: small; color: #696969;}
                 '''
-    
+

@@ -1,3 +1,4 @@
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class JournalOfAccountancyRecipe(BasicNewsRecipe):
