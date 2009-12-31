@@ -498,10 +498,9 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
         self.tags_view.setVisible(False)
-        self.match_all.setVisible(False)
-        self.match_any.setVisible(False)
+        self.tag_match.setVisible(False)
         self.popularity.setVisible(False)
-        self.tags_view.set_database(db, self.match_all, self.popularity)
+        self.tags_view.set_database(db, self.tag_match, self.popularity)
         self.connect(self.tags_view,
                 SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.search.search_from_tags)
@@ -708,14 +707,12 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
     def toggle_tags_view(self, show):
         if show:
             self.tags_view.setVisible(True)
-            self.match_all.setVisible(True)
-            self.match_any.setVisible(True)
+            self.tag_match.setVisible(True)
             self.popularity.setVisible(True)
             self.tags_view.setFocus(Qt.OtherFocusReason)
         else:
             self.tags_view.setVisible(False)
-            self.match_all.setVisible(False)
-            self.match_any.setVisible(False)
+            self.tag_match.setVisible(False)
             self.popularity.setVisible(False)
 
     def search_done(self, view, ok):

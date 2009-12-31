@@ -21,15 +21,20 @@ class TagsView(QTreeView):
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(30, 30))
+        self.tag_match = None
 
-    def set_database(self, db, match_all, popularity):
+    def set_database(self, db, tag_match, popularity):
         self._model = TagsModel(db, parent=self)
         self.popularity = popularity
-        self.match_all = match_all
+        self.tag_match = tag_match
         self.setModel(self._model)
         self.connect(self, SIGNAL('clicked(QModelIndex)'), self.toggle)
         self.popularity.setChecked(config['sort_by_popularity'])
         self.connect(self.popularity, SIGNAL('stateChanged(int)'), self.sort_changed)
+
+    @property
+    def match_all(self):
+        return self.tag_match and self.tag_match.currentIndex() > 0
 
     def sort_changed(self, state):
         config.set('sort_by_popularity', state == Qt.Checked)
@@ -40,7 +45,7 @@ class TagsView(QTreeView):
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive):
             self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                      self._model.tokens(), self.match_all.isChecked())
+                      self._model.tokens(), self.match_all)
 
     def clear(self):
         self.model().clear_state()
