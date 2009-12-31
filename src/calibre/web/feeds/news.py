@@ -828,13 +828,15 @@ class BasicNewsRecipe(Recipe):
                 with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
                     cfile.write(r.read())
             if ext.lower() == 'pdf':
-                from calibre.ebook.metadata.pdf import get_metadata
+                from calibre.ebooks.metadata.pdf import get_metadata
                 stream = open(cpath, 'rb')
                 mi = get_metadata(stream)
                 cpath = None
                 if mi.cover_data and mi.cover_data[1]:
-                    cpath = os.path.join(self.output_dir, 'cover.png')
-                    open(cpath, 'wb').write(mi.cover_data[1])
+                    cpath = os.path.join(self.output_dir,
+                            'cover.'+mi.cover_data[0])
+                    with open(cpath, 'wb') as f:
+                        f.write(mi.cover_data[1])
             self.cover_path = cpath
 
 

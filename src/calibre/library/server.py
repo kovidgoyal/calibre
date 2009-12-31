@@ -853,14 +853,20 @@ def stop_threaded_server(server):
     server.thread = None
 
 def option_parser():
-    return config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
+    parser = config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
+    parser.add_option('--with-library', default=None,
+            help=_('Path to the library folder to serve with the content server'))
+    return parser
+
 
 def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     cherrypy.log.screen = True
     from calibre.utils.config import prefs
-    db = LibraryDatabase2(prefs['library_path'])
+    if opts.with_library is None:
+        opts.with_library = prefs['library_path']
+    db = LibraryDatabase2(opts.with_library)
     server = LibraryServer(db, opts)
     server.start()
     return 0
