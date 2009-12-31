@@ -13,7 +13,7 @@ class Economist(BasicNewsRecipe):
     description = ('Global news and current affairs from a European perspective.'
             ' Much slower than the subscription based version.')
 
-    oldest_article = 6.5
+    oldest_article = 7.0
     cover_url = 'http://www.economist.com/images/covers/currentcovereu_large.jpg'
     remove_tags = [dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk']})]
@@ -29,8 +29,15 @@ class Economist(BasicNewsRecipe):
         self.feed_dict = {}
         requests = []
         for i, item in enumerate(entries):
-            published   = time.gmtime(item.get('timestamp', time.time()))
             title       = item.get('title', _('Untitled article'))
+            published = item.date_parsed
+            if not published:
+                published = time.gmtime()
+            utctime = datetime(*published[:6])
+            delta = datetime.utcnow() - utctime
+            if delta.days*24*3600 + delta.seconds > 24*3600*self.oldest_article:
+                self.log.debug('Skipping article %s as it is too old.'%title)
+                continue
             link        = item.get('link', None)
             description = item.get('description', '')
             author      = item.get('author', '')
@@ -64,11 +71,6 @@ class Economist(BasicNewsRecipe):
         self.log('Found print version for article:', title)
 
         a = Article(i, title, link, author, description, published, '')
-        delta = datetime.utcnow() - a.utctime
-        if delta.days*24*3600 + delta.seconds > 24*3600*self.oldest_article:
-            self.log.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, a.localtime.strftime('%a, %d %b, %Y %H:%M'), title))
-            return
-
 
         article = dict(title=a.title, description=a.text_summary,
             date=time.strftime(self.timefmt, a.date), author=a.author, url=a.url)

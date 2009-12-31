@@ -9,7 +9,7 @@ class TheIndependent(BasicNewsRecipe):
     max_articles_per_feed = 25
     encoding = 'latin1'
 
-    remove_stylesheets = True
+    no_stylesheets = True
     #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
     #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
     remove_tags = [
@@ -17,33 +17,33 @@ class TheIndependent(BasicNewsRecipe):
        dict(name='div', attrs={'class':'related-articles'}),
        dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
        dict(name='ul', attrs={'class':'article-tools'}),
-       dict(name='ul', attrs={'class':'articleTools'}),	
+       dict(name='ul', attrs={'class':'articleTools'}),
     ]
 
     feeds          = [
-('UK', 
- 'http://www.independent.co.uk/news/uk/rss'),
-('World', 
- 'http://www.independent.co.uk/news/world/rss'),
-('Sport', 
- 'http://www.independent.co.uk/sport/rss'),
-('Arts and Entertainment', 
- 'http://www.independent.co.uk/arts-entertainment/rss'),
-('Business', 
- 'http://www.independent.co.uk/news/business/rss'),
-('Life and Style', 
- 'http://www.independent.co.uk/life-style/gadgets-and-tech/news/rss'),
-('Science', 
- 'http://www.independent.co.uk/news/science/rss'),
-('People', 
- 'http://www.independent.co.uk/news/people/rss'),
-('Media', 
- 'http://www.independent.co.uk/news/media/rss'),
-('Health and Families', 
- 'http://www.independent.co.uk/life-style/health-and-families/rss'),
-('Obituaries', 
- 'http://www.independent.co.uk/news/obituaries/rss'),
-]
+            ('UK',
+            'http://www.independent.co.uk/news/uk/rss'),
+            ('World',
+            'http://www.independent.co.uk/news/world/rss'),
+            ('Sport',
+            'http://www.independent.co.uk/sport/rss'),
+            ('Arts and Entertainment',
+            'http://www.independent.co.uk/arts-entertainment/rss'),
+            ('Business',
+            'http://www.independent.co.uk/news/business/rss'),
+            ('Life and Style',
+            'http://www.independent.co.uk/life-style/gadgets-and-tech/news/rss'),
+            ('Science',
+            'http://www.independent.co.uk/news/science/rss'),
+            ('People',
+            'http://www.independent.co.uk/news/people/rss'),
+            ('Media',
+            'http://www.independent.co.uk/news/media/rss'),
+            ('Health and Families',
+            'http://www.independent.co.uk/life-style/health-and-families/rss'),
+            ('Obituaries',
+            'http://www.independent.co.uk/news/obituaries/rss'),
+    ]
 
     def preprocess_html(self, soup):
         story = soup.find(name='div', attrs={'id':'mainColumn'})
