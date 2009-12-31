@@ -1,0 +1,57 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class DenverPost(BasicNewsRecipe):
+    title          = u'Denver Post'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 20
+
+    conversion_options = {'linearize_tables':True}
+
+    no_stylesheets = True
+    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
+    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='img', src=lambda x: not x or '/tracking/' in x),
+       dict(name='span', attrs={'fd-id':True}),
+       dict(name='div', attrs={'class':['articleOptions', 'articlePosition2']}),
+       #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
+       #dict(name='ul', attrs={'class':'article-tools'}),
+       #dict(name='ul', attrs={'class':'articleTools'}),
+    ]
+
+    feeds          = [
+('Top Stories',
+ 'http://feeds.denverpost.com/dp-news-topstories'),
+('Business',
+ 'http://feeds.denverpost.com/dp-business'),
+('Sports',
+ 'http://feeds.denverpost.com/dp-sports'),
+('Lifestyles',
+ 'http://feeds.denverpost.com/dp-lifestyles'),
+('Politics',
+ 'http://feeds.denverpost.com/dp-politics'),
+('Entertainment',
+ 'http://feeds.denverpost.com/dp-entertainment'),
+
+]
+
+    def preprocess_html(self, soup):
+        story = soup.find(name='td', attrs={'class':'articleBox'})
+        #td = heading.findParent(name='td')
+        #td.extract()
+        story.extract()
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        story.name = 'div'
+
+        for img in soup.findAll(name='img', style='visibility:hidden;'):
+            del img['style']
+
+        for div in soup.findAll(id='caption', style=True):
+            del  div['style']
+        return soup
