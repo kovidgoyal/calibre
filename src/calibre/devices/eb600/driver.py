@@ -92,7 +92,8 @@ class SHINEBOOK(EB600):
             if not iswindows:
                 return dev[4] == 'ShineBook'
         except:
-            return True
+            pass
+        return True
 
 
 
