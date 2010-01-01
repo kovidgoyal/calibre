@@ -204,10 +204,12 @@ class PMLMLizer(object):
         tag_count = 0
 
         # Are we in a paragraph block?
-        if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
+        if tag in BLOCK_TAGS:# or style['display'] in BLOCK_STYLES:
             if 'block' not in tag_stack:
                 tag_count += 1
                 tag_stack.append('block')
+                if self.opts.remove_paragraph_spacing:
+                    text.append('\\t')
 
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
@@ -287,10 +289,14 @@ class PMLMLizer(object):
             close_tag_list.insert(0, tag_stack.pop())
         text += self.close_tags(close_tag_list)
         if tag in SEPARATE_TAGS:
-            text.append('\n\n')
+            text.append('\n')
+            if not self.opts.remove_paragraph_spacing:
+                text.append('\n')
 
-        if 'block' not in tag_stack:
-            text.append('\n\n')
+        if 'block' not in tag_stack and text and text[-1] != '\n':
+            text.append('\n')
+            if not self.opts.remove_paragraph_spacing:
+                text.append('\n')
 
         #if style['page-break-after'] == 'always':
         #    text.append('\\p')
