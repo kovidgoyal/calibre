@@ -1,0 +1,69 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class JSOnline(BasicNewsRecipe):
+    title          = u'Milwaukee Journal Sentinel'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 2 #days
+    max_articles_per_feed = 25
+
+
+    no_stylesheets = True
+    remove_tags_before = dict(name='div', attrs={'id':'wrapper'})
+    #remove_tags_after  = dict(name='td', attrs={'class':'asset-bar'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':['right_float', 'headlines', 'side_section_container poll', 'side_section_container html']}),
+       #dict(name='div', attrs={'id':['rightColumn']}),
+       #dict(name='span', attrs={'class':'comment_forbidden'}),
+       #dict(name='ul', attrs={'class':'links inline'}),
+       #dict(name='p', attrs={'id':'commentadvisory'}),
+       #dict(name='div', attrs={'style':['width: 300px; margin-right: 2em; float: left;']}),
+       #dict(name='div', style="float:right; width: 300px;"),
+       #dict(name='p', style="clear:both;"),
+       #dict(name='p', attrs={'name':'&lpos=footer_textlinks'}),
+       #dict(name='span', text=':'),
+    ]
+
+    feeds          = [
+('Main Headlines',
+ 'http://www.jsonline.com/rss?c=y&path=%2F'),
+('Business',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fbusiness'),
+('Milwaukee marketplace',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fmarketplace'),
+('Top Entertainment Stories',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fentertainment%2Ftopstories'),
+('Arts and Books',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fentertainment%2Farts'),
+('Movies',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fentertainment%2Fmovies'),
+('Music and Nightlife',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fentertainment%2Fmusicandnightlife'),
+('Dining',
+ 'http://www.jsonline.com/rss?c=y&path=%2Ffeatures%2Fdining'),
+('Fashion',
+ 'http://www.jsonline.com/rss?c=y&path=%2Ffeatures%2Ffashion'),
+('Health and Fitness',
+ 'http://www.jsonline.com/rss?c=y&path=%2Ffeatures%2Fhealth'),
+('Top Metro Stories',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fnews%2Ftopstories'),
+('Crime',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fnews%2Fcrime'),
+('Sports',
+ 'http://www.jsonline.com/rss?c=y&path=%2Fsports'),
+]
+
+    #def print_version(self, url):
+        #return url+'/0'
+
+    def preprocess_html(self, soup):
+        story = soup.find(name='div', attrs={'id':'mainContent'})
+        #td = heading.findParent(name='td')
+        #td.extract()
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        #td.name = 'div'
+        return soup
