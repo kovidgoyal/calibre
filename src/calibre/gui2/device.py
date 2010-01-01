@@ -846,7 +846,7 @@ class DeviceGUI(object):
         Upload books to device.
         :param files: List of either paths to files or file like objects
         '''
-        titles = [i['title'] for i in metadata]
+        titles = [i.title for i in metadata]
         job = self.device_manager.upload_books(
                 Dispatcher(self.books_uploaded),
                 files, names, on_card=on_card,

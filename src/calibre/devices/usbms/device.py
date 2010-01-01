@@ -865,6 +865,7 @@ class Device(DeviceConfig, DevicePlugin):
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
 
         fname = sanitize(fname)
+        ext = os.path.splitext(fname)[1]
 
         if special_tag is None:
             from calibre.library.save_to_disk import get_components
@@ -892,6 +893,8 @@ class Device(DeviceConfig, DevicePlugin):
             fname = sanitize(self.filename_callback(fname, mdata))
             extra_components.append(fname)
             extra_components = [str(x) for x in extra_components]
+        else:
+            extra_components[-1] += ext
 
         def remove_trailing_periods(x):
             ans = x
