@@ -3,7 +3,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class TheIndependent(BasicNewsRecipe):
     title          = u'The Independent'
-    language       = 'en_UK'
+    language       = 'en_GB'
     __author__     = 'Krittika Goyal'
     oldest_article = 1 #days
     max_articles_per_feed = 25
