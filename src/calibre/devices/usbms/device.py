@@ -876,7 +876,7 @@ class Device(DeviceConfig, DevicePlugin):
             if tag.startswith(_('News')):
                 extra_components.append('News')
                 c = sanitize(mdata.title if mdata.title else '')
-                c = c.split('[')[0].strip()
+                #c = c.split('[')[0].strip()
                 if c:
                     extra_components.append(c)
             else:
