@@ -73,6 +73,8 @@ def _config():
             'only take place when the Enter or Return key is pressed.')
     c.add_opt('save_to_disk_template_history', default=[],
         help='Previously used Save to Disk templates')
+    c.add_opt('send_to_device_template_history', default=[],
+        help='Previously used Send to Device templates')
     c.add_opt('main_search_history', default=[],
         help='Search history for the main GUI')
     c.add_opt('viewer_search_history', default=[],

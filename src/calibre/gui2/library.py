@@ -399,6 +399,8 @@ class BooksModel(QAbstractTableModel):
         data[_('Author(s)')] = au
         return data
 
+    def metadata_for(self, ids):
+        return [self.db.get_metadata(id, index_is_id=True) for id in ids]
 
     def get_metadata(self, rows, rows_are_ids=False, full_metadata=False):
         metadata, _full_metadata = [], []

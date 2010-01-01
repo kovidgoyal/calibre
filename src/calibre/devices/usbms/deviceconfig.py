@@ -6,11 +6,21 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.utils.config import Config, ConfigProxy
 
+
 class DeviceConfig(object):
 
     HELP_MESSAGE = _('Configure Device')
     EXTRA_CUSTOMIZATION_MESSAGE = None
     EXTRA_CUSTOMIZATION_DEFAULT = None
+
+    #: If None the default is used
+    SAVE_TEMPLATE = None
+
+    @classmethod
+    def _default_save_template(cls):
+        from calibre.library.save_to_disk import config
+        return cls.SAVE_TEMPLATE if cls.SAVE_TEMPLATE else \
+            config().parse().send_template
 
     @classmethod
     def _config(cls):
@@ -22,6 +32,8 @@ class DeviceConfig(object):
                 help=_('Place files in sub directories if the device supports them'))
         c.add_opt('read_metadata', default=True,
                 help=_('Read metadata from files on device'))
+        c.add_opt('save_template', default=cls._default_save_template(),
+                help=_('Template to control how books are saved'))
         c.add_opt('extra_customization',
                 default=cls.EXTRA_CUSTOMIZATION_DEFAULT,
                 help=_('Extra customization'))
@@ -52,6 +64,8 @@ class DeviceConfig(object):
             if not ec:
                 ec = None
             proxy['extra_customization'] = ec
+        st = unicode(config_widget.opt_save_template.text())
+        proxy['save_template'] = st
 
     @classmethod
     def settings(cls):

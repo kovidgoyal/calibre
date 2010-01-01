@@ -53,9 +53,9 @@ class NOOK(USBMS):
             import Image, ImageDraw
 
 
-        coverdata = metadata.get('cover', None)
+        coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata:
-            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+            cover = Image.open(cStringIO.StringIO(coverdata))
         else:
             coverdata = open(I('library.png'), 'rb').read()
 

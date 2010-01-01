@@ -267,15 +267,16 @@ class DevicePlugin(Plugin):
         This method should raise a L{FreeSpaceError} if there is not enough
         free space on the device. The text of the FreeSpaceError must contain the
         word "card" if C{on_card} is not None otherwise it must contain the word "memory".
-        @param files: A list of paths and/or file-like objects.
-        @param names: A list of file names that the books should have
+        :files: A list of paths and/or file-like objects.
+        :names: A list of file names that the books should have
         once uploaded to the device. len(names) == len(files)
-        @return: A list of 3-element tuples. The list is meant to be passed
+        :return: A list of 3-element tuples. The list is meant to be passed
         to L{add_books_to_metadata}.
-        @param metadata: If not None, it is a list of dictionaries. Each dictionary
-        will have at least the key tags to allow the driver to choose book location
-        based on tags. len(metadata) == len(files). If your device does not support
-        hierarchical ebook folders, you can safely ignore this parameter.
+        :metadata: If not None, it is a list of :class:`MetaInformation` objects.
+        The idea is to use the metadata to determine where on the device to
+        put the book. len(metadata) == len(files). Apart from the regular
+        cover_data, there may also be a thumbnail attribute, which should
+        be used in preference.
         '''
         raise NotImplementedError()
 

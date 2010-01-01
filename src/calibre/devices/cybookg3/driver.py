@@ -47,11 +47,10 @@ class CYBOOKG3(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     def upload_cover(self, path, filename, metadata):
-        coverdata = metadata.get('cover', None)
+        coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata:
-            coverdata = coverdata[2]
-        with open('%s_6090.t2b' % os.path.join(path, filename), 'wb') as t2bfile:
-            t2b.write_t2b(t2bfile, coverdata)
+            with open('%s_6090.t2b' % os.path.join(path, filename), 'wb') as t2bfile:
+                t2b.write_t2b(t2bfile, coverdata)
 
     @classmethod
     def can_handle(cls, device_info, debug=False):

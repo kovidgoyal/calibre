@@ -46,6 +46,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         else:
             self.extra_customization_label.setVisible(False)
             self.opt_extra_customization.setVisible(False)
+        self.opt_save_template.setText(settings.save_template)
 
 
     def up_column(self):

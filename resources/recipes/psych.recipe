@@ -1,0 +1,39 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class PsychologyToday(BasicNewsRecipe):
+    title          = u'Psychology Today'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    #encoding = 'latin1'
+
+    remove_stylesheets = True
+    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
+    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':['pt-box-title', 'pt-box-content', 'blog-entry-footer', 'item-list', 'article-sub-meta']}),
+       dict(name='div', attrs={'id':['block-td_search_160', 'block-cam_search_160']}),
+       #dict(name='ul', attrs={'class':'article-tools'}),
+       #dict(name='ul', attrs={'class':'articleTools'}),
+    ]
+
+    feeds          = [
+('PSY TODAY',
+ 'http://www.psychologytoday.com/articles/index.rss'),
+]
+
+    def preprocess_html(self, soup):
+        story = soup.find(name='div', attrs={'id':'contentColumn'})
+        #td = heading.findParent(name='td')
+        #td.extract()
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        for x in soup.findAll(name='p', text=lambda x:x and '--&gt;' in x):
+             p = x.findParent('p')
+             if p is not None:
+                  p.extract()
+        return soup
