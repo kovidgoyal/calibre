@@ -48,9 +48,9 @@ class CYBOOKG3(USBMS):
 
     def upload_cover(self, path, filename, metadata):
         coverdata = getattr(metadata, 'thumbnail', None)
-        if coverdata:
+        if coverdata and coverdata[2]:
             with open('%s_6090.t2b' % os.path.join(path, filename), 'wb') as t2bfile:
-                t2b.write_t2b(t2bfile, coverdata)
+                t2b.write_t2b(t2bfile, coverdata[2])
 
     @classmethod
     def can_handle(cls, device_info, debug=False):

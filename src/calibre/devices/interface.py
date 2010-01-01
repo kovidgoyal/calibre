@@ -276,7 +276,9 @@ class DevicePlugin(Plugin):
         The idea is to use the metadata to determine where on the device to
         put the book. len(metadata) == len(files). Apart from the regular
         cover_data, there may also be a thumbnail attribute, which should
-        be used in preference.
+        be used in preference. The thumbnail attribute is of the form
+        (width, height, cover_data as jpeg). In addition the MetaInformation
+        objects can have a tag_order attribute.
         '''
         raise NotImplementedError()
 
@@ -286,17 +288,8 @@ class DevicePlugin(Plugin):
         Add locations to the booklists. This function must not communicate with
         the device.
         @param locations: Result of a call to L{upload_books}
-        @param metadata: List of dictionaries. Each dictionary must have the
-        keys C{title}, C{authors}, C{author_sort}, C{cover}, C{tags}.
-        The value of the C{cover}
-        element can be None or a three element tuple (width, height, data)
-        where data is the image data in JPEG format as a string. C{tags} must be
-        a possibly empty list of strings. C{authors} must be a string.
-        C{author_sort} may be None. It is upto the driver to decide whether to
-        use C{author_sort} or not.
-        The dictionary can also have an optional key "tag order" which should be
-        another dictionary that maps tag names to lists of book ids. The ids are
-        ids from the book database.
+        @param metadata: List of MetaInformation objects, same as for
+        :method:`upload_books`.
         @param booklists: A tuple containing the result of calls to
                                 (L{books}(oncard=None), L{books}(oncard='carda'),
                                 L{books}(oncard='cardb')).
