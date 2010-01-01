@@ -252,7 +252,7 @@ class BookList(_BookList):
                     return child
         return None
 
-    def add_book(self, info, name, size, ctime):
+    def add_book(self, mi, name, size, ctime):
         """ Add a node into DOM tree representing a book """
         book = self.book_by_path(name)
         if book is not None:
@@ -262,9 +262,9 @@ class BookList(_BookList):
         cid = self.max_id()+1
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {
-                 "title"  : info["title"],
-                 'titleSorter' : sortable_title(info['title']),
-                 "author" : info["authors"] if info['authors'] else 'Unknown', \
+                 "title"  : mi.title,
+                 'titleSorter' : sortable_title(mi.title),
+                 "author" : mi.format_authors() if mi.format_authors() else _('Unknown'),
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
                  "mime":mime, "path":name, "size":str(size)
@@ -273,7 +273,7 @@ class BookList(_BookList):
             node.setAttributeNode(self.document.createAttribute(attr))
             node.setAttribute(attr, attrs[attr])
         try:
-            w, h, data = info["cover"]
+            w, h, data = mi.thumbnail
         except TypeError:
             w, h, data = None, None, None
 
@@ -290,11 +290,15 @@ class BookList(_BookList):
         book.datetime = ctime
         self.append(book)
         self.set_next_id(cid+1)
-        if self.prefix and info.has_key('tags'): # Playlists only supportted in main memory
-            if info.has_key('tag order'):
-                self.tag_order.update(info['tag order'])
-            self.set_playlists(book.id, info['tags'])
-
+        tags = []
+        if mi.tags:
+            tags.extend(mi.tags)
+        if mi.series:
+            tags.append(mi.series)
+        if self.prefix and tags: # Playlists only supportted in main memory
+            if hasattr(mi, 'tag_order'):
+                self.tag_order.update(mi.tag_order)
+            self.set_tags(book, tags)
 
     def playlist_by_title(self, title):
         for pl in self.playlists():
