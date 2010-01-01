@@ -402,9 +402,10 @@ class BooksModel(QAbstractTableModel):
     def metadata_for(self, ids):
         ans = []
         for id in ids:
-            mi = self.db.get_metadata(id, index_is_id=True)
+            mi = self.db.get_metadata(id, index_is_id=True, get_cover=True)
             if mi.series is not None:
-                mi.tag_order = self.db.books_in_series_of(id, index_is_id=True)
+                mi.tag_order = { mi.series: self.db.books_in_series_of(id,
+                    index_is_id=True)}
             ans.append(mi)
         return ans
 

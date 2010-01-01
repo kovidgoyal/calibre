@@ -275,7 +275,7 @@ class DevicePlugin(Plugin):
         :metadata: If not None, it is a list of :class:`MetaInformation` objects.
         The idea is to use the metadata to determine where on the device to
         put the book. len(metadata) == len(files). Apart from the regular
-        cover_data, there may also be a thumbnail attribute, which should
+        cover (path to cover), there may also be a thumbnail attribute, which should
         be used in preference. The thumbnail attribute is of the form
         (width, height, cover_data as jpeg). In addition the MetaInformation
         objects can have a tag_order attribute.
