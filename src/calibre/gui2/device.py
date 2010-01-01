@@ -715,8 +715,9 @@ class DeviceGUI(object):
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
                     os.path.splitext(f.name)[1]))
-                if mi.cover_data and mi.cover_data[1]:
-                    mi.thumbnail = self.cover_to_thumbnail(mi.cover_data[1])
+                if mi.cover and os.path.access(mi.cover, os.R_OK):
+                    mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
+                        'rb').read())
             dynamic.set('news_to_be_synced', set([]))
             if config['upload_news_to_device'] and files:
                 remove = ids if \
@@ -751,8 +752,9 @@ class DeviceGUI(object):
         metadata = self.library_view.model().metadata_for(ids)
         ids = iter(ids)
         for mi in metadata:
-            if mi.cover_data and mi.cover_data[1]:
-                mi.thumbnail = self.cover_to_thumbnail(mi.cover_data[1])
+            if mi.cover and os.path.access(mi.cover, os.R_OK):
+                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
+                    'rb').read())
         imetadata = iter(metadata)
 
         files = [getattr(f, 'name', None) for f in _files]
