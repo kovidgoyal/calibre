@@ -231,7 +231,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="library">
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -239,33 +239,6 @@
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
-             <widget class="QRadioButton" name="match_any">
-              <property name="text">
-               <string>Match any</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="match_all">
-              <property name="text">
-               <string>Match all</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="popularity">
-              <property name="text">
-               <string>Sort by &amp;popularity</string>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="TagsView" name="tags_view">
               <property name="tabKeyNavigation">
@@ -280,6 +253,30 @@
               <property name="headerHidden">
                <bool>true</bool>
               </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="popularity">
+              <property name="text">
+               <string>Sort by &amp;popularity</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="tag_match">
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>Match any</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Match all</string>
+               </property>
+              </item>
              </widget>
             </item>
            </layout>

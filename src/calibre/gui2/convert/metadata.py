@@ -6,14 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, uuid
+import os, uuid, re
 
 from PyQt4.Qt import QPixmap, SIGNAL
 
 from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
 from calibre.ebooks.metadata import authors_to_string, string_to_authors, \
-        MetaInformation
+        MetaInformation, authors_to_sort_string
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
@@ -53,8 +53,16 @@ class MetadataWidget(Widget, Ui_Form):
         self.initialize_options(get_option, get_help, db, book_id)
         self.connect(self.cover_button, SIGNAL("clicked()"), self.select_cover)
 
+    def deduce_author_sort(self, *args):
+        au = unicode(self.author.currentText())
+        au = re.sub(r'\s+et al\.$', '', au)
+        authors = string_to_authors(au)
+        self.author_sort.setText(authors_to_sort_string(authors))
+
+
     def initialize_metadata_options(self):
         self.initialize_combos()
+        self.author.editTextChanged.connect(self.deduce_author_sort)
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title)

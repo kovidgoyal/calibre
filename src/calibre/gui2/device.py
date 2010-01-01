@@ -536,8 +536,7 @@ class DeviceGUI(object):
         else:
             _auto_ids = []
 
-        full_metadata = self.library_view.model().get_metadata(
-                                        ids, full_metadata=True, rows_are_ids=True)[-1]
+        full_metadata = self.library_view.model().metadata_for(ids)
         files = [getattr(f, 'name', None) for f in files]
 
         bad, remove_ids, jobnames = [], [], []
@@ -707,19 +706,17 @@ class DeviceGUI(object):
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
                 return
-            metadata = self.library_view.model().get_metadata(ids,
-                    rows_are_ids=True)
+            metadata = self.library_view.model().metadata_for(ids)
             names = []
             for mi in metadata:
-                prefix = ascii_filename(mi['title'])
+                prefix = ascii_filename(mi.title)
                 if not isinstance(prefix, unicode):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
                     os.path.splitext(f.name)[1]))
-                cdata = mi['cover']
-                if cdata:
-                    mi['cover'] = self.cover_to_thumbnail(cdata)
+                if mi.cover_data and mi.cover_data[1]:
+                    mi.thumbnail = self.cover_to_thumbnail(mi.cover_data[1])
             dynamic.set('news_to_be_synced', set([]))
             if config['upload_news_to_device'] and files:
                 remove = ids if \
@@ -751,29 +748,28 @@ class DeviceGUI(object):
         else:
             _auto_ids = []
 
-        metadata = self.library_view.model().get_metadata(ids, True)
+        metadata = self.library_view.model().metadata_for(ids)
         ids = iter(ids)
         for mi in metadata:
-            cdata = mi['cover']
-            if cdata:
-                mi['cover'] = self.cover_to_thumbnail(cdata)
-        metadata = iter(metadata)
+            if mi.cover_data and mi.cover_data[1]:
+                mi.thumbnail = self.cover_to_thumbnail(mi.cover_data[1])
+        imetadata = iter(metadata)
 
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
-            mi = metadata.next()
+            mi = imetadata.next()
             id = ids.next()
             if f is None:
-                bad.append(mi['title'])
+                bad.append(mi.title)
             else:
                 remove_ids.append(id)
                 good.append(mi)
                 gf.append(f)
-                t = mi['title']
+                t = mi.title
                 if not t:
                     t = _('Unknown')
-                a = mi['authors']
+                a = mi.format_authors()
                 if not a:
                     a = _('Unknown')
                 prefix = ascii_filename(t+' - '+a)
@@ -850,7 +846,7 @@ class DeviceGUI(object):
         Upload books to device.
         :param files: List of either paths to files or file like objects
         '''
-        titles = [i['title'] for i in metadata]
+        titles = [i.title for i in metadata]
         job = self.device_manager.upload_books(
                 Dispatcher(self.books_uploaded),
                 files, names, on_card=on_card,

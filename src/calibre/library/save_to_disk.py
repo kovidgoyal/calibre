@@ -18,6 +18,8 @@ from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre import strftime
 
 DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
+DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'
+
 FORMAT_ARG_DESCS = dict(
         title=_('The title'),
         authors=_('The authors'),
@@ -62,6 +64,13 @@ def config(defaults=None):
                 'Default is "%s" which will save books into a per-author '
                 'subdirectory with filenames containing title and author. '
                 'Available controls are: {%s}')%(DEFAULT_TEMPLATE, ', '.join(FORMAT_ARGS)))
+    x('send_template', default=DEFAULT_SEND_TEMPLATE,
+            help=_('The template to control the filename and directory structure of files '
+                'sent to the device. '
+                'Default is "%s" which will save books into a per-author '
+                'directory with filenames containing title and author. '
+                'Available controls are: {%s}')%(DEFAULT_SEND_TEMPLATE, ', '.join(FORMAT_ARGS)))
+
     x('asciiize', default=True,
             help=_('Normally, calibre will convert all non English characters into English equivalents '
                 'for the file names. '

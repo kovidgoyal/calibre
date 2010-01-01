@@ -21,7 +21,7 @@ except ImportError:
 
 from lxml import html, etree
 
-from calibre import entity_to_unicode
+from calibre import entity_to_unicode, CurrentDir
 from calibre.utils.filenames import ascii_filename
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError
@@ -116,7 +116,7 @@ class BookHeader(object):
         if ident == 'TEXTREAD':
             self.codepage = 1252
         if len(raw) <= 16:
-            self.codec = 'cp1251'
+            self.codec = 'cp1252'
             self.extra_flags = 0
             self.title = _('Unknown')
             self.language = 'ENGLISH'
@@ -790,11 +790,12 @@ def get_metadata(stream):
                 mi = mh.exth.mi
         else:
             with TemporaryDirectory('_mobi_meta_reader') as tdir:
-                mr = MobiReader(stream, log)
-                parse_cache = {}
-                mr.extract_content(tdir, parse_cache)
-                if mr.embedded_mi is not None:
-                    mi = mr.embedded_mi
+                with CurrentDir(tdir):
+                    mr = MobiReader(stream, log)
+                    parse_cache = {}
+                    mr.extract_content(tdir, parse_cache)
+                    if mr.embedded_mi is not None:
+                        mi = mr.embedded_mi
         if hasattr(mh.exth, 'cover_offset'):
             cover_index = mh.first_image_index + mh.exth.cover_offset
             data  = mh.section_data(int(cover_index))

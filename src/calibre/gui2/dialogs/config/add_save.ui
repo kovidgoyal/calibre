@@ -141,38 +141,6 @@
     <item row="6" column="1">
      <widget class="QLineEdit" name="opt_formats"/>
     </item>
-    <item row="7" column="0" colspan="2">
-     <widget class="QGroupBox" name="groupBox">
-      <property name="title">
-       <string>Save &amp;template</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>By adjusting the template below, you can control what folders the files are saved in and what filenames they are given. You can use the / character to indicate sub-folders. Available metadata variables are described below. If a particular book does not have some metadata, the variable will be replaced by the empty string.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Available variables:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QTextBrowser" name="template_variables"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="HistoryBox" name="opt_template"/>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item row="1" column="1">
      <widget class="QCheckBox" name="opt_replace_whitespace">
       <property name="text">
@@ -187,14 +155,38 @@
       </property>
      </widget>
     </item>
+    <item row="7" column="0" colspan="2">
+     <widget class="SaveTemplate" name="save_template" native="true"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="tab_2">
+   <attribute name="title">
+    <string>Sending to &amp;device</string>
+   </attribute>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Here you can control how calibre will save your books when you click the Send to Device button. This setting can be overriden for individual devices by customizing the device interface plugins in Preferences-&gt;Plugins</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="SaveTemplate" name="send_template" native="true"/>
+    </item>
    </layout>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>HistoryBox</class>
-   <extends>QComboBox</extends>
-   <header>calibre/gui2/dialogs/config/history.h</header>
+   <class>SaveTemplate</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/dialogs/config/save_template.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

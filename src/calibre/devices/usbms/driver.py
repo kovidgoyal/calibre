@@ -123,7 +123,8 @@ class USBMS(CLI, Device):
         '''
         :path: the full path were the associated book is located.
         :filename: the name of the book file without the extension.
-        :metatdata: metadata belonging to the book. metadata.cover[2] for coverdata.
+        :metatdata: metadata belonging to the book. Use metadata.thumbnail
+        for cover
         '''
         pass
 

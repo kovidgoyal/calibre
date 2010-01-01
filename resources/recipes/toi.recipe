@@ -1,0 +1,54 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class TimesOfIndia(BasicNewsRecipe):
+    title          = u'Times of India'
+    language       = 'en_IN'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+
+    remove_stylesheets = True
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='td', attrs={'class':'newptool1'}),
+       dict(name='div', attrs={'id':'newptool'}),
+       dict(name='ul', attrs={'class':'newtabcontent_tabs_new'}),
+       dict(name='b', text='Topics'),
+       dict(name='span', text=':'),
+    ]
+
+    feeds          = [
+('Top Stories',
+ 'http://timesofindia.indiatimes.com/rssfeedstopstories.cms'),
+('India',
+ 'http://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms'),
+('World',
+ 'http://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),
+('Mumbai',
+ 'http://timesofindia.indiatimes.com/rssfeeds/-2128838597.cms'),
+('Entertainment',
+ 'http://timesofindia.indiatimes.com/rssfeeds/1081479906.cms'),
+('Cricket',
+ 'http://timesofindia.indiatimes.com/rssfeeds/4719161.cms'),
+('Sunday TOI',
+ 'http://timesofindia.indiatimes.com/rssfeeds/1945062111.cms'),
+('Life and Style',
+ 'http://timesofindia.indiatimes.com/rssfeeds/2886704.cms'),
+('Business',
+ 'http://timesofindia.indiatimes.com/rssfeeds/1898055.cms'),
+('Mad Mad World',
+ 'http://timesofindia.indiatimes.com/rssfeeds/2178430.cms'),
+('Most Read',
+ 'http://timesofindia.indiatimes.com/rssfeedmostread.cms')
+]
+
+    def preprocess_html(self, soup):
+        heading = soup.find(name='h1', attrs={'class':'heading'})
+        td = heading.findParent(name='td')
+        td.extract()
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, td)
+        td.name = 'div'
+        return soup

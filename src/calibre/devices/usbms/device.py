@@ -842,49 +842,68 @@ class Device(DeviceConfig, DevicePlugin):
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         return path
 
+    def filename_callback(self, default, mi):
+        '''
+        Callback to allow drivers to change the default file name
+        set by :method:`create_upload_path`.
+        '''
+        return default
+
     def create_upload_path(self, path, mdata, fname):
         path = os.path.abspath(path)
-        newpath = path
         extra_components = []
 
-        if self.SUPPORTS_SUB_DIRS and self.settings().use_subdirs:
-            if 'tags' in mdata.keys():
-                for tag in mdata['tags']:
-                    if tag.startswith(_('News')):
-                        extra_components.append('news')
-                        c = sanitize(mdata.get('title', ''))
-                        if c:
-                            extra_components.append(c)
-                        c = sanitize(mdata.get('timestamp', ''))
-                        if c:
-                            extra_components.append(c)
-                        break
-                    elif tag.startswith('/'):
-                        for c in tag.split('/'):
-                            c = sanitize(c)
-                            if not c: continue
-                            extra_components.append(c)
-                        break
+        special_tag = None
+        if mdata.tags:
+            for t in mdata.tags:
+                if t.startswith(_('News')) or t.startswith('/'):
+                    special_tag = t
+                    break
 
-            if not extra_components:
-                c = sanitize(mdata.get('authors', _('Unknown')))
-                if c:
-                    extra_components.append(c)
-                c = sanitize(mdata.get('title', _('Unknown')))
-                if c:
-                    extra_components.append(c)
-                    newpath = os.path.join(newpath, c)
+        settings = self.settings()
+        template = settings.save_template
+        use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
 
         fname = sanitize(fname)
-        extra_components.append(fname)
-        extra_components = [str(x) for x in extra_components]
+        ext = os.path.splitext(fname)[1]
+
+        if special_tag is None:
+            from calibre.library.save_to_disk import get_components
+            extra_components = get_components(template, mdata, fname,
+                replace_whitespace=True)
+        else:
+            tag = special_tag
+            if tag.startswith(_('News')):
+                extra_components.append('News')
+                c = sanitize(mdata.title if mdata.title else '')
+                c = c.split('[')[0].strip()
+                if c:
+                    extra_components.append(c)
+            else:
+                for c in tag.split('/'):
+                    c = sanitize(c)
+                    if not c: continue
+                    extra_components.append(c)
+
+
+        if not use_subdirs:
+            extra_components = extra_components[:1]
+
+        if not extra_components:
+            fname = sanitize(self.filename_callback(fname, mdata))
+            extra_components.append(fname)
+            extra_components = [str(x) for x in extra_components]
+        else:
+            extra_components[-1] += ext
+
         def remove_trailing_periods(x):
             ans = x
             while ans.endswith('.'):
-                ans = ans[:-1]
+                ans = ans[:-1].strip()
             if not ans:
                 ans = 'x'
             return ans
+
         extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(250 - len(path), extra_components)
         filepath = os.path.join(path, *components)

@@ -1,0 +1,30 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ProvidenceJournal(BasicNewsRecipe):
+    title          = u'Providence Journal'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 7 #days
+    max_articles_per_feed = 25
+
+    no_stylesheets = True
+    remove_tags_before = dict(name='span', attrs={'class':'vitstorybody'})
+    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'id':['storycontentright','slcgm_comments_block', 'footercontainer']}),
+       #dict(name='span', text=':'),
+    ]
+
+    feeds          = [
+            ('Red Sox',
+            'http://www.projo.com/newskiosk/rss/projoredsox.xml'),
+            ('Political Scene',
+            'http://www.projo.com/newskiosk/rss/projopolitical.xml'),
+            ('Rhode Island News',
+            'http://www.projo.com/newskiosk/rss/projolocalnews.xml'),
+            ('Music',
+            'http://www.projo.com/newskiosk/rss/projomusic.xml'),
+    ]
+
+

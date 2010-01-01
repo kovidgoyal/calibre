@@ -9,7 +9,7 @@ Browsing book collection by tags.
 
 from itertools import izip
 
-from PyQt4.Qt import Qt, QTreeView, \
+from PyQt4.Qt import Qt, QTreeView, QApplication, \
                      QFont, SIGNAL, QSize, QIcon, QPoint, \
                      QAbstractItemModel, QVariant, QModelIndex
 from calibre.gui2 import config, NONE
@@ -21,24 +21,31 @@ class TagsView(QTreeView):
         self.setUniformRowHeights(True)
         self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(30, 30))
+        self.tag_match = None
 
-    def set_database(self, db, match_all, popularity):
+    def set_database(self, db, tag_match, popularity):
         self._model = TagsModel(db, parent=self)
         self.popularity = popularity
-        self.match_all = match_all
+        self.tag_match = tag_match
         self.setModel(self._model)
         self.connect(self, SIGNAL('clicked(QModelIndex)'), self.toggle)
         self.popularity.setChecked(config['sort_by_popularity'])
         self.connect(self.popularity, SIGNAL('stateChanged(int)'), self.sort_changed)
+
+    @property
+    def match_all(self):
+        return self.tag_match and self.tag_match.currentIndex() > 0
 
     def sort_changed(self, state):
         config.set('sort_by_popularity', state == Qt.Checked)
         self.model().refresh()
 
     def toggle(self, index):
-        if self._model.toggle(index):
+        modifiers = int(QApplication.keyboardModifiers())
+        exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
+        if self._model.toggle(index, exclusive):
             self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                      self._model.tokens(), self.match_all.isChecked())
+                      self._model.tokens(), self.match_all)
 
     def clear(self):
         self.model().clear_state()
@@ -227,12 +234,14 @@ class TagsModel(QAbstractItemModel):
 
         return len(parent_item.children)
 
-    def reset_all_states(self):
+    def reset_all_states(self, except_=None):
         for i in xrange(self.rowCount(QModelIndex())):
             category_index = self.index(i, 0, QModelIndex())
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
+                if tag_item is except_:
+                    continue
                 tag = tag_item.tag
                 if tag.state != 0:
                     tag.state = 0
@@ -248,10 +257,12 @@ class TagsModel(QAbstractItemModel):
         else:
             self.ignore_next_search -= 1
 
-    def toggle(self, index):
+    def toggle(self, index, exclusive):
         if not index.isValid(): return False
         item = index.internalPointer()
         if item.type == TagTreeItem.TAG:
+            if exclusive:
+                self.reset_all_states(except_=item)
             item.toggle()
             self.ignore_next_search = 2
             self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), index, index)

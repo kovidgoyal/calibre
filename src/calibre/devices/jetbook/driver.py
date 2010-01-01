@@ -11,10 +11,8 @@ Device driver for Ectaco Jetbook firmware >= JL04_v030e
 import os
 import re
 import sys
-from itertools import cycle
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.utils.filenames import ascii_filename as sanitize
 from calibre.ebooks.metadata import string_to_authors
 
 class JETBOOK(USBMS):
@@ -50,34 +48,14 @@ class JETBOOK(USBMS):
             r'(?P<authors>.+)#(?P<title>.+)'
             )
 
-    def upload_books(self, files, names, on_card=False, end_session=True,
-                    metadata=None):
-
-        base_path = self._sanity_check(on_card, files)
-
-        paths = []
-        names = iter(names)
-        metadata = iter(metadata)
-
-        for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
-            path = os.path.dirname(self.create_upload_path(base_path, mdata, fname))
-
-            author = sanitize(mdata.get('authors','Unknown')).replace(' ', '_')
-            title = sanitize(mdata.get('title', 'Unknown')).replace(' ', '_')
-            fileext = os.path.splitext(os.path.basename(fname))[1]
-            fname = '%s#%s%s' % (author, title, fileext)
-
-            filepath = os.path.join(path, fname)
-            paths.append(filepath)
-
-            self.put_file(infile, filepath, replace_file=True)
-
-            self.report_progress((i+1) / float(len(files)), _('Transferring books to device...'))
-
-        self.report_progress(1.0, _('Transferring books to device...'))
-
-        return zip(paths, cycle([on_card]))
+    def filename_callback(self, fname, mi):
+        fileext = os.path.splitext(os.path.basename(fname))[1]
+        title = mi.title if mi.title else 'Unknown'
+        title = title.replace(' ', '_')
+        au = mi.format_authors()
+        if not au:
+            au = 'Unknown'
+        return '%s#%s%s' % (au, title, fileext)
 
     @classmethod
     def metadata_from_path(cls, path):

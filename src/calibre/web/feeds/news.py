@@ -819,10 +819,24 @@ class BasicNewsRecipe(Recipe):
             if '?' in ext:
                 ext = ''
             ext = ext.lower() if ext else 'jpg'
-            self.report_progress(1, _('Downloading cover from %s')%cu)
             cpath = os.path.join(self.output_dir, 'cover.'+ext)
-            with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
-                cfile.write(r.read())
+            if os.access(cu, os.R_OK):
+                with open(cpath, 'wb') as cfile:
+                    cfile.write(open(cu, 'rb').read())
+            else:
+                self.report_progress(1, _('Downloading cover from %s')%cu)
+                with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
+                    cfile.write(r.read())
+            if ext.lower() == 'pdf':
+                from calibre.ebooks.metadata.pdf import get_metadata
+                stream = open(cpath, 'rb')
+                mi = get_metadata(stream)
+                cpath = None
+                if mi.cover_data and mi.cover_data[1]:
+                    cpath = os.path.join(self.output_dir,
+                            'cover.'+mi.cover_data[0])
+                    with open(cpath, 'wb') as f:
+                        f.write(mi.cover_data[1])
             self.cover_path = cpath
 
 

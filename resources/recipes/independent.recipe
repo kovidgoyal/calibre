@@ -1,26 +1,55 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
-class Independent(BasicNewsRecipe):
+class TheIndependent(BasicNewsRecipe):
     title          = u'The Independent'
-    oldest_article = 1
-    language = 'en_GB'
-    __author__ = 'Jimmy Patrick'
-    max_articles_per_feed = 100
+    language       = 'en_UK'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    encoding = 'latin1'
 
-    feeds          = [(u'UK', u'http://www.independent.co.uk/news/uk/rss'),
-                      (u'World', u'http://www.independent.co.uk/news/world/rss'),
-                      (u'Sport', u'http://www.independent.co.uk/sport/rss'),
-                      (u'Arts & Entertainment', u'http://www.independent.co.uk/arts-entertainment/rss'),
-                      (u'Life & Style',u'http://www.independent.co.uk/life-style/fashion/news/rss'),
-                      (u'Business',u'http://www.independent.co.uk/news/business/rss'),
-                      (u'Science',u'http://www.independent.co.uk/news/science/rss'),
-                      (u'Media',u'http://www.independent.co.uk/news/media/rss')
-                      ]
+    no_stylesheets = True
+    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
+    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':'related-articles'}),
+       dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
+       dict(name='ul', attrs={'class':'article-tools'}),
+       dict(name='ul', attrs={'class':'articleTools'}),
+    ]
 
-    keep_only_tags = [dict(id=['article'])]
-    remove_tags = [dict(name='div', attrs={'class':'share-links'}),
-                   dict(name='ul', attrs={'class':'article-tools'}),
-                   dict(name='div', attrs={'class':'related-articles'})
-                  ]
+    feeds          = [
+            ('UK',
+            'http://www.independent.co.uk/news/uk/rss'),
+            ('World',
+            'http://www.independent.co.uk/news/world/rss'),
+            ('Sport',
+            'http://www.independent.co.uk/sport/rss'),
+            ('Arts and Entertainment',
+            'http://www.independent.co.uk/arts-entertainment/rss'),
+            ('Business',
+            'http://www.independent.co.uk/news/business/rss'),
+            ('Life and Style',
+            'http://www.independent.co.uk/life-style/gadgets-and-tech/news/rss'),
+            ('Science',
+            'http://www.independent.co.uk/news/science/rss'),
+            ('People',
+            'http://www.independent.co.uk/news/people/rss'),
+            ('Media',
+            'http://www.independent.co.uk/news/media/rss'),
+            ('Health and Families',
+            'http://www.independent.co.uk/life-style/health-and-families/rss'),
+            ('Obituaries',
+            'http://www.independent.co.uk/news/obituaries/rss'),
+    ]
 
-    extra_css = "body{color:black;}"
+    def preprocess_html(self, soup):
+        story = soup.find(name='div', attrs={'id':'mainColumn'})
+        #td = heading.findParent(name='td')
+        #td.extract()
+        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        body = soup.find(name='body')
+        body.insert(0, story)
+        return soup
