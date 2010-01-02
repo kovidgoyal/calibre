@@ -1,0 +1,76 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class EntrepeneurRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'kwetal'
+    language = 'en'
+    version = 1
+
+    title = u'Entrepeneur'
+    publisher = u'Entrepreneur Media, Inc'
+    category = u'Business'
+    description = u'Online magazine on business, small business, management and economy'
+
+    oldest_article = 21
+    max_articles_per_feed = 100
+    use_embedded_content = False
+    encoding = 'utf-8'
+
+    remove_empty_feeds = True
+    no_stylesheets = True
+    remove_javascript = True
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'printbody'}))
+
+    remove_tags = []
+    remove_tags.append(dict(name = 'base'))
+    remove_tags.append(dict(name = 'a', attrs = {'id': 'ctl00_privacyPolicyLink'}))
+
+    remove_attributes = ['style']
+
+    # feeds from http://www.entrepreneur.com/feeds/index.html
+    feeds = []
+    feeds.append((u'The Latest Headlines', u'http://feeds.feedburner.com/entrepreneur/latest'))
+    feeds.append((u'Starting a Business', u'http://feeds.feedburner.com/entrepreneur/startingabusiness.rss'))
+    feeds.append((u'Grow Your Business', u'http://feeds.feedburner.com/entrepreneur/growingyourbusiness.rss'))
+    feeds.append((u'Sales and Marketing', u'http://feeds.feedburner.com/entrepreneur/salesandmarketing'))
+    feeds.append((u'Online Business', u'http://feeds.feedburner.com/entrepreneur/ebiz'))
+    feeds.append((u'Franchises', u'http://feeds.feedburner.com/entrepreneur/franchises'))
+    #feeds.append((u'', u''))
+
+    extra_css = '''
+                body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
+                img {float: left; margin-right: 0.5em;}
+                a, a[href] {text-decoration: none; color: blue;}
+                div#ctl00_bodyContentPlaceHolder_articleHeader_divHeaderText {font-weight: bold;
+                    font-size: medium;}
+                h1 {font-size: xx-large; font-weight: bold;}
+                div.byline {font-size: small; color: #696969; font-weight: normal;}
+                a.h2 {font-size: medium; font-weight: bold; color: #666666; text-decoration: none;
+                    margin-bottom: 0em;}
+                '''
+
+    def get_article_url(self, article):
+        return article.feedburner_origlink
+
+    def print_version(self, url):
+        id = url.rpartition('/')[2].replace('article', '')
+
+        return 'http://www.entrepreneur.com/article/printthis/' + id
+
+    def preprocess_html(self, soup):
+        div = soup.find('div', attrs = {'id': 'printbody'})
+        if div:
+            a = div.find(lambda tag: tag.name == 'a' and len(tag.attrs) == 1)
+            if a:
+                txt = a.findPreviousSibling(text = re.compile('URL:.*'))
+                if txt:
+                    txt.extract()
+                for br in a.findNextSiblings('br'):
+                    br.extract()
+                a.extract()
+
+        return soup
+
