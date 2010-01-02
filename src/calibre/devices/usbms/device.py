@@ -870,6 +870,7 @@ class Device(DeviceConfig, DevicePlugin):
         if special_tag is None:
             from calibre.library.save_to_disk import get_components
             extra_components = get_components(template, mdata, fname)
+            extra_components[-1] += ext
         else:
             tag = special_tag
             if tag.startswith(_('News')):
@@ -883,17 +884,14 @@ class Device(DeviceConfig, DevicePlugin):
                     c = sanitize(c)
                     if not c: continue
                     extra_components.append(c)
-
+            extra_componets.append(fname)
 
         if not use_subdirs:
             extra_components = extra_components[:1]
 
         if not extra_components:
             fname = sanitize(self.filename_callback(fname, mdata))
-            extra_components.append(fname)
-            extra_components = [str(x) for x in extra_components]
-        else:
-            extra_components[-1] += ext
+            extra_components.append(str(fname))
 
         def remove_trailing_periods(x):
             ans = x
