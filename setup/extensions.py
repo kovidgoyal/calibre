@@ -15,7 +15,7 @@ from setup import Command, islinux, isosx, SRC, iswindows
 from setup.build_environment import fc_inc, fc_lib, \
         fc_error, poppler_libs, poppler_lib_dirs, poppler_inc_dirs, podofo_inc, \
         podofo_lib, podofo_error, poppler_error, pyqt, OSX_SDK, NMAKE, \
-        QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, \
+        QMAKE, msvc, MT, win_inc, win_lib, png_inc_dirs, win_ddk, \
         magick_inc_dirs, magick_lib_dirs, png_lib_dirs, png_libs, \
         magick_error, magick_libs, ft_lib_dirs, ft_libs, jpg_libs, jpg_lib_dirs
 MT
@@ -45,6 +45,7 @@ class Extension(object):
         self.cflags = kwargs.get('cflags', [])
         self.ldflags = kwargs.get('ldflags', [])
         self.optional = kwargs.get('optional', False)
+        self.needs_ddk = kwargs.get('needs_ddk', False)
 
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
@@ -126,11 +127,9 @@ if iswindows:
     extensions.append(Extension('winutil',
                 ['calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi'],
-                include_dirs=os.environ.get('INCLUDE',
-                        'C:/WinDDK/6001.18001/inc/api/;'
-                        'C:/WinDDK/6001.18001/inc/crt/').split(';'),
                 cflags=['/X']
                 ))
+
 if isosx:
     extensions.append(Extension('usbobserver',
                 ['calibre/devices/usbobserver/usbobserver.c'],
@@ -264,6 +263,10 @@ class Build(Command):
         objects = []
         einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         obj_dir = self.j(self.obj_dir, ext.name)
+        ddk_flags = ['-I'+x for x in win_ddk]
+        if ext.needs_ddk:
+            i = [i for i in range(len(cflags)) if 'VC\\INCLUDE' in cflags[i]][0]
+            cflags[i+1:i+2] = ddk_flags
         if not os.path.exists(obj_dir):
             os.makedirs(obj_dir)
         for src in ext.sources:
