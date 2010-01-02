@@ -198,8 +198,8 @@ class RecursiveFetcher(object):
             for i in range(2, 6):
                 purl[i] = quote(purl[i])
             url = urlparse.urlunparse(purl)
+        open_func = getattr(self.browser, 'open_novisit', self.browser.open)
         try:
-            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
             with closing(open_func(url, timeout=self.timeout)) as f:
                 data = response(f.read()+f.read())
                 data.newurl = f.geturl()
@@ -210,7 +210,7 @@ class RecursiveFetcher(object):
                 getattr(getattr(err, 'args', [None])[0], 'errno', None) == -2: # Connection reset by peer or Name or service not know
                 self.log.debug('Temporary error, retrying in 1 second')
                 time.sleep(1)
-                with closing(self.browser.open(url, timeout=self.timeout)) as f:
+                with closing(open_func(url, timeout=self.timeout)) as f:
                     data = response(f.read()+f.read())
                     data.newurl = f.geturl()
             else:

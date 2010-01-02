@@ -403,9 +403,9 @@ class BasicNewsRecipe(Recipe):
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
         if re.match(r'\w+://', url_or_raw):
-            f = self.browser.open(url_or_raw)
-            _raw = f.read()
-            f.close()
+            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+            with closing(open_func(url_or_raw)) as f:
+                _raw = f.read()
             if not _raw:
                 raise RuntimeError('Could not fetch index from %s'%url_or_raw)
         else:
