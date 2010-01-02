@@ -870,7 +870,7 @@ class Device(DeviceConfig, DevicePlugin):
         if special_tag is None:
             from calibre.library.save_to_disk import get_components
             extra_components = get_components(template, mdata, fname)
-            extra_components[-1] = extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata)))
+            extra_components[-1] = extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
         else:
             tag = special_tag
             if tag.startswith(_('News')):
