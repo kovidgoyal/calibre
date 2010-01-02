@@ -884,7 +884,7 @@ class Device(DeviceConfig, DevicePlugin):
                     c = sanitize(c)
                     if not c: continue
                     extra_components.append(c)
-            extra_componets.append(sanitize(self.filename_callback(fname, mdata)))
+            extra_components.append(sanitize(self.filename_callback(fname, mdata)))
 
         if not use_subdirs:
             extra_components = extra_components[:1]
