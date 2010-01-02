@@ -867,27 +867,25 @@ class Device(DeviceConfig, DevicePlugin):
         fname = sanitize(fname)
         ext = os.path.splitext(fname)[1]
 
-        if special_tag is None:
-            from calibre.library.save_to_disk import get_components
-            extra_components = get_components(template, mdata, fname)
-            extra_components[-1] = extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
-        else:
+        from calibre.library.save_to_disk import get_components
+        extra_components = get_components(template, mdata, fname)
+        extra_components[-1] = sanitize(self.filename_callback(extra_components[-1]+ext, mdata))
+
+        if special_tag:
+            name = extra_components[-1]
+            extra_components = []
             tag = special_tag
             if tag.startswith(_('News')):
                 extra_components.append('News')
-                c = sanitize(mdata.title if mdata.title else '')
-                #c = c.split('[')[0].strip()
-                if c:
-                    extra_components.append(c)
             else:
                 for c in tag.split('/'):
                     c = sanitize(c)
                     if not c: continue
                     extra_components.append(c)
-            extra_components.append(sanitize(self.filename_callback(fname, mdata)))
+            extra_components.append(name)
 
         if not use_subdirs:
-            extra_components = extra_components[:1]
+            extra_components = extra_components[-1:]
 
         if not extra_components:
             fname = sanitize(self.filename_callback(fname, mdata))
