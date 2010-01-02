@@ -455,9 +455,10 @@ def ipython(user_ns=None):
     os.environ['IPYTHONDIR'] = ipydir
     if not os.path.exists(ipydir):
         os.makedirs(ipydir)
-    rc = os.path.join(ipydir, 'ipythonrc')
-    if not os.path.exists(rc):
-        open(rc, 'wb').write(' ')
+    for x in ('', '.ini'):
+        rc = os.path.join(ipydir, 'ipythonrc'+x)
+        if not os.path.exists(rc):
+            open(rc, 'wb').write(' ')
     UC = '''
 import IPython.ipapi
 ip = IPython.ipapi.get()
