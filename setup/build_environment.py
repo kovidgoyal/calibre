@@ -33,6 +33,7 @@ if iswindows:
         if 'SDK' in p:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
     MT = os.path.join(SDK, 'bin', 'mt.exe')
+    os.environ['QMAKESPEC'] = 'win32-msvc'
 
 QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
 if find_executable('qmake-qt4'):
