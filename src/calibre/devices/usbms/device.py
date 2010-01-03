@@ -455,29 +455,22 @@ class Device(DeviceConfig, DevicePlugin):
         usb_dir = None
 
         def test(val, attr):
-            q = getattr(self, attr)
-            if q is None: return True
-            return q == val or val in q
+            q = getattr(self.detected_device, attr)
+            return q == val
 
         for x, isfile in walk('/sys/devices'):
             if isfile and x.endswith('idVendor'):
                 usb_dir = d(x)
-                for y in ('idProduct',):
+                for y in ('idProduct', 'idVendor', 'bcdDevice'):
                     if not os.access(j(usb_dir, y), os.R_OK):
                         usb_dir = None
                         continue
                 e = lambda q : raw2num(open(j(usb_dir, q)).read())
-                ven, prod = map(e, ('idVendor', 'idProduct'))
-                if not (test(ven, 'VENDOR_ID') and test(prod, 'PRODUCT_ID')):
+                ven, prod, bcd = map(e, ('idVendor', 'idProduct', 'bcdDevice'))
+                if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
+                        test(bcd, 'bcdDevice')):
                     usb_dir = None
                     continue
-                if self.BCD is not None:
-                    if not os.access(j(usb_dir, 'bcdDevice'), os.R_OK) or \
-                            not test(e('bcdDevice'), 'BCD'):
-                        usb_dir = None
-                        continue
-                    else:
-                        break
                 else:
                     break
 

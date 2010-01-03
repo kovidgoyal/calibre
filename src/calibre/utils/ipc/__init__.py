@@ -11,8 +11,15 @@ from threading import Thread
 
 from calibre.constants import iswindows
 
-ADDRESS = r'\\.\pipe\CalibreGUI' if iswindows else \
-    os.path.expanduser('~/.calibre-gui.socket')
+if iswindows:
+    ADDRESS = r'\\.\pipe\CalibreGUI'
+else:
+    from tempfile import gettempdir
+    tmp = gettempdir()
+    user = os.environ.get('USER', '')
+    if not user:
+        user = os.path.basename(os.path.expanduser('~'))
+    ADDRESS = os.path.join(tmp, user+'-calibre-gui.socket')
 
 class RC(Thread):
 
