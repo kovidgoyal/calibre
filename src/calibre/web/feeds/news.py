@@ -806,7 +806,7 @@ class BasicNewsRecipe(Recipe):
 
         return index
 
-    def download_cover(self):
+    def _download_cover(self):
         self.cover_path = None
         try:
             cu = self.get_cover_url()
@@ -838,6 +838,14 @@ class BasicNewsRecipe(Recipe):
                     with open(cpath, 'wb') as f:
                         f.write(mi.cover_data[1])
             self.cover_path = cpath
+
+    def download_cover(self):
+        try:
+            self._download_cover()
+        except:
+            self.log.exception('Failed to download cover')
+            self.cover_path = None
+
 
 
     def default_cover(self, cover_file):
