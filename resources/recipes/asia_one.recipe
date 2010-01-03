@@ -1,0 +1,34 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Bruce <bruce at dotdoh.com>'
+'''
+asiaone.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AsiaOne(BasicNewsRecipe):
+    title          = u'AsiaOne'
+    oldest_article = 3
+    max_articles_per_feed = 100
+    __author__     = 'Bruce'
+    description    = 'News from Singapore Press Holdings Portal'
+    no_stylesheets = False
+    language = 'en_SG'
+
+    remove_tags    = [dict(name='span', attrs={'class':'footer'})]
+    keep_only_tags = [dict(name=['span', 'p', 'br', 'b', 'i', 'hr'])]
+
+
+
+    feeds          = [
+                      ('News', 'http://www.asiaone.com/a1mborss/News.xml'),
+                      ('Business', 'http://www.asiaone.com/a1mborss/Business.xml'),
+                      ('Education', 'http://www.asiaone.com/a1mborss/Education.xml'),
+                      ('Health', 'http://www.asiaone.com/a1mborss/Health.xml'),
+                      ('Digital', 'http://www.asiaone.com/a1mborss/Digital.xml'),
+                    ]
+
+    def print_version(self, url):
+        return url.replace('http://www.asiaone.com/', 'http://www.asiaone.com/print/')

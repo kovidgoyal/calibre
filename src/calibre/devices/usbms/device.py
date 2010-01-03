@@ -378,18 +378,30 @@ class Device(DeviceConfig, DevicePlugin):
 
         pat = re.compile(r'(?P<m>\d+)([a-z]+(?P<p>\d+)){0,1}')
         def nums(x):
+            'Return (disk num, partition number)'
             m = pat.search(x)
             if m is None:
-                return (10000, 0)
+                return (10000, -1)
             g = m.groupdict()
             if g['p'] is None:
                 g['p'] = 0
             return map(int, (g.get('m'), g.get('p')))
 
         def dcmp(x, y):
+            '''
+            Sorting based on the following scheme:
+                - disks without partitions are first
+                  - sub sorted based on disk number
+                - disks with partitions are sorted first on
+                  disk number, then on partition number
+            '''
             x = x.rpartition('/')[-1]
             y = y.rpartition('/')[-1]
             x, y = nums(x), nums(y)
+            if x[1] == 0 and y[1] > 0:
+                return cmp(1, 2)
+            if x[1] > 0 and y[1] == 0:
+                return cmp(2, 1)
             ans = cmp(x[0], y[0])
             if ans == 0:
                 ans = cmp(x[1], y[1])
@@ -405,11 +417,15 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def osx_bsd_names(self):
-        try:
-            return self._osx_bsd_names()
-        except:
-            time.sleep(2)
-        return self._osx_bsd_names()
+        drives = []
+        for i in range(3):
+            try:
+                drives = self._osx_bsd_names()
+                if len(drives) > 1: return drives
+            except:
+                if i == 2: raise
+            time.sleep(3)
+        return drives
 
     def open_osx(self):
         drives = self.osx_bsd_names()

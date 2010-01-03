@@ -19,7 +19,7 @@ class StraitsTimes(BasicNewsRecipe):
     encoding               = 'cp1252'
     publisher              = 'Singapore Press Holdings Ltd.'
     category               = 'news, politics, singapore, asia'
-    language               = 'en'
+    language               = 'en_SG'
     extra_css              = ' .top_headline{font-size: x-large; font-weight: bold} '
 
     conversion_options = {
