@@ -263,8 +263,8 @@ class Build(Command):
         objects = []
         einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         obj_dir = self.j(self.obj_dir, ext.name)
-        ddk_flags = ['-I'+x for x in win_ddk]
         if ext.needs_ddk:
+            ddk_flags = ['-I'+x for x in win_ddk]
             i = [i for i in range(len(cflags)) if 'VC\\INCLUDE' in cflags[i]][0]
             cflags[i+1:i+2] = ddk_flags
         if not os.path.exists(obj_dir):

@@ -16,7 +16,7 @@ class Edgesingapore(BasicNewsRecipe):
     category              = 'news, finances, singapore'
     language = 'en'
 
-    lang                  = 'en'
+    lang                  = 'en_SG'
     oldest_article        = 15
     max_articles_per_feed = 100
     no_stylesheets        = True

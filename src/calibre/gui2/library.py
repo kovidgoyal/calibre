@@ -650,7 +650,7 @@ class BooksModel(QAbstractTableModel):
                 match = pat.search(val)
                 if match is not None:
                     self.db.set_series_index(id, float(match.group(1)))
-                    val = pat.sub('', val)
+                    val = pat.sub('', val).strip()
                 elif val:
                     ni = self.db.get_next_series_num_for(val)
                     if ni != 1:

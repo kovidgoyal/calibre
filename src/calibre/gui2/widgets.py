@@ -624,12 +624,13 @@ class EnComboBox(QComboBox):
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
+        self.setAutoCompletionCaseSensitivity(Qt.CaseSensitive)
 
     def text(self):
         return unicode(self.currentText())
 
     def setText(self, text):
-        idx = self.findText(text, Qt.MatchFixedString)
+        idx = self.findText(text, Qt.MatchFixedString|Qt.MatchCaseSensitive)
         if idx == -1:
             self.insertItem(0, text)
             idx = 0
