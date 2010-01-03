@@ -1806,7 +1806,7 @@ class OEBBook(object):
         return {OPF_MIME: ('content.opf', package)}
 
     def _update_playorder(self, ncx):
-        hrefs = set(xpath(ncx, '//ncx:content/@src'))
+        hrefs = set(map(urlnormalize, xpath(ncx, '//ncx:content/@src')))
         playorder = {}
         next = 1
         selector = XPath('h:body//*[@id or @name]')
@@ -1828,9 +1828,9 @@ class OEBBook(object):
                 if added:
                     next += 1
         selector = XPath('ncx:content/@src')
-        for elem in xpath(ncx, '//*[@playOrder and ./ncx:content[@src]]'):
-            href = selector(elem)[0]
-            order = playorder.get(href, 0)
+        for i, elem in enumerate(xpath(ncx, '//*[@playOrder and ./ncx:content[@src]]')):
+            href = urlnormalize(selector(elem)[0])
+            order = playorder.get(href, i)
             elem.attrib['playOrder'] = str(order)
         return
 

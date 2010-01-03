@@ -260,7 +260,8 @@ class Device(DeviceConfig, DevicePlugin):
         # if the device is connected without a card, the above
         # will incorrectly identify the main mem as carda
         # See for example the driver for the Nook
-        if 'main' not in drives and 'carda' in drives:
+        if drives.get('carda', None) is not None and \
+                drives.get('main', None) is None:
             drives['main'] = drives.pop('carda')
 
         drives = self.windows_open_callback(drives)

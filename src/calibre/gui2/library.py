@@ -580,7 +580,7 @@ class BooksModel(QAbstractTableModel):
         def tags(r):
             tags = self.db.data[r][tgdx]
             if tags:
-                return ', '.join(tags.split(','))
+                return ', '.join(sorted(tags.split(',')))
 
         def series(r):
             series = self.db.data[r][srdx]
