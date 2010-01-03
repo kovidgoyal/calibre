@@ -85,13 +85,26 @@ class DeviceScanner(object):
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
         self.scanner = win_scanner if iswindows else osx_scanner if isosx else linux_scanner
         self.devices = []
+        self.wmi = None
+        self.pnp_ids = set([])
+        self.rescan_pnp_ids = True
 
     def scan(self):
         '''Fetch list of connected USB devices from operating system'''
         self.devices = self.scanner()
+        if self.rescan_pnp_ids:
+            self.pnp_ids = set([])
+
+    def pnp_id_iterator(self):
+        if self.wmi is not None and not self.pnp_ids:
+            for drive in self.wmi.Win32_DiskDrive():
+                if drive.Partitions > 0:
+                    self.pnp_ids.add(str(drive.PNPDeviceID))
+        for x in self.pnp_ids:
+            yield x
 
     def is_device_connected(self, device, debug=False):
-        return device.is_usb_connected(self.devices, debug=debug)
+        return device.is_usb_connected(self.devices, self.pnp_id_iterator, debug=debug)
 
 
 def main(args=sys.argv):

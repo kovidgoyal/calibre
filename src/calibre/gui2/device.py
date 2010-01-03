@@ -72,15 +72,12 @@ class DeviceManager(Thread):
 
     def __init__(self, connected_slot, job_manager, sleep_time=2):
         '''
-        @param sleep_time: Time to sleep between device probes in secs
-        @type sleep_time: integer
+        :sleep_time: Time to sleep between device probes in secs
         '''
         Thread.__init__(self)
         self.setDaemon(True)
         # [Device driver, Showing in GUI, Ejected]
-        self.devices        = [[d, False, False] for d in device_plugins()]
-        self.device         = None
-        self.device_class   = None
+        self.devices        = list(device_plugins())
         self.sleep_time     = sleep_time
         self.connected_slot = connected_slot
         self.jobs           = Queue.Queue(0)
@@ -88,74 +85,82 @@ class DeviceManager(Thread):
         self.job_manager    = job_manager
         self.current_job    = None
         self.scanner        = DeviceScanner()
+        self.wmi            = None
+        self.connected_device = None
+        self.ejected_devices = set([])
+
+    def report_progress(self, *args):
+        pass
+
+    @property
+    def is_device_connected(self):
+        return self.connected_device is not None
+
+    @property
+    def device(self):
+        return self.connected_device
 
     def do_connect(self, connected_devices):
-        if iswindows:
-            import pythoncom
-            pythoncom.CoInitialize()
-        try:
-            for dev, detected_device in connected_devices:
-                dev.reset(detected_device=detected_device)
-                try:
-                    dev.open()
-                except:
-                    print 'Unable to open device', dev
-                    traceback.print_exc()
-                    continue
-                self.device       = dev
-                self.device_class = dev.__class__
-                self.connected_slot(True)
-                return True
-        finally:
-            if iswindows:
-                pythoncom.CoUninitialize()
+        for dev, detected_device in connected_devices:
+            dev.reset(detected_device=detected_device,
+                    report_progress=self.report_progress)
+            try:
+                dev.open()
+            except:
+                print 'Unable to open device', dev
+                traceback.print_exc()
+                continue
+            self.connected_device = dev
+            self.connected_slot(True)
+            return True
         return False
 
+    def connected_device_removed(self):
+        while True:
+            try:
+                job = self.jobs.get_nowait()
+                job.abort(Exception(_('Device no longer connected.')))
+            except Queue.Empty:
+                break
+        try:
+            self.connected_device.post_yank_cleanup()
+        except:
+            pass
+        if self.connected_device in self.ejected_devices:
+            self.ejected_devices.remove(self.connected_device)
+        else:
+            self.connected_slot(False)
+        self.connected_device = None
 
     def detect_device(self):
+        self.scanner.rescan_pnp_ids = not self.is_device_connected
         self.scanner.scan()
-        connected_devices = []
-        for device in self.devices:
-            connected, detected_device = self.scanner.is_device_connected(device[0])
-            if connected and not device[1] and not device[2]:
-                # If connected and not showing in GUI and not ejected
-                connected_devices.append((device[0], detected_device))
-                device[1] = True
-            elif not connected and device[1]:
-                # Disconnected but showing in GUI
-                while True:
-                    try:
-                        job = self.jobs.get_nowait()
-                        job.abort(Exception(_('Device no longer connected.')))
-                    except Queue.Empty:
-                        break
-                try:
-                    self.device.post_yank_cleanup()
-                except:
-                    pass
-                device[2] = False
-                self.device = None
-                self.connected_slot(False)
-                device[1] ^= True
-        if connected_devices:
-            if not self.do_connect(connected_devices):
-                print 'Connect to device failed, retying in 5 seconds...'
-                time.sleep(5)
-                if not self.do_connect(connected_devices):
-                    print 'Device connect failed again, giving up'
+        if self.is_device_connected:
+            connected, detected_device = \
+                self.scanner.is_device_connected(self.connected_device)
+            if not connected:
+                self.connected_device_removed()
+        else:
+            possibly_connected_devices = []
+            for device in self.devices:
+                if device in self.ejected_devices:
+                    continue
+                possibly_connected, detected_device = \
+                        self.scanner.is_device_connected(device)
+                if possibly_connected:
+                    possibly_connected_devices.append((device, detected_device))
+            if possibly_connected_devices:
+                if not self.do_connect(possibly_connected_devices):
+                    print 'Connect to device failed, retying in 5 seconds...'
+                    time.sleep(5)
+                    if not self.do_connect(possibly_connected_devices):
+                        print 'Device connect failed again, giving up'
 
     def umount_device(self):
-        if self.device is not None:
-            self.device.eject()
-            dev = None
-            for x in self.devices:
-                if x[0] is self.device:
-                    dev = x
-                    break
-            if dev is not None:
-                dev[2] = True
+        if self.is_device_connected:
+            self.connected_device.eject()
+            self.ejected_devices.add(self.connected_device)
             self.connected_slot(False)
-
 
     def next(self):
         if not self.jobs.empty():
@@ -165,18 +170,31 @@ class DeviceManager(Thread):
                 pass
 
     def run(self):
-        while self.keep_going:
-            self.detect_device()
-            while True:
-                job = self.next()
-                if job is not None:
-                    self.current_job = job
-                    self.device.set_progress_reporter(job.report_progress)
-                    self.current_job.run()
-                    self.current_job = None
-                else:
-                    break
-            time.sleep(self.sleep_time)
+        if iswindows:
+            import pythoncom
+            pythoncom.CoInitialize()
+            wmi = __import__('wmi', globals(), locals(), [], -1)
+            self.wmi = wmi.WMI(find_classes=False)
+            self.scanner.wmi = self.wmi
+            for x in self.devices:
+                x[0].wmi = self.wmi
+        try:
+            while self.keep_going:
+                self.detect_device()
+                while True:
+                    job = self.next()
+                    if job is not None:
+                        self.current_job = job
+                        self.device.set_progress_reporter(job.report_progress)
+                        self.current_job.run()
+                        self.current_job = None
+                    else:
+                        break
+                time.sleep(self.sleep_time)
+        finally:
+            if iswindows:
+                pythoncom.CoUninitialize()
+
 
     def create_job(self, func, done, description, args=[], kwargs={}):
         job = DeviceJob(func, done, self.job_manager,
@@ -495,7 +513,7 @@ class DeviceGUI(object):
         fmt = None
         if specific:
             d = ChooseFormatDialog(self, _('Choose format to send to device'),
-                                self.device_manager.device_class.settings().format_map)
+                                self.device_manager.device.settings().format_map)
             d.exec_()
             fmt = d.format().lower()
         dest, sub_dest = dest.split(':')
@@ -637,7 +655,7 @@ class DeviceGUI(object):
         p = QPixmap()
         p.loadFromData(data)
         if not p.isNull():
-            ht = self.device_manager.device_class.THUMBNAIL_HEIGHT \
+            ht = self.device_manager.device.THUMBNAIL_HEIGHT \
                     if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             return (p.width(), p.height(), pixmap_to_data(p))
@@ -675,10 +693,11 @@ class DeviceGUI(object):
 
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
+            settings = self.device_manager.device.settings()
             ids = list(dynamic.get('news_to_be_synced', set([]))) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
-                                ids, self.device_manager.device_class.settings().format_map,
+                                ids, settings.format_map,
                                 exclude_auto=do_auto_convert)
             auto = []
             if do_auto_convert and _auto_ids:
@@ -687,12 +706,12 @@ class DeviceGUI(object):
                     formats = [] if dbfmts is None else \
                         [f.lower() for f in dbfmts.split(',')]
                     if set(formats).intersection(available_input_formats()) \
-                            and set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats()):
+                            and set(settings.format_map).intersection(available_output_formats()):
                         auto.append(id)
             if auto:
                 format = None
-                for fmt in self.device_manager.device_class.settings().format_map:
-                    if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                for fmt in settings.format_map:
+                    if fmt in list(set(settings.format_map).intersection(set(available_output_formats()))):
                         format = fmt
                         break
                 if format is not None:
@@ -738,8 +757,10 @@ class DeviceGUI(object):
         if not self.device_manager or not ids or len(ids) == 0:
             return
 
+        settings = self.device_manager.device.settings()
+
         _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
-                                    self.device_manager.device_class.settings().format_map,
+                                    settings.format_map,
                                     paths=True, set_metadata=True,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
@@ -790,21 +811,21 @@ class DeviceGUI(object):
                     formats = self.library_view.model().db.formats(id, index_is_id=True)
                     formats = formats.split(',') if formats is not None else []
                     formats = [f.lower().strip() for f in formats]
-                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(self.device_manager.device_class.settings().format_map).intersection(available_output_formats())) != []:
+                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(settings.format_map).intersection(available_output_formats())) != []:
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
                 else:
-                    if specific_format in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                    if specific_format in list(set(settings.format_map).intersection(set(available_output_formats()))):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
-            format = specific_format if specific_format in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))) else None
+            format = specific_format if specific_format in list(set(settings.format_map).intersection(set(available_output_formats()))) else None
             if not format:
-                for fmt in self.device_manager.device_class.settings().format_map:
-                    if fmt in list(set(self.device_manager.device_class.settings().format_map).intersection(set(available_output_formats()))):
+                for fmt in settings.format_map:
+                    if fmt in list(set(settings.format_map).intersection(set(available_output_formats()))):
                         format = fmt
                         break
             if not format:

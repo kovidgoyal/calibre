@@ -840,11 +840,11 @@ class Main(MainWindow, Ui_MainWindow, DeviceGUI):
             return
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
-        self.memory_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
+        self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_a_view.set_database(cardalist)
-        self.card_a_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
+        self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         self.card_b_view.set_database(cardblist)
-        self.card_b_view.set_editable(self.device_manager.device_class.CAN_SET_METADATA)
+        self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA)
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.sortByColumn(3, Qt.DescendingOrder)
             view.read_settings()

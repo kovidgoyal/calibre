@@ -43,8 +43,7 @@ class DevicePlugin(Plugin):
     #: Icon for this device
     icon = I('reader.svg')
 
-    @classmethod
-    def test_bcd_windows(cls, device_id, bcd):
+    def test_bcd_windows(self, device_id, bcd):
         if bcd is None or len(bcd) == 0:
             return True
         for c in bcd:
@@ -54,30 +53,28 @@ class DevicePlugin(Plugin):
                 return True
         return False
 
-    @classmethod
-    def print_usb_device_info(cls, info):
+    def print_usb_device_info(self, info):
         try:
             print '\t', repr(info)
         except:
             import traceback
             traceback.print_exc()
 
-    @classmethod
-    def is_usb_connected_windows(cls, devices_on_system, debug=False):
+    def is_usb_connected_windows(self, devices_on_system, pnp_id_iterator, debug=False):
 
         def id_iterator():
-            if hasattr(cls.VENDOR_ID, 'keys'):
-                for vid in cls.VENDOR_ID:
-                    vend = cls.VENDOR_ID[vid]
+            if hasattr(self.VENDOR_ID, 'keys'):
+                for vid in self.VENDOR_ID:
+                    vend = self.VENDOR_ID[vid]
                     for pid in vend:
                         bcd = vend[pid]
                         yield vid, pid, bcd
             else:
-                vendors = cls.VENDOR_ID if hasattr(cls.VENDOR_ID, '__len__') else [cls.VENDOR_ID]
-                products = cls.PRODUCT_ID if hasattr(cls.PRODUCT_ID, '__len__') else [cls.PRODUCT_ID]
+                vendors = self.VENDOR_ID if hasattr(self.VENDOR_ID, '__len__') else [self.VENDOR_ID]
+                products = self.PRODUCT_ID if hasattr(self.PRODUCT_ID, '__len__') else [self.PRODUCT_ID]
                 for vid in vendors:
                     for pid in products:
-                        yield vid, pid, cls.BCD
+                        yield vid, pid, self.BCD
 
         for vendor_id, product_id, bcd in id_iterator():
             vid, pid = 'vid_%4.4x'%vendor_id, 'pid_%4.4x'%product_id
@@ -85,15 +82,14 @@ class DevicePlugin(Plugin):
             for device_id in devices_on_system:
                 if (vid in device_id or vidd in device_id) and \
                    (pid in device_id or pidd in device_id) and \
-                   cls.test_bcd_windows(device_id, bcd):
+                   self.test_bcd_windows(device_id, bcd):
                        if debug:
-                           cls.print_usb_device_info(device_id)
-                       if cls.can_handle(device_id):
+                           self.print_usb_device_info(device_id)
+                       if self.can_handle_windows(device_id, pnp_id_iterator, debug=debug):
                            return True
         return False
 
-    @classmethod
-    def test_bcd(cls, bcdDevice, bcd):
+    def test_bcd(self, bcdDevice, bcd):
         if bcd is None or len(bcd) == 0:
             return True
         for c in bcd:
@@ -101,24 +97,24 @@ class DevicePlugin(Plugin):
                 return True
         return False
 
-    @classmethod
-    def is_usb_connected(cls, devices_on_system, debug=False):
+    def is_usb_connected(self, devices_on_system, pnp_id_iterator, debug=False):
         '''
         Return True, device_info if a device handled by this plugin is currently connected.
 
         :param devices_on_system: List of devices currently connected
         '''
         if iswindows:
-            return cls.is_usb_connected_windows(devices_on_system, debug=debug), None
+            return self.is_usb_connected_windows(devices_on_system,
+                    pnp_id_iterator, debug=debug), None
 
         vendors_on_system = set([x[0] for x in devices_on_system])
-        vendors = cls.VENDOR_ID if hasattr(cls.VENDOR_ID, '__len__') else [cls.VENDOR_ID]
-        if hasattr(cls.VENDOR_ID, 'keys'):
+        vendors = self.VENDOR_ID if hasattr(self.VENDOR_ID, '__len__') else [self.VENDOR_ID]
+        if hasattr(self.VENDOR_ID, 'keys'):
             products = []
-            for ven in cls.VENDOR_ID:
-                products.extend(cls.VENDOR_ID[ven].keys())
+            for ven in self.VENDOR_ID:
+                products.extend(self.VENDOR_ID[ven].keys())
         else:
-            products = cls.PRODUCT_ID if hasattr(cls.PRODUCT_ID, '__len__') else [cls.PRODUCT_ID]
+            products = self.PRODUCT_ID if hasattr(self.PRODUCT_ID, '__len__') else [self.PRODUCT_ID]
 
         for vid in vendors:
             if vid in vendors_on_system:
@@ -126,14 +122,14 @@ class DevicePlugin(Plugin):
                     cvid, pid, bcd = dev[:3]
                     if cvid == vid:
                         if pid in products:
-                            if hasattr(cls.VENDOR_ID, 'keys'):
-                                cbcd = cls.VENDOR_ID[vid][pid]
+                            if hasattr(self.VENDOR_ID, 'keys'):
+                                cbcd = self.VENDOR_ID[vid][pid]
                             else:
-                                cbcd = cls.BCD
-                            if cls.test_bcd(bcd, cbcd):
+                                cbcd = self.BCD
+                            if self.test_bcd(bcd, cbcd):
                                 if debug:
-                                    cls.print_usb_device_info(dev)
-                                if cls.can_handle(dev, debug=debug):
+                                    self.print_usb_device_info(dev)
+                                if self.can_handle(dev, debug=debug):
                                     return True, dev
         return False, None
 
@@ -151,23 +147,28 @@ class DevicePlugin(Plugin):
         """
         raise NotImplementedError()
 
-    @classmethod
-    def get_fdi(cls):
-        '''Return the FDI description of this device for HAL on linux.'''
-        return ''
-
-    @classmethod
-    def can_handle(cls, device_info, debug=False):
+    def can_handle_windows(self, device_id, pnp_id_iterator, debug=False):
         '''
         Optional method to perform further checks on a device to see if this driver
         is capable of handling it. If it is not it should return False. This method
         is only called after the vendor, product ids and the bcd have matched, so
         it can do some relatively time intensive checks. The default implementation
-        returns True.
+        returns True. This method is called only on windows. See also
+        :method:`can_handle`.
 
         :param device_info: On windows a device ID string. On Unix a tuple of
         ``(vendor_id, product_id, bcd)``.
         '''
+        return True
+
+    def can_handle(self, device_info, debug=False):
+        '''
+        Unix version of :method:`can_handle_windows`
+
+        :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
+        serial number)
+        '''
+
         return True
 
     def open(self):

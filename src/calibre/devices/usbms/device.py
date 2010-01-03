@@ -22,7 +22,7 @@ from itertools import repeat
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError, FreeSpaceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre.constants import iswindows, islinux, isosx, __appname__, plugins
+from calibre.constants import iswindows, islinux, isosx, plugins
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 
 if isosx:
@@ -83,53 +83,6 @@ class Device(DeviceConfig, DevicePlugin):
     EBOOK_DIR_CARD_B = ''
     DELETE_EXTS = []
 
-    FDI_TEMPLATE = \
-'''
-  <device>
-      <match key="info.category" string="volume">
-          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
-              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="%(lun0)d">
-                          <merge key="volume.label" type="string">%(main_memory)s</merge>
-                          <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
-                  </match>
-                %(BCD_end)s
-              </match>
-          </match>
-      </match>
-  </device>
-  <device>
-      <match key="info.category" string="volume">
-          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
-              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="%(lun1)d">
-                          <merge key="volume.label" type="string">%(storage_card)s</merge>
-                          <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
-                  </match>
-                %(BCD_end)s
-              </match>
-          </match>
-      </match>
-  </device>
-  <device>
-      <match key="info.category" string="volume">
-          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
-              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                %(BCD_start)s
-                  <match key="@info.parent:storage.lun" int="%(lun2)d">
-                          <merge key="volume.label" type="string">%(storage_card)s</merge>
-                          <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
-                  </match>
-                %(BCD_end)s
-              </match>
-          </match>
-      </match>
-  </device>
-'''
-    FDI_LUNS = {'lun0':0, 'lun1':1, 'lun2':2}
-    FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
@@ -138,6 +91,7 @@ class Device(DeviceConfig, DevicePlugin):
             self.detected_device = USBDevice(detected_device)
         except: # On windows detected_device is None
             self.detected_device = None
+        self.set_progress_reporter(report_progress)
 
     @classmethod
     def get_gui_name(cls):
@@ -146,37 +100,11 @@ class Device(DeviceConfig, DevicePlugin):
             x = cls.__name__
         return x
 
-
-    @classmethod
-    def get_fdi(cls):
-        fdi = ''
-        for vid in cls.VENDOR_ID:
-            for pid in cls.PRODUCT_ID:
-                fdi_base_values = dict(
-                                       app=__appname__,
-                                       deviceclass=cls.__name__,
-                                       vendor_id=hex(vid),
-                                       product_id=hex(pid),
-                                       main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
-                                       storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
-                                  )
-                fdi_base_values.update(cls.FDI_LUNS)
-
-                if cls.BCD is None:
-                    fdi_base_values['BCD_start'] = ''
-                    fdi_base_values['BCD_end'] = ''
-                    fdi += cls.FDI_TEMPLATE % fdi_base_values
-                else:
-                    for bcd in cls.BCD:
-                        fdi_bcd_values = fdi_base_values
-                        fdi_bcd_values['BCD_start'] = cls.FDI_BCD_TEMPLATE % dict(bcd=hex(bcd))
-                        fdi_bcd_values['BCD_end'] = '</match>'
-                        fdi += cls.FDI_TEMPLATE % fdi_bcd_values
-
-        return fdi
-
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
+        self.report_progress = report_progress
+        if self.report_progress is None:
+            self.report_progress = lambda x, y: x
 
     def card_prefix(self, end_session=True):
         return (self._card_a_prefix, self._card_b_prefix)
@@ -239,9 +167,7 @@ class Device(DeviceConfig, DevicePlugin):
     def windows_filter_pnp_id(self, pnp_id):
         return False
 
-    def windows_match_device(self, drive, attr):
-        pnp_id = (str(drive.PNPDeviceID) if not isinstance(drive, basestring)
-                else str(drive)).upper()
+    def windows_match_device(self, pnp_id, attr):
         device_id = getattr(self, attr)
 
         def test_vendor():
@@ -292,6 +218,12 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return drives
 
+    def can_handle_windows(self, device_id, pnp_id_iterator, debug=False):
+        for pnp_id in pnp_id_iterator():
+            if self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM'):
+                return True
+        return False
+
     def open_windows(self):
 
         def matches_q(drive, attr):
@@ -307,14 +239,14 @@ class Device(DeviceConfig, DevicePlugin):
 
         time.sleep(8)
         drives = {}
-        wmi = __import__('wmi', globals(), locals(), [], -1)
-        c = wmi.WMI(find_classes=False)
+        c = self.wmi
         for drive in c.Win32_DiskDrive():
-            if self.windows_match_device(drive, 'WINDOWS_CARD_A_MEM') and not drives.get('carda', None):
+            pnp_id = str(drive.PNPDeviceID)
+            if self.windows_match_device(pnp_id, 'WINDOWS_CARD_A_MEM') and not drives.get('carda', None):
                 drives['carda'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(drive, 'WINDOWS_CARD_B_MEM') and not drives.get('cardb', None):
+            elif self.windows_match_device(pnp_id, 'WINDOWS_CARD_B_MEM') and not drives.get('cardb', None):
                 drives['cardb'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(drive, 'WINDOWS_MAIN_MEM') and not drives.get('main', None):
+            elif self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM') and not drives.get('main', None):
                 drives['main'] = self.windows_get_drive_prefix(drive)
 
             if 'main' in drives.keys() and 'carda' in drives.keys() and \

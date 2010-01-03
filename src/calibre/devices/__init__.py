@@ -37,6 +37,10 @@ def debug(ioreg_to_tmp=False, buf=None):
     if buf is None:
         buf = StringIO()
     sys.stdout = sys.stderr = buf
+    if iswindows:
+        import pythoncom
+        pythoncom.CoInitialize()
+
     try:
         out = partial(prints, file=buf)
         out('Version:', __version__)
@@ -50,29 +54,25 @@ def debug(ioreg_to_tmp=False, buf=None):
                     d[i] = hex(d[i])
         out('USB devices on system:')
         out(pprint.pformat(devices))
+        wmi = Wmi =None
         if iswindows:
-            if iswindows:
-                import pythoncom
-                pythoncom.CoInitialize()
+            wmi = __import__('wmi', globals(), locals(), [], -1)
+            Wmi = wmi.WMI(find_classes=False)
+            drives = []
+            out('Drives detected:')
+            out('\t', '(ID, Partitions, Drive letter)')
+            for drive in Wmi.Win32_DiskDrive():
+                if drive.Partitions == 0:
+                    continue
                 try:
-                    wmi = __import__('wmi', globals(), locals(), [], -1)
-                    drives = []
-                    out('Drives detected:')
-                    out('\t', '(ID, Partitions, Drive letter)')
-                    for drive in wmi.WMI(find_classes=False).Win32_DiskDrive():
-                        if drive.Partitions == 0:
-                            continue
-                        try:
-                            partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
-                            logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
-                            prefix = logical_disk.DeviceID+os.sep
-                            drives.append((str(drive.PNPDeviceID), drive.Index, prefix))
-                        except IndexError:
-                            drives.append((str(drive.PNPDeviceID), 'No mount points found'))
-                    for drive in drives:
-                        out('\t', drive)
-                finally:
-                    pythoncom.CoUninitialize()
+                    partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
+                    logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
+                    prefix = logical_disk.DeviceID+os.sep
+                    drives.append((str(drive.PNPDeviceID), drive.Index, prefix))
+                except IndexError:
+                    drives.append((str(drive.PNPDeviceID), 'No mount points found'))
+            for drive in drives:
+                out('\t', drive)
 
         ioreg = None
         if isosx:
@@ -81,17 +81,26 @@ def debug(ioreg_to_tmp=False, buf=None):
             ioreg = Device.run_ioreg()
             ioreg = 'Output from mount:\n\n'+mount+'\n\n'+ioreg
         connected_devices = []
+        s.wmi = Wmi
         for dev in device_plugins():
+            owmi = getattr(dev, 'wmi', None)
+            dev.wmi = Wmi
             out('Looking for', dev.__class__.__name__)
             connected, det = s.is_device_connected(dev, debug=True)
             if connected:
                 connected_devices.append((dev, det))
+            dev.wmi = owmi
 
         errors = {}
         success = False
+        out('Devices possibly connected:', end=' ')
         for dev, det in connected_devices:
-            out('Device possibly connected:', dev.__class__.name)
-            out('Trying to open device...', end=' ')
+            out(dev.name, end=', ')
+        out(' ')
+        for dev, det in connected_devices:
+            out('Trying to open', dev.name, '...', end=' ')
+            owmi = getattr(dev, 'wmi', None)
+            dev.wmi = Wmi
             try:
                 dev.reset(detected_device=det)
                 dev.open()
@@ -101,6 +110,8 @@ def debug(ioreg_to_tmp=False, buf=None):
                 errors[dev] = traceback.format_exc()
                 out('failed')
                 continue
+            finally:
+                dev.wmi = owmi
             success = True
             if hasattr(dev, '_main_prefix'):
                 out('Main memory:', repr(dev._main_prefix))
@@ -128,4 +139,7 @@ def debug(ioreg_to_tmp=False, buf=None):
     finally:
         sys.stdout = oldo
         sys.stderr = olde
+        if iswindows:
+            import pythoncom
+            pythoncom.CoUninitialize()
 

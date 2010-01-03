@@ -197,15 +197,15 @@ def main():
     command = args[0]
     args = args[1:]
     dev = None
-    _wmi = None
+    scanner = DeviceScanner()
     if iswindows:
         import wmi, pythoncom
         pythoncom.CoInitialize()
-        _wmi = wmi.WMI()
-    scanner = DeviceScanner(_wmi)
+        scanner.wmi = wmi.WMI(find_classes=False)
     scanner.scan()
     connected_devices = []
     for d in device_plugins():
+        d.wmi = scanner.wmi
         ok, det = scanner.is_device_connected(d)
         if ok:
             dev = d
